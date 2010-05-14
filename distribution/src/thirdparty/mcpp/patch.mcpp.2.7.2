@@ -1,6 +1,79 @@
-diff -c -r -N ../mcpp-2.7.2/src/internal.H ./src/internal.H
-*** ../mcpp-2.7.2/src/internal.H	2008-08-27 10:31:16.000000000 -0230
---- ./src/internal.H	2009-12-17 21:01:35.000000000 -0330
+diff -r -c -N ../mcpp-2.7.2-old/noconfig/vc2010.dif ./noconfig/vc2010.dif
+*** ../mcpp-2.7.2-old/noconfig/vc2010.dif	Wed Dec 31 20:30:00 1969
+--- ./noconfig/vc2010.dif	Fri May 14 12:47:22 2010
+***************
+*** 0 ****
+--- 1,67 ----
++ *** noconfig.H	Thu Sep 25 15:34:56 2008
++ --- noconfig.H.vc2005	Thu Sep 25 17:23:49 2008
++ ***************
++ *** 15,21 ****
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_FREEBSD
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ --- 15,21 ----
++    */
++   
++   /* Define target operating-system.  */
++ ! #define SYSTEM              SYS_WIN32
++   
++   /* Define target compiler.          */
++   #ifndef COMPILER
++ ***************
++ *** 26,36 ****
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       GNUC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "GCC 3.4"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ --- 26,36 ----
++   #define HOST_SYSTEM         SYSTEM
++   
++   /* Define host compiler.            */
++ ! #define HOST_COMPILER       MSC
++   
++   /* Version message.                 */
++   /* "MCPP V.2.* (200y/mm) compiled by " precedes VERSION_MSG */
++ ! #define VERSION_MSG         "Visual C 2010"
++   #if     0
++       "LCC-Win32 2006-03"
++       "Visual C 2005"
++ ***************
++ *** 212,221 ****
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1500"      /* VC 6.0: "1200"   */
++       /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500"   */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "150021022" /* VC 6.0: "12008804"       */
++       /* VC 2002: "13009466", VC 2003: "13103077", VC 2005: "140050320"       */
++       /* VC 2008: "150021022" */
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
++ --- 212,221 ----
++   #define ONE_PASS            TRUE
++   #endif
++   #define COMPILER_EXT        "_MSC_VER"
++ ! #define COMPILER_EXT_VAL    "1600"      /* VC 6.0: "1200"   */
++       /* VC 2002: "1300", VC 2003: "1310", VC 2005: "1400", VC 2008: "1500"   */
++   #define COMPILER_EXT2       "_MSC_FULL_VER"
++ ! #define COMPILER_EXT2_VAL   "160030319" /* VC 6.0: "12008804"       */
++       /* VC 2002: "13009466", VC 2003: "13103077", VC 2005: "140050320"       */
++       /* VC 2008: "150021022" */
++   #define COMPILER_SP1        "_MSC_EXTENSIONS"
+diff -r -c -N ../mcpp-2.7.2-old/src/internal.H ./src/internal.H
+*** ../mcpp-2.7.2-old/src/internal.H	Wed Aug 27 10:31:16 2008
+--- ./src/internal.H	Fri May 14 12:40:56 2010
 ***************
 *** 390,395 ****
 --- 390,397 ----
@@ -27,9 +100,9 @@ diff -c -r -N ../mcpp-2.7.2/src/internal.H ./src/internal.H
 ! #if HOST_HAVE_STPCPY && !defined(stpcpy)
   extern char *   stpcpy( char * dest, const char * src);
   #endif
-diff -c -r -N ../mcpp-2.7.2/src/main.c ./src/main.c
-*** ../mcpp-2.7.2/src/main.c	2008-11-05 05:04:46.000000000 -0330
---- ./src/main.c	2009-12-17 20:42:42.000000000 -0330
+diff -r -c -N ../mcpp-2.7.2-old/src/main.c ./src/main.c
+*** ../mcpp-2.7.2-old/src/main.c	Wed Nov  5 05:04:46 2008
+--- ./src/main.c	Fri May 14 12:40:56 2010
 ***************
 *** 326,331 ****
 --- 326,333 ----
@@ -41,9 +114,9 @@ diff -c -r -N ../mcpp-2.7.2/src/main.c ./src/main.c
   }
   
   int     mcpp_lib_main
-diff -c -r -N ../mcpp-2.7.2/src/support.c ./src/support.c
-*** ../mcpp-2.7.2/src/support.c	2008-06-10 06:02:33.000000000 -0230
---- ./src/support.c	2009-12-17 20:42:39.000000000 -0330
+diff -r -c -N ../mcpp-2.7.2-old/src/support.c ./src/support.c
+*** ../mcpp-2.7.2-old/src/support.c	Tue Jun 10 06:02:33 2008
+--- ./src/support.c	Fri May 14 12:40:56 2010
 ***************
 *** 188,194 ****
       size_t      length
@@ -72,9 +145,9 @@ diff -c -r -N ../mcpp-2.7.2/src/support.c ./src/support.c
                   }
                   goto  end_line;
               default:                        /* Not a comment        */
-diff -c -r -N ../mcpp-2.7.2/src/system.c ./src/system.c
-*** ../mcpp-2.7.2/src/system.c	2008-11-26 06:23:51.000000000 -0330
---- ./src/system.c	2009-12-17 20:42:42.000000000 -0330
+diff -r -c -N ../mcpp-2.7.2-old/src/system.c ./src/system.c
+*** ../mcpp-2.7.2-old/src/system.c	Wed Nov 26 06:23:51 2008
+--- ./src/system.c	Fri May 14 12:40:56 2010
 ***************
 *** 3858,3863 ****
 --- 3858,3866 ----
