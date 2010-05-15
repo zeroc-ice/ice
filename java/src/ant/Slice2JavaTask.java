@@ -117,8 +117,8 @@ public class Slice2JavaTask extends SliceTask
         // anymore (the slice file changed since the dependency was
         // last updated or a slice file it depends on changed).
         //
-        java.util.ArrayList<File> buildList = new java.util.ArrayList<File>();
-        java.util.ArrayList<File> skipList = new java.util.ArrayList<File>();
+        java.util.HashSet<File> buildList = new java.util.HashSet<File>();
+        java.util.HashSet<File> skipList = new java.util.HashSet<File>();
         for(FileSet fileset : _fileSets)
         {
             DirectoryScanner scanner = fileset.getDirectoryScanner(getProject());
@@ -138,20 +138,20 @@ public class Slice2JavaTask extends SliceTask
                     skipList.add(slice);
                 }
             }
+        }
 
-            if(_checksum != null && _checksum.length() > 0 && !buildList.isEmpty())
+        if(_checksum != null && _checksum.length() > 0 && !buildList.isEmpty())
+        {
+            //
+            // Recompile all Slice files when checksums are used.
+            //
+            buildList.addAll(skipList);
+        }
+        else
+        {
+            for(File file : skipList)
             {
-                //
-                // Recompile all Slice files when checksums are used.
-                //
-                buildList.addAll(skipList);
-            }
-            else 
-            {
-                for(File file : skipList)
-                {
-                    log("skipping " + file.getName());
-                }
+                log("skipping " + file.getName());
             }
         }
 

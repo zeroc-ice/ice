@@ -58,6 +58,11 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed a bug in the Slice2Java ant task in which duplicate Slice
+  files could be passed to slice2java. Also fixed a bug in slice2java
+  that caused the translator to fail if a duplicate file was passed
+  on the command line.
+
 - Fixed race condition which could cause the thread pool selector
   thread to go away (causing the thread pool to not dispatch further
   incoming messages).

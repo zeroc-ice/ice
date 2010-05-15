@@ -183,6 +183,15 @@ compile(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
+        //
+        // Ignore duplicates.
+        //
+        vector<string>::iterator p = find(args.begin(), args.end(), *i);
+        if(p != i)
+        {
+            continue;
+        }
+
         if(depend)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
