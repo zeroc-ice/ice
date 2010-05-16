@@ -147,7 +147,7 @@ public class Client
             S2 v1, v2;
 
             v1 = (S2)def_s2.Clone();
-            v1.il = new IntList(def_s2.il);
+            v1.il = (IntList)def_s2.il.Clone();
             test(v1.Equals(def_s2));
 
             v1 = (S2)def_s2.Clone();
