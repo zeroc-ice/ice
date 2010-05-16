@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.php
 
-SUBDIRS		= keyword
+SUBDIRS		= keyword structure
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

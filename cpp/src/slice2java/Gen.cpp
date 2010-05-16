@@ -2997,10 +2997,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
                 {
-                    out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
-                        << " != null && !" << memberName << ".equals(_r." << memberName << "))";
+                    out << nl << "if(" << memberName << " != _r." << memberName << ')';
+                    out << sb;
+                    out << nl << "if(" << memberName << " == null || _r." << memberName << " == null || !"
+                        << memberName << ".equals(_r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
+                    out << eb;
                     out << eb;
                     break;
                 }
@@ -3021,14 +3024,20 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 if(hasTypeMetaData(seq, (*d)->getMetaData()))
                 {
-                    out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
-                        << " != null && !" << memberName << ".equals(_r." << memberName << "))";
+                    out << nl << "if(" << memberName << " != _r." << memberName << ')';
+                    out << sb;
+                    out << nl << "if(" << memberName << " == null || _r." << memberName << " == null || !"
+                        << memberName << ".equals(_r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
+                    out << eb;
                     out << eb;
                 }
                 else
                 {
+                    //
+                    // Arrays.equals() handles null values.
+                    //
                     out << nl << "if(!java.util.Arrays.equals(" << memberName << ", _r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
@@ -3037,10 +3046,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             else
             {
-                out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
-                    << " != null && !" << memberName << ".equals(_r." << memberName << "))";
+                out << nl << "if(" << memberName << " != _r." << memberName << ')';
+                out << sb;
+                out << nl << "if(" << memberName << " == null || _r." << memberName << " == null || !"
+                    << memberName << ".equals(_r." << memberName << "))";
                 out << sb;
                 out << nl << "return false;";
+                out << eb;
                 out << eb;
             }
         }

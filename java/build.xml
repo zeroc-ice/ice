@@ -361,6 +361,9 @@
 	    <fileset dir="test/Slice/keyword/">
                 <include name="Key.ice" />
             </fileset>
+	    <fileset dir="test/Slice/structure/">
+                <include name="Test.ice" />
+            </fileset>
         </slice2java>
 
         <slice2java tie="on" outputdir="${generated.test.dir}" dependencyfile="${generated.test.dir}/.depend.Test">

@@ -7,18 +7,20 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
 
-include $(top_srcdir)/config/Make.rules.cs
+SLICE_SRCS	= Test.ice
 
-SUBDIRS		= keyword structure
+include $(top_srcdir)/config/Make.rules.php
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+SRCS	= Test.php
 
-test::
-	@python $(top_srcdir)/allTests.py
+all:: $(SRCS)
+
+%.php: %.ice
+	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
+
+clean::
+	rm -f $(SRCS)
+
+include .depend

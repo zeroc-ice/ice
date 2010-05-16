@@ -7,17 +7,26 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+CLIENT		= client
+
+TARGETS		= $(CLIENT)
+
+COBJS		= Client.o \
+		  Test.o
+
+SRCS		= $(COBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= keyword \
-		  parser \
-		  structure
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(COBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+
+include .depend

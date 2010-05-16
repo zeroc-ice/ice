@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="test_Slice_keyword" default="all" basedir=".">
+<project name="test_Slice_generation" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>

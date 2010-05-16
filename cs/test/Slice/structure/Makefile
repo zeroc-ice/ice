@@ -7,18 +7,25 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+TARGETS		= client.exe
+
+C_SRCS		= Client.cs
+
+SLICE_SRCS	= $(SDIR)/Test.ice
+
+SDIR		= .
+
+GDIR		= generated
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= keyword structure
+MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --stream
 
-test::
-	@python $(top_srcdir)/allTests.py
+client.exe: $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+include .depend

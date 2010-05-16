@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 
-public class Server
+public class Client
 {
     private static void test(bool b)
     {

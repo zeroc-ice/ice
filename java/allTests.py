@@ -26,6 +26,7 @@ from scripts import *
 tests = [
     ("Slice/generation", ["once"]),
     ("Slice/keyword", ["once"]),
+    ("Slice/structure", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
     ("IceUtil/fileLock", ["once"]),
     ("Ice/proxy", ["core"]),

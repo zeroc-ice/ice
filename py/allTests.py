@@ -25,6 +25,7 @@ from scripts import *
 #
 tests = [
     ("Slice/keyword", ["once"]),
+    ("Slice/structure", ["once"]),
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/binding", ["core"]),
     ("Ice/exceptions", ["core"]),

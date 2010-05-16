@@ -34,6 +34,7 @@ tests = [
     ("IceUtil/fileLock", ["once"]),
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
+    ("Slice/structure", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),

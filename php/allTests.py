@@ -36,7 +36,8 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/defaultValue", ["core"]),
-    ("Slice/keyword", ["once"])
+    ("Slice/keyword", ["once"]),
+    ("Slice/structure", ["once"])
     ]
 
 if __name__ == "__main__":

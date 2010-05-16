@@ -1244,7 +1244,14 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "elif other == None:";
         _out.inc();
-        _out << nl << "return False";
+        if(opName == "__ne__")
+        {
+            _out << nl << "return True";
+        }
+        else
+        {
+            _out << nl << "return False";
+        }
         _out.dec();
         _out << nl << "return NotImplemented";
         _out.dec();
