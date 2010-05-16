@@ -35,6 +35,10 @@ protected:
     virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&, bool = false, bool = false);
 
     void emitAttributes(const ContainedPtr&);
+    void emitComVisibleAttribute();
+    void emitGeneratedCodeAttribute();
+    void emitPartialTypeAttributes();
+
     std::string getParamAttributes(const ParamDeclPtr&);
 
     std::string writeValue(const TypePtr&);
