@@ -225,7 +225,8 @@ SSLOBJ=$(OBJ_D)\s2_meth.obj \
 	$(OBJ_D)\ssl_err2.obj $(OBJ_D)\ssl_cert.obj $(OBJ_D)\ssl_sess.obj \
 	$(OBJ_D)\ssl_ciph.obj $(OBJ_D)\ssl_stat.obj $(OBJ_D)\ssl_rsa.obj \
 	$(OBJ_D)\ssl_asn1.obj $(OBJ_D)\ssl_txt.obj $(OBJ_D)\ssl_algs.obj \
-	$(OBJ_D)\bio_ssl.obj $(OBJ_D)\ssl_err.obj $(OBJ_D)\kssl.obj $(OBJ_D)\$(SSL).res 
+	$(OBJ_D)\bio_ssl.obj $(OBJ_D)\ssl_err.obj $(OBJ_D)\kssl.obj \
+	$(OBJ_D)\t1_reneg.obj $(OBJ_D)\$(SSL).res 
 
 CRYPTOOBJ=$(OBJ_D)\cryptlib.obj \
 	$(OBJ_D)\dyn_lck.obj $(OBJ_D)\mem.obj $(OBJ_D)\mem_clr.obj \
@@ -1221,6 +1222,9 @@ $(OBJ_D)\ssl_err.obj: $(SRC_D)\ssl\ssl_err.c
 
 $(OBJ_D)\kssl.obj: $(SRC_D)\ssl\kssl.c
 	$(CC) /Fo$(OBJ_D)\kssl.obj  $(SHLIB_CFLAGS) -DOPENSSL_BUILD_SHLIBSSL -c $(SRC_D)\ssl\kssl.c
+
+$(OBJ_D)\t1_reneg.obj: $(SRC_D)\ssl\t1_reneg.c
+	$(CC) /Fo$(OBJ_D)\t1_reneg.obj  $(SHLIB_CFLAGS) -DOPENSSL_BUILD_SHLIBSSL -c $(SRC_D)\ssl\t1_reneg.c
 
 $(OBJ_D)\cryptlib.obj: $(SRC_D)\crypto\cryptlib.c
 	$(CC) /Fo$(OBJ_D)\cryptlib.obj  $(SHLIB_CFLAGS) -DOPENSSL_BUILD_SHLIBCRYPTO -c $(SRC_D)\crypto\cryptlib.c
