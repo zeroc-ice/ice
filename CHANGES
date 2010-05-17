@@ -54,6 +54,8 @@ C++ Changes
   generated for a nested Slice definition when the --stream option was
   used.
 
+- Fixed a bug in Freeze that disabled automatic log deletion.
+
 
 Java Changes
 ============

@@ -69,11 +69,11 @@ operator<(const MapKey& lhs, const MapKey& rhs)
         ((lhs.communicator == rhs.communicator) && (lhs.envName < rhs.envName));
 }
 
-#if DB_VERSION_MAJOR != 4
-#error Freeze requires DB 4.x
+#if DB_VERSION_MAJOR < 4
+#error Freeze requires DB 4.x or greater
 #endif
 
-#if DB_VERSION_MINOR < 3
+#if DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR < 3
 void
 dbErrCallback(const char* prefix, char* msg)
 #else
@@ -553,11 +553,14 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
                 
             if(autoDelete)
             {
-                #ifdef DB_LOG_AUTO_REMOVE //This is the new name for the property from DB 4.7
-                    _env->set_flags(DB_LOG_AUTO_REMOVE, 1);
-                #else
-                    _env->set_flags(DB_LOG_AUTOREMOVE, 1);
-                #endif
+#if (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR < 7)
+                //
+                // Old API
+                //
+                _env->set_flags(DB_LOG_AUTOREMOVE, 1);
+#else
+                _env->log_set_config(DB_LOG_AUTO_REMOVE, 1);
+#endif
             }
             
             //
