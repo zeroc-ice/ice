@@ -71,6 +71,9 @@ namespace
 IceUtil::Mutex* staticMutex = 0;
 bool oneOffDone = false;
 int instanceCount = 0;
+#ifndef _WIN32
+struct sigaction oldAction;
+#endif
 bool printProcessIdDone = false;
 string identForOpenlog;
 
@@ -870,8 +873,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 action.sa_handler = SIG_IGN;
                 sigemptyset(&action.sa_mask);
                 action.sa_flags = 0;
-                sigaction(SIGPIPE, &action, 0);
-                
+                sigaction(SIGPIPE, &action, &oldAction);
                 if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)
                 {
                     identForOpenlog = _initData.properties->getProperty("Ice.ProgramName");
@@ -1051,12 +1053,8 @@ IceInternal::Instance::~Instance()
 #endif
         
 #ifndef _WIN32
-        struct sigaction action;
-        action.sa_handler = SIG_DFL;
-        sigemptyset(&action.sa_mask);
-        action.sa_flags = 0;
-        sigaction(SIGPIPE, &action, 0);
-        
+        sigaction(SIGPIPE, &oldAction, 0);
+
         if(!identForOpenlog.empty())
         {
             closelog();
