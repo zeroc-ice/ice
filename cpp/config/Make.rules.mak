@@ -108,9 +108,7 @@ libsuff			= \bcc10
 !elseif "$(CPP_COMPILER)" == "VC60"
 libsuff			= \vc6
 UNIQUE_DLL_NAMES	= yes
-!elseif "$(CPP_COMPILER)" == "VC100"
-libsuff			= \vc100$(x64suffix)
-!elseif "$(CPP_COMPILER)" == "VC100_EXPRESS"
+!elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
 libsuff			= \vc100$(x64suffix)
 !else
 libsuff			= $(x64suffix)

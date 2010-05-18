@@ -56,7 +56,10 @@ LDFLAGS		= $(LDFLAGS) /nologo /FIXED:no
 
 !if "$(OPTIMIZE)" != "yes"
 
-LDFLAGS		= $(LDFLAGS) /debug /incremental:yes
+LDFLAGS		= $(LDFLAGS) /debug
+!if "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC100_EXPRESS" 
+LDFLAGS         = $(LDFLAGS) /incremental:yes
+!endif
 
 !else
 

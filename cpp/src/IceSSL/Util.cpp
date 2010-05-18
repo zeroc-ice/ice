@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifdef _WIN32
+#   include <winsock2.h>
+#endif
+
 #include <IceSSL/Util.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/LocalException.h>

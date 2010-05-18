@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifdef _WIN32
+#   include <winsock2.h>
+#endif
+
 #include <IceSSL/Instance.h>
 #include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
