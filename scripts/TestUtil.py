@@ -1526,7 +1526,7 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test not supported under Vista%s" % (prefix, suffix)
                 continue
             
-            if isDarwin() and "nodarwing" in config:
+            if isDarwin() and "nodarwin" in config:
                 print "%s*** test not supported under Darwin%s" % (prefix, suffix)
                 continue
             

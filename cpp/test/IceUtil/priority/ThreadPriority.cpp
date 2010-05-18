@@ -99,7 +99,7 @@ ThreadPriorityTest::ThreadPriorityTest() :
     }
 
     //
-    // Test to set invalid priorities too hight
+    // Test to set invalid priorities too high
     //
     try
     {
@@ -154,7 +154,7 @@ ThreadPriorityTest::ThreadPriorityTest() :
     }
 
     //
-    // Test to set invalid priorities too hight
+    // Test to set invalid priorities too high
     //
     for(int cont = 1; cont < 10; ++cont)
     {
