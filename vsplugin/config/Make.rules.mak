@@ -94,11 +94,8 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-#
-# TODO: is this really necessary?
-#
-!if "$(VSTARGET)" == "VS2008"
-MCSFLAGS = $(MCSFLAGS) -define:VS2008
+!if "$(VSTARGET)" == "VS2010"
+MCSFLAGS = $(MCSFLAGS) -define:VS2010
 !endif
 
 

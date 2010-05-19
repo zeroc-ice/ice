@@ -521,6 +521,9 @@ namespace Ice.VisualStudio
             else
             {
                 iceBinDir = Util.getIceHome(project) + "\\bin";
+#if VS2010
+                iceBinDir += "\\vc100";
+#endif
                 if(x64)
                 {
                     iceBinDir += "\\x64";
@@ -549,6 +552,8 @@ namespace Ice.VisualStudio
         {
             "\\bin",
             "\\bin\\x64",
+            "\\bin\\vc100",
+            "\\bin\\vc100\\x64",
             "\\cpp\\bin",
         };
 
@@ -596,6 +601,9 @@ namespace Ice.VisualStudio
             else
             {
                 iceLibDir = Util.getIceHome(project) + "\\lib";
+#if VS2010
+                iceLibDir += "\\vc100";
+#endif
                 if(x64)
                 {
                     iceLibDir += "\\x64";
@@ -622,6 +630,8 @@ namespace Ice.VisualStudio
         {
             "\\lib",
             "\\lib\\x64",
+            "\\lib\\vc100",
+            "\\lib\\vc100\\x64",
             "\\cpp\\lib",
         };
 
