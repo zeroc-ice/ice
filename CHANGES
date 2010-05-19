@@ -27,6 +27,10 @@ Changes since version 3.4.0
 General Changes
 ===============
 
+- Added the setConnectContext method to Glacier2.SessionFactoryHelper,
+  which allows an application to provide a request context to be used
+  when creating a Glacier2 session. (Java and C#)
+
 - Fixed IceGrid bug where node observers would not be notified when a
   server is re-enabled after it has been updated and if the server was
   disabled following an activation failure.

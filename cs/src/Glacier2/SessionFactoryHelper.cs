@@ -9,6 +9,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Glacier2
 {
@@ -212,6 +213,19 @@ public class SessionFactoryHelper
     }
 
     /// <summary>
+    /// Sets the request context to use while establishing a connection to the Glacier2 router.
+    /// </summary>
+    /// <param name="context">The request context.</param>
+    public void
+    setConnectContext(Dictionary<string, string> context)
+    {
+        lock(this)
+        {
+            _context = context;
+        }
+    }
+
+    /// <summary>
     /// Connects to the Glacier2 router using the associated SSL credentials.
     /// 
     /// Once the connection is established, SesssionCallback.connected is called on
@@ -225,7 +239,7 @@ public class SessionFactoryHelper
         lock(this)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData());
-            session.connect();
+            session.connect(_context);
             return session;
         }
     }
@@ -246,7 +260,7 @@ public class SessionFactoryHelper
         lock(this)
         {
             SessionHelper session = new SessionHelper(_callback, createInitData());
-            session.connect(username, password);
+            session.connect(username, password, _context);
             return session;
         }
     }
@@ -317,6 +331,7 @@ public class SessionFactoryHelper
     private bool _secure = true;
     private int _port = 0;
     private int _timeout = 10000;
+    private Dictionary<string, string> _context;
     private static int GLACIER2_SSL_PORT = 4064;
     private static int GLACIER2_TCP_PORT = 4063;
 }

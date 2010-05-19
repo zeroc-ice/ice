@@ -10,6 +10,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Glacier2
 {
@@ -289,14 +290,15 @@ public class SessionHelper
     /// the callback object; upon failure, SessionCallback.exception is called with
     /// the exception.
     /// </summary>
+    /// <param name="context">The request context to use when creating the session.</param>
     public void
-    connect()
+    connect(Dictionary<string, string> context)
     {
         lock(this)
         {
             connectImpl(delegate(RouterPrx router)
                             {
-                                return router.createSessionFromSecureConnection();
+                                return router.createSessionFromSecureConnection(context);
                             });
         }
     }
@@ -309,14 +311,15 @@ public class SessionHelper
     /// </summary>
     /// <param name="username">The user name.</param>
     /// <param name="password">The password.</param>
+    /// <param name="context">The request context to use when creating the session.</param>
     public void
-    connect(string username, string password)
+    connect(string username, string password, Dictionary<string, string> context)
     {
         lock(this)
         {
             connectImpl(delegate(RouterPrx router)
                             {
-                                return router.createSession(username, password);
+                                return router.createSession(username, password, context);
                             });
         }
     }

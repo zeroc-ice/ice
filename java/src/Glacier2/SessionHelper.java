@@ -272,16 +272,18 @@ public class SessionHelper
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
      * upon failure, {@link SessionCallback#exception} is called with the exception.
+     *
+     * @param context The request context to use when creating the session.
      */
     synchronized protected void
-    connect()
+    connect(final java.util.Map<String, String> context)
     {
         connectImpl(new ConnectStrategy()
                             {
                                 public SessionPrx connect(RouterPrx router)
                                     throws CannotCreateSessionException, PermissionDeniedException
                                 {
-                                    return router.createSessionFromSecureConnection();
+                                    return router.createSessionFromSecureConnection(context);
                                 }
                             });
     }
@@ -294,16 +296,17 @@ public class SessionHelper
      * 
      * @param username The user name.
      * @param password The password.
+     * @param context The request context to use when creating the session.
      */
     synchronized protected void
-    connect(final String username, final String password)
+    connect(final String username, final String password, final java.util.Map<String, String> context)
     {
         connectImpl(new ConnectStrategy()
                             {
                                 public SessionPrx connect(RouterPrx router)
                                     throws CannotCreateSessionException, PermissionDeniedException
                                 {
-                                    return router.createSession(username, password);
+                                    return router.createSession(username, password, context);
                                 }
                             });
     }

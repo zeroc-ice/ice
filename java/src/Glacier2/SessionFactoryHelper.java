@@ -217,6 +217,17 @@ public class SessionFactoryHelper
     }
 
     /**
+     * Sets the request context to use while establishing a connection to the Glacier2 router.
+     *
+     * @param context The request context.
+     */
+    synchronized public void
+    setConnectContext(final java.util.Map<String, String> context)
+    {
+	_context = context;
+    }
+
+    /**
      * Connects to the Glacier2 router using the associated SSL credentials.
      *
      * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
@@ -228,7 +239,7 @@ public class SessionFactoryHelper
     connect()
     {
         SessionHelper session = new SessionHelper(_callback, createInitData());
-        session.connect();
+        session.connect(_context);
         return session;
     }
 
@@ -246,7 +257,7 @@ public class SessionFactoryHelper
     connect(final String username, final String password)
     {
         SessionHelper session = new SessionHelper(_callback, createInitData());
-        session.connect(username, password);
+        session.connect(username, password, _context);
         return session;
     }
 
@@ -312,6 +323,7 @@ public class SessionFactoryHelper
     private boolean _secure = true;
     private int _port = 0;
     private int _timeout = 10000;
+    private java.util.Map<String, String> _context;
     private static final int GLACIER2_SSL_PORT = 4064;
     private static final int GLACIER2_TCP_PORT = 4063;
 }
