@@ -172,6 +172,7 @@ fixVersion(os.path.join("distribution", "src", "rpm", "glacier2router.conf"), *v
 fixVersion(os.path.join("distribution", "src", "rpm", "icegridregistry.conf"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "RPM_README"), *versions)
 fixVersion(os.path.join("vsplugin", "config", "Ice-VS2008.AddIn"), *versions)
+fixVersion(os.path.join("vsplugin", "config", "Ice-VS2010.AddIn"), *versions)
 
 bisonFiles = []
 flexFiles = []

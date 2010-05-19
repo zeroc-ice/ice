@@ -20,14 +20,14 @@ iceVersion = '3.4.1'
 #
 # Current default third party library versions.
 #
-OpenSSLVer = '0.9.8l'
+OpenSSLVer = '0.9.8n'
 Bzip2Ver = '1.0.5'
 STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
-DBVer = '4.8.24'
+DBVer = '4.8.30'
 MCPPVer = '2.7.2'
-LooksVer = '2.3.0'
-FormsVer = '1.2.1'
+LooksVer = '2.3.1'
+FormsVer = '1.3.0'
 QtVer = '4.5.3'
 
 

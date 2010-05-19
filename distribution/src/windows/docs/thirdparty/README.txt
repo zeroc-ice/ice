@@ -9,14 +9,14 @@ The following versions of the third party software were used to
 create this package:
 
  - Berkeley DB 4.8.30
- - OpenSSL 0.9.8l
+ - OpenSSL 0.9.8n
  - Expat 2.0.1
  - Bzip2 1.0.5
  - MCPP 2.7.2
  - Qt 4.5.3
  - STLport 4.6.2
- - JGoodies Forms 1.2.1
- - JGoodies Looks 2.3.0
+ - JGoodies Forms 1.3.0
+ - JGoodies Looks 2.3.1
 
 This distribution provides:
 
@@ -27,6 +27,10 @@ This distribution provides:
    Qt built using Visual Studio 2008 SP1, in the lib and lib\x64
    directories.
 
+ - Import libraries for Berkeley DB, OpenSSL, Expat, Bzip2, MCPP and
+   Qt built using Visual Studio 2010, in the lib\vc100 and
+   lib\vc100\x64 directories.
+
  - Import libraries for Berkeley DB, OpenSSL, Expat, Bzip2 and MCPP
    built using CodeGear C++Builder 2010, in the lib\bcc10 directory. 
 
@@ -35,6 +39,10 @@ This distribution provides:
 
  - DLLs and exes for Berkeley DB, OpenSSL, Expat, Bzip2 and Qt built
    using Visual Studio 2008 SP1 in the bin and bin\x64 directories.
+
+ - DLLs and exes for Berkeley DB, OpenSSL, Expat, Bzip2 and Qt built
+   using Visual Studio 2010 in the bin\vc100 and bin\vc100\x64 
+   directories.
 
  - DLL and exes for Berkeley DB built using CodeGear C++Builder 2010
    in the bin/bcc10 directory. For other third-party DLLs, the Visual

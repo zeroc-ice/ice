@@ -74,8 +74,8 @@ refdir = $(bindir)
 refdir = $(ice_dir)\bin
 !endif
 
-!if "$(VERSION_PATCH)" > "0" && "$(VERSION_PATCH)" < "51"
-    generate_policies   = yes
+!if "$(VERSION_PATCH)" != "0" && "$(VERSION_PATCH)" != "51"
+generate_policies   = yes
 !endif
 
 MCS			= csc -nologo
