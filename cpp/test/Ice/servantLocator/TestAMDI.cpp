@@ -104,6 +104,20 @@ TestAMDI::intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr&
 }
 
 void
+TestAMDI::asyncResponse_async(const Test::AMD_TestIntf_asyncResponsePtr& cb, const Current&)
+{
+    cb->ice_response();
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+void
+TestAMDI::asyncException_async(const Test::AMD_TestIntf_asyncExceptionPtr& cb, const Current&)
+{
+    cb->ice_exception(Test::TestIntfUserException());
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+void
 TestAMDI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& cb, const Current& current)
 {
     current.adapter->deactivate();

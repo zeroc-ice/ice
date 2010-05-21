@@ -138,4 +138,18 @@ public class ThrowerI : ThrowerDisp_
     {
         Debug.Assert(false);
     }
+
+    public override void throwAfterResponse_async(AMD_Thrower_throwAfterResponse cb, Ice.Current current)
+    {
+        cb.ice_response();
+
+        throw new System.Exception();
+    }
+
+    public override void throwAfterException_async(AMD_Thrower_throwAfterException cb, Ice.Current current)
+    {
+        cb.ice_exception(new A());
+
+        throw new System.Exception();
+    }
 }

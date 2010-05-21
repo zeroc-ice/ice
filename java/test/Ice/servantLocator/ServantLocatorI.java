@@ -25,6 +25,7 @@ public final class ServantLocatorI implements Ice.ServantLocator
     {
         _category = category;
         _deactivated = false;
+        _requestId = -1;
     }
 
     protected synchronized void
@@ -64,6 +65,12 @@ public final class ServantLocatorI implements Ice.ServantLocator
             exception(current);
         }
 
+        //
+        // Ensure locate() is only called once per request.
+        //
+        test(_requestId == -1);
+        _requestId = current.requestId;
+
         cookie.value = new CookieI();
 
         return new TestI();
@@ -76,6 +83,12 @@ public final class ServantLocatorI implements Ice.ServantLocator
         {
             test(!_deactivated);
         }
+
+        //
+        // Ensure finished() is only called once per request.
+        //
+        test(_requestId == current.requestId);
+        _requestId = -1;
 
         test(current.id.category.equals(_category)  || _category.length() == 0);
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
@@ -147,8 +160,17 @@ public final class ServantLocatorI implements Ice.ServantLocator
         {
             throw new TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
         }
+        else if(current.operation.equals("asyncResponse"))
+        {
+            throw new TestImpossibleException();
+        }
+        else if(current.operation.equals("asyncException"))
+        {
+            throw new TestImpossibleException();
+        }
     }
 
     private boolean _deactivated;
     private final String _category;
+    private int _requestId;
 }

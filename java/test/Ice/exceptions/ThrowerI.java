@@ -148,4 +148,22 @@ public final class ThrowerI extends _ThrowerDisp
     {
         throw new java.lang.AssertionError();
     }
+
+    public void
+    throwAfterResponse(Ice.Current current)
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
+    public void
+    throwAfterException(Ice.Current current)
+        throws A
+    {
+        //
+        // Only relevant for AMD.
+        //
+        throw new A();
+    }
 }

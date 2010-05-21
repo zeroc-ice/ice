@@ -279,6 +279,7 @@ private:
     OperationPtr _op;
     Ice::AMD_Object_ice_invokePtr _callback;
     Ice::CommunicatorPtr _communicator;
+    bool _finished;
 };
 
 //
@@ -298,6 +299,7 @@ private:
 
     bool _amd;
     Ice::AMD_Object_ice_invokePtr _callback;
+    bool _finished;
 };
 
 //
@@ -2864,7 +2866,7 @@ IcePy::OldAsyncBlobjectInvocation::sent(bool)
 //
 IcePy::TypedUpcall::TypedUpcall(const OperationPtr& op, const Ice::AMD_Object_ice_invokePtr& callback,
                                 const Ice::CommunicatorPtr& communicator) :
-    _op(op), _callback(callback), _communicator(communicator)
+    _op(op), _callback(callback), _communicator(communicator), _finished(false)
 {
 }
 
@@ -2978,6 +2980,17 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
 void
 IcePy::TypedUpcall::response(PyObject* args)
 {
+    if(_finished)
+    {
+        //
+        // This method could be called more than once if the application calls
+        // ice_response multiple times. We ignore subsequent calls.
+        //
+        return;
+    }
+
+    _finished = true;
+
     try
     {
         //
@@ -3084,6 +3097,17 @@ IcePy::TypedUpcall::response(PyObject* args)
 void
 IcePy::TypedUpcall::exception(PyException& ex)
 {
+    if(_finished)
+    {
+        //
+        // An asynchronous response or exception has already been sent. We just
+        // raise an exception and let the C++ run time handle it.
+        //
+        ex.raise();
+    }
+
+    _finished = true;
+
     try
     {
         try
@@ -3173,7 +3197,7 @@ IcePy::TypedUpcall::validateException(PyObject* ex) const
 // BlobjectUpcall
 //
 IcePy::BlobjectUpcall::BlobjectUpcall(bool amd, const Ice::AMD_Object_ice_invokePtr& callback) :
-    _amd(amd), _callback(callback)
+    _amd(amd), _callback(callback), _finished(false)
 {
 }
 
@@ -3304,6 +3328,17 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
 void
 IcePy::BlobjectUpcall::response(PyObject* args)
 {
+    if(_finished)
+    {
+        //
+        // This method could be called more than once if the application calls
+        // ice_response multiple times. We ignore subsequent calls.
+        //
+        return;
+    }
+
+    _finished = true;
+
     //
     // The return value is a tuple of (bool, PyBuffer).
     //
@@ -3350,6 +3385,17 @@ IcePy::BlobjectUpcall::response(PyObject* args)
 void
 IcePy::BlobjectUpcall::exception(PyException& ex)
 {
+    if(_finished)
+    {
+        //
+        // An asynchronous response or exception has already been sent. We just
+        // raise an exception and let the C++ run time handle it.
+        //
+        ex.raise();
+    }
+
+    _finished = true;
+
     try
     {
         //

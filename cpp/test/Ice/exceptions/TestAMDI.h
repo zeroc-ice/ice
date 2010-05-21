@@ -55,6 +55,9 @@ public:
                                             const Ice::Current&);
     virtual void throwAssertException_async(const Test::AMD_Thrower_throwAssertExceptionPtr&,
                                             const Ice::Current&);
+
+    virtual void throwAfterResponse_async(const Test::AMD_Thrower_throwAfterResponsePtr&, const Ice::Current&);
+    virtual void throwAfterException_async(const Test::AMD_Thrower_throwAfterExceptionPtr&, const Ice::Current&);
 };
 
 #endif

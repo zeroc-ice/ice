@@ -88,3 +88,15 @@ class ThrowerI(Test.Thrower):
 
     def throwAssertException(self, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
+
+    def throwAfterResponse(self, current=None):
+        #
+        # Only relevant for AMD.
+        #
+        pass
+
+    def throwAfterException(self, current=None):
+        #
+        # Only relevant for AMD.
+        #
+        raise Test.A()

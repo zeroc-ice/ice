@@ -25,8 +25,7 @@ namespace IceInternal
             }
         }
 
-        virtual public void
-        ice_exception(System.Exception ex)
+        virtual public void ice_exception(System.Exception ex)
         {
             //
             // Only call exception__ if this incoming is not retriable or if
@@ -64,11 +63,23 @@ namespace IceInternal
                 }
             }
 
-            exception__(ex);
+            if(connection_ != null)
+            {
+                exception__(ex);
+            }
+            else
+            {
+                //
+                // Response has already been sent.
+                //
+                if(instance_.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+                {
+                    warning__(ex);
+                }
+            }
         }
 
-        internal void
-        deactivate__(Incoming inc)
+        internal void deactivate__(Incoming inc)
         {
             Debug.Assert(_retriable);
             
@@ -87,7 +98,6 @@ namespace IceInternal
             inc.adopt(this);
         }
 
-
         protected void response__(bool ok)
         {
             try
@@ -96,6 +106,8 @@ namespace IceInternal
                 {
                     return;
                 }
+
+                Debug.Assert(connection_ != null);
 
                 if(response_)
                 {
@@ -121,6 +133,8 @@ namespace IceInternal
                 {
                     connection_.sendNoResponse();
                 }
+
+                connection_ = null;
             }
             catch(Ice.LocalException ex)
             {
@@ -150,8 +164,7 @@ namespace IceInternal
             return os_;
         }
 
-        protected bool 
-        validateResponse__(bool ok)
+        protected bool validateResponse__(bool ok)
         {
             //
             // Only returns true if this incoming is not retriable or if all

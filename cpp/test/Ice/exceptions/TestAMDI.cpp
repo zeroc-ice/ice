@@ -182,3 +182,19 @@ ThrowerI::throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
 {
     assert(false); // Not supported in C++.
 }
+
+void
+ThrowerI::throwAfterResponse_async(const AMD_Thrower_throwAfterResponsePtr& cb, const Ice::Current&)
+{
+    cb->ice_response();
+
+    throw std::string();
+}
+
+void
+ThrowerI::throwAfterException_async(const AMD_Thrower_throwAfterExceptionPtr& cb, const Ice::Current&)
+{
+    cb->ice_exception(A());
+
+    throw std::string();
+}

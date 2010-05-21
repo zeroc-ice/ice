@@ -119,7 +119,20 @@ IceInternal::IncomingAsync::ice_exception(const ::std::exception& ex)
         _active = false;
     }
 
-    __exception(ex);
+    if(_connection)
+    {
+        __exception(ex);
+    }
+    else
+    {
+        //
+        // Response has already been sent.
+        //
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(ex.what());
+        }
+    }
 }
 
 void
@@ -157,7 +170,20 @@ IceInternal::IncomingAsync::ice_exception()
         _active = false;
     }
 
-    __exception();
+    if(_connection)
+    {
+        __exception();
+    }
+    else
+    {
+        //
+        // Response has already been sent.
+        //
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning("unknown exception");
+        }
+    }
 }
 
 void
@@ -169,6 +195,8 @@ IceInternal::IncomingAsync::__response(bool ok)
         {
             return;
         }
+
+        assert(_connection);
 
         if(_response)
         {
@@ -189,6 +217,8 @@ IceInternal::IncomingAsync::__response(bool ok)
         {
             _connection->sendNoResponse();
         }
+
+        _connection = 0;
     }
     catch(const LocalException& ex)
     {
@@ -310,4 +340,3 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byt
         __response(ok);
     }
 }
-

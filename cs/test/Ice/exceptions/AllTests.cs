@@ -1372,6 +1372,33 @@ public class AllTests
 
         Console.WriteLine("ok");
 
+        Console.Write("testing asynchronous exceptions... ");
+        Console.Out.Flush();
+
+        try
+        {
+            thrower.throwAfterResponse();
+        }
+        catch(Exception)
+        {
+            test(false);
+        }
+
+        try
+        {
+            thrower.throwAfterException();
+            test(false);
+        }
+        catch(A)
+        {
+        }
+        catch(Exception)
+        {
+            test(false);
+        }
+
+        Console.WriteLine("ok");
+
         if(!collocated)
         {
             Console.Write("catching exact types with AMI... ");

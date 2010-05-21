@@ -9,6 +9,8 @@
 
 package test.Ice.servantLocator;
 
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_asyncException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_asyncResponse;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_impossibleException;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_intfUserException;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_javaException;
@@ -98,6 +100,20 @@ public final class AMDTestI extends _TestIntfDisp
             //
             cb.ice_response("Hello");
         }
+    }
+
+    public void
+    asyncResponse_async(AMD_TestIntf_asyncResponse cb, Ice.Current current)
+    {
+        cb.ice_response();
+        throw new Ice.ObjectNotExistException();
+    }
+
+    public void
+    asyncException_async(AMD_TestIntf_asyncException cb, Ice.Current current)
+    {
+        cb.ice_exception(new TestIntfUserException());
+        throw new Ice.ObjectNotExistException();
     }
     
     public void

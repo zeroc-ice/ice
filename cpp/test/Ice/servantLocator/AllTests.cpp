@@ -296,6 +296,40 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     base = communicator->stringToProxy("category/finished:default -p 12010");
     obj = TestIntfPrx::checkedCast(base);
     testExceptions(obj, collocated);
+
+    //
+    // Only call these for category/finished.
+    //
+    try
+    {
+        obj->asyncResponse();
+    }
+    catch(const TestIntfUserException&)
+    {
+        test(false);
+    }
+    catch(const TestImpossibleException&)
+    {
+        //
+        // Called by finished().
+        //
+    }
+
+    try
+    {
+        obj->asyncException();
+    }
+    catch(const TestIntfUserException&)
+    {
+        test(false);
+    }
+    catch(const TestImpossibleException&)
+    {
+        //
+        // Called by finished().
+        //
+    }
+
     cout << "ok" << endl;
 
     cout << "testing servant locator removal... " << flush;

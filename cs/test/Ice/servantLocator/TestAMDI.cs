@@ -79,6 +79,18 @@ public sealed class TestI : TestIntfDisp_
         }
     }
 
+    public override void asyncResponse_async(AMD_TestIntf_asyncResponse cb, Ice.Current current)
+    {
+        cb.ice_response();
+        throw new Ice.ObjectNotExistException();
+    }
+
+    public override void asyncException_async(AMD_TestIntf_asyncException cb, Ice.Current current)
+    {
+        cb.ice_exception(new Test.TestIntfUserException());
+        throw new Ice.ObjectNotExistException();
+    }
+
     public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         current.adapter.deactivate();

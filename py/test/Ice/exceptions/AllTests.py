@@ -748,6 +748,24 @@ def allTests(communicator):
 
     print "ok"
 
+    print "testing asynchronous exceptions...",
+
+    try:
+        thrower.throwAfterResponse()
+    except:
+        print sys.exc_info()
+        test(False)
+
+    try:
+        thrower.throwAfterException()
+    except Test.A:
+        pass
+    except:
+        print sys.exc_info()
+        test(False)
+
+    print "ok"
+
     print "catching exact types with AMI...",
 
     cb = AMI_Thrower_throwAasAI()

@@ -31,6 +31,9 @@ public:
     virtual void impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr&, bool, const Ice::Current&);
     virtual void intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr&, bool, const Ice::Current&);
 
+    virtual void asyncResponse_async(const Test::AMD_TestIntf_asyncResponsePtr&, const Ice::Current&);
+    virtual void asyncException_async(const Test::AMD_TestIntf_asyncExceptionPtr&, const Ice::Current&);
+
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&, const Ice::Current&);
 };
 

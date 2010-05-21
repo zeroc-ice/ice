@@ -30,6 +30,9 @@ public:
     virtual ::std::string impossibleException(bool, const Ice::Current&);
     virtual ::std::string intfUserException(bool, const Ice::Current&);
 
+    virtual void asyncResponse(const Ice::Current&);
+    virtual void asyncException(const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 };
 

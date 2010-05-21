@@ -109,6 +109,14 @@ class ThrowerI(Test.Thrower):
     def throwAssertException_async(self, cb, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
 
+    def throwAfterResponse_async(self, cb, current=None):
+        cb.ice_response()
+        raise RuntimeError("12345")
+
+    def throwAfterException_async(self, cb, current=None):
+        cb.ice_exception(Test.A())
+        raise RuntimeError("12345")
+
 def run(args, communicator):
     properties = communicator.getProperties()
     properties.setProperty("Ice.Warn.Dispatch", "0")

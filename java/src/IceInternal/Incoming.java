@@ -210,6 +210,8 @@ final public class Incoming extends IncomingBase implements Ice.Request
             return;
         }
 
+        assert(_connection != null);
+
         if(_response)
         {
             _os.endWriteEncaps();
@@ -253,6 +255,8 @@ final public class Incoming extends IncomingBase implements Ice.Request
         {
             _connection.sendNoResponse();
         }
+
+        _connection = null;
     }
 
     public BasicStream
@@ -284,7 +288,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         assert _interceptorAsyncCallbackList != null;
         _interceptorAsyncCallbackList.removeFirst();
     }
-
 
     public final void 
     startOver()

@@ -1395,6 +1395,31 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
+    cout << "testing asynchronous exceptions... " << flush;
+
+    try
+    {
+        thrower->throwAfterResponse();
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        thrower->throwAfterException();
+    }
+    catch(const A&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    cout << "ok" << endl;
+
     if(!collocated)
     {
         cout << "catching exact types with AMI... " << flush;

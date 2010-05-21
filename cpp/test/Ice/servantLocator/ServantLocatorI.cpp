@@ -19,7 +19,8 @@ using namespace Test;
 
 ServantLocatorI::ServantLocatorI(const string& category) :
     _category(category),
-    _deactivated(false)
+    _deactivated(false),
+    _requestId(-1)
 {
 }
 
@@ -45,6 +46,12 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
         exception(current);
     }
 
+    //
+    // Ensure locate() is only called once per request.
+    //
+    test(_requestId == -1);
+    _requestId = current.requestId;
+
     return newServantAndCookie(cookie);
 }
 
@@ -53,6 +60,13 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr& ser
                           const Ice::LocalObjectPtr& cookie)
 {
     test(!_deactivated);
+
+    //
+    // Ensure finished() is only called once per request.
+    //
+    test(_requestId == current.requestId);
+    _requestId = -1;
+
     test(current.id.category == _category  || _category.empty());
     test(current.id.name == "locate" || current.id.name == "finished");
 
@@ -122,5 +136,13 @@ ServantLocatorI::exception(const Ice::Current& current)
     else if(current.operation == "intfUserException")
     {
         throw TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
+    }
+    else if(current.operation == "asyncResponse")
+    {
+        throw TestImpossibleException();
+    }
+    else if(current.operation == "asyncException")
+    {
+        throw TestImpossibleException();
     }
 }

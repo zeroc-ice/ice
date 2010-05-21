@@ -12,6 +12,7 @@ package test.Ice.servantLocator;
 import java.io.PrintWriter;
 
 import test.Ice.servantLocator.Test.TestImpossibleException;
+import test.Ice.servantLocator.Test.TestIntfUserException;
 import test.Ice.servantLocator.Test.TestIntfPrx;
 import test.Ice.servantLocator.Test.TestIntfPrxHelper;
 import test.Ice.servantLocator.Test.TestActivationPrx;
@@ -287,6 +288,43 @@ public class AllTests
         base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(base);
         testExceptions(obj, collocated);
+
+        //
+        // Only call these for category/finished.
+        //
+        try
+        {
+            obj.asyncResponse();
+        }
+        catch(TestIntfUserException ex)
+        {
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            //
+            // Called by finished().
+            //
+        }
+
+        //
+        // Only call these for category/finished.
+        //
+        try
+        {
+            obj.asyncException();
+        }
+        catch(TestIntfUserException ex)
+        {
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            //
+            // Called by finished().
+            //
+        }
+
         out.println("ok");
 
         out.print("testing servant locator removal... ");

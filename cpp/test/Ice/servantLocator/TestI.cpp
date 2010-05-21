@@ -89,6 +89,22 @@ TestI::intfUserException(bool _cpp_throw, const Current&)
 }
 
 void
+TestI::asyncResponse(const Current&)
+{
+    //
+    // Only relevant for AMD.
+    //
+}
+
+void
+TestI::asyncException(const Current&)
+{
+    //
+    // Only relevant for AMD.
+    //
+}
+
+void
 TestI::shutdown(const Current& current)
 {
     current.adapter->deactivate();

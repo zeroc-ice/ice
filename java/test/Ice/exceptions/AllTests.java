@@ -1841,6 +1841,43 @@ public class AllTests
 
         out.println("ok");
 
+        out.print("testing asynchronous exceptions... ");
+        out.flush();
+
+        try
+        {
+            thrower.throwAfterResponse();
+        }
+        catch(Ice.LocalException ex)
+        {
+            test(false);
+        }
+        catch(Throwable ex)
+        {
+            out.println(ex);
+            test(false);
+        }
+
+        try
+        {
+            thrower.throwAfterException();
+            test(false);
+        }
+        catch(A ex)
+        {
+        }
+        catch(Ice.LocalException ex)
+        {
+            test(false);
+        }
+        catch(Throwable ex)
+        {
+            out.println(ex);
+            test(false);
+        }
+
+        out.println("ok");
+
         if(!collocated)
         {
             out.print("catching exact types with AMI... ");

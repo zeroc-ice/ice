@@ -58,6 +58,9 @@ exception D
     void throwLocalException();
     void throwNonIceException();
     void throwAssertException();
+
+    void throwAfterResponse();
+    void throwAfterException() throws A;
 };
 
 ["ami"] interface WrongOperation

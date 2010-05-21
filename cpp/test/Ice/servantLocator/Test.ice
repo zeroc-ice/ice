@@ -37,6 +37,9 @@ interface TestIntf
     string impossibleException(bool throw) throws TestImpossibleException;
     string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
     
+    void asyncResponse() throws TestIntfUserException, TestImpossibleException;
+    void asyncException() throws TestIntfUserException, TestImpossibleException;
+
     void shutdown();
 };
 

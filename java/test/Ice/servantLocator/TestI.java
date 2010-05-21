@@ -79,7 +79,23 @@ public final class TestI extends _TestIntfDisp
         //
         return "Hello";
     }
-    
+
+    public void
+    asyncResponse(Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
+    public void
+    asyncException(Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
     public void
     shutdown(Ice.Current current)
     {

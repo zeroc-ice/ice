@@ -26,6 +26,8 @@ import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwNonIceException;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredA;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredB;
 import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwUndeclaredC;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAfterResponse;
+import test.Ice.exceptions.AMD.Test.AMD_Thrower_throwAfterException;
 import test.Ice.exceptions.AMD.Test.B;
 import test.Ice.exceptions.AMD.Test.C;
 import test.Ice.exceptions.AMD.Test.D;
@@ -183,5 +185,22 @@ public final class AMDThrowerI extends _ThrowerDisp
     throwAssertException_async(AMD_Thrower_throwAssertException cb, Ice.Current current)
     {
         throw new java.lang.AssertionError();
+    }
+
+    public void
+    throwAfterResponse_async(AMD_Thrower_throwAfterResponse cb, Ice.Current current)
+    {
+        cb.ice_response();
+
+        throw new RuntimeException();
+    }
+
+    public void
+    throwAfterException_async(AMD_Thrower_throwAfterException cb, Ice.Current current)
+        throws A
+    {
+        cb.ice_exception(new A());
+
+        throw new RuntimeException();
     }
 }

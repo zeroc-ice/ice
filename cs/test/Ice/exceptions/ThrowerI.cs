@@ -125,4 +125,19 @@ public sealed class ThrowerI : ThrowerDisp_
         ex.cMem = c;
         throw ex;
     }
+
+    public override void throwAfterResponse(Ice.Current current)
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
+    public override void throwAfterException(Ice.Current current)
+    {
+        //
+        // Only relevant for AMD.
+        //
+        throw new A();
+    }
 }

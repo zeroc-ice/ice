@@ -65,6 +65,20 @@ public sealed class TestI : TestIntfDisp_
         return "Hello";
     }
 
+    public override void asyncResponse(Ice.Current current)
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
+    public override void asyncException(Ice.Current current)
+    {
+        //
+        // Only relevant for AMD.
+        //
+    }
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.deactivate();

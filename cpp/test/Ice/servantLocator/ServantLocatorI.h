@@ -38,6 +38,7 @@ private:
 
     const std::string _category;
     bool _deactivated;
+    Ice::Int _requestId;
 };
 
 };

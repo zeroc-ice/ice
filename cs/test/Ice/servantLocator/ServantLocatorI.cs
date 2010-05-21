@@ -17,6 +17,7 @@ public sealed class ServantLocatorI : Ice.ServantLocator
     {
         _category = category;
         _deactivated = false;
+        _requestId = -1;
     }
     
     ~ServantLocatorI()
@@ -56,6 +57,12 @@ public sealed class ServantLocatorI : Ice.ServantLocator
             exception(current);
         }
 
+        //
+        // Ensure locate() is only called once per request.
+        //
+        test(_requestId == -1);
+        _requestId = current.requestId;
+
         cookie = new CookieI();
 
         return new TestI();
@@ -67,6 +74,12 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         {
             test(!_deactivated);
         }
+
+        //
+        // Ensure finished() is only called once per request.
+        //
+        test(_requestId == current.requestId);
+        _requestId = -1;
         
         test(current.id.category.Equals(_category)  || _category.Length == 0);
         test(current.id.name.Equals("locate") || current.id.name.Equals("finished"));
@@ -140,8 +153,17 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         {
             throw new Test.TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
         }
+        else if(current.operation.Equals("asyncResponse"))
+        {
+            throw new Test.TestImpossibleException();
+        }
+        else if(current.operation.Equals("asyncException"))
+        {
+            throw new Test.TestImpossibleException();
+        }
     }
 
     private bool _deactivated;
     private string _category;
+    private int _requestId;
 }

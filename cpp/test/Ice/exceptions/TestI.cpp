@@ -149,3 +149,20 @@ ThrowerI::throwAssertException(const Ice::Current&)
 {
     assert(false); // Not supported in C++.
 }
+
+void
+ThrowerI::throwAfterResponse(const Ice::Current&)
+{
+    //
+    // Only relevant for AMD.
+    //
+}
+
+void
+ThrowerI::throwAfterException(const Ice::Current&)
+{
+    //
+    // Only relevant for AMD.
+    //
+    throw A();
+}

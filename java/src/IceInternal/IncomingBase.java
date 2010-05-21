@@ -15,6 +15,7 @@ public class IncomingBase
     IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
                  byte compress, int requestId)
     {
+        _instance = instance;
         _response = response;
         _compress = compress;
         _os = new BasicStream(instance);
@@ -27,13 +28,15 @@ public class IncomingBase
         _current.requestId = requestId;
 
         _cookie = new Ice.LocalObjectHolder();
-
     }
 
     protected
     IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
     {
-        adopt(in);
+        //
+        // We don't change _current as it's exposed by Ice::Request
+        //
+        _current = in._current;
 
         //
         // Deep copy
@@ -47,15 +50,15 @@ public class IncomingBase
                 new java.util.LinkedList<Ice.DispatchInterceptorAsyncCallback>(in._interceptorAsyncCallbackList);
         }
 
-        //
-        // We don't change _current as it's exposed by Ice::Request
-        //
-        _current = in._current;
+        adopt(in);
     }
 
     protected void
     adopt(IncomingBase other)
     {
+        _instance = other._instance;
+        //other._instance = null; // Don't reset _instance.
+
         _servant = other._servant;
         other._servant = null;
 
@@ -71,13 +74,15 @@ public class IncomingBase
         _compress = other._compress;
         other._compress = 0;
 
+        //
+        // Adopt the stream - it creates less garbage.
+        //
         _os = other._os;
         other._os = null;
 
         _connection = other._connection;
         other._connection = null;
     }
-
 
     //
     // These functions allow this object to be reused, rather than reallocated.
@@ -86,6 +91,8 @@ public class IncomingBase
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
           int requestId)
     {
+        _instance = instance;
+
         //
         // Don't recycle the Current object, because servants may keep a reference to it.
         //
@@ -137,20 +144,20 @@ public class IncomingBase
     final protected void
     __warning(java.lang.Exception ex)
     {
-        assert(_os != null);
+        assert(_instance != null);
 
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
         IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
-        out.print("\nidentity: " + _os.instance().identityToString(_current.id));
+        out.print("\nidentity: " + _instance.identityToString(_current.id));
         out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
         out.print("\noperation: " + _current.operation);
         out.print("\n");
         ex.printStackTrace(pw);
         pw.flush();
-        _os.instance().initializationData().logger.warning(sw.toString());
+        _instance.initializationData().logger.warning(sw.toString());
     }
 
     final protected boolean
@@ -164,6 +171,8 @@ public class IncomingBase
         }
         catch(Ice.UserException ex)
         {
+            assert(_connection != null);
+
             //
             // The operation may have already marshaled a reply; we must overwrite that reply.
             //
@@ -181,6 +190,8 @@ public class IncomingBase
             {
                 _connection.sendNoResponse();
             }
+
+            _connection = null;
         }
         catch(java.lang.Exception ex)
         {
@@ -192,6 +203,8 @@ public class IncomingBase
     final protected void
     __handleException(java.lang.Exception exc)
     {
+        assert(_connection != null);
+
         try
         {
             throw exc;
@@ -202,18 +215,18 @@ public class IncomingBase
             {
                 ex.id = _current.id;
             }
-            
+
             if(ex.facet == null)
             {
                 ex.facet = _current.facet;
             }
-            
+
             if(ex.operation == null || ex.operation.length() == 0)
             {
                 ex.operation = _current.operation;
             }
 
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
                 __warning(ex);
             }
@@ -264,7 +277,7 @@ public class IncomingBase
         }
         catch(Ice.UnknownLocalException ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
@@ -284,7 +297,7 @@ public class IncomingBase
         }
         catch(Ice.UnknownUserException ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
@@ -304,7 +317,7 @@ public class IncomingBase
         }
         catch(Ice.UnknownException ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
@@ -324,7 +337,7 @@ public class IncomingBase
         }
         catch(Ice.LocalException ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
@@ -350,11 +363,11 @@ public class IncomingBase
         }
         catch(Ice.UserException ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
-            
+
             if(_response)
             {
                 _os.endWriteEncaps();
@@ -376,11 +389,11 @@ public class IncomingBase
         }
         catch(java.lang.Exception ex)
         {
-            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
             }
-            
+
             if(_response)
             {
                 _os.endWriteEncaps();
@@ -399,8 +412,11 @@ public class IncomingBase
                 _connection.sendNoResponse();
             }
         }
+
+        _connection = null;
     }
 
+    protected Instance _instance;
     protected Ice.Current _current;
     protected Ice.Object _servant;
     protected Ice.ServantLocator _locator;

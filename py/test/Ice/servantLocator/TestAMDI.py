@@ -60,6 +60,14 @@ class TestI(Test.TestIntf):
             #
             cb.ice_response("Hello")
 
+    def asyncResponse_async(self, cb, current=None):
+        cb.ice_response()
+        raise Ice.ObjectNotExistException()
+
+    def asyncException_async(self, cb, current=None):
+        cb.ice_exception(Test.TestIntfUserException())
+        raise Ice.ObjectNotExistException()
+
     def shutdown_async(self, cb, current=None):
         current.adapter.deactivate()
         cb.ice_response()
@@ -72,6 +80,7 @@ class ServantLocatorI(Ice.ServantLocator):
     def __init__(self, category):
         self._deactivated = False
         self._category = category
+        self._requestId = -1
 
     def __del__(self):
         test(self._deactivated)
@@ -88,10 +97,22 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.id.name == "locate":
             self.exception(current)
 
+        #
+        # Ensure locate() is only called once per request.
+        #
+        test(self._requestId == -1)
+        self._requestId = current.requestId
+
         return (TestI(), CookieI())
 
     def finished(self, current, servant, cookie):
         test(not self._deactivated)
+
+        #
+        # Ensure finished() is only called once per request.
+        #
+        test(self._requestId == current.requestId)
+        self._requestId = -1
 
         test(current.id.category == self._category  or self._category == "")
         test(current.id.name == "locate" or current.id.name == "finished")
@@ -130,3 +151,7 @@ class ServantLocatorI(Ice.ServantLocator):
             raise Test.TestIntfUserException() # Yes, it really is meant to be TestIntfUserException.
         elif current.operation == "intfUserException":
             raise Test.TestImpossibleException() # Yes, it really is meant to be TestImpossibleException.
+        elif current.operation == "asyncResponse":
+            raise Test.TestImpossibleException()
+        elif current.operation == "asyncException":
+            raise Test.TestImpossibleException()

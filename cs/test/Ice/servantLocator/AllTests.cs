@@ -281,6 +281,43 @@ public class AllTests
         @base = communicator.stringToProxy("category/finished:default -p 12010");
         obj = TestIntfPrxHelper.checkedCast(@base);
         testExceptions(obj, collocated);
+
+        //
+        // Only call these for category/finished.
+        //
+        try
+        {
+            obj.asyncResponse();
+        }
+        catch(TestIntfUserException)
+        {
+            test(false);
+        }
+        catch(TestImpossibleException)
+        {
+            //
+            // Called by finished().
+            //
+        }
+
+        //
+        // Only call these for category/finished.
+        //
+        try
+        {
+            obj.asyncException();
+        }
+        catch(TestIntfUserException)
+        {
+            test(false);
+        }
+        catch(TestImpossibleException)
+        {
+            //
+            // Called by finished().
+            //
+        }
+
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing servant locator removal... ");

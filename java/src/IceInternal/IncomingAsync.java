@@ -63,7 +63,20 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             }
         }
 
-        __exception(ex);
+        if(_connection != null)
+        {
+            __exception(ex);
+        }
+        else
+        {
+            //
+            // Response has already been sent.
+            //
+            if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
+        }
     }
 
     final void
@@ -97,6 +110,8 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 return;
             }
 
+            assert(_connection != null);
+
             if(_response)
             {
                 _os.endWriteEncaps();
@@ -121,6 +136,8 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             {
                 _connection.sendNoResponse();
             }
+
+            _connection = null;
         }
         catch(Ice.LocalException ex)
         {
@@ -131,7 +148,6 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     final protected void
     __exception(java.lang.Exception exc)
     {
-
         try
         {
             if(_locator != null && !__servantLocatorFinished())
