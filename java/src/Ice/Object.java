@@ -136,7 +136,7 @@ public interface Object
      * to a servant (or to another interceptor).
      *
      * @param request The details of the invocation.
-     * @param cb The callback object for asynchchronous dispatch. For synchronous dispatch, the callback object
+     * @param cb The callback object for asynchronous dispatch. For synchronous dispatch, the callback object
      * must be <code>null</code>.
      * @return The dispatch status for the operation.
      *

@@ -9,6 +9,9 @@
 
 namespace Ice
 {
+    /// <summary>
+    /// AMDCallback is the interface from which all AMD callbacks are derived.
+    /// </summary>
     public interface AMDCallback
     {
         /// <summary>

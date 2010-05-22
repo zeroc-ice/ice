@@ -9,10 +9,10 @@
 
 package Ice;
 
-public final class DoubleHolder
 /**
  * Holder class for doubles that are out- or inout-parameters.
  **/
+public final class DoubleHolder
 {
     /**
      * Instantiates the class with the value zero.

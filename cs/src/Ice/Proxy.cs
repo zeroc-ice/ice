@@ -15,14 +15,35 @@ using IceUtilInternal;
 
 namespace Ice
 {
+    /// <summary>
+    /// Delegate for a successful <code>ice_isA</code> invocation.
+    /// <param name="ret__">True if the remote object supports the type, false otherwise.</param>
+    /// </summary>
     public delegate void Callback_Object_ice_isA(bool ret__);
 
+    /// <summary>
+    /// Delegate for a successful <code>ice_ids</code> invocation.
+    /// <param name="ret__">The array of Slice type ids supported by the remote object.</param>
+    /// </summary>
     public delegate void Callback_Object_ice_ids(string[] ret__);
 
+    /// <summary>
+    /// Delegate for a successful <code>ice_id</code> invocation.
+    /// <param name="ret__">The Slice type id of the most-derived interface supported by the remote object.</param>
+    /// </summary>
     public delegate void Callback_Object_ice_id(string ret__);
 
+    /// <summary>
+    /// Delegate for a successful <code>ice_ping</code> invocation.
+    /// </summary>
     public delegate void Callback_Object_ice_ping();
 
+    /// <summary>
+    /// Delegate for a successful <code>ice_invoke</code> invocation.
+    /// <param name="ret__">True if the invocation succeeded, or false if the invocation
+    /// raised a user exception.</param>
+    /// <param name="outParams">The encoded out-parameters or user exception.</param>
+    /// </summary>
     public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outParams);
 
     /// <summary>
@@ -97,11 +118,45 @@ namespace Ice
         /// from the interface specified by id__.</returns>
         bool ice_isA(string id__, Dictionary<string, string> context__);
 
+        /// <summary>
+        /// Tests whether this object supports a specific Slice interface.
+        /// </summary>
+        /// <param name="id">The type ID of the Slice interface to test against.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id);
+
+        /// <summary>
+        /// Tests whether this object supports a specific Slice interface.
+        /// </summary>
+        /// <param name="id">The type ID of the Slice interface to test against.</param>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__);
+
+        /// <summary>
+        /// Tests whether this object supports a specific Slice interface.
+        /// </summary>
+        /// <param name="id">The type ID of the Slice interface to test against.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_isA(string id, AsyncCallback cb__, object cookie__);
+
+        /// <summary>
+        /// Tests whether this object supports a specific Slice interface.
+        /// </summary>
+        /// <param name="id">The type ID of the Slice interface to test against.</param>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_isA(string id, Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
+        /// <summary>
+        /// Tests whether this object supports a specific Slice interface.
+        /// </summary>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_isA</code>.</param>
+        /// <returns>True if the object supports the Slice interface, false otherwise.</returns>
         bool end_ice_isA(AsyncResult r__);
 
         /// <summary>
@@ -115,11 +170,40 @@ namespace Ice
         /// <param name="context__">The context dictionary for the invocation.</param>
         void ice_ping(Dictionary<string, string> context__);
 
+        /// <summary>
+        /// Tests whether the target object of this proxy can be reached.
+        /// </summary>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_ping> begin_ice_ping();
+
+        /// <summary>
+        /// Tests whether the target object of this proxy can be reached.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__);
+
+        /// <summary>
+        /// Tests whether the target object of this proxy can be reached.
+        /// </summary>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_ping(AsyncCallback cb__, object cookie__);
+
+        /// <summary>
+        /// Tests whether the target object of this proxy can be reached.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_ping(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
+        /// <summary>
+        /// Tests whether the target object of this proxy can be reached.
+        /// </summary>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_ping</code>.</param>
         void end_ice_ping(AsyncResult r__);
 
         /// <summary>
@@ -137,11 +221,42 @@ namespace Ice
         /// order. The first element of the returned array is always ::Ice::Object.</returns>
         string[] ice_ids(Dictionary<string, string> context__);
 
+        /// <summary>
+        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_ids> begin_ice_ids();
+
+        /// <summary>
+        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__);
+
+        /// <summary>
+        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_ids(AsyncCallback cb__, object cookie__);
+
+        /// <summary>
+        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_ids(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
+        /// <summary>
+        /// Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_ids</code>.</param>
+        /// <returns>The Slice type IDs of the interfaces supported by the target object, in base-to-derived
+        /// order. The first element of the returned array is always ::Ice::Object.</returns>
         string[] end_ice_ids(AsyncResult r__);
 
         /// <summary>
@@ -157,11 +272,41 @@ namespace Ice
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         string ice_id(Dictionary<string, string> context__);
 
+        /// <summary>
+        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// </summary>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_id> begin_ice_id();
+
+        /// <summary>
+        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__);
+
+        /// <summary>
+        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_id(AsyncCallback cb__, object cookie__);
+
+        /// <summary>
+        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_id(Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
+        /// <summary>
+        /// Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
+        /// </summary>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_id</code>.</param>
+        /// <returns>The Slice type ID of the most-derived interface.</returns>
         string end_ice_id(AsyncResult r__);
 
         /// <summary>
@@ -222,16 +367,63 @@ namespace Ice
         bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
                               Dictionary<string, string> context);
 
+        /// <summary>
+        /// Invokes an operation dynamically.
+        /// </summary>
+        /// <param name="operation">The name of the operation to invoke.</param>
+        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
                                                                     byte[] inParams);
+
+        /// <summary>
+        /// Invokes an operation dynamically.
+        /// </summary>
+        /// <param name="operation">The name of the operation to invoke.</param>
+        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
                                                                     byte[] inParams,
                                                                     Dictionary<string, string> context__);
+
+        /// <summary>
+        /// Invokes an operation dynamically.
+        /// </summary>
+        /// <param name="operation">The name of the operation to invoke.</param>
+        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams, AsyncCallback cb__,
                                      object cookie__);
+
+        /// <summary>
+        /// Invokes an operation dynamically.
+        /// </summary>
+        /// <param name="operation">The name of the operation to invoke.</param>
+        /// <param name="mode">The operation mode (normal or idempotent).</param>
+        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="context__">The context dictionary for the invocation.</param>
+        /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
+        /// <param name="cookie__">Application-specific data to be stored in the result.</param>
+        /// <returns>An asynchronous result object.</returns>
         AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams,
                                      Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
+        /// <summary>
+        /// Completes a dynamic invocation.
+        /// </summary>
+        /// <param name="outParams">The encoded out parameters or user exception.</param>
+        /// <param name="r__">The asynchronous result object returned by <code>begin_ice_invoke</code>.</param>
+        /// <returns>If the operation completed successfully, the return value
+        /// is true. If the operation raises a user exception,
+        /// the return value is false; in this case, outParams
+        /// contains the encoded user exception. If the operation raises a run-time exception,
+        /// it throws it directly.</returns>
         bool end_ice_invoke(out byte[] outParams, AsyncResult r__);
 
         /// <summary>

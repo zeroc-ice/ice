@@ -9,6 +9,9 @@
 
 package Ice;
 
+/**
+ * AMDCallback is the interface from which all AMD callbacks are derived.
+ **/
 public interface AMDCallback
 {
     /**

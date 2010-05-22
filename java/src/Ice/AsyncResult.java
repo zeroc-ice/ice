@@ -9,6 +9,11 @@
 
 package Ice;
 
+/**
+ * An AsyncResult object is the return value of an asynchronous invocation.
+ * With this object, an application can obtain several attributes of the
+ * invocation and discover its outcome.
+ **/
 public class AsyncResult
 {
     protected AsyncResult(IceInternal.Instance instance, String op, IceInternal.CallbackBase del)
@@ -22,21 +27,42 @@ public class AsyncResult
         _callback = del;
     }
 
+    /**
+     * Returns the communicator that sent the invocation.
+     *
+     * @return The communicator.
+     **/
     public Communicator getCommunicator()
     {
         return null;
     }
 
+    /**
+     * Returns the connection that that was used for the invocation.
+     *
+     * @return The connection.
+     **/
     public Connection getConnection()
     {
         return null;
     }
 
+    /**
+     * Returns the proxy that that was used to call the <code>begin_</code> method.
+     *
+     * @return The proxy.
+     **/
     public ObjectPrx getProxy()
     {
         return null;
     }
 
+    /**
+     * Indicates whether the result of an invocation is available.
+     *
+     * @return True if the result is available, which means a call to the <code>end_</code>
+     * method will not block. The method returns false if the result is not yet available.
+     **/
     public final boolean isCompleted()
     {
         synchronized(_monitor)
@@ -45,6 +71,9 @@ public class AsyncResult
         }
     }
 
+    /**
+     * Blocks the caller until the result of the invocation is available.
+     **/
     public final void waitForCompleted()
     {
         synchronized(_monitor)
@@ -62,6 +91,17 @@ public class AsyncResult
         }
     }
 
+    /**
+     * When you call the <code>begin_</code> method, the Ice run time attempts to
+     * write the corresponding request to the client-side transport. If the
+     * transport cannot accept the request, the Ice run time queues the request
+     * for later transmission. This method returns true if, at the time it is called,
+     * the request has been written to the local transport (whether it was initially
+     * queued or not). Otherwise, if the request is still queued, this method returns
+     * false.
+     *
+     * @return True if the request has been sent, or false if the request is queued.
+     **/
     public final boolean isSent()
     {
         synchronized(_monitor)
@@ -70,6 +110,9 @@ public class AsyncResult
         }
     }
 
+    /**
+     * Blocks the caller until the request has been written to the client-side transport.
+     **/
     public final void waitForSent()
     {
         synchronized(_monitor)
@@ -87,11 +130,25 @@ public class AsyncResult
         }
     }
 
+    /**
+     * This method returns true if a request was written to the client-side
+     * transport without first being queued. If the request was initially
+     * queued, this method returns false (independent of whether the request
+     * is still in the queue or has since been written to the client-side transport).
+     *
+     * @return True if the request was sent without being queued, or false
+     * otherwise.
+     **/
     public final boolean sentSynchronously()
     {
         return _sentSynchronously; // No lock needed, immutable once __send() is called
     }
 
+    /**
+     * Returns the name of the operation.
+     *
+     * @return The operation name.
+     **/
     public final String getOperation()
     {
         return _operation;

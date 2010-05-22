@@ -14,6 +14,6 @@ namespace IceInternal
     {
         void createAndThrow();
         void destroy();
-}
+    }
 
 }
