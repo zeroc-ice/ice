@@ -53,6 +53,7 @@ usage(const std::string& n)
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
         "-d, --debug           Print debug messages.\n"
+        "--underscore          Permit underscores in Slice identifiers.\n"
         "--include-old DIR     Put DIR in the include file search path for old Slice\n"
         "                      definitions.\n"
         "--include-new DIR     Put DIR in the include file search path for new Slice\n"
@@ -217,6 +218,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     vector<string> newCppArgs;
     bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
+    bool underscore;
     string outputFile;
     bool ignoreTypeChanges;
     bool purgeObjects;
@@ -237,6 +239,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     opts.addOpt("D", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("U", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
+    opts.addOpt("", "underscore");
     opts.addOpt("o", "", IceUtilInternal::Options::NeedArg);
     opts.addOpt("i");
     opts.addOpt("p");
@@ -294,6 +297,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         }
     }
     debug = opts.isSet("debug");
+
+    underscore = opts.isSet("underscore");
 
     if(opts.isSet("o"))
     {
@@ -412,14 +417,14 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice);
+    Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);
     if(!FreezeScript::parseSlice(appName, oldUnit, oldSlice, oldCppArgs, debug))
     {
         return EXIT_FAILURE;
     }
 
-    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice);
+    Slice::UnitPtr newUnit = Slice::Unit::createUnit(true, true, ice, underscore);
     FreezeScript::Destroyer<Slice::UnitPtr> newD(newUnit);
     if(!FreezeScript::parseSlice(appName, newUnit, newSlice, newCppArgs, debug))
     {

@@ -39,6 +39,7 @@ import java.io.BufferedWriter;
  *   dependencyfile - The file in which dependencies are stored (default: ".depend").
  *   outputdir - The value for the --output-dir translator option.
  *   ice - Enables the --ice translator option.
+ *   underscore - Enables the --underscore translator option.
  *
  * Nested elements:
  *
@@ -83,6 +84,12 @@ public class SliceTask extends org.apache.tools.ant.Task
     setIce(boolean ice)
     {
         _ice = ice;
+    }
+
+    public void
+    setUnderscore(boolean underscore)
+    {
+        _underscore = underscore;
     }
 
     public Path
@@ -540,6 +547,7 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected File _outputDir;
     protected String _outputDirString;
     protected boolean _ice;
+    protected boolean _underscore;
     protected Path _includePath;
     protected java.util.List<FileSet> _fileSets = new java.util.LinkedList<FileSet>();
     protected java.util.List<SliceDefine> _defines = new java.util.LinkedList<SliceDefine>();

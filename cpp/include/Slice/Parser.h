@@ -456,7 +456,7 @@ protected:
 
     Container(const UnitPtr&);
 
-    void checkPrefix(const std::string&) const;
+    void checkIdentifier(const std::string&) const;
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, bool);
@@ -937,11 +937,11 @@ class SLICE_API Unit : virtual public Container
 {
 public:
 
-    static UnitPtr createUnit(bool, bool, bool, const StringList& = StringList());
+    static UnitPtr createUnit(bool, bool, bool, bool, const StringList& = StringList());
 
     bool ignRedefs() const;
-
     bool allowIcePrefix() const;
+    bool allowUnderscore() const;
 
     void setComment(const std::string&);
     std::string currentComment(); // Not const, as this function removes the current comment.
@@ -1004,12 +1004,13 @@ public:
 
 private:
 
-    Unit(bool, bool, bool, const StringList&);
+    Unit(bool, bool, bool, bool, const StringList&);
     static void eraseWhiteSpace(::std::string&);
 
     bool _ignRedefs;
     bool _all;
     bool _allowIcePrefix;
+    bool _allowUnderscore;
     StringList _defaultGlobalMetaData;
     int _errors;
     std::string _currentComment;

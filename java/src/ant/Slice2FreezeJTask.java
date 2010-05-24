@@ -244,6 +244,14 @@ public class Slice2FreezeJTask extends SliceTask
         }
 
         //
+        // Add --underscore
+        //
+        if(_underscore)
+        {
+            cmd.append(" --underscore");
+        }
+
+        //
         // Add --output-dir
         //
         if(_outputDir != null)
@@ -369,6 +377,14 @@ public class Slice2FreezeJTask extends SliceTask
             if(_ice)
             {
                 cmd.append(" --ice");
+            }
+
+            //
+            // Add --underscore
+            //
+            if(_underscore)
+            {
+                cmd.append(" --underscore");
             }
 
             //

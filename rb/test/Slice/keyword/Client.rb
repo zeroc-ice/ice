@@ -23,7 +23,7 @@ if not rubyDir
 end
 
 require 'Ice'
-Ice::loadSlice('Key.ice')
+Ice::loadSlice('--underscore Key.ice')
 
 def test(b)
     if !b
@@ -44,6 +44,9 @@ def run(args, communicator)
     b._begin = 0;
     c = BEGIN_::BreakPrx::uncheckedCast(communicator.stringToProxy("test:tcp"))
     test(c.method(:_case))
+    test(c.method(:_to_a))
+    test(c.method(:_instance_variable_set))
+    test(c.method(:_instance_variables))
     d = BEGIN_::DisplayPrx::uncheckedCast(communicator.stringToProxy("test:tcp"))
     test(d.method(:_do))
     d1 = DisplayI.new

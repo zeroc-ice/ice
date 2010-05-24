@@ -239,7 +239,8 @@ usage(const char* n)
         "                      value is std::less<secondary key type>.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
         "-d, --debug           Print debug messages.\n"
-        "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
+        "--ice                 Permit `Ice' prefix (for building Ice source code only).\n"
+        "--underscore          Permit underscores in Slice identifiers.\n"
         ;
 }
 
@@ -1526,6 +1527,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
+    opts.addOpt("", "underscore");
      
     vector<string> args;
     try
@@ -1923,6 +1925,8 @@ compile(int argc, char* argv[])
 
     bool ice = opts.isSet("ice");
 
+    bool underscore = opts.isSet("underscore");
+
     if(dicts.empty() && indices.empty())
     {
         getErrorStream() << argv[0] << ": error: no Freeze types specified" << endl;
@@ -1937,7 +1941,7 @@ compile(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr u = Unit::createUnit(true, false, ice);
+    UnitPtr u = Unit::createUnit(true, false, ice, underscore);
 
     StringList includes;
 

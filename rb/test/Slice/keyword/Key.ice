@@ -22,6 +22,9 @@ module BEGIN
     interface break
     {
         void case(int clone, int def);
+        void to_a();
+        void instance_variable_set();
+        void instance_variables();
     };
 
     class display

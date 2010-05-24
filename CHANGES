@@ -27,6 +27,9 @@ Changes since version 3.4.0
 General Changes
 ===============
 
+- Added the ability to use underscores in Slice identifiers. See the
+  release notes for important information on this change.
+
 - Added the setConnectContext method to Glacier2.SessionFactoryHelper,
   which allows an application to provide a request context to be used
   when creating a Glacier2 session. (Java and C#)

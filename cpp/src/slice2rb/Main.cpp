@@ -86,7 +86,8 @@ usage(const char* n)
         "--output-dir DIR     Create files in the directory DIR.\n"
         "--depend             Generate Makefile dependencies.\n"
         "-d, --debug          Print debug messages.\n"
-        "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
+        "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
+        "--underscore         Permit underscores in Slice identifiers.\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
         ;
@@ -106,6 +107,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "depend");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
+    opts.addOpt("", "underscore");
     opts.addOpt("", "all");
     opts.addOpt("", "checksum");
      
@@ -163,6 +165,8 @@ compile(int argc, char* argv[])
 
     bool ice = opts.isSet("ice");
 
+    bool underscore = opts.isSet("underscore");
+
     bool all = opts.isSet("all");
 
     bool checksum = opts.isSet("checksum");
@@ -200,7 +204,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false, false, ice);
+            UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -246,7 +250,7 @@ compile(int argc, char* argv[])
             }
             else
             {
-                UnitPtr u = Unit::createUnit(false, all, ice);
+                UnitPtr u = Unit::createUnit(false, all, ice, underscore);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if(!icecpp->close())

@@ -42,7 +42,6 @@ typedef std::map<std::string, int, Slice::CICompare> StringTokenMap;
 static StringTokenMap keywordMap;
 
 void initScanner();
-void checkIdentifier(const string&);
 int checkKeyword(string&);
 
 }
@@ -182,7 +181,6 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylvalp = ident;
-    checkIdentifier(ident->v);
     if(*yytext == '\\')
     {
         return ICE_IDENT_OP;
@@ -195,7 +193,6 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;
     *yylvalp = ident;
-    checkIdentifier(ident->v);
     return *yytext == '\\' ? ICE_IDENTIFIER : checkKeyword(ident->v);
 }
 
@@ -480,31 +477,6 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
-}
-
-//
-// Check if an identifier is well-formed.
-//
-
-void
-checkIdentifier(const string& id)
-{
-    if(id.find('_') != string::npos)
-    {
-	unit->error("illegal underscore in identifier `" + id + "'");
-    }
-
-    //
-    // Weed out identifiers with reserved suffixes.
-    //
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
-    {
-	if(id.find(suffixBlacklist[i], id.size() - suffixBlacklist[i].size()) != string::npos)
-	{
-	    unit->error("illegal identifier `" + id + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-	}
-    }
 }
 
 //

@@ -94,7 +94,7 @@ interface b_;           // Illegal trailing underscore
 interface b__c;         // Illegal underscores
 interface b___c;        // Illegal underscores
 
-interface a_b;          // Illegal underscore
-interface a_b_c;        // Illegal underscores
+interface a_b;          // OK
+interface a_b_c;        // OK
 
 };

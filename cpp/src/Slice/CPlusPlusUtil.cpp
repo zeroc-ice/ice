@@ -493,10 +493,9 @@ lookupKwd(const string& name)
     // Keyword list. *Must* be kept in alphabetical order.
     //
     // Note that this keyword list unnecessarily contains C++ keywords
-    // that are illegal slice identifiers -- namely identifiers that
-    // contain underscores (and_eq, for example), and slice keywords
-    // (class, int, etc.). They have not been removed so that the
-    // keyword list is kept complete.
+    // that are illegal Slice identifiers -- namely identifiers that
+    // are Slice keywords (class, int, etc.). They have not been removed
+    // so that the keyword list is kept complete.
     //
     static const string keywordList[] = 
     {       

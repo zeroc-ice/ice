@@ -121,6 +121,8 @@ testtypes()
 
     const int m  = _cpp_and::_cpp_template;
     test(m == _cpp_and::_cpp_template);
+
+    test(_cpp_and::_cpp_xor_eq == 0);
 }
 
 int

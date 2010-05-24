@@ -267,6 +267,14 @@ public class Slice2JavaTask extends SliceTask
             }
 
             //
+            // Add --underscore
+            //
+            if(_underscore)
+            {
+                cmd.append(" --underscore");
+            }
+
+            //
             // Add files to be translated
             //
             for(File f : buildList)
@@ -309,6 +317,14 @@ public class Slice2JavaTask extends SliceTask
             if(_ice)
             {
                 cmd.append(" --ice");
+            }
+
+            //
+            // Add --underscore
+            //
+            if(_underscore)
+            {
+                cmd.append(" --underscore");
             }
 
             //

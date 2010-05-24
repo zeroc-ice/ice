@@ -78,5 +78,6 @@ const int using = 0;
 const int virtual = 0;
 const int while = 0;
 const int xor = 0;
+const int xor_eq = 0;
 
 };

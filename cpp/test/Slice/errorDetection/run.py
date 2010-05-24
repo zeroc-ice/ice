@@ -33,7 +33,11 @@ files.sort()
 for file in files:
 
     print file + "...",
-    command = slice2cpp + ' -I. "%s"' % os.path.join(os.getcwd(), file)
+
+    if file.find("Underscore") != -1:
+        command = slice2cpp + ' --underscore -I. "%s"' % os.path.join(os.getcwd(), file)
+    else:
+        command = slice2cpp + ' -I. "%s"' % os.path.join(os.getcwd(), file)
 
     p = TestUtil.runCommand(command)
     (stdin, stdout, stderr) = (p.stdin, p.stdout, p.stderr)

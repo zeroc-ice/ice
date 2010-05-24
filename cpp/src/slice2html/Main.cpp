@@ -80,6 +80,7 @@ usage(const char* n)
         "--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
+        "--ice                Permit underscores in Slice identifiers.\n"
         ;
 }
 
@@ -105,6 +106,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "summary", IceUtilInternal::Options::NeedArg, "0");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
+    opts.addOpt("", "underscore");
 
     vector<string> args;
     try
@@ -202,6 +204,8 @@ compile(int argc, char* argv[])
 
     bool ice = opts.isSet("ice");
 
+    bool underscore = opts.isSet("underscore");
+
     if(args.empty())
     {
         getErrorStream() << argv[0] << ": error: no input file" << endl;
@@ -209,7 +213,7 @@ compile(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr p = Unit::createUnit(true, false, ice);
+    UnitPtr p = Unit::createUnit(true, false, ice, underscore);
 
     int status = EXIT_SUCCESS;
 

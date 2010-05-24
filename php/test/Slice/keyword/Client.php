@@ -92,6 +92,7 @@ function allTests($communicator)
     $h = $NS ? eval("return new _and\\_endwhile();") : eval("return new and_endwhile();");
     $i = $NS ? constant("_and\\_or") : constant("and_or");
     $j = $NS ? constant("_and\\_print") : constant("and_print");
+    $j = $NS ? constant("_and\\_require_once") : constant("and_require_once");
     echo "ok\n";
 }
 

@@ -23,7 +23,7 @@ SLICE_SRCS	= Key.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --underscore --stream $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@

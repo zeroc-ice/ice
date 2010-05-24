@@ -482,7 +482,7 @@ Slice::Container::destroy()
 ModulePtr
 Slice::Container::createModule(const string& name)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
@@ -530,7 +530,7 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, bool intf, const ClassList& bases, bool local)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -620,7 +620,7 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ClassDefPtr def;
 
@@ -711,7 +711,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 ExceptionPtr
 Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -762,7 +762,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 StructPtr
 Slice::Container::createStruct(const string& name, bool local, NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -806,7 +806,7 @@ SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
                                  NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE && !local)
     {
@@ -871,7 +871,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
                                    const TypePtr& valueType, const StringList& valueMetaData, bool local,
                                    NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE && !local)
     {
@@ -953,7 +953,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 EnumPtr
 Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -996,7 +996,7 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 EnumeratorPtr
 Slice::Container::createEnumerator(const string& name)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -1036,7 +1036,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
                               const SyntaxTreeBasePtr& literalType, const string& value, const string& literal,
                               NodeType nt)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2097,19 +2097,59 @@ Slice::Container::Container(const UnitPtr& unit) :
 }
 
 void
-Slice::Container::checkPrefix(const string& name) const
+Slice::Container::checkIdentifier(const string& name) const
 {
-    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
+    //
+    // Weed out identifiers with reserved suffixes.
+    //
+    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
+    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
-        if(name.size() >= 3)
+	if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+	{
+	    _unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+	}
+    }
+
+    //
+    // Check for illegal underscores.
+    //
+    if(name.find('_') == 0)
+    {
+        _unit->error("illegal leading underscore in identifier `" + name + "'");
+    }
+    else if(name.rfind('_') == name.size() - 1)
+    {
+        _unit->error("illegal trailing underscore in identifier `" + name + "'");
+    }
+    else if(name.rfind("__") != string::npos)
+    {
+        _unit->error("illegal double underscore in identifier `" + name + "'");
+    }
+
+    if(_unit->currentIncludeLevel() == 0)
+    {
+        //
+        // For rules controlled by a translator option, we don't complain about included files.
+        //
+
+        if(!_unit->allowUnderscore() && name.find('_') != string::npos)
         {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
+            _unit->error("illegal underscore in identifier `" + name + "'");
+        }
+
+        if(!_unit->allowIcePrefix())
+        {
+            if(name.size() >= 3)
             {
-                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                string prefix3;
+                prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+                prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+                prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
+                if(prefix3 == "ice")
+                {
+                    _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+                }
             }
         }
     }
@@ -2794,7 +2834,7 @@ Slice::ClassDef::createOperation(const string& name,
                                  const TypePtr& returnType,
                                  Operation::Mode mode)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -2899,7 +2939,7 @@ DataMemberPtr
 Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
                                   const string& defaultValue, const string& defaultLiteral)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE)
     {
@@ -3407,7 +3447,7 @@ DataMemberPtr
 Slice::Exception::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
                                    const string& defaultValue, const string& defaultLiteral)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE)
     {
@@ -3748,7 +3788,7 @@ DataMemberPtr
 Slice::Struct::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
                                 const string& defaultValue, const string& defaultLiteral)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE)
     {
@@ -4504,7 +4544,7 @@ Slice::Operation::sendMode() const
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
 {
-    checkPrefix(name);
+    checkIdentifier(name);
 
     if(_unit->profile() == IceE)
     {
@@ -5032,9 +5072,10 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, const StringList& defaultGlobalMetadata)
+Slice::Unit::createUnit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
+                        const StringList& defaultGlobalMetadata)
 {
-    return new Unit(ignRedefs, all, allowIcePrefix, defaultGlobalMetadata);
+    return new Unit(ignRedefs, all, allowIcePrefix, allowUnderscore, defaultGlobalMetadata);
 }
 
 bool
@@ -5047,6 +5088,12 @@ bool
 Slice::Unit::allowIcePrefix() const
 {
     return _allowIcePrefix;
+}
+
+bool
+Slice::Unit::allowUnderscore() const
+{
+    return _allowUnderscore;
 }
 
 void
@@ -5663,12 +5710,14 @@ Slice::Unit::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, const StringList& defaultGlobalMetadata) :
+Slice::Unit::Unit(bool ignRedefs, bool all, bool allowIcePrefix, bool allowUnderscore,
+                  const StringList& defaultGlobalMetadata) :
     SyntaxTreeBase(0),
     Container(0),
     _ignRedefs(ignRedefs),
     _all(all),
     _allowIcePrefix(allowIcePrefix),
+    _allowUnderscore(allowUnderscore),
     _defaultGlobalMetaData(defaultGlobalMetadata),
     _errors(0),
     _currentLine(0),

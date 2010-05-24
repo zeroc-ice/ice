@@ -13,7 +13,8 @@ SLICE_SRCS	= Key.ice
 
 include $(top_srcdir)/config/Make.rules.php
 
-SRCS	= Key.php
+SRCS	        = Key.php
+SLICE2PHPFLAGS  = --underscore
 
 all:: $(SRCS)
 

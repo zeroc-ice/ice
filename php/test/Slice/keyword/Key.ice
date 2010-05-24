@@ -60,4 +60,5 @@ module and
 
     const int or = 0;
     const int print = 0;
+    const int require_once = 0;
 };

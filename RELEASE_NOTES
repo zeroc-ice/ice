@@ -63,6 +63,88 @@ This section discusses the significant enhancements in Ice 3.4.
 Changes and fixes in Ice 3.4.1
 ==============================
 
+
+Underscores allowed in Slice
+----------------------------
+
+Prior versions of Ice did not permit underscores to be used in Slice
+identifiers. We have eliminated that restriction in Ice 3.4.1 with a
+new translator option (--underscore).
+
+Please note that there are several important issues to consider if you
+plan to incorporate underscores into your Slice definitions:
+
+* Interoperability
+
+  Renaming an existing Slice definition always raises the possibility
+  of interoperability problems with existing applications. Changing
+  the name of any Slice definition whose type id is sent "over the
+  wire" can easily break interoperability unless all applications are
+  rebuilt and redeployed. Adding underscores to your Slice definitions
+  presents an additional difficulty because the Slice compilers for
+  older versions of Ice will not even be able to compile your new
+  definitions.
+
+* Name collisions
+
+  With some effort, it is possible to write legal Slice definitions
+  using underscores that generate name collisions in a language
+  mapping. For example:
+
+  // Slice
+  module A
+  {
+      interface B_C { };
+  };
+
+  module A_B
+  {
+      interface C { };
+  };
+
+  The Slice compiler for PHP (slice2php) uses underscores to separate
+  name scopes in the flattened mapping, therefore both of these
+  interfaces generate the same PHP type named A_B_C.
+
+  Here is another example:
+
+  // Slice
+  module A
+  {
+      interface B
+      {
+          void op();
+          void begin_op();
+      };
+
+      struct Callback_B_op
+      {
+          string s;
+      };
+  };
+
+  These Slice definitions cause collisions with generated code that
+  supports asynchronous invocations.
+
+  Although these are contrived examples written intentionally to cause
+  errors, they highlight the importance of selecting your Slice
+  identifiers with careful consideration of your target language
+  mappings.
+
+* Freeze
+
+  As discussed in the Interoperability section above, renaming Slice
+  types poses a range of compatibility issues. If you use Freeze to
+  store instances of Slice types persistently, be aware that renaming
+  Slice types usually requires that you also migrate your Freeze
+  databases because Slice type names are embedded in your records (if
+  you store instances of Slice classes) and also appear in the Freeze
+  catalog.
+
+
+Miscellaneous changes
+---------------------
+
 * Ice 3.4.1 requires Berkeley DB 4.8.30. This version of Berkeley DB
   includes a fix for a minor memory leak that was present in earlier
   versions.
