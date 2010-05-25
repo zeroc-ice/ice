@@ -623,9 +623,14 @@ main(int argc, char* argv[])
         }
         return EXIT_FAILURE;
     }
-    catch(const IceUtil::Exception& ex)
+    catch(const std::exception& ex)
     {
-        cerr << appName << ": " << ex << endl;
+        cerr << appName << ": " << ex.what() << endl;
+        status = EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        cerr << appName << ": unknown error" << endl;
         return EXIT_FAILURE;
     }
 

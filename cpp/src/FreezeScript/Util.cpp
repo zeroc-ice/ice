@@ -244,10 +244,15 @@ FreezeScript::readCatalog(const Ice::CommunicatorPtr& communicator, const string
         dbEnv.close(0);
         throw FailureException(__FILE__, __LINE__, string("database error: ") + ex.what());
     }
+    catch(const IceUtil::FileLockException&)
+    {
+        dbEnv.close(0);
+        throw FailureException(__FILE__, __LINE__, "environment `" + dbEnvName + "' is locked");
+    }
     catch(...)
     {
         dbEnv.close(0);
-        throw FailureException(__FILE__, __LINE__, "unknown exception");
+        throw;
     }
 
     dbEnv.close(0);

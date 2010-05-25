@@ -924,11 +924,6 @@ main(int argc, char* argv[])
         }
         status = EXIT_FAILURE;
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName << ": " << ex << endl;
-        status = EXIT_FAILURE;
-    }
     catch(const std::exception& ex)
     {
         cerr << appName << ": " << ex.what() << endl;
