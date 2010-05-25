@@ -48,10 +48,11 @@ start() {
         else
            echo -n $"Starting $progbase: "
         fi
-      
+
+        daemonoptions="--pidfile $pidfile"
         if [ "$user" != "root" ]
         then
-            daemonoptions="--user $user"
+            daemonoptions="$daemonoptions --user $user"
     
             if [ ! -e $pidfile ]
             then
@@ -69,7 +70,7 @@ start() {
 
 stop() {
         echo -n $"Shutting down $progbase: "
-        killproc $prog
+        killproc -p $pidfile $prog
         RETVAL=$?
         echo
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$progbase
