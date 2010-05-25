@@ -717,7 +717,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             isCustom = true;
         }
     }
-    bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
+    bool isCollection = seq->hasMetaData("clr:collection");
+    bool isArray = !isGeneric && !isCollection;
     string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -880,28 +881,62 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     break;
                 }
 
-                typeS[0] = toupper(static_cast<unsigned char>(typeS[0]));
+                string func = typeS;
+                func[0] = toupper(static_cast<unsigned char>(typeS[0]));
                 if(marshal)
                 {
-                    out << nl << stream << ".write" << typeS << "Seq(";
                     if(isArray)
                     {
-                        out << param << ");";
+                        out << nl << stream << ".write" << func << "Seq(" << param << ");";
                     }
-                    else if(!isGeneric)
+                    else if(isCustom || isCollection)
                     {
-                        out << param << " == null ? null : " << param << ".ToArray());";
+                        if(streamingAPI)
+                        {
+                            out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
+                            out << nl << "_System.Collections.Generic.IEnumerator<" << typeS
+                                << "> e__ = " << param << ".GetEnumerator();";
+                            out << nl << "while(e__.MoveNext())";
+                            out << sb;
+                            out << nl << stream << ".write" << func << "(e__.Current);";
+                            out << eb;
+                        }
+                        else
+                        {
+                            out << nl << stream << ".write" << func << "Seq(" << param << " == null ? 0 : "
+                                << param << ".Count, " << param << ");";
+                        }
                     }
                     else
                     {
-                        out << param << " == null ? 0 : " << param << ".Count, " << param << ");";
+                        assert(isGeneric);
+                        if(!streamingAPI)
+                        {
+                            out << nl << stream << ".write" << func << "Seq(" << param << " == null ? 0 : "
+                                << param << ".Count, " << param << ");";
+                        }
+                        else if(isLinkedList)
+                        {
+                            out << nl << stream << ".writeSize(" << param << '.' << limitID << ");";
+                            out << nl << "_System.Collections.Generic.IEnumerator<" << typeS
+                                << "> e__ = " << param << ".GetEnumerator();";
+                            out << nl << "while(e__.MoveNext())";
+                            out << sb;
+                            out << nl << stream << ".write" << func << "(e__.Current);";
+                            out << eb;
+                        }
+                        else
+                        {
+                            out << nl << stream << ".write" << func << "Seq(" << param << " == null ? null : "
+                                << param << ".ToArray());";
+                        }
                     }
                 }
                 else
                 {
                     if(isArray)
                     {
-                        out << nl << param << " = " << stream << ".read" << typeS << "Seq();";
+                        out << nl << param << " = " << stream << ".read" << func << "Seq();";
                     }
                     else if(isCustom)
                     {
@@ -911,18 +946,45 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         out << nl << "int szx__ = " << stream << ".readSize();";
                         out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
                         out << sb;
-                        out << nl << param << ".Add(" << stream << ".read" << typeS << "());";
+                        out << nl << param << ".Add(" << stream << ".read" << func << "());";
                         out << eb;
                         out << eb;
                     }
-                    else if(isGeneric)
+                    else if(isCollection)
                     {
-                        out << nl << stream << ".read" << typeS << "Seq(out " << param << ");";
+                        out << nl << param << " = new " << fixId(seq->scoped())
+                            << '(' << stream << ".read" << func << "Seq());";
                     }
                     else
                     {
-                        out << nl << param << " = new " << fixId(seq->scoped())
-                            << '(' << stream << ".read" << typeS << "Seq());";
+                        assert(isGeneric);
+                        if(streamingAPI)
+                        {
+                            if(isStack)
+                            {
+                                //
+                                // Stacks are marshaled in top-to-bottom order. We cannot call
+                                // "new Stack(type[])" because that constructor assumes the array
+                                // is in bottom-to-top order. We read the array first, then push it
+                                // in reverse order.
+                                //
+                                out << nl << typeS << "[] arr__ = " << stream << ".read" << func << "Seq();";
+                                out << nl << param << " = new " << typeToString(seq) << "(arr__.Length);";
+                                out << nl << "for(int ix__ = arr__.Length - 1; ix__ >= 0; --ix__)";
+                                out << sb;
+                                out << nl << param << ".Push(arr__[ix__]);";
+                                out << eb;
+                            }
+                            else
+                            {
+                                out << nl << param << " = new " << typeToString(seq) << '(' << stream
+                                    << ".read" << func << "Seq());";
+                            }
+                        }
+                        else
+                        {
+                            out << nl << stream << ".read" << func << "Seq(out " << param << ");";
+                        }
                     }
                 }
                 break;

@@ -48,7 +48,7 @@ public class Client
         {
             return false;
         }
-        
+
         if(c1.Count != c2.Count)
         {
             return false;
@@ -648,51 +648,68 @@ public class Client
             @in.destroy();
         }
 
+        Test.SmallStruct[] smallStructArray = new Test.SmallStruct[3];
+        for(int i = 0; i < smallStructArray.Length; ++i)
         {
-            Test.MyClass[] arr = new Test.MyClass[4];
-            for(int i = 0; i < arr.Length; ++i)
-            {
-                arr[i] = new Test.MyClass();
-                arr[i].c = arr[i];
-                arr[i].o = arr[i];
-                arr[i].s = new Test.SmallStruct();
-                arr[i].s.e = Test.MyEnum.enum2;
-                arr[i].seq1 = new bool[] { true, false, true, false };
-                arr[i].seq2 = new byte[] { (byte)1, (byte)2, (byte)3, (byte)4 };
-                arr[i].seq3 = new short[] { (short)1, (short)2, (short)3, (short)4 };
-                arr[i].seq4 = new int[] { 1, 2, 3, 4 };
-                arr[i].seq5 = new long[] { 1, 2, 3, 4 };
-                arr[i].seq6 = new float[] { (float)1, (float)2, (float)3, (float)4 };
-                arr[i].seq7 = new double[] { (double)1, (double)2, (double)3, (double)4 };
-                arr[i].seq8 = new string[] { "string1", "string2", "string3", "string4" };
-                arr[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
-                arr[i].seq10 = new Test.MyClass[4]; // null elements.
-                arr[i].d = new System.Collections.Generic.Dictionary<string, Test.MyClass>();
-                arr[i].d["hi"] = arr[i];
-            }
+            smallStructArray[i] = new Test.SmallStruct();
+            smallStructArray[i].bo = true;
+            smallStructArray[i].by = (byte)1;
+            smallStructArray[i].sh = (short)2;
+            smallStructArray[i].i = 3;
+            smallStructArray[i].l = 4;
+            smallStructArray[i].f = (float)5.0;
+            smallStructArray[i].d = 6.0;
+            smallStructArray[i].str = "7";
+            smallStructArray[i].e = Test.MyEnum.enum2;
+            smallStructArray[i].p = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+        }
+
+        Test.MyClass[] myClassArray = new Test.MyClass[4];
+        for(int i = 0; i < myClassArray.Length; ++i)
+        {
+            myClassArray[i] = new Test.MyClass();
+            myClassArray[i].c = myClassArray[i];
+            myClassArray[i].o = myClassArray[i];
+            myClassArray[i].s = new Test.SmallStruct();
+            myClassArray[i].s.e = Test.MyEnum.enum2;
+            myClassArray[i].seq1 = new bool[] { true, false, true, false };
+            myClassArray[i].seq2 = new byte[] { (byte)1, (byte)2, (byte)3, (byte)4 };
+            myClassArray[i].seq3 = new short[] { (short)1, (short)2, (short)3, (short)4 };
+            myClassArray[i].seq4 = new int[] { 1, 2, 3, 4 };
+            myClassArray[i].seq5 = new long[] { 1, 2, 3, 4 };
+            myClassArray[i].seq6 = new float[] { (float)1, (float)2, (float)3, (float)4 };
+            myClassArray[i].seq7 = new double[] { (double)1, (double)2, (double)3, (double)4 };
+            myClassArray[i].seq8 = new string[] { "string1", "string2", "string3", "string4" };
+            myClassArray[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
+            myClassArray[i].seq10 = new Test.MyClass[4]; // null elements.
+            myClassArray[i].d = new System.Collections.Generic.Dictionary<string, Test.MyClass>();
+            myClassArray[i].d["hi"] = myClassArray[i];
+        }
+
+        {
             @out = Ice.Util.createOutputStream(communicator);
-            Test.MyClassSHelper.write(@out, arr);
+            Test.MyClassSHelper.write(@out, myClassArray);
             @out.writePendingObjects();
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
             Test.MyClass[] arr2 = Test.MyClassSHelper.read(@in);
             @in.readPendingObjects();
-            test(arr2.Length == arr.Length);
+            test(arr2.Length == myClassArray.Length);
             for(int i = 0; i < arr2.Length; ++i)
             {
                 test(arr2[i] != null);
                 test(arr2[i].c == arr2[i]);
                 test(arr2[i].o == arr2[i]);
                 test(arr2[i].s.e == Test.MyEnum.enum2);
-                test(Compare(arr2[i].seq1, arr[i].seq1));
-                test(Compare(arr2[i].seq2, arr[i].seq2));
-                test(Compare(arr2[i].seq3, arr[i].seq3));
-                test(Compare(arr2[i].seq4, arr[i].seq4));
-                test(Compare(arr2[i].seq5, arr[i].seq5));
-                test(Compare(arr2[i].seq6, arr[i].seq6));
-                test(Compare(arr2[i].seq7, arr[i].seq7));
-                test(Compare(arr2[i].seq8, arr[i].seq8));
-                test(Compare(arr2[i].seq9, arr[i].seq9));
+                test(Compare(arr2[i].seq1, myClassArray[i].seq1));
+                test(Compare(arr2[i].seq2, myClassArray[i].seq2));
+                test(Compare(arr2[i].seq3, myClassArray[i].seq3));
+                test(Compare(arr2[i].seq4, myClassArray[i].seq4));
+                test(Compare(arr2[i].seq5, myClassArray[i].seq5));
+                test(Compare(arr2[i].seq6, myClassArray[i].seq6));
+                test(Compare(arr2[i].seq7, myClassArray[i].seq7));
+                test(Compare(arr2[i].seq8, myClassArray[i].seq8));
+                test(Compare(arr2[i].seq9, myClassArray[i].seq9));
                 test(arr2[i].d["hi"].Equals(arr2[i]));
             }
             @out.destroy();
@@ -700,9 +717,9 @@ public class Client
 
             Test.MyClass[][] arrS =
             {
-                arr,
+                myClassArray,
                 new Test.MyClass[0],
-                arr
+                myClassArray
             };
             @out = Ice.Util.createOutputStream(communicator);
             Test.MyClassSSHelper.write(@out, arrS);
@@ -779,10 +796,10 @@ public class Client
             c.d.Add("hi", c);
 
             ex.c = c;
-        
+
             @out.writeException(ex);
             byte[] data = @out.finished();
- 
+
             @in = Ice.Util.createInputStream(communicator, data);
             try
             {
@@ -832,7 +849,6 @@ public class Client
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
-
         {
             Dictionary<long, float> dict = new Dictionary<long, float>();
             dict.Add((long)123809828, (float)0.51f);
@@ -878,6 +894,526 @@ public class Client
             test(dict2.Count == dict.Count);
             test(dict2["key1"].s.e == Test.MyEnum.enum2);
             test(dict2["key2"].s.e == Test.MyEnum.enum3);
+        }
+
+        {
+            bool[] arr =
+            {
+                true,
+                false,
+                true,
+                false
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            List<bool> l = new List<bool>(arr);
+            Test.BoolListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<bool> l2 = Test.BoolListHelper.read(@in);
+            test(Compare(l, l2));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            byte[] arr =
+            {
+                (byte)0x01,
+                (byte)0x11,
+                (byte)0x12,
+                (byte)0x22
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            List<byte> l = new List<byte>(arr);
+            Test.ByteListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<byte> l2 = Test.ByteListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            Test.MyEnum[] arr =
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            List<Test.MyEnum> l = new List<Test.MyEnum>(arr);
+            Test.MyEnumListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<Test.MyEnum> l2 = Test.MyEnumListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            List<Test.SmallStruct> l = new List<Test.SmallStruct>(smallStructArray);
+            Test.SmallStructListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<Test.SmallStruct> l2 = Test.SmallStructListHelper.read(@in);
+            test(l2.Count == l.Count);
+            for(int i = 0; i < l2.Count; ++i)
+            {
+                test(l2[i].Equals(smallStructArray[i]));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            List<Test.MyClass> l = new List<Test.MyClass>(myClassArray);
+            Test.MyClassListHelper.write(@out, l);
+            @out.writePendingObjects();
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<Test.MyClass> l2 = Test.MyClassListHelper.read(@in);
+            @in.readPendingObjects();
+            test(l2.Count == l.Count);
+            for(int i = 0; i < l2.Count; ++i)
+            {
+                test(l2[i] != null);
+                test(l2[i].c == l2[i]);
+                test(l2[i].o == l2[i]);
+                test(l2[i].s.e == Test.MyEnum.enum2);
+                test(Compare(l2[i].seq1, l[i].seq1));
+                test(Compare(l2[i].seq2, l[i].seq2));
+                test(Compare(l2[i].seq3, l[i].seq3));
+                test(Compare(l2[i].seq4, l[i].seq4));
+                test(Compare(l2[i].seq5, l[i].seq5));
+                test(Compare(l2[i].seq6, l[i].seq6));
+                test(Compare(l2[i].seq7, l[i].seq7));
+                test(Compare(l2[i].seq8, l[i].seq8));
+                test(Compare(l2[i].seq9, l[i].seq9));
+                test(l2[i].d["hi"].Equals(l2[i]));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            Test.MyClassPrx[] arr = new Test.MyClassPrx[2];
+            arr[0] = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
+            arr[1] = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            @out = Ice.Util.createOutputStream(communicator);
+            List<Test.MyClassPrx> l = new List<Test.MyClassPrx>(arr);
+            Test.MyClassProxyListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<Test.MyClassPrx> l2 = Test.MyClassProxyListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            short[] arr =
+            {
+                (short)0x01,
+                (short)0x11,
+                (short)0x12,
+                (short)0x22
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            LinkedList<short> l = new LinkedList<short>(arr);
+            Test.ShortLinkedListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            LinkedList<short> l2 = Test.ShortLinkedListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            int[] arr =
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            LinkedList<int> l = new LinkedList<int>(arr);
+            Test.IntLinkedListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            LinkedList<int> l2 = Test.IntLinkedListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            Test.MyEnum[] arr =
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
+            Test.MyEnumLinkedListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            LinkedList<Test.MyEnum> l2 = Test.MyEnumLinkedListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            LinkedList<Test.SmallStruct> l = new LinkedList<Test.SmallStruct>(smallStructArray);
+            Test.SmallStructLinkedListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            LinkedList<Test.SmallStruct> l2 = Test.SmallStructLinkedListHelper.read(@in);
+            test(l2.Count == l.Count);
+            IEnumerator<Test.SmallStruct> e = l.GetEnumerator();
+            IEnumerator<Test.SmallStruct> e2 = l2.GetEnumerator();
+            while(e.MoveNext() && e2.MoveNext())
+            {
+                test(e.Current.Equals(e2.Current));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            long[] arr =
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<long> l = new Stack<long>(arr);
+            Test.LongStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<long> l2 = Test.LongStackHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            float[] arr =
+            {
+                (float)1,
+                (float)2,
+                (float)3,
+                (float)4
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<float> l = new Stack<float>(arr);
+            Test.FloatStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<float> l2 = Test.FloatStackHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<Test.SmallStruct> l = new Stack<Test.SmallStruct>(smallStructArray);
+            Test.SmallStructStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<Test.SmallStruct> l2 = Test.SmallStructStackHelper.read(@in);
+            test(l2.Count == l.Count);
+            IEnumerator<Test.SmallStruct> e = l.GetEnumerator();
+            IEnumerator<Test.SmallStruct> e2 = l2.GetEnumerator();
+            while(e.MoveNext() && e2.MoveNext())
+            {
+                test(e.Current.Equals(e2.Current));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            Test.MyClassPrx[] arr = new Test.MyClassPrx[2];
+            arr[0] = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
+            arr[1] = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<Test.MyClassPrx> l = new Stack<Test.MyClassPrx>(arr);
+            Test.MyClassProxyStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<Test.MyClassPrx> l2 = Test.MyClassProxyStackHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            double[] arr =
+            {
+                (double)1,
+                (double)2,
+                (double)3,
+                (double)4
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Queue<double> l = new Queue<double>(arr);
+            Test.DoubleQueueHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Queue<double> l2 = Test.DoubleQueueHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            string[] arr =
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Queue<string> l = new Queue<string>(arr);
+            Test.StringQueueHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Queue<string> l2 = Test.StringQueueHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            Queue<Test.SmallStruct> l = new Queue<Test.SmallStruct>(smallStructArray);
+            Test.SmallStructQueueHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Queue<Test.SmallStruct> l2 = Test.SmallStructQueueHelper.read(@in);
+            test(l2.Count == l.Count);
+            IEnumerator<Test.SmallStruct> e = l.GetEnumerator();
+            IEnumerator<Test.SmallStruct> e2 = l2.GetEnumerator();
+            while(e.MoveNext() && e2.MoveNext())
+            {
+                test(e.Current.Equals(e2.Current));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            bool[] arr =
+            {
+                true,
+                false,
+                true,
+                false
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.BoolCollection l = new Test.BoolCollection(arr);
+            Test.BoolCollectionHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.BoolCollection l2 = Test.BoolCollectionHelper.read(@in);
+            test(Compare(l, l2));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            int[] arr =
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.IntCollection l = new Test.IntCollection(arr);
+            Test.IntCollectionHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.IntCollection l2 = Test.IntCollectionHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            string[] arr =
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.StringCollection l = new Test.StringCollection(arr);
+            Test.StringCollectionHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.StringCollection l2 = Test.StringCollectionHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            Test.MyEnum[] arr =
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.MyEnumCollection l = new Test.MyEnumCollection(arr);
+            Test.MyEnumCollectionHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.MyEnumCollection l2 = Test.MyEnumCollectionHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.SmallStructCollection l = new Test.SmallStructCollection(smallStructArray);
+            Test.SmallStructCollectionHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.SmallStructCollection l2 = Test.SmallStructCollectionHelper.read(@in);
+            test(l2.Count == l.Count);
+            IEnumerator<Test.SmallStruct> e = l.GetEnumerator();
+            IEnumerator<Test.SmallStruct> e2 = l2.GetEnumerator();
+            while(e.MoveNext() && e2.MoveNext())
+            {
+                test(e.Current.Equals(e2.Current));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.MyClassCollection l = new Test.MyClassCollection(myClassArray);
+            Test.MyClassCollectionHelper.write(@out, l);
+            @out.writePendingObjects();
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.MyClassCollection l2 = Test.MyClassCollectionHelper.read(@in);
+            @in.readPendingObjects();
+            test(l2.Count == l.Count);
+            for(int i = 0; i < l2.Count; ++i)
+            {
+                test(l2[i] != null);
+                test(l2[i].c == l2[i]);
+                test(l2[i].o == l2[i]);
+                test(l2[i].s.e == Test.MyEnum.enum2);
+                test(Compare(l2[i].seq1, l[i].seq1));
+                test(Compare(l2[i].seq2, l[i].seq2));
+                test(Compare(l2[i].seq3, l[i].seq3));
+                test(Compare(l2[i].seq4, l[i].seq4));
+                test(Compare(l2[i].seq5, l[i].seq5));
+                test(Compare(l2[i].seq6, l[i].seq6));
+                test(Compare(l2[i].seq7, l[i].seq7));
+                test(Compare(l2[i].seq8, l[i].seq8));
+                test(Compare(l2[i].seq9, l[i].seq9));
+                test(l2[i].d["hi"].Equals(l2[i]));
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            string[] arr =
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
+            string[][] arrS =
+            {
+                arr,
+                new string[0],
+                arr
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            List<string[]> l = new List<string[]>(arrS);
+            Test.StringSListHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            List<string[]> l2 = Test.StringSListHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            string[] arr =
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
+            string[][] arrS =
+            {
+                arr,
+                new string[0],
+                arr
+            };
+            @out = Ice.Util.createOutputStream(communicator);
+            Stack<string[]> l = new Stack<string[]>(arrS);
+            Test.StringSStackHelper.write(@out, l);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Stack<string[]> l2 = Test.StringSStackHelper.read(@in);
+            test(Compare(l2, l));
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            SortedDictionary<string, string> dict = new SortedDictionary<string, string>();
+            dict.Add("key1", "value1");
+            dict.Add("key2", "value2");
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.SortedStringStringDHelper.write(@out, dict);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            SortedDictionary<string, string> dict2 = Test.SortedStringStringDHelper.read(@in);
+            test(Ice.CollectionComparer.Equals(dict2, dict));
+        }
+
+        {
+            Test.StringIntDCollection dict = new Test.StringIntDCollection();
+            dict.Add("key1", 1);
+            dict.Add("key2", 2);
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.StringIntDCollectionHelper.write(@out, dict);
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.StringIntDCollection dict2 = Test.StringIntDCollectionHelper.read(@in);
+            test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
         Console.WriteLine("ok");

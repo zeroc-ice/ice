@@ -64,6 +64,67 @@ dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyClass> StringMyClassD;
 
+["clr:generic:List"]
+sequence<bool> BoolList;
+["clr:generic:List"]
+sequence<byte> ByteList;
+["clr:generic:List"]
+sequence<MyEnum> MyEnumList;
+["clr:generic:List"]
+sequence<SmallStruct> SmallStructList;
+["clr:generic:List"]
+sequence<MyClass> MyClassList;
+["clr:generic:List"]
+sequence<MyClass*> MyClassProxyList;
+
+["clr:generic:LinkedList"]
+sequence<short> ShortLinkedList;
+["clr:generic:LinkedList"]
+sequence<int> IntLinkedList;
+["clr:generic:LinkedList"]
+sequence<MyEnum> MyEnumLinkedList;
+["clr:generic:LinkedList"]
+sequence<SmallStruct> SmallStructLinkedList;
+
+["clr:generic:Stack"]
+sequence<long> LongStack;
+["clr:generic:Stack"]
+sequence<float> FloatStack;
+["clr:generic:Stack"]
+sequence<SmallStruct> SmallStructStack;
+["clr:generic:Stack"]
+sequence<MyClass*> MyClassProxyStack;
+
+["clr:generic:Queue"]
+sequence<double> DoubleQueue;
+["clr:generic:Queue"]
+sequence<string> StringQueue;
+["clr:generic:Queue"]
+sequence<SmallStruct> SmallStructQueue;
+
+["clr:collection"]
+sequence<bool> BoolCollection;
+["clr:collection"]
+sequence<int> IntCollection;
+["clr:collection"]
+sequence<string> StringCollection;
+["clr:collection"]
+sequence<MyEnum> MyEnumCollection;
+["clr:collection"]
+sequence<SmallStruct> SmallStructCollection;
+["clr:collection"]
+sequence<MyClass> MyClassCollection;
+
+["clr:generic:List"]
+sequence<StringS> StringSList;
+["clr:generic:Stack"]
+sequence<StringS> StringSStack;
+
+["clr:generic:SortedDictionary"]
+dictionary<string, string> SortedStringStringD;
+["clr:collection"]
+dictionary<string, int> StringIntDCollection;
+
 ["clr:serializable:Serialize.Small"] sequence<byte> SerialSmall;
 
 class MyClass
