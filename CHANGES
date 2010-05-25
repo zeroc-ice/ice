@@ -84,6 +84,10 @@ Java Changes
 C# Changes
 ==========
 
+- Fixed a bug in the generated code that prevented sequences from
+  being marshaled using the stream API if the sequences used generic
+  collection types.
+
 - Fixed a bug in the IceSSL plug-in that could incorrectly report a
   certificate verification failure when the IceSSL.CheckCertName
   property is enabled.
