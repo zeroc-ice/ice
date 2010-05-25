@@ -889,7 +889,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         out << nl << stream << ".write" << func << "Seq(" << param << ");";
                     }
-                    else if(isCustom || isCollection)
+                    else if(isCollection)
+                    {
+                        out << nl << stream << ".write" << func << "Seq(" << param << " == null ? null : "
+                            << param << ".ToArray());";
+                    }
+                    else if(isCustom)
                     {
                         if(streamingAPI)
                         {
