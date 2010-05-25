@@ -1023,6 +1023,68 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
     }
 
+    {
+        out = Ice::createOutputStream(communicator);
+        out->write(Test2::Sub2::nestedEnum4);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test2::Sub2::NestedEnum2 e;
+        in->read(e);
+        test(e == Test2::Sub2::nestedEnum4);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test2::Sub2::NestedStruct2 s;
+        s.bo = true;
+        s.by = 1;
+        s.sh = 2;
+        s.i = 3;
+        s.l = 4;
+        s.f = 5.0;
+        s.d = 6.0;
+        s.str = "7";
+        s.e = Test2::Sub2::nestedEnum5;
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test2::Sub2::NestedStruct2 s2;
+        in->read(s2);
+        test(s2 == s);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test2::Sub2::NestedClassStruct2Ptr s = new Test2::Sub2::NestedClassStruct2();
+        s->i = 10;
+        out->write(s);
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test2::Sub2::NestedClassStruct2Ptr s2 = new Test2::Sub2::NestedClassStruct2();
+        in->read(s2);
+        test(s2->i == s->i);
+    }
+
+    {
+        out = Ice::createOutputStream(communicator);
+        Test2::Sub2::NestedException2 ex;
+        ex.str = "str";
+
+        out->write(ex);
+        out->finished(data);
+
+        in = Ice::createInputStream(communicator, data);
+        try
+        {
+            in->throwException();
+            test(false);
+        }
+        catch(const Test2::Sub2::NestedException2& ex1)
+        {
+            test(ex1.str == ex.str);
+        }
+    }
+
     cout << "ok" << endl;
 
 #endif

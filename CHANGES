@@ -46,6 +46,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug in slice2cpp in which streaming code was not generated
+  properly for types in nested modules.
+
 - slice2cpp now generates a "one-shot" constructor for a Slice
   structure if at least one of its members has a default value.
 

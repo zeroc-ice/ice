@@ -441,6 +441,7 @@ public:
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
     bool hasAsyncOps() const;
+    bool hasNonLocalContained(Contained::ContainedType) const;
     std::string thisScope() const;
     void mergeModules();
     void sort();

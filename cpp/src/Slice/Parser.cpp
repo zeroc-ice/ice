@@ -1779,6 +1779,26 @@ Slice::Container::hasAsyncOps() const
     return false;
 }
 
+bool
+Slice::Container::hasNonLocalContained(Contained::ContainedType type) const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        if((*p)->containedType() == type)
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasNonLocalContained(type))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 string
 Slice::Container::thisScope() const
 {

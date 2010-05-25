@@ -6631,7 +6631,9 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c) :
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if(m->structs().empty() && m->enums().empty() && m->exceptions().empty())
+    if(!m->hasNonLocalContained(Contained::ContainedTypeStruct) &&
+       !m->hasNonLocalContained(Contained::ContainedTypeEnum) &&
+       !m->hasNonLocalContained(Contained::ContainedTypeException))
     {
         return false;
     }
