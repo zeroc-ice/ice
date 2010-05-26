@@ -46,7 +46,7 @@ SLICE_SRCS	= Library.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(READLINE_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS) $(READLINE_FLAGS)
 SLICE2CPPFLAGS	:= --ice $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
