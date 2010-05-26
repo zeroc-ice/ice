@@ -58,6 +58,23 @@ Windows executable from the following location:
 
   http://gnuwin32.sourceforge.net/packages/patch.htm
 
+On Windows Vista or later, UAC can make it difficult to use the patch
+utility unless you take extra steps. One solution is to run patch.exe
+in a command window that you started with Administrator privileges
+(right-click on Command Prompt in the Start menu and choose "Run as
+administrator"). If running as administrator is not an option, follow
+these recommendations:
+
+  1. Do not install patch.exe in a system-protected directory such as
+     C:\Program Files.
+
+  2. Create a manifest file named patch.exe.manifest as explained at
+     the link below:
+
+     http://drupal.org/node/99903
+
+     Place the manifest file in the same directory as patch.exe.
+
 
 bzip2
 -----
