@@ -296,7 +296,12 @@ public class Client
             test(count == 1); // Opened by keys.remove()
 
             Transaction tx = connection.beginTransaction();
+            
+            test(keys.size() == alphabet.length());
             test(keys.remove((byte)'a') == true);
+
+            // Verify that size is transactional
+            test(keys.size() == alphabet.length() - 1);
             test(keys.remove((byte)'a') == false);
             tx.commit();
             test(m.containsKey((byte)'a') == false);
@@ -1093,6 +1098,7 @@ public class Client
                 // fastRemove
                 //
                 sub = sm.headMap(first, true);
+              
                 Ice.Identity id = sub.get(first);
                 test(sub.fastRemove(first) == true);
                 test(sub.fastRemove(first) == false);
@@ -1114,6 +1120,31 @@ public class Client
                 NavigableMap<String, java.util.Set<java.util.Map.Entry<Integer, Ice.Identity>>> isub = null;
 
                 isub = sm.mapForCategory();
+            
+                {
+                    Transaction tx = connection.beginTransaction();
+                    
+                    Ice.Identity id = sm.get(sm.firstKey());
+                    int sz = isub.get(id.category).size();
+                    test(sz > 0);
+                    
+
+                    test(sm.fastRemove(sm.firstKey()) == true); 
+                    
+                    
+                    if(sz == 1)
+                    {
+                        test(isub.get(id.category) == null);
+                    }
+                    else
+                    { 
+                        // System.out.println("Check size within tx");
+                        test(isub.get(id.category).size() == sz -1);
+                    }
+                    tx.rollback();
+                    test(isub.get(id.category).size() == sz);
+                }
+
                 final String first = isub.firstKey();
                 final String last = isub.lastKey();
 
@@ -1383,15 +1414,10 @@ public class Client
 
             {
                 NavigableMap<Integer, Ice.Identity> dmap = sm.descendingMap();
-                //
-                // testSortedMap is memory intensive test, so we force garbage
-                // collection before run the test.
-                //
-                System.gc();
+               
                 testSortedMap(dmap, false);
-                System.gc();
                 testSortedMap(dmap.descendingMap(), true); // Ascending submap.
-                System.gc();
+              
             }
 
             int finc, tinc; // Inclusive flags
@@ -2145,7 +2171,6 @@ public class Client
             }
         }
 
-        System.gc();
         System.exit(status);
     }
 }

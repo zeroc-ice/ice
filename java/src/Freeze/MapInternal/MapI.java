@@ -66,7 +66,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(trace.level >= 1)
         {
-            trace.logger.trace("Freeze.Map", "Recreating \"" + dbName + "\"");
+            trace.logger.trace("Freeze.MapInternal.MapI", "Recreating \"" + dbName + "\"");
         }
 
         Transaction tx = connection.currentTransaction();
@@ -92,7 +92,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.Map", "Removing all existing indices for \"" + dbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Removing all existing indices for \"" + dbName + "\"");
                 }
 
                 CatalogIndexList catalogIndexList = new CatalogIndexList(connection, Util.catalogIndexListName(), true);
@@ -122,7 +122,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.Map", "Renaming \"" + dbName + "\" to \"" + oldDbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Renaming \"" + dbName + "\" to \"" + oldDbName + "\"");
                 }
 
                 connection.dbEnv().getEnv().renameDatabase(txn, dbName, null, oldDbName);
@@ -137,7 +137,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.Map", "Writing contents of \"" + oldDbName + "\" to fresh \"" +
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Writing contents of \"" + oldDbName + "\" to fresh \"" +
                                        dbName + "\"");
                 }
 
@@ -164,7 +164,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
                 if(trace.level >= 2)
                 {
-                    trace.logger.trace("Freeze.Map", "Transfer complete; removing \"" + oldDbName + "\"");
+                    trace.logger.trace("Freeze.MapInternal.MapI", "Transfer complete; removing \"" + oldDbName + "\"");
                 }
                 connection.dbEnv().getEnv().removeDatabase(txn, oldDbName, null);
 
@@ -188,7 +188,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(trace.deadlockWarning)
                     {
-                        trace.logger.warning("Deadlock in Freeze.Map.recreate on Db \"" + dbName + "\"; retrying ...");
+                        trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.recreate on Db \"" + dbName + "\"; retrying ...");
                     }
 
                     //
@@ -348,7 +348,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(_trace.level >= 1)
         {
-            _trace.logger.trace("Freeze.Map", "destroying \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.MapI", "destroying \"" + _dbName + "\"");
         }
 
         closeDb();
@@ -400,7 +400,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(_trace.deadlockWarning)
                 {
-                    _trace.logger.warning("Deadlock in Freeze.Map.destroy on Db \"" + _dbName + "\"; retrying...");
+                    _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.destroy on Db \"" + _dbName + "\"; retrying...");
                 }
 
                 //
@@ -687,39 +687,46 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
-        //
-        // The number of records cannot be cached and then adjusted by
-        // the member functions since the map would no longer work in
-        // the presence of transactions - if a record is added (and
-        // the size adjusted) and the transaction aborted then the
-        // cached map size() would be incorrect.
-        //
-
-        //
-        // TODO: DB_FAST_STAT doesn't seem to do what the
-        // documentation says...
-        //
-        try
+        for(;;)
         {
-            com.sleepycat.db.StatsConfig config = new com.sleepycat.db.StatsConfig();
-            //
-            // TODO: DB_FAST_STAT doesn't seem to do what the
-            // documentation says...
-            //
-            //config.setFast(true);
-            com.sleepycat.db.BtreeStats s = (com.sleepycat.db.BtreeStats)_db.db().getStats(null, config);
-            return s.getNumData();
-        }
-        catch(com.sleepycat.db.DatabaseException e)
-        {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(e);
-            ex.message = _trace.errorPrefix + "Db.stat: " + e.getMessage();
-            throw ex;
+            
+            try
+            {
+                com.sleepycat.db.BtreeStats s = (com.sleepycat.db.BtreeStats)_db.db().getStats(_connection.dbTxn(), null);
+                return s.getNumKeys();
+            }
+            catch(com.sleepycat.db.DeadlockException e)
+            {
+                if(_connection.dbTxn() != null)
+                {
+                    DeadlockException ex = new DeadlockException(
+                        _trace.errorPrefix + "Db.getStats: " + e.getMessage(), _connection.currentTransaction());
+                    ex.initCause(e);
+                    throw ex;
+                }
+                else
+                {
+                    if(_trace.deadlockWarning)
+                    {
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.size while " + "reading Db \"" + _dbName +
+                                              "\"; retrying...");
+                    }
+                    //
+                    // Try again
+                    //
+                }
+            }
+            catch(com.sleepycat.db.DatabaseException e)
+            {
+                DatabaseException ex = new DatabaseException();
+                ex.initCause(e);
+                ex.message = _trace.errorPrefix + "Db.getStats: " + e.getMessage();
+                throw ex;
+            }
         }
     }
 
@@ -767,7 +774,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.containsValue while " + "iterating over Db \"" +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsValue while " + "iterating over Db \"" +
                                               _dbName  + "\"; retrying...");
                     }
 
@@ -795,7 +802,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
@@ -807,7 +814,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(_trace.level >= 2)
         {
-            _trace.logger.trace("Freeze.Map", "checking key in Db \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.MapI", "checking key in Db \"" + _dbName + "\"");
         }
 
         for(;;)
@@ -830,7 +837,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.containsKey while " + "reading Db \"" + _dbName +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsKey while " + "reading Db \"" + _dbName +
                                               "\"; retrying...");
                     }
                     //
@@ -908,7 +915,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
@@ -934,7 +941,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.clear on Db \"" + _dbName + "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.clear on Db \"" + _dbName + "\"; retrying...");
                     }
 
                     //
@@ -1135,7 +1142,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db.db() == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + dbName() + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + dbName() + "\" is closed";
             throw ex;
         }
 
@@ -1275,7 +1282,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
@@ -1284,7 +1291,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(_trace.level >= 2)
         {
-            _trace.logger.trace("Freeze.Map", "writing value in Db \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.MapI", "writing value in Db \"" + _dbName + "\"");
         }
 
         com.sleepycat.db.Transaction txn = _connection.dbTxn();
@@ -1313,7 +1320,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.putImpl while " + "writing into Db \"" +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.putImpl while " + "writing into Db \"" +
                                               _dbName + "\"; retrying...");
                     }
 
@@ -1338,13 +1345,13 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
         if(_trace.level >= 2)
         {
-            _trace.logger.trace("Freeze.Map", "deleting value from Db \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.MapI", "deleting value from Db \"" + _dbName + "\"");
         }
 
         com.sleepycat.db.Transaction txn = _connection.dbTxn();
@@ -1373,7 +1380,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.removeImpl while " + "writing into Db \"" +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.removeImpl while " + "writing into Db \"" +
                                               _dbName + "\"; retrying...");
                     }
 
@@ -1398,7 +1405,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         if(_db == null)
         {
             DatabaseException ex = new DatabaseException();
-            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" has been closed";
+            ex.message = _trace.errorPrefix + "\"" + _dbName + "\" is closed";
             throw ex;
         }
 
@@ -1406,7 +1413,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
 
         if(_trace.level >= 2)
         {
-            _trace.logger.trace("Freeze.Map", "reading value from Db \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.MapI", "reading value from Db \"" + _dbName + "\"");
         }
 
         for(;;)
@@ -1436,7 +1443,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.Map.getImpl while " + "reading Db \"" + _dbName +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.getImpl while " + "reading Db \"" + _dbName +
                                               "\"; retrying...");
                     }
 

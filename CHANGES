@@ -87,6 +87,10 @@ Java Changes
   callback facility, applications should derive their classes from
   Ice.Callback.
 
+- The size method on a Freeze.Map and on the value of an indexed 
+  submap now use the current transaction associated with the
+  connection, if any.
+
 
 C# Changes
 ==========

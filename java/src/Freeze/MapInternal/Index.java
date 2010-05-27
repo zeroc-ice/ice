@@ -252,45 +252,50 @@ public abstract class Index<K, V, I>
         {
             for(;;)
             {
-                com.sleepycat.db.Cursor dbc = null;
                 try
                 {
-                    dbc = _db.openCursor(null, null);
-                    if(dbc.getSearchKey(dbKey, dbValue, null) == com.sleepycat.db.OperationStatus.SUCCESS)
+                    com.sleepycat.db.Cursor dbc = null;
+                    try
                     {
-                        return dbc.count();
+                        dbc = _db.openCursor(_map.connection().dbTxn(), null);
+                        if(dbc.getSearchKey(dbKey, dbValue, null) == com.sleepycat.db.OperationStatus.SUCCESS)
+                        {
+                            return dbc.count();
+                        }
+                        else
+                        {
+                            return 0;
+                        }
                     }
-                    else
+                    finally
                     {
-                        return 0;
+                        if(dbc != null)
+                        {
+                            dbc.close();
+                        }
                     }
                 }
                 catch(com.sleepycat.db.DeadlockException dx)
                 {
-                    if(_trace.deadlockWarning)
+                    if(_map.connection().dbTxn() != null)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapIndex.count while iterating over index \"" +
-                                              _dbName + "\"; retrying...");
+                        DeadlockException ex = new DeadlockException(
+                            _trace.errorPrefix + "Dbc.count: " + dx.getMessage(), _map.connection().currentTransaction());
+                        ex.initCause(dx);
+                        throw ex;
                     }
-
-                    //
-                    // Retry
-                    //
-                }
-                finally
-                {
-                    if(dbc != null)
+                    else
                     {
-                        try
+                        
+                        if(_trace.deadlockWarning)
                         {
-                            dbc.close();
+                            _trace.logger.warning("Deadlock in Freeze.MapInternal.Index.count while iterating over index \"" +
+                                                  _dbName + "\"; retrying...");
                         }
-                        catch(com.sleepycat.db.DeadlockException dx)
-                        {
-                            //
-                            // Ignored
-                            //
-                        }
+                        
+                        //
+                        // Retry
+                        //
                     }
                 }
             }
@@ -419,7 +424,7 @@ public abstract class Index<K, V, I>
 
         if(_trace.level >= 2)
         {
-            _trace.logger.trace("Freeze.MapIndex", "checking key in Db \"" + _dbName + "\"");
+            _trace.logger.trace("Freeze.MapInternal.Index", "checking key in Db \"" + _dbName + "\"");
         }
 
         for(;;)
@@ -442,7 +447,7 @@ public abstract class Index<K, V, I>
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapIndex.containsKey while " + "reading Db \"" +
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.Index.containsKey while " + "reading Db \"" +
                                               _dbName + "\"; retrying...");
                     }
                     //
