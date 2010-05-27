@@ -70,6 +70,9 @@ C++ Changes
 Java Changes
 ============
 
+- Fixed an issue in which intensive use of Freeze or the portable
+  stream objects could cause an OutOfMemoryError.
+
 - Fixed a bug in the Slice2Java ant task in which duplicate Slice
   files could be passed to slice2java. Also fixed a bug in slice2java
   that caused the translator to fail if a duplicate file was passed
