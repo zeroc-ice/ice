@@ -70,8 +70,9 @@ C++ Changes
 Java Changes
 ============
 
-- Fixed an issue in which intensive use of Freeze or the portable
-  stream objects could cause an OutOfMemoryError.
+- Fixed an issue in which intensive use of Freeze or the stream API
+  could cause an OutOfMemoryError. Note that Freeze maps must be
+  regenerated with slice2freezej to incorporate this fix.
 
 - Fixed a bug in the Slice2Java ant task in which duplicate Slice
   files could be passed to slice2java. Also fixed a bug in slice2java
