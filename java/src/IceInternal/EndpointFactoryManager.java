@@ -78,7 +78,7 @@ public final class EndpointFactoryManager
 
                 /*
                 EndpointI e = f.create(s.substring(m.end()), oaEndpoint);
-                BasicStream bs = new BasicStream(_instance, true);
+                BasicStream bs = new BasicStream(_instance, true, false);
                 e.streamWrite(bs);
                 java.nio.ByteBuffer buf = bs.getBuffer();
                 buf.position(0);
@@ -108,7 +108,7 @@ public final class EndpointFactoryManager
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    BasicStream bs = new BasicStream(_instance, true);
+                    BasicStream bs = new BasicStream(_instance, true, false);
                     ue.streamWrite(bs);
                     Buffer buf = bs.getBuffer();
                     buf.b.position(0);

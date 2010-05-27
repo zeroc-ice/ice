@@ -1748,7 +1748,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             // Before we shut down, we send a close connection
             // message.
             //
-            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, false, false);
             os.writeBlob(IceInternal.Protocol.magic);
             os.writeByte(IceInternal.Protocol.protocolMajor);
             os.writeByte(IceInternal.Protocol.protocolMinor);

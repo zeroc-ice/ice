@@ -14,20 +14,26 @@ public class BasicStream
     public
     BasicStream(Instance instance)
     {
-        initialize(instance, false);
+        this(instance, false);
     }
 
     public
     BasicStream(Instance instance, boolean unlimited)
     {
-        initialize(instance, unlimited);
+        initialize(instance, unlimited, instance.cacheMessageBuffers() > 1);
+    }
+
+    public
+    BasicStream(Instance instance, boolean unlimited, boolean direct)
+    {
+        initialize(instance, unlimited, direct);
     }
 
     private void
-    initialize(Instance instance, boolean unlimited)
+    initialize(Instance instance, boolean unlimited, boolean direct)
     {
         _instance = instance;
-        _buf = new Buffer(_instance.messageSizeMax(), _instance.cacheMessageBuffers() > 1);
+        _buf = new Buffer(_instance.messageSizeMax(), direct);
         _closure = null;
         _unlimited = unlimited;
 

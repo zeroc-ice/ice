@@ -14,7 +14,7 @@ public class OutputStreamI implements OutputStream
     public
     OutputStreamI(Communicator communicator)
     {
-        this(communicator, new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator)));
+        this(communicator, new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false));
     }
 
     public

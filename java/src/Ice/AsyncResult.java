@@ -20,8 +20,8 @@ public class AsyncResult
     {
         _instance = instance;
         _operation = op;
-        _is = new IceInternal.BasicStream(instance);
-        _os = new IceInternal.BasicStream(instance);
+        _is = new IceInternal.BasicStream(instance, false, false);
+        _os = new IceInternal.BasicStream(instance, false, false);
         _state = 0;
         _exception = null;
         _callback = del;
