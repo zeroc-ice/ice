@@ -142,6 +142,32 @@ plan to incorporate underscores into your Slice definitions:
   catalog.
 
 
+Freeze locking
+--------------
+
+Ice 3.4.0 added a locking mechanism to Freeze to prevent multiple
+processes from opening the same database environment simultaneously,
+which can lead to data corruption. Freeze uses a lock file named
+__Freeze/lock, which can be found in the database environment
+directory.
+
+In Ice 3.4.1 we added the property Freeze.DbEnv.<env>.LockFile. This
+property determines whether Freeze attempts to create the lock file
+for the named database environment. The default value of this property
+is 1, meaning the lock file is created. Applications should not
+normally need to disable the lock file, but it is useful for utility
+programs such as the FreezeScript tools dumpdb and transformdb. By
+disabling the lock file, these tools are able to inspect a database
+environment that is currently open in another process, regardless of
+whether that process created a lock file.
+
+If you intend to use a FreezeScript tool on a database environment
+that is currently open, please be aware that the property
+Freeze.DbEnv.<env>.DbPrivate=0 must be defined for both the
+FreezeScript tool as well as the other process that has opened the
+environment, otherwise the database can be corrupted.
+
+
 Miscellaneous changes
 ---------------------
 

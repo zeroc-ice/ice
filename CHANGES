@@ -27,6 +27,10 @@ Changes since version 3.4.0
 General Changes
 ===============
 
+- Added the new property Freeze.DbEnv.<db>.LockFile and changed the
+  dumpdb and transformdb utilities so that they can be run safely on
+  a database environment that is currently open in another process.
+
 - Changed the Glacier2 helper classes to cache the client category.
 
 - Added the ability to use underscores in Slice identifiers. See the

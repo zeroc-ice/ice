@@ -10,6 +10,8 @@
 #include <FreezeScript/DumpDescriptors.h>
 #include <FreezeScript/Util.h>
 #include <FreezeScript/Exception.h>
+#include <Freeze/Initialize.h>
+#include <Freeze/Connection.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/FileUtil.h>
@@ -167,6 +169,26 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         cerr << appName << ": " << e.reason << endl;
         usage(appName);
         return EXIT_FAILURE;
+    }
+
+    //
+    // Freeze creates a lock file by default to prevent multiple processes from opening
+    // the same database environment simultaneously. In the case of a read-only program
+    // such as dumpdb, however, we still want to be able to open the environment despite
+    // the lock. This assumes of course that the other process has opened the environment
+    // with DbPrivate=0. If DbPrivate=0 is also set for dumpdb, we disable the lock.
+    //
+    if(!args.empty())
+    {
+        //
+        // If an argument is present, we assume it is the name of the database environment.
+        //
+        Ice::PropertiesPtr props = communicator->getProperties();
+        string prefix = "Freeze.DbEnv." + args[0];
+        if(props->getPropertyAsIntWithDefault(prefix + ".DbPrivate", 1) == 0)
+        {
+            props->setProperty(prefix + ".LockFile", "0");
+        }
     }
 
     if(opts.isSet("h"))
@@ -457,6 +479,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
 
     DbEnv dbEnv(0);
     DbTxn* txn = 0;
+    Freeze::ConnectionPtr connection;
     int status = EXIT_SUCCESS;
     try
     {
@@ -471,9 +494,16 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         // Open the database environment and start a transaction.
         //
         {
-            u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_RECOVER | DB_CREATE;
+            u_int32_t flags = 0;
             dbEnv.open(dbEnvName.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }
+
+        //
+        // We're creating a connection just to make sure the database environment
+        // isn't locked.
+        //
+        connection = Freeze::createConnection(communicator, dbEnvName, dbEnv);
+
         dbEnv.txn_begin(0, &txn, 0);
 
         FreezeScript::ErrorReporterPtr errorReporter = new FreezeScript::ErrorReporter(cerr, false);
@@ -570,6 +600,11 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         {
             cerr << appName << ": database error: " << ex.what() << endl;
         }
+        if(connection)
+        {
+            connection->close();
+            connection = 0;
+        }
         throw;
     }
 
@@ -578,6 +613,10 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         if(txn)
         {
             txn->abort();
+        }
+        if(connection)
+        {
+            connection->close();
         }
         dbEnv.close(0);
     }

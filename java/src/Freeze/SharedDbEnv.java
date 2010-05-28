@@ -280,15 +280,30 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             throw new DatabaseException("DbHome directory `" + dbHome + "' does not exists");
         }
 
-        dir = new java.io.File(dbHome + "/__Freeze");
-        if(!dir.exists())
+        //
+        // Normally the file lock is necessary, but for read-only situations (such as when
+        // using the FreezeScript utilities) this property allows the file lock to be
+        // disabled.
+        //
+        if(properties.getPropertyAsIntWithDefault(propertyPrefix + ".LockFile", 1) > 0)
         {
-            if(!dir.mkdir())
+            //
+            // Use a file lock to prevent multiple processes from opening the same db env. We
+            // create the lock file in a sub-directory to ensure db_hotbackup won't try to copy
+            // the file when backing up the environment (this would fail on Windows where copying
+            // a locked file isn't possible).
+            //
+            dir = new java.io.File(dbHome + "/__Freeze");
+            if(!dir.exists())
             {
-                throw new DatabaseException("Failed to create directory `" + dbHome + "/__Freeze'");
+                if(!dir.mkdir())
+                {
+                    throw new DatabaseException("Failed to create directory `" + dbHome + "/__Freeze'");
+                }
             }
+            _fileLock = new IceUtilInternal.FileLock(dbHome + "/__Freeze/lock");
         }
-        _fileLock = new IceUtilInternal.FileLock(dbHome + "/__Freeze/lock");
+
         try
         {
             if(_ownDbEnv)

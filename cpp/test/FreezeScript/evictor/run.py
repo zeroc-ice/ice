@@ -54,7 +54,7 @@ checkxml = os.path.join(os.getcwd(), "check.xml")
 print "executing evictor transformations...",
 sys.stdout.flush()
 
-command = '"' + transformdb + '" -e -p --old "' + testold + '" --new "' + testnew + '" -f "' + transformxml + '" "' + dbdir + \
+command = '"' + transformdb + '" -c -e -p --old "' + testold + '" --new "' + testnew + '" -f "' + transformxml + '" "' + dbdir + \
     '" evictor.db "' + check_dbdir + '" '
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()

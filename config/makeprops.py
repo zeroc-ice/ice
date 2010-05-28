@@ -373,8 +373,13 @@ const IceInternal::PropertyArray
 """ % { 'className' : self.className, 'section': self.currentSection })
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".h", os.path.join(location, "cpp", "src", "Ice"))
-        shutil.move(self.className + ".cpp", os.path.join(location, "cpp", "src", "Ice"))
+        dest = os.path.join(location, "cpp", "src", "Ice")
+        if os.path.exists(os.path.join(dest, self.className + ".h")):
+            os.remove(os.path.join(dest, self.className + ".h"))
+        if os.path.exists(os.path.join(dest, self.className + ".cpp")):
+            os.remove(os.path.join(dest, self.className + ".cpp"))
+        shutil.move(self.className + ".h", dest)
+        shutil.move(self.className + ".cpp", dest)
 
 class JavaPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -441,7 +446,10 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    };\n\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".java", os.path.join(location, "java", "src", "IceInternal"))
+        dest = os.path.join(location, "java", "src", "IceInternal")
+        if os.path.exists(os.path.join(dest, self.className + ".java")):
+            os.remove(os.path.join(dest, self.className + ".java"))
+        shutil.move(self.className + ".java", dest)
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -503,7 +511,10 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".cs", os.path.join(location, "cs", "src", "Ice"))
+        dest = os.path.join(location, "cs", "src", "Ice")
+        if os.path.exists(os.path.join(dest, self.className + ".cs")):
+            os.remove(os.path.join(dest, self.className + ".cs"))
+        shutil.move(self.className + ".cs", dest)
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):
