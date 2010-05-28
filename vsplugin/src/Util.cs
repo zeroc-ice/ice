@@ -1202,7 +1202,10 @@ namespace Ice.VisualStudio
             if(update && !String.IsNullOrEmpty(defaultValue))
             {
                 project.Globals[name] = defaultValue;
-                project.Globals.set_VariablePersists(name, true);
+                if(!project.Globals.get_VariablePersists(name))
+                {
+                    project.Globals.set_VariablePersists(name, true);
+                }
             }
             return defaultValue;
         }
@@ -1220,7 +1223,7 @@ namespace Ice.VisualStudio
             }
 	    
 	    project.Globals[name] = value;
-	    if(!project.Globals.get_VariableExists(name))
+	    if(!project.Globals.get_VariablePersists(name))
 	    {
                 project.Globals.set_VariablePersists(name, true);
 	    }
