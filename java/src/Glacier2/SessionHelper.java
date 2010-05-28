@@ -180,7 +180,7 @@ public class SessionHelper
             throw new SessionNotExistException();
         }
         
-        return _router.getCategoryForClient();
+        return _category;
     }
 
     /**
@@ -198,7 +198,7 @@ public class SessionHelper
             throw new SessionNotExistException();
         }
         return internalObjectAdapter().add(servant, new Ice.Identity(java.util.UUID.randomUUID().toString(),
-                                                                     _router.getCategoryForClient()));
+                                                                     _category));
     }
     
     /**
@@ -321,6 +321,11 @@ public class SessionHelper
             destroyInternal();
             return;
         }
+
+        //
+        // Cache the category.
+        //
+        _category = _router.getCategoryForClient();
 
         //
         // Assign the session after _destroy is checked.
@@ -483,7 +488,7 @@ public class SessionHelper
                     Glacier2.SessionPrx session = factory.connect(routerPrx);
                     connected(routerPrx, session);
                 }
-                catch (final Exception ex)
+                catch(final Exception ex)
                 {
                     try
                     {
@@ -547,6 +552,7 @@ public class SessionHelper
     private Ice.ObjectAdapter _adapter;
     private Glacier2.RouterPrx _router;
     private Glacier2.SessionPrx _session;
+    private String _category;
 
     private SessionRefreshThread _refreshThread;
     private SessionCallback _callback;

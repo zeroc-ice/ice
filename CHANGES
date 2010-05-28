@@ -27,6 +27,8 @@ Changes since version 3.4.0
 General Changes
 ===============
 
+- Changed the Glacier2 helper classes to cache the client category.
+
 - Added the ability to use underscores in Slice identifiers. See the
   release notes for important information on this change.
 

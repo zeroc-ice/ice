@@ -18,6 +18,7 @@ Ice::ObjectAdapterPtr Glacier2::Application::_adapter;
 Glacier2::RouterPrx Glacier2::Application::_router;
 Glacier2::SessionPrx Glacier2::Application::_session;
 bool Glacier2::Application::_createdSession = false;
+string Glacier2::Application::_category;
 
 namespace
 {
@@ -50,10 +51,12 @@ public:
     void
     ice_exception(const Ice::Exception& ex)
     {
+        //
         // Here the session has gone. The thread
         // terminates, and we notify the
         // application that the session has been
         // destroyed.
+        //
         _pinger->done();
         _app->sessionDestroyed();
     }
@@ -151,10 +154,16 @@ Glacier2::RestartSessionException::ice_throw() const
 Ice::ObjectAdapterPtr
 Glacier2::Application::objectAdapter()
 {
+    if(!_router)
+    {
+        SessionNotExistException ex;
+        throw ex;
+    }
+
     IceUtil::Mutex::Lock lock(*IceInternal::Application::mutex);
     if(!_adapter)
     {
-        _adapter = communicator()->createObjectAdapterWithRouter("", router());
+        _adapter = communicator()->createObjectAdapterWithRouter("", _router);
         _adapter->activate();
     }
     return _adapter;
@@ -183,7 +192,7 @@ Glacier2::Application::categoryForClient()
         SessionNotExistException ex;
         throw ex;
     }
-    return router()->getCategoryForClient();
+    return _category;
 }
 
 int
@@ -197,9 +206,11 @@ Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationD
     int ret = 0;
     do
     {
+        //
         // A copy of the initialization data and the string seq
         // needs to be passed to doMainInternal, as these can be
         // changed by the application.
+        //
         Ice::InitializationData id(initData);
         id.properties = id.properties->clone();
         Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
@@ -213,8 +224,10 @@ Glacier2::Application::doMain(int argc, char* argv[], const Ice::InitializationD
 bool
 Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationData& initData, int& status)
 {
+    //
     // Reset internal state variables from Ice.Application. The
     // remainder are reset at the end of this method.
+    //
     IceInternal::Application::_callbackInProgress = false;
     IceInternal::Application::_destroyed = false;
     IceInternal::Application::_interrupted = false;
@@ -261,6 +274,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
             {
                 ping = new SessionPingThreadI(this, _router, (long)_router->getSessionTimeout() / 2);
                 ping->start();
+                _category = _router->getCategoryForClient();
                 IceUtilInternal::ArgVector a(args);
                 status = runWithSession(a.argc, a.argv);
             }
@@ -422,14 +436,16 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         IceInternal::Application::_communicator = 0;
     }
 
-
+    //
     // Reset internal state. We cannot reset the Application state
     // here, since _destroyed must remain true until we re-run
     // this method.
+    //
     _adapter = 0;
     _router = 0;
     _session = 0;
     _createdSession = false;
+    _category.clear();
 
     return restart;
 }

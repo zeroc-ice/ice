@@ -152,7 +152,7 @@ public abstract class Application : Ice.Application
         {
             throw new SessionNotExistException();
         }
-        return router().getCategoryForClient();
+        return _category;
     }
 
     /// <summary>
@@ -184,19 +184,20 @@ public abstract class Application : Ice.Application
     public Ice.ObjectAdapter
     objectAdapter()
     {
+        if(_router == null)
+        {
+            throw new SessionNotExistException();
+        }
+
         lock(this)
         {
             if(_adapter == null)
             {
-                if(_router == null)
-                {
-                    throw new SessionNotExistException();
-                }
                 _adapter = communicator().createObjectAdapterWithRouter("", _router);
                 _adapter.activate();
             }
-            return _adapter;
         }
+        return _adapter;
     }
 
     private class SessionPingThread
@@ -225,10 +226,12 @@ public abstract class Application : Ice.Application
             public override void
             ice_exception(Ice.Exception ex)
             {
+                //
                 // Here the session has gone. The thread
                 // terminates, and we notify the
                 // application that the session has been
                 // destroyed.
+                //
                 _ping.done();
                 _app.sessionDestroyed();
             }
@@ -366,6 +369,7 @@ public abstract class Application : Ice.Application
                     ping = new SessionPingThread(this, _router, (_router.getSessionTimeout() * 1000) / 2);
                     pingThread = new Thread(new ThreadStart(ping.run));
                     pingThread.Start();
+                    _category = _router.getCategoryForClient();
                     status = runWithSession(args);
                 }
             }
@@ -523,6 +527,7 @@ public abstract class Application : Ice.Application
         _router = null;
         _session = null;
         _createdSession = false;
+        _category = null;
 
         return restart;
     }
@@ -531,6 +536,7 @@ public abstract class Application : Ice.Application
     private static Glacier2.RouterPrx _router;
     private static Glacier2.SessionPrx _session;
     private static bool _createdSession = false;
+    private static string _category;
 }
 
 }

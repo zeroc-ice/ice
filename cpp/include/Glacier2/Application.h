@@ -17,7 +17,7 @@
 
 namespace Glacier2
 {
-    
+
 /**
  *
  * This exception is raised if the session should be restarted.
@@ -26,12 +26,12 @@ namespace Glacier2
 class GLACIER2_API RestartSessionException : public IceUtil::Exception
 {
 public:
-    
+
     virtual std::string ice_name() const;
     virtual IceUtil::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
-    
+
 /**
  * An extension of Ice.Application that makes it easy to write
  * Glacier2 applications.
@@ -52,7 +52,7 @@ public:
  * class destroys the current session and restarts the application
  * with another call to {@link #createSession} followed by
  * {@link #runWithSession}.
- * 
+ *
  * The application can optionally override the {@link #sessionDestroyed}
  * callback method if it needs to take action when connectivity with
  * the Glacier2 router is lost.
@@ -91,7 +91,6 @@ public:
     {
     }
 
-
     /**
      * Called once the communicator has been initialized and the Glacier2 session
      * has been established. A derived class must implement <code>runWithSession</code>,
@@ -110,8 +109,7 @@ public:
      * value returned by <code>runWithSession</code>.
      **/
     virtual int runWithSession(int argc, char* argv[]) = 0;
-    
-    
+
     /**
      * Creates a new Glacier2 session. A call to
      * <code>createSession</code> always precedes a call to
@@ -121,7 +119,7 @@ public:
      * @return The Glacier2 session.
      **/
     virtual Glacier2::SessionPrx createSession() = 0;
-    
+
     /**
      * Called to restart the application's Glacier2 session. This
      * method never returns.
@@ -133,7 +131,7 @@ public:
         RestartSessionException ex;
         throw ex;
     }
-    
+
     /**
      * Called when the base class detects that the session has been destroyed.
      * A subclass can override this method to take action after the loss of
@@ -142,7 +140,7 @@ public:
     virtual void sessionDestroyed()
     {
     }
-    
+
     /**
      * Returns the Glacier2 router proxy
      * @return The router proxy.
@@ -170,7 +168,6 @@ public:
      **/
     std::string categoryForClient();
 
-    
     /**
      * Create a new Ice identity for callback objects with the given
      * identity name field.
@@ -190,17 +187,15 @@ public:
      * @return The object adapter.
      */
     Ice::ObjectAdapterPtr objectAdapter();
-    
+
 protected:
-    
-    virtual int
-    doMain(int, char*[], const Ice::InitializationData& initData);
-    
+
+    virtual int doMain(int, char*[], const Ice::InitializationData& initData);
+
 private:
-    
-    bool
-    doMain(Ice::StringSeq&, const Ice::InitializationData&, int&);
-    
+
+    bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&);
+
     /**
      * Run should not be overridden for Glacier2.Application. Instead
      * <code>runWithSession</code> should be used.
@@ -212,11 +207,11 @@ private:
         return 0;
     }
 
-
     static Ice::ObjectAdapterPtr _adapter;
     static Glacier2::RouterPrx _router;
     static Glacier2::SessionPrx _session;
     static bool _createdSession;
+    static std::string _category;
 };
 
 }

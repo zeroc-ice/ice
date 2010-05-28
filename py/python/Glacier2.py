@@ -95,6 +95,7 @@ Application.NoSignalHandling.
         Application._router = None
         Application._session = None
         Application._createdSession = False
+        Application._category = None
 
     def run(self, args):
         raise RuntimeError('run should not be called on Glacier2.Application - call runWithSession instead')
@@ -122,7 +123,7 @@ Application.NoSignalHandling.
     def categoryForClient(self):
         if Application._router == None:
             raise SessionNotExistException()
-        return Application._router.getCategoryForClient()
+        return Application._category
 
     def createCallbackIdentity(self, name):
         return Ice.Identity(name, self.categoryForClient())
@@ -131,9 +132,9 @@ Application.NoSignalHandling.
         return objectAdapter().add(servant, createCallbackIdentity(Ice.generateUUID()))
 
     def objectAdapter(self):
+        if Application._router == None:
+            raise SessionNotExistException()
         if Application._adapter == None:
-            if Application._router == None:
-                raise SessionNotExistException()
             Application._adapter = self.communicator().createObjectAdapterWithRouter("", Application._router)
             Application._adapter.activate()
         return Application._adapter
@@ -174,6 +175,7 @@ Application.NoSignalHandling.
                 if Application._createdSession:
                     ping = SessionPingThread(self, Application._router, Application._router.getSessionTimeout() / 2)
                     ping.start()
+                    Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 
         # We want to restart on those exceptions which indicate a
@@ -242,6 +244,7 @@ Application.NoSignalHandling.
         Application._router = None
         Application._session = None
         Application._createdSession = False
+        Application._category = None
 
         return (restart, status)
 

@@ -175,7 +175,7 @@ public abstract class Application extends Ice.Application
         {
             throw new SessionNotExistException();
         }
-        return _router.getCategoryForClient();
+        return _category;
     }
 
     /**
@@ -209,18 +209,22 @@ public abstract class Application extends Ice.Application
      * @return The object adapter.
      * @throws SessionNotExistException No session exists.
      */
-    public synchronized Ice.ObjectAdapter
+    public Ice.ObjectAdapter
     objectAdapter()
         throws SessionNotExistException
     {
-        if(_adapter == null)
+        if(_router == null)
         {
-            if(_router == null)
+            throw new SessionNotExistException();
+        }
+
+        synchronized(this)
+        {
+            if(_adapter == null)
             {
-                throw new SessionNotExistException();
+                _adapter = communicator().createObjectAdapterWithRouter("", _router);
+                _adapter.activate();
             }
-            _adapter = communicator().createObjectAdapterWithRouter("", _router);
-            _adapter.activate();
         }
         return _adapter;
     }
@@ -394,6 +398,7 @@ public abstract class Application extends Ice.Application
                 {
                     ping = new SessionPingThread(_router, (_router.getSessionTimeout() * 1000) / 2);
                     ping.start();
+                    _category = _router.getCategoryForClient();
                     status.value = runWithSession(argHolder.value);
                 }
             }
@@ -570,6 +575,7 @@ public abstract class Application extends Ice.Application
         _router = null;
         _session = null;
         _createdSession = false;
+        _category = null;
 
         return restart;
     }
@@ -578,4 +584,5 @@ public abstract class Application extends Ice.Application
     private static Glacier2.RouterPrx _router;
     private static Glacier2.SessionPrx _session;
     private static boolean _createdSession = false;
+    private static String _category;
 }
