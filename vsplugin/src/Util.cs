@@ -1211,16 +1211,19 @@ namespace Ice.VisualStudio
         {
             if(project == null || String.IsNullOrEmpty(name))
             {
-                return ;
+                return;
             }
 
             if(project.Globals == null)
             {
                 return;
             }
-
-            project.Globals[name] = value;
-            project.Globals.set_VariablePersists(name, true);
+	    
+	    project.Globals[name] = value;
+	    if(!project.Globals.get_VariableExists(name))
+	    {
+                project.Globals.set_VariablePersists(name, true);
+	    }
         }
         
         public static String getPrecompileHeader(Project project)
