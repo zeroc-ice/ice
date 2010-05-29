@@ -43,13 +43,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     def_s2.prx = communicator->stringToProxy("test");
 
     //
-    // Compare default-constructed structures.
-    //
-    {
-        test(S2() == S2());
-    }
-
-    //
     // Change one primitive member at a time.
     //
     {
