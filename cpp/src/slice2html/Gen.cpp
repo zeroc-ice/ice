@@ -1112,7 +1112,8 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             if(_warnOldCommentFiles.find(fileName) == _warnOldCommentFiles.end())
             {
                 _warnOldCommentFiles.insert(fileName);
-                cerr << fileName << ": warning: file contains old-style javadoc link syntax: `[" << literal << "]'";
+                cerr << fileName << ": warning: file contains old-style javadoc link syntax: `[" << literal << "]'"
+                     << endl;
             }
         }
         else if(s[i] == '{')
