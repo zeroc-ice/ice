@@ -223,7 +223,7 @@ FreezeScript::readCatalog(const Ice::CommunicatorPtr& communicator, const string
         // Open the database environment.
         //
         {
-            u_int32_t flags = DB_THREAD;
+            u_int32_t flags = DB_THREAD | DB_CREATE | DB_INIT_TXN | DB_INIT_MPOOL;
             dbEnv.open(dbEnvName.c_str(), flags, 0);
         }
 
