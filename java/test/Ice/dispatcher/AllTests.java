@@ -20,6 +20,39 @@ import test.Ice.dispatcher.Test.Callback_TestIntf_opWithPayload;
 
 public class AllTests
 {
+    private static abstract class OpCallback extends Callback_TestIntf_op
+    {
+        OpCallback()
+        {
+            _called = false;
+        }
+
+        public synchronized void check()
+        {
+            while(!_called)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+
+            _called = false;
+        }
+
+        public synchronized void called()
+        {
+            assert(!_called);
+            _called = true;
+            notify();
+        }
+
+        private boolean _called;
+    }
+
     private static void
     test(boolean b)
     {
@@ -49,38 +82,44 @@ public class AllTests
         {
             p.op();
 
-            p.begin_op(new Callback_TestIntf_op()
+            OpCallback cb = new OpCallback()
                 {
                     public void
                     response()
                     {
                         test(Dispatcher.isDispatcherThread());
+                        called();
                     }
-                    
-                    public void 
+
+                    public void
                     exception(Ice.LocalException ex)
                     {
                         ex.printStackTrace();
                         test(false);
                     }
-                });
+                };
+            p.begin_op(cb);
+            cb.check();
 
             TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
-            i.begin_op(new Callback_TestIntf_op()
+            cb = new OpCallback()
                 {
                     public void
                     response()
                     {
                         test(false);
                     }
-                    
-                    public void 
+
+                    public void
                     exception(Ice.LocalException ex)
                     {
                         test(ex instanceof Ice.NoEndpointException);
                         test(Dispatcher.isDispatcherThread());
+                        called();
                     }
-                });
+                };
+            i.begin_op(cb);
+            cb.check();
 
             testController.holdAdapter();
             Callback_TestIntf_opWithPayload callback = new Callback_TestIntf_opWithPayload()
@@ -90,14 +129,14 @@ public class AllTests
                     {
                         test(Dispatcher.isDispatcherThread());
                     }
-                    
-                    public void 
+
+                    public void
                     exception(Ice.LocalException ex)
                     {
                         test(ex instanceof Ice.CommunicatorDestroyedException);
                     }
 
-                    public void 
+                    public void
                     sent(boolean sentSynchronously)
                     {
                         test(sentSynchronously || Dispatcher.isDispatcherThread());
@@ -113,6 +152,6 @@ public class AllTests
         }
         out.println("ok");
 
-        p.shutdown();        
+        p.shutdown();
     }
 }

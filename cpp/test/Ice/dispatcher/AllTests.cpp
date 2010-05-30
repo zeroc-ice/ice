@@ -22,20 +22,43 @@ class Callback : public IceUtil::Shared
 {
 public:
 
-    void 
+    Callback() :
+        _called(false)
+    {
+    }
+
+    void check()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        while(!_called)
+        {
+            _m.wait();
+        }
+        _called = false;
+    }
+
+    void
     response()
     {
         test(Dispatcher::isDispatcherThread());
+        called();
     }
 
-    void 
+    void
     exception(const Ice::Exception& ex)
     {
         test(dynamic_cast<const Ice::NoEndpointException*>(&ex));
         test(Dispatcher::isDispatcherThread());
+        called();
     }
 
-    void 
+    void
+    payload()
+    {
+        test(Dispatcher::isDispatcherThread());
+    }
+
+    void
     ignoreEx(const Ice::Exception& ex)
     {
         test(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex));
@@ -46,11 +69,25 @@ public:
     {
         test(sentSynchronously || Dispatcher::isDispatcherThread());
     }
+
+protected:
+
+    void called()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        assert(!_called);
+        _called = true;
+        _m.notify();
+    }
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _m;
+    bool _called;
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
 }
-
 
 void
 allTests(const Ice::CommunicatorPtr& communicator)
@@ -71,19 +108,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         p->op();
 
-        CallbackPtr cb = new Callback();
+        CallbackPtr cb = new Callback;
         Test::Callback_TestIntf_opPtr callback = Test::newCallback_TestIntf_op(cb,
                                                                                &Callback::response,
                                                                                &Callback::exception);
         p->begin_op(callback);
+        cb->check();
 
         Test::TestIntfPrx i = p->ice_adapterId("dummy");
         i->begin_op(callback);
+        cb->check();
 
         testController->holdAdapter();
 
-        Test::Callback_TestIntf_opWithPayloadPtr callback2 = 
-            Test::newCallback_TestIntf_opWithPayload(cb, &Callback::response, &Callback::ignoreEx, &Callback::sent);
+        Test::Callback_TestIntf_opWithPayloadPtr callback2 =
+            Test::newCallback_TestIntf_opWithPayload(cb, &Callback::payload, &Callback::ignoreEx, &Callback::sent);
 
         Ice::ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
@@ -100,5 +139,3 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     p->shutdown();
 }
-
-
