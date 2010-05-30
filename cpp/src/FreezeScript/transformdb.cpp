@@ -811,7 +811,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         cerr << appName << ": database error: " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
-    catch(const IceUtil::FileLockException& ex)
+    catch(const IceUtil::FileLockException&)
     {
         cerr << appName << ": error: database environment is locked" << endl;
         status = EXIT_FAILURE;
