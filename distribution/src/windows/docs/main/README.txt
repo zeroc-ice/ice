@@ -34,7 +34,7 @@ Table of Contents
   2. Supported Windows versions
   3. Third party packages
      - Qt SQL driver
-  4. Ice Visual Studio 2008 Extension
+  4. Ice Visual Studio Extension
      - Activating the plug-in for a project
      - Project properties
      - Environment variables
@@ -66,8 +66,9 @@ This binary distribution provides all Ice run time services and
 development tools to build Ice applications:
 
  - in C++, using Visual Studio 2008 SP1, Visual C++ 2008 Express
-   Edition SP1, or C++Builder 2010
- - in .NET, using Visual Studio 2008 SP1
+   Edition SP1, Visual Studio 2010, Visual C++ 2010 Express Edition,
+   or C++Builder 2010
+ - in .NET, using Visual Studio 2008 SP1 or Visual Studio 2010
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.6.4
  - in Ruby, using Ruby 1.8.6
@@ -103,11 +104,11 @@ This distribution is supported on the following Windows versions:
 This distribution contains binaries for various third-party packages
 that are required to use Ice.
 
- - Berkeley DB 4.8.30 (Visual C++ 2008, C++Builder 2010)
- - OpenSSL 0.9.8l (Visual C++ 2008, Visual C++ 6.0)
- - Expat 2.0.1 (Visual C++ 2008)
- - Bzip2 1.0.5 (Visual C++ 2008, Visual C++ 6.0)
- - Qt 4.5.3 (Visual C++ 2008)
+ - Berkeley DB 4.8.30 (Visual C++ 2008, Visual C++ 2010, C++Builder 2010)
+ - OpenSSL 0.9.8n (Visual C++ 2008, Visual C++ 2010, Visual C++ 6.0)
+ - Expat 2.0.1 (Visual C++ 2008, Visual C++ 2010)
+ - Bzip2 1.0.5 (Visual C++ 2008, Visual C++ 2010, Visual C++ 6.0)
+ - Qt 4.5.3 (Visual C++ 2008, Visual C++ 2010)
  - STLport 4.6.2 (Visual C++ 6.0)
 
 The licenses for these packages are provided in the file
@@ -122,20 +123,22 @@ built-in.
 
 
 ======================================================================
-4. Ice Visual Studio 2008 Extension
+4. Ice Visual Studio Extension
 ======================================================================
 
 The Ice Visual Studio Extension integrates Ice projects into the
-Visual Studio 2008 IDE. The extension supports C++, .NET, VB, and
-Silverlight projects.
+Visual Studio 2008 and Visual Studio 2010 IDEs. The extension supports
+C++, .NET, VB, and Silverlight projects.
 
-The extension is only installed if Visual Studio 2008 is present on
-the target machine. If you install Visual Studio 2008 after installing
-Ice, you will have to re-run the Ice installer and choose "Repair" to
-install the extension.
 
-Note that the extension is not supported for Visual Studio 2008
-Express as Microsoft does not permit extensions to be written for
+The extension for Visual Studio 2008 is only installed if Visual
+Studio 2008 is present on the target machine. Likewise for the Visual
+Studio 2010 extension. If you install Visual Studio 2008 or Visual
+Studio 2010 after installing Ice, you will have to re-run the Ice 
+installer and choose "Repair" to install the extension.
+
+Note that the extension is not supported for Visual Studio Express
+edtitions as Microsoft does not permit extensions to be written for
 Express editions of Visual Studio.
 
 
