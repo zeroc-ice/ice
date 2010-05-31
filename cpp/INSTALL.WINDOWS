@@ -76,7 +76,8 @@ The following C++ compilers are supported:
   C++Builder builds. C++Builder applications can use the Ice services
   but the service executables themselves must come from either a 
   Visual C++ 2008/2010 build or from the Windows installer (which 
-  includes executables built using Visual C++ 2008 Visual C++ 2010).
+  includes executables built using Visual C++ 2008 and Visual C++
+  2010).
 
 
 C++Builder 2010 Setup
