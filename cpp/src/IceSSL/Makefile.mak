@@ -34,7 +34,7 @@ SDIR		= $(slicedir)\IceSSL
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS) ws2_32.lib
