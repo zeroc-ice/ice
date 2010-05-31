@@ -47,11 +47,17 @@ C++ compiler
 
 The following C++ compilers are supported:
 
+- Microsoft Visual C++ 2010 (Professional and Express editions)
+
+  Visual C++ 2010 Express is available for download from:
+
+  http://www.microsoft.com/express/downloads/
+
 - Microsoft Visual C++ 2008 SP1 (Professional and Express editions)
 
   Visual C++ 2008 Express is available for download from:
 
-  http://www.microsoft.com/express/vc/
+  http://www.microsoft.com/express/downloads/
 
 - Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
   (February 2003) and STLport 4.6.2 (or later)
@@ -69,8 +75,8 @@ The following C++ compilers are supported:
   The Ice services (IceGrid, IceStorm, etc.) are not supported with
   C++Builder builds. C++Builder applications can use the Ice services
   but the service executables themselves must come from either a 
-  Visual C++ 2008 build or from the Windows installer (which includes
-  executables built using Visual C++ 2008).
+  Visual C++ 2008/2010 build or from the Windows installer (which 
+  includes executables built using Visual C++ 2008 Visual C++ 2010).
 
 
 C++Builder 2010 Setup
@@ -188,8 +194,8 @@ you like.
 Add the "bin" directory of the third-party libraries to your PATH.
 
 Open a command prompt that is configured for your target architecture.
-For example, when using Visual Studio 2008, you have several
-alternatives:
+For example, when using Visual Studio 2008 or Visual Studio 2010, you
+have several alternatives:
 
  - Visual Studio Command Prompt
  - Visual Studio x64 Win64 Command Prompt
@@ -244,10 +250,10 @@ Ice DLLs and executables.
 x64 Platform
 ======================================================================
 
-Building Ice on x64 with the Visual Studio 2008 C++ compiler is like
-building Ice on x86. You just need need to perform the build in a 
-"Visual Studio x64 Win64 Command Prompt", and not in a regular "Visual
-Studio 2008 Command Prompt".
+Building Ice on x64 with the Visual Studio 2008 or Visual Studio 2010
+C++ compiler is like building Ice on x86. You just need need to
+perform the build in a "Visual Studio x64 Win64 Command Prompt", and
+not in a regular "Visual Studio 2008/2010 Command Prompt".
 
 You can also use the "Visual Studio x64 Cross Tools Command Prompt" if
 you set the following environment variable:
