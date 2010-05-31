@@ -60,15 +60,15 @@ iconv = { \
 }
 
 jgoodies_looks = { \
-    'SunOS' : '/usr/share/java/looks-2.3.0.jar', \
-    'Darwin' : '/opt/looks-2.3.0/looks-2.3.0.jar', \
-    'Linux' : '/opt/looks-2.3.0/looks-2.3.0.jar', \
+    'SunOS' : '/usr/share/java/looks-2.3.1.jar', \
+    'Darwin' : '/opt/looks-2.3.1/looks-2.3.1.jar', \
+    'Linux' : '/opt/looks-2.3.1/looks-2.3.1.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/usr/share/java/forms-1.2.1.jar', \
-    'Darwin' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
-    'Linux' : '/opt/forms-1.2.1/forms-1.2.1.jar', \
+    'SunOS' : '/usr/share/java/forms-1.3.0.jar', \
+    'Darwin' : '/opt/forms-1.3.0/forms-1.3.0.jar', \
+    'Linux' : '/opt/forms-1.3.0/forms-1.3.0.jar', \
 }
 
 proguard = { \
