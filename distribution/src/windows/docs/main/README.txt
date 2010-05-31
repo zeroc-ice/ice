@@ -138,7 +138,7 @@ Studio 2010 after installing Ice, you will have to re-run the Ice
 installer and choose "Repair" to install the extension.
 
 Note that the extension is not supported for Visual Studio Express
-edtitions as Microsoft does not permit extensions to be written for
+editions as Microsoft does not permit extensions to be written for
 Express editions of Visual Studio.
 
 
