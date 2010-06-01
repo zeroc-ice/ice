@@ -73,28 +73,31 @@ def isDarwin():
 def isLinux():
     return sys.platform.startswith("linux")
 
+def getCppCompiler():
+    compiler = ""
+    if os.environ.get("CPP_COMPILER", "") != "":
+        compiler = os.environ["CPP_COMPILER"]
+    else:
+        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
+        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
+    return compiler
+
 
 def isBCC2010():
     if not isWin32():
         return False
-    compiler = ""
-    if os.environ.get("CPP_COMPILER", "") != "":
-        compiler = os.environ["CPP_COMPILER"]
-    else:
-        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-    return compiler == "BCC2010"
+    return getCppCompiler() == "BCC2010"
 
 def isVC6():
     if not isWin32():
         return False
-    compiler = ""
-    if os.environ.get("CPP_COMPILER", "") != "":
-        compiler = os.environ["CPP_COMPILER"]
-    else:
-        config = open(os.path.join(toplevel, "cpp", "config", "Make.rules.mak"), "r")
-        compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-    return compiler == "VC60"
+    return getCppCompiler() == "VC60"
+
+def isVS2010():
+    if not isWin32():
+        return False
+    compiler = getCppCompiler()
+    return compiler == "VC100" or compiler == "VC100_EXPRESS"
 
 #
 # The PHP interpreter is called "php5" on some platforms (e.g., SLES).
@@ -1235,14 +1238,17 @@ def simpleTest(exe, options = ""):
         
 def getCppBinDir():
     binDir = os.path.join(getIceDir("cpp"), "bin")
-    if iceHome and x64:
-        if isSolaris():
-            if isSparc():
-                binDir = os.path.join(binDir, "sparcv9")
-            else:
-                binDir = os.path.join(binDir, "amd64")
-        elif isWin32():
-            binDir = os.path.join(binDir, "x64")
+    if iceHome:
+        if isVS2010():
+            binDir = os.path.join(binDir, "vc100")
+        if x64:
+            if isSolaris():
+                if isSparc():
+                    binDir = os.path.join(binDir, "sparcv9")
+                else:
+                    binDir = os.path.join(binDir, "amd64")
+            elif isWin32():
+                binDir = os.path.join(binDir, "x64")
     return binDir
 
 def getServiceDir():
