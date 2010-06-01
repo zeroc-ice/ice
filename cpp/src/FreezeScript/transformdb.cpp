@@ -753,10 +753,10 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         // DB_THREAD is for compatibility with Freeze (the catalog)
         //
         {
-            u_int32_t flags = DB_THREAD;
+            u_int32_t flags = DB_THREAD | DB_CREATE | DB_INIT_TXN | DB_INIT_MPOOL;
             if(catastrophicRecover)
             {
-                flags |= DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE | DB_RECOVER_FATAL;
+                flags |= DB_INIT_LOG | DB_RECOVER_FATAL;
             }
             dbEnv.open(dbEnvName.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }

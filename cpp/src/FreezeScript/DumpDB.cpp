@@ -494,7 +494,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         // Open the database environment and start a transaction.
         //
         {
-            u_int32_t flags = 0;
+            u_int32_t flags = DB_THREAD | DB_CREATE | DB_INIT_TXN | DB_INIT_MPOOL;
             dbEnv.open(dbEnvName.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }
 

@@ -111,7 +111,7 @@ checkxml = os.path.join(os.getcwd(), "check.xml")
 print "initializing test database...",
 sys.stdout.flush()
 
-command = '"' + transformdb + '" -c --old "' + testold + '" --new "' + testold + '" -f "' + initxml + '" "' + dbdir + \
+command = '"' + transformdb + '" --old "' + testold + '" --new "' + testold + '" -f "' + initxml + '" "' + dbdir + \
     '" default.db "' + init_dbdir + '" '
 
 TestUtil.spawn(command).waitTestSuccess()
