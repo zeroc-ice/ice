@@ -658,6 +658,9 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _write(SocketOperationWrite)
 #endif
 {
+    memset(&_mcastAddr, 0, sizeof(_mcastAddr));
+    memset(&_peerAddr, 0, sizeof(_peerAddr));
+
     _fd = createSocket(true, _addr.ss_family);
     setBufSize(instance);
     setBlock(_fd, false);

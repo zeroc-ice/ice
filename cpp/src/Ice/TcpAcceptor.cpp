@@ -183,11 +183,11 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port) :
+IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port, ProtocolSupport protocol) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
-    _addr(getAddressForServer(host, port, instance->protocolSupport()))
+    _addr(getAddressForServer(host, port, protocol))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET),
     _info(SocketOperationRead)

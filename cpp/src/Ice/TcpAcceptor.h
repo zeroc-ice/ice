@@ -47,7 +47,7 @@ public:
 
 private:
 
-    TcpAcceptor(const InstancePtr&, const std::string&, int);
+    TcpAcceptor(const InstancePtr&, const std::string&, int, ProtocolSupport);
     virtual ~TcpAcceptor();
     friend class TcpEndpointI;
 

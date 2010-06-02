@@ -370,7 +370,7 @@ IceInternal::TcpEndpointI::connectors_async(const EndpointI_connectorsPtr& callb
 AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
-    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
+    TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port, _instance->protocolSupport());
     endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }
