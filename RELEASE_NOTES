@@ -476,10 +476,16 @@ configuration of the Ice assembly as follows:
 
   <dependentAssembly>
     <assemblyIdentity name="Ice" culture="neutral"
-      publicKeyToken="1f998c50fec78381"/>
+      publicKeyToken="cdd571ade22f2f16"/>
     <bindingRedirect oldVersion="3.4.0.0" newVersion="3.4.1.0"/>
     <codeBase version="3.4.1.0" href="...\Ice.dll"/>
   </dependentAssembly>
+
+Note that "cdd571ade22f2f16" is the token corresponding to ZeroC's
+public key for signing the assemblies in binary distributions. If you
+built Ice from sources, your assemblies were signed using the
+development key instead, which you can find in config/IceDevKey.snk.
+The token for the development key is "1f998c50fec78381".
 
 The advantage of installing the policy assemblies into the GAC is that
 they establish binary compatibility for all Ice applications, whereas

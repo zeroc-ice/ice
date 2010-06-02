@@ -138,7 +138,13 @@ using the IceSSL assembly installed in the GAC without the use of the
 *.exe.config files, you must add the FQN to the IceSSL plug-in
 configuration, as shown below:
 
-  Ice.Plugin.IceSSL=IceSSL, Version=@ver@.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
+  Ice.Plugin.IceSSL=IceSSL, Version=@ver@.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16:IceSSL.PluginFactory
+
+Note that "cdd571ade22f2f16" is the token corresponding to ZeroC's
+public key for signing the assemblies in binary distributions. If you
+built Ice from sources, your assemblies were signed using the
+development key instead, which you can find in config/IceDevKey.snk.
+The token for the development key is "1f998c50fec78381".
 
 
 Installation
