@@ -573,15 +573,19 @@ class ServiceManagerI : ServiceManagerDisp_
                 e.reason = err + "unable to load assembly: " + assemblyName;
                 throw e;
             }
-            
+
             //
             // Instantiate the class.
             //
             string className = entryPoint.Substring(sepPos + 1);
-            System.Type c = serviceAssembly.GetType(className);
-            if(c == null)
+            System.Type c = null;
+            try
             {
-                FailureException e = new FailureException();
+                c = serviceAssembly.GetType(className, true);
+            }
+            catch(System.Exception ex)
+            {
+                FailureException e = new FailureException(ex);
                 e.reason = err + "GetType failed for '" + className + "'";
                 throw e;
             }

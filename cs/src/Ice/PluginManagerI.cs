@@ -420,16 +420,20 @@ namespace Ice
                 e.reason = err + "unable to load assembly: '" + assemblyName + "': " + ex.ToString();
                 throw e;
             }
-            
+
             //
             // Instantiate the class.
             //
             PluginFactory pluginFactory = null;
             string className = entryPoint.Substring(sepPos + 1);
-            System.Type c = pluginAssembly.GetType(className);
-            if(c == null)
+            System.Type c = null;
+            try
             {
-                PluginInitializationException e = new PluginInitializationException();
+                c = pluginAssembly.GetType(className, true);
+            }
+            catch(System.Exception ex)
+            {
+                PluginInitializationException e = new PluginInitializationException(ex);
                 e.reason = err + "GetType failed for '" + className + "'";
                 throw e;
             }
