@@ -12,9 +12,8 @@ Table of Contents
 -----------------
 
   1. Note for users of Windows Vista (or later) operating systems
-  2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010)
-  3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
-     Express)
+  2. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
+  3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010 Express)
   4. Building and running the C++ demos (C++ Builder 2010)
   5. Building and running the .NET demos
      - Building the C# demos
@@ -45,7 +44,7 @@ section of this page:
 
 
 ======================================================================
-2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010)
+2. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -53,10 +52,20 @@ The C++ demos are in the demo directory.
 Note that the Visual Studio project files require the Ice Visual
 Studio Extension.
 
-To build a C++ demo, start Visual Studio 2008SP1 and open the solution
-demo\demo.sln. Select your target configuration: Debug or Release,
-Win32 or x64 (on supported x64 platforms). Right click on the desired
-demo in the Solution Explorer window and select "Build".
+If you are using Visual Studio 2010 and you intend to build any of the
+demos that use Freeze, you must first define the IceHome environment
+variable prior to starting Visual Studio. Set the environment variable
+with the directory of your Ice installation, such as
+
+  IceHome=C:\Program Files\ZeroC\Ice-3.4.1
+
+To build a C++ demo, start Visual Studio and open the solution
+demo\demo.sln. If you are using Visual Studio 2010, you will need to
+convert the project files the first time you open the solution.
+
+Select your target configuration: Debug or Release, Win32 or x64 (on
+supported x64 platforms). Right click on the desired demo in the
+Solution Explorer window and select "Build".
 
 To run a demo, open a command window and change to the desired demo
 subdirectory. Review the README file if one is present. Type 'server'
@@ -75,14 +84,14 @@ files for more information.
 
 
 ======================================================================
-3. Building and running the C++ demos (Visual Studio 2008SP1 or 2010
+3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
    Express)
 ======================================================================
 
 The C++ demos are in the demo directory.
 
-Visual Studio Express does not support the Ice Visual Studio
-extension, therefore you must use NMAKE to build the demos.
+Visual C++ Express does not support the Ice Visual Studio extension,
+therefore you must use NMAKE to build the demos.
 
 To build the C++ demos, open a "Visual Studio Command Prompt" window.
 If you installed Ice in a non-default location, set ICE_HOME as shown
@@ -93,8 +102,8 @@ below:
 Change to the demo directory and run the following commands to build
 the demos:
 
-  > set CPP_COMPILER=VC90_EXPRESS   # (For Visual Studio 2008SP1)
-  > set CPP_COMPILER=VC100_EXPRESS  # (For Visual Studio 2010)
+  > set CPP_COMPILER=VC90_EXPRESS   # (For Visual C++ 2008SP1)
+  > set CPP_COMPILER=VC100_EXPRESS  # (For Visual C++ 2010)
   > nmake /f Makefile.mak
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and
