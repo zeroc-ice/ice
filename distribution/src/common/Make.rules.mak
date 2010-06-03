@@ -21,7 +21,7 @@
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC90, VC90_EXPRESS, BCC2010
+# VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, BCC2010
 #
 #CPP_COMPILER		= VC90
 
@@ -48,10 +48,10 @@ SETARGV			= setargv.obj
 !if "$(CPP_COMPILER)" == "BCC2010"
 BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
-!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" 
+!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"  || "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 !elseif "$(CPP_COMPILER)" == ""
-!error Please set CPP_COMPILER to VC90, VC90_EXPRESS or BCC2010
+!error Please set CPP_COMPILER to VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, or BCC2010
 !else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif

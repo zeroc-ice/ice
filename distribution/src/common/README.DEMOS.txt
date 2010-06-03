@@ -12,8 +12,9 @@ Table of Contents
 -----------------
 
   1. Note for users of Windows Vista (or later) operating systems
-  2. Building and running the C++ demos (Visual C++ 2008)
-  3. Building and running the C++ demos (Visual Studio 2008 Express)
+  2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010)
+  3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
+     Express)
   4. Building and running the C++ demos (C++ Builder 2010)
   5. Building and running the .NET demos
      - Building the C# demos
@@ -44,7 +45,7 @@ section of this page:
 
 
 ======================================================================
-2. Building and running the C++ demos (Visual C++ 2008)
+2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -52,7 +53,7 @@ The C++ demos are in the demo directory.
 Note that the Visual Studio project files require the Ice Visual
 Studio Extension.
 
-To build a C++ demo, start Visual Studio 2008 and open the solution
+To build a C++ demo, start Visual Studio 2008SP1 and open the solution
 demo\demo.sln. Select your target configuration: Debug or Release,
 Win32 or x64 (on supported x64 platforms). Right click on the desired
 demo in the Solution Explorer window and select "Build".
@@ -74,7 +75,8 @@ files for more information.
 
 
 ======================================================================
-3. Building and running the C++ demos (Visual Studio 2008 Express)
+3. Building and running the C++ demos (Visual Studio 2008SP1 or 2010
+   Express)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -82,16 +84,17 @@ The C++ demos are in the demo directory.
 Visual Studio Express does not support the Ice Visual Studio
 extension, therefore you must use NMAKE to build the demos.
 
-To build the C++ demos, open a "Visual Studio 2008 Command Prompt"
-window. If you installed Ice in a non-default location, set
-ICE_HOME as shown below:
+To build the C++ demos, open a "Visual Studio Command Prompt" window.
+If you installed Ice in a non-default location, set ICE_HOME as shown
+below:
 
   > set ICE_HOME=<Ice installation root directory>
 
 Change to the demo directory and run the following commands to build
 the demos:
 
-  > set CPP_COMPILER=VC90_EXPRESS
+  > set CPP_COMPILER=VC90_EXPRESS   # (For Visual Studio 2008SP1)
+  > set CPP_COMPILER=VC100_EXPRESS  # (For Visual Studio 2010)
   > nmake /f Makefile.mak
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and

@@ -28,7 +28,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  IceBox
 !endif
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
+!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
 !endif
