@@ -96,6 +96,8 @@ def configurePaths():
             compiler = os.environ["CPP_COMPILER"]
         if compiler == "BCC2010":
             binDir = binDir + "\\bcc10;" + binDir
+        if compiler == "VC100" or compiler == "VC100_EXPRESS":
+            binDir = os.path.join(binDir, "vc100")
 
     shlibVar = None
     libDir = None
