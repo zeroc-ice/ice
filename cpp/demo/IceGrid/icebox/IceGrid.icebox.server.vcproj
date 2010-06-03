@@ -86,10 +86,10 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/helloserviced.pdb"
+				ProgramDatabaseFile="helloserviced.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/helloserviced.lib"
+				ImportLibrary="helloserviced.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -114,7 +114,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\helloserviced.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -186,7 +185,7 @@
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/helloservice.lib"
+				ImportLibrary="helloservice.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -281,10 +280,10 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/helloserviced.pdb"
+				ProgramDatabaseFile="helloserviced.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/helloserviced.lib"
+				ImportLibrary="helloserviced.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -309,7 +308,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\helloserviced.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -381,7 +379,7 @@
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/helloservice.lib"
+				ImportLibrary="helloservice.lib"
 				TargetMachine="17"
 			/>
 			<Tool

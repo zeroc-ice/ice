@@ -86,10 +86,10 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/loggerplugin34d.pdb"
+				ProgramDatabaseFile="loggerplugin34d.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/loggerplugin34d.lib"
+				ImportLibrary="loggerplugin34d.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -114,7 +114,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\loggerplugin34d.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -186,7 +185,7 @@
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/loggerplugin34.lib"
+				ImportLibrary="loggerplugin34.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -281,10 +280,10 @@
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/loggerplugin34d.pdb"
+				ProgramDatabaseFile="loggerplugin34d.pdb"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Debug/loggerplugin34d.lib"
+				ImportLibrary="loggerplugin34d.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -309,7 +308,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy $(OutDir)\loggerplugin34d.* ."
 			/>
 		</Configuration>
 		<Configuration
@@ -381,7 +379,7 @@
 				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/loggerplugin34.lib"
+				ImportLibrary="loggerplugin34.lib"
 				TargetMachine="17"
 			/>
 			<Tool
