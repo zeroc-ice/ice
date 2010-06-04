@@ -26,8 +26,8 @@ public:
     TestTask(const IceUtil::Time& scheduledTime) : _scheduledTime(scheduledTime), _count(0)
     {
     }
-    
-    virtual void 
+
+    virtual void
     runTimerTask()
     {
         Lock sync(*this);
@@ -50,13 +50,13 @@ public:
         return _run != IceUtil::Time();
     }
 
-    int 
+    int
     getCount() const
     {
         Lock sync(*this);
         return _count;
     }
-    
+
     virtual IceUtil::Time
     getRunTime() const
     {
@@ -83,7 +83,7 @@ public:
         }
     }
 
-    void 
+    void
     clear()
     {
         _run = IceUtil::Time();
@@ -107,7 +107,7 @@ public:
     {
     }
 
-    virtual void 
+    virtual void
     runTimerTask()
     {
         Lock sync(*this);
@@ -147,20 +147,21 @@ int main(int argc, char* argv[])
             timer->schedule(task, IceUtil::Time());
             task->waitForRun();
             task->clear();
-	    while(true)
-	    {
-		try
-		{
-                    timer->schedule(task, IceUtil::Time::milliSeconds(-10));
-		    timer->schedule(task, IceUtil::Time());
-		}
-		catch(const IceUtil::IllegalArgumentException&)
-		{
-		    break;
-		}
-                task->waitForRun();
-                task->clear();
-	    }
+
+            //
+            // Verify that the same task cannot be scheduled more than once.
+            //
+            timer->schedule(task, IceUtil::Time::milliSeconds(100));
+            try
+            {
+                timer->schedule(task, IceUtil::Time());
+            }
+            catch(const IceUtil::IllegalArgumentException&)
+            {
+                // Expected.
+            }
+            task->waitForRun();
+            task->clear();
         }
 
         {
@@ -182,7 +183,7 @@ int main(int argc, char* argv[])
             }
 
             random_shuffle(tasks.begin(), tasks.end());
-	    vector<TestTaskPtr>::const_iterator p;
+            vector<TestTaskPtr>::const_iterator p;
             for(p = tasks.begin(); p != tasks.end(); ++p)
             {
                 timer->schedule(*p, (*p)->getScheduledTime());
@@ -191,7 +192,7 @@ int main(int argc, char* argv[])
             for(p = tasks.begin(); p != tasks.end(); ++p)
             {
                 (*p)->waitForRun();
-            }            
+            }
 
             test(IceUtil::Time::now(IceUtil::Time::Monotonic) > start);
 
@@ -210,8 +211,8 @@ int main(int argc, char* argv[])
             timer->scheduleRepeated(task, IceUtil::Time::milliSeconds(20));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
             test(task->hasRun());
-	    test(task->getCount() > 1);
-	    test(task->getCount() < 26);
+            test(task->getCount() > 1);
+            test(task->getCount() < 26);
             test(timer->cancel(task));
             int count = task->getCount();
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
