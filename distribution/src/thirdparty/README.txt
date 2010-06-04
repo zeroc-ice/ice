@@ -19,8 +19,13 @@ third-party dependencies. The installer is available at
 
 If you prefer to compile the third-party packages from source code, we
 recommend that you use the same Visual C++ version to build all of the
-packages. You will need a utility such as WinZip to extract the
-source code distributions.
+packages.
+
+You can use an archive utility such as 7-Zip to extract the source
+code packages in this distribution. 7-Zip is available for free at the
+link below:
+
+  http://www.7-zip.org
 
 For more information about the third-party dependencies, please refer
 to the links below:
