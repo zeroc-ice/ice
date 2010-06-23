@@ -58,6 +58,11 @@ class EvictorIteratorI implements EvictorIterator
     private java.util.Iterator<Ice.Identity>
     nextBatch()
     {
+	if(!_more)
+        {
+	    return null;
+	}
+
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();
 
@@ -65,11 +70,6 @@ class EvictorIteratorI implements EvictorIterator
 
         try
         {
-            if(!_more)
-            {
-                return null;
-            }
-
             Ice.Communicator communicator = _store.communicator();
 
             byte[] firstKey = null;

@@ -60,15 +60,15 @@ Freeze::EvictorIteratorI::next()
 vector<Identity>::const_iterator
 Freeze::EvictorIteratorI::nextBatch()
 {
-    DeactivateController::Guard 
-        deactivateGuard(_store->evictor()->deactivateController());
-
     _batch.clear();
 
     if(!_more)
     {
         return _batch.end();
     }
+
+    DeactivateController::Guard 
+        deactivateGuard(_store->evictor()->deactivateController());
      
     Key firstKey = _key;
 

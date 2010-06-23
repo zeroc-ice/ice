@@ -534,6 +534,14 @@ Test::RemoteEvictorI::RemoteEvictorI(const CommunicatorPtr& communicator, const 
     {
         _evictor = Freeze::createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer);
     }
+
+    //
+    // Check that we can get an iterator on a non-existing facet
+    //
+    Freeze::EvictorIteratorPtr p = _evictor->getIterator("foo", 1);
+    test(p->hasNext() == false);
+
+
     initializer->init(this, _evictor);
 
     _evictorAdapter->addServantLocator(_evictor, category);
