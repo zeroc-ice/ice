@@ -273,7 +273,7 @@ Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
         PostCompletionCallbackPtr cb = _postCompletionCallback;
         _postCompletionCallback = 0;
         
-        cb->postCompletion(committed, deadlock);
+        cb->postCompletion(committed, deadlock, _connection->dbEnv());
     }
 
     ConnectionIPtr connection = _connection;

@@ -73,13 +73,14 @@ class TransactionI implements Transaction
         finally
         {
             _connection.clearTransaction();
+            SharedDbEnv dbEnv = _connection.dbEnv();
             if(_ownConnection)
             {
                 _connection.close();
             }
             _connection = null;
             _txn = null;
-            postCompletion(committed, deadlock);
+            postCompletion(committed, deadlock, dbEnv);
         }
     }
 
@@ -143,13 +144,14 @@ class TransactionI implements Transaction
         finally
         {
             _connection.clearTransaction();
+            SharedDbEnv dbEnv = _connection.dbEnv();
             if(_ownConnection)
             {
                 _connection.close();
             }
             _connection = null;
             _txn = null;
-            postCompletion(false, deadlock);
+            postCompletion(false, deadlock, dbEnv);
         }
     }
 
@@ -217,13 +219,13 @@ class TransactionI implements Transaction
     }
 
     private void
-    postCompletion(boolean committed, boolean deadlock)
+    postCompletion(boolean committed, boolean deadlock, SharedDbEnv dbEnv)
     {
         if(_postCompletionCallback != null)
         {
             try
             {
-                _postCompletionCallback.postCompletion(committed, deadlock);
+                _postCompletionCallback.postCompletion(committed, deadlock, dbEnv);
             }
             finally
             {

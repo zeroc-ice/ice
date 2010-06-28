@@ -102,8 +102,10 @@ Freeze::TransactionalEvictorContext::rollback()
 }
 
 void 
-Freeze::TransactionalEvictorContext::postCompletion(bool committed, bool deadlock)
+Freeze::TransactionalEvictorContext::postCompletion(bool committed, bool deadlock, const SharedDbEnvPtr& dbEnv)
 {
+    dbEnv->setCurrentTransaction(0);
+
     try
     {
         if(committed)

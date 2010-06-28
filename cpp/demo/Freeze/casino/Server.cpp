@@ -253,13 +253,19 @@ CasinoServer::run(int argc, char* argv[])
         _bankPrx->reloadBets();
 
         //
-        // Create players / recreate missing players
+        // Create players / recreate missing players missing players using a transaction
+        // (the transaction is not really necessary here, but a good demo)
         //
 
         const string players[] =
         {
             "al", "bob", "charlie", "dave", "ed", "fred", "gene", "herb", "irvin", "joe", "ken", "lance"
         };
+
+        Freeze::ConnectionPtr connection = Freeze::createConnection(communicator(), _envName);
+        Freeze::TransactionPtr tx = connection->beginTransaction();
+        
+        _playerEvictor->setCurrentTransaction(tx);
 
         for(size_t i = 0; i < 12; ++i)
         {
@@ -275,6 +281,10 @@ CasinoServer::run(int argc, char* argv[])
                 _playerEvictor->add(new PlayerI, ident);
             }
         }
+
+        tx->commit();
+        assert(_playerEvictor->getCurrentTransaction() == 0);
+        connection = 0;
 
         //
         // Everything is ready, activate

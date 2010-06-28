@@ -17,8 +17,13 @@ package Freeze;
 class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallback, PostCompletionCallback
 {
     public void
-    postCompletion(boolean committed, boolean deadlock)
+    postCompletion(boolean committed, boolean deadlock, SharedDbEnv dbEnv)
     {
+        //
+        // Clear the current context
+        //
+        dbEnv.setCurrentTransaction(null);
+
         try
         {
             if(committed)

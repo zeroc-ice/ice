@@ -11,5 +11,5 @@ package Freeze;
 
 interface PostCompletionCallback
 {
-    void postCompletion(boolean committed, boolean deadlock);
+    void postCompletion(boolean committed, boolean deadlock, SharedDbEnv dbEnv);
 }

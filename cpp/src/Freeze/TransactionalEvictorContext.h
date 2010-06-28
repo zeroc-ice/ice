@@ -101,7 +101,7 @@ public:
 
     virtual ~TransactionalEvictorContext();
 
-    virtual void postCompletion(bool, bool);
+    virtual void postCompletion(bool, bool, const SharedDbEnvPtr&);
 
     virtual bool response(bool);
     virtual bool exception(const std::exception&);

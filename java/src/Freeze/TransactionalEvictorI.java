@@ -535,7 +535,10 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                         {
                             if(ownCtx)
                             {
-                                _dbEnv.setCurrentTransaction(null);
+                                //
+                                // The commit or rollback above must have cleared it
+                                //
+                                assert(_dbEnv.getCurrent() == null);
                             }
                         }
                     } while(tryAgain);

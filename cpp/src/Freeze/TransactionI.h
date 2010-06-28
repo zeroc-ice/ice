@@ -23,11 +23,14 @@ typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 struct SharedMutex;
 typedef IceUtil::Handle<SharedMutex> SharedMutexPtr;
 
+class SharedDbEnv;
+typedef IceUtil::Handle<SharedDbEnv> SharedDbEnvPtr;
+
 class PostCompletionCallback : public virtual IceUtil::Shared
 {
 public:
 
-    virtual void postCompletion(bool, bool) = 0;
+    virtual void postCompletion(bool, bool, const SharedDbEnvPtr&) = 0;
 };
 typedef IceUtil::Handle<PostCompletionCallback> PostCompletionCallbackPtr;
 

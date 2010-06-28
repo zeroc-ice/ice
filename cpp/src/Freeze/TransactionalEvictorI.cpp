@@ -356,10 +356,10 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                 }
                 catch(...)
                 {
-                    _dbEnv->setCurrentTransaction(0);
+                    assert(_dbEnv->getCurrent() == 0);
                     throw;
                 }
-                _dbEnv->setCurrentTransaction(0);
+                assert(_dbEnv->getCurrent() == 0);
             }
         }
 
