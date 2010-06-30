@@ -73,6 +73,7 @@ def testtypes():
     h._pass = 2
     i = printI()
     j = _and._lambda;
+    en = _and.EnumNone._None
     print "ok"
 
 def run(args, communicator):

@@ -60,4 +60,8 @@ module and
     };
 
     const int lambda = 0;
+
+    enum EnumNone {
+        None
+    };
 };
