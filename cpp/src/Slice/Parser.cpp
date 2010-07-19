@@ -2142,34 +2142,32 @@ Slice::Container::checkIdentifier(const string& name) const
     {
         _unit->error("illegal trailing underscore in identifier `" + name + "'");
     }
-    else if(name.rfind("__") != string::npos)
+    else if(name.find("__") != string::npos)
     {
         _unit->error("illegal double underscore in identifier `" + name + "'");
     }
-
-    if(_unit->currentIncludeLevel() == 0)
+    else if(_unit->currentIncludeLevel() == 0 && !_unit->allowUnderscore() && name.find('_') != string::npos)
     {
         //
         // For rules controlled by a translator option, we don't complain about included files.
         //
+        _unit->error("illegal underscore in identifier `" + name + "'");
+    }
 
-        if(!_unit->allowUnderscore() && name.find('_') != string::npos)
+    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
+    {
+        //
+        // For rules controlled by a translator option, we don't complain about included files.
+        //
+        if(name.size() >= 3)
         {
-            _unit->error("illegal underscore in identifier `" + name + "'");
-        }
-
-        if(!_unit->allowIcePrefix())
-        {
-            if(name.size() >= 3)
+            string prefix3;
+            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
+            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
+            if(prefix3 == "ice")
             {
-                string prefix3;
-                prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-                prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-                prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-                if(prefix3 == "ice")
-                {
-                    _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-                }
+                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
             }
         }
     }
