@@ -164,12 +164,10 @@ LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 !if "$(ice_src_dist)" != ""
 SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
-SLICE2XSD		= $(bindir)\slice2xsd.exe
 SLICE2FREEZE		= $(bindir)\slice2freeze.exe
 !else
 SLICEPARSERLIB		= $(ice_dir)\lib$(x64suffix)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
-SLICE2XSD		= $(ice_dir)\bin$(x64suffix)\slice2xsd.exe
 SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
 !endif
 
