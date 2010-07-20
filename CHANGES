@@ -23,10 +23,18 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 Changes since version 3.4.1
 ======================================================================
 
+
 Python Changes
 ==============
 
-- Fixed bug where None wasn't recognized as a keyword.
+- Fixed bug where None was not recognized as a keyword.
+
+
+Java Changes
+============
+
+- Fixed a bug in slice2java in which a floating point default value
+  could cause a compile error.
 
 
 ======================================================================

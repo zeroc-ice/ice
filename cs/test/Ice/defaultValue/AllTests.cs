@@ -33,8 +33,8 @@ public class AllTests
             test(v.s == 16000);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.c == Test.Color.red);
             test(v.noDefault == null);
@@ -48,8 +48,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             //test(v.str.Equals("foo bar"));
             test(v.c == Test.Color.blue);
             //test(v.noDefault == null);
@@ -63,8 +63,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.noDefault == null);
         }
@@ -77,8 +77,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.c == Test.Color.green);
             test(v.noDefault == null);
@@ -92,8 +92,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
         }
@@ -106,8 +106,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == (float)5.1);
+            test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
             test(v.c == Test.Color.green);

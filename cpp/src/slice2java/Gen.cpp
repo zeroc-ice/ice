@@ -1312,13 +1312,17 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const s
             case Builtin::KindBool:
             case Builtin::KindShort:
             case Builtin::KindInt:
-            case Builtin::KindFloat:
             case Builtin::KindDouble:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
                 out << value;
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                out << value << "F";
                 break;
             }
         }

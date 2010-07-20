@@ -23,8 +23,8 @@ struct Struct1
     short s = 16000;
     int i = 3;
     long l = 4;
-    float f = 5.0;
-    double d = 6.0;
+    float f = 5.1;
+    double d = 6.2;
     string str = "foo bar";
     Color c = red;
     string noDefault;
@@ -38,8 +38,8 @@ class Base
     short s = 2;
     int i = 3;
     long l = 4;
-    float f = 5.0;
-    double d = 6.0;
+    float f = 5.1;
+    double d = 6.2;
     string str = "foo bar";
     string noDefault;
 };
@@ -57,8 +57,8 @@ exception BaseEx
     short s = 2;
     int i = 3;
     long l = 4;
-    float f = 5.0;
-    double d = 6.0;
+    float f = 5.1;
+    double d = 6.2;
     string str = "foo bar";
     string noDefault;
 };

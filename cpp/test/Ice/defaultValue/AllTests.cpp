@@ -27,8 +27,8 @@ allTests()
         test(v.s == 16000);
         test(v.i == 3);
         test(v.l == 4);
-        test(v.f == 5.0);
-        test(v.d == 6.0);
+        test(v.f == static_cast<float>(5.1));
+        test(v.d == 6.2);
         test(v.str == "foo bar");
         test(v.c == red);
         test(v.noDefault.empty());
@@ -42,8 +42,8 @@ allTests()
         test(v->s == 2);
         test(v->i == 3);
         test(v->l == 4);
-        test(v->f == 5.0);
-        test(v->d == 6.0);
+        test(v->f == static_cast<float>(5.1));
+        test(v->d == 6.2);
         test(v->str == "foo bar");
         test(v->c == blue);
         test(v->noDefault.empty());
@@ -57,8 +57,8 @@ allTests()
         test(v->s == 2);
         test(v->i == 3);
         test(v->l == 4);
-        test(v->f == 5.0);
-        test(v->d == 6.0);
+        test(v->f == static_cast<float>(5.1));
+        test(v->d == 6.2);
         test(v->str == "foo bar");
         test(v->noDefault.empty());
     }
@@ -71,8 +71,8 @@ allTests()
         test(v->s == 2);
         test(v->i == 3);
         test(v->l == 4);
-        test(v->f == 5.0);
-        test(v->d == 6.0);
+        test(v->f == static_cast<float>(5.1));
+        test(v->d == 6.2);
         test(v->str == "foo bar");
         test(v->noDefault.empty());
         test(v->c == green);
@@ -86,8 +86,8 @@ allTests()
         test(v.s == 2);
         test(v.i == 3);
         test(v.l == 4);
-        test(v.f == 5.0);
-        test(v.d == 6.0);
+        test(v.f == static_cast<float>(5.1));
+        test(v.d == 6.2);
         test(v.str == "foo bar");
         test(v.noDefault.empty());
     }
@@ -100,8 +100,8 @@ allTests()
         test(v.s == 2);
         test(v.i == 3);
         test(v.l == 4);
-        test(v.f == 5.0);
-        test(v.d == 6.0);
+        test(v.f == static_cast<float>(5.1));
+        test(v.d == 6.2);
         test(v.str == "foo bar");
         test(v.noDefault.empty());
         test(v.c == green);

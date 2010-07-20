@@ -42,8 +42,8 @@ public class AllTests
             test(v.s == 16000);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
             test(v.str.equals("foo bar"));
             test(v.c == Color.red);
             test(v.noDefault == null);
@@ -57,8 +57,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
             test(v.str.equals("foo bar"));
             test(v.noDefault == null);
         }
@@ -71,8 +71,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
             test(v.str.equals("foo bar"));
             test(v.c == Color.green);
             test(v.noDefault == null);
@@ -86,8 +86,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
         }
@@ -100,8 +100,8 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == 5.0);
-            test(v.d == 6.0);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
             test(v.c == Color.green);

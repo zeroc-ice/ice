@@ -48,8 +48,8 @@ function allTests()
         test($v->s == 16000);
         test($v->i == 3);
         test($v->l == 4);
-        test($v->f == 5.0);
-        test($v->d == 6.0);
+        test($v->f == 5.1);
+        test($v->d == 6.2);
         test($v->str == "foo bar");
         test($v->c == $red);
         test(strlen($v->noDefault) == 0);
@@ -63,8 +63,8 @@ function allTests()
         test($v->s == 2);
         test($v->i == 3);
         test($v->l == 4);
-        test($v->f == 5.0);
-        test($v->d == 6.0);
+        test($v->f == 5.1);
+        test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
     }
@@ -77,8 +77,8 @@ function allTests()
         test($v->s == 2);
         test($v->i == 3);
         test($v->l == 4);
-        test($v->f == 5.0);
-        test($v->d == 6.0);
+        test($v->f == 5.1);
+        test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
         test($v->c == $green);
@@ -92,8 +92,8 @@ function allTests()
         test($v->s == 2);
         test($v->i == 3);
         test($v->l == 4);
-        test($v->f == 5.0);
-        test($v->d == 6.0);
+        test($v->f == 5.1);
+        test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
     }
@@ -106,8 +106,8 @@ function allTests()
         test($v->s == 2);
         test($v->i == 3);
         test($v->l == 4);
-        test($v->f == 5.0);
-        test($v->d == 6.0);
+        test($v->f == 5.1);
+        test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
         test($v->c == $green);
