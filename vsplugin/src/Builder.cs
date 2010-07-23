@@ -441,7 +441,7 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-            if(!document.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if (!Util.isSliceFilename(document.Name))
             {
                 return;
             }
@@ -639,7 +639,7 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(item.Name))
             {
                 return true;
             }
@@ -803,7 +803,7 @@ namespace Ice.VisualStudio
                 return "";
             }
 
-            if(!fullPath.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(fullPath))
             {
                 return "";
             }
@@ -828,7 +828,7 @@ namespace Ice.VisualStudio
                 return "";
             }
 
-            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(item.Name))
             {
                 return "";
             }
@@ -861,7 +861,7 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(item.Name))
             {
                 return true;
             }
@@ -1137,7 +1137,7 @@ namespace Ice.VisualStudio
                 }
                 else if(Util.isProjectItemFile(item))
                 {
-                    if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+                    if(!Util.isSliceFilename(item.Name))
                     {
                         continue;
                     }
@@ -1340,7 +1340,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
+                if(!Util.isSliceFilename(file.Name))
                 {
                     return;
                 }
@@ -1454,7 +1454,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
+                if(!Util.isSliceFilename(file.Name))
                 {
                     _fileTracker.reap(project);
                     return;
@@ -1488,7 +1488,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!file.Name.EndsWith(".ice", StringComparison.Ordinal))
+                if(!Util.isSliceFilename(file.Name))
                 {
                     return;
                 }
@@ -1579,7 +1579,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!oldName.EndsWith(".ice", StringComparison.Ordinal) || !Util.isProjectItemFile(item))
+                if(!Util.isSliceFilename(oldName) || !Util.isProjectItemFile(item))
                 {
                     return;
                 }
@@ -1632,7 +1632,7 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
-                if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+                if(!Util.isSliceFilename(item.Name))
                 {
                     return;
                 }
@@ -1671,7 +1671,7 @@ namespace Ice.VisualStudio
                     return;
                 }
 
-                if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+                if(!Util.isSliceFilename(item.Name))
                 {
                     return;
                 }
@@ -1723,7 +1723,7 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(item.Name))
             {
                 return;
             }
@@ -1758,7 +1758,7 @@ namespace Ice.VisualStudio
                     string path = i.Properties.Item("FullPath").Value.ToString();
                     if(!String.IsNullOrEmpty(path))
                     {
-                        if(path.EndsWith(".ice", StringComparison.Ordinal))
+                        if(Util.isSliceFilename(path))
                         {
                             removeCppGeneratedItems(i, remove);
                         }
@@ -1783,11 +1783,28 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            if(!item.Name.EndsWith(".ice", StringComparison.Ordinal))
+            if(!Util.isSliceFilename(item.Name))
             {
                 return;
             }
             removeCppGeneratedItems(item.ContainingProject, item.Properties.Item("FullPath").Value.ToString(), remove);
+        }
+
+        // Delete from disk, remove from project if remove=true
+        public static void deleteProjectItem(Project project, string file, bool remove)
+        {
+            if (remove)
+            {
+                ProjectItem generated = Util.findItem(file, project.ProjectItems);
+                if (generated != null)
+                {
+                    generated.Remove();
+                }
+            }
+            if (File.Exists(file))
+            {
+                File.Delete(file);
+            }
         }
 
         public static void removeCppGeneratedItems(Project project, String slice, bool remove)
@@ -1796,29 +1813,8 @@ namespace Ice.VisualStudio
             FileInfo hFileInfo = new FileInfo(getCppGeneratedFileName(projectDir, slice, "h"));
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
-            if(remove)
-            {
-                ProjectItem generated = Util.findItem(hFileInfo.FullName, project.ProjectItems);
-                if(generated != null)
-                {
-                    generated.Remove();
-                }
-                generated = Util.findItem(cppFileInfo.FullName, project.ProjectItems);
-                
-                if(generated != null)
-                {
-                    generated.Remove();
-                }
-            }
-            if(File.Exists(hFileInfo.FullName))
-            {
-                File.Delete(hFileInfo.FullName);
-            }
-
-            if(File.Exists(cppFileInfo.FullName))
-            {
-                File.Delete(cppFileInfo.FullName);
-            }
+            deleteProjectItem(project, hFileInfo.FullName, remove);
+            deleteProjectItem(project, cppFileInfo.FullName, remove);
         }
 
         private bool runSliceCompiler(Project project, string file, string outputDir)
@@ -2002,8 +1998,7 @@ namespace Ice.VisualStudio
                     //
                     // Display only errors from this file or files outside the project.
                     //
-                    bool currentFile = Path.GetFullPath(f).Equals(Path.GetFullPath(file),
-                                                                  StringComparison.CurrentCultureIgnoreCase);
+                    bool currentFile = Util.equalPath(f, file);
                     bool found = Util.findItem(f, project.ProjectItems) != null;
                     TaskErrorCategory category = TaskErrorCategory.Error;
                     if(errorMessage.StartsWith("warning:", StringComparison.CurrentCultureIgnoreCase))

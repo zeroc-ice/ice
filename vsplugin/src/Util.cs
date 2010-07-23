@@ -662,6 +662,19 @@ namespace Ice.VisualStudio
             }
         }
 
+        public static bool isSliceFilename(string s)
+        {
+            return s != null && s.EndsWith(".ice", StringComparison.Ordinal);
+        }
+
+        public static bool equalPath(string p1, string p2)
+        {
+            return 0 == String.Compare(
+                Path.GetFullPath(p1).TrimEnd('\\'),
+                Path.GetFullPath(p2).TrimEnd('\\'),
+                StringComparison.CurrentCultureIgnoreCase);
+        }
+
         public static bool isSliceBuilderEnabled(Project project)
         {
             return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
@@ -815,8 +828,7 @@ namespace Ice.VisualStudio
                 else if(Util.isProjectItemFile(i))
                 {
                     string fullPath = i.Properties.Item("FullPath").Value.ToString();
-                    if(Path.GetFullPath(fullPath).Equals(
-                           Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
+                    if (Util.equalPath(fullPath, path))
                     {
                         item = i;
                         break;
@@ -825,7 +837,7 @@ namespace Ice.VisualStudio
                 else if(Util.isProjectItemFolder(i))
                 {
                     string p = Path.GetDirectoryName(i.Properties.Item("FullPath").Value.ToString());
-                    if(p.Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
+                    if (Util.equalPath(p, path))
                     {
                         item = i;
                         break;
@@ -842,7 +854,7 @@ namespace Ice.VisualStudio
                     string p = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(i.ContainingProject.FileName),
                                             Util.normalizePath(Util.getPathRelativeToProject(i))));
 
-                    if(p.Equals(Path.GetFullPath(path), StringComparison.CurrentCultureIgnoreCase))
+                    if (Util.equalPath(p, path))
                     {
                         item = i;
                         break;
@@ -865,7 +877,7 @@ namespace Ice.VisualStudio
             {
                 if(file.ItemName == name)
                 {
-                    if(file.FullPath != fullPath)
+                    if(!Util.equalPath(file.FullPath, fullPath))
                     {
                         file.Remove();
                         break;

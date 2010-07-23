@@ -54,8 +54,7 @@ namespace Ice.VisualStudio
                 {
                     foreach(String path in k.Value)
                     {
-                        if(Path.GetFullPath(path).Equals(Path.GetFullPath(generated), 
-                                                        StringComparison.CurrentCultureIgnoreCase))
+                        if (Util.equalPath(path, generated))
                         {
                             found = true;
                             break;
