@@ -1218,62 +1218,70 @@ Slice::CsVisitor::writeValue(const TypePtr& type)
 }
 
 void
-Slice::CsVisitor::writeConstantValue(const TypePtr& type, const string& value)
+Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp && bp->kind() == Builtin::KindString)
+    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    if(constant)
     {
-        //
-        // Expand strings into the basic source character set. We can't use isalpha() and the like
-        // here because they are sensitive to the current locale.
-        //
-        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                               "0123456789"
-                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-        _out << "\"";                                    // Opening "
-
-        for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-        {
-            if(charSet.find(*c) == charSet.end())
-            {
-                unsigned char uc = *c;                   // char may be signed, so make it positive
-                ostringstream s;
-                s << "\\u";                      // Print as unicode if not in basic source character set
-                s << hex;
-                s.width(4);
-                s.fill('0');
-                s << static_cast<unsigned>(uc);
-                _out << s.str();
-            }
-            else
-            {
-                _out << *c;                              // Print normally if in basic source character set
-            }
-        }
-
-        _out << "\"";                                    // Closing "
-    }
-    else if(bp && bp->kind() == Builtin::KindLong)
-    {
-        _out << value << "L";
-    }
-    else if(bp && bp->kind() == Builtin::KindFloat)
-    {
-        _out << value << "F";
+        _out << fixId(constant->scoped()) << ".value";
     }
     else
     {
-        EnumPtr ep = EnumPtr::dynamicCast(type);
-        if(ep)
+        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        if(bp && bp->kind() == Builtin::KindString)
         {
-            _out << typeToString(type) << "." << fixId(value);
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+            _out << "\"";                                    // Opening "
+
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                if(charSet.find(*c) == charSet.end())
+                {
+                    unsigned char uc = *c;                   // char may be signed, so make it positive
+                    ostringstream s;
+                    s << "\\u";                      // Print as unicode if not in basic source character set
+                    s << hex;
+                    s.width(4);
+                    s.fill('0');
+                    s << static_cast<unsigned>(uc);
+                    _out << s.str();
+                }
+                else
+                {
+                    _out << *c;                              // Print normally if in basic source character set
+                }
+            }
+
+            _out << "\"";                                    // Closing "
+        }
+        else if(bp && bp->kind() == Builtin::KindLong)
+        {
+            _out << value << "L";
+        }
+        else if(bp && bp->kind() == Builtin::KindFloat)
+        {
+            _out << value << "F";
         }
         else
         {
-            _out << value;
+            EnumPtr ep = EnumPtr::dynamicCast(type);
+            if(ep)
+            {
+                _out << typeToString(type) << "." << fixId(value);
+            }
+            else
+            {
+                _out << value;
+            }
         }
     }
 }
@@ -1283,11 +1291,11 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->hasDefaultValue())
+        if((*p)->defaultValueType())
         {
             string memberName = fixId((*p)->name(), baseTypes);
             _out << nl << "this." << memberName << " = ";
-            writeConstantValue((*p)->type(), (*p)->defaultValue());
+            writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
     }
@@ -3543,7 +3551,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     _out << nl << "public abstract class " << name;
     _out << sb;
     _out << sp << nl << "public const " << typeToString(p->type()) << " value = ";
-    writeConstantValue(p->type(), p->value());
+    writeConstantValue(p->type(), p->valueType(), p->value());
     _out << ";";
     _out << eb;
 }

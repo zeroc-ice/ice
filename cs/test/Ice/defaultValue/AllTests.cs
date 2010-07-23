@@ -42,13 +42,26 @@ public class AllTests
 
         {
             Test.Struct2 v = new Test.Struct2();
+            test(v.boolTrue == Test.ConstBool.value);
+            test(v.b == Test.ConstByte.value);
+            test(v.s == Test.ConstShort.value);
+            test(v.i == Test.ConstInt.value);
+            test(v.l == Test.ConstLong.value);
+            test(v.f == Test.ConstFloat.value);
+            test(v.d == Test.ConstDouble.value);
+            test(v.str.Equals(Test.ConstString.value));
+            test(v.c == Test.ConstColor.value);
+        }
+
+        {
+            Test.Struct3 v = new Test.Struct3();
             test(!v.boolFalse);
             test(v.boolTrue);
             test(v.b == 1);
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1F);
             test(v.d == 6.2);
             //test(v.str.Equals("foo bar"));
             test(v.c == Test.Color.blue);
@@ -63,7 +76,7 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.noDefault == null);
@@ -77,7 +90,7 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.c == Test.Color.green);
@@ -92,7 +105,7 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
@@ -106,7 +119,7 @@ public class AllTests
             test(v.s == 2);
             test(v.i == 3);
             test(v.l == 4);
-            test(v.f == (float)5.1);
+            test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);

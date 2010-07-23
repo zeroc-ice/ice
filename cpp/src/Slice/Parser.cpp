@@ -1033,7 +1033,7 @@ Slice::Container::createEnumerator(const string& name)
 
 ConstPtr
 Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& literalType, const string& value, const string& literal,
+                              const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
                               NodeType nt)
 {
     checkIdentifier(name);
@@ -1074,12 +1074,12 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
     //
     // Validate the constant and its value.
     //
-    if(nt == Real && !validateConstant(name, constType, literalType, value, true))
+    if(nt == Real && !validateConstant(name, constType, valueType, value, true))
     {
         return 0;
     }
 
-    ConstPtr p = new Const(this, name, constType, metaData, value, literal);
+    ConstPtr p = new Const(this, name, constType, metaData, valueType, value, literal);
     _contents.push_back(p);
     return p;
 }
@@ -2270,15 +2270,26 @@ Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2
 }
 
 bool
-Slice::Container::validateConstant(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& literalType,
-                                   const string& value, bool constant)
+Slice::Container::validateConstant(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+                                   const string& value, bool isConstant)
 {
-    const string desc = constant ? "constant" : "data member";
+    //
+    // isConstant indicates whether a constant or a data member (with a default value) is
+    // being defined.
+    //
 
-    if(type == 0)
+    if(!type)
     {
         return false;
     }
+
+    const string desc = isConstant ? "constant" : "data member";
+
+    //
+    // If valueType is a ConstPtr, it means the constant or data member being defined
+    // refers to another constant.
+    //
+    const ConstPtr constant = ConstPtr::dynamicCast(valueType);
 
     //
     // First verify that it is legal to specify a constant or default value for the given type.
@@ -2302,7 +2313,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
                 break;
             default:
             {
-                if(constant)
+                if(isConstant)
                 {
                     _unit->error("constant `" + name + "' has illegal type: `" + b->kindAsString() + "'");
                 }
@@ -2317,7 +2328,7 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
     }
     else if(!e)
     {
-        if(constant)
+        if(isConstant)
         {
             _unit->error("constant `" + name + "' has illegal type");
         }
@@ -2334,13 +2345,28 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
 
     if(b)
     {
+        BuiltinPtr lt;
+
+        if(constant)
+        {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
-        // Strange Sun C++ 5.3 bug.
-        const IceUtil::HandleBase<SyntaxTreeBase>& hb = literalType;
-        BuiltinPtr lt = BuiltinPtr::dynamicCast(hb);
+            // Strange Sun C++ 5.3 bug.
+            const IceUtil::HandleBase<SyntaxTreeBase>& hb = constant->type();
+            lt = BuiltinPtr::dynamicCast(hb);
 #else
-        BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
+            lt = BuiltinPtr::dynamicCast(constant->type());
 #endif
+        }
+        else
+        {
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
+            // Strange Sun C++ 5.3 bug.
+            const IceUtil::HandleBase<SyntaxTreeBase>& hb = valueType;
+            lt = BuiltinPtr::dynamicCast(hb);
+#else
+            lt = BuiltinPtr::dynamicCast(valueType);
+#endif
+        }
 
         if(lt)
         {
@@ -2360,18 +2386,34 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
                 case Builtin::KindInt:
                 case Builtin::KindLong:
                 {
-                    if(lt->kind() != Builtin::KindLong)
+                    switch(lt->kind())
                     {
+                    case Builtin::KindByte:
+                    case Builtin::KindShort:
+                    case Builtin::KindInt:
+                    case Builtin::KindLong:
+                        break;
+                    default:
                         ok = false;
+                        break;
                     }
                     break;
                 }
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 {
-                    if(lt->kind() != Builtin::KindDouble)
+                    switch(lt->kind())
                     {
+                    case Builtin::KindByte:
+                    case Builtin::KindShort:
+                    case Builtin::KindInt:
+                    case Builtin::KindLong:
+                    case Builtin::KindFloat:
+                    case Builtin::KindDouble:
+                        break;
+                    default:
                         ok = false;
+                        break;
                     }
                     break;
                 }
@@ -2383,7 +2425,6 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
                     }
                     break;
                 }
-
                 case Builtin::KindObject:
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
@@ -2457,19 +2498,33 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
 
     if(e)
     {
-        EnumeratorPtr lte = EnumeratorPtr::dynamicCast(literalType);
-        if(!lte)
+        if(constant)
         {
-            string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
-            _unit->error(msg);
-            return false;
+            EnumPtr ec = EnumPtr::dynamicCast(constant->type());
+            if(e != ec)
+            {
+                string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
+                _unit->error(msg);
+                return false;
+            }
         }
-        EnumeratorList elist = e->getEnumerators();
-        if(find(elist.begin(), elist.end(), lte) == elist.end())
+        else
         {
-            string msg = "enumerator `" + value + "' is not defined in enumeration `" + e->scoped() + "'";
-            _unit->error(msg);
-            return false;
+            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+
+            if(!lte)
+            {
+                string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
+                _unit->error(msg);
+                return false;
+            }
+            EnumeratorList elist = e->getEnumerators();
+            if(find(elist.begin(), elist.end(), lte) == elist.end())
+            {
+                string msg = "enumerator `" + value + "' is not defined in enumeration `" + e->scoped() + "'";
+                _unit->error(msg);
+                return false;
+            }
         }
     }
 
@@ -2954,7 +3009,7 @@ Slice::ClassDef::createOperation(const string& name,
 }
 
 DataMemberPtr
-Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
                                   const string& defaultValue, const string& defaultLiteral)
 {
     checkIdentifier(name);
@@ -3077,7 +3132,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const
         _unit->error(msg);
     }
 
-    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
@@ -3335,7 +3390,7 @@ Slice::ClassDef::hasDefaultValues() const
     DataMemberList dml = dataMembers();
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
-        if((*i)->hasDefaultValue())
+        if((*i)->defaultValueType())
         {
             return true;
         }
@@ -3462,7 +3517,7 @@ Slice::Exception::destroy()
 }
 
 DataMemberPtr
-Slice::Exception::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+Slice::Exception::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
                                    const string& defaultValue, const string& defaultLiteral)
 {
     checkIdentifier(name);
@@ -3574,7 +3629,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, cons
         _unit->error(msg);
     }
 
-    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
@@ -3764,7 +3819,7 @@ Slice::Exception::hasDefaultValues() const
     DataMemberList dml = dataMembers();
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
-        if((*i)->hasDefaultValue())
+        if((*i)->defaultValueType())
         {
             return true;
         }
@@ -3803,7 +3858,7 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultLiteralType,
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
                                 const string& defaultValue, const string& defaultLiteral)
 {
     checkIdentifier(name);
@@ -3897,7 +3952,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, const S
         _unit->error(msg);
     }
 
-    SyntaxTreeBasePtr dlt = defaultLiteralType;
+    SyntaxTreeBasePtr dlt = defaultValueType;
     string dv = defaultValue;
     string dl = defaultLiteral;
 
@@ -4021,7 +4076,7 @@ Slice::Struct::hasDefaultValues() const
     DataMemberList dml = dataMembers();
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
-        if((*i)->hasDefaultValue())
+        if((*i)->defaultValueType())
         {
             return true;
         }
@@ -4482,6 +4537,12 @@ Slice::Const::typeMetaData() const
     return _typeMetaData;
 }
 
+SyntaxTreeBasePtr
+Slice::Const::valueType() const
+{
+    return _valueType;
+}
+
 string
 Slice::Const::value() const
 {
@@ -4520,11 +4581,13 @@ Slice::Const::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::Const::Const(const ContainerPtr& container, const string& name, const TypePtr& type,
-                    const StringList& typeMetaData, const string& value, const string& literal) :
+                    const StringList& typeMetaData, const SyntaxTreeBasePtr& valueType, const string& value,
+                    const string& literal) :
     SyntaxTreeBase(container->unit()), 
     Contained(container, name),
     _type(type), 
     _typeMetaData(typeMetaData),
+    _valueType(valueType),
     _value(value),
     _literal(literal)
 {
@@ -5026,12 +5089,6 @@ Slice::DataMember::type() const
     return _type;
 }
 
-bool
-Slice::DataMember::hasDefaultValue() const
-{
-    return _hasDefaultValue;
-}
-
 string
 Slice::DataMember::defaultValue() const
 {
@@ -5042,6 +5099,12 @@ string
 Slice::DataMember::defaultLiteral() const
 {
     return _defaultLiteral;
+}
+
+SyntaxTreeBasePtr
+Slice::DataMember::defaultValueType() const
+{
+    return _defaultValueType;
 }
 
 Contained::ContainedType
@@ -5075,11 +5138,12 @@ Slice::DataMember::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type,
-                              bool hasDefaultValue, const string& defaultValue, const string& defaultLiteral) :
+                              const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
+                              const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
-    _hasDefaultValue(hasDefaultValue),
+    _defaultValueType(defaultValueType),
     _defaultValue(defaultValue),
     _defaultLiteral(defaultLiteral)
 {

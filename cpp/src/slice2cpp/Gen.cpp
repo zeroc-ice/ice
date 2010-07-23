@@ -39,63 +39,75 @@ getDeprecateSymbol(const ContainedPtr& p1, const ContainedPtr& p2)
 }
 
 static void
-writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const string& value, int useWstring,
-                   const StringList& metaData)
+writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+                   const string& value, int useWstring, const StringList& metaData)
 {
-    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    if(bp && bp->kind() == Builtin::KindString)
+    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    if(constant)
     {
-        //
-        // Expand strings into the basic source character set. We can't use isalpha() and the like
-        // here because they are sensitive to the current locale.
-        //
-        static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-                                               "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-                                               "0123456789"
-                                               "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
-        static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
-
-        if((useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring")
-        {
-            out << 'L';
-        }
-        out << "\"";                                    // Opening "
-
-        for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-        {
-            if(charSet.find(*c) == charSet.end())
-            {
-                unsigned char uc = *c;                  // char may be signed, so make it positive
-                ostringstream s;
-                s << "\\";                              // Print as octal if not in basic source character set
-                s.width(3);
-                s.fill('0');
-                s << oct;
-                s << static_cast<unsigned>(uc);
-                out << s.str();
-            }
-            else
-            {
-                out << *c;                              // Print normally if in basic source character set
-            }
-        }
-
-        out << "\"";                                    // Closing "
-    }
-    else if(bp && bp->kind() == Builtin::KindLong)
-    {
-        out << "ICE_INT64(" << value << ")";
+        out << fixKwd(constant->scoped());
     }
     else
     {
-        EnumPtr ep = EnumPtr::dynamicCast(type);
-        if(ep)
+        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        if(bp && bp->kind() == Builtin::KindString)
         {
-            out << fixKwd(value);
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+            if((useWstring & TypeContextUseWstring) || findMetaData(metaData) == "wstring")
+            {
+                out << 'L';
+            }
+            out << "\"";                                    // Opening "
+
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                if(charSet.find(*c) == charSet.end())
+                {
+                    unsigned char uc = *c;                  // char may be signed, so make it positive
+                    ostringstream s;
+                    s << "\\";                              // Print as octal if not in basic source character set
+                    s.width(3);
+                    s.fill('0');
+                    s << oct;
+                    s << static_cast<unsigned>(uc);
+                    out << s.str();
+                }
+                else
+                {
+                    out << *c;                              // Print normally if in basic source character set
+                }
+            }
+
+            out << "\"";                                    // Closing "
+        }
+        else if(bp && bp->kind() == Builtin::KindLong)
+        {
+            out << "ICE_INT64(" << value << ")";
+        }
+        else if(bp && bp->kind() == Builtin::KindFloat)
+        {
+            out << value << "F";
         }
         else
         {
-            out << value;
+            EnumPtr ep = EnumPtr::dynamicCast(type);
+            if(ep)
+            {
+                out << fixKwd(value);
+            }
+            else
+            {
+                out << value;
+            }
         }
     }
 }
@@ -106,7 +118,7 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
     bool first = true;
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->hasDefaultValue())
+        if((*p)->defaultValueType())
         {
             string memberName = fixKwd((*p)->name());
 
@@ -119,7 +131,8 @@ writeDataMemberInitializers(IceUtilInternal::Output& C, const DataMemberList& me
                 C << ',';
             }
             C << nl << memberName << '(';
-            writeConstantValue(C, (*p)->type(), (*p)->defaultValue(), useWstring, (*p)->getMetaData());
+            writeConstantValue(C, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), useWstring,
+                               (*p)->getMetaData());
             C << ')';
         }
     }
@@ -1842,7 +1855,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     H << sp;
     H << nl << "const " << typeToString(p->type(), p->typeMetaData(), _useWstring) << " " << fixKwd(p->name())
       << " = ";
-    writeConstantValue(H, p->type(), p->value(), _useWstring, p->typeMetaData());
+    writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetaData());
     H << ';';
 }
 

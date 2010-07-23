@@ -637,24 +637,22 @@ data_member
     TypePtr type = TypeStringTokPtr::dynamicCast($1)->v.first;
     string name = TypeStringTokPtr::dynamicCast($1)->v.second;
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
-    SyntaxTreeBasePtr defaultLiteralType = value->v.value;
-    string defaultValue = value->v.valueAsString;
-    string defaultLiteral = value->v.valueAsLiteral;
+
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     DataMemberPtr dm;
     if(cl)
     {
-	dm = cl->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
+	dm = cl->createDataMember(name, type, value->v.value, value->v.valueAsString, value->v.valueAsLiteral);
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	dm = st->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
+	dm = st->createDataMember(name, type, value->v.value, value->v.valueAsString, value->v.valueAsLiteral);
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	dm = ex->createDataMember(name, type, defaultLiteralType, defaultValue, defaultLiteral);
+	dm = ex->createDataMember(name, type, value->v.value, value->v.valueAsString, value->v.valueAsLiteral);
     }
     unit->currentContainer()->checkIntroduced(name, dm);
     $$ = dm;
@@ -1578,14 +1576,30 @@ const_initializer
     if(cl.empty())
     {
         def->v.type = TypePtr(0);
-        def->v.value = TypePtr(0);
+        def->v.value = SyntaxTreeBasePtr(0);
         def->v.valueAsString = scoped->v;
         def->v.valueAsLiteral = scoped->v;
     }
     else
     {
 	EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
-	if(!enumerator)
+        ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+	if(enumerator)
+        {
+            unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
+            def->v.type = enumerator->type();
+            def->v.value = enumerator;
+            def->v.valueAsString = scoped->v;
+            def->v.valueAsLiteral = scoped->v;
+        }
+        else if(constant)
+        {
+            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            def->v.value = constant;
+            def->v.valueAsString = constant->value();
+            def->v.valueAsLiteral = constant->value();
+        }
+        else
 	{
 	    string msg = "illegal initializer: `" + scoped->v + "' is a";
 	    static const string vowels = "aeiou";
@@ -1597,11 +1611,6 @@ const_initializer
 	    msg += " " + kindOf;
 	    unit->error(msg); // $$ is dummy
 	}
-	unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
-        def->v.type = enumerator->type();
-        def->v.value = enumerator;
-        def->v.valueAsString = scoped->v;
-        def->v.valueAsLiteral = scoped->v;
     }
     $$ = def;
 }
@@ -1623,7 +1632,7 @@ const_initializer
     ConstDefTokPtr def = new ConstDefTok;
     def->v.type = type;
     def->v.value = type;
-    def->v.valueAsString = literal->v;
+    def->v.valueAsString = "false";
     def->v.valueAsLiteral = "false";
     $$ = def;
 }
@@ -1634,7 +1643,7 @@ const_initializer
     ConstDefTokPtr def = new ConstDefTok;
     def->v.type = type;
     def->v.value = type;
-    def->v.valueAsString = literal->v;
+    def->v.valueAsString = "true";
     def->v.valueAsLiteral = "true";
     $$ = def;
 }
@@ -1649,8 +1658,8 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     StringTokPtr ident = StringTokPtr::dynamicCast($4);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($6);
-    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v,
-                                               value->v.value, value->v.valueAsString, value->v.valueAsLiteral);
+    $$ = unit->currentContainer()->createConst(ident->v, const_type, metaData->v, value->v.value,
+                                               value->v.valueAsString, value->v.valueAsLiteral);
 }
 | ICE_CONST meta_data type '=' const_initializer
 {
@@ -1658,9 +1667,8 @@ const_def
     TypePtr const_type = TypePtr::dynamicCast($3);
     ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($5);
     unit->error("missing constant name");
-    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v,
-                                               value->v.value, value->v.valueAsString,
-                                               value->v.valueAsLiteral, Dummy); // Dummy
+    $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v.value,
+                                               value->v.valueAsString, value->v.valueAsLiteral, Dummy); // Dummy
 }
 ;
 

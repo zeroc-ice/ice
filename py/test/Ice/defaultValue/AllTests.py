@@ -30,6 +30,17 @@ def allTests():
     test(v.c == Test.Color.red)
     test(v.noDefault == '')
 
+    v = Test.Struct2()
+    test(v.boolTrue == Test.ConstBool)
+    test(v.b == Test.ConstByte)
+    test(v.s == Test.ConstShort)
+    test(v.i == Test.ConstInt)
+    test(v.l == Test.ConstLong)
+    test(v.f == Test.ConstFloat)
+    test(v.d == Test.ConstDouble)
+    test(v.str == Test.ConstString)
+    test(v.c == Test.ConstColor)
+
     v = Test.Base()
     test(not v.boolFalse)
     test(v.boolTrue)

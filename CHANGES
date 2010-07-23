@@ -24,6 +24,27 @@ Changes since version 3.4.1
 ======================================================================
 
 
+General Changes
+===============
+
+- It is now possible to use a constant as the default value for a data
+  member. For example:
+
+  // Slice
+  const int MIN = 1;
+
+  struct Info
+  {
+      int size = MIN;
+  };
+
+  It is also possible for a constant to refer to another constant:
+
+  // Slice
+  const int MAXIMUM_SIZE = 100;
+  const int DEFAULT_SIZE = MAXIMUM_SIZE;
+
+
 Python Changes
 ==============
 

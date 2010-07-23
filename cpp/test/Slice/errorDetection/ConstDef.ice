@@ -127,4 +127,22 @@ const byte b4 = 256;                    // overflow
 const string nullstring1 = "a\000";
 const string nullstring2 = "a\x000";
 
+const byte c1 = l1;             // OK
+const short c2 = l1;            // OK
+const int c3 = l1;              // OK
+const long c4  = l1;            // OK
+
+const byte c5 = s2;             // overflow
+const short c6 = i2;            // overflow
+const int c7 = r5;              // overflow
+
+const float c8 = f1;            // OK
+const float c9 = doubleconst;   // OK
+const double c10 = f1;          // OK
+const double c11 = doubleconst; // OK
+
+const string c12 = stringconst; // OK
+
+const color c13 = colorconst;   // OK
+
 };

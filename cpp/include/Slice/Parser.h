@@ -857,6 +857,7 @@ public:
 
     TypePtr type() const;
     StringList typeMetaData() const;
+    SyntaxTreeBasePtr valueType() const;
     std::string value() const;
     std::string literal() const;
     virtual bool uses(const ContainedPtr&) const;
@@ -866,12 +867,13 @@ public:
 
 protected:
 
-    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const std::string&,
-          const std::string&);
+    Const(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
+          const std::string&, const std::string&);
     friend class Container;
 
     TypePtr _type;
     StringList _typeMetaData;
+    SyntaxTreeBasePtr _valueType;
     std::string _value;
     std::string _literal;
 };
@@ -909,9 +911,9 @@ class SLICE_API DataMember : virtual public Contained
 public:
 
     TypePtr type() const;
-    bool hasDefaultValue() const;
     std::string defaultValue() const;
     std::string defaultLiteral() const;
+    SyntaxTreeBasePtr defaultValueType() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -919,13 +921,14 @@ public:
 
 protected:
     
-    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, const std::string&, const std::string&);
+    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
+               const std::string&);
     friend class ClassDef;
     friend class Struct;
     friend class Exception;
 
     TypePtr _type;
-    bool _hasDefaultValue;
+    SyntaxTreeBasePtr _defaultValueType;
     std::string _defaultValue;
     std::string _defaultLiteral;
 };

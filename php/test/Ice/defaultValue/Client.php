@@ -56,6 +56,19 @@ function allTests()
     }
 
     {
+        $v = $NS ? eval("return new Test\\Struct2;") : eval("return new Test_Struct2;");
+        test($v->boolTrue == constant($NS ? "Test\\ConstBool" : "Test_ConstBool"));
+        test($v->b == constant($NS ? "Test\\ConstByte" : "Test_ConstByte"));
+        test($v->s == constant($NS ? "Test\\ConstShort" : "Test_ConstShort"));
+        test($v->i == constant($NS ? "Test\\ConstInt" : "Test_ConstInt"));
+        test($v->l == constant($NS ? "Test\\ConstLong" : "Test_ConstLong"));
+        test($v->f == constant($NS ? "Test\\ConstFloat" : "Test_ConstFloat"));
+        test($v->d == constant($NS ? "Test\\ConstDouble" : "Test_ConstDouble"));
+        test($v->str == constant($NS ? "Test\\ConstString" : "Test_ConstString"));
+        test($v->c == constant($NS ? "Test\\ConstColor" : "Test_ConstColor"));
+    }
+
+    {
         $v = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
         test(!$v->boolFalse);
         test($v->boolTrue);

@@ -70,7 +70,8 @@ protected:
     //
     // Write a constant or default value initializer.
     //
-    void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
+    void writeConstantValue(::IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
+                            const std::string&);
 
     //
     // Generate assignment statements for those data members that have default values.

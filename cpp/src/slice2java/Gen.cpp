@@ -1234,113 +1234,122 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 }
 
 void
-Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const string& value, const string& package)
+Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+                                       const string& value, const string& package)
 {
-    BuiltinPtr bp;
-    EnumPtr ep;
-    if(bp = BuiltinPtr::dynamicCast(type))
+    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    if(constant)
     {
-        switch(bp->kind())
-        {
-            case Builtin::KindString:
-            {
-                out << "\"";
-
-                for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-                {
-                    if(isascii(static_cast<unsigned char>(*c)) && isprint(static_cast<unsigned char>(*c)))
-                    {
-                        switch(*c)
-                        {
-                            case '\\':
-                            case '"':
-                            {
-                                out << "\\";
-                                break;
-                            }
-                        }
-                        out << *c;
-                    }
-                    else
-                    {
-                        switch(*c)
-                        {
-                            case '\r':
-                            {
-                                out << "\\r";
-                                break;
-                            }
-                            case '\n':
-                            {
-                                out << "\\n";
-                                break;
-                            }
-                            default:
-                            {
-                                unsigned char uc = *c;
-                                ostringstream s;
-                                s << "\\u";
-                                s.flags(ios_base::hex);
-                                s.width(4);
-                                s.fill('0');
-                                s << static_cast<unsigned>(uc);
-                                out << s.str();
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                out << "\"";
-                break;
-            }
-            case Builtin::KindByte:
-            {
-                int i = atoi(value.c_str());
-                if(i > 127)
-                {
-                    i -= 256;
-                }
-                out << i; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
-                break;
-            }
-            case Builtin::KindLong:
-            {
-                out << value << "L"; // Need to append "L" modifier for long constants.
-                break;
-            }
-            case Builtin::KindBool:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindDouble:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                out << value;
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                out << value << "F";
-                break;
-            }
-        }
-
-    }
-    else if(ep = EnumPtr::dynamicCast(type))
-    {
-        string val = value;
-        string::size_type pos = val.rfind(':');
-        if(pos != string::npos)
-        {
-            val.erase(0, pos + 1);
-        }
-        out << getAbsolute(ep, package) << '.' << fixKwd(val);
+        out << getAbsolute(constant, package) << ".value";
     }
     else
     {
-        out << value;
+        BuiltinPtr bp;
+        EnumPtr ep;
+        if(bp = BuiltinPtr::dynamicCast(type))
+        {
+            switch(bp->kind())
+            {
+                case Builtin::KindString:
+                {
+                    out << "\"";
+
+                    for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+                    {
+                        if(isascii(static_cast<unsigned char>(*c)) && isprint(static_cast<unsigned char>(*c)))
+                        {
+                            switch(*c)
+                            {
+                                case '\\':
+                                case '"':
+                                {
+                                    out << "\\";
+                                    break;
+                                }
+                            }
+                            out << *c;
+                        }
+                        else
+                        {
+                            switch(*c)
+                            {
+                                case '\r':
+                                {
+                                    out << "\\r";
+                                    break;
+                                }
+                                case '\n':
+                                {
+                                    out << "\\n";
+                                    break;
+                                }
+                                default:
+                                {
+                                    unsigned char uc = *c;
+                                    ostringstream s;
+                                    s << "\\u";
+                                    s.flags(ios_base::hex);
+                                    s.width(4);
+                                    s.fill('0');
+                                    s << static_cast<unsigned>(uc);
+                                    out << s.str();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    out << "\"";
+                    break;
+                }
+                case Builtin::KindByte:
+                {
+                    int i = atoi(value.c_str());
+                    if(i > 127)
+                    {
+                        i -= 256;
+                    }
+                    out << i; // Slice byte runs from 0-255, Java byte runs from -128 - 127.
+                    break;
+                }
+                case Builtin::KindLong:
+                {
+                    out << value << "L"; // Need to append "L" modifier for long constants.
+                    break;
+                }
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindDouble:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    out << value;
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    out << value << "F";
+                    break;
+                }
+            }
+
+        }
+        else if(ep = EnumPtr::dynamicCast(type))
+        {
+            string val = value;
+            string::size_type pos = val.rfind(':');
+            if(pos != string::npos)
+            {
+                val.erase(0, pos + 1);
+            }
+            out << getAbsolute(ep, package) << '.' << fixKwd(val);
+        }
+        else
+        {
+            out << value;
+        }
     }
 }
 
@@ -1349,11 +1358,11 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
-        if((*p)->hasDefaultValue())
+        if((*p)->defaultValueType())
         {
             string memberName = fixKwd((*p)->name());
             out << nl << memberName << " = ";
-            writeConstantValue(out, (*p)->type(), (*p)->defaultValue(), package);
+            writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
             out << ';';
         }
     }
@@ -3542,7 +3551,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     out << nl << "public interface " << name;
     out << sb;
     out << nl << typeToString(type, TypeModeIn, package) << " value = ";
-    writeConstantValue(out, type, p->value(), package);
+    writeConstantValue(out, type, p->valueType(), p->value(), package);
     out << ';' << eb;
     close();
 }

@@ -31,6 +31,29 @@ struct Struct1
     string noDefault;
 };
 
+const bool ConstBool = true;
+const byte ConstByte = 254;
+const short ConstShort = 16000;
+const int ConstInt = 3;
+const long ConstLong = 4;
+const float ConstFloat = 5.1;
+const double ConstDouble = 6.2;
+const string ConstString = "foo bar";
+const Color ConstColor = red;
+
+struct Struct2
+{
+    bool boolTrue = ConstBool;
+    byte b = ConstByte;
+    short s = ConstShort;
+    int i = ConstInt;
+    long l = ConstLong;
+    float f = ConstFloat;
+    double d = ConstDouble;
+    string str = ConstString;
+    Color c = ConstColor;
+};
+
 class Base
 {
     bool boolFalse = false;

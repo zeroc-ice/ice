@@ -10,12 +10,7 @@
 package test.Ice.defaultValue;
 
 import java.io.PrintWriter;
-import test.Ice.defaultValue.Test.Color;
-import test.Ice.defaultValue.Test.Struct1;
-import test.Ice.defaultValue.Test.Base;
-import test.Ice.defaultValue.Test.Derived;
-import test.Ice.defaultValue.Test.BaseEx;
-import test.Ice.defaultValue.Test.DerivedEx;
+import test.Ice.defaultValue.Test.*;
 
 public class AllTests
 {
@@ -47,6 +42,19 @@ public class AllTests
             test(v.str.equals("foo bar"));
             test(v.c == Color.red);
             test(v.noDefault == null);
+        }
+
+        {
+            Struct2 v = new Struct2();
+            test(v.boolTrue == ConstBool.value);
+            test(v.b == ConstByte.value);
+            test(v.s == ConstShort.value);
+            test(v.i == ConstInt.value);
+            test(v.l == ConstLong.value);
+            test(v.f == ConstFloat.value);
+            test(v.d == ConstDouble.value);
+            test(v.str.equals(ConstString.value));
+            test(v.c == ConstColor.value);
         }
 
         {

@@ -21,3 +21,6 @@ ConstDef.ice:124: initializer `-1' for constant `b3' out of range for type byte
 ConstDef.ice:125: initializer `256' for constant `b4' out of range for type byte
 ConstDef.ice:127: illegal NUL character in string constant
 ConstDef.ice:128: illegal NUL character in string constant
+ConstDef.ice:135: initializer `32767' for constant `c5' out of range for type byte
+ConstDef.ice:136: initializer `2147483647' for constant `c6' out of range for type short
+ConstDef.ice:137: initializer `9223372036854775807' for constant `c7' out of range for type int

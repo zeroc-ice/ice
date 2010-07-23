@@ -35,7 +35,20 @@ allTests()
     }
 
     {
-        Struct2Ptr v = new Struct2;
+        Struct2 v;
+        test(v.boolTrue == ConstBool);
+        test(v.b == ConstByte);
+        test(v.s == ConstShort);
+        test(v.i == ConstInt);
+        test(v.l == ConstLong);
+        test(v.f == ConstFloat);
+        test(v.d == ConstDouble);
+        test(v.str == ConstString);
+        test(v.c == ConstColor);
+    }
+
+    {
+        Struct3Ptr v = new Struct3;
         test(!v->boolFalse);
         test(v->boolTrue);
         test(v->b == 1);
