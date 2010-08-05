@@ -100,7 +100,7 @@ string
 IceRuby::getString(VALUE val)
 {
     volatile VALUE result = callRuby(rb_string_value, &val);
-    return RSTRING_PTR(result);
+    return string(RSTRING_PTR(result), RSTRING_LEN(result));
 }
 
 VALUE

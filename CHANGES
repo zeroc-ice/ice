@@ -58,6 +58,14 @@ Java Changes
   could cause a compile error.
 
 
+Ruby Changes
+============
+
+- Fixed a bug in the Ice extension that would cause an ArgumentError
+  to be raised when attempting to print a byte sequence whose value is
+  a string that contains null bytes.
+
+
 ======================================================================
 Changes since version 3.4.0
 ======================================================================

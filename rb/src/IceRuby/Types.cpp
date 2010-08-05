@@ -70,6 +70,39 @@ private:
     void* _closure;
 };
 
+string
+escapeString(const string& str)
+{
+    static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                           "0123456789"
+                                           "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+    static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+
+    ostringstream out;
+
+    for(string::const_iterator c = str.begin(); c != str.end(); ++c)
+    {
+        if(charSet.find(*c) == charSet.end())
+        {
+            unsigned char uc = *c;                  // char may be signed, so make it positive
+            ostringstream s;
+            s << "\\";                              // Print as octal if not in basic source character set
+            s.width(3);
+            s.fill('0');
+            s << oct;
+            s << static_cast<unsigned>(uc);
+            out << s.str();
+        }
+        else
+        {
+            out << *c;                              // Print normally if in basic source character set
+        }
+    }
+
+    return out.str();
+}
+
 }
 
 //
@@ -726,6 +759,16 @@ IceRuby::SequenceInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObj
     }
     else
     {
+        if(TYPE(value) == T_STRING)
+        {
+            PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
+            if(pi && pi->kind == PrimitiveInfo::KindByte)
+            {
+                out << "'" << escapeString(getString(value)) << "'";
+                return;
+            }
+        }
+
         volatile VALUE arr = callRuby(rb_Array, value);
         if(NIL_P(arr))
         {
