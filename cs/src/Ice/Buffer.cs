@@ -9,6 +9,7 @@
 
 namespace IceInternal
 {
+    using System.Diagnostics;
 
     //
     // An instance of ByteBuffer cannot grow beyond its initial capacity.
@@ -107,6 +108,8 @@ namespace IceInternal
 
         private void reserve(int n)
         {
+            Debug.Assert(_capacity == b.capacity());
+
             if(n > _capacity)
             {
                 _capacity = System.Math.Max(n, System.Math.Min(2 * _capacity, _maxCapacity));
@@ -144,9 +147,21 @@ namespace IceInternal
             }
             catch(System.OutOfMemoryException ex)
             {
+                _capacity = b.capacity(); // Restore the previous capacity.
                 Ice.MarshalException e = new Ice.MarshalException(ex);
                 e.reason = "OutOfMemoryException occurred while allocating a ByteBuffer";
                 throw e;
+            }
+            catch(System.Exception ex)
+            {
+                _capacity = b.capacity(); // Restore the previous capacity.
+                Ice.MarshalException e = new Ice.MarshalException(ex);
+                e.reason = "unexpected exception while trying to allocate a ByteBuffer:\n" + ex;
+                throw e;
+            }
+            finally
+            {
+                Debug.Assert(_capacity == b.capacity());
             }
         }
 
