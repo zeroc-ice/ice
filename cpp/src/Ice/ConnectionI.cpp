@@ -1533,14 +1533,20 @@ Ice::ConnectionI::finish()
     if(!_sendStreams.empty())
     {
         assert(!_writeStream.b.empty());
+
+        //
+        // Return the stream to the outgoing call. This is important for 
+        // retriable AMI calls which are not marshalled again.
+        //
+        OutgoingMessage* message = &_sendStreams.front();
+        _writeStream.swap(*message->stream);
+
 #ifdef ICE_USE_IOCP
         //
         // The current message might be sent but not yet removed from _sendStreams. If
         // the response has been received in the meantime, we remove the message from 
         // _sendStreams to not call finished on a message which is already done.
         //
-        OutgoingMessage* message = &_sendStreams.front();
-        _writeStream.swap(*message->stream);
         if(message->requestId > 0 &&
            (message->out && _requests.find(message->requestId) == _requests.end() ||
             message->outAsync && _asyncRequests.find(message->requestId) == _asyncRequests.end()))

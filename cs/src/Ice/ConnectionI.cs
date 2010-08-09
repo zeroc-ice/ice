@@ -1359,12 +1359,17 @@ namespace Ice
                 Debug.Assert(!_writeStream.isEmpty());
 
                 //
+                // Return the stream to the outgoing call. This is important for 
+                // retriable AMI calls which are not marshalled again.
+                //
+                OutgoingMessage message = _sendStreams.Peek();
+                _writeStream.swap(message.stream);
+
+                //
                 // The current message might be sent but not yet removed from _sendStreams. If
                 // the response has been received in the meantime, we remove the message from 
                 // _sendStreams to not call finished on a message which is already done.
                 //
-                OutgoingMessage message = _sendStreams.Peek();
-                _writeStream.swap(message.stream);
                 if(message.requestId > 0 &&
                    (message.@out != null && !_requests.ContainsKey(message.requestId) ||
                     message.outAsync != null && !_asyncRequests.ContainsKey(message.requestId)))

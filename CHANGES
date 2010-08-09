@@ -27,6 +27,9 @@ Changes since version 3.4.1
 General Changes
 ===============
 
+- Fixed a bug which cause a crash if a timeout occurs while sending
+  an AMI request and if automatic retry is enabled (the default).
+
 - It is now possible to use a constant as the default value for a data
   member. For example:
 

@@ -1263,29 +1263,38 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _startCallback = null;
         }
         
-        //
-        // NOTE: for twoway requests which are not sent, finished can be called twice: the 
-        // first time because the outgoing is in the _sendStreams set and the second time 
-        // because it's either in the _requests/_asyncRequests set. This is fine, only the 
-        // first call should be taken into account by the implementation of finished.
-        //
-        
-        for(OutgoingMessage p : _sendStreams)
+        if(!_sendStreams.isEmpty())
         {
-            if(p.requestId > 0)
+            //
+            // Return the stream to the outgoing call. This is important for 
+            // retriable AMI calls which are not marshalled again.
+            //
+            OutgoingMessage message = _sendStreams.getFirst();
+            _writeStream.swap(message.stream);
+        
+            //
+            // NOTE: for twoway requests which are not sent, finished can be called twice: the 
+            // first time because the outgoing is in the _sendStreams set and the second time 
+            // because it's either in the _requests/_asyncRequests set. This is fine, only the 
+            // first call should be taken into account by the implementation of finished.
+            //
+            for(OutgoingMessage p : _sendStreams)
             {
-                if(p.out != null) // Make sure finished isn't called twice.
+                if(p.requestId > 0)
                 {
-                    _requests.remove(p.requestId);
+                    if(p.out != null) // Make sure finished isn't called twice.
+                    {
+                        _requests.remove(p.requestId);
+                    }
+                    else
+                    {
+                        _asyncRequests.remove(p.requestId);
+                    }
                 }
-                else
-                {
-                    _asyncRequests.remove(p.requestId);
-                }
+                p.finished(_exception);
             }
-            p.finished(_exception);
+            _sendStreams.clear();
         }
-        _sendStreams.clear();
         
         for(IceInternal.Outgoing p : _requests.values())
         {
