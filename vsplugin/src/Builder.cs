@@ -277,19 +277,14 @@ namespace Ice.VisualStudio
                 initDocumentEvents();
                 foreach(Project p in _applicationObject.Solution.Projects)
                 {
+                    Util.fix(p);
                     if((Util.isCSharpProject(p) || Util.isVBProject(p) || Util.isCppProject(p)) && 
                         Util.isSliceBuilderEnabled(p))
                     {
-                        //
-                        // Update Ice Home if expansion does not match old setting.
-                        //
-                        if(!Util.subEnvironmentVars(Util.getIceHomeRaw(p, false)).Equals(Util.getIceHome(p), 
-                                                                          StringComparison.CurrentCultureIgnoreCase))
-                        {
-                            Util.updateIceHome(p, Util.getIceHomeRaw(p, false), true);
-                        }
+                        // Call for side-effect of setting environment variable.
+                        Util.getIceHome(p);
 
-                        if(!Util.isVBProject(p))
+                        if (!Util.isVBProject(p))
                         {
                             _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
                             buildProject(p, true, vsBuildScope.vsBuildScopeSolution);
@@ -309,10 +304,13 @@ namespace Ice.VisualStudio
 
         public void addBuilderToProject(Project project)
         {
+            string iceHomeRaw = Util.getIceHomeRaw(project, true);
+            // TODO: needed?
+            string iceHomeRel = Util.getIceHome(project);
+
             if(Util.isCppProject(project))
             {
-                Util.getIceHomeRaw(project, true);
-                Util.addIceCppConfigurations(project);
+                Util.addIceCppConfigurations(project, iceHomeRaw);
                 ComponentList components = 
                     new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                 if(components.Count == 0)
@@ -326,10 +324,9 @@ namespace Ice.VisualStudio
             }
             else if(Util.isCSharpProject(project))
             {
-                Util.getIceHomeRaw(project, true);
                 if(Util.isSilverlightProject(project))
                 {
-                    Util.addDotNetReference(project, "IceSL");
+                    Util.addDotNetReference(project, "IceSL", iceHomeRel);
                 }
                 else
                 {
@@ -341,7 +338,7 @@ namespace Ice.VisualStudio
                     }
                     foreach(string component in components)
                     {
-                        Util.addDotNetReference(project, component);
+                        Util.addDotNetReference(project, component, iceHomeRel);
                     }
                 }
                 Util.setProjectProperty(project, Util.PropertyIce, true.ToString());
@@ -349,7 +346,6 @@ namespace Ice.VisualStudio
             }
             else if(Util.isVBProject(project))
             {
-                Util.getIceHomeRaw(project, true);
                 ComponentList components = 
                     new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                 if(components.Count == 0)
@@ -358,7 +354,7 @@ namespace Ice.VisualStudio
                 }
                 foreach(string component in components)
                 {
-                    Util.addDotNetReference(project, component);
+                    Util.addDotNetReference(project, component, iceHomeRel);
                 }
                 Util.setProjectProperty(project, Util.PropertyIce, true.ToString());
             }
@@ -373,7 +369,7 @@ namespace Ice.VisualStudio
             cleanProject(project);
             if(Util.isCppProject(project))
             {
-                Util.removeIceCppConfigurations(project);
+                Util.removeIceCppConfigurations(project, Util.getIceHomeRaw(project, true));
                 ComponentList libs = Util.removeIceCppLibs(project);
                 Util.setProjectProperty(project, Util.PropertyIceComponents, libs.ToString());
                 Util.setProjectProperty(project, Util.PropertyIce, false.ToString());
@@ -591,10 +587,13 @@ namespace Ice.VisualStudio
 
         public bool buildCppProject(Project project, bool force)
         {
-            return buildCppProject(project, project.ProjectItems, force);
+            // string argsDepend = getSliceCompilerArgs(project, true);
+            // string argsCompile = getSliceCompilerArgs(project, false);
+            string sliceCompiler = getSliceCompilerPath(project);
+            return buildCppProject(project, project.ProjectItems, sliceCompiler, force);
         }
 
-        public bool buildCppProject(Project project, ProjectItems items, bool force)
+        public bool buildCppProject(Project project, ProjectItems items, string sliceCompiler, bool force)
         {
             bool success = true;
             foreach(ProjectItem i in items)
@@ -606,14 +605,14 @@ namespace Ice.VisualStudio
 
                 if(Util.isProjectItemFilter(i))
                 {
-                    if(!buildCppProject(project, i.ProjectItems, force))
+                    if(!buildCppProject(project, i.ProjectItems, sliceCompiler, force))
                     {
                         success = false;
                     }
                 }
                 else if(Util.isProjectItemFile(i))
                 {
-                    if(!buildCppProjectItem(project, i, force))
+                    if(!buildCppProjectItem(project, i, sliceCompiler, force))
                     {
                         success = false;
                     }
@@ -622,7 +621,7 @@ namespace Ice.VisualStudio
             return success;
         }
 
-        public bool buildCppProjectItem(Project project, ProjectItem item, bool force)
+        public bool buildCppProjectItem(Project project, ProjectItem item, string sliceCompiler, bool force)
         {
             if(project == null)
             {
@@ -650,11 +649,11 @@ namespace Ice.VisualStudio
             FileInfo cppFileInfo = new FileInfo(Path.ChangeExtension(hFileInfo.FullName, "cpp"));
 
             string output = Path.GetDirectoryName(cppFileInfo.FullName);
-            return buildCppProjectItem(project, output, iceFileInfo, cppFileInfo, hFileInfo, force);
+            return buildCppProjectItem(project, output, iceFileInfo, cppFileInfo, hFileInfo, sliceCompiler, force);
         }
 
         public bool buildCppProjectItem(Project project, String output, FileSystemInfo ice, FileSystemInfo cpp,
-                                        FileSystemInfo h, bool force)
+                                        FileSystemInfo h, string sliceCompiler, bool force)
         {
             bool updated = false;
             bool success = false;
@@ -690,7 +689,7 @@ namespace Ice.VisualStudio
                         foreach(string name in fileDependencies)
                         {
                             FileInfo dependency =
-                                new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                                new FileInfo(Util.absolutePath(project, name));
                             if(!dependency.Exists)
                             {
                                 updated = true;
@@ -715,9 +714,9 @@ namespace Ice.VisualStudio
                     Directory.CreateDirectory(output);
                 }
 
-                if(updateDependencies(project, null, ice.FullName, getSliceCompilerArgs(project, true)) && updated)
+                if(updateDependencies(project, null, ice.FullName, sliceCompiler) && updated)
                 {
-                    if(runSliceCompiler(project, ice.FullName, output))
+                    if(runSliceCompiler(project, sliceCompiler, ice.FullName, output))
                     {
                         addCppGeneratedFiles(project, ice, cpp, h);
                         success = true;
@@ -772,10 +771,11 @@ namespace Ice.VisualStudio
         public void buildCSharpProject(Project project, bool force, ProjectItem excludeItem)
         {
             string projectDir = Path.GetDirectoryName(project.FileName);
-            buildCSharpProject(project, projectDir, project.ProjectItems, force, excludeItem);
+            string sliceCompiler = getSliceCompilerPath(project);
+            buildCSharpProject(project, projectDir, project.ProjectItems, sliceCompiler, force, excludeItem);
         }
 
-        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, bool force, 
+        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, string sliceCompiler, bool force, 
                                        ProjectItem excludeItem)
         {
             foreach(ProjectItem i in items)
@@ -787,11 +787,11 @@ namespace Ice.VisualStudio
 
                 if(Util.isProjectItemFolder(i))
                 {
-                    buildCSharpProject(project, projectDir, i.ProjectItems, force, excludeItem);
+                    buildCSharpProject(project, projectDir, i.ProjectItems, sliceCompiler, force, excludeItem);
                 }
                 else if(Util.isProjectItemFile(i))
                 {
-                    buildCSharpProjectItem(project, i, force);
+                    buildCSharpProjectItem(project, i, sliceCompiler, force);
                 }
             }
         }
@@ -813,6 +813,9 @@ namespace Ice.VisualStudio
             {
                 return Path.ChangeExtension(fullPath, extension);
             }
+            // If two projects reference the same file, Studio will put the build outputs in the project
+            // folders, not with the file. We do the same. The makes sense because compiler settings may
+            // vary project to project. The example for slice is whether you generate C# or C++.
             return Path.ChangeExtension(Path.Combine(projectDir, Path.GetFileName(fullPath)), extension);
         }
 
@@ -844,7 +847,7 @@ namespace Ice.VisualStudio
             return "";
         }
 
-        public bool buildCSharpProjectItem(Project project, ProjectItem item, bool force)
+        public bool buildCSharpProjectItem(Project project, ProjectItem item, string sliceCompiler, bool force)
         {
             if(project == null)
             {
@@ -893,7 +896,7 @@ namespace Ice.VisualStudio
                         foreach(string name in fileDependencies)
                         {
                             FileInfo dependency =
-                                new FileInfo(Path.Combine(Path.GetDirectoryName(project.FileName), name));
+                                new FileInfo(Util.absolutePath(project, name));
                             if(!dependency.Exists)
                             {
                                 updated = true;
@@ -911,10 +914,10 @@ namespace Ice.VisualStudio
             }
             if(updated || force)
             {
-                if(updateDependencies(project, item, iceFileInfo.FullName, getSliceCompilerArgs(project, true)) && 
+                if(updateDependencies(project, item, iceFileInfo.FullName, sliceCompiler) && 
                    updated)
                 {
-                    if(runSliceCompiler(project, iceFileInfo.FullName, generatedFileInfo.DirectoryName))
+                    if(runSliceCompiler(project, sliceCompiler, iceFileInfo.FullName, generatedFileInfo.DirectoryName))
                     {
                         addCSharpGeneratedFiles(project, iceFileInfo, generatedFileInfo);
                         success = true;
@@ -944,48 +947,32 @@ namespace Ice.VisualStudio
                 }
             }
         }
-
-        private static string quoteArg(string arg)
-        {
-            return "\"" + arg + "\"";
-        }
         
         private static string getSliceCompilerPath(Project project)
         {
-            String compiler = Util.slice2cpp;
-            if(Util.isCSharpProject(project))
+            string compiler = Util.slice2cpp;
+            if (Util.isCSharpProject(project))
             {
-                if(Util.isSilverlightProject(project))
+                compiler = Util.slice2cs;
+                if (Util.isSilverlightProject(project))
                 {
                     compiler = Util.slice2sl;
                 }
-                else
-                {
-                    compiler = Util.slice2cs;
-                }
             }
 
-            String iceHome = Util.getAbsoluteIceHome(project);
-            if(Directory.Exists(Path.Combine(iceHome, "cpp")))
+            string iceHome = Util.absolutePath(project, Util.getIceHome(project)); 
+            // "cpp" implies source distribution
+            if (Directory.Exists(Path.Combine(iceHome, "cpp")))
             {
-                iceHome = Path.Combine(iceHome, "cpp\\bin");
+                iceHome = Path.Combine(iceHome, "cpp");
             }
-            else
-            {
-                iceHome = Path.Combine(iceHome, "bin");
-                if(!File.Exists(Path.Combine(iceHome, compiler)))
-                {
-                    iceHome = Path.Combine(iceHome, "x64");
-                }
-            }
-            return Path.Combine(iceHome, compiler);
+            return Path.Combine(Path.Combine(iceHome, "bin"), compiler);
         }
         
-        private static string getSliceCompilerVesrion(Project project)
+        private static string getSliceCompilerVersion(Project project, string sliceCompiler)
         {
             System.Diagnostics.Process process;
-            String args = "/c" + quoteArg(getSliceCompilerPath(project)) + " -v";
-            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", args);
+            ProcessStartInfo processInfo = new ProcessStartInfo(sliceCompiler, "-v");
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardError = true;
@@ -994,7 +981,7 @@ namespace Ice.VisualStudio
 
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
-            String version = process.StandardOutput.ReadLine();
+            string version = process.StandardOutput.ReadLine();
             return version;
         }
 
@@ -1008,9 +995,7 @@ namespace Ice.VisualStudio
             bool streaming = Util.getProjectPropertyAsBool(project, Util.PropertyIceStreaming);
             bool checksum = Util.getProjectPropertyAsBool(project, Util.PropertyIceChecksum);
 
-            string sliceCompiler = getSliceCompilerPath(project);
-
-            string args = quoteArg(sliceCompiler) + " ";
+            string args = "";
 
             if(depend)
             {
@@ -1028,7 +1013,7 @@ namespace Ice.VisualStudio
                 String preCompiledHeader = Util.getPrecompileHeader(project);
                 if(!String.IsNullOrEmpty(preCompiledHeader))
                 {
-                    args += "--add-header=" + preCompiledHeader + " ";
+                    args += "--add-header=" + Util.quote(preCompiledHeader) + " ";
                 }
             }
 
@@ -1036,7 +1021,7 @@ namespace Ice.VisualStudio
 
             foreach(string i in includes)
             {
-                if(string.IsNullOrEmpty(i))
+                if(String.IsNullOrEmpty(i))
                 {
                     continue;
                 }
@@ -1052,7 +1037,7 @@ namespace Ice.VisualStudio
                 {
                    include += "\\";
                 }
-                args += "-I" + quoteArg(include) + " ";
+                args += "-I" + Util.quote(include) + " ";
             }
 
             if(extraOpts.Length != 0)
@@ -1091,7 +1076,8 @@ namespace Ice.VisualStudio
         public bool updateDependencies(Project project, ProjectItem excludeItem)
         {
             _dependenciesMap[project.Name] = new Dictionary<string, List<string>>();
-            return updateDependencies(project, project.ProjectItems, getSliceCompilerArgs(project, true), excludeItem);
+            string sliceCompiler = getSliceCompilerPath(project);
+            return updateDependencies(project, project.ProjectItems, sliceCompiler, excludeItem);
         }
 
         public void cleanDependencies(Project project, string file)
@@ -1118,7 +1104,7 @@ namespace Ice.VisualStudio
             _dependenciesMap[project.Name] = projectDependencies;
         }
 
-        public bool updateDependencies(Project project, ProjectItems items, string args, ProjectItem excludeItem)
+        public bool updateDependencies(Project project, ProjectItems items, string sliceCompiler, ProjectItem excludeItem)
         {
             bool success = true;
             foreach(ProjectItem item in items)
@@ -1130,7 +1116,7 @@ namespace Ice.VisualStudio
 
                 if(Util.isProjectItemFolder(item) || Util.isProjectItemFilter(item))
                 {
-                    if(!updateDependencies(project, item.ProjectItems, args, excludeItem))
+                    if(!updateDependencies(project, item.ProjectItems, sliceCompiler, excludeItem))
                     {
                         success = false;
                     }
@@ -1143,7 +1129,7 @@ namespace Ice.VisualStudio
                     }
 
                     string fullPath = item.Properties.Item("FullPath").Value.ToString();
-                    if(!updateDependencies(project, item, fullPath, args))
+                    if(!updateDependencies(project, item, fullPath, sliceCompiler))
                     {
                         success = false;
                     }
@@ -1152,39 +1138,36 @@ namespace Ice.VisualStudio
             return success;
         }
 
-        public bool updateDependencies(Project project, ProjectItem item, string file, string args)
+        public bool updateDependencies(Project project, ProjectItem item, string file, string sliceCompiler)
         {
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyConsoleOutput);
             ProcessStartInfo processInfo;
             System.Diagnostics.Process process;
 
-            args += quoteArg(file);
-            args = "/c " + quoteArg(args);
-
-            processInfo = new ProcessStartInfo("cmd.exe", args);
+            string args = getSliceCompilerArgs(project, true) + " " + Util.quote(file);
+            processInfo = new ProcessStartInfo(sliceCompiler, args);
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardError = true;
             processInfo.RedirectStandardOutput = true;
             processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
 
-            String compiler = getSliceCompilerPath(project);
-            if(!File.Exists(compiler))
+            if(!File.Exists(sliceCompiler))
             {
-                addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
+                addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
                                             " not found. Review 'Ice Home' setting.");
                 return false;
             }
 
             if(consoleOutput)
             {
-                writeBuildOutput("cmd.exe " + args + "\n");
+                writeBuildOutput(sliceCompiler + " " + args + "\n");
             }
             
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
             
-            if(parseErrors(project, file, process.StandardError, consoleOutput))
+            if (parseErrors(project, sliceCompiler, file, process.StandardError, consoleOutput))
             {
                 bringErrorsToFront();
                 process.Close();
@@ -1212,7 +1195,7 @@ namespace Ice.VisualStudio
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
             while((line = output.ReadLine()) != null)
             {
-                writeBuildOutput(line);
+                writeBuildOutput(line + "\n");
                 if(!String.IsNullOrEmpty(line))
                 {
                     if(line.EndsWith(" \\", StringComparison.Ordinal))
@@ -1225,6 +1208,7 @@ namespace Ice.VisualStudio
                     //
                     line = line.Replace("\\ ", " ");
 
+                    // TODO: != doing case-sensitive filename comparison?
                     if(line.EndsWith(".ice", StringComparison.Ordinal) &&
                        System.IO.Path.GetFileName(line) != System.IO.Path.GetFileName(file))
                     {
@@ -1413,6 +1397,7 @@ namespace Ice.VisualStudio
         {
             if(_dependenciesMap.ContainsKey(project.Name))
             {
+                // TODO: case-sensitive filename comparison?
                 if(_dependenciesMap[project.Name].ContainsKey(path))
                 {
                     _dependenciesMap[project.Name].Remove(path);
@@ -1817,22 +1802,22 @@ namespace Ice.VisualStudio
             deleteProjectItem(project, cppFileInfo.FullName, remove);
         }
 
-        private bool runSliceCompiler(Project project, string file, string outputDir)
+        private bool runSliceCompiler(Project project, string sliceCompiler, string file, string outputDir)
         {
             bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyConsoleOutput);
             string args = getSliceCompilerArgs(project, false);
+
             if(!String.IsNullOrEmpty(outputDir))
             {
                 if(outputDir.EndsWith("\\", StringComparison.Ordinal))
                 {
                     outputDir = outputDir.Replace("\\", "\\\\");
                 }
-                args += "--output-dir \"" + outputDir + "\" ";
+                args += " --output-dir " + Util.quote(outputDir) + " ";
             }
 
-            args += quoteArg(file);
-            args = "/c " + quoteArg(args);
-            ProcessStartInfo processInfo = new ProcessStartInfo("cmd.exe", args);
+            args += " " + Util.quote(file);
+            ProcessStartInfo processInfo = new ProcessStartInfo(sliceCompiler, args);
             processInfo.CreateNoWindow = true;
             processInfo.UseShellExecute = false;
             processInfo.RedirectStandardOutput = true;
@@ -1840,17 +1825,17 @@ namespace Ice.VisualStudio
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
 
 
-            String compiler = getSliceCompilerPath(project);
-            if(!File.Exists(compiler))
+          
+            if(!File.Exists(sliceCompiler))
             {
-                addError(project, file, TaskErrorCategory.Error, 0, 0, compiler +
+                addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
                                             " not found. Review 'Ice Home' setting.");
                 return false;
             }
 
             if(consoleOutput)
             {
-                writeBuildOutput("cmd.exe " + args + "\n");
+                writeBuildOutput(sliceCompiler + " " + args + "\n");
             }
             System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo);
 
@@ -1859,7 +1844,7 @@ namespace Ice.VisualStudio
             bool standardError = true;
             if(Util.isSilverlightProject(project))
             {
-                string version = getSliceCompilerVesrion(project);
+                string version = getSliceCompilerVersion(project, sliceCompiler);
                 List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
                                                                      StringSplitOptions.RemoveEmptyEntries));
                                                                      
@@ -1871,10 +1856,10 @@ namespace Ice.VisualStudio
                 }
             }
 
-            bool hasErrors = parseErrors(project, file, process.StandardError, consoleOutput);
+            bool hasErrors = parseErrors(project, sliceCompiler, file, process.StandardError, consoleOutput);
             if(!standardError)
             {
-                hasErrors = hasErrors || parseErrors(project, file, process.StandardOutput, consoleOutput);
+                hasErrors = hasErrors || parseErrors(project, sliceCompiler, file, process.StandardOutput, consoleOutput);
             }
             process.Close();
             if(hasErrors)
@@ -1896,12 +1881,12 @@ namespace Ice.VisualStudio
             return !hasErrors;
         }
 
-        private bool parseErrors(Project project, string file, TextReader strer, bool consoleOutput)
+        private bool parseErrors(Project project, string sliceCompiler, string file, TextReader strer, bool consoleOutput)
         {
             bool hasErrors = false;
             string errorMessage = strer.ReadLine();
             bool firstLine = true;
-            string sliceCompiler = getSliceCompilerPath(project);
+
             while(!String.IsNullOrEmpty(errorMessage))
             {
                 if(errorMessage.StartsWith(sliceCompiler, StringComparison.Ordinal))
@@ -2279,7 +2264,7 @@ namespace Ice.VisualStudio
             _errorListProvider.Tasks.Add(errorTask);
             if(category == TaskErrorCategory.Error)
             {
-                _errorCount++;
+                ++_errorCount;
             }
         }
 

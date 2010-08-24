@@ -237,7 +237,7 @@ namespace Ice.VisualStudio
                 endEditIncludeDir(false);
             }
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
+            dialog.SelectedPath = Util.absolutePath(_project, Util.getIceHome(_project)); 
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK)
@@ -430,7 +430,7 @@ namespace Ice.VisualStudio
         private void resetIncludeDirChecks()
         {
             _initialized = false;
-            for(int i = 0; i < includeDirList.Items.Count; i++)
+            for(int i = 0; i < includeDirList.Items.Count; ++i)
             {
                 String path = includeDirList.Items[i].ToString();
                 if(String.IsNullOrEmpty(path))
@@ -461,13 +461,13 @@ namespace Ice.VisualStudio
             {
                 if (e.NewValue == CheckState.Unchecked)
                 {
-                    path = Util.relativePath(Path.GetDirectoryName(_project.FileName), path);
+                    path = Util.relativePath(_project, path);
                 }
                 else if(e.NewValue == CheckState.Checked)
                 {
                     if (!Path.IsPathRooted(path))
                     {
-                        path = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(_project.FileName), path));
+                        path = Util.absolutePath(_project, path);
                     }
                 }
             }
@@ -506,7 +506,7 @@ namespace Ice.VisualStudio
             {
                 if(value)
                 {
-                    Util.addDotNetReference(_project, name);
+                    Util.addDotNetReference(_project, name, Util.getIceHome(_project));
                 }
                 else
                 {
@@ -715,7 +715,7 @@ namespace Ice.VisualStudio
                 string path = dialog.SelectedPath;
                 if(!Util.containsEnvironmentVars(path))
                 {
-                    path = Util.relativePath(projectDir, Path.GetFullPath(path));
+                    path = Util.relativePath(_project, Path.GetFullPath(path));
                 }
                 _txtIncludeDir.Text = path;
             }

@@ -159,7 +159,7 @@ namespace Ice.VisualStudio
         private void btnSelectIceHome_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.SelectedPath = Util.getAbsoluteIceHome(_project);
+            dialog.SelectedPath = Util.absolutePath(_project, Util.getIceHome(_project));
             dialog.Description = "Select Ice Home Installation Directory";
             DialogResult result = dialog.ShowDialog();
             if(result == DialogResult.OK)
@@ -206,7 +206,7 @@ namespace Ice.VisualStudio
             {
                 if(value)
                 {
-                    Util.addDotNetReference(_project, name);
+                    Util.addDotNetReference(_project, name, Util.getIceHome(_project));
                 }
                 else
                 {

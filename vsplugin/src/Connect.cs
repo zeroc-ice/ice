@@ -181,6 +181,9 @@ namespace Ice.VisualStudio
 
         public void OnDisconnection(ext_DisconnectMode disconnectMode, ref Array custom)
         {
+            // Remove Zeroc_VS_IceHome if it was created.
+            Environment.SetEnvironmentVariable(Util.EnvIceHome, "", EnvironmentVariableTarget.User);
+
             if(disconnectMode == ext_DisconnectMode.ext_dm_HostShutdown ||
                disconnectMode == ext_DisconnectMode.ext_dm_UserClosed)
             {
