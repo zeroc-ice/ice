@@ -52,10 +52,11 @@ namespace Ice.VisualStudio
             return _applicationObject.DTE;
         }
 
-        public void init(DTE2 application, AddIn addInInstance)
+        public void init(DTE2 application, ext_ConnectMode connectMode, AddIn addInInstance)
         {
             _applicationObject = application;
             _addInInstance = addInInstance;
+            _connectMode = connectMode;
 
             //
             // Subscribe to solution events.
@@ -70,28 +71,31 @@ namespace Ice.VisualStudio
             _buildEvents = _applicationObject.Events.BuildEvents;
             _buildEvents.OnBuildBegin += new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
             _buildEvents.OnBuildDone += new _dispBuildEvents_OnBuildDoneEventHandler(buildDone);
-            foreach(Command c in _applicationObject.Commands)
+            if (_connectMode != ext_ConnectMode.ext_cm_CommandLine)
             {
-                if(c.Name.Equals("Project.AddNewItem"))
+                foreach (Command c in _applicationObject.Commands)
                 {
-                    _addNewItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                    _addNewItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
-                }
-                else if(c.Name.Equals("Edit.Remove"))
-                {
-                    _editRemoveEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                    _editRemoveEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
-                }
-                else if(c.Name.Equals("Edit.Delete"))
-                {
-                    _editDeleteEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                    _editDeleteEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
-                }
-                else if(c.Name.Equals("Project.AddExistingItem"))
-                {
-                    _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                    _addExistingItemEvent.AfterExecute +=
-                        new _dispCommandEvents_AfterExecuteEventHandler(afterAddExistingItem);
+                    if (c.Name.Equals("Project.AddNewItem"))
+                    {
+                        _addNewItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _addNewItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
+                    }
+                    else if (c.Name.Equals("Edit.Remove"))
+                    {
+                        _editRemoveEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _editRemoveEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
+                    }
+                    else if (c.Name.Equals("Edit.Delete"))
+                    {
+                        _editDeleteEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _editDeleteEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
+                    }
+                    else if (c.Name.Equals("Project.AddExistingItem"))
+                    {
+                        _addExistingItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
+                        _addExistingItemEvent.AfterExecute +=
+                            new _dispCommandEvents_AfterExecuteEventHandler(afterAddExistingItem);
+                    }
                 }
             }
             
@@ -101,7 +105,10 @@ namespace Ice.VisualStudio
             _serviceProvider =
                 new ServiceProvider((Microsoft.VisualStudio.OLE.Interop.IServiceProvider)_applicationObject.DTE);
             initErrorListProvider();
-            setupCommandBars();
+            if (_connectMode != ext_ConnectMode.ext_cm_CommandLine)
+            {
+                setupCommandBars();
+            }
         }
 
         void editDeleteEvent(string Guid, int ID, object CustomIn, object CustomOut)
@@ -1154,6 +1161,10 @@ namespace Ice.VisualStudio
 
             if(!File.Exists(sliceCompiler))
             {
+                if (consoleOutput)
+                {
+                    writeBuildOutput("'" + sliceCompiler + "' not found. Review 'Ice Home' setting.\n");
+                }
                 addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
                                             " not found. Review 'Ice Home' setting.");
                 return false;
@@ -1823,11 +1834,13 @@ namespace Ice.VisualStudio
             processInfo.RedirectStandardOutput = true;
             processInfo.RedirectStandardError = true;
             processInfo.WorkingDirectory = System.IO.Path.GetDirectoryName(project.FileName);
-
-
-          
+      
             if(!File.Exists(sliceCompiler))
             {
+                if (consoleOutput)
+                {
+                    writeBuildOutput("'" + sliceCompiler + "' not found. Review 'Ice Home' setting.\n");
+                }
                 addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
                                             " not found. Review 'Ice Home' setting.");
                 return false;
@@ -1998,10 +2011,18 @@ namespace Ice.VisualStudio
                     {
                         if(found)
                         {
+                            if (consoleOutput)
+                            {
+                                writeBuildOutput(errorMessage + "\n");
+                            }
                             addError(project, file, category, l, 1, errorMessage);
                         }
                         else
                         {
+                            if (consoleOutput)
+                            {
+                                writeBuildOutput("from file: " + f + "\n" + errorMessage + "\n");
+                            }
                             addError(project, file, category, l, 1, "from file: " + f + "\n" + errorMessage);
                         }
                     }
@@ -2076,8 +2097,13 @@ namespace Ice.VisualStudio
                             if(hasErrors(project))
                             {
                                 bringErrorsToFront();
-                                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
                                 writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                                if (_connectMode == ext_ConnectMode.ext_cm_CommandLine)
+                                {
+                                    // Is this the best we can do? Is there a clean way to exit?
+                                    Environment.Exit(-1);
+                                }
+                                _applicationObject.ExecuteCommand("Build.Cancel", "");
                             }
                             break;
                         }
@@ -2102,8 +2128,13 @@ namespace Ice.VisualStudio
                             if(hasErrors())
                             {
                                 bringErrorsToFront();
-                                _applicationObject.DTE.ExecuteCommand("Build.Cancel", "");
                                 writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                                if (_connectMode == ext_ConnectMode.ext_cm_CommandLine)
+                                {
+                                    // Is this the best we can do? Is there a clean way to exit?
+                                    Environment.Exit(-1);
+                                }
+                                _applicationObject.ExecuteCommand("Build.Cancel", "");
                             }
                             break;
                         }
@@ -2302,8 +2333,7 @@ namespace Ice.VisualStudio
         {
             if(_output == null)
             {
-                OutputWindow window = 
-                    (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
+                OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
                 _output = window.OutputWindowPanes.Item("Build");
             }
             return _output;
@@ -2311,13 +2341,20 @@ namespace Ice.VisualStudio
 
         private void writeBuildOutput(string message)
         {
-            OutputWindowPane pane = buildOutput();
-            if(pane == null)
+            if (_connectMode != ext_ConnectMode.ext_cm_CommandLine)
             {
-                return;
+                OutputWindowPane pane = buildOutput();
+                if (pane == null)
+                {
+                    return;
+                }
+                pane.Activate();
+                pane.OutputString(message);
             }
-            pane.Activate();
-            pane.OutputString(message);
+            else
+            {
+                System.Console.Write(message);
+            }
         }
 
         //
@@ -2353,6 +2390,7 @@ namespace Ice.VisualStudio
 
         private DTE2 _applicationObject;
         private AddIn _addInInstance;
+        private ext_ConnectMode _connectMode;
         private SolutionEvents _solutionEvents;
         private BuildEvents _buildEvents;
         private DocumentEvents _docEvents;

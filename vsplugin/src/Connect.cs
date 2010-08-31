@@ -46,7 +46,7 @@ namespace Ice.VisualStudio
             _applicationObject = (DTE2)application;
             _addInInstance = (AddIn)addInInst;
 
-            if(connectMode == ext_ConnectMode.ext_cm_Startup)
+            if(connectMode == ext_ConnectMode.ext_cm_Startup || connectMode == ext_ConnectMode.ext_cm_CommandLine)
             {
                 if(_builder == null)
                 {
@@ -66,7 +66,7 @@ namespace Ice.VisualStudio
                     }
 
                     _builder = new Builder();
-                    _builder.init(_applicationObject, _addInInstance);
+                    _builder.init(_applicationObject, connectMode, _addInInstance);
                 }
             }
         }
