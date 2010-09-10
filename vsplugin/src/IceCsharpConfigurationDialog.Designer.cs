@@ -58,8 +58,9 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboBoxVerboseLevel = new System.Windows.Forms.ComboBox();
             this.chkChecksum = new System.Windows.Forms.CheckBox();
-            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
             this.chkTie = new System.Windows.Forms.CheckBox();
@@ -168,8 +169,8 @@ namespace Ice.VisualStudio
             this.includeDirList.Name = "includeDirList";
             this.includeDirList.Size = new System.Drawing.Size(390, 124);
             this.includeDirList.TabIndex = 7;
-            this.includeDirList.SelectedIndexChanged += new System.EventHandler(this.includeDirList_SelectedIndexChanged);
             this.includeDirList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.includeDirList_ItemCheck);
+            this.includeDirList.SelectedIndexChanged += new System.EventHandler(this.includeDirList_SelectedIndexChanged);
             // 
             // groupBox2
             // 
@@ -188,9 +189,8 @@ namespace Ice.VisualStudio
             this.txtExtraOptions.Name = "txtExtraOptions";
             this.txtExtraOptions.Size = new System.Drawing.Size(474, 40);
             this.txtExtraOptions.TabIndex = 6;
-            this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
             this.txtExtraOptions.Enter += new System.EventHandler(this.txtExtraOptions_Focus);
-            
+            this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
             // 
             // groupBox3
             // 
@@ -294,8 +294,9 @@ namespace Ice.VisualStudio
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.label1);
+            this.groupBox4.Controls.Add(this.comboBoxVerboseLevel);
             this.groupBox4.Controls.Add(this.chkChecksum);
-            this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
             this.groupBox4.Controls.Add(this.chkTie);
@@ -306,10 +307,34 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(278, 20);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(75, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Tracing Level:";
+            // 
+            // comboBoxVerboseLevel
+            // 
+            this.comboBoxVerboseLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxVerboseLevel.FormattingEnabled = true;
+            this.comboBoxVerboseLevel.Items.AddRange(new object[] {
+            "Errors",
+            "Info",
+            "Debug"});
+            this.comboBoxVerboseLevel.Location = new System.Drawing.Point(359, 15);
+            this.comboBoxVerboseLevel.Name = "comboBoxVerboseLevel";
+            this.comboBoxVerboseLevel.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxVerboseLevel.TabIndex = 6;
+            this.comboBoxVerboseLevel.SelectedIndexChanged += new System.EventHandler(this.comboBoxVerboseLevel_SelectedIndexChanged);
+
+            // 
             // chkChecksum
             // 
             this.chkChecksum.AutoSize = true;
-            this.chkChecksum.Location = new System.Drawing.Point(213, 19);
+            this.chkChecksum.Location = new System.Drawing.Point(179, 19);
             this.chkChecksum.Name = "chkChecksum";
             this.chkChecksum.Size = new System.Drawing.Size(76, 17);
             this.chkChecksum.TabIndex = 5;
@@ -317,21 +342,10 @@ namespace Ice.VisualStudio
             this.chkChecksum.UseVisualStyleBackColor = true;
             this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
             // 
-            // chkConsole
-            // 
-            this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(299, 19);
-            this.chkConsole.Name = "chkConsole";
-            this.chkConsole.Size = new System.Drawing.Size(99, 17);
-            this.chkConsole.TabIndex = 4;
-            this.chkConsole.Text = "Console Output";
-            this.chkConsole.UseVisualStyleBackColor = true;
-            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
-            // 
             // chkIcePrefix
             // 
             this.chkIcePrefix.AutoSize = true;
-            this.chkIcePrefix.Location = new System.Drawing.Point(10, 19);
+            this.chkIcePrefix.Location = new System.Drawing.Point(6, 19);
             this.chkIcePrefix.Name = "chkIcePrefix";
             this.chkIcePrefix.Size = new System.Drawing.Size(41, 17);
             this.chkIcePrefix.TabIndex = 2;
@@ -342,7 +356,7 @@ namespace Ice.VisualStudio
             // chkStreaming
             // 
             this.chkStreaming.AutoSize = true;
-            this.chkStreaming.Location = new System.Drawing.Point(125, 19);
+            this.chkStreaming.Location = new System.Drawing.Point(100, 19);
             this.chkStreaming.Name = "chkStreaming";
             this.chkStreaming.Size = new System.Drawing.Size(73, 17);
             this.chkStreaming.TabIndex = 1;
@@ -353,7 +367,7 @@ namespace Ice.VisualStudio
             // chkTie
             // 
             this.chkTie.AutoSize = true;
-            this.chkTie.Location = new System.Drawing.Point(71, 19);
+            this.chkTie.Location = new System.Drawing.Point(53, 19);
             this.chkTie.Name = "chkTie";
             this.chkTie.Size = new System.Drawing.Size(41, 17);
             this.chkTie.TabIndex = 0;
@@ -399,9 +413,9 @@ namespace Ice.VisualStudio
             this.txtIceHome.Name = "txtIceHome";
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
             this.txtIceHome.TabIndex = 0;
+            this.txtIceHome.Enter += new System.EventHandler(this.txtIceHome_Focus);
             this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtIceHome_KeyPress);
             this.txtIceHome.LostFocus += new System.EventHandler(this.txtIceHome_LostFocus);
-            this.txtIceHome.Enter += new System.EventHandler(this.txtIceHome_Focus);
             // 
             // IceCsharpConfigurationDialog
             // 
@@ -465,9 +479,10 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.Button btnSelectIceHome;
         private System.Windows.Forms.TextBox txtIceHome;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.CheckBox chkConsole;
         private System.Windows.Forms.CheckBox chkChecksum;
         private System.Windows.Forms.Label includeInfo;
         private System.Windows.Forms.Button btnEditInclude;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox comboBoxVerboseLevel;
     }
 }

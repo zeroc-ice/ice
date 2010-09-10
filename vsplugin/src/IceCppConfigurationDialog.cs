@@ -35,7 +35,6 @@ namespace Ice.VisualStudio
             toolTip.SetToolTip(chkStreaming, "Generate marshalling support for stream API (--stream).");
             toolTip.SetToolTip(chkChecksum, "Generate checksums for Slice definitions (--checksum).");
             toolTip.SetToolTip(chkIcePrefix, "Permit Ice prefixes (--ice).");
-            toolTip.SetToolTip(chkConsole, "Enable console output.");
 
             if(_project != null)
             {
@@ -62,7 +61,14 @@ namespace Ice.VisualStudio
 
                 chkStreaming.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIceStreaming);
                 chkChecksum.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyIceChecksum);
-                chkConsole.Checked = Util.getProjectPropertyAsBool(_project, Util.PropertyConsoleOutput);
+                try
+                {
+                    comboBoxVerboseLevel.SelectedIndex = Int32.Parse(Util.getProjectProperty(_project, Util.PropertyVerboseLevel, "0"));
+                }
+                catch
+                {
+                    comboBoxVerboseLevel.SelectedIndex = 0;
+                }
 
                 IncludePathList list =
                     new IncludePathList(Util.getProjectProperty(_project, Util.PropertyIceIncludePath));
@@ -190,7 +196,7 @@ namespace Ice.VisualStudio
             
             chkStreaming.Enabled = enabled;
             chkChecksum.Enabled = enabled;
-            chkConsole.Enabled = enabled;
+            comboBoxVerboseLevel.Enabled = enabled;
             includeDirList.Enabled = enabled;
             btnAddInclude.Enabled = enabled;
             btnEditInclude.Enabled = enabled;
@@ -568,17 +574,6 @@ namespace Ice.VisualStudio
             Cursor = Cursors.Default;
         }
 
-        private void chkConsole_CheckedChanged(object sender, EventArgs e)
-        {
-            Cursor = Cursors.WaitCursor;
-            if(_editingIncludes)
-            {
-                endEditIncludeDir(false);
-            }
-            Util.setProjectProperty(_project, Util.PropertyConsoleOutput, chkConsole.Checked.ToString());
-            Cursor = Cursors.Default;
-        }
-
         private void txtDllExportSymbol_Focus(object sender, EventArgs e)
         {
             if(_editingIncludes)
@@ -763,5 +758,16 @@ namespace Ice.VisualStudio
         private bool _iceHomeUpdating;
         private TextBox _txtIncludeDir;
         private Button _btnSelectInclude;
+
+        private void comboBoxVerboseLevel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Cursor = Cursors.WaitCursor;
+            if (_editingIncludes)
+            {
+                endEditIncludeDir(false);
+            }
+            Util.setProjectProperty(_project, Util.PropertyVerboseLevel, comboBoxVerboseLevel.SelectedIndex.ToString());
+            Cursor = Cursors.Default;
+        }
     }
 }

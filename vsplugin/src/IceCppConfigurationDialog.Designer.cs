@@ -60,8 +60,9 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.comboBoxVerboseLevel = new System.Windows.Forms.ComboBox();
             this.chkChecksum = new System.Windows.Forms.CheckBox();
-            this.chkConsole = new System.Windows.Forms.CheckBox();
             this.chkIcePrefix = new System.Windows.Forms.CheckBox();
             this.chkStreaming = new System.Windows.Forms.CheckBox();
             this.btnClose = new System.Windows.Forms.Button();
@@ -111,7 +112,7 @@ namespace Ice.VisualStudio
             this.btnEditInclude.Location = new System.Drawing.Point(405, 46);
             this.btnEditInclude.Name = "btnEditInclude";
             this.btnEditInclude.Size = new System.Drawing.Size(75, 23);
-            this.btnEditInclude.TabIndex = 13;
+            this.btnEditInclude.TabIndex = 11;
             this.btnEditInclude.Text = "Edit";
             this.btnEditInclude.UseVisualStyleBackColor = true;
             this.btnEditInclude.Click += new System.EventHandler(this.btnEdit_Click);
@@ -130,7 +131,7 @@ namespace Ice.VisualStudio
             this.btnMoveIncludeDown.Location = new System.Drawing.Point(405, 127);
             this.btnMoveIncludeDown.Name = "btnMoveIncludeDown";
             this.btnMoveIncludeDown.Size = new System.Drawing.Size(75, 23);
-            this.btnMoveIncludeDown.TabIndex = 11;
+            this.btnMoveIncludeDown.TabIndex = 14;
             this.btnMoveIncludeDown.Text = "Down";
             this.btnMoveIncludeDown.UseVisualStyleBackColor = true;
             this.btnMoveIncludeDown.Click += new System.EventHandler(this.btnMoveIncludeDown_Click);
@@ -140,7 +141,7 @@ namespace Ice.VisualStudio
             this.btnMoveIncludeUp.Location = new System.Drawing.Point(405, 100);
             this.btnMoveIncludeUp.Name = "btnMoveIncludeUp";
             this.btnMoveIncludeUp.Size = new System.Drawing.Size(75, 23);
-            this.btnMoveIncludeUp.TabIndex = 10;
+            this.btnMoveIncludeUp.TabIndex = 13;
             this.btnMoveIncludeUp.Text = "Up";
             this.btnMoveIncludeUp.UseVisualStyleBackColor = true;
             this.btnMoveIncludeUp.Click += new System.EventHandler(this.btnMoveIncludeUp_Click);
@@ -150,7 +151,7 @@ namespace Ice.VisualStudio
             this.btnRemoveInclude.Location = new System.Drawing.Point(405, 73);
             this.btnRemoveInclude.Name = "btnRemoveInclude";
             this.btnRemoveInclude.Size = new System.Drawing.Size(75, 23);
-            this.btnRemoveInclude.TabIndex = 9;
+            this.btnRemoveInclude.TabIndex = 12;
             this.btnRemoveInclude.Text = "Remove";
             this.btnRemoveInclude.UseVisualStyleBackColor = true;
             this.btnRemoveInclude.Click += new System.EventHandler(this.btnRemoveInclude_Click);
@@ -160,7 +161,7 @@ namespace Ice.VisualStudio
             this.btnAddInclude.Location = new System.Drawing.Point(405, 19);
             this.btnAddInclude.Name = "btnAddInclude";
             this.btnAddInclude.Size = new System.Drawing.Size(75, 23);
-            this.btnAddInclude.TabIndex = 8;
+            this.btnAddInclude.TabIndex = 10;
             this.btnAddInclude.Text = "Add";
             this.btnAddInclude.UseVisualStyleBackColor = true;
             this.btnAddInclude.Click += new System.EventHandler(this.btnAddInclude_Click);
@@ -171,9 +172,9 @@ namespace Ice.VisualStudio
             this.includeDirList.Location = new System.Drawing.Point(10, 19);
             this.includeDirList.Name = "includeDirList";
             this.includeDirList.Size = new System.Drawing.Size(390, 124);
-            this.includeDirList.TabIndex = 7;
-            this.includeDirList.SelectedIndexChanged += new System.EventHandler(this.includeDirList_SelectedIndexChanged);
+            this.includeDirList.TabIndex = 9;
             this.includeDirList.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.includeDirList_ItemCheck);
+            this.includeDirList.SelectedIndexChanged += new System.EventHandler(this.includeDirList_SelectedIndexChanged);
             // 
             // groupBox2
             // 
@@ -191,9 +192,9 @@ namespace Ice.VisualStudio
             this.txtExtraOptions.Multiline = true;
             this.txtExtraOptions.Name = "txtExtraOptions";
             this.txtExtraOptions.Size = new System.Drawing.Size(474, 40);
-            this.txtExtraOptions.TabIndex = 6;
-            this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
+            this.txtExtraOptions.TabIndex = 8;
             this.txtExtraOptions.Enter += new System.EventHandler(this.txtExtraOptions_Focus);
+            this.txtExtraOptions.LostFocus += new System.EventHandler(this.txtExtraOptions_LostFocus);
             // 
             // groupBox3
             // 
@@ -219,7 +220,7 @@ namespace Ice.VisualStudio
             this.chkIceUtil.Location = new System.Drawing.Point(74, 39);
             this.chkIceUtil.Name = "chkIceUtil";
             this.chkIceUtil.Size = new System.Drawing.Size(56, 17);
-            this.chkIceUtil.TabIndex = 8;
+            this.chkIceUtil.TabIndex = 24;
             this.chkIceUtil.TabStop = false;
             this.chkIceUtil.Text = "IceUtil";
             this.chkIceUtil.UseVisualStyleBackColor = true;
@@ -231,7 +232,7 @@ namespace Ice.VisualStudio
             this.chkFreeze.Location = new System.Drawing.Point(7, 19);
             this.chkFreeze.Name = "chkFreeze";
             this.chkFreeze.Size = new System.Drawing.Size(58, 17);
-            this.chkFreeze.TabIndex = 7;
+            this.chkFreeze.TabIndex = 16;
             this.chkFreeze.Text = "Freeze";
             this.chkFreeze.UseVisualStyleBackColor = true;
             this.chkFreeze.CheckedChanged += new System.EventHandler(this.chkFreeze_CheckedChanged);
@@ -242,7 +243,7 @@ namespace Ice.VisualStudio
             this.chkIceStorm.Location = new System.Drawing.Point(7, 39);
             this.chkIceStorm.Name = "chkIceStorm";
             this.chkIceStorm.Size = new System.Drawing.Size(68, 17);
-            this.chkIceStorm.TabIndex = 6;
+            this.chkIceStorm.TabIndex = 23;
             this.chkIceStorm.TabStop = false;
             this.chkIceStorm.Text = "IceStorm";
             this.chkIceStorm.UseVisualStyleBackColor = true;
@@ -254,7 +255,7 @@ namespace Ice.VisualStudio
             this.chkIceSSL.Location = new System.Drawing.Point(419, 19);
             this.chkIceSSL.Name = "chkIceSSL";
             this.chkIceSSL.Size = new System.Drawing.Size(61, 17);
-            this.chkIceSSL.TabIndex = 5;
+            this.chkIceSSL.TabIndex = 22;
             this.chkIceSSL.TabStop = false;
             this.chkIceSSL.Text = "IceSSL";
             this.chkIceSSL.UseVisualStyleBackColor = true;
@@ -266,7 +267,7 @@ namespace Ice.VisualStudio
             this.chkIcePatch2.Location = new System.Drawing.Point(335, 19);
             this.chkIcePatch2.Name = "chkIcePatch2";
             this.chkIcePatch2.Size = new System.Drawing.Size(75, 17);
-            this.chkIcePatch2.TabIndex = 4;
+            this.chkIcePatch2.TabIndex = 21;
             this.chkIcePatch2.TabStop = false;
             this.chkIcePatch2.Text = "IcePatch2";
             this.chkIcePatch2.UseVisualStyleBackColor = true;
@@ -278,7 +279,7 @@ namespace Ice.VisualStudio
             this.chkIceGrid.Location = new System.Drawing.Point(266, 19);
             this.chkIceGrid.Name = "chkIceGrid";
             this.chkIceGrid.Size = new System.Drawing.Size(60, 17);
-            this.chkIceGrid.TabIndex = 3;
+            this.chkIceGrid.TabIndex = 20;
             this.chkIceGrid.TabStop = false;
             this.chkIceGrid.Text = "IceGrid";
             this.chkIceGrid.UseVisualStyleBackColor = true;
@@ -290,7 +291,7 @@ namespace Ice.VisualStudio
             this.chkIceBox.Location = new System.Drawing.Point(198, 19);
             this.chkIceBox.Name = "chkIceBox";
             this.chkIceBox.Size = new System.Drawing.Size(59, 17);
-            this.chkIceBox.TabIndex = 2;
+            this.chkIceBox.TabIndex = 19;
             this.chkIceBox.TabStop = false;
             this.chkIceBox.Text = "IceBox";
             this.chkIceBox.UseVisualStyleBackColor = true;
@@ -302,7 +303,7 @@ namespace Ice.VisualStudio
             this.chkGlacier2.Location = new System.Drawing.Point(74, 19);
             this.chkGlacier2.Name = "chkGlacier2";
             this.chkGlacier2.Size = new System.Drawing.Size(65, 17);
-            this.chkGlacier2.TabIndex = 0;
+            this.chkGlacier2.TabIndex = 17;
             this.chkGlacier2.TabStop = false;
             this.chkGlacier2.Text = "Glacier2";
             this.chkGlacier2.UseVisualStyleBackColor = true;
@@ -314,7 +315,7 @@ namespace Ice.VisualStudio
             this.chkIce.Location = new System.Drawing.Point(148, 19);
             this.chkIce.Name = "chkIce";
             this.chkIce.Size = new System.Drawing.Size(41, 17);
-            this.chkIce.TabIndex = 1;
+            this.chkIce.TabIndex = 18;
             this.chkIce.TabStop = false;
             this.chkIce.Text = "Ice";
             this.chkIce.UseVisualStyleBackColor = true;
@@ -322,8 +323,9 @@ namespace Ice.VisualStudio
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.label1);
+            this.groupBox4.Controls.Add(this.comboBoxVerboseLevel);
             this.groupBox4.Controls.Add(this.chkChecksum);
-            this.groupBox4.Controls.Add(this.chkConsole);
             this.groupBox4.Controls.Add(this.chkIcePrefix);
             this.groupBox4.Controls.Add(this.chkStreaming);
             this.groupBox4.Location = new System.Drawing.Point(12, 88);
@@ -333,27 +335,40 @@ namespace Ice.VisualStudio
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Slice Compiler Options";
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(286, 19);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(67, 13);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Trace Level:";
+          
+            // 
+            // comboBoxVerboseLevel
+            // 
+            this.comboBoxVerboseLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxVerboseLevel.FormattingEnabled = true;
+            this.comboBoxVerboseLevel.Items.AddRange(new object[] {
+            "Errors",
+            "Info",
+            "Debug"});
+            this.comboBoxVerboseLevel.Location = new System.Drawing.Point(359, 15);
+            this.comboBoxVerboseLevel.Name = "comboBoxVerboseLevel";
+            this.comboBoxVerboseLevel.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxVerboseLevel.TabIndex = 7;
+            this.comboBoxVerboseLevel.SelectedIndexChanged += new System.EventHandler(this.comboBoxVerboseLevel_SelectedIndexChanged);
+            // 
             // chkChecksum
             // 
             this.chkChecksum.AutoSize = true;
             this.chkChecksum.Location = new System.Drawing.Point(181, 19);
             this.chkChecksum.Name = "chkChecksum";
             this.chkChecksum.Size = new System.Drawing.Size(76, 17);
-            this.chkChecksum.TabIndex = 4;
+            this.chkChecksum.TabIndex = 5;
             this.chkChecksum.Text = "Checksum";
             this.chkChecksum.UseVisualStyleBackColor = true;
             this.chkChecksum.CheckedChanged += new System.EventHandler(this.chkChecksum_CheckedChanged);
-            // 
-            // chkConsole
-            // 
-            this.chkConsole.AutoSize = true;
-            this.chkConsole.Location = new System.Drawing.Point(275, 19);
-            this.chkConsole.Name = "chkConsole";
-            this.chkConsole.Size = new System.Drawing.Size(99, 17);
-            this.chkConsole.TabIndex = 3;
-            this.chkConsole.Text = "Console Output";
-            this.chkConsole.UseVisualStyleBackColor = true;
-            this.chkConsole.CheckedChanged += new System.EventHandler(this.chkConsole_CheckedChanged);
             // 
             // chkIcePrefix
             // 
@@ -361,7 +376,7 @@ namespace Ice.VisualStudio
             this.chkIcePrefix.Location = new System.Drawing.Point(10, 19);
             this.chkIcePrefix.Name = "chkIcePrefix";
             this.chkIcePrefix.Size = new System.Drawing.Size(41, 17);
-            this.chkIcePrefix.TabIndex = 2;
+            this.chkIcePrefix.TabIndex = 3;
             this.chkIcePrefix.Text = "Ice";
             this.chkIcePrefix.UseVisualStyleBackColor = true;
             this.chkIcePrefix.CheckedChanged += new System.EventHandler(this.chkIcePrefix_CheckedChanged);
@@ -372,7 +387,7 @@ namespace Ice.VisualStudio
             this.chkStreaming.Location = new System.Drawing.Point(86, 19);
             this.chkStreaming.Name = "chkStreaming";
             this.chkStreaming.Size = new System.Drawing.Size(73, 17);
-            this.chkStreaming.TabIndex = 1;
+            this.chkStreaming.TabIndex = 4;
             this.chkStreaming.Text = "Streaming";
             this.chkStreaming.UseVisualStyleBackColor = true;
             this.chkStreaming.CheckedChanged += new System.EventHandler(this.chkStreaming_CheckedChanged);
@@ -383,7 +398,7 @@ namespace Ice.VisualStudio
             this.btnClose.Location = new System.Drawing.Point(424, 506);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 5;
+            this.btnClose.TabIndex = 25;
             this.btnClose.Text = "Close";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnCancel_Click);
@@ -404,7 +419,7 @@ namespace Ice.VisualStudio
             this.btnSelectIceHome.Location = new System.Drawing.Point(405, 16);
             this.btnSelectIceHome.Name = "btnSelectIceHome";
             this.btnSelectIceHome.Size = new System.Drawing.Size(75, 23);
-            this.btnSelectIceHome.TabIndex = 1;
+            this.btnSelectIceHome.TabIndex = 2;
             this.btnSelectIceHome.Text = "....";
             this.btnSelectIceHome.UseVisualStyleBackColor = true;
             this.btnSelectIceHome.Click += new System.EventHandler(this.btnSelectIceHome_Click);
@@ -414,10 +429,10 @@ namespace Ice.VisualStudio
             this.txtIceHome.Location = new System.Drawing.Point(10, 20);
             this.txtIceHome.Name = "txtIceHome";
             this.txtIceHome.Size = new System.Drawing.Size(386, 20);
-            this.txtIceHome.TabIndex = 0;
+            this.txtIceHome.TabIndex = 1;
+            this.txtIceHome.Enter += new System.EventHandler(this.txtIceHome_Focus);
             this.txtIceHome.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtIceHome_KeyPress);
             this.txtIceHome.LostFocus += new System.EventHandler(this.txtIceHome_LostFocus);
-            this.txtIceHome.Enter += new System.EventHandler(this.txtIceHome_Focus);
             // 
             // grouDllExportSymbol
             // 
@@ -434,9 +449,9 @@ namespace Ice.VisualStudio
             this.txtDllExportSymbol.Location = new System.Drawing.Point(6, 16);
             this.txtDllExportSymbol.Name = "txtDllExportSymbol";
             this.txtDllExportSymbol.Size = new System.Drawing.Size(474, 20);
-            this.txtDllExportSymbol.TabIndex = 1;
-            this.txtDllExportSymbol.LostFocus += new System.EventHandler(this.txtDllExportSymbol_LostFocus);
+            this.txtDllExportSymbol.TabIndex = 15;
             this.txtDllExportSymbol.Enter += new System.EventHandler(this.txtDllExportSymbol_Focus);
+            this.txtDllExportSymbol.LostFocus += new System.EventHandler(this.txtDllExportSymbol_LostFocus);
             // 
             // IceCppConfigurationDialog
             // 
@@ -504,11 +519,12 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkFreeze;
         private System.Windows.Forms.CheckBox chkIceUtil;
-        private System.Windows.Forms.CheckBox chkConsole;
         private System.Windows.Forms.GroupBox grouDllExportSymbol;
         private System.Windows.Forms.TextBox txtDllExportSymbol;
         private System.Windows.Forms.CheckBox chkChecksum;
         private System.Windows.Forms.Label includeInfo;
         private System.Windows.Forms.Button btnEditInclude;
+        private System.Windows.Forms.ComboBox comboBoxVerboseLevel;
+        private System.Windows.Forms.Label label1;
     }
 }

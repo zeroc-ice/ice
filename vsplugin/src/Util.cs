@@ -154,6 +154,8 @@ namespace Ice.VisualStudio
 
     public static class Util
     {
+        public enum msgLevel { msgError, msgInfo, msgDebug };
+
         public const string slice2cs = "slice2cs.exe";
         public const string slice2cpp = "slice2cpp.exe";
         public const string slice2sl = "slice2sl.exe";
@@ -171,7 +173,7 @@ namespace Ice.VisualStudio
         public const string PropertyIceTie = "ZerocIce_Tie";
         public const string PropertyIcePrefix = "ZerocIce_Prefix";
         public const string PropertyIceDllExport = "ZerocIce_DllExport";
-        public const string PropertyConsoleOutput = "ZerocIce_ConsoleOutput";
+        public const string PropertyVerboseLevel = "ZerocIce_VerboseLevel";
         public const string EnvIceHome = "Zeroc_VS_IceHome";
 
         private static readonly string[] silverlightNames =
@@ -468,7 +470,8 @@ namespace Ice.VisualStudio
             return "PATH=" + dir + Path.PathSeparator + "$(PATH)";
         }
 
-        public static void addIceCppEnviroment(VCDebugSettings debugSettings, Project project, string iceHomeRaw, bool x64)
+        public static void addIceCppEnviroment(VCDebugSettings debugSettings, Project project, string iceHomeRaw,
+            bool x64)
         {
             if (debugSettings == null || project == null)
             {
@@ -854,7 +857,8 @@ namespace Ice.VisualStudio
                 return "";
             }
 
-            string mainDirPath = Path.GetFullPath(Path.GetDirectoryName(project.FileName)).Trim(Path.DirectorySeparatorChar);
+            string mainDirPath = Path.GetFullPath(Path.GetDirectoryName(project.FileName)).
+                Trim(Path.DirectorySeparatorChar);
             absoluteFilePath = Path.GetFullPath(absoluteFilePath).Trim(Path.DirectorySeparatorChar);
 
             string[] firstPathParts = mainDirPath.Split(Path.DirectorySeparatorChar);
@@ -862,7 +866,8 @@ namespace Ice.VisualStudio
 
             int sameCounter = 0;
             while (sameCounter < Math.Min(firstPathParts.Length, secondPathParts.Length) &&
-                String.Equals(firstPathParts[sameCounter], secondPathParts[sameCounter], StringComparison.CurrentCultureIgnoreCase))
+                String.Equals(firstPathParts[sameCounter], secondPathParts[sameCounter],
+                StringComparison.CurrentCultureIgnoreCase))
             {
                 ++sameCounter;
             }
@@ -957,7 +962,8 @@ namespace Ice.VisualStudio
             if (!force)
             {
                 // TODO: should be path comparison
-                if (String.Equals(Util.getIceHomeRaw(project, true), iceHomeRaw, StringComparison.CurrentCultureIgnoreCase))
+                if (String.Equals(Util.getIceHomeRaw(project, true), iceHomeRaw,
+                    StringComparison.CurrentCultureIgnoreCase))
                 {
                     return;
                 }
@@ -1117,12 +1123,7 @@ namespace Ice.VisualStudio
 
         public static string getProjectProperty(Project project, string name, string defaultValue, bool update)
         {
-            if (project == null || String.IsNullOrEmpty(name))
-            {
-                return defaultValue;
-            }
-
-            if (project.Globals == null)
+            if (project == null || String.IsNullOrEmpty(name) || project.Globals == null)
             {
                 return defaultValue;
             }
@@ -1145,20 +1146,17 @@ namespace Ice.VisualStudio
 
         public static void setProjectProperty(Project project, string name, string value)
         {
-            if (project == null || String.IsNullOrEmpty(name))
+            if (project == null || String.IsNullOrEmpty(name) || project.Globals == null)
             {
                 return;
             }
-
-            if (project.Globals == null)
+            if (!project.Globals.get_VariableExists(name) || (string)project.Globals[name] != value)
             {
-                return;
-            }
-
-            project.Globals[name] = value;
-            if (!project.Globals.get_VariablePersists(name))
-            {
-                project.Globals.set_VariablePersists(name, true);
+                project.Globals[name] = value;
+                if (!project.Globals.get_VariablePersists(name))
+                {
+                    project.Globals.set_VariablePersists(name, true);
+                }
             }
         }
 
@@ -1171,6 +1169,20 @@ namespace Ice.VisualStudio
             if (p.Globals.get_VariableExists("ZerocIce_HomeExpanded"))
             {
                 p.Globals.set_VariablePersists("ZerocIce_HomeExpanded", false);
+            }
+
+            // This feature was made more general for 3.4.2.
+            if (p.Globals.get_VariableExists("ZerocIce_ConsoleOutput"))
+            {
+                if (!p.Globals.get_VariableExists(PropertyVerboseLevel))
+                {
+                    setProjectProperty(p, PropertyVerboseLevel, "0");
+                    if (getProjectPropertyAsBool(p, "ZerocIce_ConsoleOutput"))
+                    {
+                        setProjectProperty(p, PropertyVerboseLevel, "1");
+                    }
+                }
+                p.Globals.set_VariablePersists("ZerocIce_ConsoleOutput", false);
             }
         }
 
@@ -1489,7 +1501,8 @@ namespace Ice.VisualStudio
             string result = s;
             int beg = 0;
             int end = 0;
-            while (beg < result.Length && (beg = result.IndexOf("$(", beg)) != -1 && (end = result.IndexOf(")", beg)) != -1)
+            while (beg < result.Length && (beg = result.IndexOf("$(", beg)) != -1 &&
+                (end = result.IndexOf(")", beg)) != -1)
             {
                 string variable = result.Substring(beg + "$(".Length, end - (beg + "$(".Length));
                 string value = System.Environment.GetEnvironmentVariable(variable);

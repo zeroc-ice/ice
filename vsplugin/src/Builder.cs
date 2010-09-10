@@ -78,17 +78,20 @@ namespace Ice.VisualStudio
                     if (c.Name.Equals("Project.AddNewItem"))
                     {
                         _addNewItemEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                        _addNewItemEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
+                        _addNewItemEvent.AfterExecute +=
+                            new _dispCommandEvents_AfterExecuteEventHandler(afterAddNewItem);
                     }
                     else if (c.Name.Equals("Edit.Remove"))
                     {
                         _editRemoveEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                        _editRemoveEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
+                        _editRemoveEvent.AfterExecute +=
+                            new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
                     }
                     else if (c.Name.Equals("Edit.Delete"))
                     {
                         _editDeleteEvent = application.Events.get_CommandEvents(c.Guid, c.ID);
-                        _editDeleteEvent.AfterExecute += new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
+                        _editDeleteEvent.AfterExecute +=
+                            new _dispCommandEvents_AfterExecuteEventHandler(editDeleteEvent);
                     }
                     else if (c.Name.Equals("Project.AddExistingItem"))
                     {
@@ -305,7 +308,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -565,11 +568,8 @@ namespace Ice.VisualStudio
                 }
             }
 
-            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyConsoleOutput);
-            if(consoleOutput)
-            {
-                writeBuildOutput("------ Slice compilation started: Project: " + project.Name + " ------\n");
-            }
+            write(project, Util.msgLevel.msgInfo,
+                "------ Slice compilation started: Project: " + project.Name + " ------\n");
             _fileTracker.reap(project);
             if(Util.isCSharpProject(project))
             {
@@ -579,16 +579,15 @@ namespace Ice.VisualStudio
             {
                 buildCppProject(project, force);
             }
-            if(consoleOutput)
+            if(hasErrors(project))
             {
-                if(hasErrors(project))
-                {
-                    writeBuildOutput("------ Slice compilation failed: Project: " + project.Name + " ------\n");
-                }
-                else
-                {
-                    writeBuildOutput("------ Slice compilation succeeded: Project: " + project.Name + " ------\n");
-                }
+                write(project, Util.msgLevel.msgError,
+                    "------ Slice compilation failed: Project: " + project.Name + " ------\n");
+            }
+            else
+            {
+                write(project, Util.msgLevel.msgInfo,
+                    "------ Slice compilation succeeded: Project: " + project.Name + " ------\n");
             }
         }
 
@@ -782,8 +781,8 @@ namespace Ice.VisualStudio
             buildCSharpProject(project, projectDir, project.ProjectItems, sliceCompiler, force, excludeItem);
         }
 
-        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, string sliceCompiler, bool force, 
-                                       ProjectItem excludeItem)
+        public void buildCSharpProject(Project project, string projectDir, ProjectItems items, string sliceCompiler,
+            bool force, ProjectItem excludeItem)
         {
             foreach(ProjectItem i in items)
             {
@@ -1111,7 +1110,8 @@ namespace Ice.VisualStudio
             _dependenciesMap[project.Name] = projectDependencies;
         }
 
-        public bool updateDependencies(Project project, ProjectItems items, string sliceCompiler, ProjectItem excludeItem)
+        public bool updateDependencies(Project project, ProjectItems items, string sliceCompiler,
+            ProjectItem excludeItem)
         {
             bool success = true;
             foreach(ProjectItem item in items)
@@ -1147,7 +1147,9 @@ namespace Ice.VisualStudio
 
         public bool updateDependencies(Project project, ProjectItem item, string file, string sliceCompiler)
         {
-            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyConsoleOutput);
+            write(project, Util.msgLevel.msgDebug,
+                "updateDependencies: " + Util.quote(project.Name) + ": " + Util.quote(file) + "\n");
+
             ProcessStartInfo processInfo;
             System.Diagnostics.Process process;
 
@@ -1161,24 +1163,19 @@ namespace Ice.VisualStudio
 
             if(!File.Exists(sliceCompiler))
             {
-                if (consoleOutput)
-                {
-                    writeBuildOutput("'" + sliceCompiler + "' not found. Review 'Ice Home' setting.\n");
-                }
-                addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
-                                            " not found. Review 'Ice Home' setting.");
+                write(project, Util.msgLevel.msgError,
+                    "'" + sliceCompiler + "' not found. Review 'Ice Home' setting.\n");
+                addError(project, file, TaskErrorCategory.Error, 0, 0,
+                    sliceCompiler + " not found. Review 'Ice Home' setting.");
                 return false;
             }
 
-            if(consoleOutput)
-            {
-                writeBuildOutput(sliceCompiler + " " + args + "\n");
-            }
+            write(project, Util.msgLevel.msgInfo, sliceCompiler + " " + args + "\n");
             
             process = System.Diagnostics.Process.Start(processInfo);
             process.WaitForExit();
             
-            if (parseErrors(project, sliceCompiler, file, process.StandardError, consoleOutput))
+            if (parseErrors(project, sliceCompiler, file, process.StandardError))
             {
                 bringErrorsToFront();
                 process.Close();
@@ -1206,7 +1203,7 @@ namespace Ice.VisualStudio
             Dictionary<string, List<string>> projectDeps = _dependenciesMap[project.Name];
             while((line = output.ReadLine()) != null)
             {
-                writeBuildOutput(line + "\n");
+                write(project, Util.msgLevel.msgInfo, line + "\n");
                 if(!String.IsNullOrEmpty(line))
                 {
                     if(line.EndsWith(" \\", StringComparison.Ordinal))
@@ -1400,7 +1397,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
         
@@ -1467,7 +1464,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -1558,7 +1555,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -1608,7 +1605,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -1644,7 +1641,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -1703,7 +1700,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -1815,7 +1812,6 @@ namespace Ice.VisualStudio
 
         private bool runSliceCompiler(Project project, string sliceCompiler, string file, string outputDir)
         {
-            bool consoleOutput = Util.getProjectPropertyAsBool(project, Util.PropertyConsoleOutput);
             string args = getSliceCompilerArgs(project, false);
 
             if(!String.IsNullOrEmpty(outputDir))
@@ -1837,19 +1833,16 @@ namespace Ice.VisualStudio
       
             if(!File.Exists(sliceCompiler))
             {
-                if (consoleOutput)
-                {
-                    writeBuildOutput("'" + sliceCompiler + "' not found. Review 'Ice Home' setting.\n");
-                }
-                addError(project, file, TaskErrorCategory.Error, 0, 0, sliceCompiler +
-                                            " not found. Review 'Ice Home' setting.");
+                write(project, Util.msgLevel.msgError,
+                    "'" + sliceCompiler + "' not found. Review 'Ice Home' setting in Ice Configuration for " +
+                    Util.quote(project.Name) + ".\n");
+                addError(project, file, TaskErrorCategory.Error, 0, 0,
+                    "'" + sliceCompiler + "' not found. Review 'Ice Home' setting in Ice Configuration for " +
+                    Util.quote(project.Name) + ".\n");
                 return false;
             }
 
-            if(consoleOutput)
-            {
-                writeBuildOutput(sliceCompiler + " " + args + "\n");
-            }
+            write(project, Util.msgLevel.msgInfo, sliceCompiler + " " + args + "\n");
             System.Diagnostics.Process process = System.Diagnostics.Process.Start(processInfo);
 
             process.WaitForExit();
@@ -1869,10 +1862,10 @@ namespace Ice.VisualStudio
                 }
             }
 
-            bool hasErrors = parseErrors(project, sliceCompiler, file, process.StandardError, consoleOutput);
+            bool hasErrors = parseErrors(project, sliceCompiler, file, process.StandardError);
             if(!standardError)
             {
-                hasErrors = hasErrors || parseErrors(project, sliceCompiler, file, process.StandardOutput, consoleOutput);
+                hasErrors = hasErrors || parseErrors(project, sliceCompiler, file, process.StandardOutput);
             }
             process.Close();
             if(hasErrors)
@@ -1894,7 +1887,7 @@ namespace Ice.VisualStudio
             return !hasErrors;
         }
 
-        private bool parseErrors(Project project, string sliceCompiler, string file, TextReader strer, bool consoleOutput)
+        private bool parseErrors(Project project, string sliceCompiler, string file, TextReader strer)
         {
             bool hasErrors = false;
             string errorMessage = strer.ReadLine();
@@ -1916,10 +1909,7 @@ namespace Ice.VisualStudio
                         errorMessage += "\n" + message;
                         message = strer.ReadLine();
                     }
-                    if(consoleOutput)
-                    {
-                        writeBuildOutput(errorMessage + "\n");
-                    }
+                    write(project, Util.msgLevel.msgError, errorMessage + "\n");
                     addError(project, file, TaskErrorCategory.Error, 0, 0, errorMessage.Replace("error:", ""));
                     break;
                 }
@@ -1929,10 +1919,7 @@ namespace Ice.VisualStudio
                     if(firstLine)
                     {
                         errorMessage += strer.ReadToEnd();
-                        if(consoleOutput)
-                        {
-                            writeBuildOutput(errorMessage + "\n");
-                        }
+                        write(project, Util.msgLevel.msgError, errorMessage + "\n");
                         addError(project, "", TaskErrorCategory.Error, 1, 1, errorMessage);
                         hasErrors = true;
                         break;
@@ -1940,10 +1927,7 @@ namespace Ice.VisualStudio
                     errorMessage = strer.ReadLine();
                     continue;
                 }
-                if(consoleOutput)
-                {
-                    writeBuildOutput(errorMessage + "\n");
-                }
+                write(project, Util.msgLevel.msgError, errorMessage + "\n");
 
                 if(errorMessage.StartsWith("    ", StringComparison.Ordinal)) // Still the same mcpp warning
                 {
@@ -2011,18 +1995,12 @@ namespace Ice.VisualStudio
                     {
                         if(found)
                         {
-                            if (consoleOutput)
-                            {
-                                writeBuildOutput(errorMessage + "\n");
-                            }
                             addError(project, file, category, l, 1, errorMessage);
                         }
                         else
                         {
-                            if (consoleOutput)
-                            {
-                                writeBuildOutput("from file: " + f + "\n" + errorMessage + "\n");
-                            }
+                            write(project, Util.msgLevel.msgError,
+                                "from file: " + f + "\n" + errorMessage + "\n");
                             addError(project, file, category, l, 1, "from file: " + f + "\n" + errorMessage);
                         }
                     }
@@ -2052,7 +2030,7 @@ namespace Ice.VisualStudio
                 }
                 catch(Exception ex)
                 {
-                    writeBuildOutput(ex.ToString() + "\n");
+                    write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 }
                 return null;
             }
@@ -2097,7 +2075,8 @@ namespace Ice.VisualStudio
                             if(hasErrors(project))
                             {
                                 bringErrorsToFront();
-                                writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                                write(project, Util.msgLevel.msgError,
+                                    "------ Slice compilation contains errors. Build canceled. ------\n");
                                 if (_connectMode == ext_ConnectMode.ext_cm_CommandLine)
                                 {
                                     // Is this the best we can do? Is there a clean way to exit?
@@ -2128,7 +2107,8 @@ namespace Ice.VisualStudio
                             if(hasErrors())
                             {
                                 bringErrorsToFront();
-                                writeBuildOutput("------ Slice compilation contains errors. Build canceled. ------\n");
+                                write(null, Util.msgLevel.msgError,
+                                    "------ Slice compilation contains errors. Build canceled. ------\n");
                                 if (_connectMode == ext_ConnectMode.ext_cm_CommandLine)
                                 {
                                     // Is this the best we can do? Is there a clean way to exit?
@@ -2169,7 +2149,7 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                writeBuildOutput(ex.ToString() + "\n");
+                write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
             }
         }
 
@@ -2262,7 +2242,7 @@ namespace Ice.VisualStudio
                     }
                     catch(Exception ex)
                     {
-                        writeBuildOutput(ex.ToString() + "\n");
+                        write(project, Util.msgLevel.msgError, ex.ToString() + "\n");
                     }
                 }
             }
@@ -2333,27 +2313,43 @@ namespace Ice.VisualStudio
         {
             if(_output == null)
             {
-                OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(EnvDTE.Constants.vsWindowKindOutput).Object;
+                OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(
+                    EnvDTE.Constants.vsWindowKindOutput).Object;
                 _output = window.OutputWindowPanes.Item("Build");
             }
             return _output;
         }
 
-        private void writeBuildOutput(string message)
+        private void write(Project p, Util.msgLevel msgLevel, string message)
         {
-            if (_connectMode != ext_ConnectMode.ext_cm_CommandLine)
+            int verboseLevel = (int)Util.msgLevel.msgDebug;
+            if (p != null)
             {
-                OutputWindowPane pane = buildOutput();
-                if (pane == null)
+                try
                 {
-                    return;
+                    verboseLevel = Int32.Parse(Util.getProjectProperty(p, Util.PropertyVerboseLevel));
                 }
-                pane.Activate();
-                pane.OutputString(message);
+                catch
+                {
+                }
             }
-            else
+
+            if ((int)msgLevel <= verboseLevel)
             {
-                System.Console.Write(message);
+                if (_connectMode != ext_ConnectMode.ext_cm_CommandLine)
+                {
+                    OutputWindowPane pane = buildOutput();
+                    if (pane == null)
+                    {
+                        return;
+                    }
+                    pane.Activate();
+                    pane.OutputString(message);
+                }
+                else
+                {
+                    System.Console.Write(message);
+                }
             }
         }
 
@@ -2375,15 +2371,14 @@ namespace Ice.VisualStudio
         //
         private void errorTaskNavigate(object sender, EventArgs e)
         {
-            ErrorTask task;
             try
             {
-                task = (ErrorTask)sender;
+                ErrorTask task = (ErrorTask)sender;
                 task.Line += 1;
                 _errorListProvider.Navigate(task, new Guid(EnvDTE.Constants.vsViewKindTextView));
                 task.Line -= 1;
             }
-            catch(Exception)
+            catch
             {
             }
         }
