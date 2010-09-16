@@ -101,7 +101,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             switch (component)
             {
@@ -151,7 +151,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             if(_initialized)
             {
@@ -208,7 +208,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             if(!_changed)
             {
@@ -240,7 +240,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             FolderBrowserDialog dialog = new FolderBrowserDialog();
             dialog.SelectedPath = Util.absolutePath(_project, Util.getIceHome(_project)); 
@@ -267,7 +267,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
         }
 
@@ -298,7 +298,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             Util.setProjectProperty(_project, Util.PropertyIcePrefix, chkIcePrefix.Checked.ToString());
             _changed = true;
@@ -310,7 +310,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             Util.setProjectProperty(_project, Util.PropertyIceTie, chkTie.Checked.ToString());
             _changed = true;
@@ -322,7 +322,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             Util.setProjectProperty(_project, Util.PropertyIceStreaming, chkStreaming.Checked.ToString());
             _changed = true;
@@ -334,7 +334,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             Util.setProjectProperty(_project, Util.PropertyIceChecksum, chkChecksum.Checked.ToString());
             _changed = true;
@@ -358,7 +358,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             includeDirList.Items.Add("");
             includeDirList.SelectedIndex = includeDirList.Items.Count - 1;
@@ -373,7 +373,7 @@ namespace Ice.VisualStudio
             if(_editingIncludes)
             {
                 index = _editingIndex;
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             
             if(index > -1 && index < includeDirList.Items.Count)
@@ -398,7 +398,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             int index = includeDirList.SelectedIndex;
             if(index > 0)
@@ -418,7 +418,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             int index = includeDirList.SelectedIndex;
             if(index < includeDirList.Items.Count - 1 && index > -1)
@@ -488,7 +488,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
         }
 
@@ -506,7 +506,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             if(_initialized)
             {
@@ -571,7 +571,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
         }
 
@@ -579,7 +579,7 @@ namespace Ice.VisualStudio
         {
             if(_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             _editingIncludes = true;
             CancelButton = null;
@@ -731,7 +731,7 @@ namespace Ice.VisualStudio
             Cursor = Cursors.WaitCursor;
             if (_editingIncludes)
             {
-                endEditIncludeDir(false);
+                endEditIncludeDir(true);
             }
             Util.setProjectProperty(_project, Util.PropertyVerboseLevel, comboBoxVerboseLevel.SelectedIndex.ToString());
             Cursor = Cursors.Default;
