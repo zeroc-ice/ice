@@ -43,7 +43,11 @@ namespace Ice.VisualStudio
         {
             foreach(string s in values)
             {
-                Add(s);
+                string trimmed = s.Trim();
+                if (trimmed.Length > 0)
+                {
+                    Add(trimmed);
+                }
             }
         }
 
@@ -470,6 +474,14 @@ namespace Ice.VisualStudio
             return "PATH=" + dir + Path.PathSeparator + "$(PATH)";
         }
 
+        /* Add the Ice bin path to the debug environment.
+         *
+         * This is more complicated to do than you'd think because of the way Studio parses the
+         * debug envirnment settings. It does not execute the env settings in order as listed
+         * as you might expect. Rather, it only executes the last one in the list for a particular
+         * variable. I suspect this mean it does not execute them in order either, but I have not
+         * confirmed that.
+         */
         public static void addIceCppEnviroment(VCDebugSettings debugSettings, Project project, string iceHomeRaw,
             bool x64)
         {
@@ -478,6 +490,58 @@ namespace Ice.VisualStudio
                 return;
             }
 
+            string path = "PATH=$(PATH)";
+            if (debugSettings.Environment == null)
+            {
+                debugSettings.Environment = prependToPath(path, buildBinDir(project, iceHomeRaw, x64));
+                return;
+            }
+
+            /* Find the last in the list that begins: "PATH=" accounting for case and whitespace. */
+            ComponentList envs = new ComponentList(debugSettings.Environment, '\n');
+            foreach (string s in envs)
+            {
+                if (s.StartsWith("PATH", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (s.Substring("PATH".Length).Trim().StartsWith("=", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        path = s;
+                    }
+                }
+            }
+
+            envs.Remove(path);
+            envs.Add(prependToPath(path, buildBinDir(project, iceHomeRaw, x64)));
+
+            debugSettings.Environment = envs.ToString('\n'); 
+            return;
+        }
+
+        private static string removeFromPath(string path, string dir)
+        {
+            string result = "PATH=";
+            string pathValue = path.Substring("PATH".Length).Trim().Substring("=".Length).Trim();
+            string[] pieces = pathValue.Split(Path.PathSeparator);
+            foreach (string s in pieces)
+            {
+                if (!equalPath(s.Trim(), dir))
+                {
+                    result += s + Path.PathSeparator;
+                }
+            }
+
+            return result.Trim(Path.PathSeparator);
+        }
+
+        private static string prependToPath(string path, string dir)
+        {
+            path = removeFromPath(path, dir);
+            string pathValue = path.Substring("PATH".Length).Trim().Substring("=".Length).Trim();
+            return "PATH=" + dir + Path.PathSeparator + pathValue;
+        }
+
+        private static string buildBinDir(Project project, string iceHomeRaw, bool x64)
+        {
             string iceBinDir = iceHomeRaw;
             if (Directory.Exists(Path.Combine(Util.absolutePath(project, iceBinDir), "cpp\\bin")))
             {
@@ -487,32 +551,14 @@ namespace Ice.VisualStudio
             {
                 iceBinDir = Path.Combine(iceBinDir, "bin");
 #if VS2010
-                iceBinDir = Path.Combine(iceBinDir, "\\vc100");
+                iceBinDir = Path.Combine(iceBinDir, "vc100");
 #endif
                 if (x64)
                 {
-                    iceBinDir = Path.Combine(iceBinDir, "\\x64");
+                    iceBinDir = Path.Combine(iceBinDir, "x64");
                 }
             }
-
-            string icePathEnvCmd = buildPathEnvCmd(iceBinDir);
-            
-            string environment = debugSettings.Environment;
-            if (String.IsNullOrEmpty(environment))
-            {
-                debugSettings.Environment = icePathEnvCmd;
-                return;
-            }
-
-            ComponentList envs = new ComponentList(environment, '\n');
-            // TODO: case-sensitive path comparison?
-            if (!envs.Contains(icePathEnvCmd))
-            {
-                envs.Add(icePathEnvCmd);
-                debugSettings.Environment = envs.ToString('\n');
-                return;
-            }
-
+            return iceBinDir;
         }
 
         public static void removeIceCppEnviroment(VCDebugSettings debugSettings, string iceHomeRaw)
@@ -532,11 +578,34 @@ namespace Ice.VisualStudio
             };
 
             ComponentList envs = new ComponentList(debugSettings.Environment, '\n');
+
+            /* Find the last in the list that begins: "PATH=" accounting for case and whitespace. */
+            string path = "PATH=$(PATH)";
+            foreach (string s in envs)
+            {
+                if (s.StartsWith("PATH", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    if (s.Substring("PATH".Length).Trim().StartsWith("=", StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        path = s;
+                    }
+                }
+            }
+            envs.Remove(path);
+
             foreach (string dir in _cppBinDirs)
             {
-                envs.Remove(buildPathEnvCmd(Path.Combine(iceHomeRaw, dir)));
+                path = removeFromPath(path, Path.Combine(iceHomeRaw, dir));
             }
+            if (path != "PATH=$(PATH)")
+            {
+                envs.Add(path);
+            }
+
             debugSettings.Environment = envs.ToString('\n');
+
+            return;
+
         }
 
         public static void addIceCppLibraryDir(VCLinkerTool tool, Project project, string iceHomeRaw, bool x64)

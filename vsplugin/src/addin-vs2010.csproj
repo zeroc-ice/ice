@@ -42,7 +42,7 @@
     <Optimize>false</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE;DEBUG;VS2008</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;VS2010</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -52,7 +52,7 @@
     <Optimize>true</Optimize>
     <OutputPath>..\bin\</OutputPath>
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;VS2010</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
