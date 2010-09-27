@@ -18,6 +18,16 @@ Note that this file only includes changes since Ice 3.2.1. For the
 change history of prior releases, refer to the CHANGES file in the
 subdirectory of each language mapping (e.g., cpp/CHANGES).
 
+======================================================================
+Changes since version 3.4.0
+======================================================================
+
+
+General Changes
+===============
+
+- Removed extra include/IceGrid/Perf.h file.
+
 
 ======================================================================
 Changes since version 3.4.1
