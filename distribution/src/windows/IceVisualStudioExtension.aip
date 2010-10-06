@@ -11,7 +11,7 @@
     <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{091125B5-4F5C-44C7-92DE-FD64FC862F0C} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
-    <ROW Property="ProductName" Value="Ice Visual Studio Plugin" ValueLocId="*"/>
+    <ROW Property="ProductName" Value="Ice Visual Studio Extension" ValueLocId="*"/>
     <ROW Property="ProductVersion" Value="3.4.1.1"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
@@ -66,6 +66,9 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
     <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Text" Type="Text" X="25" Y="100" Width="320" Height="40" Attributes="3" Text="Click &quot;Install&quot; to begin the installation.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Control_Next="Description" TextLocId="Control.Text.VerifyReadyDlg#Text" MsiKey="VerifyReadyDlg#Text"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Title" Type="Text" X="15" Y="6" Width="304" Height="15" Attributes="196611" Text="Ready to Install" TextStyle="[DlgTitleFont]" Control_Next="Text_1" TextLocId="Control.Text.VerifyReadyDlg#Title" MsiKey="VerifyReadyDlg#Title"/>
+    <ROW Dialog_="VerifyReadyDlg" Control="Text_1" Type="Text" X="25" Y="70" Width="304" Height="25" Attributes="65539" Property="TEXT_1_PROP" Text="Patching Ice installation in [ICE_INSTALL_DIR]" Control_Next="Install"/>
     <ATTRIBUTE name="DeletedRows" value="LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
