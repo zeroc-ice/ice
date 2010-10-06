@@ -272,6 +272,8 @@ namespace Ice.VisualStudio
                         // Call for side-effect of setting environment variable.
                         Util.getIceHome(p);
 
+                        Util.verifyProjectSettings(p);
+
                         if (!Util.isVBProject(p))
                         {
                             _dependenciesMap[p.Name] = new Dictionary<string, List<string>>();

@@ -64,7 +64,7 @@ namespace Ice.VisualStudio
         {
             string found = base.Find(delegate(string s)
                                     {
-                                        return s.Equals(value, StringComparison.CurrentCultureIgnoreCase);
+                                        return s.Equals(value.Trim(), StringComparison.CurrentCultureIgnoreCase);
                                     });
             return !String.IsNullOrEmpty(found);
         }
@@ -73,7 +73,7 @@ namespace Ice.VisualStudio
         {
             string found = base.Find(delegate(string s)
             {
-                return s.Equals(value, StringComparison.CurrentCultureIgnoreCase);
+                return s.Equals(value.Trim(), StringComparison.CurrentCultureIgnoreCase);
             });
 
             if(!String.IsNullOrEmpty(found))
@@ -298,7 +298,7 @@ namespace Ice.VisualStudio
             {
                 iceIncludeDir = Path.Combine(iceIncludeDir, "cpp");
             }
-            iceIncludeDir = quote(Path.Combine(iceIncludeDir, "include"));
+            iceIncludeDir = Path.Combine(iceIncludeDir, "include");
 
             string additionalIncludeDirectories = tool.AdditionalIncludeDirectories;
             if (String.IsNullOrEmpty(additionalIncludeDirectories))
@@ -309,10 +309,11 @@ namespace Ice.VisualStudio
 
             ComponentList includes = new ComponentList(additionalIncludeDirectories);
             bool changed = false;
-            if (!includes.Contains(iceIncludeDir))
+            if (!includes.Contains(iceIncludeDir) && !includes.Contains(quote(iceIncludeDir)))
             {
+
                 changed = true;
-                includes.Add(iceIncludeDir);
+                includes.Add(quote(iceIncludeDir));
             }
 
             if (!includes.Contains("."))
@@ -386,7 +387,7 @@ namespace Ice.VisualStudio
             }
 
             System.Windows.Forms.MessageBox.Show("Could not locate '" + component +
-                                                 ".dll'. Review you 'Ice Home' setting.",
+                                                 ".dll'. Review your 'Ice Home' setting.",
                                                  "Ice Visual Studio Extension", MessageBoxButtons.OK,
                                                  MessageBoxIcon.Error,
                                                  System.Windows.Forms.MessageBoxDefaultButton.Button1,
@@ -633,19 +634,18 @@ namespace Ice.VisualStudio
                     iceLibDir += "\\x64";
                 }
             }
-            iceLibDir = quote(iceLibDir);
 
             string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
             if (String.IsNullOrEmpty(additionalLibraryDirectories))
             {
-                tool.AdditionalLibraryDirectories = iceLibDir;
+                tool.AdditionalLibraryDirectories = quote(iceLibDir);
                 return;
             }
 
             ComponentList libs = new ComponentList(additionalLibraryDirectories);
-            if (!libs.Contains(iceLibDir))
+            if (!libs.Contains(iceLibDir) && !libs.Contains(quote(iceLibDir)))
             {
-                libs.Add(iceLibDir);
+                libs.Add(quote(iceLibDir));
                 tool.AdditionalLibraryDirectories = libs.ToString();
                 return;
             }
@@ -1595,6 +1595,56 @@ namespace Ice.VisualStudio
         public static string quote(string arg)
         {
             return "\"" + arg + "\"";
+        }
+
+        public static void verifyProjectSettings(Project project)
+        {
+            if (isCppProject(project))
+            {
+                addIceCppConfigurations(project, getIceHomeRaw(project, false));
+            }
+            else
+            {
+                string iceHome = getIceHome(project);
+
+                string binDir = iceHome;
+                foreach (string dir in _csBinDirs)
+                {
+                    if (Directory.Exists(binDir + dir))
+                    {
+                        binDir += dir;
+                        break;
+                    }
+                }
+
+                ComponentList components = Util.getIceDotNetComponents(project);
+                foreach (string component in components)
+                {
+                    if (String.IsNullOrEmpty(component))
+                    {
+                        continue;
+                    }
+
+
+                    string reference = binDir + component + ".dll";
+
+                    foreach (Reference r in ((VSProject)project.Object).References)
+                    {
+                        if (r.Identity.Equals(component, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if(!r.Path.Equals(reference, StringComparison.OrdinalIgnoreCase))
+                            {
+                                bool copyLocal = getCopyLocal(project, component);
+                                Util.removeDotNetReference(project, component);
+
+                                Util.addDotNetReference(project, component, iceHome);
+                                setCopyLocal(project, component, copyLocal);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 }
