@@ -118,19 +118,21 @@ namespace Ice.VisualStudio
                     ProjectItem item = Util.findItem(i.Key, project.ProjectItems);
                     if(item == null) //Slice file not longer in the project.
                     {
+                        removedSlice.Add(i.Key);
+
                         //Remove generated files for the slice.
                         List<String> removedFiles = new List<string>();
-                        removedSlice.Add(i.Key);
                         List<ProjectItem> generated = new List<ProjectItem>();
                         foreach(string f in i.Value)
                         {
+                            removedFiles.Add(f);
+
                             ProjectItem generatedItem = Util.findItem(f, project.ProjectItems);
                             if(generatedItem == null)
                             {
                                 continue;
                             }
                             generated.Add(generatedItem);
-                            removedFiles.Add(f);
                         }
 
                         foreach(ProjectItem generatedItem in generated)

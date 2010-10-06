@@ -254,28 +254,6 @@ namespace Ice.VisualStudio
                 _dependenciesMap.Clear();
                 _dependenciesMap = null;
             }
-            
-            trackFiles();
-        }
-
-        private void trackFiles()
-        {
-            if(_fileTracker == null)
-            {
-                return;
-            }
-            foreach(Project p in _applicationObject.Solution.Projects)
-            {
-                if(p == null)
-                {
-                    continue;
-                }
-                if(!Util.isSliceBuilderEnabled(p))
-                {
-                    continue;
-                }
-                _fileTracker.reap(p);
-            }
         }
 
         public void solutionOpened()
@@ -452,7 +430,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            _fileTracker.reap(project);
             clearErrors(project);
             buildProject(project, false, vsBuildScope.vsBuildScopeProject);
         }
@@ -493,7 +470,6 @@ namespace Ice.VisualStudio
                 return;
             }
             clearErrors(project);
-            _fileTracker.reap(project);
 
             if(Util.isCSharpProject(project))
             {
@@ -570,7 +546,6 @@ namespace Ice.VisualStudio
 
             write(project, Util.msgLevel.msgInfo,
                 "------ Slice compilation started: Project: " + project.Name + " ------\n");
-            _fileTracker.reap(project);
             if(Util.isCSharpProject(project))
             {
                 buildCSharpProject(project, force, excludeItem);
@@ -1449,7 +1424,6 @@ namespace Ice.VisualStudio
                 }
                 if(!Util.isSliceFilename(file.Name))
                 {
-                    _fileTracker.reap(project);
                     return;
                 }
                 clearErrors(file.FullPath);
@@ -1633,7 +1607,6 @@ namespace Ice.VisualStudio
                 string fullName = item.Properties.Item("FullPath").Value.ToString();
                 clearErrors(fullName);
                 removeCSharpGeneratedItems(item, true);
-                _fileTracker.reap(item.ContainingProject);
 
                 removeDependency(item.ContainingProject, fullName);
                 clearErrors(item.ContainingProject);
