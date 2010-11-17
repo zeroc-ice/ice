@@ -70,6 +70,9 @@ Java Changes
 - Fixed a bug in slice2java in which a floating point default value
   could cause a compile error.
 
+- Fixed a bug where Ice.ServerIdleTime wouldn't consistently shutdown
+  servers after the given period of inactivity.
+
 
 Ruby Changes
 ============

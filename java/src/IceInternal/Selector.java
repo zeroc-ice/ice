@@ -244,8 +244,14 @@ public final class Selector
                 {
                     if(timeout > 0)
                     {
+                        //
+                        // NOTE: On some platforms, select() sometime returns slightly before
+                        // the timeout (at least according to our monotonic time). To make sure
+                        // timeouts are correctly detected, we wait for a little longer than
+                        // the configured timeout (10ms).
+                        //
                         long before = IceInternal.Time.currentMonotonicTimeMillis();
-                        if(_selector.select(timeout * 1000) == 0)
+                        if(_selector.select(timeout * 1000 + 10) == 0)
                         {
                             if(IceInternal.Time.currentMonotonicTimeMillis() - before >= timeout * 1000)
                             {
