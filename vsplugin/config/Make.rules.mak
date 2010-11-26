@@ -94,6 +94,10 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
+!if "$(VSTARGET)" == "VS2008"
+MCSFLAGS = $(MCSFLAGS) -define:VS2008
+!endif
+
 !if "$(VSTARGET)" == "VS2010"
 MCSFLAGS = $(MCSFLAGS) -define:VS2010
 !endif

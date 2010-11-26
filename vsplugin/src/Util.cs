@@ -240,10 +240,110 @@ namespace Ice.VisualStudio
             return iceHome;
         }
 
+#if VS2010
+        public static VCPropertySheet findPropertySheet(IVCCollection propertySheets, string sheetName)
+        {
+            foreach (VCPropertySheet sheet in propertySheets)
+            {
+                if (sheet.Name == sheetName)
+                {
+                    return sheet;
+                }
+            }
+            return null;
+        }
+
+        public static void addPropertySheet(Project project, string sheetName)
+        {
+            VCProject vcProj = (VCProject)project.Object;
+            string propSheetFileName = vcProj.ProjectDirectory + sheetName + ".props";
+            if (!File.Exists(propSheetFileName))
+            {
+                StreamWriter sw = new StreamWriter(propSheetFileName);
+                sw.WriteLine(@"<?xml version=""1.0"" encoding=""utf-8""?>");
+                sw.WriteLine(@"<Project ToolsVersion=""4.0"" xmlns=""http://schemas.microsoft.com/developer/msbuild/2003"">");
+                sw.WriteLine(@"<ImportGroup Label=""PropertySheets"" />");
+                sw.WriteLine(@"<PropertyGroup Label=""UserMacros"" />");
+                sw.WriteLine(@"<PropertyGroup />");
+                sw.WriteLine(@"<ItemDefinitionGroup />");
+                sw.WriteLine(@"<ItemGroup />");
+                sw.WriteLine(@"</Project>");
+                sw.Close();
+            }
+
+            foreach (VCConfiguration vcConfig in vcProj.Configurations as IVCCollection)
+            {
+                VCPropertySheet newSheet = findPropertySheet(vcConfig.PropertySheets as IVCCollection, sheetName);
+                if (newSheet == null)
+                {
+                    try
+                    {
+                        newSheet = vcConfig.AddPropertySheet(propSheetFileName);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Windows.Forms.MessageBox.Show("Cannnot create property sheet. Exception: " + ex.Message,
+                                                         "Ice Visual Studio Extension",
+                                                         System.Windows.Forms.MessageBoxButtons.OK,
+                                                         System.Windows.Forms.MessageBoxIcon.Error,
+                                                         System.Windows.Forms.MessageBoxDefaultButton.Button1,
+                                                         System.Windows.Forms.MessageBoxOptions.RightAlign);
+                    }
+                }
+            }
+        }
+
+        public static VCUserMacro findUserMacro(IVCCollection macros, string macroName)
+        {
+            foreach (VCUserMacro macro in macros)
+            {
+                if (macro.Name == macroName)
+                {
+                    return macro;
+                }
+            }
+            return null;
+        }
+
+        public static void updateIceHomePropertySheet(Project project, string iceHome)
+        {
+            addPropertySheet(project, "ice");
+
+            VCProject vcProj = (VCProject)project.Object;
+
+            foreach (VCConfiguration vcConfig in vcProj.Configurations as IVCCollection)
+            {
+                VCPropertySheet iceHomePropertySheet = findPropertySheet(vcConfig.PropertySheets as IVCCollection, "ice");
+                VCUserMacro iceHomeMacro = findUserMacro(iceHomePropertySheet.UserMacros, EnvIceHome);
+
+                if (iceHomeMacro == null)
+                {
+                    iceHomeMacro = iceHomePropertySheet.AddUserMacro(EnvIceHome, iceHome);
+                    iceHomeMacro.PerformEnvironmentSet = true;
+                    iceHomePropertySheet.Save();
+                }
+                else if (iceHomeMacro.Value != iceHome)
+                {
+                    iceHomeMacro.Value = iceHome;
+                    iceHomeMacro.PerformEnvironmentSet = true;
+                    iceHomePropertySheet.Save();
+                }
+            }
+        }
+#endif
+
         public static string getIceHome(Project project)
         {
             string iceHome = subEnvironmentVars(getIceHomeRaw(project, true));
-            Environment.SetEnvironmentVariable(EnvIceHome, iceHome, EnvironmentVariableTarget.User);
+#if VS2008
+            Environment.SetEnvironmentVariable(EnvIceHome, iceHome);
+#endif
+#if VS2010
+            if (isCppProject(project))
+            {
+                updateIceHomePropertySheet(project, iceHome);
+            }
+#endif
             return iceHome;
         }
 
@@ -494,7 +594,7 @@ namespace Ice.VisualStudio
             string path = "PATH=$(PATH)";
             if (debugSettings.Environment == null)
             {
-                debugSettings.Environment = prependToPath(path, buildBinDir(project, iceHomeRaw, x64));
+                debugSettings.Environment = "PATH=" + prependToPath(assignmentValue(path).Trim(), buildBinDir(project, iceHomeRaw, x64));
                 return;
             }
 
@@ -512,7 +612,7 @@ namespace Ice.VisualStudio
             }
 
             envs.Remove(path);
-            envs.Add(prependToPath(path, buildBinDir(project, iceHomeRaw, x64)));
+            envs.Add("PATH=" + prependToPath(assignmentValue(path).Trim(), buildBinDir(project, iceHomeRaw, x64)));
 
             debugSettings.Environment = envs.ToString('\n'); 
             return;
@@ -520,9 +620,8 @@ namespace Ice.VisualStudio
 
         private static string removeFromPath(string path, string dir)
         {
-            string result = "PATH=";
-            string pathValue = path.Substring("PATH".Length).Trim().Substring("=".Length).Trim();
-            string[] pieces = pathValue.Split(Path.PathSeparator);
+            string result = "";
+            string[] pieces = path.Split(Path.PathSeparator);
             foreach (string s in pieces)
             {
                 if (!equalPath(s.Trim(), dir))
@@ -534,11 +633,22 @@ namespace Ice.VisualStudio
             return result.Trim(Path.PathSeparator);
         }
 
+        private static string assignmentValue(string expr)
+        {
+            try
+            {
+                return expr.Substring(expr.IndexOf('=')).Substring(1);
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
         private static string prependToPath(string path, string dir)
         {
             path = removeFromPath(path, dir);
-            string pathValue = path.Substring("PATH".Length).Trim().Substring("=".Length).Trim();
-            return "PATH=" + dir + Path.PathSeparator + pathValue;
+            return dir + Path.PathSeparator + path;
         }
 
         private static string buildBinDir(Project project, string iceHomeRaw, bool x64)
@@ -596,7 +706,7 @@ namespace Ice.VisualStudio
 
             foreach (string dir in _cppBinDirs)
             {
-                path = removeFromPath(path, Path.Combine(iceHomeRaw, dir));
+                path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), Path.Combine(iceHomeRaw, dir));
             }
             if (path != "PATH=$(PATH)")
             {
