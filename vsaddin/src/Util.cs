@@ -1531,17 +1531,17 @@ namespace Ice.VisualStudio
         }
 
         //
-        // CopyLocal property doesn't work consistently, some times is set to false,
+        // The CopyLocal property doesn't work consistently, as sometimes it is set to false
         // when the reference isn't found. This happens when project demos are fisrt 
         // opened, as at this point the reference path has not been fixed to use the
         // correct IceHome value. This method returns the private metadata of a 
-        // Reference from the project file, this value doesn't change as does CopyLocal.
+        // Reference from the project file; this value doesn't change as does CopyLocal.
         //
 
 #if VS2010
         //
-        // Note this method requires .NET 4, Microsoft.Build.BuildEngine is deprecated 
-        // in .NET 4, this method use the new API Microsoft.Build.Evaluation
+        // This method requires .NET 4. Microsoft.Build.BuildEngine is deprecated 
+        // in .NET 4, so this method uses the new API Microsoft.Build.Evaluation.
         //
         private static bool getCopyLocal(Project project, string name)
         {
@@ -1590,8 +1590,8 @@ namespace Ice.VisualStudio
         }
 #elif VS2008
         //
-        // Note this method used .NET 3.5, Microsoft.Build.BuildEngine it should not be used 
-        // with .NET4 as is deprecated in .NET 4.
+        // This method uses the .NET 3.5 API Microsoft.Build.BuildEngine. This API
+        // should not be used with .NET 4 because it has been deprecated.
         //
         private static bool getCopyLocal(Project project, string name)
         {
