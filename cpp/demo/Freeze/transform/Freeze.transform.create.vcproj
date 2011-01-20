@@ -502,7 +502,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -511,7 +511,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -520,7 +520,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>
@@ -529,7 +529,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; --dict Demo::Contacts,string,Demo::ContactData,sort --dict-index Demo::Contacts,phoneNumber,sort Contacts ContactData.ice&#x0D;&#x0A;"
 						Outputs="Contacts.cpp;Contacts.h"
 					/>
 				</FileConfiguration>

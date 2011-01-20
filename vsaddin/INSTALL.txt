@@ -1,0 +1,181 @@
+======================================================================
+Requirements
+======================================================================
+
+
+Visual Studio & Windows Version
+-------------------------------
+
+The Ice Visual Studio Add-In is supported in the following 
+environments:
+
+ - Windows XP SP3 (x86) with Visual Studio 2008 SP1
+
+ - Windows Server 2003 Standard SP2 (x86 & x64) with Visual Studio 
+   2008 SP1
+
+ - Windows Server 2008 Standard SP2 (x86 & x64) with Visual Studio 
+   2008 SP1
+
+ - Windows Server 2008 Standard R2 (x64) with Visual Studio 2008 SP1
+   or Visual Studio 2010
+
+ - Windows Vista SP2 (x86 & x64) with Visual Studio 2008 SP1 or Visual
+   Studio 2010
+
+ - Windows 7 (x86 & x64) with Visual Studio 2008 SP1 or Visual Studio 
+   2010
+
+
+Compilers
+---------
+
+Building the Ice Visual Studio Add-In requires:
+
+- Microsoft Visual Studio 2008 SP1 and Visual Studio 2008 SDK
+
+or
+
+- Microsoft Visual Studio 2010 and Visual Studio 2010 SDK
+  
+
+======================================================================
+Compilation
+======================================================================
+
+Unpack the archive. The sources are contained in the
+Ice-@ver@\vsaddin subdirectory.
+
+1) In a Visual Studio command prompt, change to the distribution
+   directory:
+
+   > cd Ice-@ver@\vsaddin
+
+2) Open config\Make.rules.mak and review the comments that describe
+   the settings you can modify.
+
+3) Run nmake:
+
+   > nmake /f Makefile.mak
+
+The add-in DLL is placed into the Ice-@ver@\vsaddin\bin directory.
+The library name is
+
+   IceVisualStudioAddin-VS2008.dll or IceVisualStudioAddin-VS2010.dll
+
+
+======================================================================
+Installation
+======================================================================
+
+Simply run "nmake install". This installs the Ice Visual Studio Add-In
+in the directory specified by the "prefix" variable in
+config\Make.rules.mak:
+
+   > nmake /f Makefile.mak install
+
+
+======================================================================
+Configuration
+======================================================================
+
+1) Open a command prompt
+
+   Use "Run as administrator" on Windows Vista or Windows 7.
+
+2) Install the add-in
+
+   Add-ins are added to Visual Studio by placing a .Addin file into
+   one of the directories that Visual Studio searches for Add-ins. The
+   file contains the add-in configuration in XML format.
+
+   You can view the list of directories in which Visual Studio
+   searches for add-in files using the following Visual Studio window:
+
+     Tools -> Options -> Environment -> Add-in/Macros Security
+
+   The .Addin file is typically placed into the Visual Studio user's
+   Addins subdirectory.
+
+   For a Windows Vista (or later) default installation, the directory
+   is:
+
+     C:\Users\username\Documents\Visual Studio 20xx\Addins
+     
+     (replace username and xx as appropriate)
+
+   For a Windows XP default installation, the directory is:
+
+     C:\Document and Settings\username\My Documents\Visual Studio 20xx\Addins
+
+  Once you have chosen the directory, you must copy the corresponding
+  .Addin file to that directory. For example (with Visual Studio 2008):
+
+  > cd C:\Users\username\Documents\Visual Studio 2008\Addins
+  > copy C:\Ice-@ver@\vsaddin\config\Ice-VS2008.AddIn
+
+  If you have not installed the add-in in the default location, you 
+  must edit the .Addin file and update the value of the "Assembly"
+  element with your installation path.
+
+3) Install item templates
+
+   To be able to add new items from the standard "New Item" dialog,
+   you must install the corresponding item templates.
+
+   For C++, item templates are installed in:
+  
+     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems or
+     C:\Program Files\Microsoft Visual Studio 10.0\VC\vcprojectitems
+
+   Copy the Slice template and configuration files:
+
+   > cd C:\Ice-@ver@\vsaddin\templates\vs
+   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems"
+
+   For C#, item templates are installed in:
+
+     C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
+     or
+     C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems
+
+   Copy the Slice template and configuration files:
+
+   > cd C:\Ice-@ver@\vsaddin\templates\vs
+   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems"
+
+   If you are using Windows 64-bit, these directories are:
+   
+     C:\Program Files (x86)\...
+   
+   instead of
+
+     C:\Program Files\...
+
+   For C#, you should also install a user template to make the Slice
+   file template available for all C# project subtypes.
+
+   For a Windows Vista (or later) default installation, C# user
+   templates are installed in:
+
+     C:\Users\username\Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
+   
+   For a Windows XP default installation, the directory is:
+
+     C:\Document and Settings\username\My Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
+
+   Copy C:\Ice-@ver@\vsaddin\templates\Slice.zip to the C# template
+   directory. For example:
+
+   > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
+   > copy C:\Ice-@ver@\vsaddin\templates\Slice.zip .
+
+4) This completes the configuration. The add-in is available once you
+   restart Visual Studio.
+
+
+======================================================================
+Usage
+======================================================================
+
+See the README.txt file in this directory for usage instructions.

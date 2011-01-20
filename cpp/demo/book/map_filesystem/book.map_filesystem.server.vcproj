@@ -500,7 +500,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
 						Outputs="IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h"
 					/>
 				</FileConfiguration>
@@ -509,7 +509,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
 						Outputs="IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h"
 					/>
 				</FileConfiguration>
@@ -518,7 +518,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
 						Outputs="IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h"
 					/>
 				</FileConfiguration>
@@ -527,7 +527,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice &quot;$(ZeroC_VS_IceHome)&quot;\slice\Ice\Identity.ice&#x0D;&#x0A;"
 						Outputs="IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h"
 					/>
 				</FileConfiguration>

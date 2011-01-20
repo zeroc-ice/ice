@@ -50,7 +50,7 @@ section of this page:
 The C++ demos are in the demo directory.
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Extension.
+Studio Add-In.
 
 If you are using Visual Studio 2010 and you intend to build any of the
 demos that use Freeze, you must first define the IceHome environment
@@ -148,7 +148,7 @@ another command window, type 'client' to start the client.
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Extension.
+Studio Add-In.
 
 
 Building the C# demos

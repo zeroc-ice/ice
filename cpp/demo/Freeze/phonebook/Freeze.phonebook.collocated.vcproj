@@ -766,7 +766,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -775,7 +775,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -784,7 +784,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>
@@ -793,7 +793,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="..\..\..\bin\slice2freeze.exe -I&quot;$(IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
+						CommandLine="&quot;$(ZeroC_VS_CppBinDir)\slice2freeze.exe&quot; -I&quot;$(ZeroC_VS_IceHome)&quot;\slice --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice&#x0D;&#x0A;"
 						Outputs="NameIndex.cpp;NameIndex.h"
 					/>
 				</FileConfiguration>

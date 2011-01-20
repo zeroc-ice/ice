@@ -34,13 +34,15 @@ Table of Contents
   2. Supported Windows versions
   3. Third party packages
      - Qt SQL driver
-  4. Ice Visual Studio Extension
-     - Activating the plug-in for a project
+  4. Ice Visual Studio Add-In
+     - Activating the add-in for a project
      - Project properties
      - Environment variables
      - Adding Slice files to a project
      - Generating code
      - VC++ Pre-compiled headers
+     - .NET DEVPATH support
+     - Command-line builds
   5. Setting up your environment to use Ice
      - C++
      - .NET
@@ -123,37 +125,44 @@ built-in.
 
 
 ======================================================================
-4. Ice Visual Studio Extension
+4. Ice Visual Studio Add-In
 ======================================================================
 
-The Ice Visual Studio Extension integrates Ice projects into the
-Visual Studio 2008 and Visual Studio 2010 IDEs. The extension supports
-C++, .NET, VB, and Silverlight projects.
+The Ice Visual Studio Add-In integrates Ice projects into the
+Visual Studio IDE. The add-in supports C++, .NET, VB and
+Silverlight projects.
 
 
-The extension for Visual Studio 2008 is only installed if Visual
+The add-in for Visual Studio 2008 is only installed if Visual
 Studio 2008 is present on the target machine. Likewise for the Visual
-Studio 2010 extension. If you install Visual Studio 2008 or Visual
+Studio 2010 add-in. If you install Visual Studio 2008 or Visual
 Studio 2010 after installing Ice, you will have to re-run the Ice 
-installer and choose "Repair" to install the extension.
+installer and choose "Repair" to install the add-in.
 
-Note that the extension is not supported for Visual Studio Express
-editions as Microsoft does not permit extensions to be written for
+Note that the add-in is not supported for Visual Studio Express
+editions as Microsoft does not permit add-ins to be written for
 Express editions of Visual Studio.
 
 
-Activating the plug-in for a project
+Activating the add-in for a project
 ------------------------------------
 
-After creating or loading a project, right-click on the project in
-Solution Explorer and choose "Ice Configuration..." or go to "Ice
+After installing the add-in, right-click on the project in Solution
+Explorer and choose "Ice Configuration..." or go to "Ice
 Configuration..." in the "Tools" menu. This opens a dialog where you
 can configure Ice build properties.
 
+To enable the add-in for your project, click "Enable Ice Builder" and
+then click "Apply" or "Ok" to commit the changes.
+
 Note that after adding new configurations or platforms to your
-project, it may be necessary to disable and then re-enable the plug-in
-in order for the new configuration/platform to have the correct Ice
-settings.
+project, it may be necessary to disable and then re-enable the Ice 
+add-in for that project, in order for the new configuration/platform 
+to have the correct Ice settings.
+
+To do that, open the "Ice Configuration..." dialog, uncheck "Enable
+Ice Builder", click "Apply", then check "Enable Ice Builder" and click
+"Apply" or "Ok".
 
 
 Project properties
@@ -163,13 +172,18 @@ Project properties
 
   Set the directory where Ice is installed.
 
+* Output Dir
+
+  Set the base directory where generated files will be placed.
+
 * Slice Compiler Options
 
   Tick the corresponding check boxes to pass options such as --ice,
   --stream, --checksum, or --tie (.NET only) to the Slice compiler.
 
-  Tick "Console Output" if you want compiler output to appear in the
-  Output window.
+  You can change the verbosity of messages printed to the output
+  window by selecting a different Trace Level, where Error is less
+  verbose and Debug is more verbose.
 
 * Extra Compiler Options
 
@@ -189,8 +203,8 @@ Project properties
 
   The checkbox for each directory indicates whether it should be
   stored as an absolute path or converted to a path that is relative
-  to the project directory. The extension stores an absolute path if
-  the box is checked, otherwise the extension attempts to convert the
+  to the project directory. The add-in stores an absolute path if
+  the box is checked, otherwise the add-in attempts to convert the
   directory into a relative path. If the directory cannot be converted
   into a relative path, the directory is stored as an absolute path.
   Directories that use environment variables (see below) are not
@@ -205,14 +219,21 @@ Project properties
   Set the list of Ice libraries to link with.
 
 
-Environment variables
+Environment Variables
 ---------------------
 
-The "Ice Home", "Extra Compiler Options", and "Slice Include Path"
-settings support the use of environment variables. Use the $(VAR)
-syntax to refer to an environment variable named VAR. For example,
-if you have defined the ICE_HOME environment variable, you can
-use $(ICE_HOME) in the "Ice Home" field.
+The "Ice Home", "Output Dir", "Extra Compiler Options", and "Slice
+Include Path" settings support the use of environment variables. Use
+the $(VAR) syntax to refer to an environment variable named VAR. For
+example,if you have defined the ICE_HOME environment variable, you
+could use $(ICE_HOME) in the "Ice Home" field.
+
+You cannot use environment variables in the "--header-ext" and 
+"--source-ext" options in "Extra Compiler Options".
+
+If you change environment variable values outside of Visual Studio,
+you will need to restart Visual Studio to use the new environment
+values.
 
 
 Adding Slice files to a project
@@ -226,13 +247,19 @@ Slice file, use "Add -> Existing Item...".
 Generating code
 ---------------
 
-The extension compiles a Slice file whenever you save the file. The
-extension also tracks dependencies among Slice files in the project
-and recompiles only those files that require it after a change.
+The add-in compiles a Slice file whenever you save the file. The
+add-in tracks dependencies among Slice files in the project and
+recompiles only those files that require it after a change.
 
 Generated files are automatically added to the project. For example,
-for Demo.ice, the extension adds Demo.cpp and Demo.h to a C++
-project, whereas the extension adds Demo.cs to a C# project.
+for Demo.ice, the add-in adds Demo.cpp and Demo.h to a C++ project,
+whereas the add-in adds Demo.cs to a C# project.
+
+The default is to place the generated files in the same directory
+as the corresponding Slice file. You can change the directory where
+the generated files are placed using the "Output Dir" option in the
+configuration dialog; the path set here will be used as the base
+directory for storing the generated files.
 
 Errors that occur during Slice compilation are displayed in the Visual
 Studio "Output" and "Error List" panels.
@@ -242,11 +269,40 @@ VC++ Pre-compiled headers
 -------------------------
 
 For C++ projects, pre-compiled headers are detected automatically.
-(The extension automatically passes the required --add-header option
+(The add-in automatically passes the required --add-header option
 to slice2cpp.)
 
 If you change the pre-compiled header setting of a project, you must
 rebuild the project.
+
+
+.NET DEVPATH support
+--------------------
+
+The add-in detects if a .NET project is configured for development
+mode by inspecting the <application-name>.config.exe file. If a
+project is in development mode, the Ice bin directory is automatically
+added to the DEVPATH environment variable when the demo is run;
+references to Ice components are also set with Copy Local to false to
+avoid copying Ice references to the project's output directory. Note
+that the Copy Local setting is not changed for references that are
+already added to the project.
+
+For more information about .NET DEVPATH see:
+
+  http://msdn.microsoft.com/en-us/library/cskzh7h6.aspx
+
+
+Command-line builds
+-------------------
+
+The add-in supports command-line builds using devenv. For example:
+
+devenv MyProject.sln /build
+
+Note that for this to work, command-line builds must be enabled for
+the add-in in the IDE; see "Tools -> Add-in Manager" and check 
+"Command Line" for Ice.
 
 
 ======================================================================

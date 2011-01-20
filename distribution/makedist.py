@@ -24,7 +24,7 @@ includeSubDirs = [ \
     "py", \
     "vb", \
     "rb", \
-    "vsplugin", \
+    "vsaddin", \
     "config", \
     "scripts", \
     "certs", \
@@ -171,8 +171,8 @@ fixVersion(os.path.join("cpp", "config", "icegridregistry.cfg"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "glacier2router.conf"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "icegridregistry.conf"), *versions)
 fixVersion(os.path.join("distribution", "src", "rpm", "RPM_README"), *versions)
-fixVersion(os.path.join("vsplugin", "config", "Ice-VS2008.AddIn"), *versions)
-fixVersion(os.path.join("vsplugin", "config", "Ice-VS2010.AddIn"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "Ice-VS2008.AddIn"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "Ice-VS2010.AddIn"), *versions)
 
 bisonFiles = []
 flexFiles = []

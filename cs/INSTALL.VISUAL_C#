@@ -44,9 +44,9 @@ the source code of a sample program, you can rebuild it using nmake.
 
 You can also build the demos using the Visual Studio solution located 
 in demo\demo.sln. Note that the demo projects require the Ice Visual
-Studio Extension. The extension is installed automatically when you
-use the Ice installer, or you can install the extension manually by
-following the instructions in ..\vsplugin\INSTALL.txt.
+Studio Add-In. The add-in is installed automatically when you
+use the Ice installer, or you can install the add-in manually by
+following the instructions in ..\vsaddin\INSTALL.txt.
 
 
 Managed Code
