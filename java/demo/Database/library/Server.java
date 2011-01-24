@@ -134,6 +134,7 @@ class Server extends Ice.Application
     main(String[] args)
     {
         Server app = new Server();
-        app.main("demo.Database.library.Server", args, "config.server");
+        int status = app.main("demo.Database.library.Server", args, "config.server");
+        System.exit(status);
     }
 }

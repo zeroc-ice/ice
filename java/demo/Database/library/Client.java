@@ -48,6 +48,7 @@ public class Client extends Ice.Application
     main(String[] args)
     {
         Client app = new Client();
-        app.main("demo.Database.library.Client", args, "config.client");
+        int status = app.main("demo.Database.library.Client", args, "config.client");
+        System.exit(status);
     }
 }
