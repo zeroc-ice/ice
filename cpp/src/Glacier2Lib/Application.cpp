@@ -381,7 +381,7 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
         IceInternal::Application::_application = 0;
     }
 
-    if(!ping)
+    if(ping)
     {
         ping->done();
         while(true)
