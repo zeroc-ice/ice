@@ -251,6 +251,9 @@ toFileFlags(ios_base::openmode mode)
 #endif
 
 IceUtilInternal::ifstream::ifstream()
+#ifdef _STLP_BEGIN_NAMESPACE
+    : _fd(-1)
+#endif
 {
 }
 
@@ -309,6 +312,9 @@ IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
 #endif
 
 IceUtilInternal::ofstream::ofstream()
+#ifdef _STLP_BEGIN_NAMESPACE
+    : _fd(-1)
+#endif
 {
 }
 
