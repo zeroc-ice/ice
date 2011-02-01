@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -35,6 +35,7 @@ import org.osgi.framework.BundleContext;
 import com.zeroc.slice2javaplugin.builder.Slice2JavaBuilder;
 import com.zeroc.slice2javaplugin.builder.Slice2JavaNature;
 import com.zeroc.slice2javaplugin.internal.IceClasspathContainerIntializer;
+import com.zeroc.slice2javaplugin.internal.IceClasspathVariableInitializer;
 import com.zeroc.slice2javaplugin.preferences.PluginPreferencePage;
 
 /**
@@ -106,6 +107,7 @@ public class Activator extends AbstractUIPlugin
                     List<IJavaProject> projects = getSlice2JavaProjects(javaModel);
                     String value = (String)event.getNewValue();
                     IceClasspathContainerIntializer.updateProjects(value, projects);
+                    IceClasspathVariableInitializer.update(value);
                     // Need to trigger a clean build of the projects.
                     for(final IJavaProject p : projects)
                     {

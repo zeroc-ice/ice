@@ -2,18 +2,18 @@
 <feature
       id="com.zeroc.Slice2Java"
       label="Slice2Java Eclipse Plugin"
-      version="0.1.1.qualifier"
+      version="3.4.1.qualifier"
       provider-name="ZeroC, Inc.">
 
    <description url="http://www.zeroc.com">
-      The slice2java plugin manages the translation of Slice to Java.
-The plugin computes dependencies between Slice files and automatically
-recompiles Slice files when necessary. The plugin also manages
+      The slice2java plug-in manages the translation of Slice to Java.
+The plug-in computes dependencies between Slice files and automatically
+recompiles Slice files when necessary. The plug-in also manages
 the generated code to eliminate obsolete files.
    </description>
 
    <copyright url="http://www.zeroc.com">
-      Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved
+      Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved
 This copy of the slice2java eclipse plugin is licensed to you
 under the terms described in the license agreement attached to
 this distribution.

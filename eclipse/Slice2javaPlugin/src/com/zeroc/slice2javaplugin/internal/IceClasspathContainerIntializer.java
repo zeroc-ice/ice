@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -47,10 +47,10 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
         return JavaCore.newContainerEntry(new Path(CONTAINER_ID));
     }
 
-    public static void reinitialize(IProject _project, Configuration c)
+    public static void reinitialize(IProject project, Configuration c)
         throws CoreException
     {
-        IJavaProject javaProject = JavaCore.create(_project);
+        IJavaProject javaProject = JavaCore.create(project);
         IPath containerPath = new Path(CONTAINER_ID);
 
         configure(c, javaProject, containerPath);
@@ -59,18 +59,21 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
     private static void configure(Configuration c, IJavaProject javaProject, IPath containerPath)
         throws JavaModelException
     {
-        Path dir = new Path(c.getJarDir());
-        List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-        for(String jar : c.getJars())
+        if(c.getAddJars())
         {
-            IPath path = dir.append(new Path(jar));
-            IClasspathEntry classpathEntry = JavaCore.newLibraryEntry(path, null, null, new IAccessRule[0], new IClasspathAttribute[0], false);
-            entries.add(classpathEntry);
+            Path dir = new Path(c.getJarDir());
+            List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
+            for(String jar : c.getJars())
+            {
+                IPath path = dir.append(new Path(jar));
+                IClasspathEntry classpathEntry = JavaCore.newLibraryEntry(path, null, null, new IAccessRule[0], new IClasspathAttribute[0], false);
+                entries.add(classpathEntry);
+            }
+
+            IClasspathContainer container = new IceClasspathContainer(entries.toArray(new IClasspathEntry[0]), containerPath);
+            JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { javaProject },
+                    new IClasspathContainer[] { container }, new NullProgressMonitor());
         }
-         
-        IClasspathContainer container = new IceClasspathContainer(entries.toArray(new IClasspathEntry[0]), containerPath);
-        JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { javaProject },
-                new IClasspathContainer[] { container }, new NullProgressMonitor());
     }
     
     public static void updateProjects(String value, List<IJavaProject> projects)
@@ -85,7 +88,6 @@ public class IceClasspathContainerIntializer extends ClasspathContainerInitializ
             }
             catch(JavaModelException e)
             {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }

@@ -41,7 +41,7 @@
             </separator>
          </menu>
          <visibility>
-         	<objectState
+                 <objectState
                   name="projectNature"
                   value="com.zeroc.Slice2JavaPlugin.Slice2JavaNature">
             </objectState>
@@ -66,7 +66,7 @@
             </separator>
          </menu>
          <visibility>
-         	<not>
+                 <not>
             <objectState
                   name="projectNature"
                   value="com.zeroc.Slice2JavaPlugin.Slice2JavaNature">
@@ -103,6 +103,12 @@
       </classpathContainerInitializer>
    </extension>
    <extension
+           point="org.eclipse.jdt.core.classpathVariableInitializer">
+       <classpathVariableInitializer
+           variable="ICE_HOME"
+           class="com.zeroc.slice2javaplugin.internal.IceClasspathVariableInitializer"/>
+   </extension>
+   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="com.zeroc.slice2javaplugin.preferences.PluginPreferencePage"
@@ -115,5 +121,12 @@
       <initializer
             class="com.zeroc.slice2javaplugin.preferences.PreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+            point="org.eclipse.core.runtime.contentTypes">
+        <content-type id="Slice"
+            name="Slice source file"
+            base-type="org.eclipse.core.runtime.text"
+            file-extensions="ice"/>
    </extension>
 </plugin>

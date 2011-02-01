@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -78,12 +78,14 @@ public class ProjectProperties extends PropertyPage
             _config.setGeneratedDir(_generatedDir.getText());
             _config.setSliceSourceDirs(Arrays.asList(_sourceDirectories.getItems()));
             _config.setIncludes(Arrays.asList(_includes.getItems()));
+            _config.setAddJars(_addJars.getSelection());
             _config.setJars(Arrays.asList(_jars.getItems()));
             _config.setDefines(Configuration.toList(_defines.getText()));
             _config.setMeta(Configuration.toList(_meta.getText()));
             _config.setStream(_stream.getSelection());
             _config.setTie(_tie.getSelection());
             _config.setIce(_ice.getSelection());
+            _config.setUnderscore(_underscore.getSelection());
             _config.setIceInclude(_iceInclude.getSelection());
             _config.setConsole(_console.getSelection());
 
@@ -176,13 +178,22 @@ public class ProjectProperties extends PropertyPage
         {
             _jars.add(iter.next());
         }
+        _addJars.setSelection(_config.getAddJars());
+        enableControl(_jarsGroup, _config.getAddJars());
         _defines.setText(Configuration.fromList(_config.getDefines()));
         _meta.setText(Configuration.fromList(_config.getMeta()));
         _stream.setSelection(_config.getStream());
         _tie.setSelection(_config.getTie());
         _ice.setSelection(_config.getIce());
+        _underscore.setSelection(_config.getUnderscore());
         _iceInclude.setSelection(_config.getIceInclude());
         _console.setSelection(_config.getConsole());
+
+        //
+        // Android projects don't support the use of classpath libraries.
+        //
+        _jars.setEnabled(!_config.isAndroidProject());
+        _addJars.setEnabled(!_config.isAndroidProject());
 
         checkValid();
     }
@@ -209,16 +220,39 @@ public class ProjectProperties extends PropertyPage
         gridLayout.numColumns = 1;
         composite.setLayout(gridLayout);
 
-        Group includesGroup = new Group(composite, SWT.NONE);
-        includesGroup.setText("Jar Files to Reference");
+        _addJars = new Button(composite, SWT.CHECK);
+        _addJars.setText("Add JAR file references to project");
+
+        _jarsGroup = new Group(composite, SWT.NONE);
+        _jarsGroup.setText("JAR Files to Reference");
         gridLayout = new GridLayout();
         gridLayout.numColumns = 1;
-        includesGroup.setLayout(gridLayout);
-        includesGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
+        _jarsGroup.setLayout(gridLayout);
+        _jarsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-        createLinkList(includesGroup);
+        createLinkList(_jarsGroup);
+
+        _addJars.addSelectionListener(new SelectionAdapter()
+        {
+            public void widgetSelected(SelectionEvent e)
+            {
+                enableControl(_jarsGroup, _addJars.getSelection());
+            }
+        });
 
         return composite;
+    }
+
+    private static void enableControl(Control c, boolean enabled)
+    {
+        c.setEnabled(enabled);
+        if(c instanceof Composite)
+        {
+            for(Control child : ((Composite)c).getChildren())
+            {
+                enableControl(child, enabled);
+            }
+        }
     }
 
     private Control createSource(Composite parent)
@@ -671,7 +705,7 @@ public class ProjectProperties extends PropertyPage
         Group optionsGroup = new Group(composite, SWT.NONE);
 
         gridLayout = new GridLayout();
-        gridLayout.numColumns = 6;
+        gridLayout.numColumns = 5;
         optionsGroup.setText("Options");
         optionsGroup.setLayout(gridLayout);
         optionsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -686,6 +720,9 @@ public class ProjectProperties extends PropertyPage
         _iceInclude.setText("Include Ice Slice Files");
         _console = new Button(optionsGroup, SWT.CHECK);
         _console.setText("Enable console");
+        _underscore = new Button(optionsGroup, SWT.CHECK);
+        _underscore.setText("Enable underscore (Ice 3.4.1 only)");
+        _underscore.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, true, 3, 1));
 
         return composite;
     }
@@ -713,10 +750,13 @@ public class ProjectProperties extends PropertyPage
     private Text _generatedDir;
     private List _sourceDirectories;
     private List _includes;
+    private Button _addJars;
     private List _jars;
+    private Group _jarsGroup;
     private Text _defines;
     private Button _stream;
     private Button _tie;
     private Button _ice;
+    private Button _underscore;
     private Text _meta;
 }

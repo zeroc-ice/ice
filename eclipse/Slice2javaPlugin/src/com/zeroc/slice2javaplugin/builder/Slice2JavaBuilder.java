@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -1013,12 +1013,14 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         Map<IFile, Entry> output = new HashMap<IFile, Entry>(); // Map of source files to build entry.
 
         private IFolder _generated;
+        private IPath _generatedPath;
         // Map of absolute path to project location.
         private Map<IPath, IFile> _sources = new HashMap<IPath, IFile>();
         
         Slice2JavaGeneratedParser(IFolder generated, Set<IFile> candidates)
         {
             _generated = generated;
+            _generatedPath = generated.getProjectRelativePath();
             for(IFile f : candidates)
             {
                 _sources.put(f.getLocation(), f);
@@ -1043,7 +1045,8 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         private IFile convert(String fname)
         {
             IPath p = new Path(fname); // fname contains "generated/...".
-            return _generated.getFile(p.removeFirstSegments(1));
+            int match = p.matchingFirstSegments(_generatedPath);
+            return _generated.getFile(p.removeFirstSegments(match));
         }            
 
         public Set<IFile> visitSource(Node source) throws SAXException

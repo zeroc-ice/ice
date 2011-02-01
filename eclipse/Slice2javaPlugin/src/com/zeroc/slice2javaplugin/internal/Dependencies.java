@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -38,7 +38,6 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -64,9 +63,8 @@ public class Dependencies
         
         // Build a map of location to project resource.
         
-        for(Iterator<IFile> p = _projectResources.iterator(); p.hasNext();)
+        for(IFile f : _projectResources)
         {
-            IFile f = p.next();
             _locationToResource.put(f.getLocation(), f);
         }
     }
@@ -74,7 +72,6 @@ public class Dependencies
     /**
      *
      * @param allDependencies The string of all dependencies.
-     * @param _projectResources a set of all slice file project resources.
      * @throws CoreException
      */
     public void updateDependencies(String allDependencies)
@@ -103,10 +100,8 @@ public class Dependencies
                     "internal error reading dependencies", e));
         }
 
-        for(Iterator<Map.Entry<String, List<String>>> p = parser.dependencies.entrySet().iterator(); p.hasNext();)
+        for(Map.Entry<String, List<String>> entry : parser.dependencies.entrySet())
         {
-            Map.Entry<String, List<String>> entry = p.next();
-
             Path sourcePath = new Path(entry.getKey());
             assert sourcePath.isAbsolute();
 
@@ -121,9 +116,9 @@ public class Dependencies
                 continue;
             }
 
-            for(Iterator<String> q = entry.getValue().iterator(); q.hasNext();)            
+            for(String s : entry.getValue())
             {
-                IFile f = getProjectResource(new Path(q.next()));
+                IFile f = getProjectResource(new Path(s));
                 // Ignore any resources not in the project.
                 if(f != null)
                 {
@@ -139,9 +134,9 @@ public class Dependencies
 
             Set<IFile> dependents = new HashSet<IFile>();
             sliceSliceDependencies.put(sourceFile, dependents);
-            for(Iterator<String> q = entry.getValue().iterator(); q.hasNext();)            
+            for(String s : entry.getValue())
             {
-                IFile f = getProjectResource(new Path(q.next()));
+                IFile f = getProjectResource(new Path(s));
                 // Ignore any resources not in the project.
                 if(f != null)
                 {
@@ -160,10 +155,10 @@ public class Dependencies
         }
         else
         {
-            IStatus s = _project.getWorkspace().validatePath(path.toString(), IResource.FILE);
-            if(s.getCode() == IStatus.OK)
+            f = _project.getFile(path.toString());
+            if(!f.exists())
             {
-                f = _project.getFile(path);
+                f = null;
             }
         }
         if(_projectResources.contains(f))
@@ -465,10 +460,9 @@ public class Dependencies
                     Node value = findNode(child, "value");
                     List<String> files = processFiles(value);
                     Set<IFile> f = new HashSet<IFile>();
-                    Iterator<String> p = files.iterator();
-                    while(p.hasNext())
+                    for(String s : files)
                     {
-                        f.add(_project.getFile(new Path(p.next())));
+                        f.add(_project.getFile(new Path(s)));
                     }
 
                     map.put(key, f);

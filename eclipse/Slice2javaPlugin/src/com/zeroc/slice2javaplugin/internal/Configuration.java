@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 //
 // This plug-in is provided to you under the terms and conditions
 // of the Eclipse Public License Version 1.0 ("EPL"). A copy of
@@ -45,6 +45,15 @@ public class Configuration
 
         _store = new ScopedPreferenceStore(new ProjectScope(project), Activator.PLUGIN_ID);
 
+        _androidProject = false;
+        try
+        {
+            _androidProject = project.hasNature("com.android.ide.eclipse.adt.AndroidNature");
+        }
+        catch(CoreException e)
+        {
+        }
+
         _store.setDefault(GENERATED_KEY, GENERATED_KEY);
         _store.setDefault(DEFINES_KEY, "");
         _store.setDefault(TIE_KEY, false);
@@ -55,18 +64,12 @@ public class Configuration
         _store.setDefault(CONSOLE_KEY, false);
         _store.setDefault(SLICE_SOURCE_DIRS_KEY, "slice");
         _store.setDefault(INCLUDES_KEY, "");
-        boolean androidProject = false;
-        try
-        {
-            androidProject = project.hasNature("com.android.ide.eclipse.adt.AndroidNature");
-        }
-        catch(CoreException e)
-        {
-        }
-        if(androidProject)
+        _store.setDefault(ADD_JARS_KEY, !_androidProject);
+        _store.setDefault(UNDERSCORE_KEY, false);
+
+        if(_androidProject)
         {
             // TODO: At present android does not work with indirect libraries.
-            //_store.setDefault(JARS_KEY, "IceAndroid.jar");
             _store.setDefault(JARS_KEY, "");
         }
         else
@@ -78,7 +81,7 @@ public class Configuration
     /**
      * Turns list of strings into a single ';' delimited string. ';' in the
      * string values are escaped with a leading '\'. '\' are turned into '\\'.
-     * 
+     *
      * @param l
      *            List of strings.
      * @return Semicolon delimited string.
@@ -100,7 +103,7 @@ public class Configuration
     /**
      * Turn a semicolon delimited string into a list of strings. Escaped values
      * are preserved (characters prefixed with a '\').
-     * 
+     *
      * @param s
      *            Semicolon delimited string.
      * @return List of strings.
@@ -164,9 +167,22 @@ public class Configuration
             rc = true;
         }
 
+        if(rc)
+        {
+            IJavaProject javaProject = JavaCore.create(_project);
+            if(getAddJars())
+            {
+                addLibrary(javaProject);
+            }
+            else
+            {
+                removeLibrary(javaProject);
+            }
+        }
+
         return rc;
     }
-    
+
     public void initialize()
         throws CoreException
     {
@@ -190,34 +206,13 @@ public class Configuration
         fixGeneratedCP(null, getGeneratedDir());
 
         IJavaProject javaProject = JavaCore.create(_project);
-
-        IClasspathEntry cpEntry = IceClasspathContainerIntializer.getContainerEntry();
-        IClasspathEntry[] entries = javaProject.getRawClasspath();
-
-        boolean found = false;
-        for(int i = 0; i < entries.length; ++i)
+        if(getAddJars())
         {
-            if(entries[i].equals(cpEntry))
-            {
-                found = true;
-                break;
-            }
+            addLibrary(javaProject);
         }
-
-        if(!found)
+        else
         {
-            IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
-            System.arraycopy(entries, 0, newEntries, 0, entries.length);
-            newEntries[entries.length] = cpEntry;
-
-            try
-            {
-                javaProject.setRawClasspath(newEntries, null);
-            }
-            catch(JavaModelException e)
-            {
-                throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
-            }
+            removeLibrary(javaProject);
         }
     }
 
@@ -225,29 +220,12 @@ public class Configuration
         throws CoreException
     {
         IJavaProject javaProject = JavaCore.create(_project);
+        removeLibrary(javaProject);
+    }
 
-        IClasspathEntry cpEntry = IceClasspathContainerIntializer.getContainerEntry();
-        IClasspathEntry[] entries = javaProject.getRawClasspath();
-
-        for(int i = 0; i < entries.length; ++i)
-        {
-            if(entries[i].equals(cpEntry))
-            {
-                IClasspathEntry[] newEntries = new IClasspathEntry[entries.length - 1];
-                System.arraycopy(entries, 0, newEntries, 0, i);
-                System.arraycopy(entries, i + 1, newEntries, i, entries.length - i - 1);
-
-                try
-                {
-                    javaProject.setRawClasspath(newEntries, null);
-                }
-                catch(JavaModelException e)
-                {
-                    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
-                }
-                break;
-            }
-        }
+    public boolean isAndroidProject()
+    {
+        return _androidProject;
     }
 
     public List<String> getSliceSourceDirs()
@@ -345,6 +323,10 @@ public class Configuration
         {
             cmds.add("--ice");
         }
+        if(getUnderscore())
+        {
+            cmds.add("--underscore");
+        }
 
         return cmds;
     }
@@ -400,7 +382,17 @@ public class Configuration
     {
         setValue(INCLUDES_KEY, fromList(includes));
     }
-    
+
+    public boolean getAddJars()
+    {
+        return _store.getBoolean(ADD_JARS_KEY);
+    }
+
+    public void setAddJars(boolean b)
+    {
+        _store.setValue(ADD_JARS_KEY, b);
+    }
+
     public List<String> getJars()
     {
         return toList(_store.getString(JARS_KEY));
@@ -452,6 +444,16 @@ public class Configuration
     public void setIce(boolean ice)
     {
         _store.setValue(ICE_KEY, ice);
+    }
+
+    public boolean getUnderscore()
+    {
+        return _store.getBoolean(UNDERSCORE_KEY);
+    }
+
+    public void setUnderscore(boolean underscore)
+    {
+        _store.setValue(UNDERSCORE_KEY, underscore);
     }
 
     public boolean getConsole()
@@ -713,6 +715,66 @@ public class Configuration
         return null;
     }
 
+    private void addLibrary(IJavaProject project)
+        throws CoreException
+    {
+        IClasspathEntry cpEntry = IceClasspathContainerIntializer.getContainerEntry();
+        IClasspathEntry[] entries = project.getRawClasspath();
+
+        boolean found = false;
+        for(int i = 0; i < entries.length; ++i)
+        {
+            if(entries[i].equals(cpEntry))
+            {
+                found = true;
+                break;
+            }
+        }
+
+        if(!found)
+        {
+            IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
+            System.arraycopy(entries, 0, newEntries, 0, entries.length);
+            newEntries[entries.length] = cpEntry;
+
+            try
+            {
+                project.setRawClasspath(newEntries, null);
+            }
+            catch(JavaModelException e)
+            {
+                throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
+            }
+        }
+    }
+
+    public void removeLibrary(IJavaProject project)
+        throws CoreException
+    {
+        IClasspathEntry cpEntry = IceClasspathContainerIntializer.getContainerEntry();
+        IClasspathEntry[] entries = project.getRawClasspath();
+
+        for(int i = 0; i < entries.length; ++i)
+        {
+            if(entries[i].equals(cpEntry))
+            {
+                IClasspathEntry[] newEntries = new IClasspathEntry[entries.length - 1];
+                System.arraycopy(entries, 0, newEntries, 0, i);
+                System.arraycopy(entries, i + 1, newEntries, i, entries.length - i - 1);
+
+                try
+                {
+                    project.setRawClasspath(newEntries, null);
+                }
+                catch(JavaModelException e)
+                {
+                    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
+                }
+                break;
+            }
+        }
+    }
+
     private static final String JARS_KEY = "jars";
     private static final String INCLUDES_KEY = "includes";
     private static final String SLICE_SOURCE_DIRS_KEY = "sliceSourceDirs";
@@ -724,6 +786,8 @@ public class Configuration
     private static final String TIE_KEY = "tie";
     private static final String DEFINES_KEY = "defines";
     private static final String GENERATED_KEY = "generated";
+    private static final String ADD_JARS_KEY = "addJars";
+    private static final String UNDERSCORE_KEY = "underscore";
 
     // Preferences store for items which should go in SCM. This includes things
     // like build flags.
@@ -735,4 +799,5 @@ public class Configuration
 
     private IProject _project;
 
+    private boolean _androidProject;
 }
