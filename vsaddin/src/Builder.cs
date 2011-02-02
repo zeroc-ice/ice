@@ -453,6 +453,10 @@ namespace Ice.VisualStudio
             try
             {
                 Project p = getActiveProject();
+                if(p == null)
+                {
+                    return;
+                }
                 setCustomBuildStepEnv(p);
             }
             catch(Exception ex)
@@ -1924,11 +1928,21 @@ namespace Ice.VisualStudio
         public Project getActiveProject()
         {
             Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if(projects == null)
+            if(projects != null && projects.Length > 0)
             {
-                return null;
+                return projects.GetValue(0) as Project;
             }
-            return projects.GetValue(0) as Project;
+            projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
+            if(projects != null && projects.Length > 0)
+            {
+                return projects.GetValue(0) as Project;
+            }
+            projects = (Array)_applicationObject.Solution.Projects;
+            if(projects != null && projects.Length > 0)
+            {
+                return projects.GetValue(0) as Project;
+            }
+            return null;
         }
         
         private void removeDependency(Project project, String path)
