@@ -1103,9 +1103,7 @@ public final class Network
     {
         StringBuilder s = new StringBuilder(128);
         s.append("local address = ");
-        s.append(localAddr.getHostAddress());
-        s.append(':');
-        s.append(localPort);
+        s.append(addrToString(localAddr, localPort));
         if(remoteAddr == null)
         {
             s.append("\nremote address = <not connected>");
@@ -1113,9 +1111,7 @@ public final class Network
         else
         {
             s.append("\nremote address = ");
-            s.append(remoteAddr.getHostAddress());
-            s.append(':');
-            s.append(remotePort);
+            s.append(addrToString(remoteAddr, remotePort));
         }
 
         return s.toString();
@@ -1150,6 +1146,33 @@ public final class Network
 	        (bytes.length == 4 && protocol == EnableIPv4));
     }
 
+    private static String
+    addrToString(java.net.InetAddress addr, int port)
+    {
+        StringBuffer s = new StringBuffer();
+
+        //
+        // In early Android releases, sockets don't correctly report their address and
+        // port information.
+        //
+
+        if(addr == null || addr.isAnyLocalAddress())
+        {
+            s.append("<not available>");
+        }
+        else
+        {
+            s.append(addr.getHostAddress());
+        }
+
+        if(port > 0)
+        {
+            s.append(':');
+            s.append(port);
+        }
+
+        return s.toString();
+    }
 
     private static java.net.InetSocketAddress
     getAddressImpl(String host, int port, int protocol, boolean server)

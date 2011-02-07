@@ -241,8 +241,12 @@ public class AllTests
             adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
             adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
 
+            boolean shortenTest =
+                System.getProperty("os.name").startsWith("Windows") ||
+                System.getProperty("java.vendor").toLowerCase().indexOf("android") >= 0;
+
             int count;
-            if(System.getProperty("os.name").startsWith("Windows"))
+            if(shortenTest)
             {
                 count = 60;
             }
@@ -255,7 +259,7 @@ public class AllTests
             while(--count > 0)
             {
                 TestIntfPrx[] proxies;
-                if(System.getProperty("os.name").startsWith("Windows"))
+                if(shortenTest)
                 {
                     if(count == 10)
                     {

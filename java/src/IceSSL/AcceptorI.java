@@ -74,7 +74,8 @@ final class AcceptorI implements IceInternal.Acceptor
             IceInternal.Network.setBlock(fd, false);
             IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
 
-            engine = _instance.createSSLEngine(true);
+            java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)fd.socket().getRemoteSocketAddress();
+            engine = _instance.createSSLEngine(true, peerAddr);
         }
         catch(RuntimeException ex)
         {

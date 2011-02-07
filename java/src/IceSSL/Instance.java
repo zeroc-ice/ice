@@ -704,9 +704,17 @@ class Instance
     }
 
     javax.net.ssl.SSLEngine
-    createSSLEngine(boolean incoming)
+    createSSLEngine(boolean incoming, java.net.InetSocketAddress peerAddr)
     {
-        javax.net.ssl.SSLEngine engine = _context.createSSLEngine();
+        javax.net.ssl.SSLEngine engine;
+        if(peerAddr != null)
+        {
+            engine = _context.createSSLEngine(peerAddr.getHostName(), peerAddr.getPort());
+        }
+        else
+        {
+            engine = _context.createSSLEngine();
+        }
         engine.setUseClientMode(!incoming);
 
         String[] cipherSuites = filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());

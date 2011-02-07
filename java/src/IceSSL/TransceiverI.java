@@ -351,8 +351,21 @@ final class TransceiverI implements IceInternal.Transceiver
 
         NativeConnectionInfo info = new NativeConnectionInfo();
         java.net.Socket socket = _fd.socket();
-        info.localAddress = socket.getLocalAddress().getHostAddress();
-        info.localPort = socket.getLocalPort();
+        if(socket.getLocalAddress() != null)
+        {
+            info.localAddress = socket.getLocalAddress().getHostAddress();
+            info.localPort = socket.getLocalPort();
+        }
+        else
+        {
+            //
+            // On some platforms (e.g., early Android releases), sockets don't
+            // correctly return address information.
+            //
+            info.localAddress = "";
+            info.localPort = -1;
+        }
+
         if(socket.getInetAddress() != null)
         {
             info.remoteAddress = socket.getInetAddress().getHostAddress();
@@ -402,6 +415,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 switch(status)
                 {
                 case FINISHED:
+                case NOT_HANDSHAKING:
                     handshakeCompleted();
                     break;
                 case NEED_TASK:
@@ -470,9 +484,6 @@ final class TransceiverI implements IceInternal.Transceiver
                     status = result.getHandshakeStatus();
                     break;
                 }
-                case NOT_HANDSHAKING:
-                    assert(false);
-                    break;
                 }
 
                 if(result != null)
