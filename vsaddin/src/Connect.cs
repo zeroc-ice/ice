@@ -107,15 +107,6 @@ namespace Ice.VisualStudio
 
                         if(project == null)
                         {
-                           ProjectItem item = Util.getSelectedProjectItem(_applicationObject.DTE);
-                           if(item != null)
-                           {
-                               project = item.ContainingProject;
-                           }
-                        }
-
-                        if(project == null)
-                        {
                             status = (vsCommandStatus)vsCommandStatus.vsCommandStatusSupported;
                             return;
                         }
@@ -155,14 +146,6 @@ namespace Ice.VisualStudio
                     if(commandName == "Ice.VisualStudio.Connect.IceConfiguration")
                     {
                         Project project = builder.getSelectedProject();
-                        if(project == null)
-                        {
-                           ProjectItem item = Util.getSelectedProjectItem(_applicationObject.DTE);
-                           if(item != null)
-                           {
-                               project = item.ContainingProject;
-                           }
-                        }
 
                         if(project == null)
                         {

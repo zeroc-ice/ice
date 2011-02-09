@@ -1124,13 +1124,10 @@ namespace Ice.VisualStudio
             {
                 return null;
             }
-            if(dte.Solution.Projects == null)
-            {
-                return null;
-            }
 
+            List<Project> projects = Util.getProjects(dte.Solution);
             ProjectItem item = null;
-            foreach(Project project in dte.Solution.Projects)
+            foreach(Project project in projects)
             {
                 item = findItem(path, project.ProjectItems);
                 if(item != null)
@@ -1311,11 +1308,6 @@ namespace Ice.VisualStudio
             return uiItem.Object as ProjectItem;
         }
 
-        public static Project getSelectedProject()
-        {
-            return Util.getSelectedProject(Util.getCurrentDTE());
-        }
-
         public static Project getSelectedProject(_DTE dte)
         {
             UIHierarchyItem uiItem = getSelectedUIHierearchyItem(dte);
@@ -1323,7 +1315,25 @@ namespace Ice.VisualStudio
             {
                 return null;
             }
-            return uiItem.Object as Project;
+            Project project = uiItem.Object as Project;
+
+            if(project == null)
+            {
+                ProjectItem item = uiItem.Object as ProjectItem;
+                if(item != null)
+                {
+                    if(item.Kind == EnvDTE.Constants.vsProjectItemKindSolutionItems &&
+                       item.ContainingProject.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+                    {
+                        project = item.Object as Project;
+                    }
+                    else
+                    {
+                        project = item.ContainingProject;
+                    }
+                }
+            }
+            return project;
         }
 
         public static UIHierarchyItem getSelectedUIHierearchyItem(_DTE dte)
@@ -1345,11 +1355,12 @@ namespace Ice.VisualStudio
                 return null;
             }
 
-            if(((Array)uiHierarchy.SelectedItems).Length <= 0)
+            Array items = (Array)uiHierarchy.SelectedItems; 
+            if(items.Length <= 0)
             {
                 return null;
             }
-            return (UIHierarchyItem)((Array)uiHierarchy.SelectedItems).GetValue(0);
+            return (UIHierarchyItem)items.GetValue(0);
         }
 
         public static bool updateOutputDir(Project project, String outputDir)
@@ -2868,6 +2879,87 @@ namespace Ice.VisualStudio
                 list.Add(i);
             }
             return list;
+        }
+
+        public static List<Project> getProjects(Solution solution)
+        {
+            List<Project> projects = new List<Project>();
+            foreach(Project p in solution.Projects)
+            {
+                getProjects(solution, p, ref projects);
+            }
+            return projects;
+        }
+
+        public static void getProjects(Solution solution, Project project, ref List<Project> projects)
+        {
+            if(project.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+            {
+                foreach(ProjectItem item in project.ProjectItems)
+                {
+                    Project p = item.Object as Project;
+                    if(p == null)
+                    {
+                        continue;
+                    }
+                    getProjects(solution, p, ref projects);
+                }
+            }
+            if(projects.Find(
+                delegate(Project p)
+                {
+                    return project.UniqueName.Equals(p.UniqueName);
+                }) == null)
+            {
+                projects.Add(project);
+            }
+        }
+
+        public static List<Project> buildOrder(Solution solution)
+        {
+            List<Project> projects = new List<Project>();
+            foreach(Project p in solution.Projects)
+            {
+                buildOrder(solution, p, ref projects);
+            }
+            return projects;
+        }
+
+        public static void buildOrder(Solution solution, Project project, ref List<Project> projects)
+        {
+            if(project.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
+            {
+                foreach(ProjectItem item in project.ProjectItems)
+                {
+                    Project p = item.Object as Project;
+                    if(p == null)
+                    {
+                        continue;
+                    }
+                    buildOrder(solution, p, ref projects);
+                }
+            }
+            BuildDependencies dependencies = solution.SolutionBuild.BuildDependencies;
+            for(int i = 0; i < dependencies.Count; ++i)
+            {
+                BuildDependency dp = dependencies.Item(i + 1);
+                if(dp.Project.Equals(project))
+                {
+                    System.Array requiredProjects = dp.RequiredProjects as System.Array;
+                    foreach(Project p in requiredProjects)
+                    {
+                        Util.buildOrder(solution, p, ref projects);
+                    }
+                }
+            }
+            if(projects.Find(
+                delegate(Project p)
+                    {
+                        return project.UniqueName.Equals(p.UniqueName);
+                    }) == null)
+            {
+                projects.Add(project);
+            }
         }
     }
 }

@@ -708,7 +708,8 @@ namespace Ice.VisualStudio
                 DependenciesMap dependenciesMap = getDependenciesMap();
                 
                 initDocumentEvents();
-                foreach(Project p in _applicationObject.Solution.Projects)
+                List<Project> projects = Util.buildOrder(_applicationObject.Solution);
+                foreach(Project p in projects)
                 {
                     Util.fix(p);
                     if((Util.isCSharpProject(p) || Util.isVBProject(p) || Util.isCppProject(p)) && 
@@ -1924,7 +1925,7 @@ namespace Ice.VisualStudio
         {
             return Util.getSelectedProject(_applicationObject.DTE);
         }
-        
+
         public Project getActiveProject()
         {
             Array projects = (Array)_applicationObject.ActiveSolutionProjects;
@@ -2680,7 +2681,8 @@ namespace Ice.VisualStudio
                         default:
                         {
                             clearErrors();
-                            foreach(Project p in _applicationObject.Solution.Projects)
+                            List<Project> projects = Util.buildOrder(_applicationObject.Solution);
+                            foreach(Project p in projects)
                             {
                                 if(p != null)
                                 {
@@ -2727,7 +2729,8 @@ namespace Ice.VisualStudio
                         }
                         default:
                         {
-                            foreach(Project p in _applicationObject.Solution.Projects)
+                            List<Project> projects = Util.buildOrder(_applicationObject.Solution);
+                            foreach(Project p in projects)
                             {
                                 if(p != null)
                                 {
