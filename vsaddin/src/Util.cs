@@ -19,10 +19,12 @@ using System.IO;
 using System.Diagnostics;
 using Extensibility;
 using EnvDTE80;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.CommandBars;
 using Microsoft.VisualStudio.VCProjectEngine;
 using Microsoft.VisualStudio.VCProject;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using System.Resources;
 using System.Reflection;
 using VSLangProj;
@@ -1298,69 +1300,92 @@ namespace Ice.VisualStudio
                                                                                          Path.DirectorySeparatorChar);
         }
 
-        public static ProjectItem getSelectedProjectItem(_DTE dte)
-        {
-            UIHierarchyItem uiItem = getSelectedUIHierearchyItem(dte);
-            if(uiItem == null)
-            {
-                return null;
-            }
-            return uiItem.Object as ProjectItem;
-        }
-
         public static Project getSelectedProject(_DTE dte)
         {
-            UIHierarchyItem uiItem = getSelectedUIHierearchyItem(dte);
-            if(uiItem == null)
+            Microsoft.VisualStudio.Shell.ServiceProvider sp = new Microsoft.VisualStudio.Shell.ServiceProvider(
+                getCurrentDTE() as Microsoft.VisualStudio.OLE.Interop.IServiceProvider);
+            IVsMonitorSelection selectionMonitor = sp.GetService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
+
+            //
+            // There isn't an open project.
+            //
+            if(selectionMonitor == null)
             {
                 return null;
             }
-            Project project = uiItem.Object as Project;
 
-            if(project == null)
+            Project project = null;
+            IntPtr ppHier;
+            uint pitemid;
+            IVsMultiItemSelect ppMIS;
+            IntPtr ppSC;
+            if(ErrorHandler.Failed(selectionMonitor.GetCurrentSelection(out ppHier, out pitemid, out ppMIS, out ppSC)))
             {
-                ProjectItem item = uiItem.Object as ProjectItem;
-                if(item != null)
+                return null;
+            }
+
+            if(ppHier != IntPtr.Zero)
+            {
+                IVsHierarchy hier = (IVsHierarchy)Marshal.GetObjectForIUnknown(ppHier);
+                Marshal.Release(ppHier);
+                object obj;
+                hier.GetProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ExtObject, out obj);
+                if(obj != null)
                 {
-                    if(item.Kind == EnvDTE.Constants.vsProjectItemKindSolutionItems &&
-                       item.ContainingProject.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
-                    {
-                        project = item.Object as Project;
-                    }
-                    else
-                    {
-                        project = item.ContainingProject;
-                    }
+                    project = obj as EnvDTE.Project;
                 }
             }
+
+            if(ppSC != IntPtr.Zero)
+            {
+                Marshal.Release(ppSC);
+            }
+
             return project;
         }
 
-        public static UIHierarchyItem getSelectedUIHierearchyItem(_DTE dte)
+        public static ProjectItem getSelectedProjectItem(_DTE dte)
         {
-            if(dte == null)
+            Microsoft.VisualStudio.Shell.ServiceProvider sp = new Microsoft.VisualStudio.Shell.ServiceProvider(
+                getCurrentDTE() as Microsoft.VisualStudio.OLE.Interop.IServiceProvider);
+            IVsMonitorSelection selectionMonitor = sp.GetService(typeof(IVsMonitorSelection)) as IVsMonitorSelection;
+
+            //
+            // There isn't an open project.
+            //
+            if(selectionMonitor == null)
             {
                 return null;
             }
 
-            UIHierarchy uiHierarchy =
-                (EnvDTE.UIHierarchy)dte.Windows.Item(EnvDTE.Constants.vsWindowKindSolutionExplorer).Object;
-            if(uiHierarchy == null)
+            ProjectItem projectItem = null;
+            IntPtr ppHier;
+            uint pitemid;
+            IVsMultiItemSelect ppMIS;
+            IntPtr ppSC;
+            if(ErrorHandler.Failed(selectionMonitor.GetCurrentSelection(out ppHier, out pitemid, out ppMIS, out ppSC)))
             {
                 return null;
             }
 
-            if(uiHierarchy.SelectedItems == null)
+            if(ppHier != IntPtr.Zero)
             {
-                return null;
+                IVsHierarchy hier = (IVsHierarchy)Marshal.GetObjectForIUnknown(ppHier);
+                Marshal.Release(ppHier);
+                object obj;
+                hier.GetProperty(pitemid, (int)__VSHPROPID.VSHPROPID_ExtObject, out obj);
+                if(obj != null)
+                {
+                    projectItem = obj as EnvDTE.ProjectItem;
+                }
             }
 
-            Array items = (Array)uiHierarchy.SelectedItems; 
-            if(items.Length <= 0)
+            if(ppSC != IntPtr.Zero)
             {
-                return null;
+                Marshal.Release(ppSC);
             }
-            return (UIHierarchyItem)items.GetValue(0);
+
+            return projectItem;
         }
 
         public static bool updateOutputDir(Project project, String outputDir)
