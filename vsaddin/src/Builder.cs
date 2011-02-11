@@ -190,6 +190,10 @@ namespace Ice.VisualStudio
                         _debugStartNewInstance.BeforeExecute +=
                                         new _dispCommandEvents_BeforeExecuteEventHandler(setDotNetDebugEnvironment);
                     }
+                    else if(c.Guid.Equals(Util.refreshCommandGUID) && c.ID == Util.refreshCommandID)
+                    {
+                        Util.setRefreshCommand(c);
+                    }
                 }
             }
 
@@ -312,6 +316,7 @@ namespace Ice.VisualStudio
         {
             try
             {
+                Util.solutionExplorerRefresh();
                 _sliceBuild = false;
                 //
                 // If a Slice file has changed during the build, we rebuild that project's
@@ -422,6 +427,7 @@ namespace Ice.VisualStudio
         {
             try
             {
+                Util.solutionExplorerRefresh();
                 _sliceBuild = false;
 
                 //
@@ -885,58 +891,85 @@ namespace Ice.VisualStudio
         //
         private void documentOpened(Document document)
         {
-            if(fileTracker().hasGeneratedFile(document.ProjectItem.ContainingProject, document.FullName))
+            try
             {
-                if(!document.ReadOnly)
+                if(document == null || document.ProjectItem == null || document.ProjectItem.ContainingProject == null)
                 {
-                    document.ReadOnly = true;
+                    return;
                 }
+                if(!Util.isSliceBuilderEnabled(document.ProjectItem.ContainingProject))
+                {
+                    return;
+                }
+                if(fileTracker().hasGeneratedFile(document.ProjectItem.ContainingProject, document.FullName))
+                {
+                    if(!document.ReadOnly)
+                    {
+                        document.ReadOnly = true;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
+                Util.unexpectedExceptionWarning(ex);
+                throw;
             }
         }
 
         public void documentSaved(Document document)
         {
-            Project project = null;
             try
             {
-                project = document.ProjectItem.ContainingProject;
-            }
-            catch(COMException)
-            {
-                //
-                // Expected when documents are created during project initialization
-                // and the ProjectItem is not yet available.
-                //
-                return;
-            }
-
-            if(!Util.isSliceBuilderEnabled(project))
-            {
-                return;
-            }
-            if(!Util.isSliceFilename(document.Name))
-            {
-                return;
-            }
-
-            //
-            // If build is in proccess, we don't run the slice compiler now, we append the document
-            // to a list of projects that have changes and return. The projects on this list 
-            // will be rebuilt when the current build process is done or canceled, see 
-            // "buildDone" and "afterBuildCancel" methods in this class.
-            //
-            if(isBuilding(project))
-            {
-                List<Project> rebuildProjects = getRebuildProjects();
-                if(!rebuildProjects.Contains(project))
+                Project project = null;
+                try
                 {
-                    rebuildProjects.Add(project);
+                    project = document.ProjectItem.ContainingProject;
                 }
-                return;
-            }
+                catch(COMException)
+                {
+                    //
+                    // Expected when documents are created during project initialization
+                    // and the ProjectItem is not yet available.
+                    //
+                    return;
+                }
 
-            clearErrors(project);
-            buildProject(project, false, vsBuildScope.vsBuildScopeProject);
+                if(!Util.isSliceBuilderEnabled(project))
+                {
+                    return;
+                }
+                if(!Util.isSliceFilename(document.Name))
+                {
+                    return;
+                }
+
+                //
+                // If build is in proccess, we don't run the slice compiler now, we append the document
+                // to a list of projects that have changes and return. The projects on this list 
+                // will be rebuilt when the current build process is done or canceled, see 
+                // "buildDone" and "afterBuildCancel" methods in this class.
+                //
+                if(isBuilding(project))
+                {
+                    List<Project> rebuildProjects = getRebuildProjects();
+                    if(!rebuildProjects.Contains(project))
+                    {
+                        rebuildProjects.Add(project);
+                    }
+                    return;
+                }
+
+                clearErrors(project);
+                buildProject(project, false, vsBuildScope.vsBuildScopeProject);
+                Util.solutionExplorerRefresh();
+            }
+            catch(Exception ex)
+            {
+                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
+                Util.unexpectedExceptionWarning(ex);
+                throw;
+            }
         }
         
         public void projectAdded(Project project)
@@ -947,6 +980,7 @@ namespace Ice.VisualStudio
                 {
                     Util.verifyProjectSettings(project);
                     updateDependencies(project);
+                    Util.solutionExplorerRefresh();
                 }
             }
             catch(Exception ex)
@@ -3328,10 +3362,10 @@ namespace Ice.VisualStudio
         //
         // True if build is in process, false otherwise.
         //
-        private bool _building;
+        private bool _building = false;
 
         //
-        // If build is in process, this contains the build scope.
+        // This contains the build scope of the last build command.
         //
         private vsBuildScope _buildScope = vsBuildScope.vsBuildScopeSolution;
 
@@ -3340,7 +3374,6 @@ namespace Ice.VisualStudio
         // this contains a reference to the project, otherwise it's null.
         //
         private Project _buildProject;
-
 
         private uint _dwCookie;
     }

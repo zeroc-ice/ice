@@ -2971,6 +2971,10 @@ namespace Ice.VisualStudio
                 if(dp.Project.Equals(project))
                 {
                     System.Array requiredProjects = dp.RequiredProjects as System.Array;
+                    if(requiredProjects == null)
+                    {
+                        continue;
+                    }
                     foreach(Project p in requiredProjects)
                     {
                         Util.buildOrder(solution, p, ref projects);
@@ -2986,5 +2990,25 @@ namespace Ice.VisualStudio
                 projects.Add(project);
             }
         }
+
+        public static void solutionExplorerRefresh()
+        {
+            if(_refreshCommand != null && _refreshCommand.IsAvailable)
+            {
+                DTE dte = getCurrentDTE();
+                object objIn = null;
+                object objOut = null;
+                dte.Commands.Raise(refreshCommandGUID, refreshCommandID, ref objIn, ref objOut);
+            }
+        }
+
+        public static void setRefreshCommand(Command command)
+        {
+            _refreshCommand = command;
+        }
+
+        private static Command _refreshCommand;
+        public const string refreshCommandGUID = "{1496A755-94DE-11D0-8C3F-00C04FC2AAE2}";
+        public const int refreshCommandID = 222;
     }
 }
