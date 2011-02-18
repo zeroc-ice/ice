@@ -297,7 +297,7 @@ public final class ServantManager
             {
                 String s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" +
                     "locator category: `" + p.getKey() + "'\n" + Ex.toString(ex);
-                _instance.initializationData().logger.error(s);
+                logger.error(s);
             }
         }
     }
