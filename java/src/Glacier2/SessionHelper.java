@@ -375,7 +375,7 @@ public class SessionHelper
                     SessionHelper.this.destroy();
                 }
             }
-        });
+        }, _session.ice_getCachedConnection());
     }
 
     synchronized private void
@@ -444,7 +444,7 @@ public class SessionHelper
             {
                 _callback.disconnected(SessionHelper.this);
             }
-        });
+        }, null);
     }
     
     private void
@@ -465,7 +465,7 @@ public class SessionHelper
                 {
                     _callback.connectFailed(SessionHelper.this, ex);
                 }
-            });
+            }, null);
             return;
         }
 
@@ -504,18 +504,18 @@ public class SessionHelper
                         {
                             _callback.connectFailed(SessionHelper.this, ex);
                         }
-                    });
+                    }, null);
                 }
             }
         }).start();
     }
 
     private void
-    dispatchCallback(Runnable runnable)
+    dispatchCallback(Runnable runnable, Ice.Connection conn)
     {
         if(_initData.dispatcher != null)
         {
-            _initData.dispatcher.dispatch(runnable, null);
+            _initData.dispatcher.dispatch(runnable, conn);
         }
         else
         {

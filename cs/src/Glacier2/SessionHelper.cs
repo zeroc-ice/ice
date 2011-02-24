@@ -363,7 +363,7 @@ public class SessionHelper
                                  {
                                      destroy();
                                  }
-                             });
+                             }, _session.ice_getCachedConnection());
         }
     }
 
@@ -431,7 +431,7 @@ public class SessionHelper
             dispatchCallback(delegate()
                              {
                                  _callback.disconnected(this);
-                             });
+                             }, null);
         }
     }
 
@@ -452,7 +452,7 @@ public class SessionHelper
             dispatchCallback(delegate()
                              {
                                  _callback.connectFailed(this, ex);
-                             });
+                             }, null);
             return;
         }
 
@@ -483,17 +483,17 @@ public class SessionHelper
                     dispatchCallback(delegate()
                                      {
                                          _callback.connectFailed(this, ex);
-                                     });
+                                     }, null);
                 }
         })).Start();
     }
 
     private void
-    dispatchCallback(System.Action callback)
+    dispatchCallback(System.Action callback, Ice.Connection conn)
     {
         if(_initData.dispatcher != null)
         {
-            _initData.dispatcher(callback, null);
+            _initData.dispatcher(callback, conn);
         }
         else
         {
