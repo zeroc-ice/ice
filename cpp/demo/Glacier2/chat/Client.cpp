@@ -78,6 +78,10 @@ public:
             {
                 cout << "permission denied:\n" << ex.reason << endl;
             }
+            catch(const Glacier2::CannotCreateSessionException ex)
+            {
+                cout << "cannot create session:\n" << ex.reason << endl;
+            }
         }
         return session;
     }
@@ -102,37 +106,29 @@ public:
         sessionPrx->setCallback(callback);
         menu();
 
-        try
+        do
         {
-            do
+            string s;
+            cout << "==> ";
+            getline(cin, s);
+            s = trim(s);
+            if(!s.empty())
             {
-                string s;
-                cout << "==> ";
-                getline(cin, s);
-                s = trim(s);
-                if(!s.empty())
+                if(s[0] == '/')
                 {
-                    if(s[0] == '/')
+                    if(s == "/quit")
                     {
-                        if(s == "/quit")
-                        {
-                            break;
-                        }
-                        menu();
+                        break;
                     }
-                    else
-                    {
-                        sessionPrx->say(s);
-                    }
+                    menu();
+                }
+                else
+                {
+                    sessionPrx->say(s);
                 }
             }
-            while(cin.good());
         }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            return EXIT_FAILURE;
-        }
+        while(cin.good());
         return EXIT_SUCCESS;
     }
 
