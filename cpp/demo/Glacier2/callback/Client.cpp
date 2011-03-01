@@ -129,100 +129,93 @@ CallbackClient::runWithSession(int argc, char* argv[])
     char c;
     do
     {
-        try
+        cout << "==> ";
+        cin >> c;
+        if(c == 't')
         {
-            cout << "==> ";
-            cin >> c;
-            if(c == 't')
+            Ice::Context context;
+            context["_fwd"] = "t";
+            if(!override.empty())
             {
-                Ice::Context context;
-                context["_fwd"] = "t";
-                if(!override.empty())
-                {
-                    context["_ovrd"] = override;
-                }
-                twoway->initiateCallback(twowayR, context);
+                context["_ovrd"] = override;
             }
-            else if(c == 'o')
+            twoway->initiateCallback(twowayR, context);
+        }
+        else if(c == 'o')
+        {
+            Ice::Context context;
+            context["_fwd"] = "o";
+            if(!override.empty())
             {
-                Ice::Context context;
-                context["_fwd"] = "o";
-                if(!override.empty())
-                {
-                    context["_ovrd"] = override;
-                }
-                oneway->initiateCallback(onewayR, context);
+                context["_ovrd"] = override;
             }
-            else if(c == 'O')
+            oneway->initiateCallback(onewayR, context);
+        }
+        else if(c == 'O')
+        {
+            Ice::Context context;
+            context["_fwd"] = "O";
+            if(!override.empty())
             {
-                Ice::Context context;
-                context["_fwd"] = "O";
-                if(!override.empty())
-                {
-                    context["_ovrd"] = override;
-                }
-                batchOneway->initiateCallback(onewayR, context);
+                context["_ovrd"] = override;
             }
-            else if(c == 'f')
+            batchOneway->initiateCallback(onewayR, context);
+        }
+        else if(c == 'f')
+        {
+            communicator()->flushBatchRequests();
+        }
+        else if(c == 'v')
+        {
+            if(override.empty())
             {
-                communicator()->flushBatchRequests();
-            }
-            else if(c == 'v')
-            {
-                if(override.empty())
-                {
-                    override = "some_value";
-                    cout << "override context field is now `" << override << "'" << endl;
-                }
-                else
-                {
-                    override.clear();
-                    cout << "override context field is empty" << endl;
-                }
-            }
-            else if(c == 'F')
-            {
-                fake = !fake;
-
-                if(fake)
-                {
-                    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverFakeIdent));
-                    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverFakeIdent));
-                }
-                else
-                {
-                    twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverIdent));
-                    onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverIdent));
-                }
-                
-                cout << "callback receiver identity: " << communicator()->identityToString(twowayR->ice_getIdentity())
-                     << endl;
-            }
-            else if(c == 's')
-            {
-                twoway->shutdown();
-            }
-            else if(c == 'r')
-            {
-                restart();
-            }
-            else if(c == 'x')
-            {
-                // Nothing to do
-            }
-            else if(c == '?')
-            {
-                menu();
+                override = "some_value";
+                cout << "override context field is now `" << override << "'" << endl;
             }
             else
             {
-                cout << "unknown command `" << c << "'" << endl;
-                menu();
+                override.clear();
+                cout << "override context field is empty" << endl;
             }
         }
-        catch(const Ice::Exception& ex)
+        else if(c == 'F')
         {
-            cerr << ex << endl;
+            fake = !fake;
+
+            if(fake)
+            {
+                twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverFakeIdent));
+                onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverFakeIdent));
+            }
+            else
+            {
+                twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_identity(callbackReceiverIdent));
+                onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_identity(callbackReceiverIdent));
+            }
+            
+            cout << "callback receiver identity: " << communicator()->identityToString(twowayR->ice_getIdentity())
+                 << endl;
+        }
+        else if(c == 's')
+        {
+            twoway->shutdown();
+        }
+        else if(c == 'r')
+        {
+            restart();
+        }
+        else if(c == 'x')
+        {
+            // Nothing to do
+        }
+        else if(c == '?')
+        {
+            menu();
+        }
+        else
+        {
+            cout << "unknown command `" << c << "'" << endl;
+            menu();
         }
     }
     while(cin.good() && c != 'x');

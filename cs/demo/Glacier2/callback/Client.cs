@@ -33,6 +33,7 @@ public class Client
                 "f: flush all batch requests\n" +
                 "v: set/reset override context field\n" +
                 "F: set/reset fake category\n" +
+                "r: restart the session\n" +
                 "s: shutdown server\n" +
                 "x: exit\n" +
                 "?: help\n");
@@ -121,105 +122,102 @@ public class Client
             bool fake = false;
             do
             {
-                try
+                Console.Write("==> ");
+                Console.Out.Flush();
+                line = Console.In.ReadLine();
+                if(line == null)
                 {
-                    Console.Write("==> ");
-                    Console.Out.Flush();
-                    line = Console.In.ReadLine();
-                    if(line == null)
+                    break;
+                }
+                if(line.Equals("t"))
+                {
+                    Dictionary<string, string> context = new Dictionary<string, string>();
+                    context["_fwd"] = "t";
+                    if(@override != null)
                     {
-                        break;
+                        context["_ovrd"] = @override;
                     }
-                    if(line.Equals("t"))
+                    twoway.initiateCallback(twowayR, context);
+                }
+                else if(line.Equals("o"))
+                {
+                    Dictionary<string, string> context = new Dictionary<string, string>();
+                    context["_fwd"] = "o";
+                    if(@override != null)
                     {
-                        Dictionary<string, string> context = new Dictionary<string, string>();
-                        context["_fwd"] = "t";
-                        if(@override != null)
-                        {
-                            context["_ovrd"] = @override;
-                        }
-                        twoway.initiateCallback(twowayR, context);
+                        context["_ovrd"] = @override;
                     }
-                    else if(line.Equals("o"))
+                    oneway.initiateCallback(onewayR, context);
+                }
+                else if(line.Equals("O"))
+                {
+                    Dictionary<string, string> context = new Dictionary<string, string>();
+                    context["_fwd"] = "O";
+                    if(@override != null)
                     {
-                        Dictionary<string, string> context = new Dictionary<string, string>();
-                        context["_fwd"] = "o";
-                        if(@override != null)
-                        {
-                            context["_ovrd"] = @override;
-                        }
-                        oneway.initiateCallback(onewayR, context);
+                        context["_ovrd"] = @override;
                     }
-                    else if(line.Equals("O"))
+                    batchOneway.initiateCallback(onewayR, context);
+                }
+                else if(line.Equals("f"))
+                {
+                    communicator().flushBatchRequests();
+                }
+                else if(line.Equals("v"))
+                {
+                    if(@override == null)
                     {
-                        Dictionary<string, string> context = new Dictionary<string, string>();
-                        context["_fwd"] = "O";
-                        if(@override != null)
-                        {
-                            context["_ovrd"] = @override;
-                        }
-                        batchOneway.initiateCallback(onewayR, context);
-                    }
-                    else if(line.Equals("f"))
-                    {
-                        communicator().flushBatchRequests();
-                    }
-                    else if(line.Equals("v"))
-                    {
-                        if(@override == null)
-                        {
-                            @override = "some_value";
-                            Console.WriteLine("override context field is now `" + @override + "'");
-                        }
-                        else
-                        {
-                            @override = null;
-                            Console.WriteLine("override context field is empty");
-                        }
-                    }
-                    else if(line.Equals("F"))
-                    {
-                        fake = !fake;
-
-                        if(fake)
-                        {
-                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-                                twowayR.ice_identity(callbackReceiverFakeIdent));
-                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(
-                                onewayR.ice_identity(callbackReceiverFakeIdent));
-                        }
-                        else
-                        {
-                            twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-                                twowayR.ice_identity(callbackReceiverIdent));
-                            onewayR = CallbackReceiverPrxHelper.uncheckedCast(
-                                onewayR.ice_identity(callbackReceiverIdent));
-                        }
-
-                        Console.WriteLine("callback receiver identity: " +
-                                          communicator().identityToString(twowayR.ice_getIdentity()));
-                    }
-                    else if(line.Equals("s"))
-                    {
-                        twoway.shutdown();
-                    }
-                    else if(line.Equals("x"))
-                    {
-                        // Nothing to do
-                    }
-                    else if(line.Equals("?"))
-                    {
-                        menu();
+                        @override = "some_value";
+                        Console.WriteLine("override context field is now `" + @override + "'");
                     }
                     else
                     {
-                        Console.WriteLine("unknown command `" + line + "'");
-                        menu();
+                        @override = null;
+                        Console.WriteLine("override context field is empty");
                     }
                 }
-                catch(System.Exception ex)
+                else if(line.Equals("F"))
                 {
-                    Console.Error.WriteLine(ex);
+                    fake = !fake;
+
+                    if(fake)
+                    {
+                        twowayR = CallbackReceiverPrxHelper.uncheckedCast(
+                            twowayR.ice_identity(callbackReceiverFakeIdent));
+                        onewayR = CallbackReceiverPrxHelper.uncheckedCast(
+                            onewayR.ice_identity(callbackReceiverFakeIdent));
+                    }
+                    else
+                    {
+                        twowayR = CallbackReceiverPrxHelper.uncheckedCast(
+                            twowayR.ice_identity(callbackReceiverIdent));
+                        onewayR = CallbackReceiverPrxHelper.uncheckedCast(
+                            onewayR.ice_identity(callbackReceiverIdent));
+                    }
+
+                    Console.WriteLine("callback receiver identity: " +
+                                      communicator().identityToString(twowayR.ice_getIdentity()));
+                }
+                else if(line.Equals("s"))
+                {
+                    twoway.shutdown();
+                }
+                else if(line.Equals("r"))
+                {
+                    restart();
+                }
+                else if(line.Equals("x"))
+                {
+                    // Nothing to do
+                }
+                else if(line.Equals("?"))
+                {
+                    menu();
+                }
+                else
+                {
+                    Console.WriteLine("unknown command `" + line + "'");
+                    menu();
                 }
             }
             while(!line.Equals("x"));
