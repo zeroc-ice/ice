@@ -12,6 +12,7 @@
 <project name="common" basedir=".">
 
     <property environment="env"/>
+    <property name="build.sysclasspath" value="last"/>
 
     <target name="init" depends="config-init, task-init">
       <!-- Create the time stamp -->
