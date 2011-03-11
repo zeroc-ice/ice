@@ -38,6 +38,7 @@ SUBDIRS		= proxy \
 		  defaultValue \
 		  threadPoolPriority \
 		  stream \
+		  properties \
 
 !if "$(CPP_COMPILER)" != "VC60"
 SUBDIRS		= $(SUBDIRS) \

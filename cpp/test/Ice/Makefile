@@ -40,7 +40,8 @@ SUBDIRS		= proxy \
 		  defaultServant \
 		  defaultValue \
 		  threadPoolPriority \
-		  invoke
+		  invoke \
+		  properties
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -35,6 +35,7 @@ tests = [
     ("Slice/errorDetection", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"]),
+    ("Ice/properties", ["once"]),
     ("Ice/proxy", ["core"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
