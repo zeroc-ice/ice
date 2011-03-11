@@ -156,22 +156,32 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 {
     PropertiesPtr properties = communicator->getProperties();
 
-    const char* endpointsProperty = "IcePatch2.Endpoints";
-    string endpoints = properties->getProperty(endpointsProperty);
-    if(endpoints.empty())
+    const char* clientProxyProperty = "IcePatch2Client.Proxy";
+    std::string clientProxy = properties->getProperty(clientProxyProperty);
+    if(clientProxy.empty())
     {
-        throw string("property `") + endpointsProperty + "' is not set";
-    }
+        const char* endpointsProperty = "IcePatch2.Endpoints";
+        string endpoints = properties->getProperty(endpointsProperty);
+        if(endpoints.empty())
+        {
+            ostringstream os;
+            os << "No proxy to IcePatch2 server. Please set `" << clientProxyProperty 
+               << "' or `" << endpointsProperty << "'.";
+            throw os.str();
+        }
 
-    Identity id;
-    id.category = properties->getPropertyWithDefault("IcePatch2.InstanceName", "IcePatch2");
-    id.name = "server";
+        Identity id;
+        id.category = properties->getPropertyWithDefault("IcePatch2.InstanceName", "IcePatch2");
+        id.name = "server";
+        
+        clientProxy = "\"" + communicator->identityToString(id) + "\" :" + endpoints;
+    }
+    ObjectPrx serverBase = communicator->stringToProxy(clientProxy);
     
-    ObjectPrx serverBase = communicator->stringToProxy("\"" + communicator->identityToString(id) + "\" :" + endpoints);
     FileServerPrx server = FileServerPrx::checkedCast(serverBase);
     if(!server)
     {
-        throw "proxy `" + communicator->identityToString(id) + ':' + endpoints + "' is not a file server.";
+        throw "proxy `" + clientProxy + "' is not a file server.";
     }
 
     init(server);
