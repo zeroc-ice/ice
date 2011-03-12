@@ -40,6 +40,12 @@ DEBUG			= yes
 OPTIMIZE		= yes
 
 #
+# Define FRAMEWORK as 3.5 to force .NET 3.5 build in Visual Studio 2010
+#
+
+#FRAMEWORK = 3.5
+
+#
 # Set the key file used to sign assemblies.
 #
 
@@ -96,6 +102,15 @@ MCSFLAGS 		= $(MCSFLAGS) -optimize+
 
 # Define for SupressMessage to work
 #MCSFLAGS		= $(MCSFLAGS) -define:CODE_ANALYSIS
+
+!if "$(FRAMEWORK)" == "3.5"
+MCSFLAGS = $(MCSFLAGS) /noconfig /nostdlib+ 
+MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\mscorlib.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"  
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
+!endif
 
 !if "$(ice_src_dist)" != ""
 !if "$(ice_cpp_dir)" == "$(ice_dir)\cpp"

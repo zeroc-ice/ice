@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe
+TARGETS		= client.exe Serializable.dll
 
 C_SRCS		= Client.cs
 

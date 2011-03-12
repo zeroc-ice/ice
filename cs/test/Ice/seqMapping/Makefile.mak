@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe collocated.exe serveramd.exe
+TARGETS		= client.exe server.exe collocated.exe serveramd.exe Serializable.dll
 
 C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs
 S_SRCS		= MyClassI.cs Server.cs Custom.cs
