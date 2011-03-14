@@ -1228,6 +1228,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     else
     {
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        EnumPtr ep;
         if(bp && bp->kind() == Builtin::KindString)
         {
             //
@@ -1271,17 +1272,24 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             _out << value << "F";
         }
-        else
+        else if(ep = EnumPtr::dynamicCast(type))
         {
-            EnumPtr ep = EnumPtr::dynamicCast(type);
-            if(ep)
+            string enumName = fixId(ep->scoped());
+            string::size_type colon = value.rfind(':');
+            string enumerator;
+            if(colon != string::npos)
             {
-                _out << typeToString(type) << "." << fixId(value);
+                enumerator = fixId(value.substr(colon + 1));
             }
             else
             {
-                _out << value;
+                enumerator = fixId(value);
             }
+            _out << enumName << '.' << enumerator;
+        }
+        else
+        {
+            _out << value;
         }
     }
 }

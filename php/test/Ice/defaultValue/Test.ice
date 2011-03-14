@@ -15,6 +15,13 @@ module Test
 
 enum Color { red, green, blue };
 
+module Nested
+{
+
+enum Color { red, green, blue };
+
+};
+
 struct Struct1
 {
     bool boolFalse = false;
@@ -26,7 +33,12 @@ struct Struct1
     float f = 5.1;
     double d = 6.2;
     string str = "foo bar";
-    Color c = red;
+    Color c1 = ::Test::red;
+    Color c2 = Test::green;
+    Color c3 = blue;
+    Nested::Color nc1 = ::Test::Nested::red;
+    Nested::Color nc2 = Nested::green;
+    Nested::Color nc3 = Nested::blue;
     string noDefault;
 };
 
@@ -38,7 +50,13 @@ const long ConstLong = 4;
 const float ConstFloat = 5.1;
 const double ConstDouble = 6.2;
 const string ConstString = "foo bar";
-const Color ConstColor = red;
+const Color ConstColor1 = ::Test::red;
+const Color ConstColor2 = Test::green;
+const Color ConstColor3 = blue;
+const Nested::Color ConstNestedColor1 = ::Test::Nested::red;
+const Nested::Color ConstNestedColor2 = Test::Nested::green;
+const Nested::Color ConstNestedColor3 = Nested::blue;
+
 
 struct Struct2
 {
@@ -50,7 +68,12 @@ struct Struct2
     float f = ConstFloat;
     double d = ConstDouble;
     string str = ConstString;
-    Color c = ConstColor;
+    Color c1 = ConstColor1;
+    Color c2 = ConstColor2;
+    Color c3 = ConstColor3;
+    Nested::Color nc1 = ConstNestedColor1;
+    Nested::Color nc2 = ConstNestedColor2;
+    Nested::Color nc3 = ConstNestedColor3;
 };
 
 class Base
@@ -69,7 +92,12 @@ class Base
 
 class Derived extends Base
 {
-    Color c = green;
+    Color c1 = ::Test::red;
+    Color c2 = Test::green;
+    Color c3 = blue;
+    Nested::Color nc1 = ::Test::Nested::red;
+    Nested::Color nc2 = Nested::green;
+    Nested::Color nc3 = Nested::blue;
 };
 
 exception BaseEx
@@ -88,7 +116,12 @@ exception BaseEx
 
 exception DerivedEx extends BaseEx
 {
-    Color c = green;
+    Color c1 = ConstColor1;
+    Color c2 = ConstColor2;
+    Color c3 = ConstColor3;
+    Nested::Color nc1 = ConstNestedColor1;
+    Nested::Color nc2 = ConstNestedColor2;
+    Nested::Color nc3 = ConstNestedColor3;
 };
 
 };

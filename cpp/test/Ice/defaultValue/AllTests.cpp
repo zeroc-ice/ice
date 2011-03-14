@@ -30,7 +30,12 @@ allTests()
         test(v.f == static_cast<float>(5.1));
         test(v.d == 6.2);
         test(v.str == "foo bar");
-        test(v.c == red);
+        test(v.c1 == red);
+        test(v.c2 == green);
+        test(v.c3 == blue);
+        test(v.nc1 == Nested::red);
+        test(v.nc2 == Nested::green);
+        test(v.nc3 == Nested::blue);
         test(v.noDefault.empty());
     }
 
@@ -44,7 +49,12 @@ allTests()
         test(v.f == ConstFloat);
         test(v.d == ConstDouble);
         test(v.str == ConstString);
-        test(v.c == ConstColor);
+        test(v.c1 == ConstColor1);
+        test(v.c2 == ConstColor2);
+        test(v.c3 == ConstColor3);
+        test(v.nc1 == ConstNestedColor1);
+        test(v.nc2 == ConstNestedColor2);
+        test(v.nc3 == ConstNestedColor3);
     }
 
     {
@@ -58,7 +68,12 @@ allTests()
         test(v->f == static_cast<float>(5.1));
         test(v->d == 6.2);
         test(v->str == "foo bar");
-        test(v->c == blue);
+        test(v->c1 == red);
+        test(v->c2 == green);
+        test(v->c3 == blue);
+        test(v->nc1 == Nested::red);
+        test(v->nc2 == Nested::green);
+        test(v->nc3 == Nested::blue);
         test(v->noDefault.empty());
     }
 
@@ -88,7 +103,12 @@ allTests()
         test(v->d == 6.2);
         test(v->str == "foo bar");
         test(v->noDefault.empty());
-        test(v->c == green);
+        test(v->c1 == red);
+        test(v->c2 == green);
+        test(v->c3 == blue);
+        test(v->nc1 == Nested::red);
+        test(v->nc2 == Nested::green);
+        test(v->nc3 == Nested::blue);
     }
 
     {
@@ -117,7 +137,12 @@ allTests()
         test(v.d == 6.2);
         test(v.str == "foo bar");
         test(v.noDefault.empty());
-        test(v.c == green);
+        test(v.c1 == red);
+        test(v.c2 == green);
+        test(v.c3 == blue);
+        test(v.nc1 == Nested::red);
+        test(v.nc2 == Nested::green);
+        test(v.nc3 == Nested::blue);
     }
 
     cout << "ok" << endl;

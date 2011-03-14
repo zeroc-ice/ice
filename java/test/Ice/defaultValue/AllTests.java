@@ -40,7 +40,12 @@ public class AllTests
             test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str.equals("foo bar"));
-            test(v.c == Color.red);
+            test(v.c1 == Color.red);
+            test(v.c2 == Color.green);
+            test(v.c3 == Color.blue);
+            test(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
+            test(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
+            test(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
             test(v.noDefault == null);
         }
 
@@ -54,7 +59,12 @@ public class AllTests
             test(v.f == ConstFloat.value);
             test(v.d == ConstDouble.value);
             test(v.str.equals(ConstString.value));
-            test(v.c == ConstColor.value);
+            test(v.c1 == ConstColor1.value);
+            test(v.c2 == ConstColor2.value);
+            test(v.c3 == ConstColor3.value);
+            test(v.nc1 == ConstNestedColor1.value);
+            test(v.nc2 == ConstNestedColor2.value);
+            test(v.nc3 == ConstNestedColor3.value);
         }
 
         {
@@ -82,7 +92,12 @@ public class AllTests
             test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str.equals("foo bar"));
-            test(v.c == Color.green);
+            test(v.c1 == Color.red);
+            test(v.c2 == Color.green);
+            test(v.c3 == Color.blue);
+            test(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
+            test(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
+            test(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
             test(v.noDefault == null);
         }
 
@@ -112,7 +127,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
-            test(v.c == Color.green);
+            test(v.c1 == Color.red);
+            test(v.c2 == Color.green);
+            test(v.c3 == Color.blue);
+            test(v.nc1 == test.Ice.defaultValue.Test.Nested.Color.red);
+            test(v.nc2 == test.Ice.defaultValue.Test.Nested.Color.green);
+            test(v.nc3 == test.Ice.defaultValue.Test.Nested.Color.blue);
         }
 
         out.println("ok");

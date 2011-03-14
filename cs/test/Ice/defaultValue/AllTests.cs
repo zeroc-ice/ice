@@ -36,7 +36,12 @@ public class AllTests
             test(v.f == (float)5.1);
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
-            test(v.c == Test.Color.red);
+            test(v.c1 == Test.Color.red);
+            test(v.c2 == Test.Color.green);
+            test(v.c3 == Test.Color.blue);
+            test(v.nc1 == Test.Nested.Color.red);
+            test(v.nc2 == Test.Nested.Color.green);
+            test(v.nc3 == Test.Nested.Color.blue);
             test(v.noDefault == null);
         }
 
@@ -50,7 +55,12 @@ public class AllTests
             test(v.f == Test.ConstFloat.value);
             test(v.d == Test.ConstDouble.value);
             test(v.str.Equals(Test.ConstString.value));
-            test(v.c == Test.ConstColor.value);
+            test(v.c1 == Test.ConstColor1.value);
+            test(v.c2 == Test.ConstColor2.value);
+            test(v.c3 == Test.ConstColor3.value);
+            test(v.nc1 == Test.ConstNestedColor1.value);
+            test(v.nc2 == Test.ConstNestedColor2.value);
+            test(v.nc3 == Test.ConstNestedColor3.value);
         }
 
         {
@@ -64,7 +74,12 @@ public class AllTests
             test(v.f == 5.1F);
             test(v.d == 6.2);
             //test(v.str.Equals("foo bar"));
-            test(v.c == Test.Color.blue);
+            test(v.c1 == Test.Color.red);
+            test(v.c2 == Test.Color.green);
+            test(v.c3 == Test.Color.blue);
+            test(v.nc1 == Test.Nested.Color.red);
+            test(v.nc2 == Test.Nested.Color.green);
+            test(v.nc3 == Test.Nested.Color.blue);
             //test(v.noDefault == null);
         }
 
@@ -93,7 +108,12 @@ public class AllTests
             test(v.f == 5.1F);
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
-            test(v.c == Test.Color.green);
+            test(v.c1 == Test.Color.red);
+            test(v.c2 == Test.Color.green);
+            test(v.c3 == Test.Color.blue);
+            test(v.nc1 == Test.Nested.Color.red);
+            test(v.nc2 == Test.Nested.Color.green);
+            test(v.nc3 == Test.Nested.Color.blue);
             test(v.noDefault == null);
         }
 
@@ -123,7 +143,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str == "foo bar");
             test(v.noDefault == null);
-            test(v.c == Test.Color.green);
+            test(v.c1 == Test.Color.red);
+            test(v.c2 == Test.Color.green);
+            test(v.c3 == Test.Color.blue);
+            test(v.nc1 == Test.Nested.Color.red);
+            test(v.nc2 == Test.Nested.Color.green);
+            test(v.nc3 == Test.Nested.Color.blue);
         }
 
         Console.Out.WriteLine("ok");

@@ -37,6 +37,10 @@ function allTests()
     $green = $NS ? constant("Test\\Color::green") : constant("Test_Color::green");
     $blue = $NS ? constant("Test\\Color::blue") : constant("Test_Color::blue");
 
+    $nRed = $NS ? constant("Test\\Nested\\Color::red") : constant("Test_Nested_Color::red");
+    $nGreen = $NS ? constant("Test\\Nested\\Color::green") : constant("Test_Nested_Color::green");
+    $nBlue = $NS ? constant("Test\\Nested\\Color::blue") : constant("Test_Nested_Color::blue");
+
     echo "testing default values... ";
     flush();
 
@@ -51,7 +55,12 @@ function allTests()
         test($v->f == 5.1);
         test($v->d == 6.2);
         test($v->str == "foo bar");
-        test($v->c == $red);
+        test($v->c1 == $red);
+        test($v->c2 == $green);
+        test($v->c3 == $blue);
+        test($v->nc1 == $nRed);
+        test($v->nc2 == $nGreen);
+        test($v->nc3 == $nBlue);
         test(strlen($v->noDefault) == 0);
     }
 
@@ -65,7 +74,12 @@ function allTests()
         test($v->f == constant($NS ? "Test\\ConstFloat" : "Test_ConstFloat"));
         test($v->d == constant($NS ? "Test\\ConstDouble" : "Test_ConstDouble"));
         test($v->str == constant($NS ? "Test\\ConstString" : "Test_ConstString"));
-        test($v->c == constant($NS ? "Test\\ConstColor" : "Test_ConstColor"));
+        test($v->c1 == constant($NS ? "Test\\ConstColor1" : "Test_ConstColor1"));
+        test($v->c2 == constant($NS ? "Test\\ConstColor2" : "Test_ConstColor2"));
+        test($v->c3 == constant($NS ? "Test\\ConstColor3" : "Test_ConstColor3"));
+        test($v->nc1 == constant($NS ? "Test\\ConstNestedColor1" : "Test_ConstNestedColor1"));
+        test($v->nc2 == constant($NS ? "Test\\ConstNestedColor2" : "Test_ConstNestedColor2"));
+        test($v->nc3 == constant($NS ? "Test\\ConstNestedColor3" : "Test_ConstNestedColor3"));
     }
 
     {
@@ -94,7 +108,12 @@ function allTests()
         test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
-        test($v->c == $green);
+        test($v->c1 == $red);
+        test($v->c2 == $green);
+        test($v->c3 == $blue);
+        test($v->nc1 == $nRed);
+        test($v->nc2 == $nGreen);
+        test($v->nc3 == $nBlue);
     }
 
     {
@@ -123,7 +142,12 @@ function allTests()
         test($v->d == 6.2);
         test($v->str == "foo bar");
         test(strlen($v->noDefault) == 0);
-        test($v->c == $green);
+        test($v->c1 == $red);
+        test($v->c2 == $green);
+        test($v->c3 == $blue);
+        test($v->nc1 == $nRed);
+        test($v->nc2 == $nGreen);
+        test($v->nc3 == $nBlue);
     }
     echo "ok\n";
 }
