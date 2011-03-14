@@ -369,16 +369,30 @@ public final class PropertiesI implements Properties
         }
         else
         {
-            java.io.InputStream is = null;
+            java.io.PushbackInputStream is = null;
             try
             {
-                is = IceInternal.Util.openResource(getClass().getClassLoader(), file);
+                is = new java.io.PushbackInputStream(IceInternal.Util.openResource(getClass().getClassLoader(), file));
                 if(is == null)
                 {
                     FileException fe = new FileException();
                     fe.path = file;
                     throw fe;
                 }
+
+                //
+                // Skip UTF-8 BOM if present.
+                //
+                byte[] bom = new byte[3];
+                int read = is.read(bom);
+                if(read < 3 || bom[0] != (byte)0xEF || bom[1] != (byte)0xBB || bom[2] !=  (byte)0xBF)
+                {
+                    if(read > 0)
+                    {
+                        is.unread(bom);
+                    }
+                }
+
                 java.io.InputStreamReader isr = new java.io.InputStreamReader(is, "UTF-8");
                 java.io.BufferedReader br = new java.io.BufferedReader(isr);
                 parse(br);
