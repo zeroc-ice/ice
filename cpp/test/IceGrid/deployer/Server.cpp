@@ -96,6 +96,9 @@ main(int argc, char* argv[])
     test(value4 != 0 && wstring(value4) == L"2");
 #endif
 
+    char* value5 = getenv("MY_WINDOWS_COMPOSED_VARIABLE");
+    test(value5 != 0 && string(value5) == "BAR;12");
+
 #else
     char* value2 = getenv("MY_ENV_UNICODE_VARIABLE");
     test(value2 !=0 && string(value2) == unicodeVar);
@@ -105,6 +108,9 @@ main(int argc, char* argv[])
 
     char* value4 = getenv(varname2.c_str());
     test(value4 != 0 && string(value4) == "2");
+    
+    char* value5 = getenv("MY_UNIX_COMPOSED_VARIABLE");
+    test(value5 != 0 && string(value5) == "BAR;12");
 #endif
 
     Server app;

@@ -20,6 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
+os.environ["MY_FOO"] = "12"
+
 IceGridAdmin.iceGridTest("application.xml", '--TestDir="%s"' % os.getcwd(), "icebox.exe='%s'" % TestUtil.getIceBox())
 
 # Tests with targets
