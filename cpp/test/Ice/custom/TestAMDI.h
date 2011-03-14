@@ -140,6 +140,16 @@ public:
                                      const ::Test::ClassStructPtr&,
                                      const ::Test::ClassStructSeq&,
                                      const ::Ice::Current&);
+                                     
+                                     
+    virtual void opOutArrayByteSeq_async(const ::Test::AMD_TestIntf_opOutArrayByteSeqPtr&,
+                                         const ::Test::ByteSeq&, 
+                                         const ::Ice::Current&);
+                                         
+
+    virtual void opOutRangeByteSeq_async(const ::Test::AMD_TestIntf_opOutRangeByteSeqPtr&,
+                                         const ::Test::ByteSeq&,
+                                         const ::Ice::Current&);
 
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
                                 const Ice::Current&);

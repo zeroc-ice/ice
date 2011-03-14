@@ -289,6 +289,25 @@ TestIntfI::opClassStruct_async(const ::Test::AMD_TestIntf_opClassStructPtr& cb,
     cb->ice_response(inS, inS, inSeq);
 }
 
+
+void
+TestIntfI::opOutArrayByteSeq_async(const ::Test::AMD_TestIntf_opOutArrayByteSeqPtr& cb,
+                                   const ::Test::ByteSeq& inS, 
+                                   const ::Ice::Current&)
+{
+    cb->ice_response(std::pair<const ::Ice::Byte*, 
+                               const ::Ice::Byte*>(&inS[0], &inS[0] + inS.size()));
+}
+                                         
+void
+TestIntfI::opOutRangeByteSeq_async(const ::Test::AMD_TestIntf_opOutRangeByteSeqPtr& cb,
+                                   const ::Test::ByteSeq& inS,
+                                   const ::Ice::Current&)
+{
+    cb->ice_response(std::pair< ::Test::ByteSeq::const_iterator, 
+                                ::Test::ByteSeq::const_iterator>(inS.begin(), inS.end()));
+}
+
 void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,
                           const Ice::Current& current)

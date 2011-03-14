@@ -2466,7 +2466,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // delegate.
     //
     bool generatePrivateEnd = retS != retSEndAMI || outParamsDeclAMI != outParamsDeclEndAMI;
-    if(generatePrivateEnd)
+    if(ret && generatePrivateEnd)
     {
         string typeStringEndAMI = outputTypeToString(ret, p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
         outParamsDeclEndAMI.push_back(typeStringEndAMI + ' ' + "__ret");
@@ -5445,7 +5445,12 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         }
         else
         {
-            H << "__proxy->___end_" << p->name() << spar << outEndArgs << retEndArg << "__result" << epar << ';';
+            H << "__proxy->___end_" << p->name() << spar << outEndArgs;
+            if(ret)
+            {
+                H << retEndArg;
+            }
+            H << "__result" << epar << ';';
         }
         writeEndCode(H, outParams, ret, p->getMetaData());
         H << eb;
@@ -7008,7 +7013,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                 }
                 if(SequencePtr::dynamicCast(cont))
                 {
-                    if(ss.find("type:") == 0 || (inParam && (ss == "array" || ss.find("range") == 0)))
+                    if(ss.find("type:") == 0 || ss == "array" || ss.find("range") == 0)
                     {
                         continue;
                     }

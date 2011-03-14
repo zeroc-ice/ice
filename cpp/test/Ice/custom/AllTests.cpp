@@ -1398,6 +1398,37 @@ public:
         test(ret == in);
         called();
     }
+    
+    void opOutArrayByteSeq(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& data, const InParamPtr& cookie)
+    {
+        Test::ByteSeq dumy;
+        const Test::ByteSeq& in = getIn(dumy, cookie);
+        Test::ByteSeq out(data.first, data.second);
+        Test::ByteSeq::const_iterator p1;
+        Test::ByteSeq::const_iterator p2;
+                
+        for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
+        {
+            test(*p1 == *p2);
+        }
+        called();
+    }
+    
+    void opOutRangeByteSeq(const ::std::pair< ::Test::ByteSeq::const_iterator, ::Test::ByteSeq::const_iterator>& data, 
+                           const InParamPtr& cookie)
+    {
+        Test::ByteSeq dumy;
+        const Test::ByteSeq& in = getIn(dumy, cookie);
+        Test::ByteSeq out(data.first, data.second);
+        Test::ByteSeq::const_iterator p1;
+        Test::ByteSeq::const_iterator p2;
+                
+        for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
+        {
+            test(*p1 == *p2);
+        }
+        called();
+    }
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
@@ -2910,6 +2941,51 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                     test(*p1 == *p2);
                 }
             }
+            
+            
+            {
+                Test::ByteSeq in;
+                in.push_back('1');
+                in.push_back('2');
+                in.push_back('3');
+                in.push_back('4');
+                
+                Ice::AsyncResultPtr r = t->begin_opOutArrayByteSeq(in);
+                
+                Test::ByteSeq out;
+                t->end_opOutArrayByteSeq(out, r);
+                
+                test(out.size() == in.size());
+                Test::ByteSeq::const_iterator p1;
+                Test::ByteSeq::const_iterator p2;
+                
+                for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
+                {
+                    test(*p1 == *p2);
+                }
+            }
+            
+            {
+                Test::ByteSeq in;
+                in.push_back('1');
+                in.push_back('2');
+                in.push_back('3');
+                in.push_back('4');
+                
+                Ice::AsyncResultPtr r = t->begin_opOutRangeByteSeq(in);
+                
+                Test::ByteSeq out;
+                t->end_opOutRangeByteSeq(out, r);
+                
+                test(out.size() == in.size());
+                Test::ByteSeq::const_iterator p1;
+                Test::ByteSeq::const_iterator p2;
+                
+                for(p1 = out.begin(), p2 = in.begin(); p1 != out.end(); ++p1, ++p2)
+                {
+                    test(*p1 == *p2);
+                }
+            }
         }
         cout << "ok" << endl;
 
@@ -3408,6 +3484,37 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             Test::Callback_TestIntf_opCListPtr callback = 
                 Test::newCallback_TestIntf_opCList(cb, &Callback::opCList, &Callback::noEx);
             t->begin_opCList(in, callback, newInParam(in));
+            cb->check();
+        }
+        
+        
+        {
+            Test::ByteSeq in;
+            in.push_back('1');
+            in.push_back('2');
+            in.push_back('3');
+            in.push_back('4');
+            
+            CallbackPtr cb = new Callback();
+            Test::Callback_TestIntf_opOutArrayByteSeqPtr callback = Test::newCallback_TestIntf_opOutArrayByteSeq(cb, 
+                                            &Callback::opOutArrayByteSeq, &Callback::noEx);
+            
+            t->begin_opOutArrayByteSeq(in, callback, newInParam(in));
+            cb->check();
+        }
+        
+        {
+            Test::ByteSeq in;
+            in.push_back('1');
+            in.push_back('2');
+            in.push_back('3');
+            in.push_back('4');
+            
+            CallbackPtr cb = new Callback();
+            Test::Callback_TestIntf_opOutRangeByteSeqPtr callback = Test::newCallback_TestIntf_opOutRangeByteSeq(cb, 
+                                            &Callback::opOutRangeByteSeq, &Callback::noEx);
+            
+            t->begin_opOutRangeByteSeq(in, callback, newInParam(in));
             cb->check();
         }
 

@@ -190,6 +190,10 @@ sequence<ClassStruct> ClassStructSeq;
     CList opCList(CList inSeq, out CList outSeq);
 
     ClassStruct opClassStruct(ClassStruct inS, ClassStructSeq inSeq, out ClassStruct outS, out ClassStructSeq outSeq);
+    
+    void opOutArrayByteSeq(ByteSeq org, out ["cpp:array"] ByteSeq copy);
+    
+    void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
     void shutdown();
 };

@@ -143,6 +143,11 @@ public:
                                                  ::Test::ClassStructPtr& out,
                                                  ::Test::ClassStructSeq& outSeq,
                                                  const Ice::Current&);
+                                                 
+                                                 
+    virtual void opOutArrayByteSeq(const Test::ByteSeq&, Test::ByteSeq&, const Ice::Current&);
+    
+    virtual void opOutRangeByteSeq(const Test::ByteSeq&, Test::ByteSeq&, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 

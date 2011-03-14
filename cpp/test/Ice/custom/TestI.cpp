@@ -294,6 +294,18 @@ TestIntfI::opClassStruct(const ::Test::ClassStructPtr& inS,
 }
 
 void
+TestIntfI::opOutArrayByteSeq(const Test::ByteSeq& data, Test::ByteSeq& copy, const Ice::Current&)
+{
+    copy = data;
+}
+
+void
+TestIntfI::opOutRangeByteSeq(const Test::ByteSeq& data, Test::ByteSeq& copy, const Ice::Current&)
+{
+    copy = data;
+}
+
+void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     _communicator->shutdown();
