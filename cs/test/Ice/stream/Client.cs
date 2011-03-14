@@ -347,10 +347,10 @@ public class Client
                 false
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.BoolSHelper.write(@out, arr);
+            Ice.BoolSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            bool[] arr2 = Test.BoolSHelper.read(@in);
+            bool[] arr2 = Ice.BoolSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -380,10 +380,10 @@ public class Client
                 (byte)0x22
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.ByteSHelper.write(@out, arr);
+            Ice.ByteSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            byte[] arr2 = Test.ByteSHelper.read(@in);
+            byte[] arr2 = Ice.ByteSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -426,10 +426,10 @@ public class Client
                 (short)0x22
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.ShortSHelper.write(@out, arr);
+            Ice.ShortSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            short[] arr2 = Test.ShortSHelper.read(@in);
+            short[] arr2 = Ice.ShortSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -459,10 +459,10 @@ public class Client
                 0x22
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.IntSHelper.write(@out, arr);
+            Ice.IntSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            int[] arr2 = Test.IntSHelper.read(@in);
+            int[] arr2 = Ice.IntSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -492,10 +492,10 @@ public class Client
                 0x22
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.LongSHelper.write(@out, arr);
+            Ice.LongSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            long[] arr2 = Test.LongSHelper.read(@in);
+            long[] arr2 = Ice.LongSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -525,10 +525,10 @@ public class Client
                 (float)4
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.FloatSHelper.write(@out, arr);
+            Ice.FloatSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            float[] arr2 = Test.FloatSHelper.read(@in);
+            float[] arr2 = Ice.FloatSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -558,10 +558,10 @@ public class Client
                 (double)4
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.DoubleSHelper.write(@out, arr);
+            Ice.DoubleSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            double[] arr2 = Test.DoubleSHelper.read(@in);
+            double[] arr2 = Ice.DoubleSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();
@@ -591,10 +591,10 @@ public class Client
                 "string4"
             };
             @out = Ice.Util.createOutputStream(communicator);
-            Test.StringSHelper.write(@out, arr);
+            Ice.StringSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            string[] arr2 = Test.StringSHelper.read(@in);
+            string[] arr2 = Ice.StringSeqHelper.read(@in);
             test(Compare(arr2, arr));
             @out.destroy();
             @in.destroy();

@@ -172,4 +172,9 @@ install:: all
 	copy $(bindir)\$(PKG).pdb "$(install_bindir)"
 !endif
 
+$(GDIR)\BuiltinSequences.cs: $(SDIR)\BuiltinSequences.ice $(SLICE2CS) $(SLICEPARSERLIB)
+	del /q $(GDIR)\BuiltinSequences.cs
+	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)\BuiltinSequences.ice
+	move BuiltinSequences.cs $(GDIR)
+
 !include .depend.mak

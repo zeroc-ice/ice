@@ -11,14 +11,14 @@ package test.Ice.stream;
 
 import java.io.PrintWriter;
 
-import test.Ice.stream.Test.BoolSHelper;
-import test.Ice.stream.Test.ByteSHelper;
-import test.Ice.stream.Test.DoubleSHelper;
-import test.Ice.stream.Test.FloatSHelper;
-import test.Ice.stream.Test.ShortSHelper;
-import test.Ice.stream.Test.IntSHelper;
-import test.Ice.stream.Test.LongSHelper;
-import test.Ice.stream.Test.StringSHelper;
+import Ice.BoolSeqHelper;
+import Ice.ByteSeqHelper;
+import Ice.DoubleSeqHelper;
+import Ice.FloatSeqHelper;
+import Ice.ShortSeqHelper;
+import Ice.IntSeqHelper;
+import Ice.LongSeqHelper;
+import Ice.StringSeqHelper;
 import test.Ice.stream.Test.BoolSSHelper;
 import test.Ice.stream.Test.ByteSSHelper;
 import test.Ice.stream.Test.DoubleSSHelper;
@@ -347,10 +347,10 @@ public class Client extends test.Util.Application
                 false
             };
             out = Ice.Util.createOutputStream(comm);
-            BoolSHelper.write(out, arr);
+            BoolSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            boolean[] arr2 = BoolSHelper.read(in);
+            boolean[] arr2 = BoolSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -380,10 +380,10 @@ public class Client extends test.Util.Application
                 (byte)0x22
             };
             out = Ice.Util.createOutputStream(comm);
-            ByteSHelper.write(out, arr);
+            ByteSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            byte[] arr2 = ByteSHelper.read(in);
+            byte[] arr2 = ByteSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -426,10 +426,10 @@ public class Client extends test.Util.Application
                 (short)0x22
             };
             out = Ice.Util.createOutputStream(comm);
-            ShortSHelper.write(out, arr);
+            ShortSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            short[] arr2 = ShortSHelper.read(in);
+            short[] arr2 = ShortSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -459,10 +459,10 @@ public class Client extends test.Util.Application
                 0x22
             };
             out = Ice.Util.createOutputStream(comm);
-            IntSHelper.write(out, arr);
+            IntSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            int[] arr2 = IntSHelper.read(in);
+            int[] arr2 = IntSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -492,10 +492,10 @@ public class Client extends test.Util.Application
                 0x22
             };
             out = Ice.Util.createOutputStream(comm);
-            LongSHelper.write(out, arr);
+            LongSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            long[] arr2 = LongSHelper.read(in);
+            long[] arr2 = LongSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -525,10 +525,10 @@ public class Client extends test.Util.Application
                 (float)4
             };
             out = Ice.Util.createOutputStream(comm);
-            FloatSHelper.write(out, arr);
+            FloatSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            float[] arr2 = FloatSHelper.read(in);
+            float[] arr2 = FloatSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -558,10 +558,10 @@ public class Client extends test.Util.Application
                 (double)4
             };
             out = Ice.Util.createOutputStream(comm);
-            DoubleSHelper.write(out, arr);
+            DoubleSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            double[] arr2 = DoubleSHelper.read(in);
+            double[] arr2 = DoubleSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -591,10 +591,10 @@ public class Client extends test.Util.Application
                 "string4"
             };
             out = Ice.Util.createOutputStream(comm);
-            StringSHelper.write(out, arr);
+            StringSeqHelper.write(out, arr);
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(comm, data);
-            String[] arr2 = StringSHelper.read(in);
+            String[] arr2 = StringSeqHelper.read(in);
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();

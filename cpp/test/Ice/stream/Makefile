@@ -25,7 +25,7 @@ SLICE_SRCS	= Test.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS) -I$(slicedir)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

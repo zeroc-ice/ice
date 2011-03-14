@@ -358,7 +358,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::BoolS arr;
+        Ice::BoolSeq arr;
         arr.push_back(true);
         arr.push_back(false);
         arr.push_back(true);
@@ -369,13 +369,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
 
         in = Ice::createInputStream(communicator, data);
-        Test::BoolS arr2;
+        Ice::BoolSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::BoolSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::BoolS());
+        arrS.push_back(Ice::BoolSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -389,7 +389,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::ByteS arr;
+        Ice::ByteSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -399,13 +399,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::ByteS arr2;
+        Ice::ByteSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::ByteSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::ByteS());
+        arrS.push_back(Ice::ByteSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -419,7 +419,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::ShortS arr;
+        Ice::ShortSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -428,13 +428,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::ShortS arr2;
+        Ice::ShortSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::ShortSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::ShortS());
+        arrS.push_back(Ice::ShortSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -448,7 +448,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::IntS arr;
+        Ice::IntSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -457,13 +457,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::IntS arr2;
+        Ice::IntSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::IntSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::IntS());
+        arrS.push_back(Ice::IntSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -477,7 +477,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::LongS arr;
+        Ice::LongSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -486,13 +486,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::LongS arr2;
+        Ice::LongSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::LongSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::LongS());
+        arrS.push_back(Ice::LongSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -506,7 +506,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::FloatS arr;
+        Ice::FloatSeq arr;
         arr.push_back(1);
         arr.push_back(2);
         arr.push_back(3);
@@ -515,13 +515,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::FloatS arr2;
+        Ice::FloatSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::FloatSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::FloatS());
+        arrS.push_back(Ice::FloatSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -535,7 +535,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::DoubleS arr;
+        Ice::DoubleSeq arr;
         arr.push_back(1);
         arr.push_back(2);
         arr.push_back(3);
@@ -544,13 +544,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::DoubleS arr2;
+        Ice::DoubleSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::DoubleSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::DoubleS());
+        arrS.push_back(Ice::DoubleSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -564,7 +564,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Test::StringS arr;
+        Ice::StringSeq arr;
         arr.push_back("string1");
         arr.push_back("string2");
         arr.push_back("string3");
@@ -573,13 +573,13 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->write(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::StringS arr2;
+        Ice::StringSeq arr2;
         in->read(arr2);
         test(arr2 == arr);
 
         Test::StringSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Test::StringS());
+        arrS.push_back(Ice::StringSeq());
         arrS.push_back(arr);
 
         out = Ice::createOutputStream(communicator);
@@ -1247,7 +1247,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 #endif
     {
-        Test::BoolS arr;
+        Ice::BoolSeq arr;
         arr.push_back(true);
         arr.push_back(false);
         arr.push_back(true);
@@ -1257,12 +1257,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeBoolSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::BoolS arr2 = in->readBoolSeq();
+        Ice::BoolSeq arr2 = in->readBoolSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::ByteS arr;
+        Ice::ByteSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -1272,12 +1272,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeByteSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::ByteS arr2 = in->readByteSeq();
+        Ice::ByteSeq arr2 = in->readByteSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::ShortS arr;
+        Ice::ShortSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -1286,12 +1286,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeShortSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::ShortS arr2 = in->readShortSeq();
+        Ice::ShortSeq arr2 = in->readShortSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::IntS arr;
+        Ice::IntSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -1300,12 +1300,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeIntSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::IntS arr2 = in->readIntSeq();
+        Ice::IntSeq arr2 = in->readIntSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::LongS arr;
+        Ice::LongSeq arr;
         arr.push_back(0x01);
         arr.push_back(0x11);
         arr.push_back(0x12);
@@ -1314,12 +1314,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeLongSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::LongS arr2 = in->readLongSeq();
+        Ice::LongSeq arr2 = in->readLongSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::FloatS arr;
+        Ice::FloatSeq arr;
         arr.push_back(1);
         arr.push_back(2);
         arr.push_back(3);
@@ -1328,12 +1328,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeFloatSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::FloatS arr2 = in->readFloatSeq();
+        Ice::FloatSeq arr2 = in->readFloatSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::DoubleS arr;
+        Ice::DoubleSeq arr;
         arr.push_back(1);
         arr.push_back(2);
         arr.push_back(3);
@@ -1342,12 +1342,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeDoubleSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::DoubleS arr2 = in->readDoubleSeq();
+        Ice::DoubleSeq arr2 = in->readDoubleSeq();
         test(arr2 == arr);
     }
 
     {
-        Test::StringS arr;
+        Ice::StringSeq arr;
         arr.push_back("string1");
         arr.push_back("string2");
         arr.push_back("string3");
@@ -1356,7 +1356,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->writeStringSeq(arr);
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
-        Test::StringS arr2 = in->readStringSeq();
+        Ice::StringSeq arr2 = in->readStringSeq();
         test(arr2 == arr);
     }
 #if defined(_MSC_VER) && (_MSC_VER < 1300)

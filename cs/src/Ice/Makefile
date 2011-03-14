@@ -173,4 +173,9 @@ install:: all
 clean::
 	-rm -f $(bindir)/$(PKG).xml
 
+$(GDIR)/BuiltinSequences.cs: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(GDIR)/BuiltinSequences.cs
+	$(SLICE2CS) $(SLICE2CSFLAGS) --stream $(SDIR)/BuiltinSequences.ice
+	mv BuiltinSequences.cs $(GDIR)
+
 include .depend
