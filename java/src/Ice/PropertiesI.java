@@ -372,24 +372,24 @@ public final class PropertiesI implements Properties
             java.io.PushbackInputStream is = null;
             try
             {
-                is = new java.io.PushbackInputStream(IceInternal.Util.openResource(getClass().getClassLoader(), file));
-                if(is == null)
+                java.io.InputStream f = IceInternal.Util.openResource(getClass().getClassLoader(), file);
+                if(f == null)
                 {
                     FileException fe = new FileException();
                     fe.path = file;
                     throw fe;
                 }
-
                 //
                 // Skip UTF-8 BOM if present.
                 //
                 byte[] bom = new byte[3];
-                int read = is.read(bom);
+                is = new java.io.PushbackInputStream(f, bom.length);
+                int read = is.read(bom, 0, bom.length);
                 if(read < 3 || bom[0] != (byte)0xEF || bom[1] != (byte)0xBB || bom[2] !=  (byte)0xBF)
                 {
                     if(read > 0)
                     {
-                        is.unread(bom);
+                        is.unread(bom, 0, read);
                     }
                 }
 
