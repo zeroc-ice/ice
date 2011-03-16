@@ -46,7 +46,7 @@ def createGitIgnore(filename, gitIgnoreFiles):
     file = open(filename, "r")
     lines = file.readlines()
     cwd = os.getcwd()
-
+    cwdStack = [] # Working directory stack
     newLines = [ ]
     ignore = ["*.o", "*.bak", "core"]
 
@@ -56,6 +56,18 @@ def createGitIgnore(filename, gitIgnoreFiles):
             x = x.replace("rm -f", "", 1)
         elif x.startswith("rm -rf"):
             x = x.replace("rm -rf", "", 1)
+        elif x.startswith("make[1]: Entering directory"): # Change cwd
+            beg = x.find("`")
+            end = x.rfind("'")
+            if beg == -1 or end == -1:
+                continue
+            x = x[beg + 1:end]
+            cwdStack.append(cwd)
+            cwd = x
+            continue
+        elif x.startswith("make[1]: Leaving directory"): # Back to previous cwd
+            cwd = cwdStack.pop()
+            continue
         else:
             continue
 
