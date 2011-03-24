@@ -71,7 +71,8 @@ install_libdir		= $(prefix)\python$(x64suffix)
 
 !if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
     "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && \
-    "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
+    "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && \
+    "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 

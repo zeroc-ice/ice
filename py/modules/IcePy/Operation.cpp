@@ -1617,7 +1617,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
                 //
                 // Unmarshal a user exception.
                 //
-                pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
+                pair<const Ice::Byte*, const Ice::Byte*> rb(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
                 if(!result.empty())
                 {
                     rb.first = &result[0];
@@ -1637,7 +1637,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
                 // Unmarshal the results. If there is more than one value to be returned, then return them
                 // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
                 //
-                pair<const Ice::Byte*, const Ice::Byte*> rb(0, 0);
+                pair<const Ice::Byte*, const Ice::Byte*> rb(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
                 if(!result.empty())
                 {
                     rb.first = &result[0];
@@ -1777,7 +1777,7 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkAsyncTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(0, 0);
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
         if(!params.empty())
         {
             pparams.first = &params[0];
@@ -2066,7 +2066,7 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(0, 0);
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
         if(!params.empty())
         {
             pparams.first = &params[0];
@@ -2249,7 +2249,7 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 #endif
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(inParams, 0, &charBuf);
     const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
     if(sz > 0)
     {
         in.first = mem;
@@ -2434,7 +2434,7 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
 #endif
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(inParams, 0, &charBuf);
     const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
     if(sz > 0)
     {
         in.first = mem;
@@ -2708,7 +2708,7 @@ IcePy::OldAsyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
 #endif
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(inParams, 0, &charBuf);
     const Ice::Byte* mem = reinterpret_cast<const Ice::Byte*>(charBuf);
-    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(0, 0);
+    pair<const ::Ice::Byte*, const ::Ice::Byte*> in(static_cast<const Ice::Byte*>(0), static_cast<const Ice::Byte*>(0));
     if(sz > 0)
     {
         in.first = mem;
@@ -3072,7 +3072,7 @@ IcePy::TypedUpcall::response(PyObject* args)
 
             Ice::ByteSeq bytes;
             os->finished(bytes);
-            pair<const Ice::Byte*, const Ice::Byte*> ob(0, 0);
+            pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0), static_cast<const Ice::Byte*>(0));
             if(!bytes.empty())
             {
                 ob.first = &bytes[0];
@@ -3151,7 +3151,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
 
                     Ice::ByteSeq bytes;
                     os->finished(bytes);
-                    pair<const Ice::Byte*, const Ice::Byte*> ob(0, 0);
+                    pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
                     if(!bytes.empty())
                     {
                         ob.first = &bytes[0];
