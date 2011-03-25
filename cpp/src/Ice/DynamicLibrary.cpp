@@ -164,19 +164,23 @@ IceInternal::DynamicLibrary::load(const string& lib)
 #endif
 
     _hnd = dlopen(lib.c_str(), flags);
+#endif
     if(_hnd == 0)
     {
         //
         // Remember the most recent error in _err.
         //
+#ifdef _WIN32
+        _err = IceUtilInternal::lastErrorToString();
+#else
         const char* err = dlerror();
-
         if(err)
         {
             _err = err;
         }
-    }
 #endif
+    }
+
     return _hnd != 0;
 }
 
@@ -187,25 +191,30 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
 #ifdef _WIN32
 #  ifdef __BCPLUSPLUS__
     string newName = "_" + name;
-    return GetProcAddress(_hnd, newName.c_str());
+    symbol_type result = GetProcAddress(_hnd, newName.c_str());
 #  else
-    return GetProcAddress(_hnd, name.c_str());
+    symbol_type result = GetProcAddress(_hnd,name.c_str());
 #  endif
 #else
     symbol_type result = dlsym(_hnd, name.c_str());
+#endif
+	
     if(result == 0)
     {
         //
         // Remember the most recent error in _err.
         //
-        const char* err = dlerror();
+#ifdef _WIN32
+	_err = IceUtilInternal::lastErrorToString();
+#else
+	const char* err = dlerror();
         if(err)
         {
             _err = err;
         }
+#endif
     }
     return result;
-#endif
 }
 
 const string&
