@@ -17,6 +17,7 @@
 
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/MutexPtrTryLock.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/IceUtil.h>
 
 #include <Ice/StringConverter.h>
@@ -185,6 +186,21 @@ Freeze::SharedDbEnv::~SharedDbEnv()
         Error out(_communicator->getLogger());
         out << "Freeze DbEnv close error: unknown exception"; 
     }
+
+#ifdef _WIN32
+    if(!TlsFree(_tsdKey))
+    {
+        Error out(_communicator->getLogger());
+        out << "Freeze DbEnv close error:" << IceUtilInternal::lastErrorToString();
+    }
+#else
+    int err = pthread_key_delete(_tsdKey);
+    if(err != 0)
+    {
+        Error out(_communicator->getLogger());
+        out << "Freeze DbEnv close error:" << IceUtilInternal::errorToString(err);
+    }
+#endif
 }
 
 
