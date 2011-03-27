@@ -358,7 +358,7 @@ Ice::Application::main(int argc, wchar_t* argv[], const Ice::InitializationData&
 #endif
 
 int
-Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
+Ice::Application::main(int argc, char* argv[], const InitializationData& initializationData)
 {
     if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
     {
@@ -372,6 +372,12 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
         return EXIT_FAILURE;
     }
     int status;
+
+    //
+    // We parse the properties here to extract Ice.ProgramName.
+    //
+    InitializationData initData = initializationData;
+    initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
 
     if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
@@ -606,7 +612,7 @@ Ice::Application::interrupted()
 }
 
 int
-Ice::Application::doMain(int argc, char* argv[], const InitializationData& initializationData)
+Ice::Application::doMain(int argc, char* argv[], const InitializationData& initData)
 {
     int status;
 
@@ -618,12 +624,6 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
         {
             IceInternal::Application::_appName = argv[0];
         }
-
-        //
-        // We parse the properties here to extract Ice.ProgramName.
-        // 
-        InitializationData initData = initializationData;
-        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
 
         //
         // If the process logger is the default logger, we now replace it with a

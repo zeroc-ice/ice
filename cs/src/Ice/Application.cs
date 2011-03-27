@@ -170,15 +170,29 @@ namespace Ice
         /// </summary>
         /// <param name="args">The arguments for the application (as passed to Main(string[])
         /// by the operating system.</param>
-        /// <param name="initData">Additional data used to initialize the communicator.</param>
+        /// <param name="initializationData">Additional data used to initialize the communicator.</param>
         /// <returns>The value returned by run. If run terminates with an exception,
         /// the return value is non-zero.</returns>
-        public int main(string[] args, InitializationData initData)
+        public int main(string[] args, InitializationData initializationData)
         {
             if(Util.getProcessLogger() is ConsoleLoggerI)
             {
                 Util.setProcessLogger(new ConsoleLoggerI(appName__));
             }
+
+            //
+            // We parse the properties here to extract Ice.ProgramName.
+            //
+            InitializationData initData;
+            if(initializationData != null)
+            {
+                initData = (InitializationData)initializationData.Clone();
+            }
+            else
+            {
+                initData = new InitializationData();
+            }
+            initData.properties = Util.createProperties(ref args, initData.properties);
 
             if(communicator__ != null)
             {
@@ -404,26 +418,12 @@ namespace Ice
             }
         }
 
-        protected virtual int doMain(string[] args, InitializationData initializationData)
+        protected virtual int doMain(string[] args, InitializationData initData)
         {
             int status = 0;
 
             try
             {
-                //
-                // We parse the properties here to extract Ice.ProgramName.
-                //
-                InitializationData initData;
-                if(initializationData != null)
-                {
-                    initData = (InitializationData)initializationData.Clone();
-                }
-                else
-                {
-                    initData = new InitializationData();
-                }
-                initData.properties = Util.createProperties(ref args, initData.properties);
-
                 //
                 // If the process logger is the default logger, we replace it with a
                 // a logger which is using the program name for the prefix.
