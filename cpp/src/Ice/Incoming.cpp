@@ -88,6 +88,16 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
     out << "\nidentity: " << _os.instance()->identityToString(_current.id);
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
+
+    if(_connection)
+    {
+        Ice::ConnectionInfoPtr connInfo = _connection->getInfo();
+        Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
+        if(ipConnInfo)
+        {
+            out << "\nremote host: " << ipConnInfo->remoteAddress + " remote port: " << ipConnInfo->remotePort;
+        }
+    }
 }
 
 void
@@ -99,6 +109,16 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     out << "\nidentity: " << _os.instance()->identityToString(_current.id);
     out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
+
+    if(_connection)
+    {
+        Ice::ConnectionInfoPtr connInfo = _connection->getInfo();
+        Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
+        if(ipConnInfo)
+        {
+            out << "\nremote host: " << ipConnInfo->remoteAddress + " remote port: " << ipConnInfo->remotePort;
+        }
+    }
 }
 
 bool

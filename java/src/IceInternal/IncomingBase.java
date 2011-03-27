@@ -154,6 +154,16 @@ public class IncomingBase
         out.print("\nidentity: " + _instance.identityToString(_current.id));
         out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
         out.print("\noperation: " + _current.operation);
+        if(_connection != null)
+        {
+            Ice.ConnectionInfo connInfo = _connection.getInfo();
+            if(connInfo instanceof Ice.IPConnectionInfo)
+            {
+                Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
+                out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
+                          Integer.toString(ipConnInfo.remotePort));
+            }
+        }
         out.print("\n");
         ex.printStackTrace(pw);
         pw.flush();
