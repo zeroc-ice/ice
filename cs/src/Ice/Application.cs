@@ -180,6 +180,12 @@ namespace Ice
                 Util.setProcessLogger(new ConsoleLoggerI(appName__));
             }
 
+            if(communicator__ != null)
+            {
+                Util.getProcessLogger().error("only one instance of the Application class can be used");
+                return 1;
+            }
+
             //
             // We parse the properties here to extract Ice.ProgramName.
             //
@@ -194,11 +200,7 @@ namespace Ice
             }
             initData.properties = Util.createProperties(ref args, initData.properties);
 
-            if(communicator__ != null)
-            {
-                Util.getProcessLogger().error("only one instance of the Application class can be used");
-                return 1;
-            }
+            appName__ = initData.properties.getPropertyWithDefault("Ice.ProgramName", appName__);
 
             int status;
 
@@ -440,7 +442,6 @@ namespace Ice
 
                 Properties props = communicator__.getProperties();
                 nohup__ = props.getPropertyAsInt("Ice.Nohup") > 0;
-                appName__ = props.getPropertyWithDefault("Ice.ProgramName", appName__);
 
                 //
                 // The default is to destroy when a signal is received.

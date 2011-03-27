@@ -308,6 +308,12 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     // We don't call the main below to avoid a deprecated warning
     //
 
+    IceInternal::Application::_appName = "";
+    if(argc > 0)
+    {
+        IceInternal::Application::_appName = argv[0];
+    }
+
     if(argc > 0 && argv[0] && LoggerIPtr::dynamicCast(getProcessLogger()))
     {
         setProcessLogger(new LoggerI(argv[0], ""));
@@ -619,11 +625,6 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initD
     try
     {
         IceInternal::Application::_interrupted = false;
-        IceInternal::Application::_appName = "";
-        if(argc > 0)
-        {
-            IceInternal::Application::_appName = argv[0];
-        }
 
         //
         // If the process logger is the default logger, we now replace it with a
