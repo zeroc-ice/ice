@@ -4,11 +4,11 @@
 client
 server
 Filesystem.cpp
-Filesystem.h
 FilesystemDB.cpp
+Filesystem.h
 FilesystemDB.h
-IdentityFileEntryMap.cpp
 IdentityFileEntryMap.h
-IdentityDirectoryEntryMap.cpp
+IdentityFileEntryMap.cpp
 IdentityDirectoryEntryMap.h
+IdentityDirectoryEntryMap.cpp
 db/*

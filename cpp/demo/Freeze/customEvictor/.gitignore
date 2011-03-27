@@ -10,5 +10,6 @@ ItemInfo.h
 db/__*
 db/items
 db/log*
+db/__Freeze
 Database.h
 Database.cpp

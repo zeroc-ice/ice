@@ -7,3 +7,9 @@ IdentityObjectInfoDict.h
 IdentityObjectInfoDict.cpp
 StringAdapterInfoDict.h
 StringAdapterInfoDict.cpp
+StringApplicationInfoDict.h
+StringApplicationInfoDict.cpp
+IdentityObjectInfoDict.h
+IdentityObjectInfoDict.cpp
+StringAdapterInfoDict.h
+StringAdapterInfoDict.cpp

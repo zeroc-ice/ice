@@ -9,3 +9,4 @@ db/__catalog
 db/__catalogIndexList
 db/Test
 db/log.*
+db/__Freeze
