@@ -4764,7 +4764,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
     _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(\"" << p->scoped() << "\"))";
+    _out << nl << "if((r == null) && b.ice_isA(ice_staticId()))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(b);";
@@ -4781,7 +4781,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
     _out << nl << name << "Prx r = b as " << name << "Prx;";
-    _out << nl << "if((r == null) && b.ice_isA(\"" << p->scoped() << "\", ctx))";
+    _out << nl << "if((r == null) && b.ice_isA(ice_staticId(), ctx))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(b);";
@@ -4799,7 +4799,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
     _out << nl << "try";
     _out << sb;
-    _out << nl << "if(bb.ice_isA(\"" << p->scoped() << "\"))";
+    _out << nl << "if(bb.ice_isA(ice_staticId()))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(bb);";
@@ -4823,7 +4823,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Ice.ObjectPrx bb = b.ice_facet(f);";
     _out << nl << "try";
     _out << sb;
-    _out << nl << "if(bb.ice_isA(\"" << p->scoped() << "\", ctx))";
+    _out << nl << "if(bb.ice_isA(ice_staticId(), ctx))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(bb);";
@@ -4862,6 +4862,52 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.copyFrom__(bb);";
     _out << nl << "return h;";
+    _out << eb;
+
+    string scoped = p->scoped();
+    ClassList allBases = p->allBases();
+    StringList ids;
+#if defined(__IBMCPP__) && defined(NDEBUG)
+    //
+    // VisualAge C++ 6.0 does not see that ClassDef is a Contained,
+    // when inlining is on. The code below issues a warning: better
+    // than an error!
+    //
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
+#else
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+#endif
+    StringList other;
+    other.push_back(p->scoped());
+    other.push_back("::Ice::Object");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
+    assert(scopedIter != ids.end());
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+
+    _out << sp << nl << "public static readonly string[] ids__ =";
+    _out << sb;
+
+    {
+        StringList::const_iterator q = ids.begin();
+        while(q != ids.end())
+        {
+            _out << nl << '"' << *q << '"';
+            if(++q != ids.end())
+            {
+                _out << ',';
+            }
+        }
+    }
+    _out << eb << ";";
+
+    _out << sp << nl << "public static string ice_staticId()";
+    _out << sb;
+    _out << nl << "return ids__[" << scopedPos << "];";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Checked and unchecked cast operations

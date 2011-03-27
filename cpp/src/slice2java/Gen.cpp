@@ -4181,7 +4181,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
     out << nl << "catch(ClassCastException ex)";
     out << sb;
-    out << nl << "if(__obj.ice_isA(\"" << scoped << "\"))";
+    out << nl << "if(__obj.ice_isA(ice_staticId()))";
     out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__obj);";
@@ -4204,7 +4204,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
     out << nl << "catch(ClassCastException ex)";
     out << sb;
-    out << nl << "if(__obj.ice_isA(\"" << scoped << "\", __ctx))";
+    out << nl << "if(__obj.ice_isA(ice_staticId(), __ctx))";
     out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__obj);";
@@ -4223,7 +4223,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "Ice.ObjectPrx __bb = __obj.ice_facet(__facet);";
     out << nl << "try";
     out << sb;
-    out << nl << "if(__bb.ice_isA(\"" << scoped << "\"))";
+    out << nl << "if(__bb.ice_isA(ice_staticId()))";
     out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__bb);";
@@ -4246,7 +4246,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "Ice.ObjectPrx __bb = __obj.ice_facet(__facet);";
     out << nl << "try";
     out << sb;
-    out << nl << "if(__bb.ice_isA(\"" << scoped << "\", __ctx))";
+    out << nl << "if(__bb.ice_isA(ice_staticId(), __ctx))";
     out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__bb);";
@@ -4290,6 +4290,41 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "__d = __h;";
     out << eb;
     out << nl << "return __d;";
+    out << eb;
+
+    ClassList allBases = p->allBases();
+    StringList ids;
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+    StringList other;
+    other.push_back(scoped);
+    other.push_back("::Ice::Object");
+    other.sort();
+    ids.merge(other);
+    ids.unique();
+    StringList::const_iterator firstIter = ids.begin();
+    StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
+    assert(scopedIter != ids.end());
+    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+
+    out << sp << nl << "public static final String[] __ids =";
+    out << sb;
+
+    {
+        StringList::const_iterator q = ids.begin();
+        while(q != ids.end())
+        {
+            out << nl << '"' << *q << '"';
+            if(++q != ids.end())
+            {
+                out << ',';
+            }
+        }
+    }
+    out << eb << ';';
+
+    out << sp << nl << "public static String" << nl << "ice_staticId()";
+    out << sb;
+    out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
     out << sp << nl << "protected Ice._ObjectDelM" << nl << "__createDelegateM()";
