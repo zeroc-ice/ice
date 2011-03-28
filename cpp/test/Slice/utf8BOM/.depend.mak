@@ -1,0 +1,2 @@
+Test$(OBJEXT): Test.cpp Test.h "$(includedir)/Ice/LocalObjectF.h" "$(includedir)/IceUtil/Shared.h" "$(includedir)/IceUtil/Config.h" "$(includedir)/Ice/Handle.h" "$(includedir)/IceUtil/Handle.h" "$(includedir)/IceUtil/Exception.h" "$(includedir)/Ice/Config.h" "$(includedir)/Ice/ProxyHandle.h" "$(includedir)/Ice/ProxyF.h" "$(includedir)/Ice/ObjectF.h" "$(includedir)/Ice/Exception.h" "$(includedir)/Ice/LocalObject.h" "$(includedir)/IceUtil/ScopedArray.h" "$(includedir)/Ice/UndefSysMacros.h" "$(includedir)/IceUtil/Iterator.h"
+Test.cpp: Test.ice "$(SLICE2CPP)" "$(SLICEPARSERLIB)"
