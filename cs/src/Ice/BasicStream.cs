@@ -2857,7 +2857,7 @@ namespace IceInternal
         {
             if(!id.StartsWith("::", StringComparison.Ordinal))
             {
-                throw new Ice.MarshalException("type ID does not start with `::'");
+                throw new Ice.MarshalException("expected type id but received `" + id + "'");
             }
             return id.Substring(2).Replace("::", ".");
         }
