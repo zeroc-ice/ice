@@ -49,6 +49,7 @@ Table of Contents
      - Java and IPv6
      - Mono
      - IBM JDK
+     - iceboxnet with .NET 4.0
   6. Known Problems
      - iceca failure on SLES11
 
@@ -2054,6 +2055,26 @@ directory:
 
   /usr/lib/jvm-private/java-1_6_0-ibm/jce/vanilla
 
+
+iceboxnet with .NET 4.0
+-----------------------
+
+The iceboxnet.exe included in this binary distribution was built
+with .NET 3.5 and requires extra configuration to load IceBox
+services that rely on the .NET 4.0 run time.
+
+You just need to create a file named iceboxnet.config.exe in the 
+same directory that iceboxnet.exe:
+
+<?xml version="1.0"?>
+<configuration>
+ <startup>
+   <supportedRuntime version="v4.0" />
+ </startup>
+</configuration>
+
+With this configuration, iceboxnet uses the .NET 4.0 run time, and
+is able to load IceBox services built with .NET 4.0.
 
 ======================================================================
 6. Known Problems
