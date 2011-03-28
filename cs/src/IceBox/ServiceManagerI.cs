@@ -554,13 +554,13 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     serviceAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.Exception ex)
+                catch(System.IO.FileNotFoundException ex)
                 {
                     try
                     {
                         serviceAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
                     }
-                    catch(System.Exception)
+                    catch(System.IO.FileNotFoundException)
                     {
                          throw ex;
                     }

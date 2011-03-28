@@ -387,13 +387,13 @@ namespace Ice
                 {
                     pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.Exception ex)
+                catch(System.IO.FileNotFoundException ex)
                 {
                     try
                     {
                         pluginAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
                     }
-                    catch(System.Exception)
+                    catch(System.IO.FileNotFoundException)
                     {
                          throw ex;
                     }
