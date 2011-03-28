@@ -88,7 +88,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
                         java.util.List<String> services = new java.util.ArrayList<String>();
                         services.add(name);
-                        servicesStarted(services, _observers);                        
+                        servicesStarted(services, _observers);
                     }
                     else
                     {
@@ -264,7 +264,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             // IceBox.Service.Foo=Package.Foo [args]
             //
-            // We parse the service properties specified in IceBox.LoadOrder 
+            // We parse the service properties specified in IceBox.LoadOrder
             // first, then the ones from remaining services.
             //
             final String prefix = "IceBox.Service.";
@@ -332,7 +332,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                             initData.properties.setProperty(key, "");
                         }
                     }
-                    
+
                     //
                     // Add the service properties to the shared communicator properties.
                     //
@@ -342,7 +342,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     }
 
                     //
-                    // Parse <service>.* command line options (the Ice command line options 
+                    // Parse <service>.* command line options (the Ice command line options
                     // were parsed by the createProperties above)
                     //
                     service.args = initData.properties.parseCommandLineOptions(service.name, service.args);
@@ -479,6 +479,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         info.name = service;
         info.status = StatusStopped;
         info.args = args;
+
         try
         {
             Class<?> c = IceInternal.Util.findClass(className, null);
@@ -488,7 +489,54 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 e.reason = "ServiceManager: class " + className + " not found";
                 throw e;
             }
-            java.lang.Object obj = c.newInstance();
+
+            //
+            // If the service class provides a constructor that accepts an Ice.Communicator argument,
+            // use that in preference to the default constructor.
+            //
+            java.lang.Object obj = null;
+            try
+            {
+                java.lang.reflect.Constructor<?> con = c.getDeclaredConstructor(Ice.Communicator.class);
+                obj = con.newInstance(_communicator);
+            }
+            catch(IllegalAccessException ex)
+            {
+                FailureException e = new FailureException();
+                e.reason = "ServiceManager: unable to access service constructor " + className + "(Ice.Communicator)";
+                e.initCause(ex);
+                throw e;
+            }
+            catch(NoSuchMethodException ex)
+            {
+                // Ignore.
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                FailureException e = new FailureException();
+                e.reason = "ServiceManager: service constructor " + className + "(Ice.Communicator) threw an exception";
+                e.initCause(ex.getCause());
+                throw e;
+            }
+
+            if(obj == null)
+            {
+                //
+                // Fall back to the default constructor.
+                //
+                try
+                {
+                    obj = c.newInstance();
+                }
+                catch(IllegalAccessException ex)
+                {
+                    FailureException e = new FailureException();
+                    e.reason = "ServiceManager: unable to access default service constructor in class " + className;
+                    e.initCause(ex);
+                    throw e;
+                }
+            }
+
             try
             {
                 info.service = (Service)obj;
@@ -499,13 +547,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 e.reason = "ServiceManager: class " + className + " does not implement IceBox.Service";
                 throw e;
             }
-        }
-        catch(IllegalAccessException ex)
-        {
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: unable to access default constructor in class " + className;
-            e.initCause(ex);
-            throw e;
         }
         catch(InstantiationException ex)
         {
@@ -551,19 +592,19 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     initData.properties = Ice.Util.createProperties(serviceArgs, initData.properties);
 
                     //
-                    // Next, parse the service "<service>.*" command line options (the Ice command 
+                    // Next, parse the service "<service>.*" command line options (the Ice command
                     // line options were parsed by the createProperties above)
                     //
                     serviceArgs.value = initData.properties.parseCommandLineOptions(service, serviceArgs.value);
                 }
-            
+
                 //
                 // Clone the logger to assign a new prefix.
                 //
                 initData.logger = _logger.cloneWithPrefix(initData.properties.getProperty("Ice.ProgramName"));
 
                 //
-                // Remaining command line options are passed to the communicator. This is 
+                // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
                 //
                 info.communicator = Ice.Util.initialize(serviceArgs, initData);
