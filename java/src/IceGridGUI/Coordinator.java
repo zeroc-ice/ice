@@ -2064,7 +2064,7 @@ public class Coordinator
                                 JOptionPane.showMessageDialog(
                                     _mainFrame,
                                     ex.toString(),
-                                    "Bad Application Descriptor: Unable load from file",
+                                    "Bad Application Descriptor: Unable to load from file",
                                     JOptionPane.ERROR_MESSAGE);
                                 return;
                             }

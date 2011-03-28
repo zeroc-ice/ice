@@ -13,15 +13,18 @@ public class UpdateFailedException extends Exception
 {
     UpdateFailedException(TreeNode parent, String id)
     {
-        _parent = parent;
-        _id = id;
+	_message = parent.getFullId().toString() + " has already a child with '" + id + "' as ID.";
     }
 
+    UpdateFailedException(String message)
+    {
+	_message = message;
+    }
+    
     public String toString()
     {
-        return _parent.getFullId().toString() + " has already a child with '" + _id + "' as ID.";
+        return _message;
     }
 
-    private TreeNode _parent;
-    private String _id;
+    private String _message;
 }
