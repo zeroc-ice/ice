@@ -2317,7 +2317,7 @@ public class BasicStream
     {
         if(!id.startsWith("::"))
         {
-            throw new Ice.MarshalException();
+            throw new Ice.MarshalException("expected type id but received `" + id + "'");
         }
 
         StringBuilder buf = new StringBuilder(id.length());
