@@ -14,6 +14,15 @@ package Ice;
  **/
 public abstract class UserException extends Exception implements Cloneable
 {
+    public UserException()
+    {
+    }
+
+    public UserException(Throwable cause)
+    {
+        super(cause);
+    }
+
     /**
      * Creates a copy of this exception.
      *

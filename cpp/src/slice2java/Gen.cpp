@@ -68,7 +68,7 @@ static string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
     string deprecateMetadata, deprecateReason;
-    if(p1->findMetaData("deprecate", deprecateMetadata) || 
+    if(p1->findMetaData("deprecate", deprecateMetadata) ||
        (p2 != 0 && p2->findMetaData("deprecate", deprecateMetadata)))
     {
         deprecateReason = "This " + type + " has been deprecated.";
@@ -617,7 +617,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         if(!amd)
         {
             TypePtr ret = op->returnType();
-            
+
             ParamDeclList inParams;
             ParamDeclList outParams;
             ParamDeclList paramList = op->parameters();
@@ -633,7 +633,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     inParams.push_back(*pli);
                 }
             }
-            
+
             ExceptionList throws = op->throws();
             throws.sort();
             throws.unique();
@@ -651,7 +651,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 #endif
 
             int iter;
-            
+
             out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
 
             if(!inParams.empty())
@@ -700,7 +700,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData());
                 out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
             }
-            
+
             if(!outParams.empty() || ret || !throws.empty())
             {
                 out << nl << "IceInternal.BasicStream __os = __inS.os();";
@@ -737,7 +737,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 out << fixKwd((*pli)->name()) << ", ";
             }
             out << "__current);";
-            
+
             //
             // Marshal 'out' parameters and return value.
             //
@@ -755,7 +755,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 out << nl << "__os.writePendingObjects();";
             }
             out << nl << "return Ice.DispatchStatus.DispatchOK;";
-            
+
             //
             // Handle user exceptions.
             //
@@ -788,11 +788,11 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     inParams.push_back(*pli);
                 }
             }
-            
+
             int iter;
-            
+
             out << nl << "__checkMode(" << sliceModeToIceMode(op->mode()) << ", __current.mode);";
-            
+
             if(!inParams.empty())
             {
                 //
@@ -985,7 +985,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         //
         // Check if we need to generate ice_operationAttributes()
         //
-    
+
         map<string, int> attributesMap;
         for(r = allOps.begin(); r != allOps.end(); ++r)
         {
@@ -995,7 +995,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 attributesMap.insert(map<string, int>::value_type((*r)->name(), attributes));
             }
         }
-        
+
         if(!attributesMap.empty())
         {
             out << sp << nl << "private final static int[] __operationAttributes =";
@@ -1017,7 +1017,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     out << ',';
                 }
                 out  << " // " << opName;
-            }            
+            }
             out << eb << ';';
 
             out << sp << nl << "public int";
@@ -2131,7 +2131,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
            opName = fixKwd((*r)->name());
         }
-#else   
+#else
         string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
 #endif
         TypePtr ret = (*r)->returnType();
@@ -2213,13 +2213,13 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
     {
         string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
         open(markerClass, p->file());
-    
+
         Output& out = output();
 
         out << sp << nl << "interface _Marker";
         out << sb;
         out << eb;
-    
+
         close();
     }
     return false;
@@ -2275,7 +2275,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out.useCurrentPosAsIndent();
         }
-      
+
         ClassList::const_iterator q = bases.begin();
         if(p->isLocal() && q != bases.end())
         {
@@ -2612,6 +2612,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         writeDataMemberInitializers(out, members, package);
         out << eb;
 
+        out << sp;
+        out << nl << "public " << name << "(Throwable cause)";
+        out << sb;
+        out << nl << "super(cause);";
+        writeDataMemberInitializers(out, members, package);
+        out << eb;
+
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
@@ -2636,6 +2643,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 {
                     baseParamNames.push_back(fixKwd((*d)->name()));
                 }
+
                 out << baseParamNames << epar << ';';
             }
             vector<string> paramNames;
@@ -2648,6 +2656,38 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 out << nl << "this." << *i << " = " << *i << ';';
             }
             out << eb;
+
+            //
+            // Create constructor that takes all data members plus a Throwable
+            //
+            if(allDataMembers.size() < 254)
+            {
+                paramDecl.push_back("Throwable cause");
+                out << sp << nl << "public " << name << spar;
+                out << paramDecl << epar;
+                out << sb;
+                if(!base)
+                {
+                    out << nl << "super(cause);";
+                }
+                else
+                {
+                    out << nl << "super" << spar;
+                    vector<string> baseParamNames;
+                    DataMemberList baseDataMembers = base->allDataMembers();
+                    for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                    {
+                        baseParamNames.push_back(fixKwd((*d)->name()));
+                    }
+                    baseParamNames.push_back("cause");
+                    out << baseParamNames << epar << ';';
+                }
+                for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+                {
+                    out << nl << "this." << *i << " = " << *i << ';';
+                }
+                out << eb;
+            }
         }
     }
 
@@ -3640,7 +3680,7 @@ Slice::Gen::HolderVisitor::visitSequence(const SequencePtr& p)
 
         }
     }
-    
+
     writeHolder(p);
 }
 
@@ -3670,7 +3710,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     {
         file = p->definitionContext()->filename();
     }
-    
+
     open(absolute, file);
     Output& out = output();
 
@@ -3931,7 +3971,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             ContainerPtr container = op->container();
             ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
             string opClassName = getAbsolute(cl, package, "Callback_", '_' + op->name());
-            typeSafeCallbackParam = opClassName + " __cb";            
+            typeSafeCallbackParam = opClassName + " __cb";
 
             out << sp;
             writeDocCommentAsync(out, op, InParam);
@@ -4109,7 +4149,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             vector<string> paramsAMI = getParamsAsync(op, package, false);
             vector<string> argsAMI = getInOutArgs(op, InParam);
-            
+
             //
             // Write two versions of the operation - with and without a
             // context parameter
@@ -4584,7 +4624,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     open(helper, p->file());
     Output& out = output();
-    
+
     int iter;
 
     out << sp << nl << "public final class " << name << "Helper";
@@ -5184,7 +5224,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             StringList metaData = op->getMetaData();
             out << nl << "final Ice.Current __current = new Ice.Current();";
-            out << nl << "__initCurrent(__current, \"" << op->name() << "\", " 
+            out << nl << "__initCurrent(__current, \"" << op->name() << "\", "
                 << sliceModeToIceMode(op->sendMode())
                 << ", __ctx);";
             if(ret)
@@ -5193,7 +5233,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 out << nl << "final " << resultTypeHolder << " __result = new " << resultTypeHolder << "();";
             }
-            
+
             out << nl << "IceInternal.Direct __direct = null;";
             out << nl << "try";
             out << sb;
@@ -5241,7 +5281,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
             out << eb;
             out << ";";
-          
+
             out << nl << "try";
             out << sb;
             out << sp << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
@@ -5748,7 +5788,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    
+
     if(cl->isLocal())
     {
         return;
@@ -5805,7 +5845,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << nl << cl->name() << "Prx __proxy = (" << cl->name() << "Prx)__result.getProxy();";
             if(ret)
             {
-                out << nl << typeToString(ret, TypeModeIn, classPkg, p->getMetaData()) << " __ret = " 
+                out << nl << typeToString(ret, TypeModeIn, classPkg, p->getMetaData()) << " __ret = "
                     << initValue(ret) << ';';
             }
             for(pli = outParams.begin(); pli != outParams.end(); ++pli)
@@ -5954,19 +5994,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << sp;
             writeDocCommentAsync(out, p, OutParam);
             out << nl << "void ice_response" << spar << paramsAMD << epar << ';';
- 
+
             out << eb;
-            
+
             close();
         }
-        
+
         {
             open(absoluteAMDI, p->file());
-            
+
             Output& out = output();
 
             TypePtr ret = p->returnType();
-            
+
             ParamDeclList outParams;
             ParamDeclList paramList = p->parameters();
             ParamDeclList::const_iterator pli;
@@ -5977,7 +6017,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                     outParams.push_back(*pli);
                 }
             }
-            
+
             ExceptionList throws = p->throws();
             throws.sort();
             throws.unique();
@@ -6070,7 +6110,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             }
 
             out << eb;
-            
+
             close();
         }
     }

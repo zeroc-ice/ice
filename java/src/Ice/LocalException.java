@@ -14,6 +14,15 @@ package Ice;
  **/
 public abstract class LocalException extends RuntimeException implements Cloneable
 {
+    public LocalException()
+    {
+    }
+
+    public LocalException(Throwable cause)
+    {
+        super(cause);
+    }
+
     /**
      * Creates a copy of this exception.
      *

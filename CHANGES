@@ -57,6 +57,9 @@ C++ Changes
 Java Changes
 ============
 
+- Added overloaded constructors for user and system exceptions that
+  accept a Throwable argument.
+
 - Added an ice_staticId method to generated PrxHelper classes.
 
 - Fixed a bug in slice2java in which a floating point default value
