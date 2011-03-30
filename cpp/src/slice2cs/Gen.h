@@ -48,7 +48,7 @@ protected:
     //
     // Generate assignment statements for those data members that have default values.
     //
-    void writeDataMemberInitializers(const DataMemberList&, int = 0);
+    void writeDataMemberInitializers(const DataMemberList&, int = 0, bool = false);
 
     std::string toCsIdent(const std::string&);
     std::string editMarkup(const std::string&);

@@ -18,16 +18,6 @@ Note that this file only includes changes since Ice 3.2.1. For the
 change history of prior releases, refer to the CHANGES file in the
 subdirectory of each language mapping (e.g., cpp/CHANGES).
 
-======================================================================
-Changes since version 3.4.0
-======================================================================
-
-
-General Changes
-===============
-
-- Removed extra include/IceGrid/Perf.h file.
-
 
 ======================================================================
 Changes since version 3.4.1
@@ -37,7 +27,7 @@ Changes since version 3.4.1
 General Changes
 ===============
 
-- Fixed a bug which cause a crash if a timeout occurs while sending
+- Fixed a bug that caused a crash if a timeout occurs while sending
   an AMI request and if automatic retry is enabled (the default).
 
 - It is now possible to use a constant as the default value for a data
@@ -58,10 +48,10 @@ General Changes
   const int DEFAULT_SIZE = MAXIMUM_SIZE;
 
 
-Python Changes
-==============
+C++ Changes
+===========
 
-- Fixed bug where None was not recognized as a keyword.
+- Removed extra include/IceGrid/Perf.h file.
 
 
 Java Changes
@@ -80,6 +70,15 @@ C# Changes
 ==========
 
 - Added an ice_staticId method to generated PrxHelper classes.
+
+- Fixed a bug in the generated code when a Slice class uses the
+  property mapping and declares default values for its members.
+
+
+Python Changes
+==============
+
+- Fixed bug where None was not recognized as a keyword.
 
 
 Ruby Changes

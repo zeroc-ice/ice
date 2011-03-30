@@ -151,6 +151,46 @@ public class AllTests
             test(v.nc3 == Test.Nested.Color.blue);
         }
 
+        {
+            Test.ClassProperty v = new Test.ClassProperty();
+            test(!v.boolFalse);
+            test(v.boolTrue);
+            test(v.b == 1);
+            test(v.s == 2);
+            test(v.i == 3);
+            test(v.l == 4);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
+            test(v.str.Equals("foo bar"));
+            test(v.noDefault == null);
+        }
+
+        {
+            Test.StructProperty v = new Test.StructProperty();
+            test(!v.boolFalse);
+            test(v.boolTrue);
+            test(v.b == 1);
+            test(v.s == 2);
+            test(v.i == 3);
+            test(v.l == 4);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
+        }
+
+        {
+            Test.ExceptionProperty v = new Test.ExceptionProperty();
+            test(!v.boolFalse);
+            test(v.boolTrue);
+            test(v.b == 1);
+            test(v.s == 2);
+            test(v.i == 3);
+            test(v.l == 4);
+            test(v.f == 5.1F);
+            test(v.d == 6.2);
+            test(v.str.Equals("foo bar"));
+            test(v.noDefault == null);
+        }
+
         Console.Out.WriteLine("ok");
     }
 }

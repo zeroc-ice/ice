@@ -155,6 +155,57 @@ exception DerivedEx extends BaseEx
     Nested::Color nc3 = ConstNestedColor3;
 };
 
+["clr:property"]
+class ClassProperty
+{
+    bool boolFalse = false;
+    bool boolTrue = true;
+    byte b = 1;
+    short s = 2;
+    int i = 3;
+    long l = 4;
+    float f = 5.1;
+    double d = 6.2;
+    string str = "foo bar";
+    string noDefault;
+};
+
+["clr:property"]
+struct StructProperty
+{
+    bool boolFalse = false;
+    bool boolTrue = true;
+    byte b = 1;
+    short s = 2;
+    int i = 3;
+    long l = 4;
+    float f = 5.1;
+    double d = 6.2;
+    string str = "foo bar";
+    string noDefault;
+};
+
+//
+// Exceptions don't support "clr:property" metadata, but
+// we want to ensure that the generated code compiles.
+// A warning "warning: ignoring invalid metadata `clr:property'"
+// is expected when compiling this file.
+//
+["clr:property"]
+exception ExceptionProperty
+{
+    bool boolFalse = false;
+    bool boolTrue = true;
+    byte b = 1;
+    short s = 2;
+    int i = 3;
+    long l = 4;
+    float f = 5.1;
+    double d = 6.2;
+    string str = "foo bar";
+    string noDefault;
+};
+
 };
 
 #endif

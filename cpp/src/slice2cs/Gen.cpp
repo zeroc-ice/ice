@@ -1295,14 +1295,19 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
 }
 
 void
-Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int baseTypes)
+Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int baseTypes, bool propertyMapping)
 {
     for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
     {
         if((*p)->defaultValueType())
         {
             string memberName = fixId((*p)->name(), baseTypes);
-            _out << nl << "this." << memberName << " = ";
+            _out << nl << "this." << memberName;
+            if(propertyMapping)
+            {
+                _out << "_prop";
+            }
+            _out << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
         }
@@ -2344,6 +2349,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!allDataMembers.empty())
         {
+            bool propertyMapping = p->hasMetaData("clr:property");
             _out << sp << nl << "#region Constructors";
 
             _out << sp;
@@ -2354,7 +2360,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 _out << " : base()";
             }
             _out << sb;
-            writeDataMemberInitializers(dataMembers);
+            writeDataMemberInitializers(dataMembers, 0, propertyMapping);
             _out << eb;
 
             _out << sp;
@@ -2387,7 +2393,12 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
             for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
             {
-                _out << nl << "this." << *i << " = " << *i << ';';
+                _out << nl << "this." << *i;
+                if(propertyMapping)
+                {
+                    _out << "_prop";
+                }
+                _out << " = " << *i << ';';
             }
             _out << eb;
 
@@ -2896,7 +2907,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "os__.startWriteSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, DotNet::Exception),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::Exception),
                                       true, false, false);
         }
         _out << nl << "os__.endWriteSlice();";
@@ -3184,7 +3195,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public " << name << "()";
         _out << sb;
-        writeDataMemberInitializers(dataMembers, DotNet::ICloneable);
+        writeDataMemberInitializers(dataMembers, DotNet::ICloneable, propertyMapping);
         _out << eb;
     }
 
@@ -4395,7 +4406,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         _out << nl << "public Ice.AsyncResult<" << delType << "> begin_" << opName << spar << paramsAMI << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "null" << "null" 
+        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "null" << "null"
              << epar << ';';
         _out << eb;
 
@@ -4405,7 +4416,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "public Ice.AsyncResult<" << delType << "> begin_" << opName << spar << paramsAMI
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "null" << "null" 
+        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "null" << "null"
              << epar << ';';
         _out << eb;
 
@@ -4413,7 +4424,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "public Ice.AsyncResult begin_" << opName << spar << paramsAMI
              << "Ice.AsyncCallback cb__" << "object cookie__" << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "cb__" << "cookie__" 
+        _out << nl << "return begin_" << opName << spar << argsAMI << "null" << "false" << "cb__" << "cookie__"
              << epar << ';';
         _out << eb;
 
@@ -4423,7 +4434,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
              << "_System.Collections.Generic.Dictionary<string, string> ctx__" << "Ice.AsyncCallback cb__"
              << "object cookie__" << epar;
         _out << sb;
-        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "cb__" << "cookie__" 
+        _out << nl << "return begin_" << opName << spar << argsAMI << "ctx__" << "true" << "cb__" << "cookie__"
              << epar << ';';
         _out << eb;
 
@@ -4565,14 +4576,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(op->returnsData())
         {
             _out << nl << "checkAsyncTwowayOnly__(" << flatName << ");";
-            _out << nl << "IceInternal.TwowayOutgoingAsync<" << delType << "> result__ = " 
-                 << " new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " << flatName << ", " << op->name() 
+            _out << nl << "IceInternal.TwowayOutgoingAsync<" << delType << "> result__ = "
+                 << " new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " << flatName << ", " << op->name()
                  << "_completed__";
         }
         else
         {
             _out << nl << "IceInternal.OnewayOutgoingAsync<" << delType << "> result__ = "
-                 << "new IceInternal.OnewayOutgoingAsync<" << delType << ">(this, " << flatName << ", " << op->name() 
+                 << "new IceInternal.OnewayOutgoingAsync<" << delType << ">(this, " << flatName << ", " << op->name()
                  << "_completed__";
         }
         _out << ", cookie__);";
@@ -4659,7 +4670,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
         }
         else
-        {    
+        {
             _out << sp << nl << "private void " << op->name() << "_completed__(" << delType << " cb__)";
             _out << sb;
             _out << nl << "if(cb__ != null)";
@@ -4699,14 +4710,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << eb;
                 _out << nl << "catch(Ice.TwowayOnlyException ex)";
                 _out << sb;
-                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " 
+                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
                      << flatName << ", " << op->name() << "_completed__, null);";
                 _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
                 _out << eb;
             }
             else
             {
-                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI 
+                _out << nl << "Ice.AsyncResult<" << delType << "> result__ = begin_" << opName << spar << argsNewAMI
                      << epar << ";";
             }
             _out << nl << "result__.whenCompleted(cb__.response__, cb__.exception__);";
@@ -4733,7 +4744,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << eb;
                 _out << nl << "catch(Ice.TwowayOnlyException ex)";
                 _out << sb;
-                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, " 
+                _out << nl << "result__ = new IceInternal.TwowayOutgoingAsync<" << delType << ">(this, "
                      << flatName << ", " << op->name() << "_completed__, null);";
                 _out << nl << "((IceInternal.OutgoingAsyncBase)result__).exceptionAsync__(ex);";
                 _out << eb;
