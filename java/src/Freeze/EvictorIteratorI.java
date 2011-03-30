@@ -166,18 +166,13 @@ class EvictorIteratorI implements EvictorIterator
                     }
                     else
                     {
-                        DeadlockException ex = new DeadlockException(
-                            _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), _tx);
-                        ex.initCause(dx);
-                        throw ex;
+                        throw new DeadlockException(_store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(),
+                                                    _tx, dx);
                     }
                 }
                 catch(com.sleepycat.db.DatabaseException dx)
                 {
-                    DatabaseException ex = new DatabaseException();
-                    ex.initCause(dx);
-                    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-                    throw ex;
+                    throw new DatabaseException(_store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), dx);
                 }
                 finally
                 {
@@ -191,10 +186,8 @@ class EvictorIteratorI implements EvictorIterator
                         {
                             if(_tx != null)
                             {
-                                DeadlockException ex = new DeadlockException(
-                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), _tx);
-                                ex.initCause(dx);
-                                throw ex;
+                                throw new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), _tx, dx);
                             }
                         }
                         catch(com.sleepycat.db.DatabaseException dx)

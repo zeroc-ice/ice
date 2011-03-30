@@ -1240,10 +1240,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                         }
                         catch(com.sleepycat.db.DatabaseException dx)
                         {
-                            DatabaseException ex = new DatabaseException();
-                            ex.initCause(dx);
-                            ex.message = _errorPrefix + "saving: " + dx.getMessage();
-                            throw ex;
+                            throw new DatabaseException(_errorPrefix + "saving: " + dx.getMessage(), dx);
                         }
                     }
                 } while(tryAgain);

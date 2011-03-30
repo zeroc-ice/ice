@@ -360,9 +360,7 @@ public final class StringUtil
         }
         catch(java.io.UnsupportedEncodingException ex)
         {
-            IllegalArgumentException e = new IllegalArgumentException("unsupported encoding");
-            e.initCause(ex);
-            throw e;
+            throw new IllegalArgumentException("unsupported encoding", ex);
         }
     }
 

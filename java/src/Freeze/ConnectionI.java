@@ -43,15 +43,11 @@ public class ConnectionI implements Connection
         }
         catch(com.sleepycat.db.DeadlockException dx)
         {
-            DeadlockException ex = new DeadlockException(errorPrefix() + dx.getMessage(), _transaction);
-            ex.initCause(dx);
-            throw ex;
+            throw new DeadlockException(errorPrefix() + dx.getMessage(), _transaction, dx);
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
-            DatabaseException ex = new DatabaseException(errorPrefix() + dx.getMessage());
-            ex.initCause(dx);
-            throw ex;
+            throw new DatabaseException(errorPrefix() + dx.getMessage(), dx);
         }
         catch(java.io.FileNotFoundException fne)
         {

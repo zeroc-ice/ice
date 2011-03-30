@@ -161,10 +161,7 @@ public class Buffer
         }
         catch(OutOfMemoryError ex)
         {
-            Ice.MarshalException e = new Ice.MarshalException();
-            e.reason = "OutOfMemoryError occurred while allocating a ByteBuffer";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.MarshalException("OutOfMemoryError occurred while allocating a ByteBuffer", ex);
         }
     }
 

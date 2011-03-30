@@ -143,10 +143,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 
                     if(tx != null)
                     {
-                        DeadlockException ex = new DeadlockException(
-                           _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
-                        ex.initCause(dx);
-                        throw ex;
+                        throw new DeadlockException( _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(),
+                                                    transaction, dx);
                     }
 
                     //
@@ -155,10 +153,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                 }
                 catch(com.sleepycat.db.DatabaseException dx)
                 {
-                    DatabaseException ex = new DatabaseException();
-                    ex.initCause(dx);
-                    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-                    throw ex;
+                    throw new DatabaseException(_store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), dx);
                 }
                 finally
                 {
@@ -172,10 +167,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                         {
                             if(tx != null)
                             {
-                                DeadlockException ex = new DeadlockException(
-                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
-                                ex.initCause(dx);
-                                throw ex;
+                                throw new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction, dx);
                             }
                         }
                         catch(com.sleepycat.db.DatabaseException dx)
@@ -260,10 +253,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 
                     if(tx != null)
                     {
-                        DeadlockException ex = new DeadlockException(
-                            _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
-                        ex.initCause(dx);
-                        throw ex;
+                        throw new DeadlockException( _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(),
+                                                    transaction, dx);
                     }
                     //
                     // Otherwise retry
@@ -271,10 +262,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                 }
                 catch(com.sleepycat.db.DatabaseException dx)
                 {
-                    DatabaseException ex = new DatabaseException();
-                    ex.initCause(dx);
-                    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-                    throw ex;
+                    throw new DatabaseException(_store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), dx);
                 }
                 finally
                 {
@@ -288,10 +276,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
                         {
                             if(tx != null)
                             {
-                                DeadlockException ex = new DeadlockException(
-                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction);
-                                ex.initCause(dx);
-                                throw ex;
+                                throw new DeadlockException(
+                                    _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage(), transaction, dx);
                             }
                         }
                         catch(com.sleepycat.db.DatabaseException dx)
@@ -375,10 +361,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _store.evictor().errorPrefix() + "Db.close: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_store.evictor().errorPrefix() + "Db.close: " + dx.getMessage(), dx);
             }
             _db = null;
         }

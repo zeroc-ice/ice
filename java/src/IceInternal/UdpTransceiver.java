@@ -78,15 +78,11 @@ final class UdpTransceiver implements Transceiver
             }
             catch(java.nio.channels.AsynchronousCloseException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
             catch(java.net.PortUnreachableException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
             catch(java.io.InterruptedIOException ex)
             {
@@ -94,9 +90,7 @@ final class UdpTransceiver implements Transceiver
             }
             catch(java.io.IOException ex)
             {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -147,15 +141,11 @@ final class UdpTransceiver implements Transceiver
             }
             catch(java.nio.channels.AsynchronousCloseException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
             catch(java.net.PortUnreachableException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
             catch(java.io.InterruptedIOException ex)
             {
@@ -163,9 +153,7 @@ final class UdpTransceiver implements Transceiver
             }
             catch(java.io.IOException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
         }
 
@@ -619,9 +607,7 @@ final class UdpTransceiver implements Transceiver
         }
         catch(Exception ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 

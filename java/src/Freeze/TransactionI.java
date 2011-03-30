@@ -52,9 +52,7 @@ class TransactionI implements Transaction
                                                              e.getMessage());
             }
 
-            DeadlockException ex = new DeadlockException(_errorPrefix + "DbTxn.commit: " + e.getMessage(), this);
-            ex.initCause(e);
-            throw ex;
+            throw new DeadlockException(_errorPrefix + "DbTxn.commit: " + e.getMessage(), this, e);
         }
         catch(com.sleepycat.db.DatabaseException e)
         {
@@ -65,10 +63,7 @@ class TransactionI implements Transaction
                                                              e.getMessage());
             }
 
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(e);
-            ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
-            throw ex;
+            throw new DatabaseException(_errorPrefix + "DbTxn.commit: " + e.getMessage(), e);
         }
         finally
         {
@@ -123,9 +118,7 @@ class TransactionI implements Transaction
 
             deadlock = true;
 
-            DeadlockException ex = new DeadlockException(_errorPrefix + "DbTxn.abort: " + e.getMessage(), this);
-            ex.initCause(e);
-            throw ex;
+            throw new DeadlockException(_errorPrefix + "DbTxn.abort: " + e.getMessage(), this, e);
         }
         catch(com.sleepycat.db.DatabaseException e)
         {
@@ -136,10 +129,7 @@ class TransactionI implements Transaction
                                                              e.getMessage());
             }
 
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(e);
-            ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
-            throw ex;
+            throw new DatabaseException(_errorPrefix + "DbTxn.abort: " + e.getMessage(), e);
         }
         finally
         {
@@ -187,10 +177,7 @@ class TransactionI implements Transaction
                                                              "failed to start transaction: " + e.getMessage());
             }
 
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(e);
-            ex.message = _errorPrefix + "txn_begin: " + e.getMessage();
-            throw ex;
+            throw new DatabaseException(_errorPrefix + "txn_begin: " + e.getMessage(), e);
         }
     }
 

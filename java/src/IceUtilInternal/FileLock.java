@@ -48,9 +48,7 @@ public final class FileLock
         }
         catch(Exception ex)
         {
-            IceUtil.FileLockException fe = new IceUtil.FileLockException(path);
-            fe.initCause(ex);
-            throw fe;
+            throw new IceUtil.FileLockException(path, ex);
         }
         
         if(lock == null)

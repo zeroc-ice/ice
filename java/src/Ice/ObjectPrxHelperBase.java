@@ -239,7 +239,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
             catch(UserException __ex)
             {
-                throw new UnknownUserException(__ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
         }
         boolean __ret;
@@ -570,7 +570,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
             catch(UserException __ex)
             {
-                throw new UnknownUserException(__ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
         }
         String[] __ret = null;
@@ -745,7 +745,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
             catch(UserException __ex)
             {
-                throw new UnknownUserException(__ex.ice_name());
+                throw new UnknownUserException(__ex.ice_name(), __ex);
             }
         }
         String __ret = null;
@@ -2107,7 +2107,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                 }
                 catch(UserException __ex)
                 {
-                    throw new UnknownUserException(__ex.ice_name());
+                    throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
             IceInternal.BasicStream __is = __result.__is();
@@ -2215,11 +2215,14 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
         catch(ClassCastException ex)
         {
-            throw new java.io.IOException("Cannot deserialize proxy: Ice.ObjectInputStream not found");
+            java.io.IOException e =
+                new java.io.IOException("Cannot deserialize proxy: Ice.ObjectInputStream not found");
+            e.initCause(ex);
+            throw e;
         }
         catch(LocalException ex)
         {
-            java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy");
+            java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy", ex);
             e.initCause(ex);
             throw e;
         }

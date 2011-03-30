@@ -118,10 +118,8 @@ class Instance
             }
             catch(Throwable ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unable to load certificate verifier class " + certVerifierClass;
-                e.initCause(ex);
-                throw e;
+                throw new Ice.PluginInitializationException(
+                    "IceSSL: unable to load certificate verifier class " + certVerifierClass, ex);
             }
 
             try
@@ -130,10 +128,8 @@ class Instance
             }
             catch(Throwable ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
-                e.initCause(ex);
-                throw e;
+                throw new Ice.PluginInitializationException(
+                    "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass, ex);
             }
         }
 
@@ -157,10 +153,8 @@ class Instance
             }
             catch(Throwable ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
-                e.initCause(ex);
-                throw e;
+                throw new Ice.PluginInitializationException(
+                    "IceSSL: unable to load password callback class " + passwordCallbackClass, ex);
             }
 
             try
@@ -169,10 +163,8 @@ class Instance
             }
             catch(Throwable ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unable to instantiate password callback class " + passwordCallbackClass;
-                e.initCause(ex);
-                throw e;
+                throw new Ice.PluginInitializationException(
+                    "IceSSL: unable to instantiate password callback class " + passwordCallbackClass, ex);
             }
         }
 
@@ -226,10 +218,8 @@ class Instance
                         }
                         catch(java.io.IOException ex)
                         {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unable to access random seed file:\n" + file;
-                            e.initCause(ex);
-                            throw e;
+                            throw new Ice.PluginInitializationException(
+                                "IceSSL: unable to access random seed file:\n" + file, ex);
                         }
                     }
                 }
@@ -258,10 +248,7 @@ class Instance
                         }
                         catch(java.io.IOException ex)
                         {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: error while reading random seed";
-                            e.initCause(ex);
-                            throw e;
+                            throw new Ice.PluginInitializationException("IceSSL: error while reading random seed", ex);
                         }
                         finally
                         {
@@ -381,10 +368,8 @@ class Instance
                     }
                     catch(java.io.IOException ex)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: unable to load keystore:\n" + keystorePath;
-                        e.initCause(ex);
-                        throw e;
+                        throw new Ice.PluginInitializationException(
+                            "IceSSL: unable to load keystore:\n" + keystorePath, ex);
                     }
                     finally
                     {
@@ -503,10 +488,8 @@ class Instance
                         }
                         catch(java.io.IOException ex)
                         {
-                            Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                            e.reason = "IceSSL: unable to load truststore:\n" + truststorePath;
-                            e.initCause(ex);
-                            throw e;
+                            throw new Ice.PluginInitializationException(
+                                "IceSSL: unable to load truststore:\n" + truststorePath, ex);
                         }
                         finally
                         {
@@ -557,10 +540,7 @@ class Instance
             }
             catch(java.security.GeneralSecurityException ex)
             {
-                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                e.reason = "IceSSL: unable to initialize context";
-                e.initCause(ex);
-                throw e;
+                throw new Ice.PluginInitializationException("IceSSL: unable to initialize context", ex);
             }
         }
 
@@ -724,10 +704,7 @@ class Instance
         }
         catch(IllegalArgumentException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException();
-            e.reason = "IceSSL: invalid ciphersuite";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SecurityException("IceSSL: invalid ciphersuite", ex);
         }
 
         if(_securityTraceLevel >= 1)
@@ -750,10 +727,7 @@ class Instance
             }
             catch(IllegalArgumentException ex)
             {
-                Ice.SecurityException e = new Ice.SecurityException();
-                e.reason = "IceSSL: invalid protocol";
-                e.initCause(ex);
-                throw e;
+                throw new Ice.SecurityException("IceSSL: invalid protocol", ex);
             }
         }
 
@@ -780,10 +754,7 @@ class Instance
         }
         catch(javax.net.ssl.SSLException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException();
-            e.reason = "IceSSL: handshake error";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SecurityException("IceSSL: handshake error", ex);
         }
 
         return engine;
@@ -1146,10 +1117,8 @@ class Instance
                     }
                     catch(java.util.regex.PatternSyntaxException ex)
                     {
-                        Ice.PluginInitializationException e = new Ice.PluginInitializationException();
-                        e.reason = "IceSSL: invalid cipher expression `" + exp + "'";
-                        e.initCause(ex);
-                        throw e;
+                        throw new Ice.PluginInitializationException(
+                            "IceSSL: invalid cipher expression `" + exp + "'", ex);
                     }
                 }
                 else

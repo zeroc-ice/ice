@@ -130,17 +130,11 @@ class ObjectStore implements IceUtil.Store
             }
             catch(java.io.FileNotFoundException dx)
             {
-                NotFoundException ex = new NotFoundException();
-                ex.initCause(dx);
-                ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
-                throw ex;
+                throw new NotFoundException(_evictor.errorPrefix() + "Db.open: " + dx.getMessage(), dx);
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _evictor.errorPrefix() + "Db.open: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_evictor.errorPrefix() + "Db.open: " + dx.getMessage(), dx);
             }
             finally
             {
@@ -178,10 +172,7 @@ class ObjectStore implements IceUtil.Store
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = _evictor.errorPrefix() + "Db.close: " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(_evictor.errorPrefix() + "Db.close: " + dx.getMessage(), dx);
         }
         _db = null;
     }
@@ -238,10 +229,7 @@ class ObjectStore implements IceUtil.Store
 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _evictor.errorPrefix() + "Db.get: " + dx.getMessage(), transaction);
-                    ex.initCause(dx);
-                    throw ex;
+                    throw new DeadlockException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(), transaction, dx);
                 }
                 //
                 // Otherwise try again
@@ -249,9 +237,7 @@ class ObjectStore implements IceUtil.Store
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage());
-                ex.initCause(dx);
-                throw ex;
+                throw new DatabaseException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(), dx);
             }
         }
     }
@@ -449,10 +435,7 @@ class ObjectStore implements IceUtil.Store
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _evictor.errorPrefix() + "Db.get: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(), dx);
             }
         }
 
@@ -507,17 +490,11 @@ class ObjectStore implements IceUtil.Store
                                                   _evictor.filename() + "/" + _dbName + "\"");
             }
 
-            DeadlockException ex = new DeadlockException(
-                _evictor.errorPrefix() + "Db.get: " + dx.getMessage(), transaction);
-            ex.initCause(dx);
-            throw ex;
+            throw new DeadlockException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(), transaction, dx);
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = _evictor.errorPrefix() + "Db.get: " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(_evictor.errorPrefix() + "Db.get: " + dx.getMessage(), dx);
         }
 
         ObjectRecord rec = unmarshalValue(dbValue.getData(), _communicator);
@@ -566,17 +543,11 @@ class ObjectStore implements IceUtil.Store
                                                   _evictor.filename() + "/" + _dbName + "\"");
             }
 
-            DeadlockException ex = new DeadlockException(
-                _evictor.errorPrefix() + "Db.put: " + dx.getMessage(), transaction);
-            ex.initCause(dx);
-            throw ex;
+            throw new DeadlockException(_evictor.errorPrefix() + "Db.put: " + dx.getMessage(), transaction, dx);
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = _evictor.errorPrefix() + "Db.put: " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(_evictor.errorPrefix() + "Db.put: " + dx.getMessage(), dx);
         }
     }
 
@@ -622,10 +593,8 @@ class ObjectStore implements IceUtil.Store
 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage(), transaction);
-                    ex.initCause(dx);
-                    throw ex;
+                    throw new DeadlockException(_evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage(),
+                                                transaction, dx);
                 }
                 //
                 // Otherwise retry
@@ -633,10 +602,7 @@ class ObjectStore implements IceUtil.Store
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_evictor.errorPrefix() + "Db.putNoOverwrite: " + dx.getMessage(), dx);
             }
         }
     }
@@ -673,10 +639,8 @@ class ObjectStore implements IceUtil.Store
 
                 if(tx != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _evictor.errorPrefix() + "Db.delete: " + dx.getMessage(), transaction);
-                    ex.initCause(dx);
-                    throw ex;
+                    throw new DeadlockException(_evictor.errorPrefix() + "Db.delete: " + dx.getMessage(), transaction,
+                                                dx);
                 }
 
                 //
@@ -686,10 +650,7 @@ class ObjectStore implements IceUtil.Store
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _evictor.errorPrefix() + "Db.delete: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_evictor.errorPrefix() + "Db.delete: " + dx.getMessage(), dx);
             }
         }
     }

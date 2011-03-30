@@ -26,9 +26,7 @@ public final class Selector
         }
         catch(java.io.IOException ex)
         {
-            Ice.SyscallException sys = new Ice.SyscallException();
-            sys.initCause(ex);
-            throw sys;
+            throw new Ice.SyscallException(ex);
         }
 
         //

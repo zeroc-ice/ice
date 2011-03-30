@@ -130,10 +130,8 @@ public abstract class Index<K, V, I>
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _trace.errorPrefix + "Db.close for index \"" + _dbName + "\": " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(
+                    _trace.errorPrefix + "Db.close for index \"" + _dbName + "\": " + dx.getMessage(), dx);
             }
             _db = null;
         }
@@ -279,18 +277,17 @@ public abstract class Index<K, V, I>
                 {
                     if(_map.connection().dbTxn() != null)
                     {
-                        DeadlockException ex = new DeadlockException(
-                            _trace.errorPrefix + "Dbc.count: " + dx.getMessage(), _map.connection().currentTransaction());
-                        ex.initCause(dx);
-                        throw ex;
+                        throw new DeadlockException(_trace.errorPrefix + "Dbc.count: " + dx.getMessage(),
+                                                    _map.connection().currentTransaction(), dx);
                     }
                     else
                     {
                         
                         if(_trace.deadlockWarning)
                         {
-                            _trace.logger.warning("Deadlock in Freeze.MapInternal.Index.count while iterating over index \"" +
-                                                  _dbName + "\"; retrying...");
+                            _trace.logger.warning(
+                                "Deadlock in Freeze.MapInternal.Index.count while iterating over index \"" + _dbName +
+                                "\"; retrying...");
                         }
                         
                         //
@@ -302,10 +299,8 @@ public abstract class Index<K, V, I>
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = _trace.errorPrefix + "Db.cursor for index \"" + _dbName + "\": " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(
+                _trace.errorPrefix + "Db.cursor for index \"" + _dbName + "\": " + dx.getMessage(), dx);
         }
     }
 
@@ -438,17 +433,16 @@ public abstract class Index<K, V, I>
             {
                 if(_map.connection().dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.get: " + e.getMessage(), _map.connection().currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.get: " + e.getMessage(),
+                                                _map.connection().currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.Index.containsKey while " + "reading Db \"" +
-                                              _dbName + "\"; retrying...");
+                        _trace.logger.warning(
+                            "Deadlock in Freeze.MapInternal.Index.containsKey while " + "reading Db \"" + _dbName +
+                            "\"; retrying...");
                     }
                     //
                     // Try again
@@ -457,10 +451,7 @@ public abstract class Index<K, V, I>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.get: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.get: " + e.getMessage(), e);
             }
         }
     }

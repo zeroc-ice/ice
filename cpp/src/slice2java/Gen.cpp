@@ -4072,7 +4072,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 out << nl << "catch(Ice.UserException __ex)";
                 out << sb;
-                out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
+                out << nl << "throw new Ice.UnknownUserException(__ex.ice_name(), __ex);";
                 out << eb;
                 out << eb;
 
@@ -5076,7 +5076,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << nl << "catch(Ice.UserException __ex)";
         out << sb;
-        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name());";
+        out << nl << "throw new Ice.UnknownUserException(__ex.ice_name(), __ex);";
         out << eb;
         out << eb;
         if(ret || !outParams.empty())

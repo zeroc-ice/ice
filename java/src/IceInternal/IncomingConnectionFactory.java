@@ -409,9 +409,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             }
             else
             {
-                Ice.SyscallException e = new Ice.SyscallException();
-                e.initCause(ex);
-                throw e;
+                throw new Ice.SyscallException(ex);
             }
         }
     }

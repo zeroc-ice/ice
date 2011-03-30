@@ -11,10 +11,26 @@ package IceUtil;
 
 public class FileLockException extends RuntimeException implements Cloneable
 {
+    public FileLockException()
+    {
+    }
+
     public FileLockException(String path)
     {
         this.path = path;
     }
+
+    public FileLockException(Throwable cause)
+    {
+        super(cause);
+    }
+
+    public FileLockException(String path, Throwable cause)
+    {
+        super(cause);
+        this.path = path;
+    }
+
     public java.lang.Object clone()
     {
         java.lang.Object o = null;

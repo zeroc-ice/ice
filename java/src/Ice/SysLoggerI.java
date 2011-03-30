@@ -131,9 +131,7 @@ public final class SysLoggerI implements Logger
         }
         catch(IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -190,9 +188,7 @@ public final class SysLoggerI implements Logger
         } 
         catch(IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 

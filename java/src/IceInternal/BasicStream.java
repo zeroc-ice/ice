@@ -745,9 +745,7 @@ public class BasicStream
         }
         catch(java.lang.Exception ex)
         {
-            Ice.MarshalException e = new Ice.MarshalException("cannot deserialize object");
-            e.initCause(ex);
-            throw e;
+            throw new Ice.MarshalException("cannot deserialize object", ex);
         }
     }
 
@@ -1171,9 +1169,7 @@ public class BasicStream
                         }
                         catch(java.nio.charset.CharacterCodingException ex)
                         {
-                            Ice.MarshalException e = new Ice.MarshalException();
-                            e.initCause(ex);
-                            throw e;
+                            throw new Ice.MarshalException(ex);
                         }
                         writeSize(b.limit());
                         expand(b.limit());
@@ -1605,10 +1601,7 @@ public class BasicStream
                     // When readString raises this exception it means we've seen the last slice,
                     // so we set the reason member to a more helpful message.
                     //
-                    Ice.UnmarshalOutOfBoundsException e = new Ice.UnmarshalOutOfBoundsException();
-                    e.reason = "unknown exception type `" + origId + "'";
-                    e.initCause(ex);
-                    throw e;
+                    throw new Ice.UnmarshalOutOfBoundsException("unknown exception type `" + origId + "'", ex);
                 }
             }
         }
@@ -1784,10 +1777,7 @@ public class BasicStream
             }
             catch(ClassCastException ex)
             {
-                Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException();
-                nof.type = p.type();
-                nof.initCause(ex);
-                throw nof;
+                throw new Ice.NoObjectFactoryException("no object factory", p.type(), ex);
             }
         }
 
@@ -1930,10 +1920,7 @@ public class BasicStream
         }
         catch(Exception ex)
         {
-            Ice.CompressionException e = new Ice.CompressionException();
-            e.reason = "bzip2 compression failure";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.CompressionException("bzip2 compression failure", ex);
         }
 
         //
@@ -2042,10 +2029,7 @@ public class BasicStream
         }
         catch(Exception ex)
         {
-            Ice.CompressionException e = new Ice.CompressionException();
-            e.reason = "bzip2 uncompression failure";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.CompressionException("bzip2 uncompression failure", ex);
         }
 
         //
@@ -2083,9 +2067,7 @@ public class BasicStream
             }
             catch(java.lang.Exception ex)
             {
-                Ice.SyscallException e = new Ice.SyscallException();
-                e.initCause(ex);
-                throw e;
+                throw new Ice.SyscallException(ex);
             }
         }
 
@@ -2137,10 +2119,7 @@ public class BasicStream
         }
         catch(LinkageError ex)
         {
-            Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
-            e.type = id;
-            e.initCause(ex);
-            throw e;
+            throw new Ice.NoObjectFactoryException("no object factory", id, ex);
         }
 
         return factory;
@@ -2168,9 +2147,7 @@ public class BasicStream
             }
             catch(java.lang.Exception ex)
             {
-                Ice.SyscallException e = new Ice.SyscallException();
-                e.initCause(ex);
-                throw e;
+                throw new Ice.SyscallException(ex);
             }
         }
 
@@ -2204,9 +2181,7 @@ public class BasicStream
             }
             catch(LinkageError ex)
             {
-                Ice.MarshalException e = new Ice.MarshalException();
-                e.initCause(ex);
-                throw e;
+                throw new Ice.MarshalException(ex);
             }
 
             if(factory != null)

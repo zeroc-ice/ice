@@ -502,10 +502,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
             catch(IllegalAccessException ex)
             {
-                FailureException e = new FailureException();
-                e.reason = "ServiceManager: unable to access service constructor " + className + "(Ice.Communicator)";
-                e.initCause(ex);
-                throw e;
+                throw new FailureException(
+                    "ServiceManager: unable to access service constructor " + className + "(Ice.Communicator)", ex);
             }
             catch(NoSuchMethodException ex)
             {
@@ -513,10 +511,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
             catch(java.lang.reflect.InvocationTargetException ex)
             {
-                FailureException e = new FailureException();
-                e.reason = "ServiceManager: service constructor " + className + "(Ice.Communicator) threw an exception";
-                e.initCause(ex.getCause());
-                throw e;
+                throw new FailureException(
+                    "ServiceManager: service constructor " + className + "(Ice.Communicator) threw an exception", ex);
             }
 
             if(obj == null)
@@ -530,10 +526,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 }
                 catch(IllegalAccessException ex)
                 {
-                    FailureException e = new FailureException();
-                    e.reason = "ServiceManager: unable to access default service constructor in class " + className;
-                    e.initCause(ex);
-                    throw e;
+                    throw new FailureException(
+                        "ServiceManager: unable to access default service constructor in class " + className, ex);
                 }
             }
 
@@ -543,17 +537,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
             catch(ClassCastException ex)
             {
-                FailureException e = new FailureException();
-                e.reason = "ServiceManager: class " + className + " does not implement IceBox.Service";
-                throw e;
+                throw new FailureException("ServiceManager: class " + className + " does not implement IceBox.Service");
             }
         }
         catch(InstantiationException ex)
         {
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: unable to instantiate class " + className;
-            e.initCause(ex);
-            throw e;
+            throw new FailureException("ServiceManager: unable to instantiate class " + className, ex);
         }
 
         //
@@ -675,10 +664,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
         catch(Throwable ex)
         {
-            FailureException e = new FailureException();
-            e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
-            e.initCause(ex);
-            throw e;
+            throw new FailureException("ServiceManager: exception while starting service " + service + ": " + ex, ex);
         }
     }
 

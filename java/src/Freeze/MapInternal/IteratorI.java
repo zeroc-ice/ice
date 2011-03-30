@@ -33,19 +33,13 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
         catch(com.sleepycat.db.DeadlockException dx)
         {
             dead();
-            DeadlockException ex = new DeadlockException(
-                _trace.errorPrefix + "EntryIterator constructor: " + dx.getMessage(),
-                _map.connection().currentTransaction());
-            ex.initCause(dx);
-            throw ex;
+            throw new DeadlockException(_trace.errorPrefix + "EntryIterator constructor: " + dx.getMessage(),
+                                        _map.connection().currentTransaction(), dx);
         }
         catch(com.sleepycat.db.DatabaseException dx)
         {
             dead();
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = _trace.errorPrefix + "EntryIterator constructor: " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(_trace.errorPrefix + "EntryIterator constructor: " + dx.getMessage(), dx);
         }
 
         _iteratorListToken = _map.addIterator(this);
@@ -70,18 +64,13 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             catch(com.sleepycat.db.DeadlockException dx)
             {
                 dead();
-                DeadlockException ex = new DeadlockException(
-                    _trace.errorPrefix + "Dbc.get: " + dx.getMessage(), _map.connection().currentTransaction());
-                ex.initCause(dx);
-                throw ex;
+                throw new DeadlockException(_trace.errorPrefix + "Dbc.get: " + dx.getMessage(),
+                                            _map.connection().currentTransaction(), dx);
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
                 dead();
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _trace.errorPrefix + "Dbc.get: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Dbc.get: " + dx.getMessage(), dx);
             }
 
             //
@@ -149,17 +138,12 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             catch(com.sleepycat.db.DeadlockException e)
             {
                 dead();
-                DeadlockException ex = new DeadlockException(_trace.errorPrefix + "Dbc.del: " + e.getMessage(),
-                                                             _map.connection().currentTransaction());
-                ex.initCause(e);
-                throw ex;
+                throw new DeadlockException(_trace.errorPrefix + "Dbc.del: " + e.getMessage(),
+                                            _map.connection().currentTransaction(), e);
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Dbc.del: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Dbc.del: " + e.getMessage(), e);
             }
         }
         else
@@ -203,18 +187,12 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             catch(com.sleepycat.db.DeadlockException e)
             {
                 dead();
-                DeadlockException ex = new DeadlockException(
-                    _trace.errorPrefix + "EntryIterator.remove: " + e.getMessage(),
-                    _map.connection().currentTransaction());
-                ex.initCause(e);
-                throw ex;
+                throw new DeadlockException(_trace.errorPrefix + "EntryIterator.remove: " + e.getMessage(),
+                                            _map.connection().currentTransaction(), e);
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "EntryIterator.remove: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "EntryIterator.remove: " + e.getMessage(), e);
             }
             finally
             {
@@ -303,17 +281,12 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             catch(com.sleepycat.db.DeadlockException e)
             {
                 dead();
-                DeadlockException ex = new DeadlockException(_trace.errorPrefix + "Dbc.put: " + e.getMessage(),
-                                                             _map.connection().currentTransaction());
-                ex.initCause(e);
-                throw ex;
+                throw new DeadlockException(_trace.errorPrefix + "Dbc.put: " + e.getMessage(),
+                                            _map.connection().currentTransaction(), e);
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Dbc.put: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Dbc.put: " + e.getMessage(), e);
             }
         }
         else
@@ -351,18 +324,12 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
             catch(com.sleepycat.db.DeadlockException e)
             {
                 dead();
-                DeadlockException ex = new DeadlockException(
-                    _trace.errorPrefix + "EntryIterator.setValue: " + e.getMessage(),
-                    _map.connection().currentTransaction());
-                ex.initCause(e);
-                throw ex;
+                throw new DeadlockException(_trace.errorPrefix + "EntryIterator.setValue: " + e.getMessage(),
+                                            _map.connection().currentTransaction(), e);
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "EntryIterator.setValue: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "EntryIterator.setValue: " + e.getMessage(), e);
             }
             finally
             {
@@ -384,17 +351,12 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
         catch(com.sleepycat.db.DeadlockException e)
         {
             dead();
-            DeadlockException ex = new DeadlockException(
-                _trace.errorPrefix + "Dbc.close: " + e.getMessage(), _map.connection().currentTransaction());
-            ex.initCause(e);
-            throw ex;
+            throw new DeadlockException(_trace.errorPrefix + "Dbc.close: " + e.getMessage(),
+                                        _map.connection().currentTransaction(), e);
         }
         catch(com.sleepycat.db.DatabaseException e)
         {
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(e);
-            ex.message = _trace.errorPrefix + "Dbc.close: " + e.getMessage();
-            throw ex;
+            throw new DatabaseException(_trace.errorPrefix + "Dbc.close: " + e.getMessage(), e);
         }
     }
 

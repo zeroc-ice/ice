@@ -88,9 +88,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -111,9 +109,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -126,9 +122,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -154,9 +148,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -170,9 +162,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -186,9 +176,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -202,9 +190,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -220,9 +206,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -238,9 +222,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -262,9 +244,7 @@ public final class Network
                     continue;
                 }
 
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -276,9 +256,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
 
         return fd;
@@ -298,31 +276,24 @@ public final class Network
         {
             closeSocketNoThrow(fd);
 
-            Ice.ConnectFailedException se;
             if(connectionRefused(ex))
             {
-                se = new Ice.ConnectionRefusedException();
+                throw new Ice.ConnectionRefusedException(ex);
             }
             else
             {
-                se = new Ice.ConnectFailedException();
+                throw new Ice.ConnectFailedException(ex);
             }
-            se.initCause(ex);
-            throw se;
         }
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         catch(java.lang.SecurityException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
 
         if(System.getProperty("os.name").equals("Linux"))
@@ -372,23 +343,18 @@ public final class Network
         }
         catch(java.net.ConnectException ex)
         {
-            Ice.ConnectFailedException se;
             if(connectionRefused(ex))
             {
-                se = new Ice.ConnectionRefusedException();
+                throw new Ice.ConnectionRefusedException(ex);
             }
             else
             {
-                se = new Ice.ConnectFailedException();
+                throw new Ice.ConnectFailedException(ex);
             }
-            se.initCause(ex);
-            throw se;
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -403,24 +369,19 @@ public final class Network
         {
             closeSocketNoThrow(fd);
 
-            Ice.ConnectFailedException se;
             if(connectionRefused(ex))
             {
-                se = new Ice.ConnectionRefusedException();
+                throw new Ice.ConnectionRefusedException(ex);
             }
             else
             {
-                se = new Ice.ConnectFailedException();
+                throw new Ice.ConnectFailedException(ex);
             }
-            se.initCause(ex);
-            throw se;
         }
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -471,9 +432,7 @@ public final class Network
                                 {
                                     continue;
                                 }
-                                Ice.SocketException se = new Ice.SocketException();
-                                se.initCause(ex);
-                                throw se;
+                                throw new Ice.SocketException(ex);
                             }
                         }
                     }
@@ -496,9 +455,7 @@ public final class Network
                 {
                     continue;
                 }
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -510,9 +467,7 @@ public final class Network
         }
         catch(java.io.IOException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
 
         return result;
@@ -529,9 +484,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -547,9 +500,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         return size;
     }
@@ -565,9 +516,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -583,9 +532,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         return size;
     }
@@ -601,9 +548,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -619,9 +564,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         return size;
     }
@@ -637,9 +580,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -655,9 +596,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         return size;
     }
@@ -673,9 +612,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -691,9 +628,7 @@ public final class Network
         catch(java.io.IOException ex)
         {
             closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         return size;
     }
@@ -825,16 +760,11 @@ public final class Network
         }
         catch(java.net.UnknownHostException ex)
         {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            e.initCause(ex);
-            throw e;
+            throw new Ice.DNSException(0, host, ex);
         }
         catch(java.lang.SecurityException ex)
         {
-            Ice.SocketException e = new Ice.SocketException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SocketException(ex);
         }
     
         //
@@ -842,9 +772,7 @@ public final class Network
         //
         if(addresses.size() == 0)
         {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            throw e;
+            throw new Ice.DNSException(0, host);
         }
 
         return addresses;
@@ -874,17 +802,13 @@ public final class Network
                 }
             }
         }
-        catch(java.net.SocketException e)
+        catch(java.net.SocketException ex)
         {
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(e);
-            throw se;
+            throw new Ice.SocketException(ex);
         }
         catch(java.lang.SecurityException ex)
         {
-            Ice.SocketException e = new Ice.SocketException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SocketException(ex);
         }
 
         return result;
@@ -902,15 +826,13 @@ public final class Network
         SocketPair fds = new SocketPair();
         try
         {
-          java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
-          fds.sink = pipe.sink();
-          fds.source = pipe.source();
+            java.nio.channels.Pipe pipe = java.nio.channels.Pipe.open();
+            fds.sink = pipe.sink();
+            fds.source = pipe.source();
         }
         catch(java.io.IOException ex)
         {
-          Ice.SocketException se = new Ice.SocketException();
-          se.initCause(ex);
-          throw se;
+            throw new Ice.SocketException(ex);
         }
         return fds;
     }
@@ -930,9 +852,7 @@ public final class Network
             }
             catch(java.lang.SecurityException ex)
             {
-                Ice.SocketException e = new Ice.SocketException();
-                e.initCause(ex);
-                throw e;
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -1206,24 +1126,17 @@ public final class Network
         }
         catch(java.net.UnknownHostException ex)
         {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            e.initCause(ex);
-            throw e;
+            throw new Ice.DNSException(0, host, ex);
         }
         catch(java.lang.SecurityException ex)
         {
-            Ice.SocketException e = new Ice.SocketException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SocketException(ex);
         }
 
         //
         // No Inet4Address/Inet6Address available.
         //
-        Ice.DNSException e = new Ice.DNSException();
-        e.host = host;
-        throw e;
+        throw new Ice.DNSException(0, host);
     }
 
     private static java.net.InetAddress[]
@@ -1250,9 +1163,7 @@ public final class Network
         }
         catch(java.lang.SecurityException ex)
         {
-            Ice.SocketException e = new Ice.SocketException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SocketException(ex);
         }
     }
 
@@ -1280,9 +1191,7 @@ public final class Network
         }
         catch(java.lang.SecurityException ex)
         {
-            Ice.SocketException e = new Ice.SocketException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SocketException(ex);
         }
     }
 }

@@ -354,10 +354,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
                 }
                 catch(java.io.FileNotFoundException dx)
                 {
-                    NotFoundException ex = new NotFoundException();
-                    ex.initCause(dx);
-                    ex.message = errorPrefix(_key.envName) + "open: " + dx.getMessage();
-                    throw ex;
+                    throw new NotFoundException(errorPrefix(_key.envName) + "open: " + dx.getMessage(), dx);
                 }
             
                 //
@@ -395,10 +392,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         catch(com.sleepycat.db.DatabaseException dx)
         {
             cleanup();
-            DatabaseException ex = new DatabaseException();
-            ex.initCause(dx);
-            ex.message = errorPrefix(_key.envName) + "creation: " + dx.getMessage();
-            throw ex;
+            throw new DatabaseException(errorPrefix(_key.envName) + "creation: " + dx.getMessage(), dx);
         }
         catch(java.lang.RuntimeException ex)
         {
@@ -488,10 +482,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = errorPrefix(_key.envName) + "close: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(errorPrefix(_key.envName) + "close: " + dx.getMessage(), dx);
             }
             finally
             {

@@ -102,10 +102,9 @@ final class TransceiverI implements IceInternal.Transceiver
                 //
                 // We can't throw in close.
                 //
-                // Ice.SecurityException se = new Ice.SecurityException();
-                // se.reason = "IceSSL: SSL failure while shutting down socket";
-                // se.initCause(ex);
-                // throw se;
+                // Ice.SecurityException se = new Ice.SecurityException(
+                //     "IceSSL: SSL failure while shutting down socket", ex);
+                //
             }
 
             try
@@ -249,10 +248,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         catch(SSLException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException();
-            e.reason = "IceSSL: error during read";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SecurityException("IceSSL: error during read", ex);
         }
 
         //
@@ -507,10 +503,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         catch(SSLException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException();
-            e.reason = "IceSSL: handshake error";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SecurityException("IceSSL: handshake error", ex);
         }
 
         return IceInternal.SocketOperation.None;
@@ -537,10 +530,7 @@ final class TransceiverI implements IceInternal.Transceiver
                 }
                 catch(javax.net.ssl.SSLPeerUnverifiedException ex)
                 {
-                    Ice.SecurityException e = new Ice.SecurityException();
-                    e.reason = "IceSSL: server did not supply a certificate";
-                    e.initCause(ex);
-                    throw e;
+                    throw new Ice.SecurityException("IceSSL: server did not supply a certificate", ex);
                 }
             }
         }
@@ -644,10 +634,7 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         catch(SSLException ex)
         {
-            Ice.SecurityException e = new Ice.SecurityException();
-            e.reason = "IceSSL: error while encoding message";
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SecurityException("IceSSL: error while encoding message", ex);
         }
 
         assert(_netOutput.position() == 0);
@@ -702,9 +689,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
             catch(java.io.IOException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
         }
 
@@ -748,9 +733,7 @@ final class TransceiverI implements IceInternal.Transceiver
             }
             catch(java.io.IOException ex)
             {
-                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                se.initCause(ex);
-                throw se;
+                throw new Ice.ConnectionLostException(ex);
             }
         }
 

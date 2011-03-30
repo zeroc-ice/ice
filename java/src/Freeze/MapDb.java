@@ -232,10 +232,7 @@ public class MapDb
             catch(java.io.FileNotFoundException dx)
             {
                 clearIndices();
-                NotFoundException ex = new NotFoundException();
-                ex.initCause(dx);
-                ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
-                throw ex;
+                throw new NotFoundException(_errorPrefix + "Db.open: " + dx.getMessage(), dx);
             }
             catch(com.sleepycat.db.DeadlockException dx)
             {
@@ -251,18 +248,13 @@ public class MapDb
                 else
                 {
                     clearIndices();
-                    DeadlockException ex = new DeadlockException(_errorPrefix + "Db.open: " + dx.getMessage(), tx);
-                    ex.initCause(dx);
-                    throw ex;
+                    throw new DeadlockException(_errorPrefix + "Db.open: " + dx.getMessage(), tx, dx);
                 }
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
                 clearIndices();
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_errorPrefix + "Db.open: " + dx.getMessage(), dx);
             }
             finally
             {
@@ -314,10 +306,7 @@ public class MapDb
             //
             // This should never happen
             //
-            NotFoundException ex = new NotFoundException();
-            ex.initCause(dx);
-            ex.message = _errorPrefix + "Db.open: " + dx.getMessage();
-            throw ex;
+            throw new NotFoundException(_errorPrefix + "Db.open: " + dx.getMessage(), dx);
         }
     }
 
@@ -339,10 +328,7 @@ public class MapDb
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _errorPrefix + "close: " + dx.getMessage();
-                throw ex;
+                throw new DatabaseException(_errorPrefix + "close: " + dx.getMessage(), dx);
             }
             finally
             {

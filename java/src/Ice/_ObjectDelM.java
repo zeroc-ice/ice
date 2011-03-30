@@ -38,7 +38,7 @@ public class _ObjectDelM implements _ObjectDel
                     }
                     catch(UserException __ex)
                     {
-                        throw new UnknownUserException(__ex.ice_name());
+                        throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
                 IceInternal.BasicStream __is = __og.is();
@@ -78,7 +78,7 @@ public class _ObjectDelM implements _ObjectDel
                         }
                         catch(UserException __ex)
                         {
-                            throw new UnknownUserException(__ex.ice_name());
+                            throw new UnknownUserException(__ex.ice_name(), __ex);
                         }
                     }
                     __og.is().skipEmptyEncaps();
@@ -113,7 +113,7 @@ public class _ObjectDelM implements _ObjectDel
                     }
                     catch(UserException __ex)
                     {
-                        throw new UnknownUserException(__ex.ice_name());
+                        throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
                 IceInternal.BasicStream __is = __og.is();
@@ -151,7 +151,7 @@ public class _ObjectDelM implements _ObjectDel
                     }
                     catch(UserException __ex)
                     {
-                        throw new UnknownUserException(__ex.ice_name());
+                        throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
                 IceInternal.BasicStream __is = __og.is();

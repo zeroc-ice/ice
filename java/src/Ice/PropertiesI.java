@@ -361,10 +361,7 @@ public final class PropertiesI implements Properties
             }
             catch(Exception ex)
             {
-                InitializationException ie = new InitializationException();
-                ie.reason = "Could not read Windows registry key `" + file + "'";
-                ie.initCause(ex); // Exception chaining
-                throw ie;
+                throw new InitializationException("Could not read Windows registry key `" + file + "'", ex);
             }
         }
         else
@@ -399,10 +396,7 @@ public final class PropertiesI implements Properties
             }
             catch(java.io.IOException ex)
             {
-                FileException fe = new FileException();
-                fe.path = file;
-                fe.initCause(ex); // Exception chaining
-                throw fe;
+                throw new FileException(0, file, ex);
             }
             finally
             {
@@ -519,9 +513,7 @@ public final class PropertiesI implements Properties
         }
         catch(java.io.IOException ex)
         {
-            SyscallException se = new SyscallException();
-            se.initCause(ex); // Exception chaining
-            throw se;
+            throw new SyscallException(ex);
         }
     }
 

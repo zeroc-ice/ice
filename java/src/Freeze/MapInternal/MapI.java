@@ -197,23 +197,16 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 }
                 else
                 {
-                    DeadlockException ex = new DeadlockException(
-                        trace.errorPrefix + "Map.recreate: " + dx.getMessage(), tx);
-                    ex.initCause(dx);
-                    throw ex;
+                    throw new DeadlockException(trace.errorPrefix + "Map.recreate: " + dx.getMessage(), tx, dx);
                 }
             }
             catch(com.sleepycat.db.DatabaseException dx)
             {
-                DatabaseException ex = new DatabaseException(trace.errorPrefix + "Map.recreate: " + dx.getMessage());
-                ex.initCause(dx);
-                throw ex;
+                throw new DatabaseException(trace.errorPrefix + "Map.recreate: " + dx.getMessage(), dx);
             }
             catch(java.io.FileNotFoundException fne)
             {
-                DatabaseException ex = new DatabaseException(trace.errorPrefix + "Map.recreate: " + fne.getMessage());
-                ex.initCause(fne);
-                throw ex;
+                throw new DatabaseException(trace.errorPrefix + "Map.recreate: " + fne.getMessage(), fne);
             }
             finally
             {
@@ -243,10 +236,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                         }
                         catch(com.sleepycat.db.DatabaseException dx)
                         {
-                            DatabaseException ex = new DatabaseException(
-                                trace.errorPrefix + "Map.recreate: " + dx.getMessage());
-                            ex.initCause(dx);
-                            throw ex;
+                            throw new DatabaseException(trace.errorPrefix + "Map.recreate: " + dx.getMessage(), dx);
                         }
                     }
                 }
@@ -392,15 +382,14 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                 }
 
-                DatabaseException e = new DatabaseException(_trace.errorPrefix + "file not found");
-                e.initCause(dx);
-                throw e;
+                throw new DatabaseException(_trace.errorPrefix + "file not found", dx);
             }
             catch(com.sleepycat.db.DeadlockException dx)
             {
                 if(_trace.deadlockWarning)
                 {
-                    _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.destroy on Db \"" + _dbName + "\"; retrying...");
+                    _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.destroy on Db \"" + _dbName +
+                                          "\"; retrying...");
                 }
 
                 //
@@ -417,9 +406,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
                 {
                 }
 
-                DatabaseException e = new DatabaseException(_trace.errorPrefix + dx.getMessage());
-                e.initCause(dx);
-                throw e;
+                throw new DatabaseException(_trace.errorPrefix + dx.getMessage(), dx);
             }
             catch(RuntimeException rx)
             {
@@ -696,24 +683,23 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             
             try
             {
-                com.sleepycat.db.BtreeStats s = (com.sleepycat.db.BtreeStats)_db.db().getStats(_connection.dbTxn(), null);
+                com.sleepycat.db.BtreeStats s =
+                    (com.sleepycat.db.BtreeStats)_db.db().getStats(_connection.dbTxn(), null);
                 return s.getNumKeys();
             }
             catch(com.sleepycat.db.DeadlockException e)
             {
                 if(_connection.dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.getStats: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.getStats: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.size while " + "reading Db \"" + _dbName +
-                                              "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.size while " + "reading Db \"" +
+                                              _dbName + "\"; retrying...");
                     }
                     //
                     // Try again
@@ -722,10 +708,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.getStats: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.getStats: " + e.getMessage(), e);
             }
         }
     }
@@ -828,17 +811,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(_connection.dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.get: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.get: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsKey while " + "reading Db \"" + _dbName +
-                                              "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.containsKey while " +
+                                              "reading Db \"" + _dbName + "\"; retrying...");
                     }
                     //
                     // Try again
@@ -847,10 +828,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.get: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.get: " + e.getMessage(), e);
             }
         }
     }
@@ -932,16 +910,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.truncate: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.truncate: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.clear on Db \"" + _dbName + "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.clear on Db \"" + _dbName +
+                                              "\"; retrying...");
                     }
 
                     //
@@ -951,10 +928,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.truncate: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.truncate: " + e.getMessage(), e);
             }
         }
     }
@@ -1311,17 +1285,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.put: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.put: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.putImpl while " + "writing into Db \"" +
-                                              _dbName + "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.putImpl while " +
+                                              "writing into Db \"" + _dbName + "\"; retrying...");
                     }
 
                     //
@@ -1331,10 +1303,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.put: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.put: " + e.getMessage(), e);
             }
         }
     }
@@ -1371,17 +1340,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(txn != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.del: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.del: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.removeImpl while " + "writing into Db \"" +
-                                              _dbName + "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.removeImpl while " +
+                                              "writing into Db \"" + _dbName + "\"; retrying...");
                     }
 
                     //
@@ -1391,10 +1358,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.del: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.del: " + e.getMessage(), e);
             }
         }
     }
@@ -1434,17 +1398,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             {
                 if(_connection.dbTxn() != null)
                 {
-                    DeadlockException ex = new DeadlockException(
-                        _trace.errorPrefix + "Db.get: " + e.getMessage(), _connection.currentTransaction());
-                    ex.initCause(e);
-                    throw ex;
+                    throw new DeadlockException(_trace.errorPrefix + "Db.get: " + e.getMessage(),
+                                                _connection.currentTransaction(), e);
                 }
                 else
                 {
                     if(_trace.deadlockWarning)
                     {
-                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.getImpl while " + "reading Db \"" + _dbName +
-                                              "\"; retrying...");
+                        _trace.logger.warning("Deadlock in Freeze.MapInternal.MapI.getImpl while " +
+                                              "reading Db \"" + _dbName + "\"; retrying...");
                     }
 
                     //
@@ -1454,10 +1416,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
             }
             catch(com.sleepycat.db.DatabaseException e)
             {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(e);
-                ex.message = _trace.errorPrefix + "Db.get: " + e.getMessage();
-                throw ex;
+                throw new DatabaseException(_trace.errorPrefix + "Db.get: " + e.getMessage(), e);
             }
         }
     }

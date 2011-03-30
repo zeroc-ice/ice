@@ -1512,9 +1512,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
         catch(java.lang.Exception ex)
         {
-            Ice.SyscallException e = new Ice.SyscallException();
-            e.initCause(ex);
-            throw e;
+            throw new Ice.SyscallException(ex);
         }
     }
 
@@ -2338,7 +2336,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
         catch(java.lang.AssertionError ex) // Upon assertion, we print the stack trace.
         {
-            UnknownException uex = new UnknownException();
+            UnknownException uex = new UnknownException(ex);
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             ex.printStackTrace(pw);
@@ -2349,7 +2347,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
         catch(java.lang.OutOfMemoryError ex)
         {
-            UnknownException uex = new UnknownException();
+            UnknownException uex = new UnknownException(ex);
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             ex.printStackTrace(pw);
