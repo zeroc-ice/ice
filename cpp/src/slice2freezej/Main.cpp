@@ -159,37 +159,37 @@ FreezeGenerator::varToObject(const TypePtr& type, const string& param)
         {
             case Builtin::KindByte:
             {
-                result = string("new java.lang.Byte(") + param + ")";
+                result = string("java.lang.Byte.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindBool:
             {
-                result = string("new java.lang.Boolean(") + param + ")";
+                result = string("java.lang.Boolean.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindShort:
             {
-                result = string("new java.lang.Short(") + param + ")";
+                result = string("java.lang.Short.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindInt:
             {
-                result = string("new java.lang.Integer(") + param + ")";
+                result = string("java.lang.Integer.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindLong:
             {
-                result = string("new java.lang.Long(") + param + ")";
+                result = string("java.lang.Long.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindFloat:
             {
-                result = string("new java.lang.Float(") + param + ")";
+                result = string("java.lang.Float.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindDouble:
             {
-                result = string("new java.lang.Double(") + param + ")";
+                result = string("java.lang.Double.valueOf(") + param + ")";
                 break;
             }
             case Builtin::KindString:
@@ -958,37 +958,37 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             {
             case Builtin::KindByte:
             {
-                out << nl << "__r = new java.lang.Byte(__is.readByte());";
+                out << nl << "__r = java.lang.Byte.valueOf(__is.readByte());";
                 break;
             }
             case Builtin::KindBool:
             {
-                out << nl << "__r = new java.lang.Boolean(__is.readBool());";
+                out << nl << "__r = java.lang.Boolean.valueOf(__is.readBool());";
                 break;
             }
             case Builtin::KindShort:
             {
-                out << nl << "__r = new java.lang.Short(__is.readShort());";
+                out << nl << "__r = java.lang.Short.valueOf(__is.readShort());";
                 break;
             }
             case Builtin::KindInt:
             {
-                out << nl << "__r = new java.lang.Integer(__is.readInt());";
+                out << nl << "__r = java.lang.Integer.valueOf(__is.readInt());";
                 break;
             }
             case Builtin::KindLong:
             {
-                out << nl << "__r = new java.lang.Long(__is.readLong());";
+                out << nl << "__r = java.lang.Long.valueOf(__is.readLong());";
                 break;
             }
             case Builtin::KindFloat:
             {
-                out << nl << "__r = new java.lang.Float(__is.readFloat());";
+                out << nl << "__r = java.lang.Float.valueOf(__is.readFloat());";
                 break;
             }
             case Builtin::KindDouble:
             {
-                out << nl << "__r = new java.lang.Double(__is.readDouble());";
+                out << nl << "__r = java.lang.Double.valueOf(__is.readDouble());";
                 break;
             }
             case Builtin::KindString:
@@ -1113,37 +1113,37 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 {
                 case Builtin::KindByte:
                 {
-                    out << nl << "r = new java.lang.Byte(__is.readByte());";
+                    out << nl << "r = java.lang.Byte.valueOf(__is.readByte());";
                     break;
                 }
                 case Builtin::KindBool:
                 {
-                    out << nl << "r = new java.lang.Boolean(__is.readBool());";
+                    out << nl << "r = java.lang.Boolean.valueOf(__is.readBool());";
                     break;
                 }
                 case Builtin::KindShort:
                 {
-                    out << nl << "r = new java.lang.Short(__is.readShort());";
+                    out << nl << "r = java.lang.Short.valueOf(__is.readShort());";
                     break;
                 }
                 case Builtin::KindInt:
                 {
-                    out << nl << "r = new java.lang.Integer(__is.readInt());";
+                    out << nl << "r = java.lang.Integer.valueOf(__is.readInt());";
                     break;
                 }
                 case Builtin::KindLong:
                 {
-                    out << nl << "r = new java.lang.Long(__is.readLong());";
+                    out << nl << "r = java.lang.Long.valueOf(__is.readLong());";
                     break;
                 }
                 case Builtin::KindFloat:
                 {
-                    out << nl << "r = new java.lang.Float(__is.readFloat());";
+                    out << nl << "r = java.lang.Float.valueOf(__is.readFloat());";
                     break;
                 }
                 case Builtin::KindDouble:
                 {
-                    out << nl << "r = new java.lang.Double(__is.readDouble());";
+                    out << nl << "r = java.lang.Double.valueOf(__is.readDouble());";
                     break;
                 }
                 case Builtin::KindString:
