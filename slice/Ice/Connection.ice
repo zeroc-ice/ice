@@ -118,7 +118,7 @@ local interface Connection
 
     /**
      *
-     * Get the endpoint from which the creation was created.
+     * Get the endpoint from which the connection was created.
      *
      * @return The endpoint from which the connection was created.
      *
