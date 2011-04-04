@@ -546,6 +546,14 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("LogFilePath") == "test-Server1.log");
     test(obj->getProperty("LogFilePath-Server1") == "test.log");
     test(obj->getProperty("PropertyWithSpaces") == "   test   ");
+    // \ is escaped in C++ string literals
+    test(obj->getProperty("WindowsPath") == "C:\\Program Files (x86)\\ZeroC\\");
+    test(obj->getProperty("UNCPath") == "\\\\server\\foo bar\\file");
+    test(obj->getProperty("PropertyWith=") == "foo=bar");
+    test(obj->getProperty("PropertyWithHash") == "foo#bar");
+    test(obj->getProperty("PropertyWithTab") == "foo\tbar");
+    test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
+    test(obj->getProperty("PropertyWithProperty") == "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
@@ -556,6 +564,14 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("LogFilePath") == "test-Service1.log");
     test(obj->getProperty("LogFilePath-Service1") == "test.log");
     test(obj->getProperty("PropertyWithSpaces") == "   test   ");
+    // \ is escaped in C++ string literals
+    test(obj->getProperty("WindowsPath") == "C:\\Program Files (x86)\\ZeroC\\");
+    test(obj->getProperty("UNCPath") == "\\\\server\\foo bar\\file");
+    test(obj->getProperty("PropertyWith=") == "foo=bar");
+    test(obj->getProperty("PropertyWithHash") == "foo#bar");
+    test(obj->getProperty("PropertyWithTab") == "foo\tbar");
+    test(obj->getProperty("PropertyWithEscapeSpace") == "foo\\ ");
+    test(obj->getProperty("PropertyWithProperty") == "Plugin.EntryPoint=foo:bar --Ice.Config=\\\\\\server\\foo bar\\file.cfg");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "freeze");

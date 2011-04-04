@@ -105,34 +105,77 @@ IceGrid::createProperty(const string& name, const string& value)
 }
 
 string
-IceGrid::escapeProperty(const string& s)
+IceGrid::escapeProperty(const string& s, bool escapeEqual)
 {
     size_t firstChar = s.find_first_not_of(' ');
     size_t lastChar = s.find_last_not_of(' ');
     string result;
+    bool previousCharIsEscape = false;
+
     for(unsigned int i = 0; i < s.size(); ++i)
     {
         char c = s[i];
         switch(c)
         {
           case ' ':
-            if(i < firstChar || i > lastChar)
-            {
-                result.push_back('\\');
-            }
-            result.push_back(c);
-            break;
+	  {
+	      //
+	      // We only escape the space character when it's at the beginning
+	      // or at the end of the string
+	      //
+	      if(i < firstChar || i > lastChar)
+	      {
+		  if(previousCharIsEscape)
+		  {
+		      result.push_back('\\'); // escape the previous char, by adding another escape.
+		  }
 
-          case '\\':
+		  result.push_back('\\');
+	      }
+	      result.push_back(c);
+	      previousCharIsEscape = false;
+	      break;
+	  }
+  
+	  case '\\':
           case '#':
           case '=':
-            result.push_back('\\');
-            result.push_back(c);
-            break;
+	  {
+	      if(c == '=' && !escapeEqual)
+	      {
+		  previousCharIsEscape = false;
+	      }
+	      else
+	      {
+		  //
+		  // We only escape the \ character when it is followed by a
+		  // character that we escape, e.g. \# is encoded as \\\#, not \#
+		  // and \\server is encoded as \\\server.
+		  //
+		  if(previousCharIsEscape)
+		  {
+		      result.push_back('\\'); // escape the previous char, by adding another escape.
+		  }
+		  if(c == '\\')
+		  {
+		      previousCharIsEscape = true; // deferring the potential escaping to the next loop
+		  }
+		  else
+		  {
+		      result.push_back('\\');
+		      previousCharIsEscape = false;
+		  }
+	      }
+	      result.push_back(c);
+	      break;
+	  }
 
           default:
-            result.push_back(c);
-            break;
+	  {
+	      result.push_back(c);
+	      previousCharIsEscape = false;
+	      break;
+	  }
         }
     }
     return result;

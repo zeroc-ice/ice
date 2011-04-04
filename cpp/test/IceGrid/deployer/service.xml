@@ -19,7 +19,15 @@
       <property name="${name}.ServiceName" value="${name}"/>
 
       <property name="PropertyWithSpaces" value="   test   "/>
-
+      <property name="WindowsPath" value="C:\Program Files (x86)\ZeroC\"/>
+      <property name="UNCPath" value="\\server\foo bar\file"/>
+      <property name="PropertyWith=" value="foo=bar"/>
+      <property name="PropertyWithHash" value="foo#bar"/>
+      <property name="PropertyWithTab" value="foo&#9;bar"/>
+      <property name="PropertyWithEscapeSpace" value="foo\ "/>
+      <property name="PropertyWithProperty"
+                value="Plugin.EntryPoint=foo:bar --Ice.Config=\\\server\foo bar\file.cfg"/>
+      
       <include file="varproperties.xml"/>
 
       <property name="AppVarOverridedByParamProp" value="${AppVarOverridedByParam}"/>
