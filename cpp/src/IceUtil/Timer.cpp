@@ -190,7 +190,26 @@ Timer::run()
                 }
                 
                 _wakeUpTime = first.scheduledTime;
-                _monitor.timedWait(first.scheduledTime - now);
+                try 
+                {
+                    _monitor.timedWait(first.scheduledTime - now);
+                } 
+                catch(const IceUtil::InvalidTimeoutException&)
+                {
+                    IceUtil::Time timeout = (first.scheduledTime - now) / 2;
+                    while(timeout > IceUtil::Time())
+                    {
+                        try 
+                        {
+                            _monitor.timedWait(timeout);
+                            break;
+                        } 
+                        catch(const IceUtil::InvalidTimeoutException&)
+                        {
+                            timeout = timeout / 2;
+                        }
+                    }
+                }
             }
 
             if(_destroyed)
