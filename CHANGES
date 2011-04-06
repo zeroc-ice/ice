@@ -51,6 +51,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug where the IceUtil::Timer thread could die in case very
+  large delays were specified.
+
 - Removed extra include/IceGrid/Perf.h file.
 
 
