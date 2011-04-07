@@ -67,6 +67,11 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
         {
             for(vector<QueryPrx>::const_iterator p = _queryObjects.begin(); p != _queryObjects.end(); ++p)
             {
+                if(isDestroyed())
+                {
+                    break;
+                }
+
                 InternalRegistryPrx newRegistry;
                 try
                 {
@@ -245,7 +250,7 @@ NodeSessionManager::create(const NodeIPtr& node)
     // with replicas (see createdSession below) and this must be done 
     // before the node is activated.
     //
-    _thread->tryCreateSession(true);
+    _thread->tryCreateSession(true, IceUtil::Time::seconds(3));
 }
 
 void
@@ -284,11 +289,6 @@ NodeSessionManager::activate()
     // replica observer is set on the session.
     //
     NodeSessionPrx session = _thread->getSession();
-    if(!session)
-    {
-        _thread->tryCreateSession(true);
-        session = _thread->getSession();
-    }
     if(session)
     {
         try
@@ -531,6 +531,11 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
         map<Ice::Identity, Ice::ObjectPrx> proxies;
         for(vector<QueryPrx>::const_iterator p = _queryObjects.begin(); p != _queryObjects.end(); ++p)
         {
+            if(isDestroyed())
+            {
+                return;
+            }
+
             try
             {
                 Ice::ObjectProxySeq prxs = (*p)->findAllObjectsByType(InternalRegistry::ice_staticId());
@@ -591,6 +596,10 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     //
     for(vector<NodeSessionKeepAliveThreadPtr>::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
+        if(isDestroyed())
+        {
+            return;
+        }
         (*p)->tryCreateSession(true, IceUtil::Time::seconds(5));
     }
 }

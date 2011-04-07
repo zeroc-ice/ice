@@ -27,6 +27,9 @@ Changes since version 3.4.1
 General Changes
 ===============
 
+- Fixed bug were IceGrid node daemon or service would hang for a long
+  time on startup if the IceGrid registry wasn't reachable.
+
 - Added throwLocalException method to the Ice AsyncResult class. If
   the request fails with a local exception, this method throws the
   local exception.

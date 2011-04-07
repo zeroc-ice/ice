@@ -56,7 +56,7 @@ public:
     {
         TPrx session;
         InternalRegistryPrx registry;
-        IceUtil::Time timeout = IceUtil::Time::seconds(15); 
+        IceUtil::Time timeout = IceUtil::Time::seconds(10); 
         Action action = Connect;
 
         try
@@ -272,6 +272,13 @@ public:
         notifyAll();
     }
 
+    bool
+    isDestroyed()
+    {
+        Lock sync(*this);
+        return _state == Destroyed;
+    }
+
     TPrx
     getSession()
     {
@@ -292,7 +299,7 @@ public:
         Lock sync(*this);
         return _registry;
     }
-    
+
     virtual TPrx createSession(InternalRegistryPrx&, IceUtil::Time&) = 0;
     virtual void destroySession(const TPrx&) = 0;
     virtual bool keepAlive(const TPrx&) = 0;

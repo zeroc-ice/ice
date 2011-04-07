@@ -74,6 +74,12 @@ private:
 
     void syncServers(const NodeSessionPrx&);
 
+    bool isDestroyed() 
+    {
+        Lock sync(*this);
+        return _destroyed;
+    }
+    
     class Thread : public NodeSessionKeepAliveThread
     {
     public:

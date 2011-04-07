@@ -495,7 +495,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         try
         {
-            communicator()->getDefaultLocator()->ice_timeout(15000)->ice_ping();
+            communicator()->getDefaultLocator()->ice_timeout(1000)->ice_ping();
         }
         catch(const Ice::LocalException& ex)
         {
