@@ -1067,6 +1067,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     {
                         info = parseMessage(current.stream); // Optimization: use the thread's stream.
                     }
+
+                    //
+                    // We increment the dispatch count to prevent the
+                    // communicator destruction during the callback.
+                    //
+                    if(sentCBs != null || info != null && info.outAsync != null)
+                    {
+                        ++_dispatchCount;
+                    }
                 }
             }
             catch(DatagramLimitException ex) // Expected.
@@ -1198,6 +1207,24 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager,
                           info.adapter);
+            }
+        }
+        
+        //
+        // Decrease dispatch count.
+        //
+        if(sentCBs != null || info != null && info.outAsync != null)
+        {
+            synchronized(this)
+            {
+                if(--_dispatchCount == 0)
+                {
+                    if(_state == StateFinished)
+                    {
+                        _reaper.add(this);
+                    }
+                    notifyAll();
+                }
             }
         }
     }

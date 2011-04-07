@@ -1161,6 +1161,15 @@ namespace Ice
                             parseMessage(new IceInternal.BasicStream(_instance), ref info);
                         }
                     }
+
+                    //
+                    // We increment the dispatch count to prevent the
+                    // communicator destruction during the callback.
+                    //
+                    if(sentCBs != null || info.outAsync != null)
+                    {
+                        ++_dispatchCount;
+                    }
                     
                     if(_acmTimeout > 0)
                     {
@@ -1292,6 +1301,24 @@ namespace Ice
                 //
                 invokeAll(info.stream, info.invokeNum, info.requestId, info.compress, info.servantManager, 
                           info.adapter);
+            }
+
+            //
+            // Decrease dispatch count.
+            //
+            if(sentCBs != null || info.outAsync != null)
+            {
+                lock(this)
+                {
+                    if(--_dispatchCount == 0)
+                    {
+                        if(_state == StateFinished)
+                        {
+                            _reaper.add(this);
+                        }
+                        Monitor.PulseAll(this);
+                    }
+                }
             }
         }
 

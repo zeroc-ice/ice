@@ -1352,6 +1352,15 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                 {
                     parseMessage(current.stream, invokeNum, requestId, compress, servantManager, adapter, outAsync);
                 }
+                
+                //
+                // We increment the dispatch count to prevent the
+                // communicator destruction during the callback.
+                //
+                if(!sentCBs.empty() || outAsync) 
+                {
+                    ++_dispatchCount;
+                }
             }
         }
         catch(const DatagramLimitException&) // Expected.
@@ -1468,6 +1477,22 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingAsyn
     if(invokeNum)
     {
         invokeAll(stream, invokeNum, requestId, compress, servantManager, adapter);
+    }
+
+    //
+    // Decrease dispatch count.
+    //
+    if(!sentCBs.empty() || outAsync)
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        if(--_dispatchCount == 0)
+        {
+            if(_state == StateFinished)
+            {
+                _reaper->add(this);
+            }
+            notifyAll();
+        }
     }
 }
 
