@@ -27,6 +27,10 @@ Changes since version 3.4.1
 General Changes
 ===============
 
+- Added throwLocalException method to the Ice AsyncResult class. If
+  the request fails with a local exception, this method throws the
+  local exception.
+
 - Fixed a bug that caused a crash if a timeout occurs while sending
   an AMI request and if automatic retry is enabled (the default).
 

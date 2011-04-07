@@ -65,6 +65,8 @@ public:
     bool isSent() const;
     void waitForSent();
 
+    void throwLocalException() const;
+
     bool sentSynchronously() const
     {
         return _sentSynchronously; // No lock needed, immutable once __send() is called

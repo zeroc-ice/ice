@@ -1975,6 +1975,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing AsyncResult operations... " << flush;
     {
+        Test::TestIntfPrx indirect = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
+        Ice::AsyncResultPtr r;
+        r = indirect->begin_op();
+        try
+        {
+            r->waitForCompleted();
+            r->throwLocalException();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+
         testController->holdAdapter();
         Ice::AsyncResultPtr r1;
         Ice::AsyncResultPtr r2;

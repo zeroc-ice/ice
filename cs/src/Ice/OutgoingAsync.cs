@@ -173,6 +173,17 @@ namespace IceInternal
             }
         }
 
+        public void throwLocalException()
+        {
+            lock(monitor_)
+            {
+                if(exception_ != null)
+                {
+                    throw exception_;
+                }
+            }
+        }
+
         public bool sentSynchronously()
         {
             return sentSynchronously_; // No lock needed, immutable once send__() is called

@@ -887,6 +887,31 @@ asyncResultWaitForSent(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
+asyncResultThrowLocalException(AsyncResultObject* self)
+{
+    try
+    {
+        assert(self->result);
+        (*self->result)->throwLocalException();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+    catch(...)
+    {
+        assert(false);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 asyncResultSentSynchronously(AsyncResultObject* self)
 {
     bool b = false;
@@ -1121,6 +1146,8 @@ static PyMethodDef AsyncResultMethods[] =
       PyDoc_STR(STRCAST("returns true if the request is sent")) },
     { STRCAST("waitForSent"), reinterpret_cast<PyCFunction>(asyncResultWaitForSent), METH_NOARGS,
       PyDoc_STR(STRCAST("blocks until the request is sent")) },
+    { STRCAST("throwLocalException"), reinterpret_cast<PyCFunction>(asyncResultThrowLocalException), METH_NOARGS,
+      PyDoc_STR(STRCAST("throw location exception if the request failed with a local exception")) },
     { STRCAST("sentSynchronously"), reinterpret_cast<PyCFunction>(asyncResultSentSynchronously), METH_NOARGS,
       PyDoc_STR(STRCAST("returns true if the request was sent synchronously")) },
     { STRCAST("getOperation"), reinterpret_cast<PyCFunction>(asyncResultGetOperation), METH_NOARGS,

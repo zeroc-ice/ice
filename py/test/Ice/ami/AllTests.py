@@ -428,6 +428,7 @@ def allTests(communicator):
     r = indirect.begin_op()
     try:
         indirect.end_op(r)
+        test(False)
     except Ice.NoEndpointException:
         pass
 
@@ -827,6 +828,16 @@ def allTests(communicator):
     print "ok"
 
     print "testing AsyncResult operations...",
+
+    indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
+    r = indirect.begin_op()
+    try:
+        r.waitForCompleted()
+        r.throwLocalException()
+        test(False)
+    except Ice.NoEndpointException:
+        pass
+
     testController.holdAdapter()
     r1 = None
     r2 = None

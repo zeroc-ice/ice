@@ -168,6 +168,16 @@ Ice::AsyncResult::waitForSent()
     }
 }
 
+void
+Ice::AsyncResult::throwLocalException() const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    if(_exception.get())
+    {
+        _exception.get()->ice_throw();
+    }
+}
+
 bool
 Ice::AsyncResult::__wait()
 {

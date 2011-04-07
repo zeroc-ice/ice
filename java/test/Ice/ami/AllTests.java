@@ -2086,6 +2086,18 @@ public class AllTests
         out.print("testing AsyncResult operations... ");
         out.flush();
         {
+            TestIntfPrx indirect = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
+            Ice.AsyncResult r = indirect.begin_op();
+            try
+            {
+                r.waitForCompleted();
+                r.throwLocalException();
+                test(false);
+            }
+            catch(Ice.NoEndpointException ex)
+            {
+            }
+
             testController.holdAdapter();
             Ice.AsyncResult r1;
             Ice.AsyncResult r2;

@@ -1556,12 +1556,11 @@ extern "C"
 static PyObject*
 proxyIceFlushBatchRequests(ProxyObject* self)
 {
-    AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
     assert(self->proxy);
 
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
         (*self->proxy)->ice_flushBatchRequests();
     }
     catch(const Ice::Exception& ex)

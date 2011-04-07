@@ -131,6 +131,20 @@ public class AsyncResult
     }
 
     /**
+     * If the invocation failed with a local exception, throws the local exception.
+     **/
+    public final void throwLocalException()
+    {
+        synchronized(_monitor)
+        {
+            if(_exception != null)
+            {
+                throw _exception;
+            }
+        }
+    }
+
+    /**
      * This method returns true if a request was written to the client-side
      * transport without first being queued. If the request was initially
      * queued, this method returns false (independent of whether the request
