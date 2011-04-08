@@ -35,6 +35,7 @@ Ice has dependencies on a number of third-party libraries:
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
 - mcpp 2.7.2 (with patches)
+- QT 4.5.3 (optional)
 
 Some of these packages may have been included in your Linux
 distribution. For those packages that are not installed or have an
@@ -58,6 +59,7 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+QT             http://qt.nokia.com
 
 On RHEL 4, Ice also requires the nptl-devel package, which contains
 the function pthread_condattr_setclock. It is necessary to link with

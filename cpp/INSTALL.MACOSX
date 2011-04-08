@@ -27,6 +27,7 @@ Ice has dependencies on a number of third-party libraries:
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0.x
 - mcpp 2.7.2 (with patches)
+- QT 4.5.3 (optional)
 
 Some of these packages are included with your system. For those
 packages that are not installed or have an older version than what
@@ -47,6 +48,7 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+QT             http://qt.nokia.com	
 
 
 ======================================================================
