@@ -104,7 +104,7 @@ After extracting the Berkeley DB 4.8.30 source distribution, change
 to the top-level directory and apply the patches as shown below:
 
  > cd db-4.8.30
- > patch --binary -p0 < patch.db-4.8.30.17646
+ > patch --binary -p0 < ..\db\patch.db-4.8.30.17646
 
 
 mcpp
@@ -118,7 +118,7 @@ After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
   > cd mcpp-2.7.2
-  > patch --binary -p0 < patch.mcpp.2.7.2
+  > patch --binary -p0 < ..\mcpp\patch.mcpp.2.7.2
 
 
 ======================================================================
