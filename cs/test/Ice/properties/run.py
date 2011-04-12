@@ -21,8 +21,6 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0]))
 from scripts import *
 
-client = os.path.join(os.getcwd(), "client")
-
 #
 # Write config
 #
@@ -34,8 +32,9 @@ TestUtil.createConfig(configPath,
                        "Ice.Trace.Network=1", 
                        "Ice.ProgramName=PropertiesClient", 
                        "Config.Path=./config/中国_client.config"])
-
-TestUtil.simpleTest(client)
+                       
+TestUtil.simpleTest()
 
 if os.path.exists(configPath):
     os.remove(configPath)
+

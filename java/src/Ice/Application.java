@@ -168,6 +168,8 @@ public abstract class Application
         StringSeqHolder argHolder = new StringSeqHolder(args);
         initData.properties = Util.createProperties(argHolder, initData.properties);
 
+        _appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", _appName);
+
         //
         // If the process logger is the default logger, we replace it with a
         // a logger which is using the program name for the prefix.

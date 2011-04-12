@@ -1222,19 +1222,34 @@ def startColloc(exe, args, config=None, env=None):
     cmd = getCommandLine(exe, config) + ' ' + args
     return spawnClient(cmd, env = env, lang=config.lang)
 
-def simpleTest(exe, options = ""):
-    exe = quoteArgument(exe)
+def simpleTest(exe = None, options = ""):
+    if exe is None:
+        exe = getDefaultClientFile()
     if appverifier:
-        setAppVerifierSettings([exe])
+        setAppVerifierSettings([quoteArgument(exe)])
+    lang = getDefaultMapping()
+    config = None
+    if lang != "cpp":
+      config = DriverConfig("client")
+      config.lang = lang
+    
     print "starting client...",
-    command = exe + ' ' + options
-    client = spawnClient(command, startReader = False, lang=getDefaultMapping())
+    command  = exe + ' ' + options
+    if lang != "cpp":
+      command = getCommandLine(exe, config) + ' ' + options
+    client = spawnClient(command, startReader = False, lang = lang)
     print "ok"
     client.startReader()
     client.waitTestSuccess()
     
     if appverifier:
         appVerifierAfterTestEnd([exe])
+              
+def createConfig(path, lines):
+    config = open(path, "w")
+    for l in lines:
+        config.write("%s\n" % l)
+    config.close()
         
 def getCppBinDir():
     binDir = os.path.join(getIceDir("cpp"), "bin")

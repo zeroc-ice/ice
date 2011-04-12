@@ -9,23 +9,22 @@
 
 top_srcdir	= ../../..
 
-CLIENT		= client
+TARGETS		= client.exe
 
-TARGETS		= $(CLIENT)
+C_SRCS		= Client.cs
 
-COBJS		= Client.o
+SDIR		= .
 
-SRCS		= $(COBJS:.o=.cpp)
+GDIR		= generated
 
-include $(top_srcdir)/config/Make.rules
+include $(top_srcdir)/config/Make.rules.cs
 
-CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-$(CLIENT): $(COBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+client.exe: $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
-clean::
-	-rm -f seed
+depend::
+	touch .depend .depend.mak
 
 include .depend

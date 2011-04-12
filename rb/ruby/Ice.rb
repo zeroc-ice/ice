@@ -283,7 +283,7 @@ module Ice
                     initData.properties.load(configFile)
                 end
                 initData.properties = Ice::createProperties(args, initData.properties)
-
+                @@_appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", @@_appName)
                 @@_application = self
                 @@_communicator = Ice::initialize(args, initData)
                 @@_destroyed = false

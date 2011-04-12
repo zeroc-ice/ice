@@ -13,7 +13,7 @@ CLIENT		= client.exe
 
 TARGETS		= $(CLIENT)
 
-COBJS		= ClientWIN.obj
+COBJS		= Client.obj
 
 SRCS		= $(COBJS:.obj=.cpp)
 

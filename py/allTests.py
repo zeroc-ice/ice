@@ -36,6 +36,7 @@ tests = [
     ("Ice/location", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/proxy", ["core"]),
+    ("Ice/properties", ["once"]),
     ("Ice/operations", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),

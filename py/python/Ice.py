@@ -965,7 +965,7 @@ value is an integer representing the exit status.
             status = 0
 
             Application._interrupted = False
-            Application._appName = args[0]
+            Application._appName = initData.properties.getPropertyWithDefault("Ice.ProgramName", args[0])
             Application._application = self
             Application._communicator = initialize(args, initData)
             Application._destroyed = False

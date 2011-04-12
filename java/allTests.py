@@ -62,6 +62,7 @@ tests = [
     ("Ice/threadPoolPriority", ["core"]),
     ("Ice/classLoader", ["core"]),
     ("Ice/invoke", ["core"]),
+    ("Ice/properties", ["once"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),
     ("Freeze/complex", ["once"]),

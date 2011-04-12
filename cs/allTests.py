@@ -28,6 +28,7 @@ tests = [
     ("Slice/structure", ["once"]),
     ("IceUtil/inputUtil", ["once"]),
     ("Ice/proxy", ["core"]),
+    ("Ice/properties", ["once"]),
     ("Ice/operations", ["core"]),
     ("Ice/exceptions", ["core"]),
     ("Ice/ami", ["core"]),
