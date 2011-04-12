@@ -14,6 +14,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/LocatorInfo.h>
+#include <Ice/RouterInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
@@ -141,6 +142,9 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex,
             // must *always* retry, so that the missing proxy is added
             // to the router.
             //
+
+            ref->getRouterInfo()->clearCache(ref);
+
             if(traceLevels->retry >= 1)
             {
                 Trace out(logger, traceLevels->retryCat);

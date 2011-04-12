@@ -223,6 +223,11 @@ public final class RouterInfo
         return _adapter;
     }
 
+    public synchronized void clearCache(Reference ref)
+    {
+        _identities.remove(ref.getIdentity());
+    }
+
     private synchronized EndpointI[]
     setClientEndpoints(Ice.ObjectPrx clientProxy)
     {

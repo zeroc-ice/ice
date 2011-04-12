@@ -94,6 +94,7 @@ tests = [
     ("IceGrid/admin", ["service", "novc6"]),
     ("Glacier2/router", ["service", "novc6"]),
     ("Glacier2/attack", ["service", "novc6"]),
+    ("Glacier2/override", ["service", "novc6"]),
     ("Glacier2/sessionControl", ["service", "novc6"]),
     ("Glacier2/ssl", ["service", "novalgrind", "novc6"]), # valgrind doesn't work well with openssl
     ("Glacier2/dynamicFiltering", ["service", "novc6"]),

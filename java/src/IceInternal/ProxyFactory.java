@@ -129,6 +129,9 @@ public final class ProxyFactory
                 // must *always* retry, so that the missing proxy is added
                 // to the router.
                 //
+
+                ref.getRouterInfo().clearCache(ref);
+
                 if(traceLevels.retry >= 1)
                 {
                     String s = "retrying operation call to add proxy to router\n" + ex.toString();

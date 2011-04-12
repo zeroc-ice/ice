@@ -27,6 +27,15 @@ Changes since version 3.4.1
 General Changes
 ===============
 
+- Fixed a bug where Ice would under certain circumstnances
+  indefinitely re-try to add a proxy to the Glacier2 routing table.
+
+- Improved queuing of Glacier2 requests to the client to not invoke
+  requests if the client connection already has requests pending for
+  send. Instead, Glacier2 waits for the pending requests to be
+  sent. This allow request overriding to occur more often when the
+  client connection is slow.
+
 - Fixed bug were IceGrid node daemon or service would hang for a long
   time on startup if the IceGrid registry wasn't reachable.
 

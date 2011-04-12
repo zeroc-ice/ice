@@ -243,6 +243,14 @@ namespace IceInternal
             }
         }
 
+        public void clearCache(Reference @ref)
+        {
+            lock(this)
+            {
+                _identities.Remove(@ref.getIdentity());
+            }
+        }
+
         private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy)
         {
             lock(this)

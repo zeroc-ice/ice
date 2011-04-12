@@ -14,6 +14,8 @@
 #include <IceUtil/Monitor.h>
 #include <Ice/Ice.h>
 
+#include <deque>
+
 namespace Glacier2
 {
 
@@ -26,19 +28,24 @@ typedef IceUtil::Handle<Request> RequestPtr;
 class RequestQueueThread;
 typedef IceUtil::Handle<RequestQueueThread> RequestQueueThreadPtr;
 
-class Request : public IceUtil::Shared
+class Request : public Ice::LocalObject
 {
 public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
             const Ice::Context&, const Ice::AMD_Object_ice_invokePtr&);
     
-    bool invoke(const InstancePtr&, const Ice::ConnectionPtr&);
+    Ice::AsyncResultPtr invoke(const Ice::Callback_Object_ice_invokePtr& callback);
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const { return _proxy; }
     bool hasOverride() const { return !_override.empty(); }
 
 private:
+
+    friend class RequestQueue;
+    void response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&);
+    void exception(const Ice::Exception&);
+    void queued();
 
     const Ice::ObjectPrx _proxy;
     const Ice::ByteSeq _inParams;
@@ -59,11 +66,23 @@ public:
     void flushRequests(std::set<Ice::ObjectPrx>&);
 
 private:
+
+    void flush();
+    void flush(std::set<Ice::ObjectPrx>&);
+
+    void response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const RequestPtr&);
+    void exception(const Ice::Exception&, const RequestPtr&);
+    void sent(bool, const RequestPtr&);
     
     const RequestQueueThreadPtr _requestQueueThread;
     const InstancePtr _instance;
     const Ice::ConnectionPtr _connection;
-    std::vector<RequestPtr> _requests;
+    const Ice::Callback_Object_ice_invokePtr _callback;
+    const Ice::Callback_Connection_flushBatchRequestsPtr _flushCallback;
+
+    std::deque<RequestPtr> _requests;
+    bool _pendingSend;
+    RequestPtr _pendingSendRequest;
 };
 typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
 

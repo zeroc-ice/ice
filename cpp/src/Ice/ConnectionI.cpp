@@ -1487,7 +1487,18 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingAsyn
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         if(--_dispatchCount == 0)
         {
-            if(_state == StateFinished)
+            if(_state == StateClosing)
+            {
+                try
+                {
+                    initiateShutdown();
+                }
+                catch(const LocalException& ex)
+                {
+                    setState(StateClosed, ex);
+                }
+            }
+            else if(_state == StateFinished)
             {
                 _reaper->add(this);
             }

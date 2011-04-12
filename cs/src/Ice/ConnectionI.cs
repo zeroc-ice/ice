@@ -1312,7 +1312,18 @@ namespace Ice
                 {
                     if(--_dispatchCount == 0)
                     {
-                        if(_state == StateFinished)
+                        if(_state == StateClosing)
+                        {
+                            try
+                            {
+                                initiateShutdown();
+                            }
+                            catch(LocalException ex)
+                            {
+                                setState(StateClosed, ex);
+                            }
+                        }
+                        else if(_state == StateFinished)
                         {
                             _reaper.add(this);
                         }

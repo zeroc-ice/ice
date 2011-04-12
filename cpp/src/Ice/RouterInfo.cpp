@@ -338,6 +338,13 @@ IceInternal::RouterInfo::getAdapter() const
     return _adapter;
 }
 
+void
+IceInternal::RouterInfo::clearCache(const ReferencePtr& ref)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    _identities.erase(ref->getIdentity());
+}
+
 vector<EndpointIPtr>
 IceInternal::RouterInfo::setClientEndpoints(const Ice::ObjectPrx& proxy)
 {

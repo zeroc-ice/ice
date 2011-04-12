@@ -84,6 +84,8 @@ public:
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 
+    void clearCache(const ReferencePtr&);
+
     //
     // The following methods need to be public for access by AMI callbacks.
     //

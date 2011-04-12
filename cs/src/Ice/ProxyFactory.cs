@@ -124,6 +124,9 @@ namespace IceInternal
                     // must *always* retry, so that the missing proxy is added
                     // to the router.
                     //
+
+                    @ref.getRouterInfo().clearCache(@ref);
+
                     if(traceLevels.retry >= 1)
                     {
                         string s = "retrying operation call to add proxy to router\n" + ex;
