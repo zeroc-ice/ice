@@ -56,6 +56,7 @@ IceInternal::Buffer::Container::clear()
 void
 IceInternal::Buffer::Container::reserve(size_type n)
 {
+    size_type c = _capacity;
     if(n > _capacity)
     {
         _capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
@@ -70,19 +71,13 @@ IceInternal::Buffer::Container::reserve(size_type n)
         return;
     }
     
-    if(_buf)
+    pointer p = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
+    if(!p)
     {
-        _buf = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
-    }
-    else
-    {
-        _buf = reinterpret_cast<pointer>(::malloc(_capacity));
-    }
-        
-    if(!_buf)
-    {
+        _capacity = c; // Restore the previous capacity.
         SyscallException ex(__FILE__, __LINE__);
         ex.error = getSystemErrno();
         throw ex;
     }
+    _buf = p;
 }
