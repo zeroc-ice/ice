@@ -2230,6 +2230,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     protected static final java.util.Map<String, String> _emptyContext = new java.util.HashMap<String, String>();
 
-    private IceInternal.Reference _reference;
-    private _ObjectDel _delegate;
+    private transient IceInternal.Reference _reference;
+    private transient _ObjectDel _delegate;
 }
