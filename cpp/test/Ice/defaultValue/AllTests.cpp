@@ -29,7 +29,7 @@ allTests()
         test(v.l == 4);
         test(v.f == static_cast<float>(5.1));
         test(v.d == 6.2);
-        test(v.str == "foo bar");
+        test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v.c1 == red);
         test(v.c2 == green);
         test(v.c3 == blue);
@@ -67,7 +67,7 @@ allTests()
         test(v->l == 4);
         test(v->f == static_cast<float>(5.1));
         test(v->d == 6.2);
-        test(v->str == "foo bar");
+        test(v->str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v->c1 == red);
         test(v->c2 == green);
         test(v->c3 == blue);
@@ -87,7 +87,7 @@ allTests()
         test(v->l == 4);
         test(v->f == static_cast<float>(5.1));
         test(v->d == 6.2);
-        test(v->str == "foo bar");
+        test(v->str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v->noDefault.empty());
     }
 
@@ -101,7 +101,7 @@ allTests()
         test(v->l == 4);
         test(v->f == static_cast<float>(5.1));
         test(v->d == 6.2);
-        test(v->str == "foo bar");
+        test(v->str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v->noDefault.empty());
         test(v->c1 == red);
         test(v->c2 == green);
@@ -121,7 +121,7 @@ allTests()
         test(v.l == 4);
         test(v.f == static_cast<float>(5.1));
         test(v.d == 6.2);
-        test(v.str == "foo bar");
+        test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v.noDefault.empty());
     }
 
@@ -135,7 +135,7 @@ allTests()
         test(v.l == 4);
         test(v.f == static_cast<float>(5.1));
         test(v.d == 6.2);
-        test(v.str == "foo bar");
+        test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v.noDefault.empty());
         test(v.c1 == red);
         test(v.c2 == green);

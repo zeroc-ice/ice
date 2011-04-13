@@ -35,7 +35,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == (float)5.1);
             test(v.d == 6.2);
-            test(v.str.Equals("foo bar"));
+            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.c1 == Test.Color.red);
             test(v.c2 == Test.Color.green);
             test(v.c3 == Test.Color.blue);
@@ -73,6 +73,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
+            //test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             //test(v.str.Equals("foo bar"));
             test(v.c1 == Test.Color.red);
             test(v.c2 == Test.Color.green);
@@ -93,7 +94,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo bar"));
+            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.noDefault == null);
         }
 
@@ -107,7 +108,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.Equals("foo bar"));
+            test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.c1 == Test.Color.red);
             test(v.c2 == Test.Color.green);
             test(v.c3 == Test.Color.blue);
@@ -127,7 +128,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo bar");
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault == null);
         }
 
@@ -141,7 +142,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo bar");
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault == null);
             test(v.c1 == Test.Color.red);
             test(v.c2 == Test.Color.green);

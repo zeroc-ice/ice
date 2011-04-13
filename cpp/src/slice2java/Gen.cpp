@@ -1252,27 +1252,27 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
             {
                 case Builtin::KindString:
                 {
+                    //
+                    // Expand strings into the basic source character set. We can't use isalpha() and the like
+                    // here because they are sensitive to the current locale.
+                    //
+                    static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                           "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                           "0123456789"
+                                                           "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
+                    static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
                     out << "\"";
 
                     for(string::const_iterator c = value.begin(); c != value.end(); ++c)
                     {
-                        if(isascii(static_cast<unsigned char>(*c)) && isprint(static_cast<unsigned char>(*c)))
+                        if(charSet.find(*c) == charSet.end())
                         {
                             switch(*c)
                             {
-                                case '\\':
-                                case '"':
-                                {
-                                    out << "\\";
-                                    break;
-                                }
-                            }
-                            out << *c;
-                        }
-                        else
-                        {
-                            switch(*c)
-                            {
+                                //
+                                // Java doesn't want '\n' or '\r\n' encoded as universal
+                                // characters, that gives an error "unclosed string literal"
+                                //
                                 case '\r':
                                 {
                                     out << "\\r";
@@ -1296,6 +1296,19 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
                                     break;
                                 }
                             }
+                        }
+                        else
+                        {
+                            switch(*c)
+                            {
+                                case '\\':
+                                case '"':
+                                {
+                                    out << "\\";
+                                    break;
+                                }
+                            }
+                            out << *c;  
                         }
                     }
 

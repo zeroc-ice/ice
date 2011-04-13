@@ -39,7 +39,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo bar"));
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -77,7 +77,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo bar"));
+            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
             test(v.noDefault == null);
         }
 
@@ -91,7 +91,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str.equals("foo bar"));
+            test(v.str.equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007"));
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);
             test(v.c3 == Color.blue);
@@ -111,7 +111,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo bar");
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007");
             test(v.noDefault == null);
         }
 
@@ -125,7 +125,7 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
-            test(v.str == "foo bar");
+            test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \007 \u0007");
             test(v.noDefault == null);
             test(v.c1 == Color.red);
             test(v.c2 == Color.green);

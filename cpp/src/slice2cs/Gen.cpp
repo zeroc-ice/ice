@@ -1258,6 +1258,15 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
                 }
                 else
                 {
+                   switch(*c)
+                    {
+                        case '\\':
+                        case '"':
+                        {
+                            _out << "\\";
+                            break;
+                        }
+                    }
                     _out << *c;                              // Print normally if in basic source character set
                 }
             }
