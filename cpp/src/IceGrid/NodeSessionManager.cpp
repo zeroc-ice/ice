@@ -65,8 +65,15 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
 
         if(!session)
         {
-            for(vector<QueryPrx>::const_iterator p = _queryObjects.begin(); p != _queryObjects.end(); ++p)
+            vector<Ice::AsyncResultPtr> results;
+            for(vector<QueryPrx>::const_iterator q = _queryObjects.begin(); q != _queryObjects.end(); ++q)
             {
+                results.push_back((*q)->begin_findObjectById(registry->ice_getIdentity()));
+            }
+            
+            for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+            {
+                QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
                 if(isDestroyed())
                 {
                     break;
@@ -75,7 +82,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
                 InternalRegistryPrx newRegistry;
                 try
                 {
-                    Ice::ObjectPrx obj = (*p)->findObjectById(registry->ice_getIdentity());
+                    Ice::ObjectPrx obj = query->end_findObjectById(*p);
                     newRegistry = InternalRegistryPrx::uncheckedCast(obj);
                     if(newRegistry && used.find(newRegistry) == used.end())
                     {
@@ -528,9 +535,16 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     }
     else
     {
-        map<Ice::Identity, Ice::ObjectPrx> proxies;
-        for(vector<QueryPrx>::const_iterator p = _queryObjects.begin(); p != _queryObjects.end(); ++p)
+        vector<Ice::AsyncResultPtr> results;
+        for(vector<QueryPrx>::const_iterator q = _queryObjects.begin(); q != _queryObjects.end(); ++q)
         {
+            results.push_back((*q)->begin_findAllObjectsByType(InternalRegistry::ice_staticId()));
+        }
+
+        map<Ice::Identity, Ice::ObjectPrx> proxies;
+        for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+        {
+            QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
             if(isDestroyed())
             {
                 return;
@@ -538,7 +552,7 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
 
             try
             {
-                Ice::ObjectProxySeq prxs = (*p)->findAllObjectsByType(InternalRegistry::ice_staticId());
+                Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
                 for(Ice::ObjectProxySeq::const_iterator q = prxs.begin(); q != prxs.end(); ++q)
                 {
                     //
@@ -594,13 +608,19 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
     // the replica sessions are created before the node adapter is
     // activated.
     //
+    IceUtil::Time before = IceUtil::Time::now();
     for(vector<NodeSessionKeepAliveThreadPtr>::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
         if(isDestroyed())
         {
             return;
         }
-        (*p)->tryCreateSession(true, IceUtil::Time::seconds(5));
+        IceUtil::Time timeout = IceUtil::Time::seconds(5) - (IceUtil::Time::now() - before);
+        if(timeout <= IceUtil::Time())
+        {
+            break;
+        }
+        (*p)->tryCreateSession(true, timeout);
     }
 }
 

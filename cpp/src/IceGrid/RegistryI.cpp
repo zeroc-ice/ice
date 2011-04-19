@@ -1245,58 +1245,66 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry,
 {
     set<NodePrx> nodes;
     nodes.insert(dbNodes.begin(), dbNodes.end());
-
+    vector<Ice::AsyncResultPtr> results;
     for(InternalRegistryPrxSeq::const_iterator r = replicas.begin(); r != replicas.end(); ++r)
     {
         if((*r)->ice_getIdentity() != internalRegistry->ice_getIdentity())
         {
-            string replicaName;
+            results.push_back((*r)->begin_registerWithReplica(internalRegistry));
+        }
+    }
+
+    for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
+    {
+        InternalRegistryPrx replica = InternalRegistryPrx::uncheckedCast((*p)->getProxy());
+
+        string replicaName;
+        if(_traceLevels && _traceLevels->replica > 1)
+        {
+            replicaName = replica->ice_getIdentity().name;
+            const string prefix("InternalRegistry-");
+            string::size_type pos = replicaName.find(prefix);
+            if(pos != string::npos)
+            {
+                replicaName = replicaName.substr(prefix.size());
+            }
+            
+            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+            out << "creating replica `" << replicaName << "' session";
+        }
+
+        
+        try
+        {
+            replica->end_registerWithReplica(*p);
+            
+            NodePrxSeq nds = replica->getNodes();
+            nodes.insert(nds.begin(), nds.end());
+
             if(_traceLevels && _traceLevels->replica > 1)
             {
-                replicaName = (*r)->ice_getIdentity().name;
-                const string prefix("InternalRegistry-");
-                string::size_type pos = replicaName.find(prefix);
-                if(pos != string::npos)
-                {
-                    replicaName = replicaName.substr(prefix.size());
-                }
-
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "creating replica `" << replicaName << "' session";
+                out << "replica `" << replicaName << "' session created";
             }
-
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            //
+            // Clear the proxy from the database if we can't
+            // contact the replica.
+            //
             try
             {
-                (*r)->registerWithReplica(internalRegistry);
-
-                NodePrxSeq nds = (*r)->getNodes();
-                nodes.insert(nds.begin(), nds.end());
-
-                if(_traceLevels && _traceLevels->replica > 1)
-                {
-                    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                    out << "replica `" << replicaName << "' session created";
-                }
+                _database->removeObject(replica->ice_getIdentity());
             }
-            catch(const Ice::LocalException& ex)
+            catch(const ObjectNotRegisteredException&)
             {
-                //
-                // Clear the proxy from the database if we can't
-                // contact the replica.
-                //
-                try
-                {
-                    _database->removeObject((*r)->ice_getIdentity());
-                }
-                catch(const ObjectNotRegisteredException&)
-                {
-                }
-
-                if(_traceLevels && _traceLevels->replica > 1)
-                {
-                    Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                    out << "replica `" << replicaName << "' session creation failed:\n" << ex;
-                }
+            }
+            
+            if(_traceLevels && _traceLevels->replica > 1)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+                out << "replica `" << replicaName << "' session creation failed:\n" << ex;
             }
         }
     }

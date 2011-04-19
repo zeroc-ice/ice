@@ -84,6 +84,12 @@ private:
 
     friend class Thread;
 
+    bool isDestroyed() 
+    {
+        Lock sync(*this);
+        return !_thread;
+    }
+    
     ReplicaSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
     ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
     void destroySession(const ReplicaSessionPrx&);
