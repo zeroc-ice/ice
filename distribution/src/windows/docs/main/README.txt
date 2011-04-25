@@ -313,19 +313,35 @@ the add-in in the IDE; see "Tools -> Add-in Manager" and check
 C++
 ---
 
-To use Ice for C++ you need to add the Ice bin directory(s) to your
-PATH:
+To use Ice for C++ you need to add one or more of the Ice "bin"
+directories to your PATH. The changes you must make depend on your
+compiler and architecture, as listed below:
+
+* Visual Studio 2008SP1, 32-bit
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
 
-If you use an x64 platform, use these settings instead (the x64
-directory must come first in your PATH):
+* Visual Studio 2008SP1, 64-bit
+
+  The x64 directory must come first in your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\x64;%PATH%
 
-If you use Ice for C++ with C++Builder, use these settings instead
-(the bcc10 directory must come first in your PATH):
+* Visual Studio 2010, 32-bit
+
+  > set PATH=<Ice installation root directory>\bin\vc100;%PATH%
+
+* Visual Studio 2010, 64-bit
+
+  The x64 directory must come first in your PATH:
+
+  > set PATH=<Ice installation root directory>\bin\vc100;%PATH%
+  > set PATH=<Ice installation root directory>\bin\vc100\x64;%PATH%
+
+* C++Builder 2010
+
+  The bcc10 directory must come first in your PATH:
 
   > set PATH=<Ice installation root directory>\bin;%PATH%
   > set PATH=<Ice installation root directory>\bin\bcc10;%PATH%
@@ -351,21 +367,21 @@ these steps:
 
 - Add <Ice installation root directory>\include
 
-- Select "Library files"
+- Select "Library files" and add the appropriate library directory for
+  your compiler:
 
-- For x86 libraries add <Ice installation root directory>\lib
+  <Ice installation root directory>\lib            (VS2008SP1, 32-bit)
+  <Ice installation root directory>\lib\x64        (VS2008SP1, 64-bit)
+  <Ice installation root directory>\lib\vc100      (VS2010, 32-bit)
+  <Ice installation root directory>\lib\vc100\x64  (VS2010, 64-bit)
 
-  or
+- Select "Executable files" and add the appropriate binary directory
+  for your compiler:
 
-  For x64 libraries add <Ice installation root directory>\lib\x64
-
-- Select "Executable files"
-
-- For x86 binaries add <Ice installation root directory>\bin
-
-  or
-
-  For x64 binaries add <Ice installation root directory>\bin\x64
+  <Ice installation root directory>\bin            (VS2008SP1, 32-bit)
+  <Ice installation root directory>\bin\x64        (VS2008SP1, 64-bit)
+  <Ice installation root directory>\bin\vc100      (VS2010, 32-bit)
+  <Ice installation root directory>\bin\vc100\x64  (VS2010, 64-bit)
 
 
 .NET
