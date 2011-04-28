@@ -99,12 +99,10 @@ Visual C++ 6.0 Setup
 --------------------
 
 Users of Visual C++ 6.0 need to install the February 2003 Microsoft
-Platform SDK in order to compile Ice:
+Platform SDK in order to compile Ice.
 
-  http://www.microsoft.com/msdownload/platformsdk/sdkupdate/psdk-full.htm
-
-Alternatively, for MSDN subscribers, you may download the PSDK from
-the MSDN Subscriber Downloads. In the content tree open:
+MSDN subscribers may download the PSDK from the MSDN Subscriber Downloads. 
+In the content tree open:
 
   Tools and Resources / Platform SDK and DDKs / Platform SDK - February 2003 Edition (English)
 
