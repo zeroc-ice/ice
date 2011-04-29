@@ -1,17 +1,17 @@
-Ice @ver@ Third Party Packages
+Ice 3.4.2 Third Party Packages
 -----------------------------
 
 This distribution contains the development kit (including binaries)
-for the open-source packages used by Ice @ver@ on Windows. Its primary
-purpose is to simplify building Ice @ver@ from sources.
+for the open-source packages used by Ice 3.4.1 on Windows. Its primary
+purpose is to simplify building Ice 3.4.1 from sources.
 
 The following versions of the third party software were used to
 create this package:
 
  - Berkeley DB 4.8.30
- - OpenSSL 0.9.8n
+ - OpenSSL 0.9.8r
  - Expat 2.0.1
- - Bzip2 1.0.5
+ - Bzip2 1.0.6
  - MCPP 2.7.2
  - Qt 4.5.3
  - STLport 4.6.2
