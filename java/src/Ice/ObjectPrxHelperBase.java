@@ -2222,7 +2222,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
         catch(LocalException ex)
         {
-            java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy", ex);
+            java.io.IOException e = new java.io.IOException("Failure occurred while deserializing proxy");
             e.initCause(ex);
             throw e;
         }
