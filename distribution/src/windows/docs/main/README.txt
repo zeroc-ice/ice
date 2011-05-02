@@ -74,7 +74,7 @@ development tools to build Ice applications:
  - in Java, using Java 5 or Java 6
  - in Python, using Python 2.6.4
  - in Ruby, using Ruby 1.8.6
- - in PHP, using PHP 5.3.1
+ - in PHP, using PHP 5.3.6
 
 You only need the development environment for your target programming
 language to use this distribution. For example, if you want to build
@@ -539,9 +539,21 @@ OpenSSL, such as C++ and Python.
 PHP
 ---
 
-The binary distribution of PHP for Windows includes loadable modules
-for Apache 1, Apache 2.0, and Apache 2.2. The Ice extension for PHP
-can be used with all Apache versions.
+The binary distribution of PHP 5.3.6 for Windows is compiled with
+Visual Studio 2008 (Visual C++ 9) and therefore is not compatible with
+the Apache binaries provided by the Apache Software Foundation, which
+are compiled with Visual C++ 6.
+
+The Ice extension for PHP included in this installer is also compiled
+with VC9 for compatibility with the PHP binary distribution. To use
+this extension, you will need a compatible PHP binary distribution as
+well as a compatible Web server. If you wish to use Apache, you can
+obtain a VC9 build of Apache from alternate sources.
+
+If you require a version of the Ice extension for a different
+environment, you will need to compile the extension from source.
+Download the Ice source distribution and review the php/INSTALL file
+for details.
 
 The PHP documentation describes how to configure the Apache servers
 for PHP, and the PHP installer may have already performed the
@@ -604,13 +616,12 @@ appropriate changes as you follow the instructions.
 
    The Ice extension depends on the following libraries:
 
-   bzip2_vc6.dll
-   icevc60_@libver@.dll
-   iceutilvc60_@libver@.dll
-   msvcp60.dll
-   msvcrt.dll
-   slicevc60_@libver@.dll
-   stlport_vc646.dll
+   bzip2.dll
+   ice@libver@.dll
+   iceutil@libver@.dll
+   msvcp90.dll
+   msvcr90.dll
+   slice@libver@.dll
 
    All of these files can be found in the bin subdirectory of your Ice
    installation (e.g., C:\Ice\bin). Apache must be able to locate

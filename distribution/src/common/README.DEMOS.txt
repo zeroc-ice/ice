@@ -297,7 +297,7 @@ Then in a separate command window, start the Ruby client:
 
 PHP demos are provided in the demophp directory.
 
-You will need PHP 5.3.1 to run the demos. It can be downloaded from:
+You will need PHP 5.3.6 to run the demos. It can be downloaded from:
 
   http://www.php.net/downloads.php
 
