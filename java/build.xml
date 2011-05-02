@@ -492,7 +492,7 @@
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             includes="IceGridGUI/**"
-            classpath="${jgoodies.looks}:${jgoodies.forms}"
+            classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -503,6 +503,7 @@
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
             <available file="${jgoodies.looks}" />
             <available file="${jgoodies.forms}" />
+            <available file="${jgoodies.common}" />
         </and>
     </condition>
 
@@ -513,7 +514,7 @@
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
-            <attribute name="Class-Path" value="Ice.jar ${jgoodies.forms} ${jgoodies.looks} ../resources/ "/>
+            <attribute name="Class-Path" value="Ice.jar ${jgoodies.forms} ${jgoodies.looks} ${jgoodies.common} ../resources/ "/>
         </manifest>
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
@@ -581,6 +582,7 @@
              -injars "${lib.dir}/Ice.jar"(!META-INF/**)
              -injars "${jgoodies.looks}"(!META-INF/**)
              -injars "${jgoodies.forms}"(!META-INF/**)
+             -injars "${jgoodies.common}"(!META-INF/**)
              -outjars "${lib.dir}/IceGridGUI.jar"
              -libraryjars ${library.jars}
              -include config/icegridgui.pro

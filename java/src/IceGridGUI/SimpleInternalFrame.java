@@ -35,7 +35,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.AbstractBorder;
 
-import com.jgoodies.looks.LookUtils;
+import com.jgoodies.common.base.SystemUtils;
 
 /**
  * A <code>JPanel</code> subclass that has a drop shadow border and
@@ -373,7 +373,7 @@ public class SimpleInternalFrame extends JPanel {
             UIManager.getColor("SimpleInternalFrame.activeTitleBackground");
         if (c != null)
             return c;
-        if (LookUtils.IS_LAF_WINDOWS_XP_ENABLED)
+        if (SystemUtils.IS_LAF_WINDOWS_XP_ENABLED)
             c = UIManager.getColor("InternalFrame.activeTitleGradient");
         return c != null
             ? c
