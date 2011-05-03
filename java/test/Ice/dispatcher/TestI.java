@@ -22,20 +22,21 @@ public class TestI extends _TestIntfDisp
         }
     }
 
-    TestI()
+    TestI(Dispatcher dispatcher)
     {
+        _dispatcher = dispatcher;
     }
 
     public void
     op(Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(_dispatcher.isDispatcherThread());
     }
 
     public void
     opWithPayload(byte[] seq, Ice.Current current)
     {
-        test(Dispatcher.isDispatcherThread());
+        test(_dispatcher.isDispatcherThread());
     }
 
     public void
@@ -43,4 +44,6 @@ public class TestI extends _TestIntfDisp
     {
         current.adapter.getCommunicator().shutdown();
     }
+
+    private Dispatcher _dispatcher;
 }

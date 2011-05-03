@@ -22,6 +22,7 @@ import test.Ice.location.Test.TestLocatorPrx;
 import test.Ice.location.Test.TestLocatorPrxHelper;
 import test.Ice.location.Test.TestLocatorRegistryPrx;
 import test.Ice.location.Test.TestLocatorRegistryPrxHelper;
+import test.Util.Application;
 
 public class AllTests
 {
@@ -35,9 +36,12 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(Application app)
         throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
             communicator.stringToProxy("ServerManager :default -p 12010"));
         test(manager != null);
@@ -545,7 +549,7 @@ public class AllTests
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            Ice.Communicator ic = Ice.Util.initialize(initData);
+            Ice.Communicator ic = app.initialize(initData);
 
             registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
             registry.addObject(communicator.stringToProxy("test3@TestAdapter"));

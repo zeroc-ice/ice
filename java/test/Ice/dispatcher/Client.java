@@ -13,16 +13,19 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        AllTests.allTests(communicator(), getWriter());
+        AllTests.allTests(communicator(), getWriter(), _dispatcher);
+        _dispatcher.terminate();
         return 0;
     }
 
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
+        assert(_dispatcher == null);
+        _dispatcher = new Dispatcher();
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        initData.dispatcher = new Dispatcher();
+        initData.dispatcher = _dispatcher;
         return initData;
     }
 
@@ -30,8 +33,15 @@ public class Client extends test.Util.Application
     {
         Client app = new Client();
         int result = app.main("Client", args);
-        Dispatcher.terminate();
         System.gc();
         System.exit(result);
     }
+
+    //
+    // The Dispatcher class uses a static "_instance" member in other language
+    // mappings. In Java, we avoid the use of static members because we need to
+    // maintain support for Android (in which the client and server run in the
+    // same process).
+    //
+    private Dispatcher _dispatcher;
 }

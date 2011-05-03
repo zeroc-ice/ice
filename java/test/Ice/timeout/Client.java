@@ -15,8 +15,7 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        TimeoutPrx timeout = AllTests.allTests(this, getWriter());
+        TimeoutPrx timeout = AllTests.allTests(this);
         timeout.shutdown();
         return 0;
     }

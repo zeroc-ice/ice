@@ -20,6 +20,7 @@ import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
 import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
 import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
+import test.Util.Application;
 
 public class AllTests
 {
@@ -548,8 +549,11 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         String sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
@@ -1029,7 +1033,7 @@ public class AllTests
             //
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            Ice.Communicator ic = Ice.Util.initialize(initData);
+            Ice.Communicator ic = app.initialize(initData);
             Ice.ObjectPrx o = ic.stringToProxy(p.toString());
             TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
             ic.destroy();

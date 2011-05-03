@@ -13,10 +13,9 @@ public class Client extends test.Util.Application
 {
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
         try
         {
-            AllTests.allTests(communicator, getWriter());
+            AllTests.allTests(this);
         }
         catch(Ice.AdapterAlreadyActiveException ex)
         {

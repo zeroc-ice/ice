@@ -131,9 +131,10 @@ public class AllTests
     }
 
     public static TimeoutPrx
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
 
         String sref = "timeout:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -478,7 +479,7 @@ public class AllTests
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Override.CloseTimeout", "200");
-            Ice.Communicator comm = Ice.Util.initialize(initData);
+            Ice.Communicator comm = app.initialize(initData);
             Ice.Connection connection = comm.stringToProxy(sref).ice_getConnection();
             timeout.holdAdapter(750);
             long now = System.nanoTime();

@@ -63,7 +63,7 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(Ice.Communicator communicator, PrintWriter out, final Dispatcher dispatcher)
     {
         String sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -87,7 +87,7 @@ public class AllTests
                     public void
                     response()
                     {
-                        test(Dispatcher.isDispatcherThread());
+                        test(dispatcher.isDispatcherThread());
                         called();
                     }
 
@@ -114,7 +114,7 @@ public class AllTests
                     exception(Ice.LocalException ex)
                     {
                         test(ex instanceof Ice.NoEndpointException);
-                        test(Dispatcher.isDispatcherThread());
+                        test(dispatcher.isDispatcherThread());
                         called();
                     }
                 };
@@ -127,7 +127,7 @@ public class AllTests
                     public void
                     response()
                     {
-                        test(Dispatcher.isDispatcherThread());
+                        test(dispatcher.isDispatcherThread());
                     }
 
                     public void
@@ -139,7 +139,7 @@ public class AllTests
                     public void
                     sent(boolean sentSynchronously)
                     {
-                        test(sentSynchronously || Dispatcher.isDispatcherThread());
+                        test(sentSynchronously || dispatcher.isDispatcherThread());
                     }
                 };
 

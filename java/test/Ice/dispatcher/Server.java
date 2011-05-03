@@ -19,7 +19,8 @@ public class Server extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
-        adapter.add(new TestI(), communicator().stringToIdentity("test"));
+        assert(_dispatcher != null);
+        adapter.add(new TestI(_dispatcher), communicator().stringToIdentity("test"));
         adapter.activate();
         adapter2.add(new TestControllerI(adapter), communicator().stringToIdentity("testController"));
         adapter2.activate();
@@ -29,14 +30,24 @@ public class Server extends test.Util.Application
 
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
+        assert(_dispatcher == null);
+        _dispatcher = new Dispatcher();
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
         initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
         initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
         initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        initData.dispatcher = new Dispatcher();
+        initData.dispatcher = _dispatcher;
         return initData;
+    }
+
+    public void terminate()
+    {
+        if(_dispatcher != null)
+        {
+            _dispatcher.terminate();
+        }
     }
 
     public static void
@@ -44,8 +55,16 @@ public class Server extends test.Util.Application
     {
     	Server app = new Server();
         int result = app.main("Server", args);
-        Dispatcher.terminate();
+        app.terminate();
         System.gc();
         System.exit(result);
     }
+
+    //
+    // The Dispatcher class uses a static "_instance" member in other language
+    // mappings. In Java, we avoid the use of static members because we need to
+    // maintain support for Android (in which the client and server run in the
+    // same process).
+    //
+    private Dispatcher _dispatcher;
 }

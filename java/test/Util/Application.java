@@ -23,12 +23,12 @@ public abstract class Application
     public interface ServerReadyListener
     {
         void serverReady();
-    };
+    }
 
     public interface CommunicatorListener
     {
         void communicatorInitialized(Communicator c);
-    };
+    }
 
     public
     Application()
@@ -65,13 +65,13 @@ public abstract class Application
 
         //
         // We parse the properties here to extract Ice.ProgramName.
-        // 
+        //
         StringSeqHolder argHolder = new StringSeqHolder(args);
         if(initializationData == null)
         {
             initializationData = getInitData(argHolder);
         }
-        
+
         InitializationData initData;
         if(initializationData != null)
         {
@@ -85,7 +85,7 @@ public abstract class Application
 
         //
         // If the process logger is the default logger, we replace it with a
-        // a logger which is using the program name for the prefix.
+        // a logger that uses the program name as the prefix.
         //
         if(Util.getProcessLogger() instanceof LoggerI)
         {
@@ -167,7 +167,9 @@ public abstract class Application
         }
     }
 
+    //
     // Initialize a new communicator.
+    //
     public Ice.Communicator initialize(InitializationData initData)
     {
         Ice.Communicator communicator = Util.initialize(initData);
@@ -180,9 +182,11 @@ public abstract class Application
 
     public abstract int run(String[] args);
 
+    //
     // Hook to override the initialization data. This hook is
     // necessary because some properties must be set prior to
     // communicator initialization.
+    //
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         return null;

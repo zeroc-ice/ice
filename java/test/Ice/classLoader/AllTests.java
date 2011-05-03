@@ -16,6 +16,7 @@ import test.Ice.classLoader.Test.ConcreteClass;
 import test.Ice.classLoader.Test.E;
 import test.Ice.classLoader.Test.InitialPrx;
 import test.Ice.classLoader.Test.InitialPrxHelper;
+import test.Util.Application;
 
 public class AllTests
 {
@@ -70,20 +71,24 @@ public class AllTests
     }
 
     public static void
-    allTests(boolean collocated, PrintWriter out, Ice.InitializationData initData)
+    allTests(Application app, boolean collocated)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         //
         // Verify that the class loader is used for Slice packages.
         //
         {
             out.print("testing package... ");
             out.flush();
-            Ice.InitializationData init = (Ice.InitializationData)initData.clone();
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader();
-            init.classLoader = classLoader;
-            Ice.Communicator communicator = Ice.Util.initialize(init);
+            initData.classLoader = classLoader;
+            Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.Test._Marker"));
-            communicator.destroy();
+            ic.destroy();
             out.println("ok");
         }
 
@@ -93,34 +98,34 @@ public class AllTests
         {
             out.print("testing plug-in... ");
             out.flush();
-            Ice.InitializationData init = (Ice.InitializationData)initData.clone();
-            init.properties = (Ice.Properties)initData.properties._clone();
-            init.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader();
-            init.classLoader = classLoader;
-            Ice.Communicator communicator = Ice.Util.initialize(init);
+            initData.classLoader = classLoader;
+            Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
-            communicator.destroy();
+            ic.destroy();
             out.println("ok");
         }
 
         //
         // Verify that the class loader is used for IceSSL certificate verifiers and password callbacks.
         //
-        if(initData.properties.getProperty("Ice.Default.Protocol").equals("ssl"))
+        if(communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl"))
         {
             out.print("testing IceSSL certificate verifier and password callback... ");
             out.flush();
-            Ice.InitializationData init = (Ice.InitializationData)initData.clone();
-            init.properties = (Ice.Properties)initData.properties._clone();
-            init.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
-            init.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
+            initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
             MyClassLoader classLoader = new MyClassLoader();
-            init.classLoader = classLoader;
-            Ice.Communicator communicator = Ice.Util.initialize(init);
+            initData.classLoader = classLoader;
+            Ice.Communicator ic = app.initialize(initData);
             test(classLoader.check("test.Ice.classLoader.CertificateVerifierI"));
             test(classLoader.check("test.Ice.classLoader.PasswordCallbackI"));
-            communicator.destroy();
+            ic.destroy();
             out.println("ok");
         }
 
@@ -128,13 +133,14 @@ public class AllTests
         // Marshaling tests.
         //
         {
-            Ice.InitializationData init = (Ice.InitializationData)initData.clone();
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader();
-            init.classLoader = classLoader;
-            Ice.Communicator communicator = Ice.Util.initialize(init);
+            initData.classLoader = classLoader;
+            Ice.Communicator ic = app.initialize(initData);
 
             String ref = "initial:default -p 12010";
-            Ice.ObjectPrx base = communicator.stringToProxy(ref);
+            Ice.ObjectPrx base = ic.stringToProxy(ref);
             test(base != null);
 
             InitialPrx initial = InitialPrxHelper.checkedCast(base);
@@ -174,7 +180,7 @@ public class AllTests
                 test(classLoader.check("test.Ice.classLoader.Test.AbstractClass"));
                 classLoader.reset();
 
-                communicator.addObjectFactory(new MyObjectFactory(), "::Test::AbstractClass");
+                ic.addObjectFactory(new MyObjectFactory(), "::Test::AbstractClass");
                 AbstractClass ac = initial.getAbstractClass();
                 test(ac != null);
                 test(!classLoader.check("Test.AbstractClass"));
@@ -202,7 +208,7 @@ public class AllTests
             out.println("ok");
 
             initial.shutdown();
-            communicator.destroy();
+            ic.destroy();
         }
     }
 }

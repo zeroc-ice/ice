@@ -22,8 +22,6 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
 
     public Dispatcher()
     {
-        assert(_instance == null);
-        _instance = this;
         _thread = new Thread(this);
         _thread.start();
     }
@@ -84,19 +82,19 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
         }
     }
 
-    static public void
+    public void
     terminate()
     {
-        synchronized(_instance)
+        synchronized(this)
         {
-            _instance._terminated = true;
-            _instance.notify();
+            _terminated = true;
+            notify();
         }
         while(true)
         {
             try
             {
-                _instance._thread.join();
+                _thread.join();
                 break;
             }
             catch(java.lang.InterruptedException ex)
@@ -105,15 +103,13 @@ public class Dispatcher implements Runnable, Ice.Dispatcher
         }
     }
     
-    static public boolean
+    public boolean
     isDispatcherThread()
     {
-        return Thread.currentThread() == _instance._thread;
+        return Thread.currentThread() == _thread;
     }
 
-    static Dispatcher _instance; 
-
     private java.util.Queue<Runnable> _calls = new java.util.LinkedList<Runnable>();
-    Thread _thread;
-    boolean _terminated = false;
-};
+    private Thread _thread;
+    private boolean _terminated = false;
+}
