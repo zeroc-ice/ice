@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
   %define ruby 1
   %define mono 0
 %else
@@ -25,7 +25,7 @@
 
 %define core_arches %{ix86} x86_64
 
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
   %ifarch x86_64
     %define qt_home /usr/lib64/qt4
   %else
@@ -111,6 +111,13 @@ BuildRequires: php-devel >= 5.1.6
 BuildRequires: python-devel >= 2.4.3
 BuildRequires: qt4-devel >= 4.2.1
 %endif
+%if "%{dist}" == ".rhel6"
+BuildRequires: bzip2-devel >= 1.0.5
+BuildRequires: expat-devel >= 2.0.1
+BuildRequires: php-devel >= 5.3.2
+BuildRequires: python-devel >= 2.6.5
+BuildRequires: qt-devel >= 4.6.2
+%endif
 %if "%{dist}" == ".sles11"
 BuildRequires: php5-devel >= 5.2.6
 BuildRequires: python-devel >= 2.6.0
@@ -185,7 +192,7 @@ Requires: ice-mono = %{version}-%{release}
 %if "%{dist}" == ".sles11"
 Requires(pre): pwdutils
 %endif
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
 Requires(pre): shadow-utils
 %endif
 # Requirements for the init.d services
@@ -257,7 +264,7 @@ Requires: ice-libs = %{version}-%{release}
 %if "%{dist}" == ".sles11"
 Requires: php5
 %endif
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
 Requires: php
 %endif
 %description php
@@ -280,6 +287,9 @@ Requires(pre): libqt4
 %endif
 %if "%{dist}" == ".rhel5"
 Requires(pre): qt4
+%endif
+%if "%{dist}" == ".rhel6"
+Requires(pre): qt
 %endif
 %description sqldb
 Database plug-ins that allow the IceGrid registry and IceStorm
@@ -406,7 +416,7 @@ cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.pth $RPM_BUILD_ROOT%{python_sit
 cd $RPM_BUILD_DIR/Ice-%{version}/php
 make prefix=$RPM_BUILD_ROOT install
 
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 cp -p $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/ice.ini $RPM_BUILD_ROOT%{_sysconfdir}/php.d
 mkdir -p $RPM_BUILD_ROOT%{_libdir}/php/modules
@@ -847,7 +857,7 @@ fi
 %files php
 %defattr(-, root, root, -)
 
-%if "%{dist}" == ".rhel5"
+%if "%{dist}" == ".rhel5" || "%{dist}" == ".rhel6"
 %{_datadir}/php
 %{_libdir}/php/modules/IcePHP.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
