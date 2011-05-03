@@ -72,8 +72,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %define dotnetversion 3.4.1
 %define dotnetpolicyversion 3.4
 
-%define formsversion 1.2.1
-%define looksversion 2.3.0
+%define commonversion 1.2.0
+%define formsversion 1.4.1
+%define looksversion 2.4.1
 %define dbversion 4.8.30
 
 BuildRequires: openssl-devel >= 0.9.7a
@@ -85,8 +86,9 @@ BuildRequires: mcpp-devel >= 2.7.2
 # Prerequisites for building Ice for Java:
 #
 # - a recent version of ant
+# - %{_javadir}/jgoodies-common-%{commonversion}.jar
 # - %{_javadir}/jgoodies-forms-%{formsversion}.jar
-# - %{_javadir}/jgoodies-forms-%{looksversion}.jar
+# - %{_javadir}/jgoodies-looks-%{looksversion}.jar
 # - %{_javadir}/proguard.jar
 #
 # Use find-jar to verify that the JAR files are present:
@@ -338,11 +340,12 @@ make %{makeopts} OPTIMIZE=yes embedded_runpath_prefix=""
 # ant-ice.jar in a non-noarch package.
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/java
-export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
+export CLASSPATH=`build-classpath db-%{dbversion} jgoodies-common-%{commonversion} jgoodies-forms-%{formsversion} jgoodies-looks-%{looksversion} proguard`
+JGOODIES_COMMON=`find-jar jgoodies-common-%{commonversion}`
 JGOODIES_FORMS=`find-jar jgoodies-forms-%{formsversion}`
 JGOODIES_LOOKS=`find-jar jgoodies-looks-%{looksversion}`
 
-ant -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS dist-jar
+ant -Djgoodies.common=$JGOODIES_COMMON -Djgoodies.forms=$JGOODIES_FORMS -Djgoodies.looks=$JGOODIES_LOOKS dist-jar
 
 # 
 # We build mono all the time because we include iceboxnet.exe in an

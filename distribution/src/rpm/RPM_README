@@ -130,15 +130,19 @@ $ rpm -i ice-@ver@-1.src.rpm
 If you have not already done so, install the RPM prerequisites listed
 in step 3 above. The following additional steps are also necessary:
 
- - Install the JGoodies Looks 2.3.0 JAR file as
+ - Install the JGoodies Looks 2.4.1 JAR file as
 
-   /usr/share/java/jgoodies-looks-2.3.0.jar
+   /usr/share/java/jgoodies-looks-2.4.1.jar
 
- - Install the JGoodies Forms 1.2.1 JAR file as
+ - Install the JGoodies Forms 1.4.1 JAR file as
 
-   /usr/share/java/jgoodies-forms-1.2.1.jar
+   /usr/share/java/jgoodies-forms-1.4.1.jar
 
- - Install the ProGuard 4.4 JAR file as
+ - Install the JGoodies Common 1.2.0 JAR file as
+
+   /usr/share/java/jgoodies-common-1.2.0.jar
+
+ - Install the ProGuard 4.6 JAR file as
 
    /usr/share/java/proguard.jar
 
@@ -156,8 +160,9 @@ in step 3 above. The following additional steps are also necessary:
 You can run the 'find-jar' program to verify that the JAR files are
 installed correctly. For example:
 
-$ find-jar jgoodies-looks-2.3.0.jar
-$ find-jar jgoodies-forms-1.2.1.jar
+$ find-jar jgoodies-looks-2.4.1.jar
+$ find-jar jgoodies-forms-1.4.1.jar
+$ find-jar jgoodies-common-1.2.0.jar
 $ find-jar proguard.jar
 
 Finally, build the RPMs as a non-root user.
