@@ -326,20 +326,28 @@ public class SessionHelper
     private void
     connected(RouterPrx router, SessionPrx session)
     {
+        string category = router.getCategoryForClient();
+        long timeout = router.getSessionTimeout();
+        Ice.Connection conn = router.ice_getCachedConnection();
         lock(this)
         {
             _router = router;
 
             if(_destroy)
             {
-                destroyInternal();
+                //
+                // Run the destroyInternal in a thread. This is because it
+                // destroyInternal makes remote invocations.
+                //
+                Thread t = new Thread(new ThreadStart(destroyInternal));
+                t.Start();
                 return;
             }
 
             //
             // Cache the category.
             //
-            _category = _router.getCategoryForClient();
+            _category = category;
 
             //
             // Assign the session after _destroy is checked.
@@ -348,7 +356,7 @@ public class SessionHelper
             _connected = true;
 
             Debug.Assert(_sessionRefresh == null);
-            _sessionRefresh = new SessionRefreshThread(this, _router, (int)(_router.getSessionTimeout() * 1000)/2);
+            _sessionRefresh = new SessionRefreshThread(this, _router, (int)(timeout * 1000)/2);
             _refreshThread = new Thread(new ThreadStart(_sessionRefresh.run));
             _refreshThread.Start();
 
@@ -363,76 +371,90 @@ public class SessionHelper
                                  {
                                      destroy();
                                  }
-                             }, _session.ice_getCachedConnection());
+                             }, conn);
         }
     }
 
     private void
     destroyInternal()
     {
+        Glacier2.RouterPrx router;
+        Ice.Communicator communicator;
+        SessionRefreshThread sessionRefresh;
         lock(this)
         {
             Debug.Assert(_destroy);
-
-            try
+            if(_router == null)
             {
-                _router.destroySession();
+                return;
             }
-            catch(Ice.ConnectionLostException)
-            {
-                //
-                // Expected if another thread invoked on an object from the session concurrently.
-                //
-            }
-            catch(SessionNotExistException)
-            {
-                //
-                // This can also occur.
-                //
-            }
-            catch(Exception e)
-            {
-                //
-                // Not expected.
-                //
-                _communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n"
-                                                  + e);
-            }
+            router = _router;
             _router = null;
-            _connected = false;
-            if(_sessionRefresh != null)
-            {
-                _sessionRefresh.done();
-                while(true)
-                {
-                    try
-                    {
-                        _refreshThread.Join();
-                        break;
-                    }
-                    catch(ThreadInterruptedException)
-                    {
-                    }
-                }
-                _sessionRefresh = null;
-                _refreshThread = null;
-            }
 
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(Exception)
-            {
-            }
+            communicator = _communicator;
             _communicator = null;
 
-            // Notify the callback that the session is gone.
-            dispatchCallback(delegate()
-                             {
-                                 _callback.disconnected(this);
-                             }, null);
+            Debug.Assert(communicator != null);
+
+            sessionRefresh = _sessionRefresh;
+            _sessionRefresh = null;
         }
+
+        try
+        {
+            router.destroySession();
+        }
+        catch(Ice.ConnectionLostException)
+        {
+            //
+            // Expected if another thread invoked on an object from the session concurrently.
+            //
+        }
+        catch(SessionNotExistException)
+        {
+            //
+            // This can also occur.
+            //
+        }
+        catch(Exception e)
+        {
+            //
+            // Not expected.
+            //
+            communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
+        }
+        _connected = false;
+        if(sessionRefresh != null)
+        {
+            sessionRefresh.done();
+            while(true)
+            {
+                try
+                {
+                    _refreshThread.Join();
+                    break;
+                }
+                catch(ThreadInterruptedException)
+                {
+                }
+            }
+            _refreshThread = null;
+        }
+
+
+        try
+        {
+            communicator.destroy();
+        }
+        catch(Exception)
+        {
+        }
+
+        // Notify the callback that the session is gone.
+        dispatchCallback(delegate()
+                         {
+                             _callback.disconnected(this);
+                         }, null);
     }
 
     delegate Glacier2.SessionPrx ConnectStrategy(Glacier2.RouterPrx router);
@@ -479,7 +501,7 @@ public class SessionHelper
                     catch(Exception)
                     {
                     }
-
+                    _communicator = null;
                     dispatchCallback(delegate()
                                      {
                                          _callback.connectFailed(this, ex);

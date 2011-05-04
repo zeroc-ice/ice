@@ -349,6 +349,9 @@
 	    <fileset dir="test/Glacier2/router/">
                 <include name="Callback.ice" />
             </fileset>
+        <fileset dir="test/Glacier2/sessionHelper/">
+            <include name="Callback.ice" />
+        </fileset>
 	    <fileset dir="test/IceGrid/simple/">
                 <include name="Test.ice" />
             </fileset>

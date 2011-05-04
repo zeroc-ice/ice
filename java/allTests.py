@@ -69,6 +69,7 @@ tests = [
     ("Freeze/evictor", ["core"]),
     ("Freeze/fileLock", ["once"]),
     ("Glacier2/router", ["service"]),
+    ("Glacier2/sessionHelper", ["service"]),
     ("IceGrid/simple", ["service"]),
     ("IceSSL/configuration", ["once"])
     ]

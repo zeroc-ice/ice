@@ -108,37 +108,40 @@ public class SessionHelper
      * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
      * the associated callback object.
      */
-    synchronized public void
+    public void
     destroy()
     {
-        if(_destroy)
+        synchronized(this)
         {
-            return;
-        }
-        _destroy = true;
-        if(_refreshThread == null)
-        {
-            //
-            // In this case a connecting session is being
-            // destroyed. The communicator and session will be
-            // destroyed when the connection establishment has
-            // completed.
-            //
-            return;
-        }
-        _session = null;
+            if(_destroy)
+            {
+                return;
+            }
+            _destroy = true;
+            if(_refreshThread == null)
+            {
+                //
+                // In this case a connecting session is being
+                // destroyed. The communicator and session will be
+                // destroyed when the connection establishment has
+                // completed.
+                //
+                return;
+            }
+            _session = null;
 
-        try
-        {
-            Runtime.getRuntime().removeShutdownHook(_shutdownHook);
-        }
-        catch(IllegalStateException ex)
-        {
-            // Ignore
-        }
-        catch(SecurityException ex)
-        {
-            // Ignore
+            try
+            {
+                Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+            }
+            catch(IllegalStateException ex)
+            {
+                // Ignore
+            }
+            catch(SecurityException ex)
+            {
+                // Ignore
+            }
         }
 
         //
@@ -311,81 +314,119 @@ public class SessionHelper
                             });
     }
 
-    synchronized private void
+    private void
     connected(RouterPrx router, SessionPrx session)
     {
-        _router = router;
+        Ice.Connection conn = router.ice_getCachedConnection();
+        long timeout = router.getSessionTimeout();
+        String category = router.getCategoryForClient();
 
-        if(_destroy)
+        synchronized(this)
         {
-            destroyInternal();
-            return;
-        }
+            _router = router;
 
-        //
-        // Cache the category.
-        //
-        _category = _router.getCategoryForClient();
-
-        //
-        // Assign the session after _destroy is checked.
-        //
-        _session = session;
-        _connected = true;
-
-        assert _refreshThread == null;
-        _refreshThread = new SessionRefreshThread(_router, (_router.getSessionTimeout() * 1000)/2);
-        _refreshThread.start();
-
-        _shutdownHook = new Thread("Shutdown hook")
-        {
-            public void run()
+            if(_destroy)
             {
-                SessionHelper.this.destroy();
-            }
-        };
-
-        try
-        {
-            Runtime.getRuntime().addShutdownHook(_shutdownHook);
-        }
-        catch(IllegalStateException e)
-        {
-            //
-            // Shutdown in progress, ignored
-            //
-        }
-        catch(SecurityException ex)
-        {
-            //
-            // Ignore. Unsigned applets cannot registered shutdown hooks.
-            //
-        }
-
-        dispatchCallback(new Runnable()
-        {
-            public void run()
-            {
-                try
+                //
+                // Run the destroyInternal in a thread. This is because it
+                // destroyInternal makes remote invocations.
+                //
+                new Thread(new Runnable()
                 {
-                    _callback.connected(SessionHelper.this);
-                }
-                catch(SessionNotExistException ex)
+                    public void run()
+                    {
+                        destroyInternal();
+                    }
+                }).start();
+                return;
+            }
+
+            //
+            // Cache the category.
+            //
+            _category = category;
+
+            //
+            // Assign the session after _destroy is checked.
+            //
+            _session = session;
+            _connected = true;
+
+            assert _refreshThread == null;
+            _refreshThread = new SessionRefreshThread(_router, (timeout * 1000)/2);
+            _refreshThread.start();
+
+            _shutdownHook = new Thread("Shutdown hook")
+            {
+                public void run()
                 {
                     SessionHelper.this.destroy();
                 }
+            };
+
+            try
+            {
+                Runtime.getRuntime().addShutdownHook(_shutdownHook);
             }
-        }, _session.ice_getCachedConnection());
+            catch(IllegalStateException e)
+            {
+                //
+                // Shutdown in progress, ignored
+                //
+            }
+            catch(SecurityException ex)
+            {
+                //
+                // Ignore. Unsigned applets cannot registered shutdown hooks.
+                //
+            }
+        }
+
+        dispatchCallback(new Runnable()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        _callback.connected(SessionHelper.this);
+                    }
+                    catch(SessionNotExistException ex)
+                    {
+                        SessionHelper.this.destroy();
+                    }
+                }
+            }, conn);
     }
 
-    synchronized private void
+    private void
     destroyInternal()
     {
         assert _destroy;
+        Glacier2.RouterPrx router = null;
+        Ice.Communicator communicator = null;
+        SessionRefreshThread refreshThread = null;
+        synchronized(this)
+        {
+            if(_router == null)
+            {
+                return;
+            }
+
+            router = _router;
+            _router = null;
+
+            refreshThread = _refreshThread;
+            _refreshThread = null;
+
+            communicator = _communicator;
+            _communicator = null;
+        }
+
+        assert communicator != null;
 
         try
         {
-            _router.destroySession();
+            router.destroySession();
         }
         catch(Ice.ConnectionLostException e)
         {
@@ -404,36 +445,33 @@ public class SessionHelper
             //
             // Not expected.
             //
-            _communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
+            communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
-        _router = null;
         _connected = false;
 
-        if(_refreshThread != null)
+        if(refreshThread != null)
         {
-            _refreshThread.done();
+            refreshThread.done();
             while(true)
             {
                 try
                 {
-                    _refreshThread.join();
+                    refreshThread.join();
                     break;
                 }
                 catch(InterruptedException e)
                 {
                 }
             }
-            _refreshThread = null;
         }
 
         try
         {
-            _communicator.destroy();
+            communicator.destroy();
         }
         catch(Throwable ex)
         {
         }
-        _communicator = null;
 
         //
         // Notify the callback that the session is gone.
@@ -493,6 +531,7 @@ public class SessionHelper
                     try
                     {
                         _communicator.destroy();
+                        _communicator = null;
                     }
                     catch(Throwable ex1)
                     {
