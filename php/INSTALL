@@ -6,6 +6,7 @@ Requirements
 
   * 5.2.6 (SLES 11)
   * 5.1.6 (RHEL 5)
+  * 5.3.2 (RHEL 6)
   * 5.2.x or 5.3.x (source builds)
 
   You can download PHP from
@@ -364,10 +365,10 @@ do the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer
-to the link below:
+For more information on SELinux in Red Hat Enterprise Linux, refer to
+the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5/html/Deployment_Guide/selg-overview.html
 
 
 ======================================================================

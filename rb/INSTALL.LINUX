@@ -10,6 +10,7 @@ Ice for Ruby is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice for Ruby is officially
 supported only on:
 
+ - Red Hat Enterprise Linux 6 for i386 or x86_64 (RHEL 6)
  - Red Hat Enterprise Linux 5 Update 4 for i386 or x86_64 (RHEL 5.4)
  - SuSE Linux Enterprise Server 11 for i386 or x86_64 (SLES 11)
 
@@ -27,7 +28,7 @@ RPMs, the following packages are required:
 
   ruby
   ruby-devel
-  ruby-libs (RHEL 5)
+  ruby-libs (RHEL)
 
 
 ======================================================================
@@ -220,7 +221,7 @@ There are two ways to solve this problem:
 
   SELINUX=disabled
 
-For more information on SELinux in Red Hat Enterprise Linux 5, refer
-to the link below:
+For more information on SELinux in Red Hat Enterprise Linux, refer to
+the link below:
 
-  http://www.redhat.com/docs/manuals/enterprise/RHEL-5-manual/Deployment_Guide-en-US/rhlcommon-chapter-0017.html
+  http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/5/html/Deployment_Guide/selg-overview.html

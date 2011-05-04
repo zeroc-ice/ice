@@ -216,7 +216,7 @@ examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
 Your application will also need to include at least some of the Ice
-for PHP run-time source files (installed in /usr/share/php on RHEL5
+for PHP run-time source files (installed in /usr/share/php on RHEL
 and /usr/share/php5 on SLES11). This installation directory is
 included in PHP's default include path, which you can verify by
 executing the following command:
