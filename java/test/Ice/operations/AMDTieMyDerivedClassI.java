@@ -118,6 +118,8 @@ public final class AMDTieMyDerivedClassI implements _MyDerivedClassOperations
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
+
         while(_opVoidThread != null)
         {
             try

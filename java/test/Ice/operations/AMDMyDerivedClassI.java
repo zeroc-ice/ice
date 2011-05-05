@@ -149,6 +149,8 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
     opVoid_async(AMD_MyClass_opVoid cb,
                  Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
+
         while(_opVoidThread != null)
         {
             try

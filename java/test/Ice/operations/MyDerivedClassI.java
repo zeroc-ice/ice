@@ -107,6 +107,7 @@ public final class MyDerivedClassI extends MyDerivedClass
     public void
     opVoid(Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
     }
 
     public boolean

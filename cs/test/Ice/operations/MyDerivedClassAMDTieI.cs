@@ -81,6 +81,8 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
 
     public void opVoid_async(Test.AMD_MyClass_opVoid cb, Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
+
         while(_opVoidThread != null)
         {
             _opVoidThread.Join();

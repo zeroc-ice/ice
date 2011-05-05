@@ -76,6 +76,7 @@ public final class TieMyDerivedClassI implements _MyDerivedClassOperations
     public void
     opVoid(Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
     }
 
     public boolean

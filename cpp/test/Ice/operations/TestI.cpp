@@ -55,8 +55,9 @@ MyDerivedClassI::delay(Ice::Int ms, const Ice::Current& current)
 }
 
 void
-MyDerivedClassI::opVoid(const Ice::Current&)
+MyDerivedClassI::opVoid(const Ice::Current& current)
 {
+    test(current.mode == Ice::Normal);
 }
 
 Ice::Byte

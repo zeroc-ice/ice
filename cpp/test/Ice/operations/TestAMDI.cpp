@@ -84,8 +84,10 @@ MyDerivedClassI::delay_async(const Test::AMD_MyClass_delayPtr& cb, Ice::Int ms, 
 }
 
 void
-MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current&)
+MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current& current)
 {
+    test(current.mode == Ice::Normal);
+
     IceUtil::Mutex::Lock sync(_opVoidMutex);
     if(_opVoidThread)
     {

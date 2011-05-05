@@ -63,6 +63,8 @@ class MyDerivedClassI(Test.MyDerivedClass):
         cb.ice_response()
 
     def opVoid_async(self, cb, current=None):
+        test(current.mode == Ice.OperationMode.Normal)
+
         self.opVoidThreadLock.acquire()
         if self.opVoidThread:
             self.opVoidThread.join()

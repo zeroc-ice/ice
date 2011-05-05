@@ -34,7 +34,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         current.adapter.getCommunicator().shutdown()
 
     def opVoid(self, current=None):
-        pass
+        test(current.mode == Ice.OperationMode.Normal)
 
     def opByte(self, p1, p2, current=None):
         return (p1, p1 ^ p2)

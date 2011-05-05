@@ -60,6 +60,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 
     public override void opVoid(Ice.Current current)
     {
+        test(current.mode == Ice.OperationMode.Normal);
     }
 
     public override bool opBool(bool p1, bool p2, out bool p3, Ice.Current current)
