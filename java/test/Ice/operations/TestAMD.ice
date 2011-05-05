@@ -10,7 +10,7 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
-#include<Ice/Current.ice>
+#include <Ice/Current.ice>
 
 [["java:package:test.Ice.operations.AMD"]]
 module Test
@@ -164,9 +164,13 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
     void opByteSOneway(ByteS s);
 
-    StringStringD opContext();
+    Ice::Context opContext();
 
     void opDoubleMarshaling(double p1, DoubleS p2);
+
+    idempotent void opIdempotent();
+
+    ["nonmutating"] idempotent void opNonmutating();
 };
 
 ["ami", "amd"] class MyDerivedClass extends MyClass

@@ -72,6 +72,40 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_onewayOpVoidI> AMI_MyClass_onewayOpVoidIPtr;
 
+class AMI_MyClass_onewayOpIdempotentI : public Test::AMI_MyClass_opIdempotent, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_onewayOpIdempotentI> AMI_MyClass_onewayOpIdempotentIPtr;
+
+class AMI_MyClass_onewayOpNonmutatingI : public Test::AMI_MyClass_opNonmutating, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_onewayOpNonmutatingI> AMI_MyClass_onewayOpNonmutatingIPtr;
+
 class AMI_MyClass_onewayOpVoidExI : public Test::AMI_MyClass_opVoid, public CallbackBase
 {
 public:
@@ -120,6 +154,16 @@ onewaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& pro
         p->opVoid_async(cb);
         // Let's check if we can reuse the same callback object for another call.
         p->opVoid_async(cb);
+    }
+
+    {
+        AMI_MyClass_onewayOpIdempotentIPtr cb = new AMI_MyClass_onewayOpIdempotentI();
+        p->opIdempotent_async(cb);
+    }
+
+    {
+        AMI_MyClass_onewayOpNonmutatingIPtr cb = new AMI_MyClass_onewayOpNonmutatingI();
+        p->opNonmutating_async(cb);
     }
 
     {

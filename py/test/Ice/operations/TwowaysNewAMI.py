@@ -345,6 +345,12 @@ class Callback(CallbackBase):
             test(r[j] == -j)
         self.called()
 
+    def opIdempotent(self):
+        self.called()
+
+    def opNonmutating(self):
+        self.called()
+
     def opDerived(self):
         self.called()
 
@@ -357,7 +363,7 @@ def twowaysNewAMI(communicator, p):
     cb.check()
 
     cb = Callback()
-    p.begin_ice_isA("::Test::MyClass", cb.isA, cb.exCB)
+    p.begin_ice_isA(Test.MyClass.ice_staticId(), cb.isA, cb.exCB)
     cb.check()
 
     cb = Callback()
@@ -618,6 +624,14 @@ def twowaysNewAMI(communicator, p):
         test(c == combined)
 
         ic.destroy()
+
+    cb = Callback()
+    p.begin_opIdempotent(cb.opIdempotent, cb.exCB)
+    cb.check()
+
+    cb = Callback()
+    p.begin_opNonmutating(cb.opNonmutating, cb.exCB)
+    cb.check()
 
     derived = Test.MyDerivedClassPrx.checkedCast(p)
     test(derived)

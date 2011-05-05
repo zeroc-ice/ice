@@ -81,7 +81,7 @@ Arguments:
 Returns:
     True if the target object supports the interface, or false otherwise.
 '''
-        return id in self.ice_ids()
+        return id in self.ice_ids(current)
 
     def ice_ping(self, current=None):
         '''A reachability test for the target object.'''
@@ -93,7 +93,7 @@ that are supported by the target object.
 Returns:
     A list of type ids.
 '''
-        return [ self.ice_id() ]
+        return [ self.ice_id(current) ]
 
     def ice_id(self, current=None):
         '''Obtains the type id corresponding to the most-derived Slice

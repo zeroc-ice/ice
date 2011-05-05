@@ -71,6 +71,7 @@ public:
     string dispatchName;
     bool sendsClasses;
     bool returnsClasses;
+    bool pseudoOp;
 
 private:
 
@@ -1055,6 +1056,11 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     {
         exceptions.push_back(getException(PyTuple_GET_ITEM(ex, i)));
     }
+
+    //
+    // Does the operation name start with "ice_"?
+    //
+    pseudoOp = name.find("ice_") == 0;
 }
 
 void
@@ -3695,7 +3701,13 @@ IcePy::TypedServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr
             }
         }
 
-        __checkMode(op->mode, current.mode);
+        //
+        // See bug 4976.
+        //
+        if(!op->pseudoOp)
+        {
+            __checkMode(op->mode, current.mode);
+        }
 
         UpcallPtr up = new TypedUpcall(op, cb, current.adapter->getCommunicator());
         up->dispatch(_servant, inParams, current);

@@ -75,6 +75,46 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private class AMI_MyClass_opIdempotentI : Test.AMI_MyClass_opIdempotent
+    {
+        public override void ice_response()
+        {
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opNonmutatingI : Test.AMI_MyClass_opNonmutating
+    {
+        public override void ice_response()
+        {
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     private class AMI_MyClass_opVoidExI : Test.AMI_MyClass_opVoid
     {
         public override void ice_response()
@@ -1483,6 +1523,18 @@ public class TwowaysAMI
 		ic.getImplicitContext().setContext(null);
                 ic.destroy();
             }
+        }
+
+        {
+            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
+            p.opIdempotent_async(cb);
+            cb.check();
+        }
+
+        {
+            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
+            p.opNonmutating_async(cb);
+            cb.check();
         }
 
         {

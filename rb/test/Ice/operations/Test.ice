@@ -162,6 +162,10 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
     void opByteSOneway(ByteS s);
 
     Ice::Context opContext();
+
+    idempotent void opIdempotent();
+
+    ["nonmutating"] idempotent void opNonmutating();
 };
 
 ["ami"] class MyDerivedClass extends MyClass

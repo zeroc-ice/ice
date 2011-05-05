@@ -27,7 +27,12 @@ Changes since version 3.4.1
 General Changes
 ===============
 
-- Fixed a bug where Ice would under certain circumstnances
+- The operation mode sent over the wire for the Object operations
+  ice_ping, ice_isA, ice_ids, and ice_id should be Nonmutating, but
+  the language mappings were inconsistent in this respect. All
+  language mappings now send the correct mode.
+
+- Fixed a bug where under certain circumstances, Ice would
   indefinitely re-try to add a proxy to the Glacier2 routing table.
 
 - Improved queuing of Glacier2 requests to the client to not invoke

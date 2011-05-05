@@ -413,6 +413,16 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         return p2;
     }
 
+    public void opIdempotent(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Idempotent);
+    }
+
+    public void opNonmutating(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+    }
+
     public void opDerived(Ice.Current current)
     {
     }

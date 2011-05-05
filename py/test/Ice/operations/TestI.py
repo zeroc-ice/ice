@@ -14,6 +14,22 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 class MyDerivedClassI(Test.MyDerivedClass):
+    def ice_isA(self, id, current=None):
+        test(current.mode == Ice.OperationMode.Nonmutating)
+        return Test.MyDerivedClass.ice_isA(self, id, current)
+
+    def ice_ping(self, current=None):
+        test(current.mode == Ice.OperationMode.Nonmutating)
+        Test.MyDerivedClass.ice_ping(self, current)
+
+    def ice_ids(self, current=None):
+        test(current.mode == Ice.OperationMode.Nonmutating)
+        return Test.MyDerivedClass.ice_ids(self, current)
+
+    def ice_id(self, current=None):
+        test(current.mode == Ice.OperationMode.Nonmutating)
+        return Test.MyDerivedClass.ice_id(self, current)
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
@@ -184,6 +200,12 @@ class MyDerivedClassI(Test.MyDerivedClass):
         test(p1 == d)
         for i in p2:
             test(i == d)
+
+    def opIdempotent(self, current=None):
+        test(current.mode == Ice.OperationMode.Idempotent)
+
+    def opNonmutating(self, current=None):
+        test(current.mode == Ice.OperationMode.Nonmutating)
 
     def opDerived(self, current=None):
         pass

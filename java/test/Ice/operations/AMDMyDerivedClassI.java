@@ -22,11 +22,13 @@ import test.Ice.operations.AMD.Test.AMD_MyClass_opDoubleMarshaling;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDouble;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDoubleS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opFloatDoubleSS;
+import test.Ice.operations.AMD.Test.AMD_MyClass_opIdempotent;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opIntS;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opLongFloatD;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opMyClass;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opMyEnum;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opMyStructMyEnumD;
+import test.Ice.operations.AMD.Test.AMD_MyClass_opNonmutating;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntD;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLong;
 import test.Ice.operations.AMD.Test.AMD_MyClass_opShortIntLongS;
@@ -76,6 +78,38 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         }
 
         private AMD_MyClass_opVoid _cb;
+    }
+
+    //
+    // Override the Object "pseudo" operations to verify the operation mode.
+    //
+
+    public boolean
+    ice_isA(String id, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_isA(id, current);
+    }
+
+    public void
+    ice_ping(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        super.ice_ping(current);
+    }
+
+    public String[]
+    ice_ids(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_ids(current);
+    }
+
+    public String
+    ice_id(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_id(current);
     }
 
     synchronized public void
@@ -507,6 +541,22 @@ public final class AMDMyDerivedClassI extends MyDerivedClass
         Structure p3 = p1;
         p3.s.s = "a new string";
         cb.ice_response(p2, p3);
+    }
+
+    public void
+    opIdempotent_async(AMD_MyClass_opIdempotent cb,
+                       Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Idempotent);
+        cb.ice_response();
+    }
+
+    public void
+    opNonmutating_async(AMD_MyClass_opNonmutating cb,
+                        Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        cb.ice_response();
     }
 
     public void

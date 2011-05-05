@@ -22,7 +22,19 @@ class Oneways
         p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {
+            p.ice_ping();
+        }
+
+        {
             p.opVoid();
+        }
+
+        {
+            p.opIdempotent();
+        }
+
+        {
+            p.opNonmutating();
         }
 
         {

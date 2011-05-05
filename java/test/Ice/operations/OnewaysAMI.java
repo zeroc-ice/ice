@@ -10,6 +10,8 @@
 package test.Ice.operations;
 
 import test.Ice.operations.Test.AMI_MyClass_opByte;
+import test.Ice.operations.Test.AMI_MyClass_opIdempotent;
+import test.Ice.operations.Test.AMI_MyClass_opNonmutating;
 import test.Ice.operations.Test.AMI_MyClass_opVoid;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
@@ -61,6 +63,36 @@ class OnewaysAMI
     }
 
     private static class AMI_MyClass_opVoidI extends AMI_MyClass_opVoid
+    {
+        public void
+        ice_response()
+        {
+            test(false);
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+    }
+
+    private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
+    {
+        public void
+        ice_response()
+        {
+            test(false);
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+    }
+
+    private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
     {
         public void
         ice_response()
@@ -134,6 +166,16 @@ class OnewaysAMI
             p.opVoid_async(cb);
             // Let's check if we can reuse the same callback object for another call.
             p.opVoid_async(cb);
+        }
+
+        {
+            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
+            p.opIdempotent_async(cb);
+        }
+
+        {
+            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
+            p.opNonmutating_async(cb);
         }
 
         {

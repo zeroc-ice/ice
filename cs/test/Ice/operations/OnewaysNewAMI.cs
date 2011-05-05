@@ -116,11 +116,21 @@ public class OnewaysNewAMI
         }
 
         {
-            {
-                Callback cb = new Callback();
-                p.begin_opVoid().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
-                cb.check();
-            }
+            Callback cb = new Callback();
+            p.begin_opVoid().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            cb.check();
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(cb.noException).whenSent((Ice.SentCallback)cb.sent);
+            cb.check();
         }
 
         {

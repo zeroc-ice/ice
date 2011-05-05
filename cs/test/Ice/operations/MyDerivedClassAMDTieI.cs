@@ -448,6 +448,18 @@ public sealed class MyDerivedClassTieI : Test.MyDerivedClassOperations_
         cb.ice_response(p2, p3);
     }
 
+    public void opIdempotent_async(Test.AMD_MyClass_opIdempotent cb, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Idempotent);
+        cb.ice_response();
+    }
+
+    public void opNonmutating_async(Test.AMD_MyClass_opNonmutating cb, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        cb.ice_response();
+    }
+
     public void opDerived_async(Test.AMD_MyDerivedClass_opDerived cb, Ice.Current current)
     {
         cb.ice_response();

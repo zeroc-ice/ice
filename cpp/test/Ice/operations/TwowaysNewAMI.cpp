@@ -38,7 +38,7 @@ public:
         }
         _called = false;
     }
-    
+
 protected:
 
     void called()
@@ -95,7 +95,7 @@ public:
         test(ids[2] == "::Test::MyDerivedClass");
         called();
     }
-    
+
     void opVoid()
     {
         called();
@@ -157,9 +157,9 @@ public:
         test(c2->ice_getIdentity() == _communicator->stringToIdentity("noSuchIdentity"));
         test(r->ice_getIdentity() == _communicator->stringToIdentity("test"));
 
-	//
+        //
         // We can't do the callbacks below in connection serialization mode.
-	//
+        //
         if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
         {
             r->opVoid();
@@ -184,9 +184,9 @@ public:
         test(so.e == Test::enum3);
         test(so.s.s == "a new string");
 
-	//
+        //
         // We can't do the callbacks below in connection serialization mode.
-	//
+        //
         if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
         {
             so.p->opVoid();
@@ -479,6 +479,16 @@ public:
         called();
     }
 
+    void opIdempotent()
+    {
+        called();
+    }
+
+    void opNonmutating()
+    {
+        called();
+    }
+
     void opDerived()
     {
         called();
@@ -486,7 +496,7 @@ public:
 
     void exCB(const Ice::Exception& ex)
     {
-	test(false);
+        test(false);
     }
 
 private:
@@ -501,7 +511,7 @@ void
 twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 {
     {
-	CallbackPtr cb = new Callback;
+        CallbackPtr cb = new Callback;
         Ice::Callback_Object_ice_pingPtr callback = Ice::newCallback_Object_ice_ping(cb,
                                                                                      &Callback::ping,
                                                                                      &Callback::exCB);
@@ -510,25 +520,25 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
-	CallbackPtr cb = new Callback;
+        CallbackPtr cb = new Callback;
         Ice::Callback_Object_ice_isAPtr callback = Ice::newCallback_Object_ice_isA(cb,
                                                                                    &Callback::isA,
                                                                                    &Callback::exCB);
         p->begin_ice_isA(Test::MyClass::ice_staticId(), callback);
         cb->check();
     }
-    
+
     {
-	CallbackPtr cb = new Callback;
+        CallbackPtr cb = new Callback;
         Ice::Callback_Object_ice_idPtr callback = Ice::newCallback_Object_ice_id(cb,
                                                                                  &Callback::id,
                                                                                  &Callback::exCB);
         p->begin_ice_id(callback);
         cb->check();
     }
-    
+
     {
-	CallbackPtr cb = new Callback;
+        CallbackPtr cb = new Callback;
         Ice::Callback_Object_ice_idsPtr callback = Ice::newCallback_Object_ice_ids(cb,
                                                                                    &Callback::ids,
                                                                                    &Callback::exCB);
@@ -537,85 +547,85 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
                                                                                      &Callback::opVoid,
                                                                                      &Callback::exCB);
-	p->begin_opVoid(callback);
-	cb->check();
+        p->begin_opVoid(callback);
+        cb->check();
     }
-    
+
     {
         Ice::Double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
         CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
+        Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
                                                                                      &Callback::opByte,
                                                                                      &Callback::exCB);
-	p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
-	cb->check();
+        p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
+        cb->check();
     }
-    
+
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
                                                                                      &Callback::opVoid,
                                                                                      &Callback::exCB);
-	p->begin_opVoid(callback);
-	cb->check();
+        p->begin_opVoid(callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opBoolPtr callback = Test::newCallback_MyClass_opBool(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opBoolPtr callback = Test::newCallback_MyClass_opBool(cb,
                                                                                      &Callback::opBool,
                                                                                      &Callback::exCB);
-	p->begin_opBool(true, false, callback);
-	cb->check();
+        p->begin_opBool(true, false, callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opShortIntLongPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortIntLongPtr callback =
             Test::newCallback_MyClass_opShortIntLong(cb, &Callback::opShortIntLong, &Callback::exCB);
-	p->begin_opShortIntLong(10, 11, 12, callback);
-	cb->check();
+        p->begin_opShortIntLong(10, 11, 12, callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opFloatDoublePtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opFloatDoublePtr callback =
             Test::newCallback_MyClass_opFloatDouble(cb, &Callback::opFloatDouble, &Callback::exCB);
-	p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), callback);
-	cb->check();
+        p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opStringPtr callback = Test::newCallback_MyClass_opString(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringPtr callback = Test::newCallback_MyClass_opString(cb,
                                                                                          &Callback::opString,
                                                                                          &Callback::exCB);
-	p->begin_opString("hello", "world", callback);
-	cb->check();
+        p->begin_opString("hello", "world", callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opMyEnumPtr callback = Test::newCallback_MyClass_opMyEnum(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opMyEnumPtr callback = Test::newCallback_MyClass_opMyEnum(cb,
                                                                                          &Callback::opMyEnum,
                                                                                          &Callback::exCB);
-	p->begin_opMyEnum(Test::enum2, callback);
-	cb->check();
+        p->begin_opMyEnum(Test::enum2, callback);
+        cb->check();
     }
 
     {
-	CallbackPtr cb = new Callback(communicator);
-	Test::Callback_MyClass_opMyClassPtr callback = Test::newCallback_MyClass_opMyClass(cb,
+        CallbackPtr cb = new Callback(communicator);
+        Test::Callback_MyClass_opMyClassPtr callback = Test::newCallback_MyClass_opMyClass(cb,
                                                                                            &Callback::opMyClass,
                                                                                            &Callback::exCB);
-	p->begin_opMyClass(p, callback);
-	cb->check();
+        p->begin_opMyClass(p, callback);
+        cb->check();
     }
 
     {
@@ -627,13 +637,13 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         si2.p = 0;
         si2.e = Test::enum2;
         si2.s.s = "def";
-        
-	CallbackPtr cb = new Callback(communicator);
-	Test::Callback_MyClass_opStructPtr callback = Test::newCallback_MyClass_opStruct(cb,
+
+        CallbackPtr cb = new Callback(communicator);
+        Test::Callback_MyClass_opStructPtr callback = Test::newCallback_MyClass_opStruct(cb,
                                                                                          &Callback::opStruct,
                                                                                          &Callback::exCB);
-	p->begin_opStruct(si1, si2, callback);
-	cb->check();
+        p->begin_opStruct(si1, si2, callback);
+        cb->check();
     }
 
     {
@@ -650,12 +660,12 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         bsi2.push_back(Ice::Byte(0xf3));
         bsi2.push_back(Ice::Byte(0xf4));
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opByteSPtr callback = Test::newCallback_MyClass_opByteS(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteSPtr callback = Test::newCallback_MyClass_opByteS(cb,
                                                                                        &Callback::opByteS,
                                                                                        &Callback::exCB);
-	p->begin_opByteS(bsi1, bsi2, callback);
-	cb->check();
+        p->begin_opByteS(bsi1, bsi2, callback);
+        cb->check();
     }
 
     {
@@ -668,12 +678,12 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
         bsi2.push_back(false);
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opBoolSPtr callback = Test::newCallback_MyClass_opBoolS(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opBoolSPtr callback = Test::newCallback_MyClass_opBoolS(cb,
                                                                                        &Callback::opBoolS,
                                                                                        &Callback::exCB);
-	p->begin_opBoolS(bsi1, bsi2, callback);
-	cb->check();
+        p->begin_opBoolS(bsi1, bsi2, callback);
+        cb->check();
     }
 
     {
@@ -694,11 +704,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         lsi.push_back(30);
         lsi.push_back(20);
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opShortIntLongSPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortIntLongSPtr callback =
             Test::newCallback_MyClass_opShortIntLongS(cb, &Callback::opShortIntLongS, &Callback::exCB);
-	p->begin_opShortIntLongS(ssi, isi, lsi, callback);
-	cb->check();
+        p->begin_opShortIntLongS(ssi, isi, lsi, callback);
+        cb->check();
     }
 
     {
@@ -712,11 +722,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         dsi.push_back(Ice::Double(1.2E10));
         dsi.push_back(Ice::Double(1.3E10));
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opFloatDoubleSPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opFloatDoubleSPtr callback =
             Test::newCallback_MyClass_opFloatDoubleS(cb, &Callback::opFloatDoubleS, &Callback::exCB);
-	p->begin_opFloatDoubleS(fsi, dsi, callback);
-	cb->check();
+        p->begin_opFloatDoubleS(fsi, dsi, callback);
+        cb->check();
     }
 
     {
@@ -729,12 +739,12 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
         ssi2.push_back("xyz");
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opStringSPtr callback = Test::newCallback_MyClass_opStringS(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringSPtr callback = Test::newCallback_MyClass_opStringS(cb,
                                                                                            &Callback::opStringS,
                                                                                            &Callback::exCB);
-	p->begin_opStringS(ssi1, ssi2, callback);
-	cb->check();
+        p->begin_opStringS(ssi1, ssi2, callback);
+        cb->check();
     }
 
     {
@@ -752,12 +762,12 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         bsi2[1].push_back(Ice::Byte(0xf2));
         bsi2[1].push_back(Ice::Byte(0xf1));
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opByteSSPtr callback = Test::newCallback_MyClass_opByteSS(cb,
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteSSPtr callback = Test::newCallback_MyClass_opByteSS(cb,
                                                                                          &Callback::opByteSS,
                                                                                          &Callback::exCB);
-	p->begin_opByteSS(bsi1, bsi2, callback);
-	cb->check();
+        p->begin_opByteSS(bsi1, bsi2, callback);
+        cb->check();
     }
 
     {
@@ -773,11 +783,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         dsi[0].push_back(Ice::Double(1.2E10));
         dsi[0].push_back(Ice::Double(1.3E10));
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opFloatDoubleSSPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opFloatDoubleSSPtr callback =
             Test::newCallback_MyClass_opFloatDoubleSS(cb, &Callback::opFloatDoubleSS, &Callback::exCB);
-	p->begin_opFloatDoubleSS(fsi, dsi, callback);
-	cb->check();
+        p->begin_opFloatDoubleSS(fsi, dsi, callback);
+        cb->check();
     }
 
     {
@@ -792,11 +802,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
         ssi2[2].push_back("xyz");
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opStringSSPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringSSPtr callback =
             Test::newCallback_MyClass_opStringSS(cb, &Callback::opStringSS, &Callback::exCB);
-	p->begin_opStringSS(ssi1, ssi2, callback);
-	cb->check();
+        p->begin_opStringSS(ssi1, ssi2, callback);
+        cb->check();
     }
 
     {
@@ -808,11 +818,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2[11] = false;
         di2[101] = true;
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opByteBoolDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteBoolDPtr callback =
             Test::newCallback_MyClass_opByteBoolD(cb, &Callback::opByteBoolD, &Callback::exCB);
-	p->begin_opByteBoolD(di1, di2, callback);
-	cb->check();
+        p->begin_opByteBoolD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -824,11 +834,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2[111] = -100;
         di2[1101] = 0;
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opShortIntDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opShortIntDPtr callback =
             Test::newCallback_MyClass_opShortIntD(cb, &Callback::opShortIntD, &Callback::exCB);
-	p->begin_opShortIntD(di1, di2, callback);
-	cb->check();
+        p->begin_opShortIntD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -840,11 +850,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2[999999120] = Ice::Float(-100.4);
         di2[999999130] = Ice::Float(0.5);
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opLongFloatDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opLongFloatDPtr callback =
             Test::newCallback_MyClass_opLongFloatD(cb, &Callback::opLongFloatD, &Callback::exCB);
-	p->begin_opLongFloatD(di1, di2, callback);
-	cb->check();
+        p->begin_opLongFloatD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -856,11 +866,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2["FOO"] = "abc -100.4";
         di2["BAR"] = "abc 0.5";
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opStringStringDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringStringDPtr callback =
             Test::newCallback_MyClass_opStringStringD(cb, &Callback::opStringStringD, &Callback::exCB);
-	p->begin_opStringStringD(di1, di2, callback);
-	cb->check();
+        p->begin_opStringStringD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -872,11 +882,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2["qwerty"] = Test::enum3;
         di2["Hello!!"] = Test::enum2;
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opStringMyEnumDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opStringMyEnumDPtr callback =
             Test::newCallback_MyClass_opStringMyEnumD(cb, &Callback::opStringMyEnumD, &Callback::exCB);
-	p->begin_opStringMyEnumD(di1, di2, callback);
-	cb->check();
+        p->begin_opStringMyEnumD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -893,11 +903,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         di2[s22] = Test::enum3;
         di2[s23] = Test::enum2;
 
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opMyStructMyEnumDPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opMyStructMyEnumDPtr callback =
             Test::newCallback_MyClass_opMyStructMyEnumD(cb, &Callback::opMyStructMyEnumD, &Callback::exCB);
-	p->begin_opMyStructMyEnumD(di1, di2, callback);
-	cb->check();
+        p->begin_opMyStructMyEnumD(di1, di2, callback);
+        cb->check();
     }
 
     {
@@ -910,11 +920,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
             {
                 s.push_back(i);
             }
-	    CallbackPtr cb = new Callback;
-	    Test::Callback_MyClass_opIntSPtr callback = 
+            CallbackPtr cb = new Callback;
+            Test::Callback_MyClass_opIntSPtr callback =
                 Test::newCallback_MyClass_opIntS(cb, &Callback::opIntS, &Callback::exCB);
-	    p->begin_opIntS(s, callback);
-	    cb->check();
+            p->begin_opIntS(s, callback);
+            cb->check();
         }
     }
 
@@ -925,42 +935,42 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         ctx["three"] = "THREE";
         {
             test(p->ice_getContext().empty());
-	    Ice::AsyncResultPtr r = p->begin_opContext();
-	    Ice::Context c = p->end_opContext(r);
-	    test(c != ctx);
+            Ice::AsyncResultPtr r = p->begin_opContext();
+            Ice::Context c = p->end_opContext(r);
+            test(c != ctx);
         }
         {
             test(p->ice_getContext().empty());
-	    Ice::AsyncResultPtr r = p->begin_opContext(ctx);
-	    Ice::Context c = p->end_opContext(r);
-	    test(c == ctx);
+            Ice::AsyncResultPtr r = p->begin_opContext(ctx);
+            Ice::Context c = p->end_opContext(r);
+            test(c == ctx);
         }
         Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
         test(p2->ice_getContext() == ctx);
         {
-	    Ice::AsyncResultPtr r = p2->begin_opContext();
-	    Ice::Context c = p2->end_opContext(r);
-	    test(c == ctx);
+            Ice::AsyncResultPtr r = p2->begin_opContext();
+            Ice::Context c = p2->end_opContext(r);
+            test(c == ctx);
         }
         {
             Test::MyClassPrx p2 = Test::MyClassPrx::checkedCast(p->ice_context(ctx));
-	    Ice::AsyncResultPtr r = p2->begin_opContext(ctx);
-	    Ice::Context c = p2->end_opContext(r);
-	    test(c == ctx);
+            Ice::AsyncResultPtr r = p2->begin_opContext(ctx);
+            Ice::Context c = p2->end_opContext(r);
+            test(c == ctx);
         }
 
         {
             //
             // Test implicit context propagation
             //
-            
+
             string impls[] = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
                 initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
-                
+
                 Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
                 Ice::Context ctx;
@@ -971,47 +981,47 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
 
                 Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(
                     ic->stringToProxy("test:default -p 12010"));
-                
-                
+
+
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {
                     Ice::AsyncResultPtr r = p->begin_opContext();
-		    Ice::Context c = p->end_opContext(r);
-		    test(c == ctx);
+                    Ice::Context c = p->end_opContext(r);
+                    test(c == ctx);
                 }
 
                 ic->getImplicitContext()->put("zero", "ZERO");
-          
+
                 ctx = ic->getImplicitContext()->getContext();
                 {
                     Ice::AsyncResultPtr r = p->begin_opContext();
-		    Ice::Context c = p->end_opContext(r);
-		    test(c == ctx);
+                    Ice::Context c = p->end_opContext(r);
+                    test(c == ctx);
                 }
-                
+
                 Ice::Context prxContext;
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
-                
+
                 Ice::Context combined = prxContext;
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
-                
+
                 p = Test::MyClassPrx::uncheckedCast(p->ice_context(prxContext));
-                
+
                 ic->getImplicitContext()->setContext(Ice::Context());
                 {
                     Ice::AsyncResultPtr r = p->begin_opContext();
-		    Ice::Context c = p->end_opContext(r);
-		    test(c == prxContext);
+                    Ice::Context c = p->end_opContext(r);
+                    test(c == prxContext);
                 }
 
                 ic->getImplicitContext()->setContext(ctx);
                 {
                     Ice::AsyncResultPtr r = p->begin_opContext();
-		    Ice::Context c = p->end_opContext(r);
-		    test(c == combined);
+                    Ice::Context c = p->end_opContext(r);
+                    test(c == combined);
                 }
 
                 ic->getImplicitContext()->setContext(Ice::Context());
@@ -1023,20 +1033,36 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     {
         Ice::Double d = 1278312346.0 / 13.0;
         Test::DoubleS ds(5, d);
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyClass_opDoubleMarshalingPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opDoubleMarshalingPtr callback =
             Test::newCallback_MyClass_opDoubleMarshaling(cb, &Callback::opDoubleMarshaling, &Callback::exCB);
-	p->begin_opDoubleMarshaling(d, ds, callback);
-	cb->check();
+        p->begin_opDoubleMarshaling(d, ds, callback);
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opIdempotentPtr callback =
+            Test::newCallback_MyClass_opIdempotent(cb, &Callback::opIdempotent, &Callback::exCB);
+        p->begin_opIdempotent(callback);
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opNonmutatingPtr callback =
+            Test::newCallback_MyClass_opNonmutating(cb, &Callback::opNonmutating, &Callback::exCB);
+        p->begin_opNonmutating(callback);
+        cb->check();
     }
 
     {
         Test::MyDerivedClassPrx derived = Test::MyDerivedClassPrx::checkedCast(p);
         test(derived);
-	CallbackPtr cb = new Callback;
-	Test::Callback_MyDerivedClass_opDerivedPtr callback = 
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyDerivedClass_opDerivedPtr callback =
             Test::newCallback_MyDerivedClass_opDerived(cb, &Callback::opDerived, &Callback::exCB);
-	derived->begin_opDerived(callback);
-	cb->check();
+        derived->begin_opDerived(callback);
+        cb->check();
     }
 }

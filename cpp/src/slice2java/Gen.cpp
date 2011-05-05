@@ -4017,7 +4017,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 << "_name, __cb);";
             out << nl << "try";
             out << sb;
-            out << nl << "__result.__prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->mode())
+            out << nl << "__result.__prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->sendMode())
                 << ", __ctx, __explicitCtx);";
             out << nl << "IceInternal.BasicStream __os = __result.__os();";
             iter = 0;

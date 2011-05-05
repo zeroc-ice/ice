@@ -111,10 +111,10 @@ require 'Ice/ObjectFactory.php';
 require 'Ice/Process.php';
 require 'Ice/Router.php';
 
-IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 0, 0, array($IcePHP__t_string), null, $IcePHP__t_bool, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_ping', 0, 0, null, null, null, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_id', 0, 0, null, null, $IcePHP__t_string, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_ids', 0, 0, null, null, $Ice__t_StringSeq, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 2, 1, array($IcePHP__t_string), null, $IcePHP__t_bool, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_ping', 2, 1, null, null, null, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_id', 2, 1, null, null, $IcePHP__t_string, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_ids', 2, 1, null, null, $Ice__t_StringSeq, null);
 
 //
 // Proxy comparison functions.

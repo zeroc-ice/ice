@@ -32,6 +32,34 @@ private:
     const Test::AMD_MyClass_opVoidPtr _cb;
 };
 
+bool
+MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
+{
+    test(current.mode == Ice::Nonmutating);
+    return MyDerivedClass::ice_isA(id, current);
+}
+
+void
+MyDerivedClassI::ice_ping(const Ice::Current& current) const
+{
+    test(current.mode == Ice::Nonmutating);
+    MyDerivedClass::ice_ping(current);
+}
+
+std::vector<std::string>
+MyDerivedClassI::ice_ids(const Ice::Current& current) const
+{
+    test(current.mode == Ice::Nonmutating);
+    return MyDerivedClass::ice_ids(current);
+}
+
+const std::string&
+MyDerivedClassI::ice_id(const Ice::Current& current) const
+{
+    test(current.mode == Ice::Nonmutating);
+    return MyDerivedClass::ice_id(current);
+}
+
 void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& current)
 {
@@ -421,6 +449,20 @@ MyDerivedClassI::opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarsha
     {
         test(p2[i] == d);
     }
+    cb->ice_response();
+}
+
+void
+MyDerivedClassI::opIdempotent_async(const Test::AMD_MyClass_opIdempotentPtr& cb, const Ice::Current& current)
+{
+    test(current.mode == Ice::Idempotent);
+    cb->ice_response();
+}
+
+void
+MyDerivedClassI::opNonmutating_async(const Test::AMD_MyClass_opNonmutatingPtr& cb, const Ice::Current& current)
+{
+    test(current.mode == Ice::Nonmutating);
     cb->ice_response();
 }
 

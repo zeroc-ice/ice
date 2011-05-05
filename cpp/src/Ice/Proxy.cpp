@@ -154,7 +154,7 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
     __checkAsyncTwowayOnly(ice_isA_name);
     try
     {
-        __result->__prepare(ice_isA_name, Normal, ctx);
+        __result->__prepare(ice_isA_name, Nonmutating, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->write(typeId);
         __os->endWriteEncaps();
@@ -222,7 +222,7 @@ IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_ping_name, del, cookie);
     try
     {
-        __result->__prepare(ice_ping_name, Normal, ctx);
+        __result->__prepare(ice_ping_name, Nonmutating, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->endWriteEncaps();
         __result->__send(true);
@@ -297,7 +297,7 @@ IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
     __checkAsyncTwowayOnly(ice_ids_name);
     try
     {
-        __result->__prepare(ice_ids_name, Normal, ctx);
+        __result->__prepare(ice_ids_name, Nonmutating, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->endWriteEncaps();
         __result->__send(true);
@@ -341,7 +341,7 @@ IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
     __checkAsyncTwowayOnly(ice_id_name);
     try
     {
-        __result->__prepare(ice_id_name, Normal, ctx);
+        __result->__prepare(ice_id_name, Nonmutating, ctx);
         IceInternal::BasicStream* __os = __result->__getOs();
         __os->endWriteEncaps();
         __result->__send(true);

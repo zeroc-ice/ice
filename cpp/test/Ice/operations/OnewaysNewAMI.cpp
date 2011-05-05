@@ -126,13 +126,27 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
-        {
-            CallbackPtr cb = new Callback;
-            Test::Callback_MyClass_opVoidPtr callback =
-                Test::newCallback_MyClass_opVoid(cb, &Callback::noException, &Callback::sent);
-            p->begin_opVoid(callback);
-            cb->check();
-        }
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opVoidPtr callback =
+            Test::newCallback_MyClass_opVoid(cb, &Callback::noException, &Callback::sent);
+        p->begin_opVoid(callback);
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opIdempotentPtr callback =
+            Test::newCallback_MyClass_opIdempotent(cb, &Callback::noException, &Callback::sent);
+        p->begin_opIdempotent(callback);
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opNonmutatingPtr callback =
+            Test::newCallback_MyClass_opNonmutating(cb, &Callback::noException, &Callback::sent);
+        p->begin_opNonmutating(callback);
+        cb->check();
     }
 
     {

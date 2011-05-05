@@ -22,9 +22,11 @@ import test.Ice.operations.Test.FloatSSHolder;
 import test.Ice.operations.Test.IntSHolder;
 import test.Ice.operations.Test.LongFloatDHolder;
 import test.Ice.operations.Test.LongSHolder;
+import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
 import test.Ice.operations.Test.MyClassPrxHolder;
+import test.Ice.operations.Test.MyDerivedClass;
 import test.Ice.operations.Test.MyEnum;
 import test.Ice.operations.Test.MyStruct;
 import test.Ice.operations.Test.MyEnumHolder;
@@ -75,6 +77,21 @@ class Twoways
     twoways(test.Util.Application app, MyClassPrx p)
     {
         Ice.Communicator communicator = app.communicator();
+
+        p.ice_ping();
+
+        test(p.ice_isA(MyClass.ice_staticId()));
+
+        test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
+
+        {
+            String[] ids = p.ice_ids();
+            test(ids.length == 3);
+            test(ids[0].equals("::Ice::Object"));
+            test(ids[1].equals("::Test::MyClass"));
+            test(ids[2].equals("::Test::MyDerivedClass"));
+        }
+
         {
             p.opVoid();
         }
@@ -796,5 +813,9 @@ class Twoways
             }
             p.opDoubleMarshaling(d, ds);
         }
+
+        p.opIdempotent();
+
+        p.opNonmutating();
     }
 }

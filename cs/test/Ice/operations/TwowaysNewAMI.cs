@@ -75,6 +75,29 @@ public class TwowaysNewAMI
             _d = d;
         }
 
+        public void ice_ping()
+        {
+            called();
+        }
+
+        public void ice_isA(bool r)
+        {
+            test(r);
+            called();
+        }
+
+        public void ice_ids(string[] ids)
+        {
+            test(ids.Length == 3);
+            called();
+        }
+
+        public void ice_id(string id)
+        {
+            test(id.Equals(Test.MyDerivedClass.ice_staticId()));
+            called();
+        }
+
         public void opVoid()
         {
             called();
@@ -492,6 +515,16 @@ public class TwowaysNewAMI
             called();
         }
 
+        public void opIdempotent()
+        {
+            called();
+        }
+
+        public void opNonmutating()
+        {
+            called();
+        }
+
         public void opDerived()
         {
             called();
@@ -509,6 +542,50 @@ public class TwowaysNewAMI
 
     internal static void twowaysNewAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
+        {
+            Ice.AsyncResult r = p.begin_ice_ping();
+            p.end_ice_ping(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_ping().whenCompleted(cb.ice_ping, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClass.ice_staticId());
+            test(p.end_ice_isA(r));
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_ice_ids();
+            test(p.end_ice_ids(r).Length == 3);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_ids().whenCompleted(cb.ice_ids, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_ice_id();
+            test(p.end_ice_id(r).Equals(Test.MyDerivedClass.ice_staticId()));
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_ice_id().whenCompleted(cb.ice_id, cb.exCB);
+            cb.check();
+        }
+
         {
             Ice.AsyncResult r = p.begin_opVoid();
             p.end_opVoid(r);
@@ -945,6 +1022,28 @@ public class TwowaysNewAMI
                 //ic.getImplicitContext().setContext(null);
                 ic.destroy();
             }
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_opIdempotent();
+            p.end_opIdempotent(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opIdempotent().whenCompleted(cb.opIdempotent, cb.exCB);
+            cb.check();
+        }
+
+        {
+            Ice.AsyncResult r = p.begin_opNonmutating();
+            p.end_opNonmutating(r);
+        }
+
+        {
+            Callback cb = new Callback();
+            p.begin_opNonmutating().whenCompleted(cb.opNonmutating, cb.exCB);
+            cb.check();
         }
 
         {

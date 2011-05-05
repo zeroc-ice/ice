@@ -70,6 +70,14 @@ def onewaysNewAMI(communicator, proxy):
     p.begin_opVoid(None, cb.noException, cb.sent)
     cb.check()
 
+    cb = Callback()
+    p.begin_opIdempotent(None, cb.noException, cb.sent)
+    cb.check()
+
+    cb = Callback()
+    p.begin_opNonmutating(None, cb.noException, cb.sent)
+    cb.check()
+
     try:
         p.begin_opByte(0xff, 0x0f)
         test(False)

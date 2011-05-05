@@ -38,6 +38,22 @@ function twoways($communicator, $p)
     $enum3 = $NS ? constant("Test\\MyEnum::enum3") : constant("Test_MyEnum::enum3");
 
     {
+        $p->ice_ping();
+    }
+
+    {
+        test($p->ice_isA("::Test::MyClass"));
+    }
+
+    {
+        test(count($p->ice_ids()) == 3);
+    }
+
+    {
+        test($p->ice_id() == "::Test::MyDerivedClass");
+    }
+
+    {
         $p->opVoid();
     }
 
@@ -440,6 +456,14 @@ function twoways($communicator, $p)
                 test($r[$j] == -$j);
             }
         }
+    }
+
+    {
+        $p->opIdempotent();
+    }
+
+    {
+        $p->opNonmutating();
     }
 }
 

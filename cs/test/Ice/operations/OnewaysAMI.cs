@@ -67,6 +67,32 @@ class OnewaysAMI
         }
     }
 
+    private class AMI_MyClass_opIdempotentI : Test.AMI_MyClass_opIdempotent
+    {
+        public override void ice_response()
+        {
+            test(false);
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+    }
+
+    private class AMI_MyClass_opNonmutatingI : Test.AMI_MyClass_opNonmutating
+    {
+        public override void ice_response()
+        {
+            test(false);
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+    }
+
     private class AMI_MyClass_opVoidExI : Test.AMI_MyClass_opVoid
     {
         public override void ice_response()
@@ -118,6 +144,16 @@ class OnewaysAMI
             p.opVoid_async(cb);
             // Let's check if we can reuse the same callback object for another call.
             p.opVoid_async(cb);
+        }
+
+        {
+            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
+            p.opIdempotent_async(cb);
+        }
+
+        {
+            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
+            p.opNonmutating_async(cb);
         }
 
         {

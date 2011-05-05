@@ -921,6 +921,40 @@ public:
 
 typedef IceUtil::Handle<AMI_MyClass_opDoubleMarshalingI> AMI_MyClass_opDoubleMarshalingIPtr;
 
+class AMI_MyClass_opIdempotentI : public Test::AMI_MyClass_opIdempotent, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opIdempotentI> AMI_MyClass_opIdempotentIPtr;
+
+class AMI_MyClass_opNonmutatingI : public Test::AMI_MyClass_opNonmutating, public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+        called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+        test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opNonmutatingI> AMI_MyClass_opNonmutatingIPtr;
+
 }
 
 void
@@ -1420,6 +1454,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::DoubleS ds(5, d);
         AMI_MyClass_opDoubleMarshalingIPtr cb = new AMI_MyClass_opDoubleMarshalingI;
         p->opDoubleMarshaling_async(cb, d, ds);
+        cb->check();
+    }
+
+    {
+        AMI_MyClass_opIdempotentIPtr cb = new AMI_MyClass_opIdempotentI;
+        p->opIdempotent_async(cb);
+        cb->check();
+    }
+
+    {
+        AMI_MyClass_opNonmutatingIPtr cb = new AMI_MyClass_opNonmutatingI;
+        p->opNonmutating_async(cb);
         cb->check();
     }
 

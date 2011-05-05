@@ -54,6 +54,20 @@ class Twoways
 
     internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
     {
+        p.ice_ping();
+
+        test(p.ice_isA(Test.MyClass.ice_staticId()));
+
+        test(p.ice_id().Equals(Test.MyDerivedClass.ice_staticId()));
+
+        {
+            string[] ids = p.ice_ids();
+            test(ids.Length == 3);
+            test(ids[0].Equals("::Ice::Object"));
+            test(ids[1].Equals("::Test::MyClass"));
+            test(ids[2].Equals("::Test::MyDerivedClass"));
+        }
+
         {
             p.opVoid();
         }
@@ -743,6 +757,14 @@ class Twoways
                 }
                 ic.destroy();
             }
+        }
+
+        {
+            p.opIdempotent();
+        }
+
+        {
+            p.opNonmutating();
         }
     }
 }

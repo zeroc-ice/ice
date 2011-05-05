@@ -18,9 +18,24 @@ def oneways(communicator, p):
     p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
 
     #
+    # ice_ping
+    #
+    p.ice_ping()
+
+    #
     # opVoid
     #
     p.opVoid()
+
+    #
+    # opIdempotent
+    #
+    p.opIdempotent()
+
+    #
+    # opNonmutating
+    #
+    p.opNonmutating()
 
     #
     # opByte

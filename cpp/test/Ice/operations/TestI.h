@@ -16,6 +16,14 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
+    //
+    // Override the Object "pseudo" operations to verify the operation mode.
+    //
+    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
+    virtual void ice_ping(const Ice::Current&) const;
+    virtual std::vector<std::string> ice_ids(const Ice::Current&) const;
+    virtual const std::string& ice_id(const Ice::Current&) const;
+
     virtual void shutdown(const Ice::Current&);
 
     virtual void delay(Ice::Int, const Ice::Current&);
@@ -161,6 +169,10 @@ public:
     virtual Ice::Context opContext(const Ice::Current&);
 
     virtual void opDoubleMarshaling(Ice::Double, const Test::DoubleS&, const Ice::Current&);
+
+    virtual void opIdempotent(const Ice::Current&);
+
+    virtual void opNonmutating(const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
 };

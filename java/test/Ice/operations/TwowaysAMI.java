@@ -20,10 +20,12 @@ import test.Ice.operations.Test.AMI_MyClass_opDoubleMarshaling;
 import test.Ice.operations.Test.AMI_MyClass_opFloatDouble;
 import test.Ice.operations.Test.AMI_MyClass_opFloatDoubleS;
 import test.Ice.operations.Test.AMI_MyClass_opFloatDoubleSS;
+import test.Ice.operations.Test.AMI_MyClass_opIdempotent;
 import test.Ice.operations.Test.AMI_MyClass_opIntS;
 import test.Ice.operations.Test.AMI_MyClass_opLongFloatD;
 import test.Ice.operations.Test.AMI_MyClass_opMyClass;
 import test.Ice.operations.Test.AMI_MyClass_opMyEnum;
+import test.Ice.operations.Test.AMI_MyClass_opNonmutating;
 import test.Ice.operations.Test.AMI_MyClass_opShortIntD;
 import test.Ice.operations.Test.AMI_MyClass_opShortIntLong;
 import test.Ice.operations.Test.AMI_MyClass_opShortIntLongS;
@@ -1174,6 +1176,52 @@ class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private static class AMI_MyClass_opIdempotentI extends AMI_MyClass_opIdempotent
+    {
+        public void
+        ice_response()
+        {
+            callback.called();
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class AMI_MyClass_opNonmutatingI extends AMI_MyClass_opNonmutating
+    {
+        public void
+        ice_response()
+        {
+            callback.called();
+        }
+
+        public void
+        ice_exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     static void
     twowaysAMI(test.Util.Application app, MyClassPrx p)
     {
@@ -1679,6 +1727,18 @@ class TwowaysAMI
             }
             AMI_MyClass_opDoubleMarshalingI cb = new AMI_MyClass_opDoubleMarshalingI();
             p.opDoubleMarshaling_async(cb, d, ds);
+            cb.check();
+        }
+
+        {
+            AMI_MyClass_opIdempotentI cb = new AMI_MyClass_opIdempotentI();
+            p.opIdempotent_async(cb);
+            cb.check();
+        }
+
+        {
+            AMI_MyClass_opNonmutatingI cb = new AMI_MyClass_opNonmutatingI();
+            p.opNonmutating_async(cb);
             cb.check();
         }
 

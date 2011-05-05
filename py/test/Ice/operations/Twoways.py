@@ -15,6 +15,30 @@ def test(b):
 
 def twoways(communicator, p):
     #
+    # ice_ping
+    #
+    p.ice_ping()
+
+    #
+    # ice_isA
+    #
+    test(p.ice_isA(Test.MyClass.ice_staticId()))
+
+    #
+    # ice_ids
+    #
+    ids = p.ice_ids()
+    test(len(ids) == 3)
+    test(ids[0] == "::Ice::Object")
+    test(ids[1] == "::Test::MyClass")
+    test(ids[2] == "::Test::MyDerivedClass")
+
+    #
+    # ice_id
+    #
+    test(p.ice_id() == Test.MyDerivedClass.ice_staticId())
+
+    #
     # opVoid
     #
     p.opVoid()
@@ -650,3 +674,12 @@ def twoways(communicator, p):
         ds.append(d);
     p.opDoubleMarshaling(d, ds);
 
+    #
+    # opIdempotent
+    #
+    p.opIdempotent()
+
+    #
+    # opNonmutating
+    #
+    p.opNonmutating()

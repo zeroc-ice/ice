@@ -60,6 +60,14 @@ oneways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& proxy)
     }
 
     {
+        p->opIdempotent();
+    }
+
+    {
+        p->opNonmutating();
+    }
+
+    {
         Ice::Byte b;
 
         try

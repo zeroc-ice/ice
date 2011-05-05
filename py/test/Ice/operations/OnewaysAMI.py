@@ -43,6 +43,26 @@ class AMI_MyClass_opVoidI(CallbackBase):
     def ice_exception(self, ex):
         test(False)
 
+class AMI_MyClass_opIdempotentI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self):
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
+class AMI_MyClass_opNonmutatingI(CallbackBase):
+    def __init__(self):
+        CallbackBase.__init__(self)
+
+    def ice_response(self):
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
 class AMI_MyClass_opVoidExI(CallbackBase):
     def __init__(self):
         CallbackBase.__init__(self)
@@ -73,6 +93,12 @@ def onewaysAMI(communicator, p):
     p.opVoid_async(cb)
     # Let's check if we can reuse the same callback object for another call.
     p.opVoid_async(cb)
+
+    cb = AMI_MyClass_opIdempotentI()
+    p.opIdempotent_async(cb)
+
+    cb = AMI_MyClass_opNonmutatingI()
+    p.opNonmutating_async(cb)
 
     # Check that a call to a void operation raises NoEndpointException
     # in the ice_exception() callback instead of at the point of call.

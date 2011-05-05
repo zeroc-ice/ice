@@ -147,6 +147,10 @@ dictionary<MyEnum, string> MyEnumStringD;
     // file dependencies.
     //
     StringStringD opContext();
+
+    idempotent void opIdempotent();
+
+    ["nonmutating"] idempotent void opNonmutating();
 };
 
 ["ami"] class MyDerivedClass extends MyClass

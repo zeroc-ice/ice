@@ -892,7 +892,7 @@ namespace Ice
 
             try
             {
-                result__.prepare__(__ice_isA_name, OperationMode.Normal, context__, explicitContext__);
+                result__.prepare__(__ice_isA_name, OperationMode.Nonmutating, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.writeString(id);
                 os__.endWriteEncaps();
@@ -1013,7 +1013,7 @@ namespace Ice
 
             try
             {
-                result__.prepare__(__ice_ping_name, OperationMode.Normal, context__, explicitContext__);
+                result__.prepare__(__ice_ping_name, OperationMode.Nonmutating, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.endWriteEncaps();
                 result__.send__(true);
@@ -1142,7 +1142,7 @@ namespace Ice
 
             try
             {
-                result__.prepare__(__ice_ids_name, OperationMode.Normal, context__, explicitContext__);
+                result__.prepare__(__ice_ids_name, OperationMode.Nonmutating, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.endWriteEncaps();
                 result__.send__(true);
@@ -1282,7 +1282,7 @@ namespace Ice
 
             try
             {
-                result__.prepare__(__ice_id_name, OperationMode.Normal, context__, explicitContext__);
+                result__.prepare__(__ice_id_name, OperationMode.Nonmutating, context__, explicitContext__);
                 IceInternal.BasicStream os__ = result__.ostr__;
                 os__.endWriteEncaps();
                 result__.send__(true);

@@ -9,6 +9,30 @@
 
 def twoways(communicator, p)
     #
+    # ice_ping
+    #
+    p.ice_ping
+
+    #
+    # ice_isA
+    #
+    test(p.ice_isA(Test::MyClass::ice_staticId()))
+
+    #
+    # ice_ids
+    #
+    ids = p.ice_ids
+    test(ids.length == 3)
+    test(ids[0] == "::Ice::Object")
+    test(ids[1] == "::Test::MyClass")
+    test(ids[2] == "::Test::MyDerivedClass")
+
+    #
+    # ice_id
+    #
+    test(p.ice_id == Test::MyDerivedClass::ice_staticId())
+
+    #
     # opVoid
     #
     p.opVoid()
@@ -481,6 +505,16 @@ def twoways(communicator, p)
     test(r == ctx)
 
     #
+    # opIdempotent
+    #
+    p.opIdempotent
+
+    #
+    # opNonmutating
+    #
+    p.opNonmutating
+
+    #
     # Test implicit context propagation
     #
     impls = [ 'Shared', 'PerThread' ]
@@ -488,12 +522,12 @@ def twoways(communicator, p)
         initData = Ice::InitializationData.new
         initData.properties = communicator.getProperties().clone()
         initData.properties.setProperty('Ice.ImplicitContext', i)
-        ic = Ice.initialize(initData)
-        
+        ic = Ice::initialize(initData)
+
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
-        
+
         p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy('test:default -p 12010'))
-        
+
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
         test(p.opContext() == ctx)
@@ -503,24 +537,24 @@ def twoways(communicator, p)
         test(r == '');
         test(ic.getImplicitContext().containsKey('zero') == true);
         test(ic.getImplicitContext().get('zero') == 'ZERO');
-        
+
         ctx = ic.getImplicitContext().getContext()
         test(p.opContext() == ctx)
-        
+
         prxContext = {'one'=>'UN', 'four'=>'QUATRE'}
-        
+
         combined = ctx.clone()
         combined.update(prxContext)
         test(combined['one'] == 'UN')
-        
+
         p = Test::MyClassPrx::uncheckedCast(p.ice_context(prxContext))
         ic.getImplicitContext().setContext({})
         test(p.opContext() == prxContext)
-        
+
         ic.getImplicitContext().setContext(ctx)
         test(p.opContext() == combined)
 
-        test(ic.getImplicitContext().remove('one') == 'ONE');  
+        test(ic.getImplicitContext().remove('one') == 'ONE');
 
         ic.destroy()
     end

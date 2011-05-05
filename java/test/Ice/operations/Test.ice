@@ -167,6 +167,10 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
     Ice::Context opContext();
 
     void opDoubleMarshaling(double p1, DoubleS p2);
+
+    idempotent void opIdempotent();
+
+    ["nonmutating"] idempotent void opNonmutating();
 };
 
 ["ami"] class MyDerivedClass extends MyClass

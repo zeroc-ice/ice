@@ -54,6 +54,34 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         private Thread _thread;
     }
 
+    //
+    // Override the Object "pseudo" operations to verify the operation mode.
+    //
+
+    public override bool ice_isA(String id, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return base.ice_isA(id, current);
+    }
+
+    public override void ice_ping(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        base.ice_ping(current);
+    }
+
+    public override string[] ice_ids(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return base.ice_ids(current);
+    }
+
+    public override string ice_id(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return base.ice_id(current);
+    }
+
     public override void shutdown_async(Test.AMD_MyClass_shutdown cb, Ice.Current current)
     {
         while(_opVoidThread != null)
@@ -441,6 +469,18 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         Test.Structure p3 = p1;
         p3.s.s = "a new string";
         cb.ice_response(p2, p3);
+    }
+
+    public override void opIdempotent_async(Test.AMD_MyClass_opIdempotent cb, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Idempotent);
+        cb.ice_response();
+    }
+
+    public override void opNonmutating_async(Test.AMD_MyClass_opNonmutating cb, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        cb.ice_response();
     }
 
     public override void opDerived_async(Test.AMD_MyDerivedClass_opDerived cb, Ice.Current current)

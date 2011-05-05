@@ -54,6 +54,38 @@ public final class MyDerivedClassI extends MyDerivedClass
         }
     }
 
+    //
+    // Override the Object "pseudo" operations to verify the operation mode.
+    //
+
+    public boolean
+    ice_isA(String id, Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_isA(id, current);
+    }
+
+    public void
+    ice_ping(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        super.ice_ping(current);
+    }
+
+    public String[]
+    ice_ids(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_ids(current);
+    }
+
+    public String
+    ice_id(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
+        return super.ice_id(current);
+    }
+
     public void
     shutdown(Ice.Current current)
     {
@@ -453,6 +485,18 @@ public final class MyDerivedClassI extends MyDerivedClass
         p3.value = p1;
         p3.value.s.s = "a new string";
         return p2;
+    }
+
+    public void
+    opIdempotent(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Idempotent);
+    }
+
+    public void
+    opNonmutating(Ice.Current current)
+    {
+        test(current.mode == Ice.OperationMode.Nonmutating);
     }
 
     public void

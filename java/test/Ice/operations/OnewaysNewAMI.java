@@ -9,6 +9,8 @@
 
 package test.Ice.operations;
 
+import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
+import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
 import test.Ice.operations.Test.Callback_MyClass_opVoid;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
@@ -75,7 +77,7 @@ class OnewaysNewAMI
         void noException(Ice.LocalException ex)
         {
             test(false);
-        }        
+        }
     }
 
     static void
@@ -99,7 +101,7 @@ class OnewaysNewAMI
                     {
                         cb.noException(ex);
                     }
-                    
+
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -158,7 +160,7 @@ class OnewaysNewAMI
                     {
                         cb.noException(ex);
                     }
-                    
+
                     public void
                     sent(boolean sentSynchronously)
                     {
@@ -166,6 +168,58 @@ class OnewaysNewAMI
                     }
                 };
             p.begin_opVoid(callback);
+            cb.check();
+        }
+
+        {
+            final Callback cb = new Callback();
+            Callback_MyClass_opIdempotent callback = new Callback_MyClass_opIdempotent()
+                {
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_opIdempotent(callback);
+            cb.check();
+        }
+
+        {
+            final Callback cb = new Callback();
+            Callback_MyClass_opNonmutating callback = new Callback_MyClass_opNonmutating()
+                {
+                    public void
+                    response()
+                    {
+                        test(false);
+                    }
+
+                    public void
+                    exception(Ice.LocalException ex)
+                    {
+                        cb.noException(ex);
+                    }
+
+                    public void
+                    sent(boolean sentSynchronously)
+                    {
+                        cb.sent(sentSynchronously);
+                    }
+                };
+            p.begin_opNonmutating(callback);
             cb.check();
         }
 

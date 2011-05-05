@@ -21,10 +21,12 @@ import test.Ice.operations.Test.Callback_MyClass_opContext;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDouble;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleS;
 import test.Ice.operations.Test.Callback_MyClass_opFloatDoubleSS;
+import test.Ice.operations.Test.Callback_MyClass_opIdempotent;
 import test.Ice.operations.Test.Callback_MyClass_opIntS;
 import test.Ice.operations.Test.Callback_MyClass_opLongFloatD;
 import test.Ice.operations.Test.Callback_MyClass_opMyClass;
 import test.Ice.operations.Test.Callback_MyClass_opMyEnum;
+import test.Ice.operations.Test.Callback_MyClass_opNonmutating;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntD;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLong;
 import test.Ice.operations.Test.Callback_MyClass_opShortIntLongS;
@@ -44,6 +46,7 @@ import test.Ice.operations.Test.AnotherStruct;
 import test.Ice.operations.Test.MyClass;
 import test.Ice.operations.Test.MyClassPrx;
 import test.Ice.operations.Test.MyClassPrxHelper;
+import test.Ice.operations.Test.MyDerivedClass;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
@@ -144,7 +147,7 @@ class TwowaysNewAMI
         @Override
         public void response(String id)
         {
-            test(id.equals("::Test::MyDerivedClass"));
+            test(id.equals(MyDerivedClass.ice_staticId()));
             callback.called();
         }
 
@@ -1126,6 +1129,50 @@ class TwowaysNewAMI
         private Callback callback = new Callback();
     }
 
+    private static class opIdempotentI extends Callback_MyClass_opIdempotent
+    {
+        @Override
+        public void response()
+        {
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class opNonmutatingI extends Callback_MyClass_opNonmutating
+    {
+        @Override
+        public void response()
+        {
+            callback.called();
+        }
+
+        @Override
+        public void exception(Ice.LocalException ex)
+        {
+            test(false);
+        }
+
+        public void check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
     static void
     twowaysNewAMI(test.Util.Application app, MyClassPrx p)
     {
@@ -1139,7 +1186,7 @@ class TwowaysNewAMI
 
         {
             isAI cb = new isAI();
-            p.begin_ice_isA("::Test::MyClass", cb);
+            p.begin_ice_isA(MyClass.ice_staticId(), cb);
             cb.check();
         }
     
@@ -1607,6 +1654,18 @@ class TwowaysNewAMI
             }
             opDoubleMarshalingI cb = new opDoubleMarshalingI();
             p.begin_opDoubleMarshaling(d, ds, cb);
+            cb.check();
+        }
+
+        {
+            opIdempotentI cb = new opIdempotentI();
+            p.begin_opIdempotent(cb);
+            cb.check();
+        }
+
+        {
+            opNonmutatingI cb = new opNonmutatingI();
+            p.begin_opNonmutating(cb);
             cb.check();
         }
 

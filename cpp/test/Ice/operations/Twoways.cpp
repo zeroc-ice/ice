@@ -802,4 +802,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
         Test::DoubleS ds(5, d);
         p->opDoubleMarshaling(d, ds);
     }
+
+    p->opIdempotent();
+
+    p->opNonmutating();
 }
