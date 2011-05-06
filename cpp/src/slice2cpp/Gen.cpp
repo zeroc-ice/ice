@@ -1048,7 +1048,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     string name = fixKwd(p->name());
 
-    if(findMetaData(p->getMetaData()) == "class")
+    bool classMetaData = findMetaData(p->getMetaData()) == "class";
+    if(classMetaData)
     {
         H << sp << nl << "class " << _dllExport << name << " : public IceUtil::Shared";
         H << sb;
@@ -1078,7 +1079,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << sb;
         if(p->hasDefaultValues())
         {
-            H << nl << name << "();";
+            H << nl << _dllExport << name << "();";
 
             C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name()) << "() :";
             C.inc();
@@ -1106,6 +1107,10 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         }
 
         H << nl;
+        if(!classMetaData)
+        {
+            H << _dllExport;
+        }
         if(paramDecls.size() == 1)
         {
             H << "explicit ";

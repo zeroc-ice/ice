@@ -9,15 +9,20 @@
 
 top_srcdir	= ..\..\..
 
+LIBNAME		= Generated$(LIBSUFFIX).lib
+DLLNAME		= Generated$(SOVERSION)$(LIBSUFFIX).dll
 CLIENT		= client.exe
 
-TARGETS		= $(CLIENT)
+TARGETS		= $(LIBNAME) $(DLLNAME) $(CLIENT) 
 
-COBJS		= Test.obj \
-		  Client.obj \
+LOBJS 		= Test.obj
+
+COBJS		= Client.obj \
 		  AllTests.obj
+		  
 
-SRCS		= $(COBJS:.obj=.cpp)
+SRCS		= $(LOBJS:.obj=.cpp) \
+		   $(COBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -27,8 +32,21 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
+SLICE2CPPFLAGS	= --dll-export TEST_API $(SLICE2CPPFLAGS)
+
+LINKWITH        = $(LIBS)
+
+$(LIBNAME): $(DLLNAME)
+	    
+$(DLLNAME): $(LOBJS)
+	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+
 $(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
