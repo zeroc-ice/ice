@@ -58,10 +58,10 @@ ZEND_GET_MODULE(ice)
 // Declare initialization file entries.
 //
 PHP_INI_BEGIN()
-  PHP_INI_ENTRY(const_cast<char*>("ice.config"), const_cast<char*>(""), PHP_INI_SYSTEM, 0)
-  PHP_INI_ENTRY(const_cast<char*>("ice.options"), const_cast<char*>(""), PHP_INI_SYSTEM, 0)
-  PHP_INI_ENTRY(const_cast<char*>("ice.profiles"), const_cast<char*>(""), PHP_INI_SYSTEM, 0)
-  PHP_INI_ENTRY(const_cast<char*>("ice.hide_profiles"), const_cast<char*>("1"), PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.hide_profiles", "1", PHP_INI_SYSTEM, 0)
 PHP_INI_END()
 
 extern "C"

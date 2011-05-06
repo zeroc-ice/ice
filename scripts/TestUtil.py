@@ -481,8 +481,10 @@ def getIceDir(subdir = None):
 def phpCleanup():
     if os.path.exists("tmp.ini"):
         os.remove("tmp.ini")
+    if os.path.exists("ice.profiles"):
+        os.remove("ice.profiles")
 
-def phpSetup():
+def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
     extDir = None
     ext = None
     incDir = None
@@ -543,6 +545,20 @@ def phpSetup():
         tmpini.write("extension=%s\n" % ext)
     if incDir:
         tmpini.write("include_path=\"%s\"\n" % incDir)
+    if iceProfile != None:
+        tmpini.write("ice.profiles=\"ice.profiles\"\n")
+        tmpProfiles = open("ice.profiles", "w")
+        tmpProfiles.write("[%s]\n" % iceProfile)
+        if clientConfig:
+            tmpProfiles.write("ice.config=\"config.client\"\n")
+        if iceOptions != None:
+            tmpProfiles.write("ice.options=\"%s\"\n" % iceOptions)
+        tmpProfiles.close()
+    else:
+        if clientConfig:
+            tmpini.write("ice.config=\"config.client\"\n")
+        if iceOptions != None:
+            tmpini.write("ice.options=\"%s\"\n" % iceOptions)
     tmpini.close()
 
 def getIceVersion():
@@ -1195,14 +1211,14 @@ def cleanDbDir(path):
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
         os.remove(filename)
 
-def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True):
+def startClient(exe, args = "", config=None, env=None, echo = True, startReader = True, clientConfig = False, iceOptions = None, iceProfile = None):
     if config is None:
         config = DriverConfig("client")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
     cmd = getCommandLine(exe, config) + ' ' + args
     if config.lang == "php":
-        phpSetup()
+        phpSetup(clientConfig, iceOptions, iceProfile)
     return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
 
 def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1, echo = True):

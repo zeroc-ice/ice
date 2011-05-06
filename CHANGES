@@ -120,6 +120,13 @@ Ruby Changes
   a string that contains null bytes.
 
 
+PHP Changes
+===========
+
+- Fixed a bug in the Ice extension that caused Ice-related INI
+  settings to be ignored.
+
+
 ======================================================================
 Changes since version 3.4.0
 ======================================================================

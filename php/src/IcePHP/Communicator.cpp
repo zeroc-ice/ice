@@ -14,6 +14,7 @@
 #include <Util.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Timer.h>
 
 using namespace std;
@@ -1254,6 +1255,15 @@ parseProfiles(const string& file TSRMLS_DC)
             {
                 end = s.length();
                 value = s.substr(beg, end - beg);
+
+                //
+                // Check for quotes and remove them if present
+                //
+                string::size_type qpos = IceUtilInternal::checkQuote(value);
+                if(qpos != string::npos)
+                {
+                    value = value.substr(1, qpos - 1);
+                }
             }
 
             if(key == "config" || key == "ice.config")
@@ -1322,12 +1332,12 @@ IcePHP::communicatorInit(TSRMLS_D)
     // Create the profiles from configuration settings.
     //
     const char* empty = "";
-    const char* config = INI_STR(const_cast<char*>("ice.config"));
+    const char* config = INI_STR("ice.config");
     if(!config)
     {
         config = empty;
     }
-    const char* options = INI_STR(const_cast<char*>("ice.options"));
+    const char* options = INI_STR("ice.options");
     if(!options)
     {
         options = empty;
@@ -1337,7 +1347,7 @@ IcePHP::communicatorInit(TSRMLS_D)
         return false;
     }
 
-    const char* profiles = INI_STR(const_cast<char*>("ice.profiles"));
+    const char* profiles = INI_STR("ice.profiles");
     if(!profiles)
     {
         profiles = empty;

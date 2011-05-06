@@ -36,6 +36,7 @@ tests = [
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
     ("Ice/defaultValue", ["core"]),
+    ("Ice/ini", ["once"]),
     ("Slice/keyword", ["once"]),
     ("Slice/structure", ["once"])
     ]
