@@ -396,8 +396,12 @@ public abstract class Application extends Ice.Application
 
                 if(_createdSession)
                 {
-                    ping = new SessionPingThread(_router, (_router.getSessionTimeout() * 1000) / 2);
-                    ping.start();
+                    long timeout = _router.getSessionTimeout();
+                    if(timeout > 0)
+                    {
+                        ping = new SessionPingThread(_router, (timeout * 1000) / 2);
+                        ping.start();
+                    }
                     _category = _router.getCategoryForClient();
                     status.value = runWithSession(argHolder.value);
                 }

@@ -139,8 +139,7 @@ public class SessionHelper
                 return;
             }
             _destroy = true;
-
-            if(_sessionRefresh == null)
+            if(!_connected)
             {
                 //
                 // In this case a connecting session is being
@@ -356,23 +355,25 @@ public class SessionHelper
             _connected = true;
 
             Debug.Assert(_sessionRefresh == null);
-            _sessionRefresh = new SessionRefreshThread(this, _router, (int)(timeout * 1000)/2);
-            _refreshThread = new Thread(new ThreadStart(_sessionRefresh.run));
-            _refreshThread.Start();
-
-
-            dispatchCallback(delegate()
-                             {
-                                 try
-                                 {
-                                     _callback.connected(this);
-                                 }
-                                 catch(Glacier2.SessionNotExistException)
-                                 {
-                                     destroy();
-                                 }
-                             }, conn);
+            if(timeout > 0)
+            {
+                _sessionRefresh = new SessionRefreshThread(this, _router, (int)(timeout * 1000)/2);
+                _refreshThread = new Thread(new ThreadStart(_sessionRefresh.run));
+                _refreshThread.Start();
+            }
         }
+
+        dispatchCallback(delegate()
+                         {
+                             try
+                             {
+                                 _callback.connected(this);
+                             }
+                             catch(Glacier2.SessionNotExistException)
+                             {
+                                 destroy();
+                             }
+                         }, conn);
     }
 
     private void

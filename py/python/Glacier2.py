@@ -173,8 +173,10 @@ Application.NoSignalHandling.
                     status = 1
 
                 if Application._createdSession:
-                    ping = SessionPingThread(self, Application._router, Application._router.getSessionTimeout() / 2)
-                    ping.start()
+                    timeout = Application._router.getSessionTimeout();
+                    if timeout > 0:
+                        ping = SessionPingThread(self, Application._router, timeout / 2)
+                        ping.start()
                     Application._category = Application._router.getCategoryForClient()
                     status = self.runWithSession(args)
 

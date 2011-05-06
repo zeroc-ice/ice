@@ -72,12 +72,13 @@ class SessionPingThreadI : virtual public IceUtil::Thread, virtual public Sessio
     
 public:
     
-    SessionPingThreadI(Glacier2::Application* app, const Glacier2::RouterPrx& router, long period) :
+    SessionPingThreadI(Glacier2::Application* app, const Glacier2::RouterPrx& router, IceUtil::Int64 period) :
         _app(app),
         _router(router),
         _period(period),
         _done(false)
     {
+        assert(_period);
     }
 
     void
@@ -100,7 +101,7 @@ public:
 
             if(!_done)
             {
-                _monitor.timedWait(IceUtil::Time::seconds((int)_period));
+                _monitor.timedWait(IceUtil::Time::milliSeconds(_period));
             }
 
             if(_done)
@@ -125,7 +126,7 @@ private:
     
     Glacier2::Application* _app;
     Glacier2::RouterPrx _router;
-    long _period;
+    IceUtil::Int64 _period;
     bool _done;
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
@@ -272,8 +273,12 @@ Glacier2::Application::doMain(Ice::StringSeq& args, const Ice::InitializationDat
 
             if(_createdSession)
             {
-                ping = new SessionPingThreadI(this, _router, (long)_router->getSessionTimeout() / 2);
-                ping->start();
+                IceUtil::Int64 timeout = _router->getSessionTimeout();
+                if(timeout > 0)
+                {
+                    ping = new SessionPingThreadI(this, _router, (timeout * 1000) / 2);
+                    ping->start();
+                }
                 _category = _router->getCategoryForClient();
                 IceUtilInternal::ArgVector a(args);
                 status = runWithSession(a.argc, a.argv);

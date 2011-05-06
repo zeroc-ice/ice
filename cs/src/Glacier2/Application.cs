@@ -366,9 +366,13 @@ public abstract class Application : Ice.Application
 
                 if(_createdSession)
                 {
-                    ping = new SessionPingThread(this, _router, (_router.getSessionTimeout() * 1000) / 2);
-                    pingThread = new Thread(new ThreadStart(ping.run));
-                    pingThread.Start();
+                    long timeout = _router.getSessionTimeout();
+                    if(timeout > 0)
+                    {
+                        ping = new SessionPingThread(this, _router, (timeout * 1000) / 2);
+                        pingThread = new Thread(new ThreadStart(ping.run));
+                        pingThread.Start();
+                    }
                     _category = _router.getCategoryForClient();
                     status = runWithSession(args);
                 }

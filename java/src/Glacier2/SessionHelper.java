@@ -118,7 +118,7 @@ public class SessionHelper
                 return;
             }
             _destroy = true;
-            if(_refreshThread == null)
+            if(!_connected)
             {
                 //
                 // In this case a connecting session is being
@@ -353,8 +353,11 @@ public class SessionHelper
             _connected = true;
 
             assert _refreshThread == null;
-            _refreshThread = new SessionRefreshThread(_router, (timeout * 1000)/2);
-            _refreshThread.start();
+            if(timeout > 0)
+            {
+                _refreshThread = new SessionRefreshThread(_router, (timeout * 1000)/2);
+                _refreshThread.start();
+            }
 
             _shutdownHook = new Thread("Shutdown hook")
             {
