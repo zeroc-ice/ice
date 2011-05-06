@@ -100,6 +100,9 @@ Java Changes
 C# Changes
 ==========
 
+- Fixed bugs in the generated code that caused naming conflicts when
+  using a Slice module named 'System'.
+
 - Added an ice_staticId method to generated PrxHelper classes.
 
 - Fixed a bug in the generated code when a Slice class uses the

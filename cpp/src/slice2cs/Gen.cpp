@@ -811,7 +811,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             _out << eb;
         }
         _out << eb;
-        _out << nl << "catch(System.InvalidCastException)";
+        _out << nl << "catch(_System.InvalidCastException)";
         _out << sb;
         _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
         _out << eb;
@@ -2036,7 +2036,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
              << "\")]";
         _out << nl << "public sealed class " << className;
         _out << sb;
-        _out << nl << "public static System.Collections.Hashtable map = new System.Collections.Hashtable();";
+        _out << nl << "public static _System.Collections.Hashtable map = new _System.Collections.Hashtable();";
         _out << sp << nl << "static " << className << "()";
         _out << sb;
         for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
@@ -2987,7 +2987,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 _out << eb;
             }
             _out << eb;
-            _out << nl << "catch(System.InvalidCastException)";
+            _out << nl << "catch(_System.InvalidCastException)";
             _out << sb;
             _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
             _out << eb;
@@ -3385,7 +3385,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 _out << eb;
             }
             _out << eb;
-            _out << nl << "catch(System.InvalidCastException)";
+            _out << nl << "catch(_System.InvalidCastException)";
             _out << sb;
             _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
             _out << eb;
@@ -5164,7 +5164,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << sb;
         _out << nl << "_m[_key] = (" << valueS << ")v;";
         _out << eb;
-        _out << nl << "catch(System.InvalidCastException)";
+        _out << nl << "catch(_System.InvalidCastException)";
         _out << sb;
         _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         _out << eb;
@@ -5589,7 +5589,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                         _out << sb;
                         _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
                         _out << eb;
-                        _out << nl << "catch(System.InvalidCastException)";
+                        _out << nl << "catch(_System.InvalidCastException)";
                         _out << sb;
                         _out << nl << param << " = null;";
                         _out << nl << "IceInternal.Ex.throwUOE(" << param << "_PP.type(), "
@@ -5614,7 +5614,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << sb;
                 _out << nl << "ret__ = (" << retS << ")ret___PP.value;";
                 _out << eb;
-                _out << nl << "catch(System.InvalidCastException)";
+                _out << nl << "catch(_System.InvalidCastException)";
                 _out << sb;
                 _out << nl << "ret__ = null;";
                 _out << nl << "IceInternal.Ex.throwUOE(ret___PP.type(), ret___PP.value.ice_id());";
@@ -5840,7 +5840,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "throw;";
             _out << eb;
-            _out << nl << "catch(System.Exception ex__)";
+            _out << nl << "catch(_System.Exception ex__)";
             _out << sb;
             _out << nl << "IceInternal.LocalExceptionWrapper.throwWrapper(ex__);";
             _out << eb;
