@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-require 'IceStorm/IceStorm.php';
+require_once 'IceStorm/IceStorm.php';
 ?>

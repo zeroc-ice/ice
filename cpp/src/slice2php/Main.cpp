@@ -1420,7 +1420,7 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
             for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
             {
                 string file = changeInclude(*q, paths);
-                out << nl << "require '" << file << ".php';";
+                out << nl << "require_once '" << file << ".php';";
             }
             if(ns)
             {
@@ -1537,7 +1537,7 @@ usage(const char* n)
         "--underscore         Permit underscores in Slice identifiers.\n"
         "--all                Generate code for Slice definitions in included files.\n"
         "--checksum           Generate checksums for Slice definitions.\n"
-        "-n, --namespace      Use PHP namespaces (requires PHP 5.3.0 or later).\n"
+        "-n, --namespace      Use PHP namespaces (requires PHP 5.3 or later).\n"
         ;
 }
 

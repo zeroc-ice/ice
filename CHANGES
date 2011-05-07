@@ -126,6 +126,12 @@ Ruby Changes
 PHP Changes
 ===========
 
+- Fixed a bug that caused 'undefined symbol IcePHP__t_XXX' errors when
+  Ice.php or a generated file is included from a non-global scope.
+
+- slice2php now generates 'require_once' statements corresponding to
+  Slice #include directives.
+
 - Fixed a bug in the Ice extension that caused Ice-related INI
   settings to be ignored.
 

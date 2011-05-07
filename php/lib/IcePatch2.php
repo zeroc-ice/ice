@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-require 'IcePatch2/FileServer.php';
+require_once 'IcePatch2/FileServer.php';
 ?>

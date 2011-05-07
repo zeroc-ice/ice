@@ -8,6 +8,6 @@
 //
 // **********************************************************************
 
-require 'Glacier2/Router.php';
-require 'Glacier2/PermissionsVerifier.php';
+require_once 'Glacier2/Router.php';
+require_once 'Glacier2/PermissionsVerifier.php';
 ?>

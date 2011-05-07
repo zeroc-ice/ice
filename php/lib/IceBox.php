@@ -8,5 +8,5 @@
 //
 // **********************************************************************
 
-require 'IceBox/IceBox.php';
+require_once 'IceBox/IceBox.php';
 ?>

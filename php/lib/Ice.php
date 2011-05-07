@@ -9,6 +9,20 @@
 // **********************************************************************
 
 //
+// These symbols are defined by the extension but must be declared global
+// here to ensure they are visible to scripts regardless of the scope in
+// which we are currently executing.
+//
+global $IcePHP__t_bool;
+global $IcePHP__t_byte;
+global $IcePHP__t_short;
+global $IcePHP__t_int;
+global $IcePHP__t_long;
+global $IcePHP__t_float;
+global $IcePHP__t_double;
+global $IcePHP__t_string;
+
+//
 // Exceptions.
 //
 abstract class Ice_Exception extends Exception
@@ -102,14 +116,14 @@ $Ice_sliceChecksums = array();
 //
 // Include certain generated files.
 //
-require 'Ice/BuiltinSequences.php';
-require 'Ice/Endpoint.php';
-require 'Ice/EndpointTypes.php';
-require 'Ice/LocalException.php';
-require 'Ice/Locator.php';
-require 'Ice/ObjectFactory.php';
-require 'Ice/Process.php';
-require 'Ice/Router.php';
+require_once 'Ice/BuiltinSequences.php';
+require_once 'Ice/Endpoint.php';
+require_once 'Ice/EndpointTypes.php';
+require_once 'Ice/LocalException.php';
+require_once 'Ice/Locator.php';
+require_once 'Ice/ObjectFactory.php';
+require_once 'Ice/Process.php';
+require_once 'Ice/Router.php';
 
 IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 2, 1, array($IcePHP__t_string), null, $IcePHP__t_bool, null);
 IcePHP_defineOperation($Ice__t_Object, 'ice_ping', 2, 1, null, null, null, null);
