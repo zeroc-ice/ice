@@ -12,7 +12,7 @@ top_srcdir	= ..\..\..
 !include $(top_srcdir)\config\Make.rules.mak.php
 
 SRCS		= Key.php
-SLICE2PHPFLAGS  = --underscore
+SLICE2PHPFLAGS  = --underscore $(SLICE2PHPFLAGS)
 
 all:: $(SRCS)
 

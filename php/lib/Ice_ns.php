@@ -8,6 +8,8 @@
 //
 // **********************************************************************
 
+namespace
+{
 //
 // These symbols are defined by the extension but must be declared global
 // here to ensure they are visible to scripts regardless of the scope in
@@ -21,6 +23,7 @@ global $IcePHP__t_long;
 global $IcePHP__t_float;
 global $IcePHP__t_double;
 global $IcePHP__t_string;
+}
 
 namespace Ice
 {
