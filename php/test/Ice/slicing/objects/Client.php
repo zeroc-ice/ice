@@ -8,9 +8,9 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require ($NS ? 'Ice_ns.php' : 'Ice.php');
-require 'Forward.php';
-require 'ClientPrivate.php';
+require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
+require_once 'Forward.php';
+require_once 'ClientPrivate.php';
 
 function test($b)
 {

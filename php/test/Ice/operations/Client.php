@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require ($NS ? 'Ice_ns.php' : 'Ice.php');
-require 'Test.php';
+require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
+require_once 'Test.php';
 
 function test($b)
 {

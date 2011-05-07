@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-require 'Ice.php';
-require 'Value.php';
+require_once 'Ice.php';
+require_once 'Value.php';
 
 $ICE = Ice_initialize();
 

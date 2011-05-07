@@ -7,8 +7,8 @@
 <H1>Session Demo - Login</H1>
 
 <?php
-require 'Ice.php';
-require 'Glacier2.php';
+require_once 'Ice.php';
+require_once 'Glacier2.php';
 
 session_start();
 

@@ -16,8 +16,8 @@
 //
 // **********************************************************************
 
-require 'Ice_ns.php';
-require 'Hello.php';
+require_once 'Ice_ns.php';
+require_once 'Hello.php';
 
 $ICE = Ice\initialize();
 
