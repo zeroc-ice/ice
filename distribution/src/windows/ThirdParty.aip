@@ -10,6 +10,7 @@
     <ROW Property="CTRLS" Value="1"/>
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:installer_main.bmp_1" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
+    <ROW Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
@@ -676,7 +677,7 @@
     <ROW File="db_stat.exe_4" Component_="db_stat.exe_4" FileName="db_stat.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC10&gt;build_windows\x64\Release\db_stat.exe" SelfReg="false" NextFile="db_upgrade.exe_4"/>
     <ROW File="db_upgrade.exe" Component_="db_upgrade.exe" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC9&gt;build_windows\Win32\Release\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe" DigSign="true"/>
     <ROW File="db_upgrade.exe_1" Component_="db_upgrade.exe_1" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC9&gt;build_windows\x64\Release\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_1" DigSign="true"/>
-    <ROW File="db_upgrade.exe_2" Component_="db_upgrade.exe_2" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_BCC10&gt;build_windows\Release\db_upgrade.exe" SelfReg="false" NextFile="forms_1.3.0.jar" DigSign="true"/>
+    <ROW File="db_upgrade.exe_2" Component_="db_upgrade.exe_2" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_BCC10&gt;build_windows\Release\db_upgrade.exe" SelfReg="false" NextFile="db.jar" DigSign="true"/>
     <ROW File="db_upgrade.exe_3" Component_="db_upgrade.exe_3" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC10&gt;build_windows\Win32\Release\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_3" DigSign="true"/>
     <ROW File="db_upgrade.exe_4" Component_="db_upgrade.exe_4" FileName="db_upg~1.exe|db_upgrade.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC10&gt;build_windows\x64\Release\db_upgrade.exe" SelfReg="false" NextFile="db_verify.exe_4"/>
     <ROW File="db_verify.exe" Component_="db_verify.exe" FileName="db_ver~1.exe|db_verify.exe" Attributes="0" SourcePath="&lt;DB_HOME_VC9&gt;build_windows\Win32\Release\db_verify.exe" SelfReg="false" NextFile="libdb48.dll" DigSign="true"/>
@@ -723,7 +724,6 @@
     <ROW File="export_3" Component_="complex" FileName="export" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\wrap_std\export" SelfReg="false" NextFile="fstream_2"/>
     <ROW File="fips.h" Component_="aes.h" FileName="fips.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;fips\fips.h" SelfReg="false" NextFile="fips_rand.h"/>
     <ROW File="fips_rand.h" Component_="aes.h" FileName="fips_r~1.h|fips_rand.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;fips\rand\fips_rand.h" SelfReg="false" NextFile="msvcp60.dll"/>
-    <ROW File="forms_1.3.0.jar" Component_="db.jar" FileName="forms-~2.jar|forms-1.3.0.jar" Attributes="0" SourcePath="&lt;JGOODIES_FORMS_HOME&gt;forms-1.3.0.jar" SelfReg="false" NextFile="looks_2.3.1.jar"/>
     <ROW File="fstream" Component_="algorithm" FileName="fstream" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\fstream" SelfReg="false" NextFile="fstream.h_2"/>
     <ROW File="fstream.c" Component_="char_traits.h" FileName="_fstream.c" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_fstream.c" SelfReg="false" NextFile="fstream.h_3"/>
     <ROW File="fstream.h" Component_="algorith.h" FileName="fstream.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\fstream.h" SelfReg="false" NextFile="function.h"/>
@@ -806,6 +806,9 @@
     <ROW File="iterator.h_3" Component_="char_traits.h" FileName="_itera~1.h|_iterator.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_iterator.h" SelfReg="false" NextFile="iterator_base.h"/>
     <ROW File="iterator_base.h" Component_="char_traits.h" FileName="_itera~2.h|_iterator_base.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_iterator_base.h" SelfReg="false" NextFile="iterator_old.h"/>
     <ROW File="iterator_old.h" Component_="char_traits.h" FileName="_itera~3.h|_iterator_old.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_iterator_old.h" SelfReg="false" NextFile="limits.c"/>
+    <ROW File="jgoodies_common_1.2.0.jar" Component_="db.jar" FileName="jgoodi~1.jar|jgoodies-common-1.2.0.jar" Attributes="0" SourcePath="&lt;JGOODIES_COMMON_HOME&gt;jgoodies-common-1.2.0.jar" SelfReg="false" NextFile="jgoodies_forms_1.4.1.jar"/>
+    <ROW File="jgoodies_forms_1.4.1.jar" Component_="db.jar" FileName="jgoodi~2.jar|jgoodies-forms-1.4.1.jar" Attributes="0" SourcePath="&lt;JGOODIES_FORMS_HOME&gt;jgoodies-forms-1.4.1.jar" SelfReg="false" NextFile="jgoodies_looks_2.4.1.jar"/>
+    <ROW File="jgoodies_looks_2.4.1.jar" Component_="db.jar" FileName="jgoodi~3.jar|jgoodies-looks-2.4.1.jar" Attributes="0" SourcePath="&lt;JGOODIES_LOOKS_HOME&gt;jgoodies-looks-2.4.1.jar" SelfReg="false"/>
     <ROW File="krb5_asn.h" Component_="aes.h" FileName="krb5_asn.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\krb5\krb5_asn.h" SelfReg="false" NextFile="kssl.h"/>
     <ROW File="kssl.h" Component_="aes.h" FileName="kssl.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;ssl\kssl.h" SelfReg="false" NextFile="lhash.h"/>
     <ROW File="lhash.h" Component_="aes.h" FileName="lhash.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\lhash\lhash.h" SelfReg="false" NextFile="md2.h"/>
@@ -880,7 +883,6 @@
     <ROW File="locale.h_3" Component_="char_traits.h" FileName="_locale.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\stl\_locale.h" SelfReg="false" NextFile="map.h_3"/>
     <ROW File="locale_1" Component_="cstring" FileName="locale" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\using\locale" SelfReg="false" NextFile="ostream_1"/>
     <ROW File="locale_2" Component_="complex" FileName="locale" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\wrap_std\locale" SelfReg="false" NextFile="ostream_2"/>
-    <ROW File="looks_2.3.1.jar" Component_="db.jar" FileName="looks-~1.jar|looks-2.3.1.jar" Attributes="0" SourcePath="&lt;JGOODIES_LOOKS_HOME&gt;looks-2.3.1.jar" SelfReg="false" NextFile="db.jar"/>
     <ROW File="make_bc50.sh" Component_="algorith.h" FileName="make_b~1.sh|make_bc50.sh" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\make_bc50.sh" SelfReg="false" NextFile="map.h"/>
     <ROW File="map" Component_="algorithm" FileName="map" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\map" SelfReg="false" NextFile="math.h"/>
     <ROW File="map.h" Component_="algorith.h" FileName="map.h" Attributes="0" SourcePath="&lt;STLPORT_HOME&gt;stlport\BC50\map.h" SelfReg="false" NextFile="memory.h"/>
@@ -936,7 +938,7 @@
     <ROW File="openssl.exe" Component_="openssl.exe" FileName="openssl.exe" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;out32dll\openssl.exe" SelfReg="false" NextFile="libexpat.dll_2" DigSign="true"/>
     <ROW File="openssl.exe_1" Component_="openssl.exe_1" FileName="openssl.exe" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9_X64&gt;out32dll\openssl.exe" SelfReg="false" NextFile="QtSqld4.dll"/>
     <ROW File="openssl.exe_2" Component_="openssl.exe_2" FileName="openssl.exe" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC10_X64&gt;out32dll\openssl.exe" SelfReg="false" NextFile="ssleay32.dll_3"/>
-    <ROW File="openssl.exe_3" Component_="openssl.exe_3" FileName="openssl.exe" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC10&gt;out32dll\openssl.exe" SelfReg="false" DigSign="true"/>
+    <ROW File="openssl.exe_3" Component_="openssl.exe_3" FileName="openssl.exe" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC10&gt;out32dll\openssl.exe" SelfReg="false" NextFile="jgoodies_common_1.2.0.jar" DigSign="true"/>
     <ROW File="opensslconf.h" Component_="aes.h" FileName="openss~1.h|opensslconf.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\opensslconf.h" SelfReg="false" NextFile="opensslv.h"/>
     <ROW File="opensslv.h" Component_="aes.h" FileName="opensslv.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\opensslv.h" SelfReg="false" NextFile="ossl_typ.h"/>
     <ROW File="ossl_typ.h" Component_="aes.h" FileName="ossl_typ.h" Attributes="0" SourcePath="&lt;OPENSSL_HOME_VC9&gt;crypto\ossl_typ.h" SelfReg="false" NextFile="pem.h"/>
@@ -1338,7 +1340,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="windows\verisign-code-signing.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
+    <ROW DigitalCertificate="..\..\zeroc2011.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -1468,6 +1470,17 @@
     <ROW Dialog_="QtLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Qt License Agreement" TextStyle="[DlgTitleFont]" Control_Next="QtLicenseDlgFileScrollableText_1"/>
     <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\thirdparty\QT_LICENSE.rtf" Control_Next="QtLicenseDlgRadioButtonGroup_1"/>
     <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Text="RadioButtonGroup" Control_Next="Next"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Back]" Control_Next="BannerBitmap" TextLocId="-" Options="1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="BannerLine"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="BannerLine" Type="Line" X="0" Y="44" Width="372" Height="0" Attributes="1" Control_Next="BottomLine"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="BottomLine" Type="Line" X="5" Y="234" Width="368" Height="0" Attributes="1" Control_Next="Description"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Control_Next="Back" TextLocId="-" Options="1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Control_Next="Logo"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Control_Next="Title"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Control_Next="Cancel" TextLocId="-" Options="1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Common License Agreement" TextStyle="[DlgTitleFont]" Control_Next="JgoodiesCommonLicesneDlgFileScrollableText_1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgFileScrollableText_1" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\thirdparty\JGOODIES_COMMON_LICENSE.rtf" Control_Next="JgoodiesCommonLicesneDlgRadioButtonGroup_1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Control_Next="Next"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
@@ -1489,6 +1502,8 @@
     <ROW Dialog_="STLportLicenseDlg" Control_="Next" Action="Disable" Condition="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
     <ROW Dialog_="QtLicenseDlg" Control_="Next" Action="Enable" Condition="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
     <ROW Dialog_="QtLicenseDlg" Control_="Next" Action="Disable" Condition="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP &lt;&gt; &quot;Yes&quot;"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Next" Action="Enable" Condition="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP = &quot;Yes&quot;"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Next" Action="Disable" Condition="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP = &quot;No&quot;"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="STLportLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -1504,7 +1519,7 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control_="Next" Event="NewDialog" Argument="McppLicensDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesFormsLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Event="NewDialog" Argument="QtLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesCommonLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Back" Event="NewDialog" Argument="OpensslLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control_="Next" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -1524,7 +1539,7 @@
     <ROW Dialog_="STLportLicenseDlg" Control_="Back" Event="NewDialog" Argument="QtLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="STLportLicenseDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="QtLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="1"/>
-    <ROW Dialog_="QtLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="QtLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesCommonLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="QtLicenseDlg" Control_="Next" Event="NewDialog" Argument="STLportLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="CustomizeDlg" Control_="Back" Event="NewDialog" Argument="MaintenanceTypeDlg" Condition="AI_MAINT" Ordering="1"/>
     <ROW Dialog_="CustomizeDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_MAINT" Ordering="1"/>
@@ -1534,6 +1549,9 @@
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="198"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="199"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_MAINT" Ordering="201"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Cancel" Event="SpawnDialog" Argument="CancelDlg" Condition="1" Ordering="100"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Next" Event="NewDialog" Argument="QtLicenseDlg" Condition="AI_INSTALL" Ordering="1"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control_="Back" Event="NewDialog" Argument="JgoodiesLooksLicesneDlg" Condition="AI_INSTALL" Ordering="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
@@ -1549,6 +1567,7 @@
     <ROW Dialog="BerkeleyLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="Bzip2LicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="ExpatLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
+    <ROW Dialog="JgoodiesCommonLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="JgoodiesFormsLicenseDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="JgoodiesLooksLicesneDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
     <ROW Dialog="McppLicensDlg" HCentering="50" VCentering="50" Width="370" Height="270" Attributes="3" Title="[ProductName] [Setup]" Control_First="Next" Control_Default="Next" Control_Cancel="Cancel"/>
@@ -1591,6 +1610,8 @@
     <ROW Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
     <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
     <ROW Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
+    <ROW Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1" Value="Yes" X="5" Y="0" Width="250" Height="15" Text="I &amp;accept the terms in the License Agreement"/>
+    <ROW Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="2" Value="No" X="5" Y="20" Width="250" Height="15" Text="I &amp;do not accept the terms in the License Agreement"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegsComponent">
     <ROW Registry="InstallDir" Root="2" Key="Software\ZeroC\[ProductName]" Name="InstallDir" Value="[APPDIR]" Component_="InstallDir"/>

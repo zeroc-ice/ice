@@ -84,7 +84,7 @@ these recommendations:
 bzip2
 -----
 
-The bzip2-1.0.5 distribution does not directly support creating DLLs.
+The bzip2-1.0.6 distribution does not directly support creating DLLs.
 The file bzlib.patch in this archive contains a patch for bzlib.h that
 allows bzip2 to be compiled into a DLL.
 

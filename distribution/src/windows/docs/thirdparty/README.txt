@@ -2,8 +2,8 @@ Ice 3.4.2 Third Party Packages
 -----------------------------
 
 This distribution contains the development kit (including binaries)
-for the open-source packages used by Ice 3.4.1 on Windows. Its primary
-purpose is to simplify building Ice 3.4.1 from sources.
+for the open-source packages used by Ice 3.4.2 on Windows. Its primary
+purpose is to simplify building Ice 3.4.2 from sources.
 
 The following versions of the third party software were used to
 create this package:
@@ -15,8 +15,9 @@ create this package:
  - MCPP 2.7.2
  - Qt 4.5.3
  - STLport 4.6.2
- - JGoodies Forms 1.3.0
- - JGoodies Looks 2.3.1
+ - JGoodies Forms 1.4.1
+ - JGoodies Looks 2.4.1
+ - JGoodies Common 1.2.0
 
 This distribution provides:
 
@@ -52,4 +53,5 @@ This distribution provides:
  - DLLs for OpenSSL, Bzip2 and STLport built using Visual C++ 6.0 in 
    the bin directory.
 
- - JAR files for JGoodies Looks and JGoodies Forms in lib directory.
+ - JAR files for JGoodies Common, JGoodies Looks and JGoodies Forms in
+   lib directory.

@@ -26,8 +26,9 @@ STLPortVer = '4.6.2'
 ExpatVer = '2.0.1'
 DBVer = '4.8.30'
 MCPPVer = '2.7.2'
-LooksVer = '2.3.1'
-FormsVer = '1.3.0'
+LooksVer = '2.4.1'
+FormsVer = '1.4.1'
+CommonVer = '1.2.0'
 QtVer = '4.5.3'
 
 
@@ -114,6 +115,8 @@ def convertLicensesToRTF(toolDir):
     	     "JGOODIES_LOOKS_LICENSE.rtf")
     forms = ([os.path.join(os.environ["JGOODIES_FORMS_HOME"], "license.txt")], "JGoodies Forms",
              "JGOODIES_FORMS_LICENSE.rtf")
+    common = ([os.path.join(os.environ["JGOODIES_COMMON_HOME"], "license.txt")], "JGoodies Common",
+             "JGOODIES_COMMON_LICENSE.rtf")
     stlport = ([os.path.join(os.environ["STLPORT_HOME"], "doc", "license.html")], "STLport", "STLPORT_LICENSE.rtf")
     qt = ([os.path.join(os.environ["QT_HOME"], "LICENSE.LGPL"), os.path.join(os.environ["QT_HOME"], "LGPL_EXCEPTION.txt")], "Qt", "QT_LICENSE.rtf")
 
@@ -125,7 +128,7 @@ def convertLicensesToRTF(toolDir):
     rtfhdr = file(os.path.join(toolDir, "docs", "rtf.hdr")).readlines()
     rtfftr = file(os.path.join(toolDir, "docs", "rtf.footer")).readlines()
 
-    collection = [ berkeleydb, bzip2, openssl, expat, mcpp, looks, forms, qt, stlport ]
+    collection = [ berkeleydb, bzip2, openssl, expat, mcpp, looks, forms, common, qt, stlport ]
 
     third_party_sources_file_hdr = """Source Code
 -----------

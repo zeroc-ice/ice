@@ -114,8 +114,7 @@ Configuration
   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
   > copy C:\Ice-@ver@\vsaddin\config\Ice-VS2008.AddIn
 
-  If you have not installed the add-in in the default location, you 
-  must edit the .Addin file and update the value of the "Assembly"
+  Edit the .Addin file and update the value of the "Assembly"
   element with your installation path.
 
 3) Install item templates
