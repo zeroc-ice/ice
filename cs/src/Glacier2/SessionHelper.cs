@@ -56,7 +56,8 @@ public class SessionHelper
         public void
         run()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(true)
                 {
@@ -74,13 +75,17 @@ public class SessionHelper
 
                     if(!_done)
                     {
+#if COMPACT
+                        _m.TimedWait(_period);
+#else
                         try
                         {
-                            System.Threading.Monitor.Wait(this, _period);
+                            _m.TimedWait(_period);
                         }
                         catch(ThreadInterruptedException)
                         {
                         }
+#endif
                     }
 
                     if(_done)
@@ -89,18 +94,27 @@ public class SessionHelper
                     }
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void
         done()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!_done)
                 {
                     _done = true;
-                    System.Threading.Monitor.Pulse(this);
+                    _m.Notify();
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -108,6 +122,8 @@ public class SessionHelper
         private Glacier2.RouterPrx _router;
         private int _period;
         private bool _done = false;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     /// <summary>
@@ -430,6 +446,10 @@ public class SessionHelper
             sessionRefresh.done();
             while(true)
             {
+#if COMPACT
+                _refreshThread.Join();
+                break;
+#else
                 try
                 {
                     _refreshThread.Join();
@@ -438,6 +458,7 @@ public class SessionHelper
                 catch(ThreadInterruptedException)
                 {
                 }
+#endif
             }
             _refreshThread = null;
         }
@@ -511,8 +532,13 @@ public class SessionHelper
         })).Start();
     }
 
+#if COMPACT
+    private void
+    dispatchCallback(Ice.VoidAction callback, Ice.Connection conn)
+#else
     private void
     dispatchCallback(System.Action callback, Ice.Connection conn)
+#endif
     {
         if(_initData.dispatcher != null)
         {
@@ -524,8 +550,13 @@ public class SessionHelper
         }
     }
 
+#if COMPACT
+    private void
+    dispatchCallbackAndWait(Ice.VoidAction callback)
+#else
     private void
     dispatchCallbackAndWait(System.Action callback)
+#endif
     {
         if(_initData.dispatcher != null)
         {

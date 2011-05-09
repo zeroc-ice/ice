@@ -84,14 +84,15 @@ namespace IceInternal
             readonly Reference _ref;
             readonly int _ttl;
             readonly GetEndpointsCallback _callback;
-        };
+        }
 
         private abstract class Request
         {
             public void 
             addCallback(Reference @ref, Reference wellKnownRef, int ttl, GetEndpointsCallback cb)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     RequestCallback callback = new RequestCallback(@ref, ttl, cb);
                     if(_response)
@@ -117,12 +118,17 @@ namespace IceInternal
                         }
                     }
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
             }
         
             public EndpointI[]
             getEndpoints(Reference @ref, Reference wellKnownRef, int ttl, out bool cached)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     if(!_response || _exception == null)
                     {
@@ -139,7 +145,7 @@ namespace IceInternal
                 
                         while(!_response && _exception == null)
                         {
-                            Monitor.Wait(this);
+                            _m.Wait();
                         }
                     }
             
@@ -175,6 +181,10 @@ namespace IceInternal
                     }
                     return endpoints == null ? new EndpointI[0] : endpoints;
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
             }
         
             public Request(LocatorInfo locatorInfo, Reference @ref)
@@ -188,7 +198,8 @@ namespace IceInternal
             public void 
             response(Ice.ObjectPrx proxy)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, proxy, false);
                     _response = true;
@@ -197,7 +208,11 @@ namespace IceInternal
                     {
                         callback.response(_locatorInfo, proxy);
                     }
-                    Monitor.PulseAll(this);
+                    _m.NotifyAll();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
             
@@ -210,7 +225,8 @@ namespace IceInternal
                     return;
                 }
                 
-                lock(this)
+                _m.Lock();
+                try
                 {
                     _locatorInfo.finishRequest(_ref, _wellKnownRefs, null, ex is Ice.UserException);
                     _exception = ex;
@@ -218,7 +234,11 @@ namespace IceInternal
                     {
                         callback.exception(_locatorInfo, ex);
                     }
-                    Monitor.PulseAll(this);
+                    _m.NotifyAll();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
 
@@ -233,7 +253,9 @@ namespace IceInternal
             private bool _response;
             private Ice.ObjectPrx _proxy;
             private Ice.Exception _exception;
-        };
+
+            private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+        }
 
         private class ObjectRequest : Request
         {

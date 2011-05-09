@@ -62,18 +62,20 @@ public class Server
         return 0;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
 
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
-        
+
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
 
@@ -99,9 +101,6 @@ public class Server
             }
         }
 
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

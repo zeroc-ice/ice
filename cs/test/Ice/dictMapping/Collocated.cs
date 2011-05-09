@@ -31,12 +31,14 @@ public class Collocated
         return 0;
     }
 
-    public static void Main(String[] args)
+    public static int Main(String[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
 
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -62,9 +64,6 @@ public class Collocated
             }
         }
 
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

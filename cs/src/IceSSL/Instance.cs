@@ -105,7 +105,7 @@ namespace IceSSL
                     throw e;
                 }
 
-                Type cls = IceInternal.AssemblyUtil.findType(certVerifierClass);
+                Type cls = _facade.findType(certVerifierClass);
                 if(cls == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();
@@ -145,7 +145,7 @@ namespace IceSSL
                     throw e;
                 }
 
-                Type cls = IceInternal.AssemblyUtil.findType(passwordCallbackClass);
+                Type cls = _facade.findType(passwordCallbackClass);
                 if(cls == null)
                 {
                     Ice.PluginInitializationException e = new Ice.PluginInitializationException();

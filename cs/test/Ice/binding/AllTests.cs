@@ -24,36 +24,47 @@ public class AllTests
         }
     }
 
-    private class GetAdapterNameCB 
+    private class GetAdapterNameCB
     {
         public void response(string name)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 _name = name;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
-        
+
         public void exception(Ice.Exception ex)
         {
             test(false);
         }
-        
+
         public string getResult()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(_name == null)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
                 return _name;
-            }       
+            }
+            finally
+            {
+                _m.Unlock();
+            }
         }
-        
+
         private string _name = null;
-    };
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+    }
 
     private static string getAdapterNameWithAMI(TestIntfPrx test)
     {
@@ -76,7 +87,7 @@ public class AllTests
             }
         }
     }
-    
+
     private static TestIntfPrx createTestIntfPrx(ArrayList adapters)
     {
         ArrayList endpoints = new ArrayList();
@@ -85,7 +96,10 @@ public class AllTests
         while(p.MoveNext())
         {
             obj = ((RemoteObjectAdapterPrx)p.Current).getTestIntf();
-            endpoints.AddRange(ArrayList.Adapter(obj.ice_getEndpoints()));
+            foreach(Ice.Endpoint e in obj.ice_getEndpoints())
+            {
+                endpoints.Add(e);
+            }
         }
         return TestIntfPrxHelper.uncheckedCast(
             obj.ice_endpoints((Ice.Endpoint[])endpoints.ToArray(typeof(Ice.Endpoint))));
@@ -126,9 +140,9 @@ public class AllTests
 
             test1.ice_ping();
             test2.ice_ping();
-        
+
             com.deactivateObjectAdapter(adapter);
-        
+
             TestIntfPrx test3 = TestIntfPrxHelper.uncheckedCast(test1);
             test(test3.ice_getConnection() == test1.ice_getConnection());
             test(test3.ice_getConnection() == test2.ice_getConnection());
@@ -156,7 +170,7 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            HashSet<string> names = new HashSet<string>();
+            List<string> names = new List<string>();
             names.Add("Adapter11");
             names.Add("Adapter12");
             names.Add("Adapter13");
@@ -176,7 +190,7 @@ public class AllTests
                 names.Remove(test1.getAdapterName());
                 test1.ice_getConnection().close(false);
             }
-            
+
             //
             // Ensure that the proxy correctly caches the connection (we
             // always send the request over the same connection.)
@@ -186,7 +200,7 @@ public class AllTests
                 {
                     adpt.getTestIntf().ice_ping();
                 }
-                
+
                 TestIntfPrx t = createTestIntfPrx(adapters);
                 string name = t.getAdapterName();
                 int nRetry = 10;
@@ -198,7 +212,7 @@ public class AllTests
                 {
                     adpt.getTestIntf().ice_getConnection().close(false);
                 }
-            }       
+            }
 
             //
             // Deactivate an adapter and ensure that we can still
@@ -216,7 +230,7 @@ public class AllTests
                 TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
                 TestIntfPrx test3 = createTestIntfPrx(adpts);
-            
+
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
@@ -228,7 +242,7 @@ public class AllTests
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapter.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);   
+            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
             TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.getAdapterName().Equals("Adapter12"));
 
@@ -293,7 +307,7 @@ public class AllTests
                     }
                     proxies[i] = createTestIntfPrx(new ArrayList(adpts));
                 }
-            
+
                 for(i = 0; i < proxies.Length; i++)
                 {
                     proxies[i].begin_getAdapterName();
@@ -308,7 +322,7 @@ public class AllTests
                     {
                     }
                 }
-                
+
                 ArrayList connections = new ArrayList();
                 for(i = 0; i < proxies.Length; i++)
                 {
@@ -349,7 +363,7 @@ public class AllTests
             // Ensure that when a connection is opened it's reused for new
             // proxies and that all endpoints are eventually tried.
             //
-            HashSet<string> names = new HashSet<string>();
+            List<string> names = new List<string>();
             names.Add("AdapterAMI11");
             names.Add("AdapterAMI12");
             names.Add("AdapterAMI13");
@@ -369,7 +383,7 @@ public class AllTests
                 names.Remove(getAdapterNameWithAMI(test1));
                 test1.ice_getConnection().close(false);
             }
-            
+
             //
             // Ensure that the proxy correctly caches the connection (we
             // always send the request over the same connection.)
@@ -379,7 +393,7 @@ public class AllTests
                 {
                     adpt.getTestIntf().ice_ping();
                 }
-                
+
                 TestIntfPrx t = createTestIntfPrx(adapters);
                 string name = getAdapterNameWithAMI(t);
                 int nRetry = 10;
@@ -391,7 +405,7 @@ public class AllTests
                 {
                     adpt.getTestIntf().ice_getConnection().close(false);
                 }
-            }       
+            }
 
             //
             // Deactivate an adapter and ensure that we can still
@@ -409,7 +423,7 @@ public class AllTests
                 TestIntfPrx test2 = createTestIntfPrx(adpts);
                 shuffle(ref adpts);
                 TestIntfPrx test3 = createTestIntfPrx(adpts);
-            
+
                 test(test1.ice_getConnection() == test2.ice_getConnection());
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
@@ -421,7 +435,7 @@ public class AllTests
             // Deactivate an adapter and ensure that we can still
             // establish the connection to the remaining adapter.
             //
-            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);   
+            com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
             TestIntfPrx obj = createTestIntfPrx(adapters);
             test(getAdapterNameWithAMI(obj).Equals("AdapterAMI12"));
 
@@ -440,7 +454,7 @@ public class AllTests
             TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
-            HashSet<string> names = new HashSet<string>();
+            List<string> names = new List<string>();
             names.Add("Adapter21");
             names.Add("Adapter22");
             names.Add("Adapter23");
@@ -493,7 +507,7 @@ public class AllTests
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter33"); i++);
             test(i == nRetry);
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-        
+
             try
             {
                 obj.getAdapterName();
@@ -509,7 +523,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++);
             test(i == nRetry);
@@ -538,9 +552,9 @@ public class AllTests
             test(test1.ice_getConnection() == test2.ice_getConnection());
 
             test1.ice_ping();
-        
+
             com.deactivateObjectAdapter(adapter);
-        
+
             TestIntfPrx test3 = TestIntfPrxHelper.uncheckedCast(test1);
             try
             {
@@ -564,7 +578,7 @@ public class AllTests
             TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
-            HashSet<string> names = new HashSet<string>();
+            List<string> names = new List<string>();
             names.Add("Adapter51");
             names.Add("Adapter52");
             names.Add("Adapter53");
@@ -586,7 +600,7 @@ public class AllTests
 
 
             test(obj.getAdapterName().Equals("Adapter52"));
-        
+
             deactivate(com, adapters);
         }
         Console.Out.WriteLine("ok");
@@ -602,7 +616,7 @@ public class AllTests
             TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
             test(!obj.ice_isConnectionCached());
 
-            HashSet<string> names = new HashSet<string>();
+            List<string> names = new List<string>();
             names.Add("AdapterAMI51");
             names.Add("AdapterAMI52");
             names.Add("AdapterAMI53");
@@ -624,7 +638,7 @@ public class AllTests
 
 
             test(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
-        
+
             deactivate(com, adapters);
         }
         Console.Out.WriteLine("ok");
@@ -658,7 +672,7 @@ public class AllTests
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter63"); i++);
             test(i == nRetry);
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-        
+
             try
             {
                 obj.getAdapterName();
@@ -674,7 +688,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.Add(com.createObjectAdapter("Adapter66", endpoints[2].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter66"); i++);
             test(i == nRetry);
@@ -718,7 +732,7 @@ public class AllTests
             for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI63"); i++);
             test(i == nRetry);
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-        
+
             try
             {
                 obj.getAdapterName();
@@ -734,7 +748,7 @@ public class AllTests
             //
             // Now, re-activate the adapters with the same endpoints in the opposite
             // order.
-            // 
+            //
             adapters.Add(com.createObjectAdapter("AdapterAMI66", endpoints[2].ToString()));
             for(i = 0; i < nRetry && getAdapterNameWithAMI(obj).Equals("AdapterAMI66"); i++);
             test(i == nRetry);
@@ -758,7 +772,7 @@ public class AllTests
 
             TestIntfPrx obj = createTestIntfPrx(adapters);
             test(obj.getAdapterName().Equals("Adapter71"));
-        
+
             TestIntfPrx testUDP = TestIntfPrxHelper.uncheckedCast(obj.ice_datagram());
             test(obj.ice_getConnection() != testUDP.ice_getConnection());
             try
@@ -779,7 +793,7 @@ public class AllTests
                 ArrayList adapters = new ArrayList();
                 adapters.Add(com.createObjectAdapter("Adapter81", "ssl"));
                 adapters.Add(com.createObjectAdapter("Adapter82", "tcp"));
-            
+
                 TestIntfPrx obj = createTestIntfPrx(adapters);
                 int i;
                 for(i = 0; i < 5; i++)
@@ -787,7 +801,7 @@ public class AllTests
                     test(obj.getAdapterName().Equals("Adapter82"));
                     obj.ice_getConnection().close(false);
                 }
-            
+
                 TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
                 test(testSecure.ice_isSecure());
                 testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(false));
@@ -797,7 +811,7 @@ public class AllTests
                 test(obj.ice_getConnection() != testSecure.ice_getConnection());
 
                 com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[1]);
-            
+
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter81"));
@@ -827,7 +841,7 @@ public class AllTests
             Console.Out.WriteLine("ok");
         }
 
-        com.shutdown(); 
+        com.shutdown();
     }
 
     private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));

@@ -30,16 +30,27 @@ public class Server
         return 0;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
 
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+            //
+            // When using Ice for .NET Compact Framework, we need to specify
+            // the assembly so that Ice can locate classes and exceptions.
+            //
+            data.properties = Ice.Util.createProperties();
+            data.properties.setProperty("Ice.FactoryAssemblies", "server");
+#endif
+            communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }
         catch(System.Exception ex)
@@ -61,9 +72,6 @@ public class Server
             }
         }
 
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

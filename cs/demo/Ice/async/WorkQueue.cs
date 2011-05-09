@@ -33,13 +33,22 @@ public class WorkQueue
 
     public void Run()
     {
+#if COMPACT
+        _m.Lock();
+        try
+#else
         lock(this)
+#endif
         {
             while(!_done)
             {
                 if(_callbacks.Count == 0)
                 {
+#if COMPACT
+                    _m.Wait();
+#else
                     Monitor.Wait(this);
+#endif
                 }
 
                 if(_callbacks.Count != 0)
@@ -54,7 +63,11 @@ public class WorkQueue
                     // emulate a process that takes a significant period of
                     // time to complete.
                     //
+#if COMPACT
+                    _m.TimedWait(entry.delay);
+#else
                     Monitor.Wait(this, entry.delay);
+#endif
 
                     if(!_done)
                     {
@@ -73,11 +86,22 @@ public class WorkQueue
                 e.cb.ice_exception(new RequestCanceledException());
             }
         }
+#if COMPACT
+        finally
+        {
+            _m.Unlock();
+        }
+#endif
     }
 
     public void Add(AMD_Hello_sayHello cb, int delay)
     {
+#if COMPACT
+        _m.Lock();
+        try
+#else
         lock(this)
+#endif
         {
             if(!_done)
             {
@@ -90,7 +114,11 @@ public class WorkQueue
 
                 if(_callbacks.Count == 0)
                 {
+#if COMPACT
+                    _m.Notify();
+#else
                     Monitor.Pulse(this);
+#endif
                 }
                 _callbacks.Add(entry);
             }
@@ -102,18 +130,40 @@ public class WorkQueue
                 cb.ice_exception(new RequestCanceledException());
             }
         }
+#if COMPACT
+        finally
+        {
+            _m.Unlock();
+        }
+#endif
     }
 
     public void destroy()
     {
+#if COMPACT
+        _m.Lock();
+        try
+        {
+            _done = true;
+            _m.Notify();
+        }
+        finally
+        {
+            _m.Unlock();
+        }
+#else
         lock(this)
         {
             _done = true;
             Monitor.Pulse(this);
         }
+#endif
     }
 
     private ArrayList _callbacks = new ArrayList();
     private bool _done = false;
     private Thread thread_;
+#if COMPACT
+    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+#endif
 }

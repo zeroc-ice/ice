@@ -47,14 +47,14 @@ public class Server
         }
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
         App server = new App();
-        System.Environment.Exit(server.main(args, initData));
+        return server.main(args, initData);
     }
 }
 }

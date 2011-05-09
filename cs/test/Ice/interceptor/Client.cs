@@ -112,7 +112,7 @@ public class Client
             }
             return 0;
         }
-        
+
         private int runAmd(Test.MyObjectPrx prx, AMDInterceptorI interceptor)
         {
             Console.Out.Write("testing simple interceptor... ");
@@ -186,7 +186,7 @@ public class Client
         public override int run(string[] args)
         {
             //
-            // Create OA and servants  
+            // Create OA and servants
             //
 
             communicator().getProperties().setProperty("MyOA.AdapterId", "myOA");
@@ -195,11 +195,11 @@ public class Client
 
             Ice.Object servant = new MyObjectI();
             InterceptorI interceptor = new InterceptorI(servant);
-            
+
             Test.MyObjectPrx prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
-            
+
             oa.activate();
-           
+
             Console.WriteLine("Collocation optimization on");
             int rs = run(prx, interceptor);
             if(rs == 0)
@@ -223,18 +223,22 @@ public class Client
         }
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         App app = new App();
-        int status = app.main(args);
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+        //
+        // When using Ice for .NET Compact Framework, we need to specify
+        // the assembly so that Ice can locate classes and exceptions.
+        //
+        data.properties = Ice.Util.createProperties();
+        data.properties.setProperty("Ice.FactoryAssemblies", "client");
+#endif
+        return app.main(args, data);
     }
 }
-
-
-    

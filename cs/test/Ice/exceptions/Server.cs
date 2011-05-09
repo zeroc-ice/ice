@@ -56,13 +56,15 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -80,7 +82,7 @@ public class Server
             System.Console.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -93,10 +95,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

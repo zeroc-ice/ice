@@ -19,7 +19,7 @@ namespace IceInternal
 
     internal struct ThreadPoolMessage
     {
-        public ThreadPoolMessage(object mutex)
+        public ThreadPoolMessage(IceUtilInternal.Monitor mutex)
         {
             _mutex = mutex;
             _finish = false;
@@ -66,15 +66,20 @@ namespace IceInternal
                 // of the event handler. We need to lock the event handler here to call 
                 // finishMessage.
                 //
-                lock(_mutex)
+                _mutex.Lock();
+                try
                 {
                     current.finishMessage(false);
                     Debug.Assert(!current.completedSynchronously);
                 }
+                finally
+                {
+                    _mutex.Unlock();
+                }
             }
         }
         
-        private object _mutex;
+        private IceUtilInternal.Monitor _mutex;
         private bool _finish;
         private bool _finishWithIO;
     }
@@ -241,11 +246,16 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -261,7 +271,8 @@ namespace IceInternal
 
         public void update(EventHandler handler, int remove, int add)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 handler._registered = handler._registered & ~remove;
@@ -283,6 +294,10 @@ namespace IceInternal
                                        }); 
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void unregister(EventHandler handler, int op)
@@ -292,7 +307,8 @@ namespace IceInternal
 
         public void finish(EventHandler handler)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 if(handler._pending == 0)
@@ -310,10 +326,17 @@ namespace IceInternal
                     handler._finish = true;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
-        public void
-        dispatch(System.Action call)
+#if COMPACT
+        public void dispatch(Ice.VoidAction call)
+#else
+        public void dispatch(System.Action call)
+#endif
         {
             if(_dispatcher != null)
             {
@@ -339,12 +362,13 @@ namespace IceInternal
         public void
         execute(ThreadPoolWorkItem workItem)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 if(_workItems.Count == 0)
                 {
-                    Monitor.Pulse(this);
+                    _m.Notify();
                 }
                 _workItems.Enqueue(workItem);
 
@@ -383,15 +407,24 @@ namespace IceInternal
                     }
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void
         executeNonBlocking(ThreadPoolWorkItem workItem)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 _instance.asyncIOThread().queue(workItem);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -425,7 +458,8 @@ namespace IceInternal
             ThreadPoolWorkItem workItem = null;
             while(true)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     if(workItem != null)
                     {
@@ -444,7 +478,7 @@ namespace IceInternal
 
                         if(_threadIdleTime > 0)
                         {
-                            if(!Monitor.Wait(this, _threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
+                            if(!_m.TimedWait(_threadIdleTime * 1000) && _workItems.Count == 0) // If timeout
                             {
                                 if(_destroyed)
                                 {
@@ -476,7 +510,7 @@ namespace IceInternal
                                 else
                                 {
                                     Debug.Assert(_serverIdleTime > 0 && _inUse == 0 && _threads.Count == 1);
-                                    if(!Monitor.Wait(this, _serverIdleTime * 1000)  && _workItems.Count == 0)
+                                    if(!_m.TimedWait(_serverIdleTime * 1000)  && _workItems.Count == 0)
                                     {
                                         if(!_destroyed)
                                         {
@@ -497,7 +531,7 @@ namespace IceInternal
                         }
                         else
                         {
-                            Monitor.Wait(this);
+                            _m.Wait();
                         }
                     }
 
@@ -513,6 +547,10 @@ namespace IceInternal
                             + "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
                         _instance.initializationData().logger.warning(s);
                     }                    
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
 
                 try
@@ -759,7 +797,6 @@ namespace IceInternal
             private Thread _thread;
         }
 
-
         private readonly int _size; // Number of threads that are pre-created.
         private readonly int _sizeMax; // Maximum number of threads.
         private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
@@ -775,6 +812,8 @@ namespace IceInternal
         private int _inUse; // Number of threads that are currently in use.
 
         private Queue<ThreadPoolWorkItem> _workItems;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 }

@@ -46,9 +46,9 @@ public class AllTests
         }
     
         private bool _value;
-    };
+    }
 
-    private  class SetCB
+    private class SetCB
     {
         public
         SetCB(Condition condition, int expected)
@@ -74,29 +74,40 @@ public class AllTests
         public void
         sent(bool sync)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 _sent = true;
-                System.Threading.Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
     
         public void
         waitForSent()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_sent)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    _m.Wait();
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private bool _sent = false;
         private Condition _condition;
         private int _expected;
-    };
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+    }
 
     public static void allTests(Ice.Communicator communicator)
     {

@@ -25,7 +25,7 @@ public class Server
         // We don't want connection warnings because of the timeout test.
         //
         communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
-        
+
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
@@ -34,13 +34,15 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -60,7 +62,7 @@ public class Server
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -73,10 +75,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

@@ -34,11 +34,22 @@ namespace Ice
         void stop();
     }
 
+#if COMPACT
+    /// <summary>
+    /// A delegate for an action taking no parameters.
+    /// </summary>
+    public delegate void VoidAction();
+#endif
+
     /// <summary>
     /// A delegate for the dispatcher. The dispatcher is called by the Ice 
     /// runtime to dispatch servant calls and AMI callbacks.
     /// </summary>
+#if COMPACT
+    public delegate void Dispatcher(VoidAction call, Connection con);
+#else
     public delegate void Dispatcher(System.Action call, Connection con);
+#endif
 
     /// <summary>
     /// A class that encpasulates data to initalize a communicator.

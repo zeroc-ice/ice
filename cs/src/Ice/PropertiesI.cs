@@ -625,7 +625,8 @@ namespace Ice
         private void loadConfig()
         {
             string val = getProperty("Ice.Config");
-            
+
+#if !COMPACT
             if(val.Length == 0 || val.Equals("1"))
             {
                 string s = System.Environment.GetEnvironmentVariable("ICE_CONFIG");
@@ -634,6 +635,7 @@ namespace Ice
                     val = s;
                 }
             }
+#endif
 
             if(val.Length > 0)
             {

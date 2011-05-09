@@ -1676,8 +1676,11 @@ namespace Ice
             }
             else
             {
-                ArrayList arr = ArrayList.Adapter(newEndpoints);
-                IceInternal.EndpointI[] endpts = (IceInternal.EndpointI[])arr.ToArray(typeof(IceInternal.EndpointI));
+                IceInternal.EndpointI[] endpts = new IceInternal.EndpointI[newEndpoints.Length];
+                for(int i = 0; i < newEndpoints.Length; ++i)
+                {
+                    endpts[i] = (IceInternal.EndpointI)newEndpoints[i];
+                }
                 return newInstance(_reference.changeEndpoints(endpts));
             }
         }

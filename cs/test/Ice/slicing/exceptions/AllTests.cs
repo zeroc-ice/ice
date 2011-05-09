@@ -21,47 +21,58 @@ public class AllTests
             throw new System.Exception();
         }
     }
-    
+
     private class Callback
     {
         internal Callback()
         {
             _called = false;
         }
-        
+
         public virtual void check()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
-                
+
                 _called = false;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
-        
+
         public virtual void called()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
-        
+
         private bool _called;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
-    
+
     private class AsyncCallback
     {
         public void response()
         {
             AllTests.test(false);
         }
-        
+
         public void exception_baseAsBase(Ice.Exception exc)
         {
             try
@@ -79,7 +90,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_unknownDerivedAsBase(Ice.Exception exc)
         {
             try
@@ -97,7 +108,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownDerivedAsBase(Ice.Exception exc)
         {
             try
@@ -116,7 +127,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownDerivedAsKnownDerived(Ice.Exception exc)
         {
             try
@@ -135,7 +146,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_unknownIntermediateAsBase(Ice.Exception exc)
         {
             try
@@ -153,7 +164,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownIntermediateAsBase(Ice.Exception exc)
         {
             try
@@ -172,7 +183,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownMostDerivedAsBase(Ice.Exception exc)
         {
             try
@@ -192,7 +203,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownIntermediateAsKnownIntermediate(Ice.Exception exc)
         {
             try
@@ -211,7 +222,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownMostDerivedAsKnownIntermediate(Ice.Exception exc)
         {
             try
@@ -231,7 +242,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_knownMostDerivedAsKnownMostDerived(Ice.Exception exc)
         {
             try
@@ -251,7 +262,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_unknownMostDerived1AsBase(Ice.Exception exc)
         {
             try
@@ -270,7 +281,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_unknownMostDerived1AsKnownIntermediate(Ice.Exception exc)
         {
             try
@@ -289,7 +300,7 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public void exception_unknownMostDerived2AsBase(Ice.Exception exc)
         {
             try
@@ -307,15 +318,15 @@ public class AllTests
             }
             callback.called();
         }
-        
+
         public virtual void check()
         {
             callback.check();
         }
-        
+
         private Callback callback = new Callback();
     }
-    
+
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
     {
         Console.Out.Write("testing stringToProxy... ");
@@ -324,14 +335,14 @@ public class AllTests
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("testing checked cast... ");
         Console.Out.Flush();
         TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("base... ");
         Console.Out.Flush();
         {
@@ -351,7 +362,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-    
+
         Console.Out.Write("base (AMI)... ");
         Console.Out.Flush();
         {
@@ -360,7 +371,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown derived... ");
         Console.Out.Flush();
         {
@@ -380,7 +391,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -389,7 +400,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known derived as base... ");
         Console.Out.Flush();
         {
@@ -410,7 +421,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known derived as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -419,7 +430,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known derived as derived... ");
         Console.Out.Flush();
         {
@@ -440,7 +451,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known derived as derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -450,7 +461,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown intermediate as base... ");
         Console.Out.Flush();
         {
@@ -470,7 +481,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -480,7 +491,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of known intermediate as base... ");
         Console.Out.Flush();
         {
@@ -501,7 +512,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of known intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -511,7 +522,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of known most derived as base... ");
         Console.Out.Flush();
         {
@@ -533,7 +544,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of known most derived as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -543,7 +554,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known intermediate as intermediate... ");
         Console.Out.Flush();
         {
@@ -564,7 +575,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known intermediate as intermediate (AMI)... ");
         Console.Out.Flush();
         {
@@ -574,7 +585,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known most derived as intermediate... ");
         Console.Out.Flush();
         {
@@ -596,7 +607,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known most derived as intermediate (AMI)... ");
         Console.Out.Flush();
         {
@@ -606,7 +617,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known most derived as most derived... ");
         Console.Out.Flush();
         {
@@ -628,7 +639,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("non-slicing of known most derived as most derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -638,7 +649,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, known intermediate as base... ");
         Console.Out.Flush();
         {
@@ -659,7 +670,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -669,7 +680,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate... ");
         Console.Out.Flush();
         {
@@ -690,7 +701,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
         Console.Out.Flush();
         {
@@ -700,7 +711,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
         Console.Out.Flush();
         {
@@ -720,7 +731,7 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -730,7 +741,7 @@ public class AllTests
             cb.check();
         }
         Console.Out.WriteLine("ok");
-        
+
         return testPrx;
     }
 }

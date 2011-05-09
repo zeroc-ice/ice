@@ -38,13 +38,9 @@ public class Server
         }
     }
 
-    static public void Main(string[] args)
+    static public int Main(string[] args)
     {
         App app = new App();
-        int status = app.main(args);
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return app.main(args);
     }
 }

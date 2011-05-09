@@ -49,16 +49,26 @@ public class Client
         }
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator ic = null;
         try
         {
+            Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+            //
+            // When using Ice for .NET Compact Framework, we need to specify
+            // the assembly so that Ice can locate classes and exceptions.
+            //
+            data.properties = Ice.Util.createProperties();
+            data.properties.setProperty("Ice.FactoryAssemblies", "client,version=1.0.0.0");
+#endif
+
             //
             // Create a communicator
             //
-            ic = Ice.Util.initialize(ref args);
+            ic = Ice.Util.initialize(ref args, data);
 
             //
             // Create a proxy for the root directory
@@ -97,9 +107,6 @@ public class Client
                 status = 1;
             }
         }
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

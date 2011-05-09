@@ -73,16 +73,16 @@ namespace IceInternal
 
                     bool timedOut = false;
 
-                    lock(this)
+                    _m.Lock();
+                    try
                     {
-
                         //
                         // If the request is being sent in the background we first wait for the
                         // sent notification.
                         //
                         while(_state != StateFailed && !_sent)
                         {
-                            Monitor.Wait(this);
+                            _m.Wait();
                         }
 
                         //
@@ -94,7 +94,7 @@ namespace IceInternal
                         {
                             if(timeout >= 0)
                             {
-                                Monitor.Wait(this, timeout);
+                                _m.TimedWait(timeout);
 
                                 if(_state == StateInProgress)
                                 {
@@ -103,9 +103,13 @@ namespace IceInternal
                             }
                             else
                             {
-                                Monitor.Wait(this);
+                                _m.Wait();
                             }
                         }
+                    }
+                    finally
+                    {
+                        _m.Unlock();
                     }
 
                     if(timedOut)
@@ -120,12 +124,17 @@ namespace IceInternal
                         // We must wait until the exception set above has
                         // propagated to this Outgoing object.
                         //
-                        lock(this)
+                        _m.Lock();
+                        try
                         {
                             while(_state == StateInProgress)
                             {
-                                Monitor.Wait(this);
+                                _m.Wait();
                             }
+                        }
+                        finally
+                        {
+                            _m.Unlock();
                         }
                     }
 
@@ -180,11 +189,12 @@ namespace IceInternal
                         //
                         // If the handler returns the connection, we must wait for the sent callback.
                         //
-                        lock(this)
+                        _m.Lock();
+                        try
                         {
                             while(_state != StateFailed && !_sent)
                             {
-                                Monitor.Wait(this);
+                                _m.Wait();
                             }
 
                             if(_exception != null)
@@ -192,6 +202,10 @@ namespace IceInternal
                                 Debug.Assert(!_sent);
                                 throw _exception;
                             }
+                        }
+                        finally
+                        {
+                            _m.Unlock();
                         }
                     }
                     return true;
@@ -237,10 +251,15 @@ namespace IceInternal
         {
             if(notify)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     _sent = true;
-                    Monitor.Pulse(this);
+                    _m.Notify();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
             else
@@ -255,7 +274,8 @@ namespace IceInternal
 
         public void finished(BasicStream istr)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_handler.getReference().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
@@ -384,19 +404,28 @@ namespace IceInternal
                     }
                 }
 
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void finished(Ice.LocalException ex, bool sent)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_state <= StateInProgress);
                 _state = StateFailed;
                 _exception = ex;
                 _sent = sent;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -519,6 +548,8 @@ namespace IceInternal
         private const int StateFailed = 5;
         private int _state;
 
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+
         public Outgoing next; // For use by Ice.ObjectDelM_
     }
 
@@ -545,17 +576,22 @@ namespace IceInternal
             if(_handler != null && !_handler.flushBatchRequests(this) ||
                _connection != null && !_connection.flushBatchRequests(this))
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     while(_exception == null && !_sent)
                     {
-                        Monitor.Wait(this);
+                        _m.Wait();
                     }
 
                     if(_exception != null)
                     {
                         throw _exception;
                     }
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
         }
@@ -564,10 +600,15 @@ namespace IceInternal
         {
             if(notify)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     _sent = true;
-                    Monitor.Pulse(this);
+                    _m.Notify();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
             else
@@ -578,10 +619,15 @@ namespace IceInternal
 
         public void finished(Ice.LocalException ex, bool sent)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 _exception = ex;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -595,6 +641,8 @@ namespace IceInternal
         private BasicStream _os;
         private bool _sent;
         private Ice.LocalException _exception;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 }

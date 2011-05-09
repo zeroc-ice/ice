@@ -233,7 +233,7 @@ public class AllTests
         test(++count == locator.getRequestCount());
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000)); // 1200ms
+        System.Threading.Thread.Sleep(1200); // 1200ms
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
         
@@ -242,7 +242,7 @@ public class AllTests
         test(count == locator.getRequestCount());
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000)); // 1200ms
+        System.Threading.Thread.Sleep(1200); // 1200ms
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());
@@ -490,7 +490,7 @@ public class AllTests
             ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
             test(count == locator.getRequestCount());
-            System.Threading.Thread.Sleep(new System.TimeSpan(10 * 1200 * 1000));
+            System.Threading.Thread.Sleep(1200);
 
             // The following request should trigger the background
             // updates but still use the cached endpoints and
@@ -503,7 +503,7 @@ public class AllTests
                 while(true)
                 {
                     ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    System.Threading.Thread.Sleep(new System.TimeSpan(10 * 10 * 1000));
+                    System.Threading.Thread.Sleep(10);
                 }
             }
             catch(Ice.LocalException)
@@ -515,7 +515,7 @@ public class AllTests
                 while(true)
                 {
                     ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    System.Threading.Thread.Sleep(new System.TimeSpan(10 * 10 * 1000));
+                    System.Threading.Thread.Sleep(10);
                 }
             }
             catch(Ice.LocalException)

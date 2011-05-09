@@ -77,6 +77,14 @@ namespace IceInternal
 
         public bool write(Buffer buf)
         {
+#if COMPACT
+            //
+            // The Compact Framework does not support the use of synchronous socket
+            // operations on a non-blocking socket. Returning false here forces the
+            // caller to schedule an asynchronous operation.
+            //
+            return false;
+#else
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null && _state >= StateConnected);
 
@@ -145,10 +153,19 @@ namespace IceInternal
             Debug.Assert(ret == buf.b.limit());
 
             return true;
+#endif
         }
 
         public bool read(Buffer buf)
         {
+#if COMPACT
+            //
+            // The Compact Framework does not support the use of synchronous socket
+            // operations on a non-blocking socket. Returning false here forces the
+            // caller to schedule an asynchronous operation.
+            //
+            return false;
+#else
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null);
 
@@ -260,6 +277,7 @@ namespace IceInternal
             buf.b.position(ret);
 
             return true;
+#endif
         }
 
         public bool startRead(Buffer buf, AsyncCallback callback, object state)

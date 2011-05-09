@@ -90,7 +90,9 @@ namespace IceInternal
             }
 
             Network.setBlock(_acceptFd, false);
+#if !COMPACT
             Network.setTcpBufSize(_acceptFd, instance_.initializationData().properties, _logger);
+#endif
 
             if(_traceLevels.network >= 1)
             {
@@ -126,7 +128,9 @@ namespace IceInternal
                 _addr = Network.getAddressForServer(host, port, instance_.protocolSupport());
                 _fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(_fd, false);
+#if !COMPACT
                 Network.setTcpBufSize(_fd, instance_.initializationData().properties, _logger);
+#endif
                 if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
                 {
                     //

@@ -15,12 +15,14 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
+#if !COMPACT
     using System.Runtime.InteropServices;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Formatters.Binary;
+#endif
     using System.Threading;
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
     internal static class NativeMethods
     {
         [DllImport("bzip2.dll")]
@@ -50,7 +52,7 @@ namespace IceInternal
 
         static BasicStream()
         {
-#if MANAGED
+#if MANAGED || COMPACT
             //
             // Protocol compression is not supported when using managed code.
             //
@@ -767,6 +769,7 @@ namespace IceInternal
 
         public virtual void writeSerializable(object o)
         {
+#if !COMPACT
             if(o == null)
             {
                 writeSize(0);
@@ -783,6 +786,9 @@ namespace IceInternal
             {
                 throw new Ice.MarshalException("cannot serialize object:", ex);
             }
+#else
+            throw new Ice.MarshalException("serialization not supported");
+#endif
         }
 
         public virtual byte readByte()
@@ -868,6 +874,7 @@ namespace IceInternal
 
         public virtual object readSerializable()
         {
+#if !COMPACT
             int sz = readAndCheckSeqSize(1);
             if(sz == 0)
             {
@@ -883,6 +890,9 @@ namespace IceInternal
             {
                 throw new Ice.MarshalException("cannot deserialize object:", ex);
             }
+#else
+            throw new Ice.MarshalException("serialization not supported");
+#endif
         }
 
         public virtual void writeBool(bool v)
@@ -2509,7 +2519,7 @@ namespace IceInternal
             _readEncapsStack.patchMap.Remove(patchIndex);
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
         static string getBZ2Error(int error)
         {
             string rc;
@@ -2578,7 +2588,7 @@ namespace IceInternal
 
         public bool compress(ref BasicStream cstream, int headerSize, int compressionLevel)
         {
-#if MANAGED
+#if MANAGED || COMPACT
             cstream = this;
             return false;
 #else
@@ -2646,7 +2656,7 @@ namespace IceInternal
 
         public BasicStream uncompress(int headerSize)
         {
-#if MANAGED
+#if MANAGED || COMPACT
             return this;
 #else
             if(!_bzlibInstalled)
@@ -2743,7 +2753,7 @@ namespace IceInternal
 
             try
             {
-                Type c = AssemblyUtil.findType(typeToClass(id));
+                Type c = AssemblyUtil.findType(instance_, typeToClass(id));
                 if(c == null)
                 {
                     return null;
@@ -2832,7 +2842,7 @@ namespace IceInternal
                 {
                     try
                     {
-                        Type c = AssemblyUtil.findType(typeToClass(id));
+                        Type c = AssemblyUtil.findType(instance_, typeToClass(id));
                         if(c == null)
                         {
                             return null;

@@ -42,7 +42,7 @@ namespace IceInternal
         {
             if(capacity < 0)
             {
-                throw new ArgumentOutOfRangeException("capacity", capacity, "capacity must be non-negative");
+                throwOutOfRange("capacity", capacity, "capacity must be non-negative");
             }
             ByteBuffer ret = new ByteBuffer();
             ret._position = 0;
@@ -62,11 +62,11 @@ namespace IceInternal
         {
             if(pos < 0)
             {
-                throw new ArgumentOutOfRangeException("pos", pos, "position must be non-negative");
+                throwOutOfRange("pos", pos, "position must be non-negative");
             }
             if(pos > _limit)
             {
-                throw new ArgumentOutOfRangeException("pos", pos, "position must be less than limit");
+                throwOutOfRange("pos", pos, "position must be less than limit");
             }
             _position = pos;
             return this;
@@ -81,11 +81,11 @@ namespace IceInternal
         {
             if(newLimit < 0)
             {
-                throw new ArgumentOutOfRangeException("newLimit", newLimit, "limit must be non-negative");
+                throwOutOfRange("newLimit", newLimit, "limit must be non-negative");
             }
             if(newLimit > _capacity)
             {
-                throw new ArgumentOutOfRangeException("newLimit", newLimit, "limit must be less than capacity");
+                throwOutOfRange("newLimit", newLimit, "limit must be less than capacity");
             }
             _limit = newLimit;
             return this;
@@ -124,16 +124,15 @@ namespace IceInternal
         {
             if(startIndex < 0)
             {
-                throw new ArgumentOutOfRangeException("startIndex", startIndex, "startIndex must be non-negative");
+                throwOutOfRange("startIndex", startIndex, "startIndex must be non-negative");
             }
             if(startIndex >= _position)
             {
-                throw new ArgumentOutOfRangeException("startIndex", startIndex,
-                                                      "startIndex must be less than position");
+                throwOutOfRange("startIndex", startIndex, "startIndex must be less than position");
             }
             if(length < 0)
             {
-                throw new ArgumentOutOfRangeException("length", length, "length must be non-negative");
+                throwOutOfRange("length", length, "length must be non-negative");
             }
             if(startIndex + length > _position)
             {
@@ -168,12 +167,11 @@ namespace IceInternal
         {
             if(offset < 0)
             {
-                throw new ArgumentOutOfRangeException("offset", offset, "offset must be non-negative");
+                throwOutOfRange("offset", offset, "offset must be non-negative");
             }
             if(offset + length > System.Buffer.ByteLength(b))
             {
-                throw new ArgumentOutOfRangeException("length", length,
-                                                      "insufficient room beyond given offset in destination array");
+                throwOutOfRange("length", length, "insufficient room beyond given offset in destination array");
             }
             checkUnderflow(length);
             System.Buffer.BlockCopy(_bytes, _position, b, offset, length);
@@ -197,12 +195,11 @@ namespace IceInternal
         {
             if(offset < 0)
             {
-                throw new ArgumentOutOfRangeException("offset", offset, "offset must be non-negative");
+                throwOutOfRange("offset", offset, "offset must be non-negative");
             }
             if(offset + length > System.Buffer.ByteLength(b))
             {
-                throw new ArgumentOutOfRangeException("length", length,
-                                                      "insufficient data beyond given offset in source array");
+                throwOutOfRange("length", length, "insufficient data beyond given offset in source array");
             }
             if(length > 0)
             {
@@ -276,7 +273,7 @@ namespace IceInternal
             public byte b7;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public short getShort()
@@ -284,7 +281,7 @@ namespace IceInternal
             checkUnderflow(2);
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    _valBytes.shortVal = *((short*)p);
@@ -324,7 +321,7 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public ByteBuffer putShort(short val)
@@ -333,7 +330,7 @@ namespace IceInternal
             _valBytes.shortVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    *((short*)p) = _valBytes.shortVal;
@@ -374,7 +371,7 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public int getInt()
@@ -382,7 +379,7 @@ namespace IceInternal
             checkUnderflow(4);  
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    _valBytes.intVal = *((int*)p);
@@ -435,23 +432,23 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public ByteBuffer putInt(int pos, int val)
         {
             if(pos < 0)
             {
-                throw new ArgumentOutOfRangeException("pos", pos, "position must be non-negative");
+                throwOutOfRange("pos", pos, "position must be non-negative");
             }
             if(pos + 4 > _limit)
             {
-                throw new ArgumentOutOfRangeException("pos", pos, "position must be less than limit - 4");
+                throwOutOfRange("pos", pos, "position must be less than limit - 4");
             }
             _valBytes.intVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[pos])
 		{
 		    *((int*)p) = _valBytes.intVal;
@@ -497,7 +494,7 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public long getLong()
@@ -505,7 +502,7 @@ namespace IceInternal
             checkUnderflow(8);  
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    _valBytes.longVal = *((long*)p);
@@ -563,7 +560,7 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public ByteBuffer putLong(long val)
@@ -572,7 +569,7 @@ namespace IceInternal
             _valBytes.longVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    *((long*)p) = _valBytes.longVal;
@@ -631,7 +628,7 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public float getFloat()
@@ -639,7 +636,7 @@ namespace IceInternal
             checkUnderflow(4);  
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    _valBytes.floatVal = *((float*)p);
@@ -685,7 +682,7 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public ByteBuffer putFloat(float val)
@@ -694,7 +691,7 @@ namespace IceInternal
             _valBytes.floatVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    *((float*)p) = _valBytes.floatVal;
@@ -741,7 +738,7 @@ namespace IceInternal
             return this;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public double getDouble()
@@ -749,7 +746,7 @@ namespace IceInternal
             checkUnderflow(8);  
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    _valBytes.doubleVal = *((double*)p);
@@ -807,7 +804,7 @@ namespace IceInternal
             _position += len;
         }
 
-#if !MANAGED
+#if !MANAGED && !COMPACT
 	unsafe
 #endif
         public ByteBuffer putDouble(double val)
@@ -816,7 +813,7 @@ namespace IceInternal
             _valBytes.doubleVal = val;
             if(NO._o == _order)
             {
-#if !MANAGED
+#if !MANAGED && !COMPACT
 		fixed(byte* p = &_bytes[_position])
 		{
 		    *((double*)p) = _valBytes.doubleVal;
@@ -925,6 +922,15 @@ namespace IceInternal
             private NO()
             {
             }
+        }
+
+        private static void throwOutOfRange(string param, object value, string message)
+        {
+#if COMPACT
+            throw new ArgumentOutOfRangeException(param, message);
+#else
+            throw new ArgumentOutOfRangeException(param, value, message);
+#endif
         }
     }
 }

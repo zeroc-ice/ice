@@ -27,6 +27,21 @@ prefix			= C:\Ice-$(VERSION)
 #MANAGED		= yes
 
 #
+# Enable support for the .NET Compact Framework. This setting disables the
+# following features:
+#
+# - Protocol compression
+# - Signal processing in the Ice.Application class
+# - Dynamic loading of Slice-generated class and exception factories
+# - IceSSL
+# - ICE_CONFIG environment variable
+# - Dynamic loading of Slice checksums
+# - Ice.TCP.SndSize and Ice.TCP.RcvSize
+#
+
+#COMPACT			= yes
+
+#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
@@ -40,7 +55,7 @@ DEBUG			= yes
 OPTIMIZE		= yes
 
 #
-# Define FRAMEWORK as 3.5 to force .NET 3.5 build in Visual Studio 2010
+# Define FRAMEWORK as 3.5 to force a .NET 3.5 build with Visual Studio 2010.
 #
 
 #FRAMEWORK = 3.5
@@ -110,6 +125,16 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"  
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
+!elseif "$(COMPACT)" == "yes"
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+NETCF_HOME		= $(PROGRAMFILES) (x86)\Microsoft.NET\SDK\CompactFramework\v3.5\WindowsCE
+!else
+NETCF_HOME		= $(PROGRAMFILES)\Microsoft.NET\SDK\CompactFramework\v3.5\WindowsCE
+!endif
+NETCF_REFS		= "/r:$(NETCF_HOME)\mscorlib.dll" \
+			  "/r:$(NETCF_HOME)\System.dll" \
+			  "/r:$(NETCF_HOME)\System.Runtime.Serialization.dll"
+MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
 !endif
 
 !if "$(ice_src_dist)" != ""

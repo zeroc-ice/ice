@@ -353,7 +353,7 @@ namespace IceUtilInternal
             }
 
             UTF8Encoding utf8 = new UTF8Encoding(false, true);
-            return utf8.GetString(arr); // May raise ArgumentException.
+            return utf8.GetString(arr, 0, arr.Length); // May raise ArgumentException.
         }
 
         //
@@ -453,13 +453,14 @@ namespace IceUtilInternal
             return 0; // Not quoted
         }
 
-        private class OrdinalStringComparerImpl : System.Collections.IComparer
+        private class OrdinalStringComparerImpl : System.Collections.Generic.IComparer<string>
         {
-            public int Compare(object l, object r)
+            public int Compare(string l, string r)
             {
-                return string.CompareOrdinal((string)l, (string)r);
+                return string.CompareOrdinal(l, r);
             }        
         }
-        public static System.Collections.IComparer OrdinalStringComparer = new OrdinalStringComparerImpl();
+        public static System.Collections.Generic.IComparer<string> OrdinalStringComparer =
+            new OrdinalStringComparerImpl();
     }
 }

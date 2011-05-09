@@ -33,10 +33,10 @@ public class Client
                 "f: flush all batch requests\n");
             if(_haveSSL)
             {
-                Console.Write("\nS: switch secure mode on/off");
+                Console.Write("S: switch secure mode on/off\n");
             }
             Console.WriteLine(
-                "\nx: exit\n" +
+                "x: exit\n" +
                 "?: help\n");
         }
         
@@ -169,13 +169,9 @@ public class Client
         private static bool _haveSSL = false;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         App app = new App();
-        int status = app.main(args, "config.client");
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return app.main(args, "config.client");
     }
 }

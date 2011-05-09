@@ -46,6 +46,7 @@ SRCS		= Acceptor.cs \
 		  EndpointHostResolver.cs \
 		  EventHandler.cs \
 		  Exception.cs \
+		  HashSet.cs \
 		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
@@ -55,6 +56,7 @@ SRCS		= Acceptor.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
+		  Monitor.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \

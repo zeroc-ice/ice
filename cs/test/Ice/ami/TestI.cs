@@ -41,34 +41,49 @@ public class TestI : TestIntfDisp_
     override public void
     opBatch(Ice.Current current)
     {
-        lock(this)
+        _m.Lock();
+        try
         {
             ++_batchCount;
-            Monitor.Pulse(this);
+            _m.Notify();
+        }
+        finally
+        {
+            _m.Unlock();
         }
     }
 
     override public int
     opBatchCount(Ice.Current current)
     {
-        lock(this)
+        _m.Lock();
+        try
         {
             return _batchCount;
+        }
+        finally
+        {
+            _m.Unlock();
         }
     }
 
     override public bool
     waitForBatch(int count, Ice.Current current)
     {
-        lock(this)
+        _m.Lock();
+        try
         {
             while(_batchCount < count)
             {
-                Monitor.Wait(this, 5000);
+                _m.TimedWait(5000);
             }
             bool result = count == _batchCount;
             _batchCount = 0;
             return result;
+        }
+        finally
+        {
+            _m.Unlock();
         }
     }
 
@@ -79,6 +94,7 @@ public class TestI : TestIntfDisp_
     }
 
     private int _batchCount;
+    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 }
 
 public class TestControllerI : TestIntfControllerDisp_
@@ -102,4 +118,4 @@ public class TestControllerI : TestIntfControllerDisp_
     }
 
     private Ice.ObjectAdapter _adapter;
-};
+}

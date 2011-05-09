@@ -33,15 +33,13 @@ public class Server
         }
     }
     
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         App app = new App();
-        int result = app.main(args);
-        if(result != 0)
-        {
-            System.Environment.Exit(result);
-        }
+        return app.main(args);
     }
 }

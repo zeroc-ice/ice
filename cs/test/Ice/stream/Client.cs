@@ -404,6 +404,7 @@ public class Client
             @in.destroy();
         }
 
+#if !COMPACT
         {
             Serialize.Small small = new Serialize.Small();
             small.i = 99;
@@ -416,6 +417,7 @@ public class Client
             @out.destroy();
             @in.destroy();
         }
+#endif
 
         {
             short[] arr =
@@ -1393,14 +1395,18 @@ public class Client
         }
 
         {
+#if COMPACT
+            SortedList<string, string> dict = new SortedList<string, string>();
+#else
             SortedDictionary<string, string> dict = new SortedDictionary<string, string>();
+#endif
             dict.Add("key1", "value1");
             dict.Add("key2", "value2");
             @out = Ice.Util.createOutputStream(communicator);
             Test.SortedStringStringDHelper.write(@out, dict);
             byte[] data = @out.finished();
             @in = Ice.Util.createInputStream(communicator, data);
-            SortedDictionary<string, string> dict2 = Test.SortedStringStringDHelper.read(@in);
+            IDictionary<string, string> dict2 = Test.SortedStringStringDHelper.read(@in);
             test(Ice.CollectionComparer.Equals(dict2, dict));
         }
 
@@ -1421,16 +1427,27 @@ public class Client
         return 0;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
 
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+            //
+            // When using Ice for .NET Compact Framework, we need to specify
+            // the assembly so that Ice can locate classes and exceptions.
+            //
+            data.properties = Ice.Util.createProperties();
+            data.properties.setProperty("Ice.FactoryAssemblies", "client");
+#endif
+            communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }
         catch(System.Exception ex)
@@ -1452,9 +1469,6 @@ public class Client
             }
         }
 
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

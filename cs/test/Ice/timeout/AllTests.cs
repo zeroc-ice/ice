@@ -28,30 +28,41 @@ public class AllTests
             _called = false;
         }
 
-        public void check()
+        public virtual void check()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 _called = false;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
-        public void called()
+        public virtual void called()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private bool _called;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private class Callback

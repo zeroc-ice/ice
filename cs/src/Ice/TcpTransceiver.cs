@@ -83,6 +83,14 @@ namespace IceInternal
 
         public bool write(Buffer buf)
         {
+#if COMPACT
+            //
+            // The Compact Framework does not support the use of synchronous socket
+            // operations on a non-blocking socket. Returning false here forces the
+            // caller to schedule an asynchronous operation.
+            //
+            return false;
+#else
             int packetSize = buf.b.remaining();
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
             {
@@ -155,10 +163,18 @@ namespace IceInternal
             }
 
             return true; // No more data to send.
+#endif
         }
 
         public bool read(Buffer buf)
         {
+#if COMPACT
+            //
+            // The .NET Compact Framework does not support the use of synchronous socket
+            // operations on a non-blocking socket.
+            //
+            return false;
+#else
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
             if(AssemblyUtil.osx_)
             {
@@ -242,6 +258,7 @@ namespace IceInternal
             }
 
             return true;
+#endif
         }
 
         public bool startRead(Buffer buf, AsyncCallback callback, object state)

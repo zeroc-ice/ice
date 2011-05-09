@@ -39,10 +39,7 @@ public sealed class HoldI : HoldDisp_
         }
         else
         {
-            System.Timers.Timer timer = new System.Timers.Timer(milliSeconds);
-            timer.AutoReset = false;
-            timer.Elapsed += new System.Timers.ElapsedEventHandler(
-                delegate(object source, System.Timers.ElapsedEventArgs e)
+            new DelayedTask(milliSeconds, delegate()
                 {
                     try
                     {
@@ -52,7 +49,6 @@ public sealed class HoldI : HoldDisp_
                     {
                     }
                 });
-            timer.Enabled = true;
         }
     }
 
@@ -63,10 +59,7 @@ public sealed class HoldI : HoldDisp_
         {
             if(++_waitForHold == 1)
             {
-                System.Timers.Timer timer = new System.Timers.Timer(1);
-                timer.AutoReset = false;
-                timer.Elapsed += new System.Timers.ElapsedEventHandler(
-                    delegate(object source, System.Timers.ElapsedEventArgs e)
+                new DelayedTask(1, delegate()
                     {
                         while(true)
                         {
@@ -85,17 +78,16 @@ public sealed class HoldI : HoldDisp_
                             catch(Ice.ObjectAdapterDeactivatedException)
                             {
                                 //
-                                // This shouldn't occur. The test ensures all the waitForHold timers are 
+                                // This shouldn't occur. The test ensures all the waitForHold timers are
                                 // finished before shutting down the communicator.
                                 //
                                 test(false);
                             }
                         }
                     });
-                timer.Enabled = true;
             }
         }
-    }    
+    }
 
     public override int
     set(int value, int delay, Ice.Current current)
@@ -125,6 +117,32 @@ public sealed class HoldI : HoldDisp_
     {
         _adapter.hold();
         _adapter.getCommunicator().shutdown();
+    }
+
+    //
+    // The .NET Compact Framework doesn't support the System.Timers.Timer class,
+    // but a simple thread does what we need in this test.
+    //
+    private delegate void Task();
+
+    private class DelayedTask
+    {
+        internal DelayedTask(int timeout, Task task)
+        {
+            _timeout = timeout;
+            _task = task;
+            System.Threading.Thread t = new System.Threading.Thread(new System.Threading.ThreadStart(run));
+            t.Start();
+        }
+
+        private void run()
+        {
+            System.Threading.Thread.Sleep(_timeout);
+            _task();
+        }
+
+        private int _timeout;
+        private Task _task;
     }
 
     private Ice.ObjectAdapter _adapter;

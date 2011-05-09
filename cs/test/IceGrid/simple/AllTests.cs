@@ -24,11 +24,12 @@ public class AllTests
 
         public void run()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_terminated)
                 {
-                    System.Threading.Monitor.Wait(this, _timeout);
+                    _m.TimedWait(_timeout);
                     if(_terminated)
                     {
                         break;
@@ -43,20 +44,30 @@ public class AllTests
                     }
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void terminate()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 _terminated = true;
-                System.Threading.Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private IceGrid.AdminSessionPrx _session;
         private int _timeout;
         private bool _terminated;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private static void

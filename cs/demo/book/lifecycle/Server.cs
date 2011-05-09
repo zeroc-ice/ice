@@ -60,9 +60,9 @@ public class Server
         }
     }
 
-    static public void Main(string[] args)
+    static public int Main(string[] args)
     {
         App app = new App();
-        app.main(args);
+        return app.main(args);
     }
 }

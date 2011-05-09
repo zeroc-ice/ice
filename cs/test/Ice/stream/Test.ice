@@ -114,8 +114,13 @@ sequence<Ice::StringSeq> StringSList;
 ["clr:generic:Stack"]
 sequence<Ice::StringSeq> StringSStack;
 
+#if COMPACT
+["clr:generic:SortedList"]
+dictionary<string, string> SortedStringStringD;
+#else
 ["clr:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;
+#endif
 ["clr:collection"]
 dictionary<string, int> StringIntDCollection;
 
@@ -137,7 +142,9 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
+#ifndef COMPACT
     SerialSmall ss;
+#endif
 };
 
 interface MyInterface

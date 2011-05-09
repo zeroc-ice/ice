@@ -32,28 +32,39 @@ public class TwowaysAMI
 
         public virtual void check()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
         
                 _called = false;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public virtual void called()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private bool _called;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private class AMI_MyClass_opAByteSI : Test.AMI_MyClass_opAByteS
@@ -2536,6 +2547,7 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+#if !COMPACT
     private class AMI_MyClass_opSerialSmallCSharpNull : Test.AMI_MyClass_opSerialSmallCSharp
     {
         public AMI_MyClass_opSerialSmallCSharpNull()
@@ -2667,7 +2679,7 @@ public class TwowaysAMI
 
         private Callback callback = new Callback();
     }
-
+#endif
 
     static int _length = 100;
 
@@ -3703,6 +3715,7 @@ public class TwowaysAMI
             cb.check();
         }
 
+#if !COMPACT
         {
             Serialize.Small i = null;
 
@@ -3749,5 +3762,6 @@ public class TwowaysAMI
             p.opSerialStructCSharp_async(cb, i);
             cb.check();
         }
+#endif
     }
 }

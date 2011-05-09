@@ -54,7 +54,8 @@ namespace IceInternal
                 return;
             }
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
 
@@ -64,17 +65,26 @@ namespace IceInternal
                 entry.endpoint = endpoint;
                 entry.callback = callback;
                 _queue.AddLast(entry);
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -91,11 +101,12 @@ namespace IceInternal
             while(true)
             {
                 ResolveEntry resolve;
-                lock(this)
+                _m.Lock();
+                try
                 {
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        Monitor.Wait(this);
+                        _m.Wait();
                     }
 
                     if(_destroyed)
@@ -105,6 +116,10 @@ namespace IceInternal
 
                     resolve = _queue.First.Value;
                     _queue.RemoveFirst();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
 
                 try
@@ -184,5 +199,7 @@ namespace IceInternal
         }
 
         private HelperThread _thread;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

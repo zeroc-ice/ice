@@ -1413,6 +1413,7 @@ class Twoways
             }
         }
 
+#if !COMPACT
         {
             Serialize.Small i = null;
             Serialize.Small o;
@@ -1520,5 +1521,6 @@ class Twoways
                 // OK, talking to non-C# server.
             }
         }
+#endif
     }
 }

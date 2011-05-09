@@ -35,22 +35,24 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             //
-            // Its possible to have batch oneway requests dispatched
+            // It's possible to have batch oneway requests dispatched
             // after the adapter is deactivated due to thread
-            // scheduling so we supress this warning.
+            // scheduling so we suppress this warning.
             //
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             communicator = Ice.Util.initialize(ref args, initData);
@@ -61,7 +63,7 @@ public class Server
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -74,10 +76,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

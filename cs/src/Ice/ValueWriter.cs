@@ -57,9 +57,9 @@ namespace IceInternal
                         writeValue(elem, i.Current, objectTable, output);
                     }
                 }
-                else if(val is DictionaryBase)
+                else if(val is IDictionary)
                 {
-                    foreach(DictionaryEntry entry in (Hashtable)val)
+                    foreach(DictionaryEntry entry in (IDictionary)val)
                     {
                         string elem = name != null ? name + "." : "";
                         writeValue(elem + "key", entry.Key, objectTable, output);

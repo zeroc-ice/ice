@@ -48,7 +48,14 @@ namespace IceInternal
             Debug.Assert(_defaultsAndOverrides != null);
             return _defaultsAndOverrides;
         }
-        
+
+#if COMPACT
+        public string[] factoryAssemblies()
+        {
+            return _factoryAssemblies;
+        }
+#endif
+
         public RouterManager routerManager()
         {
             lock(this)
@@ -664,8 +671,7 @@ namespace IceInternal
                     else if(logfile.Length != 0 || Ice.Util.getProcessLogger() is Ice.LoggerI) 
                     {
                         //
-                        // If Ice.LogFile set, default ConsoleTraceListener disabled.
-                        // Otherwise default enabled.
+                        // Ice.ConsoleListener is enabled by default unless Ice.LogFile is set.
                         //
                         bool console = 
                             _initData.properties.getPropertyAsIntWithDefault("Ice.ConsoleListener",
@@ -682,7 +688,11 @@ namespace IceInternal
                 _traceLevels = new TraceLevels(_initData.properties);
                 
                 _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
-                
+
+#if COMPACT
+                _factoryAssemblies = _initData.properties.getPropertyAsList("Ice.FactoryAssemblies");
+#endif
+
                 {
                     const int defaultMessageSizeMax = 1024;
                     int num = 
@@ -1072,6 +1082,9 @@ namespace IceInternal
         private Ice.InitializationData _initData; // Immutable, not reset by destroy().
         private TraceLevels _traceLevels; // Immutable, not reset by destroy().
         private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+#if COMPACT
+        private string[] _factoryAssemblies; // Immutable, not reset by destroy().
+#endif
         private int _messageSizeMax; // Immutable, not reset by destroy().
         private int _clientACM; // Immutable, not reset by destroy().
         private int _serverACM; // Immutable, not reset by destroy().

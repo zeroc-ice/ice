@@ -37,21 +37,31 @@ namespace IceInternal
 
         public void queue(ThreadPoolWorkItem callback)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 _queue.AddLast(callback);
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -68,7 +78,8 @@ namespace IceInternal
             LinkedList<ThreadPoolWorkItem> queue = new LinkedList<ThreadPoolWorkItem>();
             while(true)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     if(_destroyed && _queue.Count == 0)
                     {
@@ -77,12 +88,16 @@ namespace IceInternal
 
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        Monitor.Wait(this);
+                        _m.Wait();
                     }
 
                     LinkedList<ThreadPoolWorkItem> tmp = queue;
                     queue = _queue;
                     _queue = tmp;
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
 
                 foreach(ThreadPoolWorkItem cb in queue)
@@ -148,5 +163,6 @@ namespace IceInternal
         }
 
         private HelperThread _thread;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

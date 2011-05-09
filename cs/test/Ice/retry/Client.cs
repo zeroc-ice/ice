@@ -26,12 +26,14 @@ public class Client
         return 0;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
 
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -47,7 +49,7 @@ public class Client
             // This test kills connections, so we don't want warnings.
             //
             initData.properties.setProperty("Ice.Warn.Connections", "0");
-            
+
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
@@ -70,9 +72,6 @@ public class Client
             }
         }
 
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return status;
     }
 }

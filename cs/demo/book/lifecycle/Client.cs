@@ -55,9 +55,18 @@ public class Client
         }
     }
 
-    static public void Main(String[] args)
+    static public int Main(String[] args)
     {
         App app = new App();
-        app.main(args);
+        Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+        //
+        // When using Ice for .NET Compact Framework, we need to specify
+        // the assembly so that Ice can locate classes and exceptions.
+        //
+        data.properties = Ice.Util.createProperties();
+        data.properties.setProperty("Ice.FactoryAssemblies", "client,version=1.0.0.0");
+#endif
+        return app.main(args, data);
     }
 }

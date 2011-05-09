@@ -36,7 +36,8 @@ namespace Ice
             bool registerProcess = false;
             bool printAdapterReady = false;
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
@@ -77,6 +78,10 @@ namespace Ice
                     printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
             
             try
             {
@@ -92,10 +97,15 @@ namespace Ice
                 // allow to user code to retry activating the adapter
                 // later.
                 //
-                lock(this)
+                _m.Lock();
+                try
                 {
                     _waitForActivate = false;
-                    System.Threading.Monitor.PulseAll(this);
+                    _m.NotifyAll();
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
                 throw;
             }
@@ -105,7 +115,8 @@ namespace Ice
                 System.Console.Out.WriteLine(_name + " ready");
             }
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_deactivated); // Not possible if _waitForActivate = true;
             
@@ -113,7 +124,7 @@ namespace Ice
                 // Signal threads waiting for the activation.
                 //
                 _waitForActivate = false;
-                System.Threading.Monitor.PulseAll(this);
+                _m.NotifyAll();
 
                 _activateOneOffDone = true;
             
@@ -122,11 +133,16 @@ namespace Ice
                     icf.activate();
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public void hold()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
@@ -135,6 +151,10 @@ namespace Ice
                     factory.hold();
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public void waitForHold()
@@ -142,7 +162,8 @@ namespace Ice
             while(true)
             {
                 List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
-                lock(this)
+                _m.Lock();
+                try
                 {
                     checkForDeactivation();
                     
@@ -151,17 +172,22 @@ namespace Ice
                     
                     ++_waitForHold;
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
 
                 foreach(IceInternal.IncomingConnectionFactory factory in incomingConnectionFactories)
                 {
                     factory.waitUntilHolding();
                 }
                 
-                lock(this)
+                _m.Lock();
+                try
                 {
                     if(--_waitForHold == 0)
                     {
-                        System.Threading.Monitor.PulseAll(this);
+                        _m.NotifyAll();
                     }
             
                     //
@@ -181,10 +207,14 @@ namespace Ice
                         while(_waitForHold > 0)
                         {
                             checkForDeactivation();
-                            System.Threading.Monitor.Wait(this);
+                            _m.Wait();
                         }
                         _waitForHoldRetry = false;
                     }
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
         }
@@ -195,7 +225,8 @@ namespace Ice
             List<IceInternal.IncomingConnectionFactory> incomingConnectionFactories;
             IceInternal.LocatorInfo locatorInfo;
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // Ignore deactivation requests if the object adapter has
@@ -213,7 +244,7 @@ namespace Ice
                 //
                 while(_waitForActivate)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 if(_routerInfo != null)
@@ -235,7 +266,11 @@ namespace Ice
                 locatorInfo = _locatorInfo;
 
                 _deactivated = true;
-                System.Threading.Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             try
@@ -271,7 +306,8 @@ namespace Ice
         public void waitForDeactivate()
         {
             IceInternal.IncomingConnectionFactory[] incomingConnectionFactories = null;
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -285,10 +321,14 @@ namespace Ice
                 //
                 while(!_deactivated || _directCount > 0)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    _m.Wait();
                 }
                 
                 incomingConnectionFactories = _incomingConnectionFactories.ToArray();
+            }
+            finally
+            {
+                _m.Unlock();
             }
             
             //
@@ -303,15 +343,21 @@ namespace Ice
 
         public bool isDeactivated()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 return _deactivated;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // Another thread is in the process of destroying the object
@@ -319,7 +365,7 @@ namespace Ice
                 //
                 while(_destroying)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 //
@@ -331,6 +377,10 @@ namespace Ice
                 }
 
                 _destroying = true;
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             //
@@ -356,14 +406,15 @@ namespace Ice
 
             IceInternal.ObjectAdapterFactory objectAdapterFactory;
             
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // Signal that destroying is complete.
                 //
                 _destroying = false;
                 _destroyed = true;
-                System.Threading.Monitor.PulseAll(this);
+                _m.NotifyAll();
                 
                 //
                 // We're done, now we can throw away all incoming connection
@@ -385,6 +436,10 @@ namespace Ice
                 objectAdapterFactory = _objectAdapterFactory;
                 _objectAdapterFactory = null;
             }
+            finally
+            {
+                _m.Unlock();
+            }
 
             if(objectAdapterFactory != null)
             {
@@ -399,7 +454,8 @@ namespace Ice
 
         public ObjectPrx addFacet(Ice.Object obj, Identity ident, string facet)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
@@ -415,6 +471,10 @@ namespace Ice
                 _servantManager.addServant(obj, id, facet);
 
                 return newProxy(id, facet);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
         
@@ -434,11 +494,16 @@ namespace Ice
 
         public void addDefaultServant(Ice.Object servant, string category)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
 
                 _servantManager.addDefaultServant(servant, category);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
         
@@ -449,33 +514,48 @@ namespace Ice
 
         public Ice.Object removeFacet(Identity ident, string facet)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
                 
                 return _servantManager.removeServant(ident, facet);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public Dictionary<string, Ice.Object> removeAllFacets(Identity ident)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
 
                 return _servantManager.removeAllFacets(ident);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public Ice.Object removeDefaultServant(string category)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
 
                 return _servantManager.removeDefaultServant(category);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -486,117 +566,172 @@ namespace Ice
 
         public Ice.Object findFacet(Identity ident, string facet)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
 
                 return _servantManager.findServant(ident, facet);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public Dictionary<string, Ice.Object> findAllFacets(Identity ident)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
 
                 return _servantManager.findAllFacets(ident);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public Ice.Object findByProxy(ObjectPrx proxy)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
 
                 IceInternal.Reference @ref = ((ObjectPrxHelperBase)proxy).reference__();
                 return findFacet(@ref.getIdentity(), @ref.getFacet());
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public Ice.Object findDefaultServant(string category)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
 
                 return _servantManager.findDefaultServant(category);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void addServantLocator(ServantLocator locator, string prefix)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
                 _servantManager.addServantLocator(locator, prefix);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public ServantLocator removeServantLocator(string prefix)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
                 return _servantManager.removeServantLocator(prefix);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public ServantLocator findServantLocator(string prefix)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
                 return _servantManager.findServantLocator(prefix);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public ObjectPrx createProxy(Identity ident)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
                 
                 return newProxy(ident, "");
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public ObjectPrx createDirectProxy(Identity ident)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
                 
                 return newDirectProxy(ident, "");
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public ObjectPrx createIndirectProxy(Identity ident)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 checkIdentity(ident);
                 
                 return newIndirectProxy(ident, "", _id);
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public void setLocator(LocatorPrx locator)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
                 _locatorInfo = instance_.locatorManager().get(locator);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -606,7 +741,8 @@ namespace Ice
             bool registerProcess = false;
             List<IceInternal.EndpointI> oldPublishedEndpoints;
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
 
@@ -620,6 +756,10 @@ namespace Ice
                         instance_.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
 
             try
             {
@@ -629,7 +769,8 @@ namespace Ice
             }
             catch(Ice.LocalException)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     //
                     // Restore the old published endpoints.
@@ -637,12 +778,17 @@ namespace Ice
                     _publishedEndpoints = oldPublishedEndpoints;
                     throw;
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
             }
         }
 
         public Endpoint[] getEndpoints()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 List<Endpoint> endpoints = new List<Endpoint>();
                 foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
@@ -651,13 +797,22 @@ namespace Ice
                 }
                 return endpoints.ToArray();
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public Endpoint[] getPublishedEndpoints()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 return _publishedEndpoints.ToArray();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -689,7 +844,8 @@ namespace Ice
             {
                 IceInternal.EndpointI[] endpoints = r.getEndpoints();
             
-                lock(this)
+                _m.Lock();
+                try
                 {
                     checkForDeactivation();
 
@@ -737,15 +893,24 @@ namespace Ice
                     
                     return false;
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
             }
         }
 
         public void flushAsyncBatchRequests(IceInternal.CommunicatorBatchOutgoingAsync outAsync)
         {
             List<IceInternal.IncomingConnectionFactory> f;
-            lock(this)
+            _m.Lock();
+            try
             {
                 f = new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             foreach(IceInternal.IncomingConnectionFactory factory in f)
@@ -756,18 +921,24 @@ namespace Ice
 
         public void incDirectCount()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 checkForDeactivation();
                 
                 Debug.Assert(_directCount >= 0);
                 ++_directCount;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
         
         public void decDirectCount()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 // Not check for deactivation here!
                 
@@ -776,8 +947,12 @@ namespace Ice
                 Debug.Assert(_directCount > 0);
                 if(--_directCount == 0)
                 {
-                    System.Threading.Monitor.PulseAll(this);
+                    _m.NotifyAll();
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
         
@@ -1227,6 +1402,16 @@ namespace Ice
                 IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, oaEndpoints);
                 if(endp == null)
                 {
+#if COMPACT
+                    if(s.StartsWith("ssl", StringComparison.Ordinal))
+                    {
+                        instance_.initializationData().logger.warning(
+                            "SSL endpoint `" + s +
+                            "' ignored: IceSSL is not supported with the .NET Compact Framework");
+                        ++end;
+                        continue;
+                    }
+#else
                     if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
                        s.StartsWith("ssl", StringComparison.Ordinal))
                     {
@@ -1235,6 +1420,7 @@ namespace Ice
                         ++end;
                         continue;
                     }
+#endif
                     Ice.EndpointParseException e2 = new Ice.EndpointParseException();
                     e2.str = "invalid object adapter endpoint `" + s + "'";
                     throw e2;
@@ -1416,13 +1602,18 @@ namespace Ice
         
             if(registerProcess && serverId.Length > 0)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     if(_processId == null)
                     {
                         Process servant = new IceInternal.ProcessI(_communicator);
                         _processId = addWithUUID(servant).ice_getIdentity();
                     }
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
 
                 try
@@ -1566,5 +1757,7 @@ namespace Ice
         private bool _destroyed;
         private bool _noConfig;
         private Identity _processId;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

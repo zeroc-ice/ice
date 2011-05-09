@@ -22,7 +22,7 @@ public class Client
     private static int run(String[] args, Ice.Communicator communicator)
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
-        
+
         Console.Out.Write("testing server shutdown... ");
         Console.Out.Flush();
         myClass.shutdown();
@@ -35,16 +35,18 @@ public class Client
         {
             Console.Out.WriteLine("ok");
         }
-        
+
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -72,7 +74,7 @@ public class Client
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -85,10 +87,7 @@ public class Client
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

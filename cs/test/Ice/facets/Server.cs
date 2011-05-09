@@ -30,19 +30,21 @@ public class Server
         adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
         Ice.Object h = new HI(communicator);
         adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
-        
+
         adapter.activate();
         communicator.waitForShutdown();
-        
+
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -54,7 +56,7 @@ public class Server
             System.Console.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -67,10 +69,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

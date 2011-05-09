@@ -32,28 +32,39 @@ public class TwowaysNewAMI
 
         public virtual void check()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(!_called)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
         
                 _called = false;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public virtual void called()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private bool _called;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     private class Callback
@@ -1010,6 +1021,7 @@ public class TwowaysNewAMI
             callback.called();
         }
 
+#if !COMPACT
         public void opSerialSmallCSharpNullI(Ice.AsyncResult result)
         {
             try
@@ -1105,6 +1117,7 @@ public class TwowaysNewAMI
                 // OK, talking to non-C# server.
             }
         }
+#endif
 
         public virtual void check()
         {
@@ -2149,6 +2162,7 @@ public class TwowaysNewAMI
             cb.check();
         }
 
+#if !COMPACT
         {
             Serialize.Small i = null;
 
@@ -2195,5 +2209,6 @@ public class TwowaysNewAMI
             p.begin_opSerialStructCSharp(i, null, cb.opSerialStructCSharpI, i);
             cb.check();
         }
+#endif
     }
 }

@@ -30,18 +30,20 @@ public class Collocated
         adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
         Ice.Object h = new HI(communicator);
         adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
- 
+
         AllTests.allTests(communicator);
 
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -53,7 +55,7 @@ public class Collocated
             System.Console.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -66,10 +68,7 @@ public class Collocated
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

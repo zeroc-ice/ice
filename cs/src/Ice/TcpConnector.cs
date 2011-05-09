@@ -30,7 +30,9 @@ namespace IceInternal
             {
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(fd, false);
+#if !COMPACT
                 Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
+#endif
 
                 //
                 // Nonblocking connect is handled by the transceiver.

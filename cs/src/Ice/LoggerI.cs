@@ -13,6 +13,9 @@ namespace Ice
 {
     using System.Diagnostics;
     using System.Globalization;
+#if COMPACT
+    using System.IO;
+#endif
 	
     public abstract class LoggerI : Logger
     {
@@ -119,17 +122,53 @@ namespace Ice
         }
     }
 
+#if COMPACT
     public sealed class TraceLoggerI : LoggerI
     {
         public TraceLoggerI(string prefix, string file, bool console)
             : base(prefix)
         {
+            _console = console;
+
+            if(file.Length != 0)
+            {
+                _file = file;
+                FileStream fs = new FileStream(file, FileMode.Append, FileAccess.Write, FileShare.None);
+                _writer = new StreamWriter(fs);
+            }
+            else
+            {
+                _writer = System.Console.Error;
+            }
+        }
+
+        public override Logger cloneWithPrefix(string prefix)
+        {
+            return new TraceLoggerI(prefix, _file, _console);
+        }
+
+        protected override void write(string message)
+        {
+            _writer.WriteLine(message);
+        }
+
+        private string _file = "";
+        private bool _console = false;
+        private TextWriter _writer;
+    }
+#else
+    public sealed class TraceLoggerI : LoggerI
+    {
+        public TraceLoggerI(string prefix, string file, bool console)
+            : base(prefix)
+        {
+            _console = console;
+
             if(file.Length != 0)
             {
                 _file = file;
                 Trace.Listeners.Add(new TextWriterTraceListener(file));
             }
-            _console = console;
             if(console && !Trace.Listeners.Contains(_consoleListener))
             {
                 Trace.Listeners.Add(_consoleListener);
@@ -151,4 +190,5 @@ namespace Ice
         private bool _console = false;
         internal static ConsoleTraceListener _consoleListener = new ConsoleTraceListener(true);
     }
+#endif
 }

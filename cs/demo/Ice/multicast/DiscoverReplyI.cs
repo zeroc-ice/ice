@@ -15,6 +15,21 @@ public class DiscoverReplyI : DiscoverReplyDisp_
     public override void
     reply(Ice.ObjectPrx obj, Ice.Current current)
     {
+#if COMPACT
+        _m.Lock();
+        try
+        {
+            if(_obj == null)
+            {
+                _obj = obj;
+            }
+            _m.Notify();
+        }
+        finally
+        {
+            _m.Unlock();
+        }
+#else
         lock(this)
         {
             if(_obj == null)
@@ -23,11 +38,36 @@ public class DiscoverReplyI : DiscoverReplyDisp_
             }
             Monitor.Pulse(this);
         }
+#endif
     }
 
     public Ice.ObjectPrx
     waitReply(long timeout)
     {
+#if COMPACT
+        _m.Lock();
+        try
+        {
+            long end = System.DateTime.Now.Ticks / 1000 + timeout;
+            while(_obj == null)
+            {
+                int delay = (int)(end - System.DateTime.Now.Ticks / 1000);
+                if(delay > 0)
+                {
+                    _m.TimedWait(delay);
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return _obj;
+        }
+        finally
+        {
+            _m.Unlock();
+        }
+#else
         lock(this)
         {
             long end = System.DateTime.Now.Ticks / 1000 + timeout;
@@ -45,7 +85,11 @@ public class DiscoverReplyI : DiscoverReplyDisp_
             }
             return _obj;
         }
+#endif
     }
 
     private Ice.ObjectPrx _obj;
+#if COMPACT
+    private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+#endif
 }

@@ -322,6 +322,7 @@ generated from the section label.
         <property name="IPv4" />
         <property name="IPv6" />
         <property name="EventLog.Source" />
+        <property name="FactoryAssemblies" />
         <property name="GC.Interval" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />

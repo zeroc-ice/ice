@@ -54,7 +54,8 @@ namespace IceInternal
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -70,14 +71,19 @@ namespace IceInternal
                 }
 
                 _destroyed = true;
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void waitUntilFinished()
         {
             Dictionary<Connector, ICollection<Ice.ConnectionI>> connections = null;
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // First we wait until the factory is destroyed. We also
@@ -87,7 +93,7 @@ namespace IceInternal
                 //
                 while(!_destroyed || _pending.Count > 0 || _pendingConnectCount > 0)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 //
@@ -95,6 +101,10 @@ namespace IceInternal
                 // thread synchronization.
                 //
                 connections = new Dictionary<Connector, ICollection<Ice.ConnectionI>>(_connections);
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             //
@@ -108,7 +118,8 @@ namespace IceInternal
                 }
             }
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 // Ensure all the connections are finished and reapable at this point.
                 ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
@@ -128,6 +139,10 @@ namespace IceInternal
                     Debug.Assert(_connections.Count == 0);
                     Debug.Assert(_connectionsByEndpoint.Count == 0);
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -317,7 +332,8 @@ namespace IceInternal
 
         public void setRouterInfo(IceInternal.RouterInfo routerInfo)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -370,11 +386,16 @@ namespace IceInternal
                     }
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void removeAdapter(Ice.ObjectAdapter adapter)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 { 
@@ -392,13 +413,18 @@ namespace IceInternal
                     }
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void flushAsyncBatchRequests(CommunicatorBatchOutgoingAsync outAsync)
         {
             ICollection<Ice.ConnectionI> c = new List<Ice.ConnectionI>();
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!_destroyed)
                 {
@@ -413,6 +439,10 @@ namespace IceInternal
                         }
                     }
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             foreach(Ice.ConnectionI conn in c)
@@ -462,7 +492,8 @@ namespace IceInternal
 
         private Ice.ConnectionI findConnection(List<EndpointI> endpoints, out bool compress)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -499,6 +530,10 @@ namespace IceInternal
 
                 compress = false; // Satisfy the compiler
                 return null;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -552,7 +587,8 @@ namespace IceInternal
             // the asynchronous requests waiting on a connection to be established.
             //
             
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -560,24 +596,34 @@ namespace IceInternal
                 }
                 ++_pendingConnectCount;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         internal void decPendingConnectCount()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 --_pendingConnectCount;
                 Debug.Assert(_pendingConnectCount >= 0);
                 if(_destroyed && _pendingConnectCount == 0)
                 {
-                    Monitor.PulseAll(this);
+                    _m.NotifyAll();
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         private Ice.ConnectionI getConnection(List<ConnectorInfo> connectors, ConnectCallback cb, out bool compress)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_destroyed)
                 {
@@ -629,7 +675,7 @@ namespace IceInternal
                         //
                         if(cb == null)
                         {
-                            Monitor.Wait(this);
+                            _m.Wait();
                         }
                         else
                         {
@@ -646,6 +692,10 @@ namespace IceInternal
                         break;
                     }
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             //
@@ -665,7 +715,8 @@ namespace IceInternal
 
         private Ice.ConnectionI createConnection(Transceiver transceiver, ConnectorInfo ci)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_pending.ContainsKey(ci.connector) && transceiver != null);
 
@@ -703,6 +754,10 @@ namespace IceInternal
                 _connectionsByEndpoint.Add(connection.endpoint().compress(true), connection);
                 return connection;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         private void finishGetConnection(List<ConnectorInfo> connectors, 
@@ -717,7 +772,8 @@ namespace IceInternal
             }
 
             HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
-            lock(this)
+            _m.Lock();
+            try
             {
                 foreach(ConnectorInfo c in connectors)
                 {
@@ -748,7 +804,11 @@ namespace IceInternal
                 {
                     cc.removeFromPending();
                 }
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             bool compress;
@@ -781,7 +841,8 @@ namespace IceInternal
             }
             
             HashSet<ConnectCallback> callbacks = new HashSet<ConnectCallback>();
-            lock(this)
+            _m.Lock();
+            try
             {
                 foreach(ConnectorInfo c in connectors)
                 {
@@ -808,7 +869,11 @@ namespace IceInternal
                     Debug.Assert(!failedCallbacks.Contains(cc));
                     cc.removeFromPending();
                 }
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             foreach(ConnectCallback cc in callbacks)
@@ -1205,31 +1270,48 @@ namespace IceInternal
         private int _pendingConnectCount;
 
         private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     public sealed class IncomingConnectionFactory : EventHandler, Ice.ConnectionI.StartCallback
     {
         public void activate()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 setState(StateActive);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void hold()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 setState(StateHolding);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void destroy()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 setState(StateClosed);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -1237,7 +1319,8 @@ namespace IceInternal
         {
             ICollection<Ice.ConnectionI> connections;
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // First we wait until the connection factory itself is in
@@ -1245,7 +1328,7 @@ namespace IceInternal
                 //
                 while(_state < StateHolding)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 //
@@ -1253,6 +1336,10 @@ namespace IceInternal
                 // outside the thread synchronization.
                 //
                 connections = new List<Ice.ConnectionI>(_connections);
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             //
@@ -1268,7 +1355,8 @@ namespace IceInternal
         {
             ICollection<Ice.ConnectionI> connections = null;
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // First we wait until the factory is destroyed. If we are using
@@ -1276,7 +1364,7 @@ namespace IceInternal
                 //
                 while(_state != StateFinished)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 //
@@ -1290,13 +1378,18 @@ namespace IceInternal
                 //
                 connections = new List<Ice.ConnectionI>(_connections);
             }
+            finally
+            {
+                _m.Unlock();
+            }
 
             foreach(Ice.ConnectionI connection in connections)
             {
                 connection.waitUntilFinished();
             }
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 // Ensure all the connections are finished and reapable at this point.
                 ICollection<Ice.ConnectionI> cons = _reaper.swapConnections();
@@ -1306,6 +1399,10 @@ namespace IceInternal
                     cons.Clear();
                 }
                 _connections.Clear();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -1317,7 +1414,8 @@ namespace IceInternal
 
         public ICollection<Ice.ConnectionI> connections()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 ICollection<Ice.ConnectionI> connections = new List<Ice.ConnectionI>();
 
@@ -1333,6 +1431,10 @@ namespace IceInternal
                 }
 
                 return connections;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -1378,7 +1480,9 @@ namespace IceInternal
                 }
                 finally
                 {
+#if !COMPACT
                     System.Environment.FailFast(s);
+#endif
                 }
                 return false;
             }
@@ -1403,7 +1507,9 @@ namespace IceInternal
                     }
                     finally
                     {
+#if !COMPACT
                         System.Environment.FailFast(s);
+#endif
                     }
                     return false;
                 }
@@ -1421,9 +1527,10 @@ namespace IceInternal
         {
             Ice.ConnectionI connection = null;
 
-            ThreadPoolMessage msg = new ThreadPoolMessage(this);
+            ThreadPoolMessage msg = new ThreadPoolMessage(_m);
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!msg.startIOScope(ref current))
                 {
@@ -1472,7 +1579,9 @@ namespace IceInternal
                             }
                             finally
                             {
+#if !COMPACT
                                 System.Environment.FailFast(s);
+#endif
                             }
                         }
 
@@ -1520,6 +1629,10 @@ namespace IceInternal
                     msg.finishIOScope(ref current);
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
 
             Debug.Assert(connection != null);
             connection.start(this);
@@ -1527,10 +1640,15 @@ namespace IceInternal
 
         public override void finished(ref ThreadPoolCurrent current)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_state == StateClosed);
                 setState(StateFinished);
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -1550,7 +1668,8 @@ namespace IceInternal
         //
         public void connectionStartCompleted(Ice.ConnectionI connection)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 //
                 // Initially, connections are in the holding state. If the factory is active
@@ -1561,11 +1680,16 @@ namespace IceInternal
                     connection.activate();
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_state >= StateClosed)
                 {
@@ -1576,6 +1700,10 @@ namespace IceInternal
                 {
                     warning(ex);
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -1739,7 +1867,7 @@ namespace IceInternal
             }
 
             _state = state;
-            Monitor.PulseAll(this);
+            _m.NotifyAll();
         }
 
         private void warning(Ice.LocalException ex)
@@ -1762,6 +1890,8 @@ namespace IceInternal
         private HashSet<Ice.ConnectionI> _connections;
 
         private int _state;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
 }

@@ -45,7 +45,8 @@ namespace IceInternal
         {
             _reference.getConnection(this);
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(initialized())
                 {
@@ -59,15 +60,20 @@ namespace IceInternal
                     return this;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void prepareBatchRequest(BasicStream os)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 while(_batchRequestInProgress)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 if(!initialized())
@@ -77,18 +83,23 @@ namespace IceInternal
                     return;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
             _connection.prepareBatchRequest(os);
         }
 
         public void finishBatchRequest(BasicStream os)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!initialized())
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
-                    Monitor.PulseAll(this);
+                    _m.NotifyAll();
 
                     _batchStream.swap(os);
 
@@ -102,18 +113,23 @@ namespace IceInternal
                     return;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
             _connection.finishBatchRequest(os, _compress);
         }
 
         public void abortBatchRequest()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!initialized())
                 {
                     Debug.Assert(_batchRequestInProgress);
                     _batchRequestInProgress = false;
-                    Monitor.PulseAll(this);
+                    _m.NotifyAll();
 
                     BasicStream dummy = new BasicStream(_reference.getInstance(), _batchAutoFlush);
                     _batchStream.swap(dummy);
@@ -121,6 +137,10 @@ namespace IceInternal
 
                     return;
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
             _connection.abortBatchRequest();
         }
@@ -141,7 +161,8 @@ namespace IceInternal
 
         public bool sendAsyncRequest(OutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!initialized())
                 {
@@ -149,6 +170,10 @@ namespace IceInternal
                     sentCallback = null;
                     return false;
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
             return _connection.sendAsyncRequest(@out, _compress, _response, out sentCallback);
         }
@@ -160,7 +185,8 @@ namespace IceInternal
 
         public bool flushAsyncBatchRequests(BatchOutgoingAsync @out, out Ice.AsyncCallback sentCallback)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!initialized())
                 {
@@ -169,17 +195,26 @@ namespace IceInternal
                     return false;
                 }
             }
+            finally
+            {
+                _m.Unlock();
+            }
             return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
         public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(!initialized())
                 {
                     return new IceInternal.Outgoing(this, operation, mode, context);
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             return _connection.getOutgoing(this, operation, mode, context);
@@ -187,12 +222,17 @@ namespace IceInternal
 
         public void reclaimOutgoing(Outgoing og)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 if(_connection == null)
                 {
                     return;
                 }
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             _connection.reclaimOutgoing(og);
@@ -207,15 +247,20 @@ namespace IceInternal
         {
             if(waitInit)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     //
                     // Wait for the connection establishment to complete or fail.
                     //
                     while(!_initialized && _exception == null)
                     {
-                        Monitor.Wait(this);
+                        _m.Wait();
                     }
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
 
@@ -236,13 +281,18 @@ namespace IceInternal
 
         public void setConnection(Ice.ConnectionI connection, bool compress)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_exception == null && _connection == null);
                 Debug.Assert(_updateRequestHandler || _requests.Count == 0);
 
                 _connection = connection;
                 _compress = compress;
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             //
@@ -263,7 +313,8 @@ namespace IceInternal
 
         public void setException(Ice.LocalException ex)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_initialized && _exception == null);
                 Debug.Assert(_updateRequestHandler || _requests.Count == 0);
@@ -285,7 +336,11 @@ namespace IceInternal
                                                                         });
                 }
 
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -328,7 +383,7 @@ namespace IceInternal
             {
                 while(_flushing && _exception == null)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 if(_exception != null)
@@ -344,13 +399,14 @@ namespace IceInternal
 
         private void flushRequests()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(_connection != null && !_initialized);
 
                 while(_batchRequestInProgress)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
 
                 //
@@ -359,6 +415,10 @@ namespace IceInternal
                 // shouldn't be an issue as the request sends are non-blocking.
                 //
                 _flushing = true;
+            }
+            finally
+            {
+                _m.Unlock();
             }
 
             LinkedList<Request> sentCallbacks = new LinkedList<Request>();
@@ -411,7 +471,8 @@ namespace IceInternal
             }
             catch(LocalExceptionWrapper ex)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex.get();
@@ -420,10 +481,15 @@ namespace IceInternal
                                                                             flushRequestsWithException(ex);
                                                                         });
                 }
+                finally
+                {
+                    _m.Unlock();
+                }
             }
             catch(Ice.LocalException ex)
             {
-                lock(this)
+                _m.Lock();
+                try
                 {
                     Debug.Assert(_exception == null && _requests.Count > 0);
                     _exception = ex;
@@ -431,6 +497,10 @@ namespace IceInternal
                                                                         {
                                                                             flushRequestsWithException(ex);
                                                                         });
+                }
+                finally
+                {
+                    _m.Unlock();
                 }
             }
 
@@ -467,7 +537,8 @@ namespace IceInternal
                 _proxy.setRequestHandler__(_delegate, new ConnectionRequestHandler(_reference, _connection, _compress));
             }
 
-            lock(this)
+            _m.Lock();
+            try
             {
                 Debug.Assert(!_initialized);
                 if(_exception == null)
@@ -477,7 +548,11 @@ namespace IceInternal
                 }
                 _proxy = null; // Break cyclic reference count.
                 _delegate = null; // Break cyclic reference count.
-                Monitor.PulseAll(this);
+                _m.NotifyAll();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
@@ -534,5 +609,7 @@ namespace IceInternal
         private int _batchRequestsSize;
         private BasicStream _batchStream;
         private bool _updateRequestHandler;
+
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }

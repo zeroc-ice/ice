@@ -31,19 +31,23 @@ public class Dispatcher
         _thread.Start();
     }
 
-    public void 
-    run()
+    public void run()
     {
         while(true)
         {
+#if COMPACT
+            Ice.VoidAction call = null;
+#else
             System.Action call = null;
-            lock(this)
+#endif
+            _m.Lock();
+            try
             {
                 if(!_terminated && _calls.Count == 0)
                 {
-                    Monitor.Wait(this);
+                    _m.Wait();
                 }
-                
+
                 if(_calls.Count > 0)
                 {
                     call = _calls.Dequeue();
@@ -54,7 +58,11 @@ public class Dispatcher
                     return;
                 }
             }
-            
+            finally
+            {
+                _m.Unlock();
+            }
+
             if(call != null)
             {
                 try
@@ -69,41 +77,57 @@ public class Dispatcher
             }
         }
     }
-    
-    public void
-    dispatch(System.Action call, Ice.Connection con)
+
+#if COMPACT
+    public void dispatch(Ice.VoidAction call, Ice.Connection con)
+#else
+    public void dispatch(System.Action call, Ice.Connection con)
+#endif
     {
-        lock(this)
+        _m.Lock();
+        try
         {
             _calls.Enqueue(call);
             if(_calls.Count == 1)
             {
-                Monitor.Pulse(this);
+                _m.Notify();
             }
+        }
+        finally
+        {
+            _m.Unlock();
         }
     }
 
-    static public void
-    terminate()
+    static public void terminate()
     {
-        lock(_instance)
+        _m.Lock();
+        try
         {
             _instance._terminated = true;
-            Monitor.Pulse(_instance);
+            _m.Notify();
+        }
+        finally
+        {
+            _m.Unlock();
         }
 
         _instance._thread.Join();
     }
-    
-    static public bool
-    isDispatcherThread()
+
+    static public bool isDispatcherThread()
     {
         return Thread.CurrentThread == _instance._thread;
     }
 
-    static Dispatcher _instance; 
+    static Dispatcher _instance;
 
+#if COMPACT
+    private Queue<Ice.VoidAction> _calls = new Queue<Ice.VoidAction>();
+#else
     private Queue<System.Action> _calls = new Queue<System.Action>();
+#endif
     Thread _thread;
     bool _terminated = false;
-};
+    private static readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+}

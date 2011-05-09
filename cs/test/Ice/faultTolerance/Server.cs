@@ -23,7 +23,7 @@ public class Server
     {
         System.Console.Error.WriteLine("Usage: Server port");
     }
-    
+
     private static int run(string[] args, Ice.Communicator communicator)
     {
         int port = 0;
@@ -35,14 +35,14 @@ public class Server
                 usage();
                 return 1;
             }
-            
+
             if(port != 0)
             {
                 System.Console.Error.WriteLine("Server: only one port can be specified");
                 usage();
                 return 1;
             }
-            
+
             try
             {
                 port = System.Int32.Parse(args[i]);
@@ -54,14 +54,14 @@ public class Server
                 return 1;
             }
         }
-        
+
         if(port <= 0)
         {
             System.Console.Error.WriteLine("Server: no port specified");
             usage();
             return 1;
         }
-        
+
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object obj = new TestI();
@@ -70,13 +70,15 @@ public class Server
         communicator.waitForShutdown();
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -97,7 +99,7 @@ public class Server
             System.Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -110,10 +112,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

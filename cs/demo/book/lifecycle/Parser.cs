@@ -314,18 +314,12 @@ class Parser
 
     internal virtual int parse()
     {
+#if COMPACT
+        _in = Console.In;
+#else
         _in = new StreamReader(new StreamReader(Console.OpenStandardInput(), Encoding.Default).BaseStream,
                                new StreamReader(Console.OpenStandardInput(), Encoding.Default).CurrentEncoding);
-
-        Grammar g = new Grammar(this);
-        g.parse();
-
-        return 0;
-    }
-
-    internal virtual int parse(StreamReader in_Renamed)
-    {
-        _in = in_Renamed;
+#endif
 
         Grammar g = new Grammar(this);
         g.parse();
@@ -335,5 +329,5 @@ class Parser
 
     private ArrayList _dirs;
 
-    private StreamReader _in;
+    private TextReader _in;
 }

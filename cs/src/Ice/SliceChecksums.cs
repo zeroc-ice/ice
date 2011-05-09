@@ -19,6 +19,7 @@ namespace Ice
     {
         public static Dictionary<string, string> checksums = new Dictionary<string, string>();
 
+#if !COMPACT
         static SliceChecksums()
         {
             Type[] types = IceInternal.AssemblyUtil.findTypesWithPrefix("IceInternal.SliceChecksums");
@@ -32,6 +33,7 @@ namespace Ice
                 }
             }
         }
+#endif
     }
 
 }

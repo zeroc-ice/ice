@@ -30,9 +30,9 @@ public class Server
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         properties.setProperty("ServerManagerAdapter.Endpoints", "default -p 12010:udp");
-        
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
-        
+
         //
         // We also register a sample server locator which implements the
         // locator interface, this locator is used by the clients and the
@@ -44,22 +44,24 @@ public class Server
         registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
                                                 adapter.add(registry, communicator.stringToIdentity("registry")));
-        
+
         ServerLocator locator = new ServerLocator(registry, registryPrx);
         adapter.add(locator, communicator.stringToIdentity("locator"));
-        
+
         adapter.activate();
         communicator.waitForShutdown();
-        
+
         return 0;
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
 
         try
         {
@@ -73,7 +75,7 @@ public class Server
             System.Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         if(communicator != null)
         {
             try
@@ -86,10 +88,7 @@ public class Server
                 status = 1;
             }
         }
-        
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+
+        return status;
     }
 }

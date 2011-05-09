@@ -11,7 +11,7 @@ using Demo;
 
 public class Client
 {
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         try
         {
@@ -19,11 +19,12 @@ public class Client
             HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
             hello.sayHello();
             communicator.destroy();
+            return 0;
         }
         catch(System.Exception ex)
         {
             System.Console.Error.WriteLine(ex);
-            System.Environment.Exit(1);
+            return 1;
         }
     }
 }

@@ -51,13 +51,9 @@ public class Server
         private WorkQueue _workQueue;
     }
 
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         App app = new App();
-        int status = app.main(args, "config.server");
-        if(status != 0)
-        {
-            System.Environment.Exit(status);
-        }
+        return app.main(args, "config.server");
     }
 }

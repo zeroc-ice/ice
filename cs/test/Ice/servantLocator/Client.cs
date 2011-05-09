@@ -29,16 +29,24 @@ public class Client
             return 0;
         }
     }
-    
-    public static void Main(string[] args)
+
+    public static int Main(string[] args)
     {
+#if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
+#endif
+
+        Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+        //
+        // When using Ice for .NET Compact Framework, we need to specify
+        // the assembly so that Ice can locate classes and exceptions.
+        //
+        data.properties = Ice.Util.createProperties();
+        data.properties.setProperty("Ice.FactoryAssemblies", "client");
+#endif
 
         App app = new App();
-        int result = app.main(args);
-        if(result != 0)
-        {
-            System.Environment.Exit(result);
-        }
+        return app.main(args, data);
     }
 }

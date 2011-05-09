@@ -43,7 +43,7 @@ tests = [
     ("Ice/adapterDeactivation", ["core"]),
     ("Ice/slicing/exceptions", ["core"]),
     ("Ice/slicing/objects", ["core"]),
-    ("Ice/checksum", ["core"]),
+    ("Ice/checksum", ["core", "nocompact"]),
     ("Ice/dispatcher", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/retry", ["core"]),
@@ -62,7 +62,7 @@ tests = [
     ("Glacier2/router", ["service"]),
     ("Glacier2/sessionHelper", ["service"]),
     ("IceGrid/simple", ["service"]),
-    ("IceSSL/configuration", ["once", "novista", "nomono"]),
+    ("IceSSL/configuration", ["once", "novista", "nomono", "nocompact"]),
     ]
 
 if __name__ == "__main__":

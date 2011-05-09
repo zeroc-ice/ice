@@ -7,31 +7,24 @@
 //
 // **********************************************************************
 
-using System;
 using System.Diagnostics;
-using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Collocated
+public class Server
 {
-    private static int run(String[] args, Ice.Communicator communicator)
+    private static int run(string[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        Ice.Properties properties = communicator.getProperties();
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
+        Ice.Object obj = new TestI();
+        adapter.add(obj, communicator.stringToIdentity("Test"));
         adapter.activate();
-
-        AllTests.allTests(communicator);
-
+        communicator.waitForShutdown();
         return 0;
     }
 
-    public static int Main(String[] args)
+    public static int Main(string[] args)
     {
         int status = 0;
         Ice.Communicator communicator = null;
@@ -42,17 +35,21 @@ public class Collocated
 
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-
-            communicator = Ice.Util.initialize(ref args, initData);
+            Ice.InitializationData data = new Ice.InitializationData();
+#if COMPACT
+            //
+            // When using Ice for .NET Compact Framework, we need to specify
+            // the assembly so that Ice can locate classes and exceptions.
+            //
+            data.properties = Ice.Util.createProperties();
+            data.properties.setProperty("Ice.FactoryAssemblies", "serveramd");
+#endif
+            communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }
         catch(System.Exception ex)
         {
-            Console.Error.WriteLine(ex);
+            System.Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -64,7 +61,7 @@ public class Collocated
             }
             catch(Ice.LocalException ex)
             {
-                Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

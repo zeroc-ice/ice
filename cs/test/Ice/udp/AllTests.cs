@@ -25,24 +25,35 @@ public class AllTests
     {
         public override void reply(Ice.Current current)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 ++_replies;
-                Monitor.Pulse(this);
+                _m.Notify();
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public void reset()
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                  _replies = 0;
+            }
+            finally
+            {
+                _m.Unlock();
             }
         }
 
         public bool waitReply(int expectedReplies, long timeout)
         {
-            lock(this)
+            _m.Lock();
+            try
             {
                 long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
                 while(_replies < expectedReplies)
@@ -50,7 +61,7 @@ public class AllTests
                     int delay = (int)(end - IceInternal.Time.currentMonotonicTimeMillis());
                     if(delay > 0)
                     {
-                        Monitor.Wait(this, delay);
+                        _m.TimedWait(delay);
                     }
                     else
                     {
@@ -59,9 +70,14 @@ public class AllTests
                 }
                 return _replies == expectedReplies;
             }
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         private int _replies = 0;
+        private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
     public static void allTests(Ice.Communicator communicator)
@@ -69,7 +85,7 @@ public class AllTests
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
-        Test.PingReplyPrx reply = 
+        Test.PingReplyPrx reply =
             (Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         adapter.activate();
 
@@ -91,9 +107,9 @@ public class AllTests
             {
                 break; // Success
             }
-            
+
             // If the 3 datagrams were not received within the 2 seconds, we try again to
-            // receive 3 new datagrams using a new object. We give up after 5 retries. 
+            // receive 3 new datagrams using a new object. We give up after 5 retries.
             replyI = new PingReplyI();
             reply =(Test.PingReplyPrx)Test.PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI)).ice_datagram();
         }
@@ -202,7 +218,7 @@ public class AllTests
         // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
-        // 
+        //
 //         Console.Out.Write("testing udp bi-dir connection... ");
 //         nRetry = 5;
 //         while(nRetry-- > 0)

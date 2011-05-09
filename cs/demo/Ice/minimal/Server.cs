@@ -9,7 +9,7 @@
 
 public class Server
 {
-    public static void Main(string[] args)
+    public static int Main(string[] args)
     {
         try
         {
@@ -19,11 +19,12 @@ public class Server
             adapter.activate();
             communicator.waitForShutdown();
             communicator.destroy();
+            return 0;
         }
         catch(System.Exception ex)
         {
             System.Console.Error.WriteLine(ex);
-            System.Environment.Exit(1);
+            return 1;
         }
     }
 }

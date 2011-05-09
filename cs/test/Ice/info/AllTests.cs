@@ -43,7 +43,7 @@ public class AllTests
             test(ipEndpoint.compress);
             test(!ipEndpoint.datagram());
 
-#if __MonoCS__
+#if __MonoCS__ || COMPACT
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && !ipEndpoint.secure());
             test(ipEndpoint.type() == Ice.TCPEndpointType.value && ipEndpoint is Ice.TCPEndpointInfo);
 #else
@@ -84,7 +84,7 @@ public class AllTests
             test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endpoints[0].getInfo();
-#if __MonoCS__
+#if __MonoCS__ || COMPACT
             test(ipEndpoint.type() == Ice.TCPEndpointType.value);
 #else
             test(ipEndpoint.type() == Ice.TCPEndpointType.value || ipEndpoint.type() == IceSSL.EndpointType.value);
