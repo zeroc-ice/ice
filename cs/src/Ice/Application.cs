@@ -205,13 +205,14 @@ namespace Ice
 
             appName__ = initData.properties.getPropertyWithDefault("Ice.ProgramName", appName__);
 
-            int status;
-
+            nohup__ = initData.properties.getPropertyAsInt("Ice.Nohup") > 0;
             _application = this;
 
+            int status;
 #if COMPACT
             status = doMain(args, initData);
 #else
+
             if(signalPolicy__ == SignalPolicy.HandleSignals)
             {
                 if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
@@ -484,7 +485,6 @@ namespace Ice
                 destroyed__ = false;
 
                 Properties props = communicator__.getProperties();
-                nohup__ = props.getPropertyAsInt("Ice.Nohup") > 0;
 
                 //
                 // The default is to destroy when a signal is received.

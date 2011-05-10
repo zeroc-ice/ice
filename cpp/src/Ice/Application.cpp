@@ -378,14 +378,22 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
         return EXIT_FAILURE;
     }
     int status;
-
-    IceInternal::Application::_application = this;
-
+    
     //
     // We parse the properties here to extract Ice.ProgramName.
     //
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    
+    IceInternal::Application::_appName = initData.properties->getPropertyWithDefault("Ice.ProgramName", 
+                                                                                 IceInternal::Application::_appName);
+    
+    //
+    // Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
+    //
+    _nohup = initData.properties->getPropertyAsInt("Ice.Nohup") > 0;
+
+    IceInternal::Application::_application = this;
 
     if(IceInternal::Application::_signalPolicy == HandleSignals)
     {
@@ -620,27 +628,13 @@ Ice::Application::interrupted()
 }
 
 int
-Ice::Application::doMain(int argc, char* argv[], const InitializationData& initializationData)
+Ice::Application::doMain(int argc, char* argv[], const InitializationData& initData)
 {
     int status;
 
     try
     {
         IceInternal::Application::_interrupted = false;
-        IceInternal::Application::_appName = "";
-        if(argc > 0)
-        {
-            IceInternal::Application::_appName = argv[0];
-        }
-
-        //
-        // We parse the properties here to extract Ice.ProgramName.
-        // 
-        InitializationData initData = initializationData;
-        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
-        
-        IceInternal::Application::_appName = initData.properties->getPropertyWithDefault("Ice.ProgramName", 
-                                                                                 IceInternal::Application::_appName);
 
         //
         // If the process logger is the default logger, we now replace it with a
@@ -653,11 +647,6 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
 
         IceInternal::Application::_communicator = initialize(argc, argv, initData);
         IceInternal::Application::_destroyed = false;
-
-        //
-        // Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
-        //
-        _nohup = (IceInternal::Application::_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
     
         //
         // The default is to destroy when a signal is received.
