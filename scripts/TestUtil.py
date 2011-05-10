@@ -514,7 +514,11 @@ def phpSetup(clientConfig = False, iceOptions = None, iceProfile = None):
             extDir = os.path.join(iceHome, "bin")
             incDir = os.path.join(iceHome, "php")
     else:
-        ext = "IcePHP.so"
+        ext = "IcePHP"
+        if isDarwin():
+            ext += ".dy"
+        else:
+            ext += ".so"
         if not iceHome:
             extDir = os.path.abspath(os.path.join(toplevel, "php", "lib"))
             incDir = extDir
