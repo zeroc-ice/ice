@@ -379,6 +379,8 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initial
     }
     int status;
 
+    IceInternal::Application::_application = this;
+
     //
     // We parse the properties here to extract Ice.ProgramName.
     //
@@ -649,7 +651,6 @@ Ice::Application::doMain(int argc, char* argv[], const InitializationData& initi
             setProcessLogger(new LoggerI(initData.properties->getProperty("Ice.ProgramName"), ""));
         }
 
-        IceInternal::Application::_application = this;
         IceInternal::Application::_communicator = initialize(argc, argv, initData);
         IceInternal::Application::_destroyed = false;
 

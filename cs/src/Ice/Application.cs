@@ -207,6 +207,8 @@ namespace Ice
 
             int status;
 
+            _application = this;
+
 #if COMPACT
             status = doMain(args, initData);
 #else
@@ -478,7 +480,6 @@ namespace Ice
                     Util.setProcessLogger(new ConsoleLoggerI(initData.properties.getProperty("Ice.ProgramName")));
                 }
 
-                _application = this;
                 communicator__ = Util.initialize(ref args, initData);
                 destroyed__ = false;
 
