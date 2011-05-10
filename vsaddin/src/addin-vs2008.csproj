@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -34,6 +35,7 @@
     <DefineConstants>TRACE;VS2008</DefineConstants>
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -86,12 +88,6 @@
       <DependentUpon>ExtraCompilerOptionsView.cs</DependentUpon>
     </Compile>
     <Compile Include="IceDialog.cs" />
-    <Compile Include="IceHomeView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="IceHomeView.Designer.cs">
-      <DependentUpon>IceHomeView.cs</DependentUpon>
-    </Compile>
     <Compile Include="IceVBConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -169,9 +165,6 @@
   <ItemGroup>
     <EmbeddedResource Include="ExtraCompilerOptionsView.resx">
       <DependentUpon>ExtraCompilerOptionsView.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="IceHomeView.resx">
-      <DependentUpon>IceHomeView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IceVBConfigurationDialog.resx">
       <DependentUpon>IceVBConfigurationDialog.cs</DependentUpon>

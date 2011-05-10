@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>false</DebugSymbols>
@@ -56,6 +57,7 @@
     <WarningLevel>4</WarningLevel>
     <IncrementalBuild>false</IncrementalBuild>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -119,12 +121,6 @@
       <DependentUpon>ExtraCompilerOptionsView.cs</DependentUpon>
     </Compile>
     <Compile Include="IceDialog.cs" />
-    <Compile Include="IceHomeView.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="IceHomeView.Designer.cs">
-      <DependentUpon>IceHomeView.cs</DependentUpon>
-    </Compile>
     <Compile Include="IceVBConfigurationDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,9 +199,6 @@
     <EmbeddedResource Include="ExtraCompilerOptionsView.resx">
       <DependentUpon>ExtraCompilerOptionsView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="IceHomeView.resx">
-      <DependentUpon>IceHomeView.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="IceVBConfigurationDialog.resx">
       <DependentUpon>IceVBConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -224,9 +217,6 @@
     <EmbeddedResource Include="OutputDirView.resx">
       <DependentUpon>OutputDirView.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

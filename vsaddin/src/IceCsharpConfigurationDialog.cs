@@ -26,8 +26,7 @@ namespace Ice.VisualStudio
         {
             InitializeComponent();
             _project = project;
-                    
-            iceHomeView.init(this, _project);
+
             outputDirView.init(this, _project);
             extraCompilerOptions.init(this, _project);
             includePathView.init(this, _project);
@@ -44,6 +43,7 @@ namespace Ice.VisualStudio
             {
                 this.Text = "Ice Configuration - Project: " + _project.Name;
                 bool enabled = Util.isSliceBuilderEnabled(project);
+                _compactFramework = Util.isCSharpSmartDeviceProject(_project);
                 setEnabled(enabled);
                 chkEnableBuilder.Checked = enabled;
                 load();
@@ -59,7 +59,6 @@ namespace Ice.VisualStudio
             }
 
             Cursor = Cursors.WaitCursor;
-            iceHomeView.load();
             outputDirView.load();
             extraCompilerOptions.load();
 
@@ -79,7 +78,16 @@ namespace Ice.VisualStudio
         private void loadComponents()
         {
             ComponentList selectedComponents = Util.getIceDotNetComponents(_project);
-            string[] dotNetNames = Util.getDotNetNames();
+            string[] dotNetNames = null;
+            if(_compactFramework)
+            {
+                dotNetNames = Util.getDotNetCompactNames();
+                checkComponent("IceSSL", false);
+            }
+            else
+            {
+                dotNetNames = Util.getDotNetNames();
+            }
             foreach(String s in dotNetNames)
             {
                 if(selectedComponents.Contains(s))
@@ -227,7 +235,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -235,7 +242,6 @@ namespace Ice.VisualStudio
         
         private void setEnabled(bool enabled)
         {
-            iceHomeView.setEnabled(enabled);
             outputDirView.setEnabled(enabled);
             chkIcePrefix.Enabled = enabled;
             chkTie.Enabled = enabled;
@@ -249,7 +255,18 @@ namespace Ice.VisualStudio
             chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
-            chkIceSSL.Enabled = enabled;
+            //
+            // Ice .NET Compact Framework doesn't support SSL
+            //
+            if(_compactFramework)
+            {
+                chkIceSSL.Enabled = false;
+            }
+            else
+            {
+                chkIceSSL.Enabled = enabled;
+            }
+            
             chkIceStorm.Enabled = enabled;
         }
 
@@ -281,7 +298,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -295,7 +311,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -305,7 +320,7 @@ namespace Ice.VisualStudio
         {
             if(value)
             {
-                if(!Util.addDotNetReference(_project, name, Util.getIceHome(_project), development))
+                if(!Util.addDotNetReference(_project, name, Util.getIceHome(), development))
                 {
                     checkComponent(name, false);
                 }
@@ -332,7 +347,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -352,7 +366,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -369,7 +382,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -399,9 +411,12 @@ namespace Ice.VisualStudio
             {
                 components.Add("IcePatch2");
             }
-            if(chkIceSSL.Checked)
+            if(!_compactFramework)
             {
-                components.Add("IceSSL");
+                if(chkIceSSL.Checked)
+                {
+                    components.Add("IceSSL");
+                }
             }
             if(chkIceStorm.Checked)
             {
@@ -443,22 +458,6 @@ namespace Ice.VisualStudio
                 }
 
                 bool changed = false;
-                if(!iceHomeView.apply(ref changed))
-                {
-                    //
-                    // We don't apply other changes until that error is fixed.
-                    // This should not happen in normal circumstances, as we check
-                    // that Ice Home is valid when the corresponding field is changed.
-                    // This could happen if the directory is removed after the field
-                    // was edited and apply was clicked.
-                    //
-                    return false;
-                }
-                if(changed)
-                {
-                    _changed = true;
-                }
-
                 if(!outputDirView.apply(ref changed))
                 {
                     return false;
@@ -509,33 +508,65 @@ namespace Ice.VisualStudio
                 }
 
                 bool development = Util.developmentMode(_project);
+                ComponentList components = new ComponentList();
                 if(chkGlacier2.Checked != Util.hasDotNetReference(_project, "Glacier2"))
                 {
                     componentChanged("Glacier2", chkGlacier2.Checked, development);
+                    if(!chkGlacier2.Checked)
+                    {
+                        components.Add("Glacier2");
+                    }
                 }
                 if(chkIce.Checked != Util.hasDotNetReference(_project, "Ice"))
                 {
                     componentChanged("Ice", chkIce.Checked, development);
+                    if(!chkIce.Checked)
+                    {
+                        components.Add("Ice");
+                    }
                 }
                 if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
                 {
                     componentChanged("IceBox", chkIceBox.Checked, development);
+                    if(!chkIceBox.Checked)
+                    {
+                        components.Add("IceBox");
+                    }
                 }
                 if(chkIceGrid.Checked != Util.hasDotNetReference(_project, "IceGrid"))
                 {
                     componentChanged("IceGrid", chkIceGrid.Checked, development);
+                    if(!chkIceGrid.Checked)
+                    {
+                        components.Add("IceGrid");
+                    }
                 }
                 if(chkIcePatch2.Checked != Util.hasDotNetReference(_project, "IcePatch2"))
                 {
                     componentChanged("IcePatch2", chkIcePatch2.Checked, development);
+                    if(!chkIcePatch2.Checked)
+                    {
+                        components.Add("IcePatch2");
+                    }
                 }
-                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                if(!_compactFramework)
                 {
-                    componentChanged("IceSSL", chkIceSSL.Checked, development);
+                    if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                    {
+                        componentChanged("IceSSL", chkIceSSL.Checked, development);
+                        if(!chkIceSSL.Checked)
+                        {
+                            components.Add("IceSSL");
+                        }
+                    }
                 }
                 if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
                 {
                     componentChanged("IceStorm", chkIceStorm.Checked, development);
+                    if(!chkIceStorm.Checked)
+                    {
+                        components.Add("IceStorm");
+                    }
                 }
 
                 //
@@ -544,7 +575,7 @@ namespace Ice.VisualStudio
                 //
                 if(!chkEnableBuilder.Checked && Util.isSliceBuilderEnabled(_project))
                 {
-                    Util.removeBuilderFromProject(_project);
+                    Util.removeBuilderFromProject(_project, components);
                     _initialized = false;
                     load();
                     _initialized = true;
@@ -572,11 +603,6 @@ namespace Ice.VisualStudio
             if(!Util.isSliceBuilderEnabled(_project))
             {
                 return false;
-            }
-
-            if(iceHomeView.hasUnsavedChanges())
-            {
-                return true;
             }
 
             if(outputDirView.hasUnsavedChanges())
@@ -635,9 +661,12 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+            if(!_compactFramework)
             {
-                return true;
+                if(chkIceSSL.Checked != Util.hasDotNetReference(_project, "IceSSL"))
+                {
+                    return true;
+                }
             }
             if(chkIceStorm.Checked != Util.hasDotNetReference(_project, "IceStorm"))
             {
@@ -649,5 +678,6 @@ namespace Ice.VisualStudio
         private bool _initialized;
         private Project _project;
         private bool _changed = false;
+        private bool _compactFramework = false;
     }
 }

@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="IcePatch2.MFC.client"
+	Name="client"
 	ProjectGUID="{A7A048D1-81F8-457E-941C-6D01AD7C4FB5}"
 	RootNamespace="IcePatch2.MFC.client"
 	Keyword="MFCProj"
@@ -21,10 +21,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\Debug"
-			IntermediateDirectory=".\Debug"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			InheritedPropertySheets="$(ALLUSERSPROFILE)\ZeroC\ice.vsprops"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
@@ -46,25 +46,16 @@
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Debug/IcePatch2.MFC.client.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=". ; ..\..\..\..\cpp\include"
+				AdditionalIncludeDirectories=".;&quot;$(IceHome)\include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_MBCS;_DEBUG;VC_EXTRALEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\Debug/IcePatch2.MFC.client.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -82,12 +73,9 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib IcePatch2d.lib"
-				OutputFile="client.exe"
 				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
+				AdditionalLibraryDirectories="&quot;$(IceHome)\lib&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/client.pdb"
 				SubSystem="2"
 				EntryPointSymbol="wWinMainCRTStartup"
 				RandomizedBaseAddress="1"
@@ -105,105 +93,6 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Debug/IcePatch2.MFC.client.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/IcePatch2.MFC.client.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=". ; ..\..\..\..\cpp\include"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_MBCS;NDEBUG;VC_EXTRALEAN"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\Release/IcePatch2.MFC.client.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/FIXED:NO /IGNORE:4089"
-				AdditionalDependencies="Ice.lib IceUtil.lib IcePatch2.lib"
-				OutputFile="client.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
-				SubSystem="2"
-				EntryPointSymbol="wWinMainCRTStartup"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Release/IcePatch2.MFC.client.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -217,13 +106,14 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)\$(ProjectName)\"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			InheritedPropertySheets="$(ALLUSERSPROFILE)\ZeroC\ice.vsprops"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
+			BuildLogFile=""
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -242,25 +132,16 @@
 				PreprocessorDefinitions="_DEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
-				TargetEnvironment="3"
-				TypeLibraryName=".\Debug/IcePatch2.MFC.client.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=". ; ..\..\..\..\cpp\include"
+				AdditionalIncludeDirectories=".;&quot;$(IceHome)\include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_MBCS;_DEBUG;VC_EXTRALEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\Debug/IcePatch2.MFC.client.pch"
-				AssemblerListingLocation=".\Debug/"
-				ObjectFile=".\Debug/"
-				ProgramDataBaseFileName=".\Debug/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -278,12 +159,9 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib IcePatch2d.lib"
-				OutputFile="client.exe"
 				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
+				AdditionalLibraryDirectories="&quot;$(IceHome)\lib\x64&quot;"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\Debug/client.pdb"
 				SubSystem="2"
 				EntryPointSymbol="wWinMainCRTStartup"
 				RandomizedBaseAddress="1"
@@ -301,8 +179,6 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Debug/IcePatch2.MFC.client.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -315,11 +191,11 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			Name="Release|Win32"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory="$(ConfigurationName)\$(ProjectName)\"
 			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
+			InheritedPropertySheets="$(ALLUSERSPROFILE)\ZeroC\ice.vsprops"
 			UseOfMFC="2"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="1"
@@ -341,26 +217,17 @@
 				PreprocessorDefinitions="NDEBUG"
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
-				TargetEnvironment="3"
-				TypeLibraryName=".\Release/IcePatch2.MFC.client.tlb"
-				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=". ; ..\..\..\..\cpp\include"
+				AdditionalIncludeDirectories=".;&quot;$(IceHome)\include&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_MBCS;NDEBUG;VC_EXTRALEAN"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\Release/IcePatch2.MFC.client.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
-				SuppressStartupBanner="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -377,10 +244,93 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
 				AdditionalDependencies="Ice.lib IceUtil.lib IcePatch2.lib"
-				OutputFile="client.exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(IceHome)\lib&quot;"
+				SubSystem="2"
+				EntryPointSymbol="wWinMainCRTStartup"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|x64"
+			OutputDirectory="$(ProjectDir)"
+			IntermediateDirectory="$(ConfigurationName)\$(PlatformName)\$(ProjectName)\"
+			ConfigurationType="1"
+			InheritedPropertySheets="$(ALLUSERSPROFILE)\ZeroC\ice.vsprops"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			BuildLogFile=""
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\..\..\cpp\lib"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories=".;&quot;$(IceHome)\include&quot;"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_MBCS;NDEBUG;VC_EXTRALEAN"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/FIXED:NO /IGNORE:4089"
+				AdditionalDependencies="Ice.lib IceUtil.lib IcePatch2.lib"
+				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(IceHome)\lib\x64&quot;"
 				SubSystem="2"
 				EntryPointSymbol="wWinMainCRTStartup"
 				RandomizedBaseAddress="1"
@@ -398,8 +348,6 @@
 			/>
 			<Tool
 				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\Release/IcePatch2.MFC.client.bsc"
 			/>
 			<Tool
 				Name="VCFxCopTool"
@@ -431,7 +379,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -439,7 +387,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -467,7 +415,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -475,7 +423,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCResourceCompilerTool"
@@ -503,7 +451,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -511,7 +459,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -541,7 +489,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
+					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -551,7 +499,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -598,11 +546,11 @@
 			Filter="ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 			>
 			<File
-				RelativePath="res\PatchClient.ico"
+				RelativePath="PatchClient.ico"
 				>
 			</File>
 			<File
-				RelativePath="PatchClient.ico"
+				RelativePath="res\PatchClient.ico"
 				>
 			</File>
 			<File
@@ -617,20 +565,12 @@
 	</Files>
 	<Globals>
 		<Global
-			Name="ZerocIce_ConsoleOutput"
-			Value="True"
-		/>
-		<Global
 			Name="ZerocIce_Enabled"
 			Value="True"
 		/>
 		<Global
-			Name="ZerocIce_Home"
-			Value="..\..\..\.."
-		/>
-		<Global
-			Name="ZerocIce_HomeExpanded"
-			Value="..\..\..\.."
+			Name="ZerocIce_VerboseLevel"
+			Value="1"
 		/>
 	</Globals>
 </VisualStudioProject>

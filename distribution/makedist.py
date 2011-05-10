@@ -173,6 +173,8 @@ fixVersion(os.path.join("distribution", "src", "rpm", "icegridregistry.conf"), *
 fixVersion(os.path.join("distribution", "src", "rpm", "RPM_README"), *versions)
 fixVersion(os.path.join("vsaddin", "config", "Ice-VS2008.AddIn"), *versions)
 fixVersion(os.path.join("vsaddin", "config", "Ice-VS2010.AddIn"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "ice.vsprops"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "ice.props"), *versions)
 
 bisonFiles = []
 flexFiles = []
@@ -290,41 +292,12 @@ for d in os.listdir('.'):
         copy(os.path.join(d, "demo"), os.path.join(winDemoDir, getMappingDir("demo", d)))
 
 rmFiles = []
-csprojSubstituteExprs = [(re.compile(regexpEscape("ZerocIce_Home=\"..\..\..\..\"")), "")]
-slice2freezeSubstituteExprs = [(re.compile(regexpEscape("..\\..\\..\\bin\\slice2freeze")), "&quot;$(IceHome)&quot;\\\\bin\\slice2freeze")]
+
 for root, dirnames, filesnames in os.walk(winDemoDir):
     for f in filesnames:
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
-
-        # Remove ZerocIce_Home setting from C# and VB projects
-        if fnmatch.fnmatch(f, "*.csproj") or fnmatch.fnmatch(f, "*.vbproj"):
-            substitute(os.path.join(root, f), csprojSubstituteExprs)
-
-        if fnmatch.fnmatch(f, "*.vcproj"):
-            # Remove ZerocIce_Home setting from C++ projects
-            foundGlobal = False
-            deleteLines = 0
-            globalLine = None
-            for line in fileinput.input(os.path.join(root, f), True):
-                if deleteLines > 0:
-                    deleteLines = deleteLines - 1
-                elif foundGlobal:
-                    if line.find("Name=\"ZerocIce_Home\"") != -1:
-                        deleteLines = 2
-                    else:
-                        print globalLine,
-                        print line,
-                    foundGlobal = False
-                elif line.find("<Global") != -1:
-                        foundGlobal = True
-                        globalLine = line
-                else:
-                    print line,
-
-            # Fix slice2freeze commands
-            substitute(os.path.join(root, f), slice2freezeSubstituteExprs)
 
         for m in [ "Makefile", ".depend", "*.exe.config" ]:
             if fnmatch.fnmatch(f, m):

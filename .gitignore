@@ -14,6 +14,8 @@
 *.tds
 *.bak
 *.ncb
+# .sdf is the Visual Studio 2010 equivalent to .ncb
+*.sdf
 *.opt
 *.user
 *.res
@@ -51,3 +53,4 @@ vcproj
 .DS_Store
 # VIM swap file
 *.swp
+

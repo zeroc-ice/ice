@@ -20,8 +20,6 @@ TARGETS		= $(top_srcdir)\bin\$(PKG).dll
 PDBS		= $(top_srcdir)\bin\$(PKG).pdb
 
 SRCS		= IceDialog.cs \
-		   IceHomeView.Designer.cs \
-		   IceHomeView.cs \
 		   ExtraCompilerOptionsView.Designer.cs \
 		   ExtraCompilerOptionsView.cs \
 		   IncludePathView.Designer.cs \
@@ -47,7 +45,6 @@ RESOURCES 	= /resource:IceCppConfigurationDialog.resx \
 	   	  /resource:IceCsharpConfigurationDialog.resx \
 	   	  /resource:IceSilverlightConfigurationDialog.resx \
 	   	  /resource:IceVBConfigurationDialog.resx \
-		  /resource:IceHomeView.resx \
 		  /resource:ExtraCompilerOptionsView.resx \
 		  /resource:IncludePathView.resx \
 		  /resource:OutputDirView.resx
@@ -68,6 +65,7 @@ install::$(TARGETS)
 
 	copy $(TARGETS) $(install_bindir)\$(PKG).dll
 	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
+	copy ..\config\$(PROPERTY_SHEET) $(install_configdir)\$(PROPERTY_SHEET)
 	
 clean::
 	-del /q $(TARGETS) $(PDBS)

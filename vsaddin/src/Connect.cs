@@ -68,13 +68,13 @@ namespace Ice.VisualStudio
                         prop.Value = false;
 #endif
                         _builder = new Builder();
+                        _builder.commandLine = connectMode == ext_ConnectMode.ext_cm_CommandLine;
                         _builder.init(_applicationObject, connectMode, _addInInstance);
                     }
                 }
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -123,7 +123,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -182,7 +181,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -205,7 +203,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }

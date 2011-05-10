@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Extensibility xmlns="http://schemas.microsoft.com/AutomationExtensibility">
+    <HostApplication>
+        <Name>Microsoft Visual Studio</Name>
+        <Version>9.0</Version>
+    </HostApplication>
+    <Addin>
+        <FriendlyName>Ice Fix Demo Visual Studio Add-In</FriendlyName>
+        <Description>Add-In to fix ZeroC demo projects configurations.</Description>
+        <AboutBoxDetails>Add-In to fix ZeroC demo projects configurations.</AboutBoxDetails>
+        <AboutIconData></AboutIconData>
+        <Assembly>C:\Program Files (x86)\ZeroC\Ice-3.4.1\bin\IceFixDemoAddin-VS2008.dll</Assembly>
+        <FullClassName>Ice.VisualStudio.FixDemoConnect</FullClassName>
+        <LoadBehavior>1</LoadBehavior>
+        <CommandPreload>1</CommandPreload>
+        <CommandLineSafe>1</CommandLineSafe>
+    </Addin>
+</Extensibility>

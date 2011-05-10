@@ -1,4 +1,27 @@
 
+The following fixes are included in the 3.4.2 release:
+
+  - Added $(IceHome) macro to VS 2008 project configurations.
+
+  - Change C++ project configurations to use $(IceHome) macro
+    in configuration settings.
+
+  - Remove Ice Home field from "Ice Configuration" dialog, projects
+    always use the Ice version correspoding to the add-in.
+
+  - Fixed issues that doesn't allow to use solution folders with
+    Ice projects.
+
+  - Fixed an issue that causes the add-in to not work when
+    using Visual Studio 2010 and "Solution Navigator"
+
+  - Added a check to prevent incorrect Runtime library usage in
+    C++ projects.
+    
+  - Added support for .NET Smart Device project types used by
+    .NET Compact Framework.
+
+  - Improve add-in output messages. 
 
 The following fixes are included in the 3.4.1.2 release:
 

@@ -172,7 +172,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }

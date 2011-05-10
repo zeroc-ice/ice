@@ -20,7 +20,7 @@ platform and C++ compiler supported by both Ice and OCCI.
 
 OCCI oracle drivers are available at:
 
- http://www.oracle.com/technology/tech/oci/occi/occidownloads.html
+ http://www.oracle.com/technetwork/database/occidownloads-083553.html
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
   With Oracle server 11.1, the corresponding SQL script is 

@@ -78,6 +78,14 @@ VSTARGET                = $(VS)
 VS_HOME 		= $(VSINSTALLDIR)
 PKG_PREFIX 		= $(VSTARGET)
 
+!if "$(VS)" == "VS2008"
+PROPERTY_SHEET = "ice.vsprops"
+!endif
+
+!if "$(VS)" == "VS2010"
+PROPERTY_SHEET = "ice.props"
+!endif
+
 bindir 			= ..\bin
 
 install_bindir 		= $(prefix)\bin
@@ -120,7 +128,6 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProject.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll"
 
-
 !if "$(VSTARGET)" == "VS2008"
 
 MCSFLAGS = $(MCSFLAGS) /reference:"Microsoft.Build.Engine.dll"
@@ -137,7 +144,7 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\
 
 MCSFLAGS = $(MCSFLAGS) /reference:"Microsoft.Build.dll"
 
-MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Visual Studio Tools for Office\PIA\Common\Extensibility.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"%ProgramFiles%\Common Files\microsoft shared\MSEnv\PublicAssemblies\Extensibility.dll"
 
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.OLE.Interop.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.dll"

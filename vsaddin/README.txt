@@ -37,10 +37,6 @@ Ice Builder", click "Apply", then check "Enable Ice Builder" and click
 Project properties
 ------------------
 
-* Ice Home
-
-  Set the directory where Ice is installed.
-
 * Output Dir
 
   Set the base directory where generated files will be placed.
@@ -91,11 +87,11 @@ Project properties
 Environment Variables
 ---------------------
 
-The "Ice Home", "Output Dir", "Extra Compiler Options", and "Slice
+The "Output Dir", "Extra Compiler Options", and "Slice
 Include Path" settings support the use of environment variables. Use
 the $(VAR) syntax to refer to an environment variable named VAR. For
-example,if you have defined the ICE_HOME environment variable, you
-could use $(ICE_HOME) in the "Ice Home" field.
+example,if you have defined the MY_DIR environment variable, you
+could use $(MY_DIR) in the "Slice Include Path" field.
 
 You cannot use environment variables in the "--header-ext" and 
 "--source-ext" options in "Extra Compiler Options".
@@ -132,6 +128,23 @@ directory for storing the generated files.
 
 Errors that occur during Slice compilation are displayed in the Visual
 Studio "Output" and "Error List" panels.
+
+VC++ Property Sheets
+--------------------
+
+For C++ projects, the add-in adds a property sheet 
+"$(ALLUSERSPROFILE)\ZeroC\ice.vsprops" for Visual Studio 2008 or
+"$(ALLUSERSPROFILE)\ZeroC\ice.props" for Visual Studio 2010
+
+That property sheet is installed as part of Ice installation,
+in this property sheet we define the macro $(IceHome), the macro 
+always expand to the path where Ice is installed.
+
+These macro can be used in custom build steps that needs to
+reference to Ice directories.
+
+NOTE: Changes made to this property sheet will affect to all projects
+that use Ice Visual Studio Add-in.
 
 
 VC++ Pre-compiled headers
@@ -171,4 +184,4 @@ devenv MyProject.sln /build
 
 Note that for this to work, command-line builds must be enabled for
 the add-in in the IDE; see "Tools -> Add-in Manager" and check 
-"Command Line" for Ice.
+"Command Line" for "Ice-@ver@ Visual Studio Add-in".

@@ -26,7 +26,7 @@ namespace Ice.VisualStudio
         {
             InitializeComponent();
             _project = project;
-            iceHomeView.init(this, _project);
+
             outputDirView.init(this, _project);
             includePathView.init(this, _project);
             extraCompilerOptions.init(this, project);
@@ -88,8 +88,6 @@ namespace Ice.VisualStudio
             }
             Cursor = Cursors.WaitCursor;
 
-            
-            iceHomeView.load();
             outputDirView.load();
             extraCompilerOptions.load();
 
@@ -242,7 +240,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -250,7 +247,6 @@ namespace Ice.VisualStudio
         
         private void setEnabled(bool enabled)
         {
-            iceHomeView.setEnabled(enabled);
             outputDirView.setEnabled(enabled);
             chkIcePrefix.Enabled = enabled;
             chkStreaming.Enabled = enabled;
@@ -301,7 +297,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -322,7 +317,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -342,7 +336,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -359,7 +352,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -379,7 +371,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -396,7 +387,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -410,7 +400,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -492,17 +481,6 @@ namespace Ice.VisualStudio
                 }
 
                 bool changed = false;
-                if(!iceHomeView.apply(ref changed))
-                {
-                    return false;
-                }
-
-                if(changed)
-                {
-                    _changed = true;
-                }
-
-                changed = false;
                 if(!outputDirView.apply(ref changed))
                 {
                     return false;
@@ -560,43 +538,81 @@ namespace Ice.VisualStudio
                     _changed = true;
                 }
 
+                ComponentList components = new ComponentList();
                 if(!enabling)
                 {
+                    
                     if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
                     {
                         componentChanged("Freeze", chkFreeze.Checked);
+                        if(!chkFreeze.Checked)
+                        {
+                            components.Add("Freeze");
+                        }
                     }
                     if(chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
                     {
                         componentChanged("Glacier2", chkGlacier2.Checked);
+                        if(!chkGlacier2.Checked)
+                        {
+                            components.Add("Glacier2");
+                        }
                     }
                     if(chkIce.Checked != Util.hasIceCppLib(_project, "Ice"))
                     {
                         componentChanged("Ice", chkIce.Checked);
+                        if(!chkIce.Checked)
+                        {
+                            components.Add("Ice");
+                        }
                     }
                     if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
                     {
                         componentChanged("IceBox", chkIceBox.Checked);
+                        if(!chkIceBox.Checked)
+                        {
+                            components.Add("IceBox");
+                        }
                     }
                     if(chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
                     {
                         componentChanged("IceGrid", chkIceGrid.Checked);
+                        if(!chkIceGrid.Checked)
+                        {
+                            components.Add("IceGrid");
+                        }
                     }
                     if(chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
                     {
                         componentChanged("IcePatch2", chkIcePatch2.Checked);
+                        if(!chkIcePatch2.Checked)
+                        {
+                            components.Add("IcePatch2");
+                        }
                     }
                     if(chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
                     {
                         componentChanged("IceSSL", chkIceSSL.Checked);
+                        if(!chkIceSSL.Checked)
+                        {
+                            components.Add("IceSSL");
+                        }
                     }
                     if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
                     {
                         componentChanged("IceStorm", chkIceStorm.Checked);
+                        if(!chkIceStorm.Checked)
+                        {
+                            components.Add("IceStorm");
+                        }
                     }
                     if(chkIceUtil.Checked != Util.hasIceCppLib(_project, "IceUtil"))
                     {
                         componentChanged("IceUtil", chkIceUtil.Checked);
+                        if(!chkIceUtil.Checked)
+                        {
+                            components.Add("IceUtil");
+                        }
                     }
                 }
 
@@ -606,7 +622,7 @@ namespace Ice.VisualStudio
                 //
                 if(!chkEnableBuilder.Checked && Util.isSliceBuilderEnabled(_project))
                 {
-                    Util.removeBuilderFromProject(_project);
+                    Util.removeBuilderFromProject(_project, components);
                     _initialized = false;
                     load();
                     _initialized = true;
@@ -635,11 +651,6 @@ namespace Ice.VisualStudio
             if(!Util.isSliceBuilderEnabled(_project))
             {
                 return false;
-            }
-
-            if(iceHomeView.hasUnsavedChanges())
-            {
-                return true;
             }
 
             if(outputDirView.hasUnsavedChanges())

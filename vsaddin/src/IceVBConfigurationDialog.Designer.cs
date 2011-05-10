@@ -47,7 +47,6 @@ namespace Ice.VisualStudio
             this.chkGlacier2 = new System.Windows.Forms.CheckBox();
             this.chkIce = new System.Windows.Forms.CheckBox();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.iceHomeView = new Ice.VisualStudio.IceHomeView();
             this.btnApply = new System.Windows.Forms.Button();
             this.btnOk = new System.Windows.Forms.Button();
             this.groupBox3.SuspendLayout();
@@ -73,7 +72,7 @@ namespace Ice.VisualStudio
             this.groupBox3.Controls.Add(this.chkIceBox);
             this.groupBox3.Controls.Add(this.chkGlacier2);
             this.groupBox3.Controls.Add(this.chkIce);
-            this.groupBox3.Location = new System.Drawing.Point(11, 88);
+            this.groupBox3.Location = new System.Drawing.Point(11, 36);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(487, 47);
             this.groupBox3.TabIndex = 3;
@@ -167,7 +166,7 @@ namespace Ice.VisualStudio
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(417, 141);
+            this.btnCancel.Location = new System.Drawing.Point(417, 89);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 5;
@@ -175,16 +174,9 @@ namespace Ice.VisualStudio
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // iceHomeView
-            // 
-            this.iceHomeView.Location = new System.Drawing.Point(7, 37);
-            this.iceHomeView.Name = "iceHomeView";
-            this.iceHomeView.Size = new System.Drawing.Size(498, 48);
-            this.iceHomeView.TabIndex = 6;
-            // 
             // btnApply
             // 
-            this.btnApply.Location = new System.Drawing.Point(334, 141);
+            this.btnApply.Location = new System.Drawing.Point(334, 89);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 7;
@@ -194,7 +186,7 @@ namespace Ice.VisualStudio
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(253, 141);
+            this.btnOk.Location = new System.Drawing.Point(253, 89);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
             this.btnOk.TabIndex = 8;
@@ -207,10 +199,9 @@ namespace Ice.VisualStudio
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(512, 177);
+            this.ClientSize = new System.Drawing.Size(512, 124);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.btnApply);
-            this.Controls.Add(this.iceHomeView);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.chkEnableBuilder);
@@ -239,7 +230,6 @@ namespace Ice.VisualStudio
         private System.Windows.Forms.CheckBox chkGlacier2;
         private System.Windows.Forms.CheckBox chkIce;
         private System.Windows.Forms.Button btnCancel;
-        private IceHomeView iceHomeView;
         private System.Windows.Forms.Button btnApply;
         private System.Windows.Forms.Button btnOk;
     }

@@ -27,7 +27,6 @@ namespace Ice.VisualStudio
             InitializeComponent();
             _project = project;
 
-            iceHomeView.init(this, _project);
             outputDirView.init(this, _project);
             extraCompilerOptions.init(this, _project);
             includePathView.init(this, _project);
@@ -86,7 +85,6 @@ namespace Ice.VisualStudio
                 return;
             }
             Cursor = Cursors.WaitCursor;
-            iceHomeView.load();
             outputDirView.load();
             extraCompilerOptions.load();
 
@@ -186,7 +184,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -194,7 +191,6 @@ namespace Ice.VisualStudio
         
         private void setEnabled(bool enabled)
         {
-            iceHomeView.setEnabled(enabled);
             outputDirView.setEnabled(enabled);
             chkIcePrefix.Enabled = enabled;
             comboBoxVerboseLevel.Enabled = enabled;
@@ -231,7 +227,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -245,7 +240,6 @@ namespace Ice.VisualStudio
             }
             catch(Exception ex)
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -266,7 +260,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -276,7 +269,7 @@ namespace Ice.VisualStudio
         {
             if(value)
             {
-                if(!Util.addDotNetReference(_project, name, Util.getIceHome(_project), development))
+                if(!Util.addDotNetReference(_project, name, Util.getIceSlHome(), development))
                 {
                     checkComponent(name, false);
                 }
@@ -319,23 +312,6 @@ namespace Ice.VisualStudio
                 }
 
                 bool changed = false;
-                if(!iceHomeView.apply(ref changed))
-                {
-                    //
-                    // We don't apply other changes until that error is fixed.
-                    // This should not happen in normal circumstances, as we check
-                    // that Ice Home is valid when the corresponding field is changed.
-                    // This could happen if the directory is removed after the field
-                    // was edited and apply was clicked.
-                    //
-                    return false;
-                }
-                if(changed)
-                {
-                    _changed = true;
-                }
-
-                changed = false;
                 if(!outputDirView.apply(ref changed))
                 {
                     return false;
@@ -385,7 +361,7 @@ namespace Ice.VisualStudio
                 //
                 if(!chkEnableBuilder.Checked && Util.isSliceBuilderEnabled(_project))
                 {
-                    Util.removeBuilderFromProject(_project);
+                    Util.removeBuilderFromProject(_project, new ComponentList());
                     _initialized = false;
                     load();
                     _initialized = true;
@@ -414,11 +390,6 @@ namespace Ice.VisualStudio
             if(!Util.isSliceBuilderEnabled(_project))
             {
                 return false;
-            }
-
-            if(iceHomeView.hasUnsavedChanges())
-            {
-                return true;
             }
 
             if(outputDirView.hasUnsavedChanges())
@@ -468,7 +439,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
@@ -485,7 +455,6 @@ namespace Ice.VisualStudio
             catch(Exception ex)
             {
                 Cursor = Cursors.Default;
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }

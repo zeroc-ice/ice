@@ -169,7 +169,34 @@ Configuration
    > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
    > copy C:\Ice-@ver@\vsaddin\templates\Slice.zip .
 
-4) This completes the configuration. The add-in is available once you
+4) Install C++ property sheets
+
+   C++ project configurations include a property sheet.
+
+   To install the property sheet
+
+   > mkdir %ALLUSERSPROFILE%\ZeroC
+   > cd %ALLUSERSPROFILE%\ZeroC
+
+   For VS 2008 the property sheet is ice.vsprops
+
+   > copy C:\Ice-@ver@\vsaddin\config\ice.vsprops .
+
+   For VS 2010 the property sheet is ice.props
+
+   > copy C:\Ice-@ver@\vsaddin\config\ice.props .
+
+   If you have not installed Ice in the default location, you 
+   must edit the property sheet files to reflect your installation
+   path.
+
+   For ice.vsprops set the "Value" attribute of the UserMacro 
+   to your Ice installation path.
+
+   For ice.props set the content of the element IceHome to your Ice
+   installation path.
+
+5) This completes the configuration. The add-in is available once you
    restart Visual Studio.
 
 
