@@ -102,6 +102,9 @@ C# Changes
 
 - Added support for the .NET Compact Framework.
 
+- Added demo/Ice/compact, which is a simple graphical client that uses
+  Ice for .NET Compact Framework.
+
 - Fixed bugs in the generated code that caused naming conflicts when
   using a Slice module named 'System'.
 

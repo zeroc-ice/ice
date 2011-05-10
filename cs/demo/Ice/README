@@ -19,6 +19,10 @@ Demos in this directory:
   call back into an object provided by the client as part of that
   invocation.
 
+- compact
+
+  A simple graphical client that uses Ice for .NET Compact Framework.
+
 - hello
 
   This demo illustrates how to invoke ordinary (twoway) operations, as
@@ -75,5 +79,5 @@ Demos in this directory:
 
 - wpf
 
-  A Windows Presentation Foundation (WPF) application that shows
-  how to use Asynchronous Method Invocation (AMI) in a graphical client.
+  A Windows Presentation Foundation (WPF) application that shows how
+  to use Asynchronous Method Invocation (AMI) in a graphical client.
