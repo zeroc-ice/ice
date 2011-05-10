@@ -322,6 +322,10 @@ public class SessionFactoryHelper
     {
         _initData.properties.setProperty("Ice.ACM.Client", "0");
         _initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        if(_secure)
+        {
+            _initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
+        }
     }
 
     private SessionCallback _callback;
