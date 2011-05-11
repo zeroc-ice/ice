@@ -593,7 +593,7 @@ namespace Ice.VisualStudio
 
             foreach(Reference r in ((VSProject)project.Object).References)
             {
-                if(r.Identity.Equals(component, StringComparison.OrdinalIgnoreCase))
+                if(r.Name.Equals(component, StringComparison.OrdinalIgnoreCase))
                 {
                     r.Remove();
                     return true;
