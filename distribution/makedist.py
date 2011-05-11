@@ -347,7 +347,7 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for d in [srcDir]:
+for d in [srcDir, demoDir]:
     zipArchive(d, verbose)
 
 for (dir, archiveDir) in [(winDemoDir, "Ice-" + version + "-demos")]:
