@@ -186,11 +186,10 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
                      ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
 
 #
-# VB specific files
+# Fix C# and VB projects
 #
-icevb_home = os.path.join(ice_dir, "vb")
-
 for f in FixUtil.find("*.vbproj"):
     FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
 for f in FixUtil.find("*.csproj"):
-    FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
+    if f.find("addin-") < 0:
+        FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
