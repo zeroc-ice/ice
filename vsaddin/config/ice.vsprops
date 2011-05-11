@@ -6,7 +6,7 @@
 	>
 	<UserMacro
 		Name="IceHome"
-		Value="C:\Ice-@ver@"
+		Value="@installdir@\"
 		PerformEnvironmentSet="true"
 	/>
 </VisualStudioPropertySheet>
