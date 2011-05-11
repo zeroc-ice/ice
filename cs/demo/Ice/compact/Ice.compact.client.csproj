@@ -45,7 +45,7 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.4.2.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+    <Reference Include="Ice, Version=3.4.2.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="mscorlib" />
@@ -84,7 +84,7 @@
       <FlavorProperties GUID="{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}">
         <HostingProcess disable="1" />
       </FlavorProperties>
-      <UserProperties ZerocIce_Enabled="True" />
+      <UserProperties ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
