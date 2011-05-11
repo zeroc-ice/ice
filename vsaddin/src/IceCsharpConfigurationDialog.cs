@@ -49,6 +49,7 @@ namespace Ice.VisualStudio
                 load();
                 _initialized = true;
             }
+            chkEnableBuilder.Focus();
         }
         
         private void load()
@@ -144,11 +145,6 @@ namespace Ice.VisualStudio
                 case "Glacier2":
                 {
                     chkGlacier2.Checked = check;
-                    break;
-                }
-                case "Ice":
-                {
-                    chkIce.Checked = check;
                     break;
                 }
                 case "IceBox":
@@ -251,7 +247,6 @@ namespace Ice.VisualStudio
             extraCompilerOptions.setEnabled(enabled);
             includePathView.setEnabled(enabled);
             chkGlacier2.Enabled = enabled;
-            chkIce.Enabled = enabled;
             chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
@@ -395,10 +390,6 @@ namespace Ice.VisualStudio
             {
                 components.Add("Glacier2");
             }
-            if(chkIce.Checked)
-            {
-                components.Add("Ice");
-            }
             if(chkIceBox.Checked)
             {
                 components.Add("IceBox");
@@ -515,14 +506,6 @@ namespace Ice.VisualStudio
                     if(!chkGlacier2.Checked)
                     {
                         components.Add("Glacier2");
-                    }
-                }
-                if(chkIce.Checked != Util.hasDotNetReference(_project, "Ice"))
-                {
-                    componentChanged("Ice", chkIce.Checked, development);
-                    if(!chkIce.Checked)
-                    {
-                        components.Add("Ice");
                     }
                 }
                 if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
@@ -642,10 +625,6 @@ namespace Ice.VisualStudio
 
             // Ice libraries
             if(chkGlacier2.Checked != Util.hasDotNetReference(_project, "Glacier2"))
-            {
-                return true;
-            }
-            if(chkIce.Checked != Util.hasDotNetReference(_project, "Ice"))
             {
                 return true;
             }

@@ -716,26 +716,37 @@ namespace Ice.VisualStudio
                         new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                 }
 
-                if(components.Count == 0)
+                if(!components.Contains("Ice"))
                 {
                     components.Add("Ice");
+                }
+                if(!components.Contains("IceUtil"))
+                {
                     components.Add("IceUtil");
                 }
 
                 Util.addIceCppLibs(project, components);
             }
             else
-            {
-                //
-                // For other project types we use getIceHome, which expands
-                // environment variables.
-                //
-                
+            {                
                 if(Util.isCSharpProject(project))
                 {
                     bool development = Util.developmentMode(project);
                     if(Util.isSilverlightProject(project))
                     {
+                        string iceSlHome = Environment.GetEnvironmentVariable("ICE_SL_HOME");
+                        if(String.IsNullOrEmpty(iceSlHome))
+                        {
+                            MessageBox.Show("ICE_SL_HOME environment variable not set.\n" +
+                                "ICE_SL_HOME environment variable must be set to point to " +
+                                "Ice Silverlight installation path.",
+                                "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                                MessageBoxIcon.Error,
+                                MessageBoxDefaultButton.Button1,
+                                (MessageBoxOptions)0);
+                            return;
+                        }
+                        
                         Util.addDotNetReference(project, "IceSL", Util.getIceSlHome(), development);
                     }
                     else
@@ -746,7 +757,7 @@ namespace Ice.VisualStudio
                             components = 
                                 new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                         }
-                        if(components.Count == 0)
+                        if(!components.Contains("Ice"))
                         {
                             components.Add("Ice");
                         }
@@ -766,7 +777,7 @@ namespace Ice.VisualStudio
                         components = 
                             new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                     }
-                    if(components.Count == 0)
+                    if(!components.Contains("Ice"))
                     {
                         components.Add("Ice");
                     }
@@ -794,10 +805,16 @@ namespace Ice.VisualStudio
                 Util.removeIceCppConfigurations(project);
                 Util.setProjectProperty(project, Util.PropertyIceComponents, components.ToString());
             }
-            else if(Util.isCSharpProject(project) && 
-                    Util.isSilverlightProject(project))
+            else if(Util.isCSharpProject(project))
             {
-                Util.removeDotNetReference(project, "IceSL");
+                if(Util.isSilverlightProject(project))
+                {
+                    Util.removeDotNetReference(project, "IceSL");
+                }
+                else
+                {
+                    Util.removeDotNetReference(project, "Ice");
+                }
             }
 
             Util.setProjectProperty(project, Util.PropertyIceComponents, components.ToString());
@@ -1028,11 +1045,6 @@ namespace Ice.VisualStudio
                 return;
             }
 
-            DTE dte = Util.getCurrentDTE();
-            if(!_opening)
-            {
-                dte.StatusBar.Text = "Ice Add-in: building project '" + project.FullName + "'";
-            }
             //
             // When building a single project, we must first build projects 
             // that this project depends on.
@@ -1052,6 +1064,20 @@ namespace Ice.VisualStudio
                         }
                     }
                 }
+            }
+
+            if(Util.isVBProject(project))
+            {
+                //
+                // For VB projects we just build dependencies.
+                //
+                return;
+            }
+
+            DTE dte = Util.getCurrentDTE();
+            if(!_opening)
+            {
+                dte.StatusBar.Text = "Ice Add-in: building project '" + project.FullName + "'";
             }
 
             string msg = "------ Slice compilation started " + "Project: " + Util.getTraceProjectName(project) + " ------\n";

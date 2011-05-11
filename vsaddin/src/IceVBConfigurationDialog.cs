@@ -37,6 +37,7 @@ namespace Ice.VisualStudio
                 load();
                 _initialized = true;
             }
+            chkEnableBuilder.Focus();
         }
 
 #region IceConfigurationDialog interface
@@ -117,11 +118,6 @@ namespace Ice.VisualStudio
                 case "Glacier2":
                 {
                     chkGlacier2.Checked = check;
-                    break;
-                }
-                case "Ice":
-                {
-                    chkIce.Checked = check;
                     break;
                 }
                 case "IceBox":
@@ -209,7 +205,6 @@ namespace Ice.VisualStudio
         private void setEnabled(bool enabled)
         {
             chkGlacier2.Enabled = enabled;
-            chkIce.Enabled = enabled;
             chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
@@ -304,14 +299,6 @@ namespace Ice.VisualStudio
                         components.Add("Glacier2");
                     }
                 }
-                if(chkIce.Checked != Util.hasDotNetReference(_project, "Ice"))
-                {
-                    componentChanged("Ice", chkIce.Checked, development);
-                    if(!chkIce.Checked)
-                    {
-                        components.Add("Ice");
-                    }
-                }
                 if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
                 {
                     componentChanged("IceBox", chkIceBox.Checked, development);
@@ -397,10 +384,6 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(chkIce.Checked != Util.hasDotNetReference(_project, "Ice"))
-            {
-                return true;
-            }
             if(chkIceBox.Checked != Util.hasDotNetReference(_project, "IceBox"))
             {
                 return true;
@@ -434,10 +417,6 @@ namespace Ice.VisualStudio
             if(chkGlacier2.Checked)
             {
                 components.Add("Glacier2");
-            }
-            if(chkIce.Checked)
-            {
-                components.Add("Ice");
             }
             if(chkIceBox.Checked)
             {

@@ -24,7 +24,7 @@ namespace Ice.VisualStudio
     {
         public IceCppConfigurationDialog(Project project)
         {
-            InitializeComponent();
+            InitializeComponent();            
             _project = project;
 
             outputDirView.init(this, _project);
@@ -48,6 +48,7 @@ namespace Ice.VisualStudio
                 load();
                 _initialized = true;
             }
+            chkEnableBuilder.Focus();
         }
 
 #region IceConfigurationDialog interface
@@ -141,11 +142,6 @@ namespace Ice.VisualStudio
                     chkGlacier2.Checked = check;
                     break;
                 }
-                case "Ice":
-                {
-                    chkIce.Checked = check;
-                    break;
-                }
                 case "IceBox":
                 {
                     chkIceBox.Checked = check;
@@ -169,11 +165,6 @@ namespace Ice.VisualStudio
                 case "IceStorm":
                 {
                     chkIceStorm.Checked = check;
-                    break;
-                }
-                case "IceUtil":
-                {
-                    chkIceUtil.Checked = check;
                     break;
                 }
                 default:
@@ -259,13 +250,11 @@ namespace Ice.VisualStudio
 
             chkFreeze.Enabled = enabled;
             chkGlacier2.Enabled = enabled;
-            chkIce.Enabled = enabled;
             chkIceBox.Enabled = enabled;
             chkIceGrid.Enabled = enabled;
             chkIcePatch2.Enabled = enabled;
             chkIceSSL.Enabled = enabled;
             chkIceStorm.Enabled = enabled;
-            chkIceUtil.Enabled = enabled;
             txtDllExportSymbol.Enabled = enabled;
         }
         
@@ -416,10 +405,6 @@ namespace Ice.VisualStudio
             {
                 components.Add("Glacier2");
             }
-            if(chkIce.Checked)
-            {
-                components.Add("Ice");
-            }
             if(chkIceBox.Checked)
             {
                 components.Add("IceBox");
@@ -439,10 +424,6 @@ namespace Ice.VisualStudio
             if(chkIceStorm.Checked)
             {
                 components.Add("IceStorm");
-            }
-            if(chkIceUtil.Checked)
-            {
-                components.Add("IceUtil");
             }
             return components;
         }
@@ -558,14 +539,6 @@ namespace Ice.VisualStudio
                             components.Add("Glacier2");
                         }
                     }
-                    if(chkIce.Checked != Util.hasIceCppLib(_project, "Ice"))
-                    {
-                        componentChanged("Ice", chkIce.Checked);
-                        if(!chkIce.Checked)
-                        {
-                            components.Add("Ice");
-                        }
-                    }
                     if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
                     {
                         componentChanged("IceBox", chkIceBox.Checked);
@@ -604,14 +577,6 @@ namespace Ice.VisualStudio
                         if(!chkIceStorm.Checked)
                         {
                             components.Add("IceStorm");
-                        }
-                    }
-                    if(chkIceUtil.Checked != Util.hasIceCppLib(_project, "IceUtil"))
-                    {
-                        componentChanged("IceUtil", chkIceUtil.Checked);
-                        if(!chkIceUtil.Checked)
-                        {
-                            components.Add("IceUtil");
                         }
                     }
                 }
@@ -703,10 +668,6 @@ namespace Ice.VisualStudio
             {
                 return true;
             }
-            if(chkIce.Checked != Util.hasIceCppLib(_project, "Ice"))
-            {
-                return true;
-            }
             if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
             {
                 return true;
@@ -724,10 +685,6 @@ namespace Ice.VisualStudio
                 return true;
             }
             if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
-            {
-                return true;
-            }
-            if(chkIceUtil.Checked != Util.hasIceCppLib(_project, "IceUtil"))
             {
                 return true;
             }

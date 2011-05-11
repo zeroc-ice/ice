@@ -45,6 +45,7 @@ namespace Ice.VisualStudio
                 load();
                 _initialized = true;
             }
+            chkEnableBuilder.Focus();
         }
 
 #region IceConfigurationDialog interface
@@ -93,47 +94,10 @@ namespace Ice.VisualStudio
 
             includePathView.load();
 
-            loadComponents();
-
             btnApply.Enabled = false;
             Cursor = Cursors.Default;
         }
 
-        private void loadComponents()
-        {
-            ComponentList selectedComponents = Util.getIceSilverlightComponents(_project);
-            foreach(String s in Util.getSilverlightNames())
-            {
-                if(selectedComponents.Contains(s))
-                {
-                    checkComponent(s, true);
-                }
-                else
-                {
-                    checkComponent(s, false);
-                }
-            }
-        }
-
-        private void checkComponent(String component, bool check)
-        {
-            if(editingIncludeDir())
-            {
-                endEditIncludeDir(true);
-            }
-            switch(component)
-            {
-                case "IceSL":
-                {
-                    chkIceSl.Checked = check;
-                    break;
-                }
-                default:
-                {
-                    break;
-                }
-            }
-        }
         private void chkEnableBuilder_CheckedChanged(object sender, EventArgs e)
         {
             try
@@ -169,11 +133,6 @@ namespace Ice.VisualStudio
                         components = new ComponentList("IceSL");
                     }
 
-                    // Enable / Disable the given set of components
-                    for(int i = 0; i < components.Count; ++i)
-                    {
-                        checkComponent(components[i], chkEnableBuilder.Checked);
-                    }
 
                     chkEnableBuilder.Enabled = true;
                     _initialized = true;
@@ -196,7 +155,6 @@ namespace Ice.VisualStudio
             comboBoxVerboseLevel.Enabled = enabled;
             extraCompilerOptions.setEnabled(enabled);
             includePathView.setEnabled(enabled);
-            chkIceSl.Enabled = enabled;
         }
 
         private void formClosing(object sender, FormClosingEventArgs e)
@@ -265,21 +223,6 @@ namespace Ice.VisualStudio
             }
         }
 
-        private void componentChanged(string name, bool value, bool development)
-        {
-            if(value)
-            {
-                if(!Util.addDotNetReference(_project, name, Util.getIceSlHome(), development))
-                {
-                    checkComponent(name, false);
-                }
-            }
-            else
-            {
-                Util.removeDotNetReference(_project, name);
-            }
-        }
-
         //
         // Apply unsaved changes, returns true if new settings are all applied correctly,
         // otherwise returns false.
@@ -306,9 +249,6 @@ namespace Ice.VisualStudio
                 {
                     Util.addBuilderToProject(_project, new ComponentList(Util.getSilverlightNames()));
                     _changed = true;
-                    _initialized = false;
-                    loadComponents();
-                    _initialized = true;
                 }
 
                 bool changed = false;
@@ -347,12 +287,6 @@ namespace Ice.VisualStudio
                 if(includePathView.apply())
                 {
                     _changed = true;
-                }
-
-                bool development = Util.developmentMode(_project);
-                if(chkIceSl.Checked != Util.hasDotNetReference(_project, "IceSl"))
-                {
-                    componentChanged("IceSL", chkIceSl.Checked, development);
                 }
 
                 //
@@ -413,12 +347,6 @@ namespace Ice.VisualStudio
             }
 
             if(includePathView.hasUnsavedChanges())
-            {
-                return true;
-            }
-
-            // Ice libraries
-            if(chkIceSl.Checked != Util.hasDotNetReference(_project, "IceSL"))
             {
                 return true;
             }

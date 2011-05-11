@@ -2107,6 +2107,7 @@ namespace Ice.VisualStudio
                 Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(project));
                 Util.removeIcePropertySheet(conf);
             }
+            Util.removeIceCppLibs(project);
         }
 
         public static void addIceCppLibs(Project project, ComponentList components)
@@ -2449,7 +2450,7 @@ namespace Ice.VisualStudio
 
         public static int getVerboseLevel(Project p)
         {
-            int verboseLevel = (int)Util.msgLevel.msgDebug;
+            int verboseLevel = (int)Util.msgLevel.msgInfo;
             if(p != null)
             {
                 try

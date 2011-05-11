@@ -47,16 +47,17 @@ namespace Ice.VisualStudio
             // groupExtraOptions
             // 
             this.groupExtraOptions.Controls.Add(this.txtExtraOptions);
-            this.groupExtraOptions.Location = new System.Drawing.Point(5, 3);
+            this.groupExtraOptions.Location = new System.Drawing.Point(0, 0);
+            this.groupExtraOptions.Margin = new System.Windows.Forms.Padding(0);
             this.groupExtraOptions.Name = "groupExtraOptions";
             this.groupExtraOptions.Size = new System.Drawing.Size(487, 67);
             this.groupExtraOptions.TabIndex = 0;
             this.groupExtraOptions.TabStop = false;
-            this.groupExtraOptions.Text = "Extra Compiler Options";
+            this.groupExtraOptions.Text = "Additional Slice compiler options";
             // 
             // txtExtraOptions
             // 
-            this.txtExtraOptions.Location = new System.Drawing.Point(6, 19);
+            this.txtExtraOptions.Location = new System.Drawing.Point(6, 17);
             this.txtExtraOptions.Multiline = true;
             this.txtExtraOptions.Name = "txtExtraOptions";
             this.txtExtraOptions.Size = new System.Drawing.Size(475, 42);
@@ -71,7 +72,7 @@ namespace Ice.VisualStudio
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.groupExtraOptions);
             this.Name = "ExtraCompilerOptionsView";
-            this.Size = new System.Drawing.Size(495, 75);
+            this.Size = new System.Drawing.Size(487, 69);
             this.groupExtraOptions.ResumeLayout(false);
             this.groupExtraOptions.PerformLayout();
             this.ResumeLayout(false);
