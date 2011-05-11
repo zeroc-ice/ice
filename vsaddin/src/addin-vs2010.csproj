@@ -78,19 +78,19 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Extensibility, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Extensibility, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="Microsoft.Build" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.VisualStudio.Shell, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.VisualStudio.VCProject, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.Shell.Interop.8.0, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.VisualStudio.VCProject, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>False</EmbedInteropTypes>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProject.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.VCProjectEngine, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <Reference Include="Microsoft.VisualStudio.VCProjectEngine, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll</HintPath>
@@ -104,7 +104,7 @@
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
-    <Reference Include="VSLangProj, Version=3.4.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="VSLangProj, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs">
