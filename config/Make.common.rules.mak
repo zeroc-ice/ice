@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,10 +12,10 @@
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.4.1
-INTVERSION		= 3.4.1
+VERSION			= 3.4.2
+INTVERSION		= 3.4.2
 SHORT_VERSION           = 3.4
-PATCH_VERSION           = 1
+PATCH_VERSION           = 2
 SOVERSION		= 34
 
 OBJEXT			= .obj

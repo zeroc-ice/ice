@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2008-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2008-2011 ZeroC, Inc. All rights reserved.
 #
 
 Summary: mcpp, a portable C/C++ preprocessor

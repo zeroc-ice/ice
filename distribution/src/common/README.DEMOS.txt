@@ -57,7 +57,7 @@ demos that use Freeze, you must first define the IceHome environment
 variable prior to starting Visual Studio. Set the environment variable
 with the directory of your Ice installation, such as
 
-  IceHome=C:\Program Files\ZeroC\Ice-3.4.1
+  IceHome=C:\Program Files\ZeroC\Ice-3.4.2
 
 To build a C++ demo, start Visual Studio and open the solution
 demo\demo.sln. If you are using Visual Studio 2010, you will need to

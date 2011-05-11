@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -56,7 +56,7 @@
 %endif
 
 Name: ice
-Version: 3.4.1
+Version: 3.4.2
 Summary: Files common to all Ice packages 
 Release: 1%{?dist}
 License: GPL with exceptions
@@ -69,7 +69,7 @@ Source1: Ice-rpmbuild-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %define soversion 34
-%define dotnetversion 3.4.1
+%define dotnetversion 3.4.2
 %define dotnetpolicyversion 3.4
 
 %define commonversion 1.2.0

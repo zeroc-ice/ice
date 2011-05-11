@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ import getopt, os, re, shutil, string, sys, zipfile, fileinput
 import logging, cStringIO, glob
 import textwrap
 
-iceVersion = '3.4.1'
+iceVersion = '3.4.2'
 looksVersion = '2.2.2'
 formsVersion = '1.2.1'
 

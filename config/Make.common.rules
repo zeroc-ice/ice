@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -14,8 +14,8 @@
 SHELL			= /bin/sh
 VERSION_MAJOR   	= 3
 VERSION_MINOR   	= 4
-VERSION_PATCH           = 1
-VERSION			= 3.4.1
+VERSION_PATCH           = 2
+VERSION			= 3.4.2
 SHORT_VERSION           = 3.4
 SOVERSION		= 34
 

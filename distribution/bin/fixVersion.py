@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -57,7 +57,7 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "config", "Make.common.rules.m
                      ("INTVERSION[\t\s]*= " + FixUtil.vpatMatch, FixUtil.majorVersion(version) + "." + \
                                 FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version)),
                      ("SHORT_VERSION[\t\s]*= ([0-9]*\.[0-9]*)", FixUtil.shortVersion(version)),
-                     ("VERSION_PATCH[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
+                     ("PATCH_VERSION[\t\s]*= ([0-9]*)", FixUtil.patchVersion(version)),
                      ("SOVERSION[\t\s]*= ([0-9]+b?)", FixUtil.soVersion(version))])
 
 #
@@ -74,6 +74,9 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "build.properties"),
                     [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join("distribution", "src", "common", "README.DEMOS.txt"),
+                    [("Ice-" + FixUtil.vpatMatch, version)])
 
 for f in FixUtil.find("*.py"):
     FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
@@ -142,6 +145,12 @@ for f in FixUtil.find("*.rc"):
                             ("ORIGINALFILENAME \"[^0-9]*2?([0-9][0-9]b?)d?\.dll", FixUtil.soVersion(version)), \
                             ("FILEVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version)), \
                             ("PRODUCTVERSION ([0-9]+,[0-9]+,[0-9]+)", FixUtil.commaVersion(version))])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "Ice", "background", ".gitignore"),
+                    [("libTestTransport.so." + FixUtil.vpatMatch, version)])
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "test", "Ice", "background", ".gitignore"),
+                    [("libTestTransport.so.([0-9][0-9]b?)", FixUtil.soVersion(version))])
+
 #
 # Java specific files
 #
@@ -149,9 +158,6 @@ icej_home = os.path.join(ice_dir, "java")
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
                     [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
  
-FixUtil.fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                    [("C:/Ice-" + FixUtil.vpatMatch, version)])
-
 FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                     [("ICE_STRING_VERSION = \"" + FixUtil.vpatMatch +"\"", version), \
                      ("ICE_INT_VERSION = ([0-9]*)", FixUtil.intVersion(version))])
@@ -178,3 +184,13 @@ for f in FixUtil.find("*.pc"):
 FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
                     [("return \"" + FixUtil.vpatMatch +"\".*A=major", version), \
                      ("return ([0-9]*).*AA=major", FixUtil.intVersion(version))])
+
+#
+# VB specific files
+#
+icevb_home = os.path.join(ice_dir, "vb")
+
+for f in FixUtil.find("*.vbproj"):
+    FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
+for f in FixUtil.find("*.csproj"):
+    FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
