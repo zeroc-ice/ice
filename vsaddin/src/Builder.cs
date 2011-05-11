@@ -1556,21 +1556,62 @@ namespace Ice.VisualStudio
         
         public static string getSliceCompilerVersion(Project project, string sliceCompiler)
         {
-            System.Diagnostics.Process process;
-            ProcessStartInfo processInfo = new ProcessStartInfo(sliceCompiler, "-v");
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
-            processInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
+            System.Diagnostics.Process process = new System.Diagnostics.Process();
+            process.StartInfo.FileName = Path.Combine(Util.getIceHome(), "bin\\" +  sliceCompiler);
+            process.StartInfo.Arguments = "-v";
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardError = true;
+            process.StartInfo.RedirectStandardOutput = true;
+            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
 
-            process = System.Diagnostics.Process.Start(processInfo);
-            process.WaitForExit();
-            string version = process.StandardOutput.ReadLine();
-            if(version == null)
+            StreamReader reader = new StreamReader();
+            process.OutputDataReceived += new DataReceivedEventHandler(reader.appendData);
+
+            try
             {
+                process.Start();
+            }
+            catch(InvalidOperationException ex)
+            {
+                Util.write(project, Util.msgLevel.msgError,
+                           "An exception was thrown when trying to start the slice compiler\n" +
+                           ex.ToString());
+                
+                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
+                         "An exception was thrown when trying to start slice compiler\n" +
+                         ex.ToString());
                 return "";
             }
+            catch(System.ComponentModel.Win32Exception ex)
+            {
+                Util.write(project, Util.msgLevel.msgError,
+                           "An exception was thrown when trying to start the slice compiler\n" +
+                           ex.ToString());
+                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
+                         "An exception was thrown when trying to start slice compiler\n" +
+                         ex.ToString());
+                return "";
+            }
+
+            // Start the asynchronous read of the standard output stream.
+            process.BeginOutputReadLine();
+            string version = process.StandardError.ReadToEnd();
+            process.WaitForExit();
+
+            if(String.IsNullOrEmpty(version))
+            {
+                //
+                // Some old version of slice compilers print version 
+                // to StdOut instead of StdErr
+                //
+                version = reader.data();
+                if(String.IsNullOrEmpty(version))
+                {
+                    return "";
+                }
+            }
+
             return version.Trim();
         }
 

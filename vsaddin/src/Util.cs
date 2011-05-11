@@ -2354,7 +2354,18 @@ namespace Ice.VisualStudio
                 string iceHome = getIceHome();
                 string binDir = getCsBinDir(project);
                 ComponentList components = Util.getIceDotNetComponents(project);
-                foreach (string component in components)
+                String version = Builder.getSliceCompilerVersion(project, Util.slice2cs);
+
+                string[] tokens = version.Split('.');
+                //
+                // Add patch version 0 if there isn't one
+                //
+                if(tokens.Length == 3)
+                {
+                    version += ".0";
+                }
+
+                foreach(string component in components)
                 {
                     if (String.IsNullOrEmpty(component))
                     {
@@ -2373,7 +2384,8 @@ namespace Ice.VisualStudio
                     {
                         if(r.Name.Equals(component, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(!r.Path.Equals(reference))
+                            if(!r.Path.Equals(reference) ||
+                               !r.Version.Equals(version))
                             {
                                 bool copyLocal = getCopyLocal(project, component);
                                 Util.removeDotNetReference(project, component);
