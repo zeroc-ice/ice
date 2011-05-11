@@ -132,16 +132,24 @@ Configuration
    > cd C:\Ice-@ver@\vsaddin\templates\vs
    > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems"
 
-   For C#, item templates are installed in:
+   For Visual Studio 2008 C#, item templates are installed in:
 
-     C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems
-     or
+     C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE\ItemTemplates\CSharp\1033
+
+   Copy the Slice.zip template file:
+
+   > cd C:\Ice-@ver@\vsaddin\templates\
+   > copy Slize.zip "C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE\ItemTemplates\CSharp\1033"
+   > devenv /installvstemplates
+
+   For Visual Studio 2010 C#, item templates are installed in:
+     
      C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems
 
    Copy the Slice template and configuration files:
 
    > cd C:\Ice-@ver@\vsaddin\templates\vs
-   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 9.0\VC#\CSharpProjectItems"
+   > xcopy /e * "C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems"
 
    If you are using Windows 64-bit, these directories are:
    
@@ -150,24 +158,6 @@ Configuration
    instead of
 
      C:\Program Files\...
-
-   For C#, you should also install a user template to make the Slice
-   file template available for all C# project subtypes.
-
-   For a Windows Vista (or later) default installation, C# user
-   templates are installed in:
-
-     C:\Users\username\Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
-   
-   For a Windows XP default installation, the directory is:
-
-     C:\Document and Settings\username\My Documents\Visual Studio 20xx\Templates\ItemTemplates\Visual C#
-
-   Copy C:\Ice-@ver@\vsaddin\templates\Slice.zip to the C# template
-   directory. For example:
-
-   > cd C:\Users\username\Documents\Visual Studio 2008\Templates\ItemTemplates\Visual C#
-   > copy C:\Ice-@ver@\vsaddin\templates\Slice.zip .
 
 4) Install C++ property sheets
 
@@ -186,9 +176,8 @@ Configuration
 
    > copy C:\Ice-@ver@\vsaddin\config\ice.props .
 
-   If you have not installed Ice in the default location, you 
-   must edit the property sheet files to reflect your installation
-   path.
+   After copy the files, you must edit the property sheet 
+   files to reflect your installation path.
 
    For ice.vsprops set the "Value" attribute of the UserMacro 
    to your Ice installation path.
