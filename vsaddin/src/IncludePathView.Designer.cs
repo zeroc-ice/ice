@@ -63,7 +63,7 @@ namespace Ice.VisualStudio
             this.groupBox1.Size = new System.Drawing.Size(487, 166);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Slice include path";
+            this.groupBox1.Text = "Slice include directories";
             // 
             // btnDown
             // 

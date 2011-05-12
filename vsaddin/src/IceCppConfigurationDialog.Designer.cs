@@ -92,7 +92,7 @@ namespace Ice.VisualStudio
             this.groupBox3.Size = new System.Drawing.Size(487, 70);
             this.groupBox3.TabIndex = 8;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Link project with this additional libraries:";
+            this.groupBox3.Text = "Link project with these additional libraries:";
             // 
             // chkFreeze
             // 
@@ -258,7 +258,7 @@ namespace Ice.VisualStudio
             this.grouDllExportSymbol.Size = new System.Drawing.Size(487, 43);
             this.grouDllExportSymbol.TabIndex = 6;
             this.grouDllExportSymbol.TabStop = false;
-            this.grouDllExportSymbol.Text = "Macro from exporting symbols from DLL";
+            this.grouDllExportSymbol.Text = "Macro for exporting symbols from DLL";
             // 
             // txtDllExportSymbol
             // 

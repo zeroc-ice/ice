@@ -89,7 +89,7 @@ namespace Ice.VisualStudio
             this.groupBox3.Size = new System.Drawing.Size(487, 47);
             this.groupBox3.TabIndex = 7;
             this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Add references to following assemblies:";
+            this.groupBox3.Text = "Add references to the following assemblies:";
             // 
             // chkIceStorm
             // 
