@@ -193,4 +193,6 @@ Configuration
 Usage
 ======================================================================
 
-See the README.txt file in this directory for usage instructions.
+See: 
+ 
+  http://doc.zeroc.com/display/Ice/Visual+Studio+Add-in
