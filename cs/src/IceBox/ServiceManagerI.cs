@@ -580,13 +580,13 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     serviceAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.IO.FileNotFoundException ex)
+                catch(System.IO.IOException ex)
                 {
                     try
                     {
                         serviceAssembly = System.Reflection.Assembly.LoadFrom(assemblyName);
                     }
-                    catch(System.IO.FileNotFoundException)
+                    catch(System.IO.IOException)
                     {
                          throw ex;
                     }
