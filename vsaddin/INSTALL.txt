@@ -3,8 +3,8 @@ Requirements
 ======================================================================
 
 
-Visual Studio & Windows Version
--------------------------------
+Visual Studio and Windows Versions
+----------------------------------
 
 The Ice Visual Studio Add-In is supported in the following 
 environments:
@@ -26,6 +26,8 @@ environments:
  - Windows 7 (x86 & x64) with Visual Studio 2008 SP1 or Visual Studio 
    2010
 
+Visual Studio Express is not supported.
+
 
 Compilers
 ---------
@@ -43,8 +45,8 @@ or
 Compilation
 ======================================================================
 
-Unpack the archive. The sources are contained in the
-Ice-@ver@\vsaddin subdirectory.
+Unpack the archive. The sources are contained in the Ice-@ver@\vsaddin
+subdirectory.
 
 1) In a Visual Studio command prompt, change to the distribution
    directory:
@@ -114,8 +116,8 @@ Configuration
   > cd C:\Users\username\Documents\Visual Studio 2008\Addins
   > copy C:\Ice-@ver@\vsaddin\config\Ice-VS2008.AddIn
 
-  Edit the .Addin file and update the value of the "Assembly"
-  element with your installation path.
+  Edit the .Addin file and update the value of the "Assembly" element
+  with your installation path.
 
 3) Install item templates
 
@@ -193,6 +195,6 @@ Configuration
 Usage
 ======================================================================
 
-See: 
+For usage instructions, please refer to the Ice manual:
  
   http://doc.zeroc.com/display/Ice/Visual+Studio+Add-in
