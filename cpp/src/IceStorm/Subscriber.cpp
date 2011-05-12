@@ -11,6 +11,7 @@
 #include <IceStorm/Instance.h>
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/NodeI.h>
+#include <IceStorm/Util.h>
 #include <Ice/LoggerUtil.h>
 #include <iterator>
 
@@ -791,8 +792,12 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         if(_currentRetry == 0)
         {
             Ice::Warning warn(traceLevels->logger);
-            warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_rec.id)
-                 << ": subscriber offline: " << e
+            warn << traceLevels->subscriberCat << ":" << _instance->communicator()->identityToString(_rec.id);
+            if(traceLevels->subscriber > 1)
+            {
+                warn << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
+            }
+            warn << " subscriber offline: " << e
                  << " discarding events: " << _instance->discardInterval() << "s retryCount: " << _retryCount;
         }
         else
@@ -801,7 +806,12 @@ Subscriber::error(bool dec, const Ice::Exception& e)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
                 out << this << " ";
-                out << _instance->communicator()->identityToString(_rec.id) << ": subscriber offline: " << e
+                out << _instance->communicator()->identityToString(_rec.id);
+                if(traceLevels->subscriber > 1)
+                {
+                    out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
+                }
+                out << " subscriber offline: " << e
                     << " discarding events: " << _instance->discardInterval() << "s retry: "
                     << _currentRetry << "/" << _retryCount;
             }
@@ -825,7 +835,12 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
             out << this << " ";
-            out << _instance->communicator()->identityToString(_rec.id) << ": subscriber errored out: " << e
+            out << _instance->communicator()->identityToString(_rec.id);
+            if(traceLevels->subscriber > 1)
+            {
+                out << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj);
+            }
+            out << " subscriber errored out: " << e
                 << " retry: " << _currentRetry << "/" << _retryCount;
         }
     }
@@ -929,7 +944,8 @@ Subscriber::setState(Subscriber::SubscriberState state)
         if(traceLevels->subscriber > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-            out << this << " transition from " << stateToString(_state) << " to " << stateToString(state);
+            out << this << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj) 
+                << " transition from: " << stateToString(_state) << " to: " << stateToString(state);
         }
         _state = state;
     }

@@ -31,7 +31,8 @@ OBJS		= NodeI.o \
 		  LLURecord.o \
 		  Election.o \
 		  SubscriberRecord.o \
-		  IceStormInternal.o
+		  IceStormInternal.o \
+		  Util.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \

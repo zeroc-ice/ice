@@ -16,6 +16,7 @@
 #include <IceStorm/Observers.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/DB.h>
+#include <IceStorm/Util.h>
 #include <Ice/SliceChecksums.h>
 
 #include <functional>
@@ -471,6 +472,10 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
                     out << ",";
                 }
                 out << _instance->communicator()->identityToString(q->id);
+                if(traceLevels->topicMgr > 1)
+                {
+                    out << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
+                }
             }
         }
     }
@@ -870,12 +875,38 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
         if(create)
         {
             out << "creating new topic \"" << name << "\". id: "
-                << _instance->communicator()->identityToString(id);
+                << _instance->communicator()->identityToString(id)
+                << " subscribers: ";
+            for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
+            {
+                if(q != subscribers.begin())
+                {
+                    out << ",";
+                }
+                if(traceLevels->topicMgr > 1)
+                {
+                    out << _instance->communicator()->identityToString(q->id)
+                        << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
+                }
+            }
         }
         else
         {
             out << "loading topic \"" << name << "\" from database. id: "
-                << _instance->communicator()->identityToString(id);
+                << _instance->communicator()->identityToString(id)
+                << " subscribers: ";
+            for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
+            {
+                if(q != subscribers.begin())
+                {
+                    out << ",";
+                }
+                if(traceLevels->topicMgr > 1)
+                {
+                    out << _instance->communicator()->identityToString(q->id)
+                        << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
+                }
+            }
         }
     }
 

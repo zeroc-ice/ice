@@ -29,7 +29,8 @@ OBJS		= NodeI.obj \
 		  LLURecord.obj \
 		  Election.obj \
 		  SubscriberRecord.obj \
-		  IceStormInternal.obj
+		  IceStormInternal.obj \
+		  Util.obj
 
 AOBJS		= Admin.obj \
 		  Grammar.obj \

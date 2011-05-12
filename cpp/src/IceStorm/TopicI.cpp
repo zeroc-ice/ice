@@ -15,6 +15,7 @@
 #include <IceStorm/NodeI.h>
 #include <IceStorm/Observers.h>
 #include <IceStorm/DB.h>
+#include <IceStorm/Util.h>
 #include <Ice/LoggerUtil.h>
 #include <algorithm>
 
@@ -456,6 +457,10 @@ TopicImpl::TopicImpl(
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
                 out << _name << " recreate " << _instance->communicator()->identityToString(id);
+                if(traceLevels->topic > 1)
+                {
+                    out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
+                }
             }
 
             try
@@ -470,7 +475,12 @@ TopicImpl::TopicImpl(
             catch(const Ice::Exception& ex)
             {
                 Ice::Warning out(traceLevels->logger);
-                out << _name << " recreate " << _instance->communicator()->identityToString(id) << " failed: " << ex;
+                out << _name << " recreate " << _instance->communicator()->identityToString(id);
+                if(traceLevels->topic > 1)
+                {
+                    out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
+                }
+                out << " failed: " << ex;
             }
         }
     }
@@ -571,9 +581,11 @@ TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
+
         if(traceLevels->topic > 1)
         {
-            out << " QoS: ";
+            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
+                << " QoS: ";
             for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
             {
                 if(p != qos.begin())
@@ -735,9 +747,11 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
+
         if(traceLevels->topic > 1)
         {
-            out << " QoS: ";
+            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
+                << " QoS: ";
             for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
             {
                 if(p != qos.begin())
@@ -829,8 +843,10 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
+        
         if(traceLevels->topic > 1)
         {
+            out << " endpoints: " << IceStormInternal::describeEndpoints(subscriber);
             trace(out, _instance, _subscribers);
         }
     }
@@ -1259,9 +1275,11 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": add replica observer: " << _instance->communicator()->identityToString(record.id);
+            
         if(traceLevels->topic > 1)
         {
-            out << " QoS: ";
+            out << " endpoints: " << IceStormInternal::describeEndpoints(record.obj)
+                << " QoS: ";
             for(QoS::const_iterator p = record.theQoS.begin(); p != record.theQoS.end() ; ++p)
             {
                 if(p != record.theQoS.begin())

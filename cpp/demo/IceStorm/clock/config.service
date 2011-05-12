@@ -38,6 +38,7 @@ IceStorm.Trace.TopicManager=2
 #
 # 0 = no tracing
 # 1 = trace unsubscription diagnostics
+# 2 = like 1, but with more detailed subscription information
 #
 IceStorm.Trace.Topic=1
 
@@ -47,6 +48,7 @@ IceStorm.Trace.Topic=1
 # 0 = no tracing
 # 1 = subscriber diagnostics (subscription, unsubscription, event
 #     propagation failures)
+# 2 = like 1, but with more detailed subscription information
 #
 IceStorm.Trace.Subscriber=1
 

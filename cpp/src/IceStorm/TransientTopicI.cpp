@@ -12,6 +12,7 @@
 #include <IceStorm/Instance.h>
 #include <IceStorm/Subscriber.h>
 #include <IceStorm/TraceLevels.h>
+#include <IceStorm/Util.h>
 
 #include <Ice/Ice.h>
 
@@ -196,9 +197,11 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
+        
         if(traceLevels->topic > 1)
         {
-            out << " QoS: ";
+            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
+                << " QoS: ";
             for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
             {
                 if(p != qos.begin())
@@ -286,9 +289,11 @@ TransientTopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPr
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
+
         if(traceLevels->topic > 1)
         {
-            out << " QoS: ";
+            out << " endpoints: " << IceStormInternal::describeEndpoints(obj)
+                << " QoS: ";
             for(QoS::const_iterator p = qos.begin(); p != qos.end() ; ++p)
             {
                 if(p != qos.begin())
@@ -342,6 +347,10 @@ TransientTopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Cur
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
+        if(traceLevels->topic > 1)
+        {
+            out << " endpoints: " << IceStormInternal::describeEndpoints(subscriber);
+        }
     }
 
     Lock sync(*this);
