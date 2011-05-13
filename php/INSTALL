@@ -139,11 +139,11 @@ and looking for the presence of --with-config-file-scan-dir in the
 "Configure Command" entry. If present, you can create a file in
 /etc/php.d that contains the directive to load the Ice extension.
 For example, create the file /etc/php.d/ice.ini containing the
-following line, in Linux:
+following line on Linux:
 
   extension = IcePHP.so
 
-Or in Mac OS X:
+Or on Mac OS X:
 
   extension = IcePHP.dy
 
@@ -152,11 +152,11 @@ name of PHP's configuration file as reported by the "php -i" command:
 
   Configuration File (php.ini) Path => /etc/php.ini
 
-Open the configuration file and append the following line in Linux:
+Open the configuration file and append the following line on Linux:
 
   extension = IcePHP.so
 
-Or in Mac OS X:
+Or on Mac OS X:
 
   extension = IcePHP.dy
 
@@ -166,9 +166,8 @@ command shown below:
   php -m
 
 Look for "ice" among the installed modules. Note that your library
-search path (LD_LIBRARY_PATH/) in Linux or (DYLD_LIBRARY_PATH) in
-Mac OS X  must include the directory containing the Ice shared 
-libraries.
+search path (LD_LIBRARY_PATH on Linux or DYLD_LIBRARY_PATH on Mac OS
+X) must include the directory containing the Ice shared libraries.
 
 Read the "Dependencies" and "Source Files" sections below for more
 information about installing the Ice extension.
