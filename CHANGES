@@ -152,7 +152,9 @@ Visual Studio Add-in Changes
   configuration settings.
 
 - Removed Ice Home field from "Ice Configuration" dialog. Projects
-  now always use the Ice version corresponding to the add-in.
+  now always use the Ice version corresponding to the add-in, for
+  Ice Silverlight the add-in use the version specified by ICE_SL_HOME
+  environment variable.
 
 - Fixed issues that prevented the use of solution folders in Ice
   projects.
