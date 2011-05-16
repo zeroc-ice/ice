@@ -27,14 +27,16 @@ Getting Started with Ice on Windows
 -----------------------------------
 
 Please visit the 'Using the Windows Binary Distribution' section in
-the Ice @ver release notes: 
-http://doc.zeroc.com/display/Rel/Ice+@ver+Release+Notes
+the Ice @ver@ release notes: 
+
+http://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
 
 
 Documentation
 -------------
 
-The full documentation for Ice is available online at 
+The full documentation for Ice is available online:
+
 http://doc.zeroc.com/display/Ice/Home
 
 
