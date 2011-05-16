@@ -59,6 +59,13 @@ NOTE: The instructions assume that the demo server runs on the same
       a different host than the mysql server, you will need to revise
       the mysql privileges as well as the JDBC URL in config.server.
 
+NOTE: These demo requires mysql SERIALIZABLE isolation level in order
+      to handle concurrent access to the database.
+
+      See the mysql documentation for how to change the isolation level:
+
+      http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html
+
 
 Running the demo
 ----------------

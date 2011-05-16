@@ -54,3 +54,5 @@ vcproj
 # VIM swap file
 *.swp
 
+# OS X (Desktop Service Store)
+.DS_Store 

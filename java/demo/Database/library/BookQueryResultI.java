@@ -11,12 +11,17 @@ import Demo.*;
 
 class BookQueryResultI extends _BookQueryResultDisp
 {
-    // The query result owns the SQLRequestContext object until
-    // destroyed.
-    BookQueryResultI(SQLRequestContext context, java.sql.ResultSet rs)
+    BookQueryResultI(SQLRequestContext context, java.sql.ResultSet rs, Ice.ObjectAdapter adapter) throws java.sql.SQLException
     {
-        _context = context;
-        _rs = rs;
+        _books = new java.util.Stack<BookDescription>();
+        for(int i = 0; i < MAX_BOOK_QUERY_RESULT; ++i)
+        {
+            _books.add(BookI.extractDescription(context, rs, adapter));
+            if(!rs.next())
+            {
+                break;
+            }
+        }
     }
 
     synchronized public java.util.List<BookDescription>
@@ -32,25 +37,13 @@ class BookQueryResultI extends _BookQueryResultDisp
         {
             return l;
         }
-        boolean next = true;
-        try
+
+        for(int i = 0; i < n && _books.size() > 0; ++i)
         {
-            for(int i = 0; i < n && next; ++i)
-            {
-                l.add(BookI.extractDescription(_context, _rs, current.adapter));
-                next = _rs.next();
-            }
-        }
-        catch(java.sql.SQLException e)
-        {
-            // Log the error, and raise an UnknownException.
-            _context.error("BookQueryResultI", e);
-            Ice.UnknownException ex = new Ice.UnknownException();
-            ex.initCause(e);
-            throw ex;
+            l.add(_books.pop());
         }
 
-        if(!next)
+        if(_books.size() <= 0)
         {
             try
             {
@@ -74,7 +67,6 @@ class BookQueryResultI extends _BookQueryResultDisp
             throw new Ice.ObjectNotExistException();
         }
         _destroyed = true;
-        _context.destroy(false);
 
         current.adapter.remove(current.id);
     }
@@ -86,12 +78,11 @@ class BookQueryResultI extends _BookQueryResultDisp
         if(!_destroyed)
         {
             _destroyed = true;
-            _context.destroy(false);
         }
     }
 
-    private SQLRequestContext _context;
-    private java.sql.ResultSet _rs;
+    private java.util.Stack<BookDescription> _books;
     private boolean _destroyed = false;
+    private static final int MAX_BOOK_QUERY_RESULT = 1000;
 }
 

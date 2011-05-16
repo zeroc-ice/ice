@@ -13,8 +13,7 @@
 // and associated SQL statements.
 //
 // The request context is automatically destroyed at the end of a
-// request, or if obtain is called it must be destroyed manually by
-// calling destroy.
+// request.
 //
 // When the request context is destroyed, the transaction is either
 // automatically committed or rolled back, depending whether the
@@ -25,10 +24,7 @@ class SQLRequestContext
     public static SQLRequestContext
     getCurrentContext()
     {
-        synchronized(_contextMap)
-        {
-            return _contextMap.get(Thread.currentThread());
-        }
+        return _contextMap.get(Thread.currentThread());
     }
 
     public static void
@@ -59,25 +55,9 @@ class SQLRequestContext
         return stmt;
     }
 
-    // Called to obtain ownership of the context. The context is no
-    // longer destroyed automatically when the current request has
-    // completed.
-    public void
-    obtain()
-    {
-        if(_trace)
-        {
-            _logger.trace("SQLRequestContext", "obtain context: " + this +
-                          " thread: " + Thread.currentThread());
-        }
-        _obtain = true;
-    }
-
     public void
     destroy(boolean commit)
     {
-        // Must only be called on an obtained context.
-        assert _obtain;
         destroyInternal(commit);
     }
 
@@ -95,36 +75,24 @@ class SQLRequestContext
     {
         _conn = _pool.acquire();
 
-        synchronized(_contextMap)
+        if(_trace)
         {
-            if(_trace)
-            {
-                _logger.trace("SQLRequestContext", "create new context: " + this +
-                              " thread: " + Thread.currentThread() +
-                              ": connection: " + _conn);
-            }
-
-            _contextMap.put(Thread.currentThread(), this);
+            _logger.trace("SQLRequestContext", "create new context: " + this +
+                          " thread: " + Thread.currentThread() +
+                          ": connection: " + _conn);
         }
+        _contextMap.put(Thread.currentThread(), this);
     }
 
     // Called only during the dispatch process.
     void
     destroyFromDispatch(boolean commit)
     {
-        synchronized(_contextMap)
-        {
-            // Remove the current context from the thread->context
-            // map.
-            SQLRequestContext context = _contextMap.remove(Thread.currentThread());
-            assert context != null;
-        }
-
-        // If the context was obtained then don't destroy.
-        if(!_obtain)
-        {
-            destroyInternal(commit);
-        }
+        // Remove the current context from the thread->context
+        // map.
+        SQLRequestContext context = _contextMap.remove(Thread.currentThread());
+        assert context != null;
+        destroyInternal(commit);
     }
 
     private void
@@ -168,7 +136,7 @@ class SQLRequestContext
 
     // A map of threads to request contexts.
     private static java.util.Map<Thread, SQLRequestContext> _contextMap =
-        new java.util.HashMap<Thread, SQLRequestContext>();
+        java.util.Collections.synchronizedMap(new java.util.HashMap<Thread, SQLRequestContext>());
 
     private static Ice.Logger _logger = null;
     private static ConnectionPool _pool = null;
@@ -176,5 +144,4 @@ class SQLRequestContext
     private boolean _trace = true;
     private java.util.List<java.sql.Statement> _statements = new java.util.LinkedList<java.sql.Statement>();
     private java.sql.Connection _conn;
-    private boolean _obtain = false;
 }
