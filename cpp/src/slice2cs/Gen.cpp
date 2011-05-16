@@ -2080,7 +2080,9 @@ Slice::Gen::printHeader()
         ;
 
     _out << header;
-    _out << "\n// Ice version " << ICE_STRING_VERSION;
+    _out << "//\n";
+    _out << "// Ice version " << ICE_STRING_VERSION << "\n";
+    _out << "//\n";
 }
 
 Slice::Gen::UnitVisitor::UnitVisitor(IceUtilInternal::Output& out)

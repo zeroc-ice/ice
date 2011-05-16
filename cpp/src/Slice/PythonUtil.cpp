@@ -2355,7 +2355,9 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
         ;
 
     out << header;
-    out << "\n# Ice version " << ICE_STRING_VERSION;
+    out << "#\n";
+    out << "# Ice version " << ICE_STRING_VERSION << "\n";
+    out << "#\n";
 }
 
 bool
