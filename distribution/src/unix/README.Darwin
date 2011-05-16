@@ -2,10 +2,6 @@
 The Internet Communications Engine
 ======================================================================
 
-
-Introduction
-------------
-
 Ice is a modern object-oriented toolkit that enables you to build
 distributed applications with minimal effort. Ice allows you to focus
 your efforts on your application logic while it takes care of all
@@ -26,242 +22,28 @@ available for customers who wish to use Ice in proprietary products.
 Please contact sales@zeroc.com for more information on licensing Ice.
 
 
-Table of Contents
------------------
+Getting Started with Ice on Mac OS X
+------------------------------------
 
-  1. About this distribution
-  2. Requirements
-     - Java
-     - Python
-  3. Berkeley DB and Expat
-  4. Qt
-  5. Setting up your environment to use Ice
-     - General
-     - C++
-     - Java
-     - Python
-  6. Using the IceGrid Administrative Console
-  7. Demos
-  8. Binary compatibility
+Please visit the 'Using the Mac OS X Binary Distribution' section in
+the Ice @ver@ release notes:
 
+http://doc.zeroc.com/display/Rel/Ice+@ver@+Release+Notes
 
-======================================================================
-1. About this distribution
-======================================================================
 
-This distribution is a binary release of Ice @ver@ for Mac OS X and
-includes the following components:
+Documentation
+-------------
 
-- The Ice run time, including executables for the Ice services, and 
-  Slice files.
+The full documentation for Ice is available online:
 
-- Run time libraries for C++, Java, and Python. These libraries enable
-  you to execute Ice applications.
+http://doc.zeroc.com/display/Ice/Home
 
-- Tools and libraries for developing Ice applications.
 
+Acknowledgments
+---------------
 
-======================================================================
-2. Requirements
-======================================================================
+This product includes software developed by the OpenSSL Project for
+use in the OpenSSL Toolkit (http://www.openssl.org/).
 
-This binary distribution was compiled on Mac OS X 10.6.2 using the
-default C++ compiler, GCC 4.2.1. 
-
-This distribution only includes Intel binaries. If you need PowerPC
-binaries, you can download the Ice source code from the ZeroC web site
-at http://www.zeroc.com/download.html.
-
-The Intel binaries from this distribution are FAT binaries with
-support for both 32-bit and 64-bit architectures.
-
-Java
-----
-
-Ice for Java requires J2SE 1.5.0 or later.
-
-
-Python
-------
-
-The Ice extension for Python included in this distribution requires
-Python 2.6.1 installed with Mac OS X 10.6. If you prefer to use a
-later version of Python, you can download the Ice for Python source
-code from the ZeroC web site at http://www.zeroc.com/download.html.
-
-
-======================================================================
-3. Berkeley DB and Expat
-======================================================================
-
-This distribution includes the C++ and Java run time for Berkeley DB
-4.8.30 and the Expat 2.0.1 library. The Berkeley DB C++ run time was
-built using GCC 4.2.1. The Berkeley DB and Expat licenses are provided
-in the file THIRD_PARTY_LICENSE.
-
-
-======================================================================
-4. Qt
-======================================================================
-
-The IceGrid and IceStorm SQL database plugins depend on the Qt 4.6.2
-framework. This framework is not included with this distribution. You
-can download binaries for the Qt framework at
-http://qt.nokia.com/downloads.
-
-
-======================================================================
-5. Setting up your environment to use Ice
-======================================================================
-
-
-General
--------
-
-In order to use Ice services and tools such as Slice translators, you
-need to add the location of the Ice binaries to your PATH as shown in
-the bash command below:
-
-$ export PATH=<Ice installation directory>/bin:$PATH
-
-The install name of Ice shared libraries in this distribution contain
-the /opt/Ice-@mmver@/lib path. In order to run Ice services and tools,
-you can do one of the following:
-
- - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
-   installation:
-
-   $ ln -s <Ice installation directory> /opt/Ice-@mmver@ 
-
- - Add the Ice lib directory to your DYLD_LIBRARY_PATH environment
-   variable:
-
-   $ export DYLD_LIBRARY_PATH=<Ice installation directory>/lib:$DYLD_LIBRARY_PATH
-
-If you run applications that load the IceSSL plug-in (such as the Ice
-demos) or the IceStorm service, you need to set the DYLD_LIBRARY_PATH
-environment variable as shown above.
-
-
-C++
----
-
-When compiling Ice for C++ programs, you must pass the Ice include
-directory to the compiler with the -I option, and the Ice library
-directory with the -L option. Furthermore, a C++ program needs to link
-with at least libIce and libIceUtil, so a typical link command would
-look like this:
-
-$ c++ -I <Ice installation directory>/include -o myprogram myprogram.o \
-  -L<Ice installation directory>/lib -lIce -lIceUtil
-
-Additional libraries are necessary if you are using an Ice service
-such as IceGrid or Glacier2.
-
-To build FAT binaries or binaries using an architecture that differs
-from the default architecture, you can specify the GCC -arch compiler
-flag. For example, use "-arch i386 -arch x86_64" to build Intel 32-bit
-and 64-bit FAT binaries.
-
-Java
-----
-
-To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
-below:
-
-$ export CLASSPATH=<Ice installation directory>/lib/Ice.jar:$CLASSPATH
-
-If you intend to use Freeze for Java, you must include Freeze.jar in
-your CLASSPATH along with Ice.jar:
-
-$ export CLASSPATH=<Ice installation directory>/lib/Freeze.jar:$CLASSPATH
-
-Note that Freeze requires Berkeley DB. Freeze.jar contains a manifest
-that automatically loads the Berkeley DB classes (db.jar), which means
-you do not need to include this file in your CLASSPATH when executing
-a Freeze application. However the JVM does require that the directory
-containing Berkeley DB's native libraries be listed in
-java.library.path, therefore you must add this directory to your
-DYLD_LIBRARY_PATH.
-
-When building a Java application that uses Freeze, you will need to
-add the Berkeley DB JAR file to your CLASSPATH:
-
-$ export CLASSPATH=<Ice installation directory>/lib/db.jar:$CLASSPATH
-
-Ice includes ant tasks for translating Slice to Java. The ant tasks
-allow slice2java and slice2freezej to be invoked from the ant build
-system. These tasks require one of the following:
-
- - Specify the location of the Ice installation containing the
-   translators with the ice.home property:
-
-   ant -Dice.home=/home/bill/Ice-@ver@
-
- - Set the ICE_HOME environment variable to specify the location of
-   the Ice installation containing the translators:
-
-   $ export ICE_HOME=/home/bill/Ice-@ver@
-
- - If neither ice.home nor ICE_HOME is available, the ant tasks will
-   simply invoke the translator without an absolute path, relying on
-   the translators being in a directory in your PATH for successful
-   execution.
-
-Ice for Java supports protocol compression using the bzip2 classes
-included with ant. Compression is automatically enabled if these
-classes are present in your CLASSPATH. You can either add ant.jar to
-your CLASSPATH, or download only the bzip2 classes from
-
-  http://www.kohsuke.org/bzip2/
-
-Note that these classes are a pure Java implementation of the bzip2
-algorithm and therefore add significant latency to Ice requests.
-
-   
-Python
-------
-
-To use Ice for Python, the PYTHONPATH environment variable must be
-updated so that the interpreter can load the Ice extension and
-supporting Python files:
-
-$ export PYTHONPATH=<Ice installation directory>/python:$PYTHONPATH
-
-
-======================================================================
-6. Using the IceGrid Administrative Console
-======================================================================
-
-A Java-based graphical tool for administering IceGrid applications
-is included in this distribution. The Java archive file is installed
-as
-
-<Ice installation directory>/lib/IceGridGUI.jar
-
-With a suitable Java installation, you can execute the application
-using the following command:
-
-$ java -jar IceGridGUI.jar
-
-
-======================================================================
-7. Demos
-======================================================================
-
-Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
-which can be downloaded from the ZeroC web site at
-
-  http://www.zeroc.com/download.html
-
-Please refer to the README.DEMOS file included in that package for
-more information.
-
-
-======================================================================
-8. Binary compatibility
-======================================================================
-
-Please refer to the RELEASE_NOTES file included in this distribution
-for information on binary compatibility and detailed upgrade
-instructions.
+This product includes cryptographic software written by Eric Young
+(eay@cryptsoft.com).
