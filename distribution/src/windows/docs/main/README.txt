@@ -2,29 +2,40 @@
 The Internet Communications Engine (Ice)
 ======================================================================
 
-Thank you for installing the Ice binary distribution for Windows.
-This distribution provides all Ice run time services and development
-tools for building Ice applications on supported platforms.
+Ice is a modern object-oriented toolkit that enables you to build
+distributed applications with minimal effort. Ice allows you to focus
+your efforts on your application logic while it takes care of all
+interactions with low-level network programming interfaces. With Ice,
+there is no need to worry about details such as opening network
+connections, serializing and deserializing data for network
+transmission, or retrying failed connection attempts (to name but a
+few of dozens of such low-level details).
 
-
-Documentation
--------------
-
-Please visit the ZeroC Documentation Center, where you can find the
-Ice manual, release notes, configuration instructions, frequently
-asked questions, and a wealth of additional information:
-
-http://www.zeroc.com/display/Doc
-
-
-License
--------
+In addition to fully-featured and high-performance RPC, Ice also
+provides a number of services. These services supply functionality
+that most distributed applications require, such as event distribution
+or server management.
 
 Ice is available under the terms and conditions of the GNU General
 Public License v2 (see the ICE_LICENSE.txt file). Commercial licenses
 are available for customers who wish to use Ice in proprietary 
 products. Please contact sales@zeroc.com for more information on 
 licensing Ice.
+
+
+Getting Started with Ice on Windows
+-----------------------------------
+
+Please visit the 'Using the Windows Binary Distribution' section in
+the Ice @ver release notes: 
+http://doc.zeroc.com/display/Rel/Ice+@ver+Release+Notes
+
+
+Documentation
+-------------
+
+The full documentation for Ice is available online at 
+http://doc.zeroc.com/display/Ice/Home
 
 
 Acknowledgments
