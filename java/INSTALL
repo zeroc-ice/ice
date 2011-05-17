@@ -130,7 +130,7 @@ JGoodies
 --------
 
 The graphical IceGrid administrative tool (see "IceGrid Administrative
-Console") uses JGoodies Looks and JGoodies Forms.
+Console") uses JGoodies Common, JGoodies Forms, and JGoodies Looks.
 
 The libraries are available here:
 
@@ -139,8 +139,9 @@ The libraries are available here:
 The IceGrid administrative tool has been tested with the following
 versions:
 
-  JGoodies Looks 2.3.0
-  JGoodies Forms 1.2.1
+  JGoodies Common 1.2.0
+  JGoodies Forms 1.4.1
+  JGoodies Looks 2.4.1
 
 
 ProGuard
@@ -153,7 +154,7 @@ ProGuard is available here:
 
   http://proguard.sourceforge.net
 
-Ice for Java has been tested with ProGuard 4.4.
+Ice for Java has been tested with ProGuard 4.6.
 
 
 ======================================================================

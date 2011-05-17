@@ -150,16 +150,16 @@ are met:
 1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
 
-2. The origin of this software must not be misrepresented; you must 
-   not claim that you wrote the original software.  If you use this 
-   software in a product, an acknowledgment in the product 
+2. The origin of this software must not be misrepresented; you must
+   not claim that you wrote the original software.  If you use this
+   software in a product, an acknowledgment in the product
    documentation would be appreciated but is not required.
 
 3. Altered source versions must be plainly marked as such, and must
    not be misrepresented as being the original software.
 
-4. The name of the author may not be used to endorse or promote 
-   products derived from this software without specific prior written 
+4. The name of the author may not be used to endorse or promote
+   products derived from this software without specific prior written
    permission.
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS
@@ -204,7 +204,7 @@ License agreement for OpenSSL:
  * are met:
  *
  * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer. 
+ *    notice, this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
@@ -259,21 +259,21 @@ License agreement for OpenSSL:
  * This package is an SSL implementation written
  * by Eric Young (eay@cryptsoft.com).
  * The implementation was written so as to conform with Netscapes SSL.
- * 
+ *
  * This library is free for commercial and non-commercial use as long as
  * the following conditions are aheared to.  The following conditions
  * apply to all code found in this distribution, be it the RC4, RSA,
  * lhash, DES, etc., code; not just the SSL code.  The SSL documentation
  * included with this distribution is covered by the same copyright terms
  * except that the holder is Tim Hudson (tjh@cryptsoft.com).
- * 
+ *
  * Copyright remains Eric Young's, and as such any Copyright notices in
  * the code are not to be removed.
  * If this package is used in a product, Eric Young should be given attribution
  * as the author of the parts of the library used.
  * This can be in the form of a textual message at program startup or
  * in documentation (online or textual) provided with the package.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
@@ -288,10 +288,10 @@ License agreement for OpenSSL:
  *     Eric Young (eay@cryptsoft.com)"
  *    The word 'cryptographic' can be left out if the rouines from the library
  *    being used are not cryptographic related :-).
- * 4. If you include any Windows specific code (or a derivative thereof) from 
+ * 4. If you include any Windows specific code (or a derivative thereof) from
  *    the apps directory (application code) you must include an acknowledgement:
  *    "This product includes software written by Tim Hudson (tjh@cryptsoft.com)"
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ERIC YOUNG ``AS IS'' AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -303,7 +303,7 @@ License agreement for OpenSSL:
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
- * 
+ *
  * The licence and distribution terms for any publically available version or
  * derivative of this code cannot be changed.  i.e. this code cannot simply be
  * copied and put under another distribution licence
@@ -373,6 +373,43 @@ License agreement for MCPP:
 
 
 
+License agreement for JGoodies Common:
+--------------------------------------
+
+
+              The BSD License for the JGoodies Common
+              =======================================
+
+Copyright (c) 2009-2011 JGoodies Karsten Lentzsch. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+ o Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ o Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ o Neither the name of JGoodies Karsten Lentzsch nor the names of
+   its contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
 License agreement for JGoodies Looks:
 --------------------------------------
 
@@ -380,32 +417,32 @@ License agreement for JGoodies Looks:
               The BSD License for the JGoodies Looks
               ======================================
 
-Copyright (c) 2001-2009 JGoodies Karsten Lentzsch. All rights reserved.
+Copyright (c) 2001-2011 JGoodies Karsten Lentzsch. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
- o Redistributions of source code must retain the above copyright notice, 
-   this list of conditions and the following disclaimer. 
-    
- o Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions and the following disclaimer in the documentation 
-   and/or other materials provided with the distribution. 
-    
- o Neither the name of JGoodies Karsten Lentzsch nor the names of 
-   its contributors may be used to endorse or promote products derived 
-   from this software without specific prior written permission. 
-    
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ o Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ o Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ o Neither the name of JGoodies Karsten Lentzsch nor the names of
+   its contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
@@ -416,32 +453,32 @@ License agreement for JGoodies Forms:
               The BSD License for the JGoodies Forms
               ======================================
 
-Copyright (c) 2002-2008 JGoodies Karsten Lentzsch. All rights reserved.
+Copyright (c) 2002-2011 JGoodies Karsten Lentzsch. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without 
+Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
 
- o Redistributions of source code must retain the above copyright notice, 
-   this list of conditions and the following disclaimer. 
-    
- o Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions and the following disclaimer in the documentation 
-   and/or other materials provided with the distribution. 
-    
- o Neither the name of JGoodies Karsten Lentzsch nor the names of 
-   its contributors may be used to endorse or promote products derived 
-   from this software without specific prior written permission. 
-    
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR 
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, 
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, 
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
-OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR 
-OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, 
+ o Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+ o Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+ o Neither the name of JGoodies Karsten Lentzsch nor the names of
+   its contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
@@ -597,7 +634,7 @@ such a program is covered only if its contents constitute a work based
 on the Library (independent of the use of the Library in a tool for
 writing it).  Whether that is true depends on what the Library does
 and what the program that uses the Library does.
-  
+
   1. You may copy and distribute verbatim copies of the Library's
 complete source code as you receive it, in any medium, provided that
 you conspicuously and appropriately publish on each copy an
@@ -959,7 +996,7 @@ As an additional permission to the GNU Lesser General Public License version
 2.1, the object code form of a "work that uses the Library" may incorporate
 material from a header file that is part of the Library.  You may distribute
 such object code under terms of your choice, provided that:
-    (i)   the header files of the Library have not been modified; and 
+    (i)   the header files of the Library have not been modified; and
     (ii)  the incorporated material is limited to numerical parameters, data
           structure layouts, accessors, macros, inline functions and
           templates; and
@@ -980,68 +1017,68 @@ modified version of the Library.
 License agreement for STLport:
 -------------------------------
 
-                                                                              
-    Boris Fomitchev grants Licensee a non-exclusive, non-transferable,        
-    royalty-free license to use STLport and its documentation without fee.    
-                                                                              
-    By downloading, using, or copying STLport or any portion thereof,         
-    Licensee agrees to abide by the intellectual property laws and all other  
-    applicable laws of the United States of America, and to all of the terms  
-    and conditions of this Agreement.                                         
-                                                                              
-    Licensee shall maintain the following copyright and permission  notices   
-    on STLport sources and its documentation unchanged :                      
-                                                                              
-    Copyright 1999,2000 Boris Fomitchev                                       
-                                                                              
-    This material is provided "as is", with absolutely no warranty expressed  
-    or implied. Any use is at your own risk.                                  
-    Permission to use or copy this software for any purpose is hereby granted 
-    without fee, provided the above notices are retained on all copies.       
-    Permission to modify the code and to distribute modified code is granted, 
-    provided the above notices are retained, and a notice that the code was   
-    modified is included with the above copyright notice.                     
-                                                                              
-    The Licensee may distribute binaries compiled with STLport (whether       
-    original or modified) without any royalties or restrictions.              
-                                                                              
-    The Licensee may distribute original or modified STLport sources,         
-    provided that:                                                            
-                                                                              
-      * The conditions indicated in the above permission notice are met;      
-      * The following copyright notices are retained when present, and        
-        conditions provided in accompanying permission notices are met :      
-                                                                              
-    Copyright 1994 Hewlett-Packard Company                                    
-                                                                              
-    Copyright 1996,97 Silicon Graphics Computer Systems, Inc.                 
-                                                                              
-    Copyright 1997 Moscow Center for SPARC Technology.                        
-                                                                              
-      Permission to use, copy, modify, distribute and sell this software and  
-      its documentation for any purpose is hereby granted without fee,        
-      provided that the above copyright notice appear in all copies and that  
-      both that copyright notice and this permission notice appear in         
-      supporting documentation. Hewlett-Packard Company makes no              
-      representations about the suitability of this software for any purpose. 
-      It is provided "as is" without express or implied warranty.             
-                                                                              
-      Permission to use, copy, modify, distribute and sell this software and  
-      its documentation for any purpose is hereby granted without fee,        
-      provided that the above copyright notice appear in all copies and that  
-      both that copyright notice and this permission notice appear in         
-      supporting documentation. Silicon Graphics makes no representations     
-      about the suitability of this software for any purpose. It is provided  
-      "as is" without express or implied warranty.                            
-                                                                              
-      Permission to use, copy, modify, distribute and sell this software and  
-      its documentation for any purpose is hereby granted without fee,        
-      provided that the above copyright notice appear in all copies and that  
-      both that copyright notice and this permission notice appear in         
-      supporting documentation. Moscow Center for SPARC Technology  makes no  
-      representations about the suitability of this software for any purpose. 
-      It is provided "as is" without express or implied warranty.             
-    Table of Contents                                                         
-    Copyright 2001 by STLport                                                 
+
+    Boris Fomitchev grants Licensee a non-exclusive, non-transferable,
+    royalty-free license to use STLport and its documentation without fee.
+
+    By downloading, using, or copying STLport or any portion thereof,
+    Licensee agrees to abide by the intellectual property laws and all other
+    applicable laws of the United States of America, and to all of the terms
+    and conditions of this Agreement.
+
+    Licensee shall maintain the following copyright and permission  notices
+    on STLport sources and its documentation unchanged :
+
+    Copyright 1999,2000 Boris Fomitchev
+
+    This material is provided "as is", with absolutely no warranty expressed
+    or implied. Any use is at your own risk.
+    Permission to use or copy this software for any purpose is hereby granted
+    without fee, provided the above notices are retained on all copies.
+    Permission to modify the code and to distribute modified code is granted,
+    provided the above notices are retained, and a notice that the code was
+    modified is included with the above copyright notice.
+
+    The Licensee may distribute binaries compiled with STLport (whether
+    original or modified) without any royalties or restrictions.
+
+    The Licensee may distribute original or modified STLport sources,
+    provided that:
+
+      * The conditions indicated in the above permission notice are met;
+      * The following copyright notices are retained when present, and
+        conditions provided in accompanying permission notices are met :
+
+    Copyright 1994 Hewlett-Packard Company
+
+    Copyright 1996,97 Silicon Graphics Computer Systems, Inc.
+
+    Copyright 1997 Moscow Center for SPARC Technology.
+
+      Permission to use, copy, modify, distribute and sell this software and
+      its documentation for any purpose is hereby granted without fee,
+      provided that the above copyright notice appear in all copies and that
+      both that copyright notice and this permission notice appear in
+      supporting documentation. Hewlett-Packard Company makes no
+      representations about the suitability of this software for any purpose.
+      It is provided "as is" without express or implied warranty.
+
+      Permission to use, copy, modify, distribute and sell this software and
+      its documentation for any purpose is hereby granted without fee,
+      provided that the above copyright notice appear in all copies and that
+      both that copyright notice and this permission notice appear in
+      supporting documentation. Silicon Graphics makes no representations
+      about the suitability of this software for any purpose. It is provided
+      "as is" without express or implied warranty.
+
+      Permission to use, copy, modify, distribute and sell this software and
+      its documentation for any purpose is hereby granted without fee,
+      provided that the above copyright notice appear in all copies and that
+      both that copyright notice and this permission notice appear in
+      supporting documentation. Moscow Center for SPARC Technology  makes no
+      representations about the suitability of this software for any purpose.
+      It is provided "as is" without express or implied warranty.
+    Table of Contents
+    Copyright 2001 by STLport
 
 
