@@ -1,67 +1,42 @@
 Introduction
 ------------
 
-This archive contains sample programs for C++, Java, C#, VB, Ruby,
+This folder contains sample programs for C++, Java, C#, VB, Ruby,
 Python and PHP. To build and run the demos, follow the language-
 specific instructions below. These build instructions assume that you
-have configured your system according to the directions in the main
-README.txt file that accompanied your installation.
-
+have configured your system according to the instructions in the
+release notes.
 
 Table of Contents
 -----------------
 
-  1. Note for users of Windows Vista (or later) operating systems
-  2. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
-  3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010 Express)
-  4. Building and running the C++ demos (C++ Builder 2010)
-  5. Building and running the .NET demos
+  1. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
+  2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010 Express)
+  3. Building and running the C++ demos (C++ Builder 2010)
+  4. Building and running the .NET demos
      - Building the C# demos
      - Building the Visual Basic demos
      - Running .NET demos
      - SSL Notes for the .NET demos
-  6. Building and running the Java demos
-  7. Running the Python demos
-  8. Running the Ruby demos
-  9. Building and running the PHP demos
+  5. Building and running the Java demos
+  6. Running the Python demos
+  7. Running the Ruby demos
+  8. Building and running the PHP demos
 
 
 ======================================================================
-1. Note for users of Windows Vista (or later) operating systems
-======================================================================
-
-We do not recommend extracting this archive into the "\Program Files"
-or "\Program Files (x86)" directories on Windows Vista or later. Such
-operating systems use "virtualization" to protect the integrity of
-files in these directories, which makes it cumbersome to experiment
-with the sample programs (for example, to edit Ice configuration
-files).
-
-For more information on this topic, refer to the "Virtualization"
-section of this page:
-
-  http://msdn.microsoft.com/en-us/library/bb756960.aspx
-
-
-======================================================================
-2. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
+1. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Add-In.
+Studio Add-In, installed as part of the installation of the Ice binary 
+distribution.
 
-If you are using Visual Studio 2010 and you intend to build any of the
-demos that use Freeze, you must first define the IceHome environment
-variable prior to starting Visual Studio. Set the environment variable
-with the directory of your Ice installation, such as
-
-  IceHome=C:\Program Files\ZeroC\Ice-3.4.2
-
-To build a C++ demo, start Visual Studio and open the solution
-demo\demo.sln. If you are using Visual Studio 2010, you will need to
-convert the project files the first time you open the solution.
+To build the C++ demos, start Visual Studio and open the solution
+demo\demo-vs2008.sln or demo\demo-vs2010.sln, depending on the
+version of Visual Studio you are using.
 
 Select your target configuration: Debug or Release, Win32 or x64 (on
 supported x64 platforms). Right click on the desired demo in the
@@ -72,26 +47,20 @@ subdirectory. Review the README file if one is present. Type 'server'
 to start the server. In another command window, type 'client' to start
 the client.
 
-This distribution includes examples for integrating Ice with databases
-other than Berkeley DB. These examples are not included in the
-demo.sln file mentioned above. If you want to build these demos, you
-must add the demo project files located in the demo\Database
-subdirectories to the demo solution and build from there.
-
-The current examples are for Oracle and require the appropriate
-Oracle development environment. Please see the individual demo README
-files for more information.
+This distribution also includes a few demos for integrating Ice with 
+Oracle. Open the demo\demo-oracle-vs2008.sln or 
+demo\demo-oracle-vs2010.sln solution to open the corresponding projects.
 
 
 ======================================================================
-3. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
+2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
    Express)
 ======================================================================
 
 The C++ demos are in the demo directory.
 
 Visual C++ Express does not support the Ice Visual Studio extension,
-therefore you must use NMAKE to build the demos.
+therefore you must use NMAKE to build the C++ demos.
 
 To build the C++ demos, open a "Visual Studio Command Prompt" window.
 If you installed Ice in a non-default location, set ICE_HOME as shown
@@ -116,7 +85,7 @@ another command window, type 'client' to start the client.
 
 
 ======================================================================
-4. Building and running the C++ demos (C++ Builder 2010)
+3. Building and running the C++ demos (C++ Builder 2010)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -144,11 +113,12 @@ another command window, type 'client' to start the client.
 
 
 ======================================================================
-5. Building and running the .NET demos
+4. Building and running the .NET demos
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Add-In.
+Studio Add-In, installed as part of the installation of the Ice binary 
+distribution.
 
 
 Building the C# demos
@@ -156,7 +126,7 @@ Building the C# demos
 
 The C# demos are in the democs directory.
 
-To build a C# demo, start Visual Studio 2008 and open the solution
+To build a C# demo, start Visual Studio and open the solution
 democs\demo.sln. Right click on the desired demo in the Solution
 Explorer window and select "Build".
 
@@ -166,7 +136,7 @@ Building the Visual Basic demos
 
 The Visual Basic demos are in the demovb directory.
 
-To build a Visual Basic demo, start Visual Studio 2008 and open the
+To build a Visual Basic demo, start Visual Studio and open the
 solution demovb\demo.sln. Right click on the desired demo in the
 Solution Explorer window and select "Build".
 
@@ -204,7 +174,7 @@ remove the certificate:
 
 
 ======================================================================
-6. Building and running the Java demos
+5. Building and running the Java demos
 ======================================================================
 
 The Java demos are in the demoj directory.
@@ -249,12 +219,12 @@ are necessary.
 
 
 ======================================================================
-7. Running the Python demos
+6. Running the Python demos
 ======================================================================
 
 The Python demos are in the demopy directory.
 
-You need Python 2.6.4 to run the demos. A binary installer for Python
+You need Python 2.6.6 to run the demos. A binary installer for Python
 can be downloaded from:
 
   http://www.python.org/download
@@ -265,7 +235,7 @@ separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
-8. Running the Ruby demos
+7. Running the Ruby demos
 ======================================================================
 
 The Ruby demos are in the demorb directory.
@@ -292,7 +262,7 @@ Then in a separate command window, start the Ruby client:
 
 
 ======================================================================
-9. Building and running the PHP demos
+8. Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.
