@@ -541,7 +541,7 @@
                 </not>
             </and>
         </condition>
-        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar">
+        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar,annotation.jar">
             <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
             <and>
                 <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
