@@ -14,6 +14,8 @@ only on:
 
  - Red Hat Enterprise Linux 6 for i386 or x86_64 (RHEL 6)
 
+ - Amazon Linux 2011.02 (AMZN)
+
  - Novell SuSE Linux Enterprise Server 11 for i586 or x86_64 (SLES 11)
 
 
@@ -24,7 +26,7 @@ Ice is expected to build properly with GCC 3.3 or later. However, only
 the following compilers are officially supported:
 
  - GCC 4.1.2 on RHEL 5.4
- - GCC 4.4.4 on RHEL 6
+ - GCC 4.4.4 on RHEL 6 and AMZN
  - GCC 4.3.2 on SLES 11
 
 
@@ -52,7 +54,7 @@ third-party dependencies, as well as required source patches and
 configuration instructions.
 
 ZeroC also supplies RPMs at the link above for Berkeley DB on RHEL 5,
-RHEL 6, and SLES 11.
+RHEL 6, AMZN and SLES 11.
 
 For more information about these dependencies, please refer to
 the links below:
