@@ -38,8 +38,13 @@ namespace IceInternal
                 {
                     if(_traceLevels.network >= 2)
                     {
-                        string s = "failed to establish tcp connection\n" + _desc + "\n" + ex;
-                        _logger.trace(_traceLevels.networkCat, s);
+                        System.Text.StringBuilder s = new System.Text.StringBuilder();
+                        s.Append("failed to establish tcp connection\n");
+                        s.Append(Network.fdLocalAddressToString(_fd));
+                        Debug.Assert(_addr != null);
+                        s.Append("\nremote address = " + _addr.ToString() + "\n");
+                        s.Append(ex.ToString());
+                        _logger.trace(_traceLevels.networkCat, s.ToString());
                     }
                     throw;
                 }

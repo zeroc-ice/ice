@@ -242,7 +242,14 @@ IceSSL::TransceiverI::initialize()
         if(_instance->networkTraceLevel() >= 2)
         {
             Trace out(_logger, _instance->networkTraceCategory());
-            out << "failed to establish ssl connection\n" << _desc << "\n" << ex;
+
+            struct sockaddr_storage localAddr;
+            IceInternal::fdToLocalAddress(_fd, localAddr);
+                
+            out << "failed to establish ssl connection\n"
+                    << "local address: " << IceInternal::addrToString(localAddr) << "\n"
+                    << "remote address: " << IceInternal::addrToString(_connectAddr) << "\n"
+                    << ex;
         }
         throw;
     }
@@ -827,9 +834,8 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const
     {
         _desc = IceInternal::fdToString(_fd);
     }
-#else
-    _connectAddr = addr;
 #endif
+    _connectAddr = addr;
 }
 
 IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SOCKET fd, const string& adapterName) :

@@ -59,8 +59,13 @@ namespace IceSSL
             {
                 if(_instance.networkTraceLevel() >= 2)
                 {
-                    string s = "failed to establish ssl connection\n" + IceInternal.Network.fdToString(_fd) + "\n" + e;
-                    _logger.trace(_instance.networkTraceCategory(), s);
+                    System.Text.StringBuilder s = new System.Text.StringBuilder();
+                    s.Append("failed to establish ssl connection\n");
+                    s.Append(IceInternal.Network.fdLocalAddressToString(_fd));
+                    Debug.Assert(_addr != null);
+                    s.Append("\nremote address = " + _addr.ToString() + "\n");
+                    s.Append(e.ToString());
+                    _logger.trace(_instance.networkTraceCategory(), s.ToString());
                 }
                 throw;
             }

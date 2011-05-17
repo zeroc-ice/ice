@@ -69,8 +69,8 @@ private:
     
     State _state;
     std::string _desc;
-#ifdef ICE_USE_IOCP
     struct sockaddr_storage _connectAddr;
+#ifdef ICE_USE_IOCP
     AsyncInfo _read;
     AsyncInfo _write;
     int _maxSendPacketSize;

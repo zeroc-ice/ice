@@ -1066,7 +1066,7 @@ public final class Network
 	        (bytes.length == 4 && protocol == EnableIPv4));
     }
 
-    private static String
+    public static String
     addrToString(java.net.InetAddress addr, int port)
     {
         StringBuffer s = new StringBuffer();

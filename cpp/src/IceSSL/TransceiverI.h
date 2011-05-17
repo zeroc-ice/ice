@@ -87,11 +87,11 @@ private:
 
     State _state;
     std::string _desc;
+    struct sockaddr_storage _connectAddr;
 #ifdef ICE_USE_IOCP
     int _maxSendPacketSize;
     int _maxReceivePacketSize;
     BIO* _iocpBio;
-    struct sockaddr_storage _connectAddr;
     IceInternal::AsyncInfo _read;
     IceInternal::AsyncInfo _write;
     std::vector<char> _writeBuffer;

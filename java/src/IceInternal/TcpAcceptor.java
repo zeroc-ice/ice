@@ -66,7 +66,7 @@ class TcpAcceptor implements Acceptor
             _logger.trace(_traceLevels.networkCat, s);
         }
 
-        return new TcpTransceiver(_instance, fd, true);
+        return new TcpTransceiver(_instance, fd, true, null);
     }
 
     public String

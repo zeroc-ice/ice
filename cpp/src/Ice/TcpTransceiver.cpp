@@ -68,8 +68,14 @@ IceInternal::TcpTransceiver::initialize()
         {
             if(_traceLevels->network >= 2)
             {
+                struct sockaddr_storage localAddr;
+                fdToLocalAddress(_fd, localAddr);
+                
                 Trace out(_logger, _traceLevels->networkCat);
-                out << "failed to establish tcp connection\n" << _desc << "\n" << ex;
+                out << "failed to establish tcp connection\n"
+                    << "local address: " << addrToString(localAddr) << "\n"
+                    << "remote address: " << addrToString(_connectAddr) << "\n"
+                    << ex;
             }
             throw;
         }
@@ -539,7 +545,6 @@ IceInternal::TcpTransceiver::connect(const struct sockaddr_storage& addr)
         _fd = INVALID_SOCKET;
         throw;
     }
-#else
-    _connectAddr = addr;
 #endif
+    _connectAddr = addr;
 }

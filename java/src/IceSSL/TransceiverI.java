@@ -50,8 +50,15 @@ final class TransceiverI implements IceInternal.Transceiver
         {
             if(_instance.networkTraceLevel() >= 2)
             {
-                String s = "failed to establish ssl connection\n" + _desc + "\n" + ex;
-                _logger.trace(_instance.networkTraceCategory(), s);
+                java.net.Socket fd = (java.net.Socket)_fd.socket();
+                StringBuilder s = new StringBuilder(128);
+                s.append("failed to establish ssl connection\n");
+                s.append("local address = ");
+                s.append(IceInternal.Network.addrToString(fd.getLocalAddress(), fd.getLocalPort()));
+                s.append("\nremote address = ");
+                assert(_connectAddr != null);
+                s.append(IceInternal.Network.addrToString(_connectAddr));
+                _logger.trace(_instance.networkTraceCategory(), s.toString());
             }
             throw ex;
         }
@@ -289,7 +296,8 @@ final class TransceiverI implements IceInternal.Transceiver
     // Only for use by ConnectorI, AcceptorI.
     //
     TransceiverI(Instance instance, javax.net.ssl.SSLEngine engine, java.nio.channels.SocketChannel fd,
-                 String host, boolean connected, boolean incoming, String adapterName)
+                 String host, boolean connected, boolean incoming, String adapterName,
+                 java.net.InetSocketAddress connectAddr)
     {
         _instance = instance;
         _engine = engine;
@@ -297,6 +305,7 @@ final class TransceiverI implements IceInternal.Transceiver
         _host = host;
         _incoming = incoming;
         _adapterName = adapterName;
+        _connectAddr = connectAddr;
         _state = connected ? StateConnected : StateNeedConnect;
         _logger = instance.communicator().getLogger();
         try
@@ -791,6 +800,7 @@ final class TransceiverI implements IceInternal.Transceiver
     private String _host;
     private boolean _incoming;
     private String _adapterName;
+    private java.net.InetSocketAddress _connectAddr;
     private int _state;
     private Ice.Logger _logger;
     private Ice.Stats _stats;

@@ -34,7 +34,7 @@ final class TcpConnector implements Connector
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }
-            return new TcpTransceiver(_instance, fd, connected);
+            return new TcpTransceiver(_instance, fd, connected, _addr);
         }
         catch(Ice.LocalException ex)
         {

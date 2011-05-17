@@ -493,10 +493,10 @@ namespace IceInternal
                     IPAddress ifaceAddr = IPAddress.Any;
                     if(iface.Length != 0)
                     {
-                        ifaceAddr = Network.getInterfaceAddress(iface);
+                        ifaceAddr = getInterfaceAddress(iface);
                         if(ifaceAddr == IPAddress.Any)
                         {
-                            ifaceAddr = Network.getAddress(iface, 0, Network.EnableIPv4).Address;
+                            ifaceAddr = getAddress(iface, 0, EnableIPv4).Address;
                         }
                     }
                     socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
@@ -1048,6 +1048,23 @@ namespace IceInternal
             {
                 return "<closed>";
             }
+        }
+
+        public static string fdLocalAddressToString(Socket socket)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            IPEndPoint localEndpoint = getLocalAddress(socket);
+            if(localEndpoint == null)
+            {
+                // This might occur if connect was not called yet, see also comments in doBeginConnectAsync
+                s.Append("local address = <not bound>");
+            }
+            else
+            {
+                s.Append("local address = " + localEndpoint.Address);
+                s.Append(":" + localEndpoint.Port);
+            }
+            return s.ToString();
         }
 
         public static string

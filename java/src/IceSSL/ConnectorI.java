@@ -39,7 +39,7 @@ final class ConnectorI implements IceInternal.Connector
             try
             {
                 javax.net.ssl.SSLEngine engine = _instance.createSSLEngine(false, _addr);
-                return new TransceiverI(_instance, engine, fd, _host, connected, false, "");
+                return new TransceiverI(_instance, engine, fd, _host, connected, false, "", _addr);
             }
             catch(RuntimeException ex)
             {
