@@ -60,15 +60,11 @@ The following C++ compilers are supported:
   http://www.microsoft.com/express/downloads/
 
 - Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
-  (February 2003) and STLport 4.6.2 (or later)
+  and STLport 4.6.2 (or later)
 
-  The Standard Template Library included with Visual C++ 6.0 is not 
-  supported. STLport is included in the Ice third-party package
-  for Visual C++ 6.0.
-
-  Visual C++ 6.0 is only officially supported in order to build the
-  Ice extensions for Ruby and PHP. Visual C++ 6.0 is not supported for
-  general application development in this release.
+  Visual C++ 6.0 is only supported in order to build the Ice extension
+  for Ruby. Visual C++ 6.0 is not supported for general application 
+  development in this release.
 
 - CodeGear C++Builder 2010
 
@@ -134,13 +130,13 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- STLport 4.6.2 or later (only for Visual C++ 6.0)
 - Berkeley DB 4.8.30
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
-- QT 4.5.3
+- STLport 4.6.2 or later (only for Visual C++ 6.0)
+- QT 4.5.3 (optional)
 
 You do not need to build these packages yourself, as ZeroC supplies a
 Windows installer that contains release and debug libraries for all of
@@ -158,12 +154,12 @@ configuration instructions.
 For more information about these dependencies, please refer to
 the links below:
 
-STLport        http://www.stlport.org
 Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
+STLport        http://www.stlport.org
 QT             http://qt.nokia.com
 
 
