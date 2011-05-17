@@ -7,6 +7,7 @@ specific instructions below. These build instructions assume that you
 have configured your system according to the instructions in the
 release notes.
 
+
 Table of Contents
 -----------------
 
@@ -31,7 +32,7 @@ Table of Contents
 The C++ demos are in the demo directory.
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Add-In, installed as part of the installation of the Ice binary 
+Studio Add-In, installed as part of the installation of the Ice binary
 distribution.
 
 To build the C++ demos, start Visual Studio and open the solution
@@ -47,9 +48,9 @@ subdirectory. Review the README file if one is present. Type 'server'
 to start the server. In another command window, type 'client' to start
 the client.
 
-This distribution also includes a few demos for integrating Ice with 
-Oracle. Open the demo\demo-oracle-vs2008.sln or 
-demo\demo-oracle-vs2010.sln solution to open the corresponding projects.
+This distribution also includes a few demos for integrating Ice with
+Oracle. Open the solution demo\demo-oracle-vs2008.sln or
+demo\demo-oracle-vs2010.sln to build the corresponding projects.
 
 
 ======================================================================
@@ -59,7 +60,7 @@ demo\demo-oracle-vs2010.sln solution to open the corresponding projects.
 
 The C++ demos are in the demo directory.
 
-Visual C++ Express does not support the Ice Visual Studio extension,
+Visual C++ Express does not support the Ice Visual Studio Add-in,
 therefore you must use NMAKE to build the C++ demos.
 
 To build the C++ demos, open a "Visual Studio Command Prompt" window.
@@ -76,7 +77,7 @@ the demos:
   > nmake /f Makefile.mak
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and
-demo\IcePatch2\MFC) will not compile since the Express edition does
+demo\IcePatch2\MFC) will not compile because the Express edition does
 not include MFC support.
 
 To run a demo, change to the desired demo subdirectory and review the
@@ -117,7 +118,7 @@ another command window, type 'client' to start the client.
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
-Studio Add-In, installed as part of the installation of the Ice binary 
+Studio Add-In, installed as part of the installation of the Ice binary
 distribution.
 
 
@@ -182,7 +183,7 @@ The Java demos are in the demoj directory.
 To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
 1.7.0 or later. They can be downloaded from:
 
-  http://java.sun.com/j2se/index.jsp
+  http://www.oracle.com/technetwork/java/javase/overview/index.html
   http://ant.apache.org/bindownload.cgi
 
 The ant bin directory must be added to your PATH, and the following
