@@ -361,11 +361,12 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-for d in [srcDir, demoDir]:
-    zipArchive(d, verbose)
+zipArchive(srcDir, verbose)
 
 for (dir, archiveDir) in [(winDemoDir, "Ice-" + version + "-demos")]:
     zipArchive(dir, verbose, archiveDir)
+
+os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + version + "-demos.zip"))
 
 #
 # Write source distribution report in README file.
@@ -379,7 +380,7 @@ print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
 remove(demoDir)
-#remove(winDemoDir)
+remove(winDemoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)
