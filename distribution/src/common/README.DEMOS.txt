@@ -1,8 +1,8 @@
 Introduction
 ------------
 
-This folder contains sample programs for C++, Java, C#, VB, Ruby,
-Python and PHP. To build and run the demos, follow the language-
+This folder contains sample programs for C++, Java, Android, C#, VB,
+Ruby, Python and PHP. To build and run the demos, follow the language-
 specific instructions below. These build instructions assume that you
 have configured your system according to the instructions in the
 release notes.
@@ -19,10 +19,12 @@ Table of Contents
      - Building the Visual Basic demos
      - Running .NET demos
      - SSL Notes for the .NET demos
-  5. Building and running the Java demos
-  6. Running the Python demos
-  7. Running the Ruby demos
-  8. Building and running the PHP demos
+  5. Building and running the .NET Compact Framework demo
+  6. Building and running the Java demos
+  7. Building and running the Android demos
+  8. Running the Python demos
+  9. Running the Ruby demos
+ 10. Building and running the PHP demos
 
 
 ======================================================================
@@ -175,7 +177,26 @@ remove the certificate:
 
 
 ======================================================================
-5. Building and running the Java demos
+5. Building and running the .NET Compact Framework demo
+======================================================================
+
+Note that the Visual Studio project file requires the Ice Visual
+Studio Add-In, installed as part of the installation of the Ice binary
+distribution.
+
+The demo for the .NET Compact Framework is located in the
+democs\Ice\compact subdirectory.
+
+To build the demo, start Visual Studio and open the solution
+democs\democf.sln. Right click on the demo in the Solution Explorer
+window and select "Build".
+
+Review the README file in the democs\Ice\compact subdirectory for
+instructions on starting a device emulator and deploying the program.
+
+
+======================================================================
+6. Building and running the Java demos
 ======================================================================
 
 The Java demos are in the demoj directory.
@@ -220,7 +241,41 @@ are necessary.
 
 
 ======================================================================
-6. Running the Python demos
+7. Building and running the Android demos
+======================================================================
+
+Several sample Android projects are provided in the demoj/android
+subdirectory. You must use Eclipse and the Slice2Java plug-in to build
+these projects. The ZeroC web site describes how to install the
+Eclipse plug-in:
+
+  http://www.zeroc.com/eclipse.html
+
+In Eclipse, you can open a sample project by choosing File->Import...;
+in the "General" group, select "Existing Project into Workspace", then
+open one of the subdirectories of demoj/android.
+
+The sample projects are configured to locate the Ice run time JAR file
+(Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
+manual:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+If you installed Ice.jar in a different location, you will need to add
+it as an external JAR file in each sample project:
+
+ 1. Open the project's properties and select Java Build Path
+ 2. Click on the Libraries tab
+ 3. Click Add External JARs... and navigate to Ice.jar
+ 4. Click OK to save your settings
+
+After successfully building an Android project, deploy it onto a
+suitable emulator or device and review the README file in the project
+subdirectory for further instructions.
+
+
+======================================================================
+8. Running the Python demos
 ======================================================================
 
 The Python demos are in the demopy directory.
@@ -236,7 +291,7 @@ separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
-7. Running the Ruby demos
+9. Running the Ruby demos
 ======================================================================
 
 The Ruby demos are in the demorb directory.
@@ -263,7 +318,7 @@ Then in a separate command window, start the Ruby client:
 
 
 ======================================================================
-8. Building and running the PHP demos
+10. Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.

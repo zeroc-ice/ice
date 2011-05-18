@@ -5,10 +5,11 @@ Table of Contents
   2. Running the Ice Demos
   3. Running the C++ demos
   4. Running the Java demos
-  5. Running the C# demos
-  6. Running the Python demos
-  7. Running the Ruby demos
-  8. Running the PHP demos
+  5. Running the Android demos
+  6. Running the C# demos
+  7. Running the Python demos
+  8. Running the Ruby demos
+  9. Running the PHP demos
 
 
 ======================================================================
@@ -23,12 +24,16 @@ that Ice supports. Not all demos will build against all Ice
 distributions. Distributions for specific platform/tool combinations
 may not support every Ice language mapping.
 
-The build systems included in the demo distribution are either
-'makefile' based or 'ant' based. The C++, C#, and PHP demos use
-makefiles and the Java demos use the Apache Foundation's ant build
-tool.
+Depending on the language mapping, various build tools are required
+for building the demos. The C++, C#, and PHP demos use makefiles, the
+Java demos use the Apache Foundation's ant build tool, and the Android
+demos require Eclipse and the Slice2Java plug-in.
 
 NOTE: The Ruby and Python demos do not need to be built.
+
+
+Prerequisites
+-------------
 
 The makefiles for C++, C#, and PHP require GNU make 3.80 or later. If
 your system does not come with GNU make, you can find information on
@@ -40,6 +45,16 @@ The Ice for Java demos require Ant 1.7.0, but we recommend using the
 most recent release available. Ant can be obtained at:
 
   http://ant.apache.org/bindownload.cgi
+
+The Ice for Android demos require Eclipse and the Slice2Java plug-in.
+The demos were tested with Eclipse Helios (3.6). Instructions for
+installing the Slice2Java plug-in are available on the ZeroC web site:
+
+  http://www.zeroc.com/eclipse.html
+
+
+Build Instructions
+------------------
 
 To build the demos you need to:
 
@@ -92,6 +107,32 @@ To build the demos you need to:
     ant
 
 
+Build Instructions for Android
+------------------------------
+
+Several sample Android projects are provided in the demoj/android
+subdirectory. You must use Eclipse and the Slice2Java plug-in to build
+these projects.
+
+In Eclipse, you can open a sample project by choosing File->Import...;
+in the "General" group, select "Existing Project into Workspace", then
+open one of the subdirectories of demoj/android.
+
+The sample projects are configured to locate the Ice run time JAR file
+(Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
+manual:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+If you installed Ice.jar in a different location, you will need to add
+it as an external JAR file in each sample project:
+
+ 1. Open the project's properties and select Java Build Path
+ 2. Click on the Libraries tab
+ 3. Click Add External JARs... and navigate to Ice.jar
+ 4. Click OK to save your settings
+
+
 ======================================================================
 2. Running the Ice Demos
 ======================================================================
@@ -141,7 +182,16 @@ $ java Client
 
 
 ======================================================================
-5. Running the C# demos
+5. Running the Android demos
+======================================================================
+
+After successfully building an Android project, deploy it onto a
+suitable emulator or device and review the README file in the project
+subdirectory for further instructions.
+
+
+======================================================================
+6. Running the C# demos
 ======================================================================
 
 The C# demos are only supported on SuSE Enterprise Linux Server but
@@ -161,7 +211,7 @@ $ mono client.exe
 
 
 ======================================================================
-6. Running the Python demos
+7. Running the Python demos
 ======================================================================
 
 To run a demo, open a terminal window, change to the desired demo
@@ -176,7 +226,7 @@ $ python Client.py
 
 
 ======================================================================
-7. Running the Ruby demos
+8. Running the Ruby demos
 ======================================================================
 
 Ice provides only client demos in Ruby since Ice for Ruby does not
@@ -195,7 +245,7 @@ $ ruby Client.rb
 
 
 ======================================================================
-8. Running the PHP demos
+9. Running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.
