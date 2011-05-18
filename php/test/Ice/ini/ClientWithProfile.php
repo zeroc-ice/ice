@@ -37,9 +37,9 @@ $communicator = null;
 
 if($NS)
 {
-    $initData = new Ice\InitializationData;
-    $initData->properties = Ice\getProperties();
-    $communicator = Ice\initialize($initData);
+    $initData = eval("new Ice\\InitializationData;");
+    $initData->properties = eval("Ice\\getProperties();");
+    $communicator = eval("Ice\\initialize($initData);");
 }
 else
 {
@@ -53,7 +53,7 @@ test($communicator != null);
 $properties = null;
 if($NS)
 {
-    $properties = Ice\getProperties("Test");
+    $properties = eval("Ice\\getProperties(\"Test\");");
 }
 else
 {

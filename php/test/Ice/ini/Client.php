@@ -32,9 +32,9 @@ $communicator = null;
 
 if($NS)
 {
-    $initData = new Ice\InitializationData;
-    $initData->properties = Ice\getProperties();
-    $communicator = Ice\initialize($initData);
+    $initData = eval("new Ice\\InitializationData;");
+    $initData->properties = eval("Ice\\getProperties();");
+    $communicator = eval("Ice\\initialize($initData);");
 }
 else
 {
