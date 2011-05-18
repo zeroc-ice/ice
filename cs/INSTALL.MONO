@@ -164,5 +164,5 @@ Ice patch releases are binary compatible. For example, Ice version
 against Ice @mmver@.0 with Ice @mmver@.1 (or later) without having to
 recompile or relink this application.
 
-Please refer to the RELEASE_NOTES file included in this distribution
-for detailed upgrade instructions.
+Please refer to the Ice @ver@ Release Notes for detailed upgrade 
+instructions.
