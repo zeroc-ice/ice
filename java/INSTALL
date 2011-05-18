@@ -35,7 +35,7 @@ Ice for Java requires J2SE 1.5.0 or later.
 
 You can download Java5 and Java6 for Solaris, Windows, and Linux from:
 
-  http://java.sun.com
+  http://www.oracle.com/technetwork/java/index.html
 
 Make sure to add javac and java to your PATH.
 
@@ -155,6 +155,17 @@ ProGuard is available here:
   http://proguard.sourceforge.net
 
 Ice for Java has been tested with ProGuard 4.6.
+
+
+Android
+-------
+
+The Ice run time (lib/Ice.jar) is fully compatible with Android 2.1 or
+later. The IceSSL plug-in requires Android 2.2 or later (see the
+release notes for more information on SSL in Android).
+
+Refer to the sections "Eclipse Development" and "Using Ice in Android"
+below for additional details.
 
 
 ======================================================================
@@ -329,3 +340,59 @@ You can start the console with this command:
 
   java IceGridGUI.Main
 
+
+======================================================================
+Eclipse Development
+======================================================================
+
+ZeroC has created a Slice2Java plug-in for Eclipse that automates the
+translation of your Slice files. If you use Eclipse, we strongly
+recommend using this plug-in for your own development.
+
+Note that the Slice2Java plug-in is required if you intend to build
+any of the Android sample projects included in this distribution.
+
+For more information on installing the plug-in, please refer to the
+link below:
+
+  http://www.zeroc.com/eclipse.html
+
+The Ice manual provides usage instructions for the plug-in:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+
+======================================================================
+Using Ice in Android
+======================================================================
+
+Ice requires Android 2.1 or later. Aside from that, there are no other
+special requirements for using Ice in an Android application. We
+strongly recommend installing our Slice2Java plug-in for Eclipse to
+automate the compilation of your Slice definitions.
+
+
+Sample Projects
+---------------
+
+Several sample Android projects are provided in the demo/android
+subdirectory. You must use Eclipse and the Slice2Java plug-in to build
+these projects.
+
+In Eclipse, you can open a sample project by choosing File->Import...;
+in the "General" group, select "Existing Project into Workspace", then
+open one of the subdirectories of demo/android.
+
+The sample projects are configured to locate the Ice run time JAR file
+(Ice.jar) via the ICE_HOME classpath variable, as described in the Ice
+manual:
+
+  http://doc.zeroc.com/display/Ice/Eclipse+Plug-in
+
+If you installed Ice.jar in a different location, you will need to add
+it as an external JAR file in each sample project:
+
+ 1. Open the project's properties and select Java Build Path
+ 2. Click on the Libraries tab
+ 3. Click Add External JARs... and navigate to Ice.jar
+ 4. Click OK to save your settings

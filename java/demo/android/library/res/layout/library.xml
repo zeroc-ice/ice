@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="5dip"
+    >
+
+    <EditText
+		android:id ="@+id/text"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:singleLine="true"/>
+
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="horizontal"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    >
+
+    <Spinner android:id ="@+id/searchType"
+		android:layout_width="0dip"
+		android:layout_weight="60"
+		android:layout_height="wrap_content"
+    />
+
+    <Button android:id ="@+id/search"
+    	android:text="Search"
+    	android:layout_width="0dip"
+		android:layout_weight="40"
+		android:layout_height="wrap_content"
+    />
+    </LinearLayout>
+
+    <ListView android:id="@+id/list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        />
+</LinearLayout>

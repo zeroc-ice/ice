@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:padding="5dip"
+	>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="5dip"
+		>
+
+		<TextView
+		    android:layout_width="0dip"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="25"
+		    android:text="Chat Server"
+		    />
+
+		<EditText
+			android:id ="@+id/hostname"
+			android:hint="hostname"
+			android:text="10.0.2.2"
+			android:layout_width="0dip"
+			android:layout_weight="75"
+			android:layout_height="wrap_content"
+			/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="5dip"
+		>
+
+		<TextView
+		    android:layout_width="0dip"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="25"
+		    android:text="Username"
+		    />
+
+		<EditText
+			android:id ="@+id/username"
+			android:hint="username"
+			android:text=""
+			android:layout_width="0dip"
+			android:layout_weight="75"
+			android:layout_height="wrap_content"
+			/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="5dip"
+		>
+
+		<TextView
+		    android:layout_width="0dip"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="25"
+		    android:text="Password"
+		    />
+
+		<EditText
+			android:id ="@+id/password"
+			android:hint="password"
+			android:text=""
+			android:layout_width="0dip"
+			android:layout_weight="75"
+			android:layout_height="wrap_content"
+			android:password="true"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingBottom="5dip"
+		>
+
+		<TextView
+		    android:layout_width="0dip"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="25"
+		    android:text="SSL"
+		    />
+
+			<CheckBox
+				android:id="@+id/secure"
+				android:layout_width="0dip"
+				android:layout_weight="75"
+				android:layout_height="wrap_content"
+				/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:paddingTop="5dip"
+		android:paddingBottom="5dip"
+		android:gravity="center_horizontal">
+
+		<Button
+			android:id="@+id/login"
+		    android:layout_height="wrap_content"
+		    android:layout_width="wrap_content"
+		    android:text="Login"
+		    />
+
+	</LinearLayout>
+</LinearLayout>
