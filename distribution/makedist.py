@@ -12,6 +12,7 @@ import os, sys, fnmatch, re, getopt
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from DistUtils import *
+import FixUtil
 
 #
 # Sub-directories to keep to create the source distributions.
@@ -296,6 +297,12 @@ rmFiles = []
 for root, dirnames, filesnames in os.walk(winDemoDir):
     for f in filesnames:
 
+        if fnmatch.fnmatch(f, "README"):
+	    oldreadme = os.path.join(root, f)
+	    newreadme = oldreadme + ".txt"
+	    os.rename(oldreadme, newreadme)
+	    os.system('unix2dos -q ' + newreadme)
+
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
@@ -309,6 +316,13 @@ for d in ["democs", "demovb"]:
             for m in [ "Makefile.mak", ".depend.mak" ]:
                 if fnmatch.fnmatch(f, m):
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
+
+for d in ["demo", "democs", "demovb"]:
+    for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
+        for f in filesnames:
+            for m in [ "*.vcproj", "*.vcxproj", "*.vcxproj.filters", "*.csproj", "*.vbproj" ]:
+                if fnmatch.fnmatch(f, m):
+		    FixUtil.fileMatchAndReplace(os.path.join(root, f), [("(README)", "README.txt")], False)
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
@@ -365,7 +379,7 @@ print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
 remove(demoDir)
-remove(winDemoDir)
+#remove(winDemoDir)
 remove(demoscriptDir)
 remove(rpmBuildDir)
 remove(distFilesDir)

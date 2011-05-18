@@ -124,7 +124,7 @@ def find(patt):
 # will match the string version in "ICE_STRING_VERSION "2.1.0"" and will replace it with
 # the given version.
 #
-def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
+def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
 
     if os.path.isdir(filename):
         return
@@ -151,7 +151,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
             if match != None:
                 oldLine = line
                 line = oldLine.replace(match.group(1), replace)
-#                print oldLine + line
+                #print oldLine + line
                 updated = True
                 break
         newConfigFile.write(line)
@@ -160,12 +160,13 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
     oldConfigFile.close()
 
     if updated:
-        print "updated " + filename
+	if verbose:
+            print "updated " + filename
         os.rename(filename + ".new", filename)
         os.chmod(filename, S_IMODE(mode))
     else:
-        if warn:
-            print "warning: " + filename + " didn't contain any version"
+        if verbose:
+            print "warning: " + filename + " didn't contain any match"
         os.unlink(filename + ".new")
 
 #
@@ -204,7 +205,7 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps):
         print "updated " + filename
         os.rename(filename + ".new", filename)
     else:
-        print "warning: " + filename + " didn't contain any version"
+        print "warning: " + filename + " didn't contain any match"
         os.unlink(filename + ".new")
 
 def checkVersion(version):
