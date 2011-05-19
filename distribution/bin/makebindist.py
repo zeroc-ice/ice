@@ -56,6 +56,7 @@ thirdParties = [
     "Mcpp", \
     "Qt", \
     "Iconv", \
+    "JGoodiesCommon", \
     "JGoodiesLooks", \
     "JGoodiesForms", \
     "Proguard", \
@@ -192,7 +193,7 @@ for l in buildLanguages:
         antCmd = platform.getAntEnv() + " ant " + platform.getAntOptions() + " -Dprefix=" + buildDir
 
 	jgoodiesDefines = "-Djgoodies.forms=" + platform.getJGoodiesForms() + " -Djgoodies.looks=" + \
-			  platform.getJGoodiesLooks()
+			  platform.getJGoodiesLooks() + " -Djgoodies.common=" + platform.getJGoodiesCommon()
 
         if os.system(antCmd + " " + jgoodiesDefines + " install") != 0: 
            print sys.argv[0] + ": `" + l + "' build failed"

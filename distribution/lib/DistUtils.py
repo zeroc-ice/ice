@@ -60,15 +60,21 @@ iconv = { \
 }
 
 jgoodies_looks = { \
-    'SunOS' : '/usr/share/java/looks-2.3.1.jar', \
-    'Darwin' : '/opt/looks-2.3.1/looks-2.3.1.jar', \
-    'Linux' : '/opt/looks-2.3.1/looks-2.3.1.jar', \
+    'SunOS' : '/usr/share/java/jgoodies-looks-2.4.1.jar', \
+    'Darwin' : '/opt/jgoodies-looks-2.4.1/jgoodies-looks-2.4.1.jar', \
+    'Linux' : '/opt/jgoodies-looks-2.4.1/jgoodies-looks-2.4.1.jar', \
 }
 
 jgoodies_forms = { \
-    'SunOS' : '/usr/share/java/forms-1.3.0.jar', \
-    'Darwin' : '/opt/forms-1.3.0/forms-1.3.0.jar', \
-    'Linux' : '/opt/forms-1.3.0/forms-1.3.0.jar', \
+    'SunOS' : '/usr/share/java/jgoodies-forms-1.4.1.jar', \
+    'Darwin' : '/opt/jgoodies-forms-1.4.1/jgoodies-forms-1.4.1.jar', \
+    'Linux' : '/opt/jgoodies-forms-1.4.1/jgoodies-forms-1.4.1.jar', \
+}
+
+jgoodies_common = { \
+    'SunOS' : '/usr/share/java/jgoodies-common-1.2.0.jar', \
+    'Darwin' : '/opt/jgoodies-common-1.2.0/jgoodies-common-1.2.0.jar', \
+    'Linux' : '/opt/jgoodies-common-1.2.0/jgoodies-common-1.2.0.jar', \
 }
 
 proguard = { \
@@ -788,6 +794,13 @@ class Platform:
         else:
             return ("%s-" + version + "-bin-" + self.pkgPlatform) % prefix
 
+    def getJGoodiesCommon(self):
+	for t in self.thirdParties:
+            if t.__str__() == "JGoodiesCommon":
+        	return t.getJar()
+	print "Unable to find JGoodiesCommon"
+	sys.exit(1)
+
     def getJGoodiesForms(self):
 	for t in self.thirdParties:
             if t.__str__() == "JGoodiesForms":
@@ -971,6 +984,11 @@ class JGoodiesForms(ThirdParty):
     def __init__(self, platform):
         global jgoodies_forms
         ThirdParty.__init__(self, platform, "JGoodiesForms", jgoodies_forms, ["java"])
+
+class JGoodiesCommon(ThirdParty):
+    def __init__(self, platform):
+        global jgoodies_common
+        ThirdParty.__init__(self, platform, "JGoodiesCommon", jgoodies_common, ["java"])
 
 class Proguard(ThirdParty):
     def __init__(self, platform):
