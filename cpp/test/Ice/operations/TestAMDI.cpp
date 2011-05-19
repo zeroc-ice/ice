@@ -36,28 +36,28 @@ bool
 MyDerivedClassI::ice_isA(const std::string& id, const Ice::Current& current) const
 {
     test(current.mode == Ice::Nonmutating);
-    return MyDerivedClass::ice_isA(id, current);
+    return Test::MyDerivedClass::ice_isA(id, current);
 }
 
 void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
     test(current.mode == Ice::Nonmutating);
-    MyDerivedClass::ice_ping(current);
+    Test::MyDerivedClass::ice_ping(current);
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
     test(current.mode == Ice::Nonmutating);
-    return MyDerivedClass::ice_ids(current);
+    return Test::MyDerivedClass::ice_ids(current);
 }
 
 const std::string&
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == Ice::Nonmutating);
-    return MyDerivedClass::ice_id(current);
+    return Test::MyDerivedClass::ice_id(current);
 }
 
 void
