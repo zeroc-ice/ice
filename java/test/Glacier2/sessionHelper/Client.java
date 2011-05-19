@@ -1,3 +1,11 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 package test.Glacier2.sessionHelper;
 
@@ -28,13 +36,12 @@ public class Client extends test.Util.Application
         }
     }
 
-    public int run(String[] args)
+    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties(args);
-        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
-
-        initData.dispatcher = new Ice.Dispatcher()
+        _initData = new Ice.InitializationData();
+        _initData.properties = Ice.Util.createProperties(argsH);
+        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
+        _initData.dispatcher = new Ice.Dispatcher()
             {
                 public void
                 dispatch(Runnable runnable, Ice.Connection connection)
@@ -43,7 +50,12 @@ public class Client extends test.Util.Application
                 }
             };
 
-        _factory = new Glacier2.SessionFactoryHelper(initData, new Glacier2.SessionCallback()
+        return _initData;
+    }
+
+    public int run(String[] args)
+    {
+        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 public void
                 connected(Glacier2.SessionHelper session)
@@ -78,7 +90,7 @@ public class Client extends test.Util.Application
                         test(false);
                     }
                 }
-    
+
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {
@@ -112,7 +124,7 @@ public class Client extends test.Util.Application
             }
         }
 
-        _factory = new Glacier2.SessionFactoryHelper(initData, new Glacier2.SessionCallback()
+        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 public void
                 connected(Glacier2.SessionHelper session)
@@ -140,7 +152,7 @@ public class Client extends test.Util.Application
                 {
                     test(false);
                 }
-    
+
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {
@@ -277,16 +289,16 @@ public class Client extends test.Util.Application
                 processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
                 out.println("ok");
             }
-        
-        
-            Ice.ProcessPrx process;            
+
+
+            Ice.ProcessPrx process;
             {
                 out.print("testing checked cast for admin object... ");
                 process = Ice.ProcessPrxHelper.checkedCast(processBase);
                 test(process != null);
                 out.println("ok");
             }
-            
+
             out.print("testing Glacier2 shutdown... ");
             process.shutdown();
             try
@@ -300,7 +312,7 @@ public class Client extends test.Util.Application
             }
         }
 
-        _factory = new Glacier2.SessionFactoryHelper(initData, new Glacier2.SessionCallback()
+        _factory = new Glacier2.SessionFactoryHelper(_initData, new Glacier2.SessionCallback()
             {
                 public void
                 connected(Glacier2.SessionHelper session)
@@ -335,7 +347,7 @@ public class Client extends test.Util.Application
                         test(false);
                     }
                 }
-    
+
                 public void
                 createdCommunicator(Glacier2.SessionHelper session)
                 {
@@ -410,13 +422,14 @@ public class Client extends test.Util.Application
     {
         Client c = new Client();
         int status = c.main("Client", args);
-        
+
         System.gc();
         System.exit(status);
     }
 
     private Glacier2.SessionHelper _session;
     private Glacier2.SessionFactoryHelper _factory;
+    private Ice.InitializationData _initData;
     static public Client me;
     final public PrintWriter out;
 }

@@ -46,8 +46,8 @@ public abstract class Application
     public final int
     main(String appName, String[] args)
     {
-    	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-    	Ice.InitializationData initData = getInitData(argsH);
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+        Ice.InitializationData initData = getInitData(argsH);
         return main(appName, argsH.value, initData);
     }
 
@@ -55,7 +55,7 @@ public abstract class Application
     main(String appName, String[] args, InitializationData initializationData)
     {
         java.io.PrintWriter writer = getWriter();
-		if(_communicator != null)
+        if(_communicator != null)
         {
             writer.println(appName + ": only one instance of the Application class can be used");
             return 1;
