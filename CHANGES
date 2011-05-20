@@ -72,6 +72,8 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a memory leak in IceSSL on Windows.
+
 - Fixed a bug in the generated code for a Slice structure containing
   at least one data member that declares a default value. The
   constructors were not being exported correctly in this case.
