@@ -116,6 +116,9 @@ IceSSL::TransceiverI::initialize()
             if(!_ssl)
             {
                 BIO_free(bio);
+#ifdef ICE_USE_IOCP
+                BIO_free(_iocpBio);
+#endif
                 SecurityException ex(__FILE__, __LINE__);
                 ex.reason = "openssl failure";
                 throw ex;
@@ -299,6 +302,14 @@ IceSSL::TransceiverI::close()
         SSL_free(_ssl);
         _ssl = 0;
     }
+
+#ifdef ICE_USE_IOCP
+    if(_iocpBio)
+    {
+        BIO_free(_iocpBio);
+        _iocpBio = 0;
+    }
+#endif
 
     assert(_fd != INVALID_SOCKET);
     try
