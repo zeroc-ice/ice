@@ -35,18 +35,15 @@ public class Server extends Ice.Application
         private ControlPrx _ctrl;
         private long _timestamp = System.currentTimeMillis();
 
-        @Override
         public void setControl(ControlPrx ctrl, Current current)
         {
             _ctrl = ctrl;
         }
 
-        @Override
         public void simulateCall(int delay, Current current)
         {
             timer.schedule(new Runnable()
             {
-                @Override
                 public void run()
                 {
                     if(_ctrl != null)
@@ -54,14 +51,12 @@ public class Server extends Ice.Application
                         System.out.println("calling incoming call");
                         _ctrl.begin_incomingCall(new Callback_Control_incomingCall()
                             {
-                                @Override
                                 public void exception(LocalException ex)
                                 {
                                     System.out.println("incoming call failed");
                                     ex.printStackTrace();
                                 }
 
-                                @Override
                                 public void response()
                                 {
                                     System.out.println("incoming call succeeded");
@@ -72,7 +67,6 @@ public class Server extends Ice.Application
             }, delay, TimeUnit.MILLISECONDS);
         }
 
-        @Override
         public void destroy(Current current)
         {
             try
@@ -85,7 +79,6 @@ public class Server extends Ice.Application
             }
         }
 
-        @Override
         public void refresh(Current current)
         {
             _timestamp = System.currentTimeMillis();
@@ -99,7 +92,6 @@ public class Server extends Ice.Application
 
     class PermissionsVerifierI extends _PermissionsVerifierDisp
     {
-        @Override
         public boolean checkPermissions(String userId, String password, StringHolder reason, Current current)
         {
             return true;
@@ -108,8 +100,6 @@ public class Server extends Ice.Application
 
     class SessionManagerI extends _SessionManagerDisp
     {
-
-        @Override
         public SessionPrx create(String userId, SessionControlPrx control,
                 Current current) throws CannotCreateSessionException
         {
@@ -119,7 +109,6 @@ public class Server extends Ice.Application
             final SessionPrx proxy = SessionPrxHelper.uncheckedCast(current.adapter.addWithUUID(session));
             timer.scheduleWithFixedDelay(new Runnable()
                 {
-                    @Override
                     public void run()
                     {
                         // If the session has already been destroyed the ONE will
