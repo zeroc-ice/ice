@@ -102,7 +102,7 @@ TimerPriorityTest::run()
     {
         for(int cont = 1; cont < 10; ++cont)
         {
-            TimerPtr t = new Timer(10 * cont);
+            TimerPtr t = new Timer(cont);
         }
     }
     catch(...)
