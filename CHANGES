@@ -87,6 +87,8 @@ C++ Changes
 Java Changes
 ============
 
+- Added support for Android.
+
 - Added overloaded constructors for user and system exceptions that
   accept a Throwable argument.
 
@@ -137,7 +139,8 @@ PHP Changes
   Ice.php or a generated file is included from a non-global scope.
 
 - slice2php now generates 'require_once' statements corresponding to
-  Slice #include directives.
+  Slice #include directives, replacing the 'require' statements used
+  in previous releases.
 
 - Fixed a bug in the Ice extension that caused Ice-related INI
   settings to be ignored.
