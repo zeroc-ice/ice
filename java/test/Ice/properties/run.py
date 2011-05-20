@@ -33,7 +33,11 @@ TestUtil.createConfig(configPath,
                        "Ice.ProgramName=PropertiesClient", 
                        "Config.Path=./config/中国_client.config"])
                        
-TestUtil.simpleTest()
+print "starting client...",
+clientProc = TestUtil.startClient("test.Ice.properties.Client",startReader=False)
+print "ok"
+clientProc.startReader()
+clientProc.waitTestSuccess()
 
 if os.path.exists(configPath):
     os.remove(configPath)
