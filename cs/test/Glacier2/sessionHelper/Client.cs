@@ -28,6 +28,18 @@ public class Client
         public App()
         {
             me = this;
+
+            _initData = new Ice.InitializationData();
+            _initData.properties = Ice.Util.createProperties();
+            _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
+#if COMPACT
+            _initData.dispatcher = delegate(Ice.VoidAction action, Ice.Connection connection)
+#else
+            _initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
+#endif
+                {
+                    action();
+                };
         }
 
         public class SessionCalback1 : Glacier2.SessionCallback
@@ -170,21 +182,14 @@ public class Client
             }
         }
 
+        public Ice.InitializationData getInitData()
+        {
+            return _initData;
+        }
+
         public override int run(string[] args)
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12347");
-#if COMPACT
-            initData.dispatcher = delegate(Ice.VoidAction action, Ice.Connection connection)
-#else
-            initData.dispatcher = delegate(System.Action action, Ice.Connection connection)
-#endif
-                {
-                    action();
-                };
-
-            _factory = new Glacier2.SessionFactoryHelper(initData, new SessionCalback1());
+            _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback1());
 
             //
             // Test to create a session with wrong userid/password
@@ -222,7 +227,7 @@ public class Client
                 lck.Unlock();
             }
 
-            _factory = new Glacier2.SessionFactoryHelper(initData, new SessionCalback2());
+            _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback2());
             lck.Lock();
             try
             {
@@ -363,16 +368,16 @@ public class Client
                     processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
                     Console.Out.WriteLine("ok");
                 }
-            
-            
-                Ice.ProcessPrx process;            
+
+
+                Ice.ProcessPrx process;
                 {
                     Console.Out.Write("testing checked cast for admin object... ");
                     process = Ice.ProcessPrxHelper.checkedCast(processBase);
                     test(process != null);
                     Console.Out.WriteLine("ok");
                 }
-                
+
                 Console.Out.Write("testing Glacier2 shutdown... ");
                 process.shutdown();
                 try
@@ -390,7 +395,7 @@ public class Client
                 lck.Unlock();
             }
 
-            _factory = new Glacier2.SessionFactoryHelper(initData, new SessionCalback3());
+            _factory = new Glacier2.SessionFactoryHelper(_initData, new SessionCalback3());
             lck.Lock();
             try
             {
@@ -459,6 +464,7 @@ public class Client
 
         public static App me;
         public IceUtilInternal.Monitor lck = new IceUtilInternal.Monitor();
+        private Ice.InitializationData _initData;
         private Glacier2.SessionHelper _session;
         private Glacier2.SessionFactoryHelper _factory;
     }
@@ -468,12 +474,9 @@ public class Client
 #if !COMPACT
         Debug.Listeners.Add(new ConsoleTraceListener());
 #endif
-        Ice.InitializationData initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties(ref args);
-        
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         App app = new App();
-        return app.main(args, initData);
+        app.getInitData().properties.setProperty("Ice.Warn.Connections", "0");
+        return app.main(args, app.getInitData());
     }
 }
