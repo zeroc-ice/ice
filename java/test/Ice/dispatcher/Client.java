@@ -14,7 +14,6 @@ public class Client extends test.Util.Application
     public int run(String[] args)
     {
         AllTests.allTests(communicator(), getWriter(), _dispatcher);
-        _dispatcher.terminate();
         return 0;
     }
 
@@ -29,10 +28,16 @@ public class Client extends test.Util.Application
         return initData;
     }
 
+    Dispatcher getDispatcher()
+    {
+        return _dispatcher;
+    }
+
     public static void main(String[] args)
     {
         Client app = new Client();
         int result = app.main("Client", args);
+        app.getDispatcher().terminate();
         System.gc();
         System.exit(result);
     }
