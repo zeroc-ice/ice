@@ -23,7 +23,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream -I. -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream -I. -I"$(slicedir)"
 
 !if "$(COMPACT)" == "yes"
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
