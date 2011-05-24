@@ -88,7 +88,7 @@ PROPERTY_SHEET = "ice.props"
 
 bindir 			= ..\bin
 
-install_bindir 		= $(prefix)\bin
+install_bindir 		= $(prefix)\vsaddin
 install_configdir 	= $(prefix)\config
 
 OBJEXT			= .obj
