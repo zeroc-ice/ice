@@ -484,8 +484,6 @@ namespace Ice
                 communicator__ = Util.initialize(ref args, initData);
                 destroyed__ = false;
 
-                Properties props = communicator__.getProperties();
-
                 //
                 // The default is to destroy when a signal is received.
                 //
