@@ -21,7 +21,7 @@ Module NestedC
                 Return 1
             End If
 
-            Dim nested As NestedPrx = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.NestedServer"))
+            Dim nested As NestedPrx = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Proxy"))
             If nested Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")
                 Return 1

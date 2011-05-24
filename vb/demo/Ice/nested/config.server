@@ -7,7 +7,7 @@ Ice.ThreadPool.Server.SizeMax=10
 #
 # Warn about connection exceptions
 #
-#Ice.Warn.Connections=1
+Ice.Warn.Connections=1
 
 #
 # Network Tracing
