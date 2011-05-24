@@ -606,9 +606,9 @@ namespace Ice.VisualStudio
 
             if(_iceConfigurationCmd == null)
             {
-                MessageBox.Show("Error initializing Ice Visual Studio Add-In.\n" +
+                MessageBox.Show("Error initializing Ice Visual Studio Add-in.\n" +
                                 "Cannot create required commands",
-                                "Ice Visual Studio Add-In",
+                                "Ice Visual Studio Add-in",
                                 MessageBoxButtons.OK,
                                 MessageBoxIcon.Error,
                                 MessageBoxDefaultButton.Button1,
@@ -666,7 +666,7 @@ namespace Ice.VisualStudio
 
                         Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: checking/updating settings for project '" + p.FullName + "'";
                         Util.verifyProjectSettings(p);
-                        Util.getCurrentDTE().StatusBar.Text = "Ice Add-In: loading project '" + p.FullName + "'";
+                        Util.getCurrentDTE().StatusBar.Text = "Ice Add-in: loading project '" + p.FullName + "'";
                         if(!Util.isVBProject(p))
                         {
                             dependenciesMap[p.Name] = new Dictionary<string, List<string>>();
@@ -740,7 +740,7 @@ namespace Ice.VisualStudio
                             MessageBox.Show("ICE_SL_HOME environment variable not set.\n" +
                                 "ICE_SL_HOME environment variable must be set to point to " +
                                 "Ice Silverlight installation path.",
-                                "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error,
                                 MessageBoxDefaultButton.Button1,
                                 (MessageBoxOptions)0);
@@ -973,7 +973,7 @@ namespace Ice.VisualStudio
             DTE dte = Util.getCurrentDTE();
             if(!_opening)
             {
-                dte.StatusBar.Text = "Ice Add-In: cleaning project '" + project.FullName + "'";
+                dte.StatusBar.Text = "Ice Add-in: cleaning project '" + project.FullName + "'";
             }
             if(project == null)
             {
@@ -2153,7 +2153,7 @@ namespace Ice.VisualStudio
                                         Path.GetFileName(fullPath) + "' first remove " +
                                         " '" + Path.GetFileName(cppPath) + "' and '" +
                                         Path.GetFileName(hPath) + "'.",
-                                        "Ice Visual Studio Add-In",
+                                        "Ice Visual Studio Add-in",
                                         MessageBoxButtons.OK,
                                         MessageBoxIcon.Error,
                                         MessageBoxDefaultButton.Button1,
@@ -2170,7 +2170,7 @@ namespace Ice.VisualStudio
                                         Path.GetFileName(fullPath) + "' first remove " +
                                         " '" + Path.GetFileName(cppPath) + "' and '" +
                                         Path.GetFileName(hPath) + "'.",
-                                        "Ice Visual Studio Add-In",
+                                        "Ice Visual Studio Add-in",
                                         MessageBoxButtons.OK,
                                         MessageBoxIcon.Error,
                                         MessageBoxDefaultButton.Button1,
@@ -2263,7 +2263,7 @@ namespace Ice.VisualStudio
                                     "' already exists.\n" + "If you want to add '" +
                                     Path.GetFileName(fullPath) + "' first remove " +
                                     " '" + Path.GetFileName(csPath) + "'.",
-                                    "Ice Visual Studio Add-In",
+                                    "Ice Visual Studio Add-in",
                                     MessageBoxButtons.OK,
                                     MessageBoxIcon.Error,
                                     MessageBoxDefaultButton.Button1,
@@ -3298,7 +3298,7 @@ namespace Ice.VisualStudio
                             MessageBox.Show("A file named '" + Path.GetFileName(csPath) +
                                             "' already exists.\n" + oldName +
                                             " could not be renamed to '" + item.Name + "'.",
-                                            "Ice Visual Studio Add-In",
+                                            "Ice Visual Studio Add-in",
                                             MessageBoxButtons.OK,
                                             MessageBoxIcon.Error,
                                             MessageBoxDefaultButton.Button1,
@@ -3330,7 +3330,7 @@ namespace Ice.VisualStudio
                                             Path.GetFileName(newName) + "' first remove " + " '" +
                                             Path.GetFileName(cppPath) + "' and '" +
                                             Path.GetFileName(hPath) + "' from your project.",
-                                            "Ice Visual Studio Add-In",
+                                            "Ice Visual Studio Add-in",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error, 
                                             MessageBoxDefaultButton.Button1, (MessageBoxOptions)0);
                             return -1;
@@ -3343,7 +3343,7 @@ namespace Ice.VisualStudio
                                             Path.GetFileName(newName) + "' first remove " +
                                             " '" + Path.GetFileName(cppPath) + "' and '" +
                                             Path.GetFileName(hPath) + "' from your project.",
-                                            "Ice Visual Studio Add-In",
+                                            "Ice Visual Studio Add-in",
                                             MessageBoxButtons.OK, MessageBoxIcon.Error,
                                             MessageBoxDefaultButton.Button1, (MessageBoxOptions)0);
                             return -1;

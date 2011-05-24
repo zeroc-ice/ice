@@ -577,7 +577,7 @@ namespace Ice.VisualStudio
 
             MessageBox.Show("Could not locate '" + component +
                             ".dll'. in '" + Path.GetDirectoryName(reference) + "'",
-                            "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                            "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                             MessageBoxIcon.Error,
                             MessageBoxDefaultButton.Button1,
                             (MessageBoxOptions)0);
@@ -2812,7 +2812,7 @@ namespace Ice.VisualStudio
         private static void showRunTimeLibraryWarning(Project p)
         {
             string err = "Run Time library not supported with Ice, Ice requires /MD or /MDd Run Time Library.";
-            MessageBox.Show(err, "Ice Visual Studio Add-In", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+            MessageBox.Show(err, "Ice Visual Studio Add-in", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
                             (MessageBoxOptions)0);
 
             Util.write(p, msgLevel.msgError, err);
@@ -2822,7 +2822,7 @@ namespace Ice.VisualStudio
         {
             MessageBox.Show("Extra Options field contains some errors:\n" +
                                                  ex.reason,
-                                                 "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                                                 "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                                                  MessageBoxIcon.Error,
                                                  MessageBoxDefaultButton.Button1,
                                                  (MessageBoxOptions)0);
@@ -2835,9 +2835,9 @@ namespace Ice.VisualStudio
             Builder builder = Connect.getBuilder();
             if(builder.commandLine)
             {
-                MessageBox.Show("The Ice Visual Studio Add-In has raised an unexpected exception:\n" +
+                MessageBox.Show("The Ice Visual Studio Add-in has raised an unexpected exception:\n" +
                                 ex.ToString(),
-                                "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                                 MessageBoxIcon.Error,
                                 MessageBoxDefaultButton.Button1,
                                 (MessageBoxOptions)0);
@@ -2871,7 +2871,7 @@ namespace Ice.VisualStudio
         public static bool warnUnsavedChanges(IWin32Window owner)
         {
             if(MessageBox.Show(owner, "Are you sure you want to discard all changes?",
-                               "Ice Visual Studio Add-In", MessageBoxButtons.YesNo,
+                               "Ice Visual Studio Add-in", MessageBoxButtons.YesNo,
                                MessageBoxIcon.Question, MessageBoxDefaultButton.Button1,
                                (MessageBoxOptions)0) == DialogResult.Yes)
             {

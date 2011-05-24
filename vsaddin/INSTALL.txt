@@ -6,7 +6,7 @@ Requirements
 Visual Studio and Windows Versions
 ----------------------------------
 
-The Ice Visual Studio Add-In is supported in the following 
+The Ice Visual Studio Add-in is supported in the following 
 environments:
 
  - Windows XP SP3 (x86) with Visual Studio 2008 SP1
@@ -32,7 +32,7 @@ Visual Studio Express is not supported.
 Compilers
 ---------
 
-Building the Ice Visual Studio Add-In requires:
+Building the Ice Visual Studio Add-in requires:
 
 - Microsoft Visual Studio 2008 SP1 and Visual Studio 2008 SDK
 
@@ -70,7 +70,7 @@ The library name is
 Installation
 ======================================================================
 
-Simply run "nmake install". This installs the Ice Visual Studio Add-In
+Simply run "nmake install". This installs the Ice Visual Studio Add-in
 in the directory specified by the "prefix" variable in
 config\Make.rules.mak:
 

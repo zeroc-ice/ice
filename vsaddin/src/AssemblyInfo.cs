@@ -14,10 +14,10 @@ using System.Runtime.InteropServices;
 using System.Resources;
 
 [assembly: AssemblyTitle("IceVisualStudioAddIn")]
-[assembly: AssemblyDescription("Ice Add-In for Visual Studio")]
+[assembly: AssemblyDescription("Ice Add-in for Visual Studio")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("Ice Add-In for Visual Studio")]
+[assembly: AssemblyProduct("Ice Add-in for Visual Studio")]
 [assembly: AssemblyCopyright("Copyright (c) 2003-2011 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]

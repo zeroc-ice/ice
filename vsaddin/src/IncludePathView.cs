@@ -209,7 +209,7 @@ namespace Ice.VisualStudio
                     {
                         MessageBox.Show(this, "The Slice Include Path doesn't allow duplicates.\n" +
                                    "Value: `" + path + "' will be removed.\n",
-                                   "Ice Visual Studio Add-In", MessageBoxButtons.OK,
+                                   "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                                    MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1,
                                    (MessageBoxOptions)0);
                         sliceIncludeList.Items.RemoveAt(_editingIndex);
