@@ -26,6 +26,6 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) $(ICONV_LIB)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) $(ICONV_LIBS)
 
 include .depend
