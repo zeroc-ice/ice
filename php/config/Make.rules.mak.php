@@ -105,7 +105,7 @@ install_libdir		= $(prefix)\php
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
-!if "$(ice_src_dist)" != ""
+!if exist ($(top_srcdir)\..\cpp\config\Make.rules.msvc)
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 !else
 !include $(top_srcdir)\config\Make.rules.msvc

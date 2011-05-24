@@ -31,7 +31,7 @@ slice_translator = slice2php.exe
 !include $(top_srcdir)\config\Make.common.rules.mak
 !endif
 
-!if "$(ice_src_dist)" != ""
+!if exist ($(top_srcdir)\..\cpp\config\Make.rules.msvc)
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 !else
 !include $(top_srcdir)\config\Make.rules.msvc
