@@ -189,7 +189,21 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
 # Fix C# and VB projects
 #
 for f in FixUtil.find("*.vbproj"):
-    FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)])
 for f in FixUtil.find("*.csproj"):
     if f.find("addin-") < 0:
-        FixUtil.fileMatchAndReplace(f, [("Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)])
