@@ -90,7 +90,7 @@ static const char* _commandsHelp[][3] = {
 "node load NAME            Print the load of the node NAME.\n" 
 },
 { "node", "processors",
-"node processors [NAME]    Print the number of processor socket of the\n"
+"node processors [NAME]    Print the number of processor sockets of the\n"
 "                          node NAME or all the nodes if NAME is omitted.\n" 
 },
 { "node", "show",
