@@ -558,9 +558,9 @@ def spawn(command, cwd = None, mapping = None):
         command = "./" + command
     elif mapping == "java":
         if preferIPv4:
-            command = command.replace("java", "java -Djava.net.preferIPv4Stack=true")
+            command = command.replace("java", "java -Djava.net.preferIPv4Stack=true", 1)
         if isSolaris() and x64:
-            command = command.replace("java", "java -d64")
+            command = command.replace("java", "java -d64", 1)
     elif mapping == "cpp":
         if cwd != None:
             desc = os.path.join(cwd, desc)
