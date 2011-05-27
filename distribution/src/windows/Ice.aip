@@ -473,6 +473,7 @@
     <ROW Directory="vc100_1_DIR" Directory_Parent="lib_DIR" DefaultDir="vc100"/>
     <ROW Directory="vc100_DIR" Directory_Parent="bin_DIR" DefaultDir="vc100"/>
     <ROW Directory="voip_DIR" Directory_Parent="Glacier2_6_DIR" DefaultDir="voip"/>
+    <ROW Directory="vsaddin_DIR" Directory_Parent="APPDIR" DefaultDir="vsaddin"/>
     <ROW Directory="workqueue_DIR" Directory_Parent="IceUtil_1_DIR" DefaultDir="workqu~1|workqueue"/>
     <ROW Directory="wpf_DIR" Directory_Parent="Ice_5_DIR" DefaultDir="wpf"/>
     <ROW Directory="x64_1_DIR" Directory_Parent="lib_DIR" DefaultDir="x64"/>
@@ -608,8 +609,8 @@
     <ROW Component="IceStorm.rb_1" ComponentId="{7084F463-818B-4EC2-867F-C8C0FDD95C2F}" Directory_="IceStorm_3_DIR" Attributes="0" KeyPath="IceStorm.rb_1" Type="0"/>
     <ROW Component="IceStorm_IceStorm_ice.py" ComponentId="{831A76AC-20B7-4361-861B-42371894CB61}" Directory_="python_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py" Type="0"/>
     <ROW Component="IceStorm_IceStorm_ice.py_1" ComponentId="{8E0352AA-5438-42BF-B41A-D4C000C038A6}" Directory_="x64_2_DIR" Attributes="0" KeyPath="IceStorm_IceStorm_ice.py_1" Type="0"/>
-    <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{0D7C96AE-2106-4DFE-9232-7B980C0D18D7}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
-    <ROW Component="IceVisualStudioAddin_VS2010.dll" ComponentId="{BBB9AC8D-FF76-4D91-9AF8-FC9D0A864032}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2010.dll"/>
+    <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{BC3A5FA7-C362-461E-9B77-93596251B3CF}" Directory_="vsaddin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
+    <ROW Component="IceVisualStudioAddin_VS2010.dll" ComponentId="{90615606-F309-4465-81BD-770DB21CA240}" Directory_="vsaddin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2010.dll"/>
     <ROW Component="Ice_3.4.2" ComponentId="{4FB41C5F-3CA0-47AD-84FE-CC4797840256}" Directory_="Ice_3.4.2_DIR" Attributes="0"/>
     <ROW Component="Ice_VS2008.AddIn" ComponentId="{C2240FDE-E342-4C28-B137-0F8F01727CE2}" Directory_="Addins_4_DIR" Attributes="0" KeyPath="Ice_VS2008.AddIn" Type="0"/>
     <ROW Component="Ice_VS2010.AddIn" ComponentId="{656B6D85-92E4-4890-9DC0-B4A99D379D2D}" Directory_="Addins_3_DIR" Attributes="0" KeyPath="Ice_VS2010.AddIn" Type="0"/>
@@ -2259,8 +2260,8 @@
     <ROW File="IceUtil.workqueue.vcproj" Component_="depend.mak_46" FileName="IceUti~1.vcp|IceUtil.workqueue.vcproj" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\Ice-3.4.2-demos\demo\IceUtil\workqueue\IceUtil.workqueue.vcproj" SelfReg="false" NextFile="IceUtil.workqueue.vcxproj"/>
     <ROW File="IceUtil.workqueue.vcxproj" Component_="depend.mak_46" FileName="IceUti~1.vcx|IceUtil.workqueue.vcxproj" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\Ice-3.4.2-demos\demo\IceUtil\workqueue\IceUtil.workqueue.vcxproj" SelfReg="false" NextFile="IceUtil.workqueue.vcxproj.filters"/>
     <ROW File="IceUtil.workqueue.vcxproj.filters" Component_="depend.mak_46" FileName="IceUti~1.fil|IceUtil.workqueue.vcxproj.filters" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\Ice-3.4.2-demos\demo\IceUtil\workqueue\IceUtil.workqueue.vcxproj.filters" SelfReg="false" NextFile="Makefile.mak_58"/>
-    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="newslice.ico" DigSign="true"/>
-    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" NextFile="Ice_VS2010.AddIn"/>
+    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="IceVisualStudioAddin_VS2010.dll" FileNameLocId="newslice.ico"/>
+    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" FileNameLocId="Ice_VS2010.AddIn"/>
     <ROW File="Ice_BuiltinSequences_ice.py" Component_="IceStorm_IceStorm_ice.py" FileName="Ice_Bu~1.py|Ice_BuiltinSequences_ice.py" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\py\python\Ice_BuiltinSequences_ice.py" SelfReg="false" NextFile="Ice_Communicator_ice.py"/>
     <ROW File="Ice_BuiltinSequences_ice.py_1" Component_="IceStorm_IceStorm_ice.py_1" FileName="Ice_Bu~1.py|Ice_BuiltinSequences_ice.py" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\py\python\Ice_BuiltinSequences_ice.py" SelfReg="false" NextFile="Ice_Communicator_ice.py_1"/>
     <ROW File="Ice_CommunicatorF_ice.py" Component_="IceStorm_IceStorm_ice.py" FileName="Ice_Co~2.py|Ice_CommunicatorF_ice.py" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\py\python\Ice_CommunicatorF_ice.py" SelfReg="false" NextFile="Ice_Connection_ice.py"/>
@@ -2811,7 +2812,7 @@
     <ROW File="README.txt_200" Component_="classpath" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demoj\android\chat\README.txt" SelfReg="false" NextFile="icon.png"/>
     <ROW File="README.txt_201" Component_="classpath_1" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demoj\android\hello\README.txt" SelfReg="false" NextFile="icon.png_1"/>
     <ROW File="README.txt_202" Component_="classpath_2" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demoj\android\library\README.txt" SelfReg="false" NextFile="icon.png_2"/>
-    <ROW File="README.txt_203" Component_="README.txt_2" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demoj\android\README.txt" SelfReg="false"/>
+    <ROW File="README.txt_203" Component_="README.txt_2" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demoj\android\README.txt" SelfReg="false" NextFile="IceVisualStudioAddin_VS2008.dll"/>
     <ROW File="README.txt_21" Component_="depend.mak_14" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demo\Glacier2\callback\README.txt" SelfReg="false" NextFile="README.txt_22"/>
     <ROW File="README.txt_22" Component_="depend.mak_15" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demo\Glacier2\chat\README.txt" SelfReg="false" NextFile="README.txt_23"/>
     <ROW File="README.txt_23" Component_="Makefile.mak_4" FileName="README.txt" Attributes="0" SourcePath="..\..\..\Ice-3.4.2-demos\demo\Glacier2\README.txt" SelfReg="false" NextFile="README.txt_24"/>
@@ -4145,7 +4146,7 @@
     <ROW File="icestormserviced.lib_2" Component_="sliced.lib" FileName="icesto~3.lib|icestormserviced.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Debug\cpp\lib\icestormserviced.lib" SelfReg="false" NextFile="iceutild.lib_3"/>
     <ROW File="icestormserviced.lib_3" Component_="freezed.lib_2" FileName="icesto~2.lib|icestormserviced.lib" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Debug-x64\cpp\lib\icestormserviced.lib" SelfReg="false" NextFile="iceutild.lib_4"/>
     <ROW File="icestormsqldb34.dll" Component_="icestormsqldb34.dll" FileName="icesto~8.dll|icestormsqldb34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\bin\icestormsqldb34.dll" SelfReg="false" NextFile="icestormsqldb34d.dll_1" DigSign="true"/>
-    <ROW File="icestormsqldb34.dll_1" Component_="icestormsqldb34.dll_1" FileName="icesto~8.dll|icestormsqldb34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\cpp\bin\icestormsqldb34.dll" SelfReg="false" NextFile="IceVisualStudioAddin_VS2008.dll" DigSign="true"/>
+    <ROW File="icestormsqldb34.dll_1" Component_="icestormsqldb34.dll_1" FileName="icesto~8.dll|icestormsqldb34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\cpp\bin\icestormsqldb34.dll" SelfReg="false" NextFile="newslice.ico" DigSign="true"/>
     <ROW File="icestormsqldb34.dll_2" Component_="icestormsqldb34.dll_2" FileName="icesto~8.dll|icestormsqldb34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\cpp\bin\icestormsqldb34.dll" SelfReg="false" NextFile="iceutil34.dll_3" DigSign="true"/>
     <ROW File="icestormsqldb34.dll_3" Component_="icestormsqldb34.dll_3" FileName="icesto~8.dll|icestormsqldb34.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release-x64\cpp\bin\icestormsqldb34.dll" SelfReg="false" NextFile="iceutil34.dll_4" DigSign="true"/>
     <ROW File="icestormsqldb34d.dll" Component_="icestormsqldb34d.dll" FileName="icesto~7.dll|icestormsqldb34d.dll" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Debug\cpp\bin\icestormsqldb34d.dll" SelfReg="false" NextFile="icegridsqldb34d.pdb" DigSign="true"/>
@@ -4367,7 +4368,7 @@
     <ROW File="slice.vsdir_4" Component_="slice.vsdir_4" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\templates\vs\slice.vsdir" SelfReg="false" NextFile="newslice.ice_2"/>
     <ROW File="slice.vsdir_5" Component_="slice.vsdir_5" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\templates\vs\slice.vsdir" SelfReg="false" NextFile="newslice.ice_3"/>
     <ROW File="slice.vsdir_6" Component_="slice.vsdir_6" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\templates\vs\Slice\slice.vsdir" SelfReg="false" NextFile="slice.vsdir_7"/>
-    <ROW File="slice.vsdir_7" Component_="slice.vsdir_7" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\templates\vs\Slice\slice.vsdir" SelfReg="false" NextFile="IceVisualStudioAddin_VS2010.dll"/>
+    <ROW File="slice.vsdir_7" Component_="slice.vsdir_7" FileName="slice~1.vsd|slice.vsdir" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\templates\vs\Slice\slice.vsdir" SelfReg="false" NextFile="Ice_VS2010.AddIn"/>
     <ROW File="slice2cpp.exe" Component_="slice2cpp.exe" FileName="slice2~1.exe|slice2cpp.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\cpp\bin\slice2cpp.exe" SelfReg="false" NextFile="slice2cs.exe" DigSign="true"/>
     <ROW File="slice2cpp.exe_1" Component_="slice2cpp.exe_1" FileName="slice2~1.exe|slice2cpp.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release-x64\cpp\bin\slice2cpp.exe" SelfReg="false" NextFile="slice2cs.exe_1" DigSign="true"/>
     <ROW File="slice2cpp.exe_2" Component_="slice2cpp.exe_2" FileName="slice2~1.exe|slice2cpp.exe" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\cpp\bin\slice2cpp.exe" SelfReg="false" NextFile="slice2cs.exe_2" DigSign="true"/>
