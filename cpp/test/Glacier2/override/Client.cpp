@@ -151,15 +151,25 @@ CallbackClient::run(int argc, char* argv[])
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallback(onewayR, 0, ctx);
         oneway->initiateCallbackWithPayload(twowayR);
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(2000));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
         callbackReceiverImpl->activate();
         test(callbackReceiverImpl->callbackWithPayloadOK(4) == 0);
-        if(callbackReceiverImpl->callbackOK(1, 0) != 0)
-        {
-            cerr << callbackReceiverImpl->callbackOK(0, 0) << endl;
-            test(false);
-        }
-
+        
+	int remainingCallbacks = callbackReceiverImpl->callbackOK(1, 0);
+	//
+	// Occasionally, Glacier2 flushes in the middle of our 5
+	// callbacks, so we get more than 1 callback
+	// (in theory we could get up to 5 total - more than 1 extra is extremely unlikely)
+	//
+	// The sleep above is also important as we want to have enough
+	// time to receive this (these) extra callback(s).
+	//
+	test(remainingCallbacks <= 4);
+	if(remainingCallbacks > 0)
+	{
+	    test(callbackReceiverImpl->callbackOK(remainingCallbacks, 0) == 0);
+	}
+	
         ctx["_fwd"] = "O";
 
         oneway->initiateCallbackWithPayload(twowayR);
