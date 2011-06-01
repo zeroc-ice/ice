@@ -223,7 +223,7 @@ Selector::update(EventHandler* handler, SocketOperation remove, SocketOperation 
     {
         op = EPOLL_CTL_DEL;
     }
-    else if(!previous && !status)
+    else if(previous == status)
     {
         return;
     }
@@ -283,12 +283,13 @@ Selector::enable(EventHandler* handler, SocketOperation status)
     {
         SOCKET fd = handler->getNativeInfo()->fd();
 #if defined(ICE_USE_EPOLL)
-        SocketOperation previous = static_cast<SocketOperation>(handler->_registered & ~status);
+        SocketOperation previous = static_cast<SocketOperation>(handler->_registered & ~(handler->_disabled | status));
+        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;
-        event.events |= handler->_registered & SocketOperationRead ? EPOLLIN : 0;
-        event.events |= handler->_registered & SocketOperationWrite ? EPOLLOUT : 0;
+        event.events |= newStatus & SocketOperationRead ? EPOLLIN : 0;
+        event.events |= newStatus & SocketOperationWrite ? EPOLLOUT : 0;
         if(epoll_ctl(_queueFd, previous ? EPOLL_CTL_MOD : EPOLL_CTL_ADD, fd, &event) != 0)
         {
             Ice::Error out(_instance->initializationData().logger);
@@ -319,7 +320,7 @@ Selector::disable(EventHandler* handler, SocketOperation status)
     {
         SOCKET fd = handler->getNativeInfo()->fd();
 #if defined(ICE_USE_EPOLL)
-        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~status);
+        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;

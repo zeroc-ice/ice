@@ -72,6 +72,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a bug in the Linux epoll selector implementation which could
+  cause hangs when using the thread pool serialization mode.
+
 - Fixed a memory leak in IceSSL on Windows.
 
 - Fixed a bug in the generated code for a Slice structure containing
