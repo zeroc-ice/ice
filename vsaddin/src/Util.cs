@@ -2483,7 +2483,7 @@ namespace Ice.VisualStudio
 
             if((int)msgLevel <= verboseLevel)
             {
-                if(builder.connectMode() != ext_ConnectMode.ext_cm_CommandLine)
+                if(!builder.commandLine)
                 {
                     OutputWindowPane pane = builder.buildOutput();
                     if(pane == null)
@@ -2831,16 +2831,29 @@ namespace Ice.VisualStudio
 
         public static void unexpectedExceptionWarning(Exception ex)
         {
-            Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
-            Builder builder = Connect.getBuilder();
-            if(builder.commandLine)
+            try
             {
-                MessageBox.Show("The Ice Visual Studio Add-in has raised an unexpected exception:\n" +
-                                ex.ToString(),
-                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error,
-                                MessageBoxDefaultButton.Button1,
-                                (MessageBoxOptions)0);
+                Builder builder = Connect.getBuilder();
+                if(!builder.commandLine)
+                {
+                    MessageBox.Show("The Ice Visual Studio Add-in has raised an unexpected exception:\n" +
+                                    ex.ToString(),
+                                    "Ice Visual Studio Add-in", MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error,
+                                    MessageBoxDefaultButton.Button1,
+                                    (MessageBoxOptions)0);
+                }
+            }
+            catch(Exception)
+            { 
+            }
+
+            try
+            {
+                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
+            }
+            catch(Exception)
+            {
             }
         }
 

@@ -3020,13 +3020,21 @@ namespace Ice.VisualStudio
             return errors;
         }
 
+        private const string buildOutputPaneGuid = "{1BD8A850-02D1-11d1-BEE7-00A0C913D1F8}";
         public OutputWindowPane buildOutput()
         {
             if(_output == null)
             {
                 OutputWindow window = (OutputWindow)_applicationObject.Windows.Item(
                     EnvDTE.Constants.vsWindowKindOutput).Object;
-                _output = window.OutputWindowPanes.Item("Build");
+                foreach(OutputWindowPane w in window.OutputWindowPanes)
+                {
+                    if(w.Guid.Equals(buildOutputPaneGuid, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        _output = w;
+                        break;
+                    }
+                }
             }
             return _output;
         }
