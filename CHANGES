@@ -72,7 +72,7 @@ General Changes
 C++ Changes
 ===========
 
-- Fixed a bug in the Linux epoll selector implementation which could
+- Fixed a bug in the Linux epoll selector implementation that could
   cause hangs when using the thread pool serialization mode.
 
 - Fixed a memory leak in IceSSL on Windows.
@@ -151,6 +151,9 @@ PHP Changes
 
 Visual Studio Add-in Changes
 ============================
+
+- Fixed a bug that prevented the Add-in from automatically compiling
+  Slice files when using a non-English version of Visual Studio.
 
 - Improved the layout and wording of the Ice Configuration dialogs.
 
