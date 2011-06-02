@@ -275,9 +275,9 @@ namespace Ice.VisualStudio
         public static string getIceHome()
         {
             string defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if(defaultIceHome.EndsWith("\\bin", StringComparison.CurrentCultureIgnoreCase))
+            if(defaultIceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
             {
-                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\bin".Length);
+                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin".Length);
             }
             return defaultIceHome;
         }
