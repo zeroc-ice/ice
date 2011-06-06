@@ -772,7 +772,7 @@ IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
 
     _readI += _read.count;
 
-    if(_readI == _readBuffer.end())
+    if(_iocpBio && _readI == _readBuffer.end())
     {
         assert(_readI == _readBuffer.end());
         int n = BIO_write(_iocpBio, &_readBuffer[0], static_cast<int>(_readBuffer.size()));
