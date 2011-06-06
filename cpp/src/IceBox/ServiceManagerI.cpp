@@ -265,13 +265,13 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
     catch(const Ice::Exception& ex)
     {
         Warning out(_logger);
-        out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+        out << "ServiceManager: exception while stopping service " << info.name << ":\n";
         out << ex;
     }
     catch(...)
     {
         Warning out(_logger);
-        out << "ServiceManager: unknown exception in stop for service " << info.name;
+        out << "ServiceManager: unknown exception while stopping service " << info.name;
     }
 
     {
@@ -599,16 +599,27 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     {
         info.service = factory(_communicator);
     }
+    catch(const FailureException& ex)
+    {
+        throw;
+    }
     catch(const Exception& ex)
     {
+        ostringstream s;
+        s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << service << ":\n";
+        s << ex;
+
         FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
+        e.reason = s.str();
         throw e;
     }
     catch(...)
     {
+        ostringstream s;
+        s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << service;
+
         FailureException e(__FILE__, __LINE__);
-        e.reason = "ServiceManager: unknown exception in entry point `" + entryPoint + "'";
+        e.reason = s.str();
         throw e;
     }
 
@@ -700,7 +711,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 catch(const Ice::Exception& ex)
                 {
                     Warning out(_logger);
-                    out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+                    out << "ServiceManager: exception while shutting down communicator for service " << service
+                        << ":\n";
                     out << ex;
                 }
 
@@ -712,7 +724,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 catch(const Exception& ex)
                 {
                     Warning out(_logger);
-                    out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+                    out << "ServiceManager: exception while destroying communicator for service " << service
+                        << ":\n";
                     out << ex;
                 }
             }
@@ -731,6 +744,15 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         ostringstream s;
         s << "ServiceManager: exception while starting service " << service << ":\n";
         s << ex;
+
+        FailureException e(__FILE__, __LINE__);
+        e.reason = s.str();
+        throw e;
+    }
+    catch(...)
+    {
+        ostringstream s;
+        s << "ServiceManager: unknown exception while starting service " << service;
 
         FailureException e(__FILE__, __LINE__);
         e.reason = s.str();
@@ -777,13 +799,13 @@ IceBox::ServiceManagerI::stopAll()
             catch(const Ice::Exception& ex)
             {
                 Warning out(_logger);
-                out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+                out << "ServiceManager: exception while stopping service " << info.name << ":\n";
                 out << ex;
             }
             catch(...)
             {
                 Warning out(_logger);
-                out << "ServiceManager: unknown exception in stop for service " << info.name;
+                out << "ServiceManager: unknown exception while stopping service " << info.name;
             }
         }
     }
@@ -818,7 +840,7 @@ IceBox::ServiceManagerI::stopAll()
             catch(const Ice::Exception& ex)
             {
                 Warning out(_logger);
-                out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+                out << "ServiceManager: exception while stopping service " << info.name << ":\n";
                 out << ex;
             }
         }
@@ -836,13 +858,13 @@ IceBox::ServiceManagerI::stopAll()
         catch(const Exception& ex)
         {
             Warning out(_logger);
-            out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+            out << "ServiceManager: exception while stopping service " << info.name << ":\n";
             out << ex;
         }
         catch(...)
         {
             Warning out(_logger);
-            out << "ServiceManager: unknown exception in stop for service " << info.name;
+            out << "ServiceManager: unknown exception while stopping service " << info.name;
         }
 
         if(info.communicator)
@@ -855,7 +877,7 @@ IceBox::ServiceManagerI::stopAll()
             catch(const Exception& ex)
             {
                 Warning out(_logger);
-                out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+                out << "ServiceManager: exception while stopping service " << info.name << ":\n";
                 out << ex;
             }
         }
@@ -867,13 +889,13 @@ IceBox::ServiceManagerI::stopAll()
         catch(const Exception& ex)
         {
             Warning out(_logger);
-            out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+            out << "ServiceManager: exception while stopping service " << info.name << ":\n";
             out << ex;
         }
         catch(...)
         {
             Warning out(_logger);
-            out << "ServiceManager: unknown exception in stop for service " << info.name;
+            out << "ServiceManager: unknown exception while stopping service " << info.name;
         }
     }
 
@@ -886,7 +908,7 @@ IceBox::ServiceManagerI::stopAll()
         catch(const std::exception& ex)
         {
             Warning out(_logger);
-            out << "ServiceManager: unknown exception while destroying shared communicator:\n" << ex;
+            out << "ServiceManager: exception while destroying shared communicator:\n" << ex;
         }
         _sharedCommunicator = 0;
     }

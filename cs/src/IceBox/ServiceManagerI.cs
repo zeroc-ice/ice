@@ -81,7 +81,6 @@ class ServiceManagerI : ServiceManagerDisp_
         _logger = _communicator.getLogger();
         _argv = args;
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
-
     }
 
     public override Dictionary<string, string>
@@ -136,7 +135,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
         catch(Exception e)
         {
-            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + e.ToString());
+            _logger.warning("ServiceManager: exception while starting service " + info.name + ":\n" + e.ToString());
         }
 
         _m.Lock();
@@ -218,8 +217,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
         catch(Exception e)
         {
-            _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
-                            e.ToString());
+            _logger.warning("ServiceManager: exception while stopping service " + info.name + "\n" + e.ToString());
         }
 
         _m.Lock();
@@ -514,15 +512,9 @@ class ServiceManagerI : ServiceManagerDisp_
             stopAll();
             return 1;
         }
-        catch(Ice.LocalException ex)
-        {
-            _logger.error("ServiceManager: " + ex.ToString());
-            stopAll();
-            return 1;
-        }
         catch(Exception ex)
         {
-            _logger.error("ServiceManager: unknown exception\n" + ex.ToString());
+            _logger.error("ServiceManager: caught exception:\n" + ex.ToString());
             stopAll();
             return 1;
         }
@@ -536,9 +528,6 @@ class ServiceManagerI : ServiceManagerDisp_
         _m.Lock();
         try
         {
-            //
-            // Instantiate the class.
-            //
             ServiceInfo info = new ServiceInfo();
             info.name = service;
             info.status = ServiceStatus.Stopped;
@@ -614,73 +603,82 @@ class ServiceManagerI : ServiceManagerDisp_
                 e.reason = err + "GetType failed for '" + className + "'";
                 throw e;
             }
-            //
-            // If the service class provides a constructor that accepts an Ice.Communicator argument,
-            // use that in preference to the default constructor.
-            //
-            Type[] parameterTypes = new Type[1];
-            parameterTypes[0] = typeof(Ice.Communicator);
-            System.Reflection.ConstructorInfo ci = c.GetConstructor(parameterTypes);
-            if(ci != null)
-            {
-                try
-                {
-                    Object[] parameters = new Object[1];
-                    parameters[0] = _communicator;
-                    info.service = (Service)ci.Invoke(parameters);
-                }
-                catch(System.InvalidCastException ex)
-                {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "service does not implement IceBox.Service";
-                    throw e;
-                }
-                catch(System.MethodAccessException ex)
-                {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "unable to access service constructor " + className + "(Ice.Communicator)";
-                    throw e;
-                }
-                catch(System.Exception ex)
-                {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "failure in service constructor " + className + "(Ice.Communicator)";
-                    throw e;
-                }
-            }
-            else
+
+            try
             {
                 //
-                // Fall back to the default constructor.
+                // If the service class provides a constructor that accepts an Ice.Communicator argument,
+                // use that in preference to the default constructor.
                 //
-                try
+                Type[] parameterTypes = new Type[1];
+                parameterTypes[0] = typeof(Ice.Communicator);
+                System.Reflection.ConstructorInfo ci = c.GetConstructor(parameterTypes);
+                if(ci != null)
                 {
-                    info.service = (Service)IceInternal.AssemblyUtil.createInstance(c);
-                    if(info.service == null)
+                    try
                     {
-                        FailureException e = new FailureException();
-                        e.reason = err + "no default constructor for '" + className + "'";
+                        Object[] parameters = new Object[1];
+                        parameters[0] = _communicator;
+                        info.service = (Service)ci.Invoke(parameters);
+                    }
+                    catch(System.MethodAccessException ex)
+                    {
+                        FailureException e = new FailureException(ex);
+                        e.reason = err + "unable to access service constructor " + className + "(Ice.Communicator)";
                         throw e;
                     }
                 }
-                catch(System.InvalidCastException ex)
+                else
                 {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "service does not implement IceBox.Service";
+                    //
+                    // Fall back to the default constructor.
+                    //
+                    try
+                    {
+                        info.service = (Service)IceInternal.AssemblyUtil.createInstance(c);
+                        if(info.service == null)
+                        {
+                            FailureException e = new FailureException();
+                            e.reason = err + "no default constructor for '" + className + "'";
+                            throw e;
+                        }
+                    }
+                    catch(System.UnauthorizedAccessException ex)
+                    {
+                        FailureException e = new FailureException(ex);
+                        e.reason = err + "unauthorized access to default service constructor for " + className;
+                        throw e;
+                    }
+                }
+            }
+            catch(FailureException)
+            {
+                throw;
+            }
+            catch(System.InvalidCastException ex)
+            {
+                FailureException e = new FailureException(ex);
+                e.reason = err + "service does not implement IceBox.Service";
+                throw e;
+            }
+            catch(System.Reflection.TargetInvocationException ex)
+            {
+                if(ex.InnerException is IceBox.FailureException)
+                {
+                    throw ex.InnerException;
+                }
+                else
+                {
+                    FailureException e = new FailureException(ex.InnerException);
+                    e.reason = "ServiceManager: exception in service constructor for " + className;
                     throw e;
                 }
-                catch(System.UnauthorizedAccessException ex)
-                {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "unauthorized access to default service constructor for " + className;
-                    throw e;
-                }
-                catch(System.Exception ex)
-                {
-                    FailureException e = new FailureException(ex);
-                    e.reason = err + "failure in default service constructor for " + className;
-                    throw e;
-                }
+            }
+            catch(System.Exception ex)
+            {
+                FailureException e = new FailureException(ex);
+                e.reason = err + "exception in service constructor " + className;
+                throw e;
             }
 
             //
@@ -742,7 +740,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     info.service.start(service, communicator, info.args);
                     info.status = ServiceStatus.Started;
                 }
-                catch(Exception)
+                catch(System.Exception)
                 {
                     if(info.communicator != null)
                     {
@@ -758,9 +756,9 @@ class ServiceManagerI : ServiceManagerDisp_
                             // the communicator for its own reasons.
                             //
                         }
-                        catch(Exception e)
+                        catch(System.Exception e)
                         {
-                            _logger.warning("ServiceManager: exception in shutting down communicator for service "
+                            _logger.warning("ServiceManager: exception while shutting down communicator for service "
                                             + service + "\n" + e.ToString());
                         }
 
@@ -768,9 +766,9 @@ class ServiceManagerI : ServiceManagerDisp_
                         {
                             info.communicator.destroy();
                         }
-                        catch(Exception e)
+                        catch(System.Exception e)
                         {
-                            _logger.warning("ServiceManager: exception in destroying communicator for service "
+                            _logger.warning("ServiceManager: exception while destroying communicator for service "
                                             + service + "\n" + e.ToString());
                         }
                     }
@@ -783,10 +781,10 @@ class ServiceManagerI : ServiceManagerDisp_
             {
                 throw;
             }
-            catch(Exception ex)
+            catch(System.Exception ex)
             {
                 FailureException e = new FailureException(ex);
-                e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
+                e.reason = "ServiceManager: exception while starting service " + service;
                 throw e;
             }
         }
@@ -825,9 +823,9 @@ class ServiceManagerI : ServiceManagerDisp_
                         info.service.stop();
                         stoppedServices.Add(info.name);
                     }
-                    catch(Exception e)
+                    catch(System.Exception e)
                     {
-                        _logger.warning("IceBox.ServiceManager: exception in stop for service " + info.name + "\n" +
+                        _logger.warning("IceBox.ServiceManager: exception while stopping service " + info.name + ":\n" +
                                         e.ToString());
                     }
                 }
@@ -857,7 +855,7 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch(Exception e)
                     {
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                        _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" +
                                         e.ToString());
                     }
 
@@ -865,9 +863,9 @@ class ServiceManagerI : ServiceManagerDisp_
                     {
                         info.communicator.destroy();
                     }
-                    catch(Exception e)
+                    catch(System.Exception e)
                     {
-                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                        _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" +
                                         e.ToString());
                     }
                 }
@@ -879,10 +877,9 @@ class ServiceManagerI : ServiceManagerDisp_
                 {
                     _sharedCommunicator.destroy();
                 }
-                catch(Exception e)
+                catch(System.Exception e)
                 {
-                    _logger.warning("ServiceManager: unknown exception while destroying shared communicator:\n" +
-                                    e.ToString());
+                    _logger.warning("ServiceManager: exception while destroying shared communicator:\n" + e.ToString());
                 }
                 _sharedCommunicator = null;
             }
@@ -1021,8 +1018,8 @@ class ServiceManagerI : ServiceManagerDisp_
                     }
                     catch(IceUtilInternal.Options.BadQuote ex)
                     {
-                        FailureException e = new FailureException();
-                        e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.ToString();
+                        FailureException e = new FailureException(ex);
+                        e.reason = "ServiceManager: invalid arguments for service `" + name + "'";
                         throw e;
                     }
                 }

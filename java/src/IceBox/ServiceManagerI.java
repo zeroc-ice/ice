@@ -73,7 +73,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
-            _logger.warning("ServiceManager: exception in start for service " + info.name + "\n" + sw.toString());
+            _logger.warning("ServiceManager: exception while starting service " + info.name + ":\n" + sw.toString());
         }
 
         synchronized(this)
@@ -145,8 +145,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             e.printStackTrace(pw);
             pw.flush();
-            _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
-                            sw.toString());
+            _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" + sw.toString());
         }
 
         synchronized(this)
@@ -227,7 +226,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
         }
     }
-
 
     public void
     shutdown(Ice.Current current)
@@ -444,23 +442,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
             stopAll();
             return 1;
         }
-        catch(Ice.LocalException ex)
+        catch(Throwable ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
             ex.printStackTrace(pw);
             pw.flush();
-            _logger.error("ServiceManager: " + ex + "\n" + sw.toString());
-            stopAll();
-            return 1;
-        }
-        catch(java.lang.Exception ex)
-        {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            ex.printStackTrace(pw);
-            pw.flush();
-            _logger.error("ServiceManager: unknown exception\n" + sw.toString());
+            _logger.error("ServiceManager: caught exception:\n" + sw.toString());
             stopAll();
             return 1;
         }
@@ -511,8 +499,14 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
             catch(java.lang.reflect.InvocationTargetException ex)
             {
-                throw new FailureException(
-                    "ServiceManager: service constructor " + className + "(Ice.Communicator) threw an exception", ex);
+                if(ex.getCause() != null)
+                {
+                    throw ex.getCause();
+                }
+                else
+                {
+                    throw new FailureException("ServiceManager: exception in service constructor for " + className, ex);
+                }
             }
 
             if(obj == null)
@@ -543,6 +537,14 @@ public class ServiceManagerI extends _ServiceManagerDisp
         catch(InstantiationException ex)
         {
             throw new FailureException("ServiceManager: unable to instantiate class " + className, ex);
+        }
+        catch(FailureException ex)
+        {
+            throw ex;
+        }
+        catch(Throwable ex)
+        {
+            throw new FailureException("ServiceManager: exception in service constructor for " + className, ex);
         }
 
         //
@@ -635,8 +637,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in shutting down communicator for service "
-                                        + service + "\n" + sw.toString());
+                        _logger.warning("ServiceManager: exception while shutting down communicator for service "
+                                        + service + ":\n" + sw.toString());
                     }
 
                     try
@@ -649,8 +651,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                         e.printStackTrace(pw);
                         pw.flush();
-                        _logger.warning("ServiceManager: exception in destroying communciator for service"
-                                        + service + "\n" + sw.toString());
+                        _logger.warning("ServiceManager: exception while destroying communicator for service "
+                                        + service + ":\n" + sw.toString());
                     }
                 }
                 throw ex;
@@ -664,7 +666,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
         }
         catch(Throwable ex)
         {
-            throw new FailureException("ServiceManager: exception while starting service " + service + ": " + ex, ex);
+            throw new FailureException("ServiceManager: exception while starting service " + service, ex);
         }
     }
 
@@ -702,13 +704,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     info.status = StatusStopped;
                     stoppedServices.add(info.name);
                 }
-                catch(java.lang.Exception e)
+                catch(Throwable e)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     e.printStackTrace(pw);
                     pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                    _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" +
                                     sw.toString());
                 }
             }
@@ -742,7 +744,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     e.printStackTrace(pw);
                     pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                    _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" +
                                     sw.toString());
                 }
 
@@ -756,7 +758,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                     e.printStackTrace(pw);
                     pw.flush();
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                    _logger.warning("ServiceManager: exception while stopping service " + info.name + ":\n" +
                                     sw.toString());
                 }
             }
@@ -768,14 +770,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
             {
                 _sharedCommunicator.destroy();
             }
-            catch(Exception e)
+            catch(java.lang.Exception e)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 e.printStackTrace(pw);
                 pw.flush();
-                _logger.warning("ServiceManager: unknown exception while destroying shared communicator:\n" +
-                                sw.toString());
+                _logger.warning("ServiceManager: exception while destroying shared communicator:\n" + sw.toString());
             }
             _sharedCommunicator = null;
         }
@@ -843,7 +844,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
         }
     }
-
 
     private synchronized void
     removeObserver(ServiceObserverPrx observer, Ice.LocalException ex)
