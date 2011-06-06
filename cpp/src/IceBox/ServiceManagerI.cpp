@@ -599,7 +599,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     {
         info.service = factory(_communicator);
     }
-    catch(const FailureException& ex)
+    catch(const FailureException&)
     {
         throw;
     }
