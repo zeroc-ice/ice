@@ -195,12 +195,17 @@ namespace IceInternal
 
         public void throwLocalException()
         {
-            lock(monitor_)
+            monitor_.Lock();
+            try
             {
                 if(exception_ != null)
                 {
                     throw exception_;
                 }
+            }
+            finally
+            {
+                monitor_.Unlock();
             }
         }
 
