@@ -24,7 +24,7 @@
 #   include <pdhmsg.h> // For PDH_MORE_DATA
 #else
 #   include <sys/utsname.h>
-#   if defined(__APPLE__)
+#   if defined(__APPLE__) || defined(__FreeBSD__)
 #      include <sys/sysctl.h>
 #   elif defined(__sun)
 #      include <sys/loadavg.h>
@@ -222,7 +222,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
     _nProcessors = sysInfo.dwNumberOfProcessors;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
     static int ncpu[2] = { CTL_HW, HW_NCPU };
     size_t sz = sizeof(_nProcessors);
     if(sysctl(ncpu, 2, &_nProcessors, &sz, 0, 0) == -1)
@@ -446,7 +446,7 @@ PlatformInfo::getLoadInfo()
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
-#elif defined(__sun) || defined(__linux) || defined(__APPLE__)
+#elif defined(__sun) || defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
     //
     // We use the load average divided by the number of
     // processors to figure out if the machine is busy or

@@ -20,7 +20,7 @@
 #include <langinfo.h>
 #endif
 
-#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B) || (defined(__sun) && !defined(_XPG6))
+#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B) || (defined(__sun) && !defined(_XPG6)) || defined(__FreeBSD__)
     //
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
     //
