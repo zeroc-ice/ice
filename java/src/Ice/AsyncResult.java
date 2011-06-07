@@ -117,7 +117,7 @@ public class AsyncResult
     {
         synchronized(_monitor)
         {
-            while((_state & (Sent | Done)) == 0)
+            while((_state & Sent) == 0 && _exception == null)
             {
                 try
                 {

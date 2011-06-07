@@ -182,7 +182,7 @@ namespace IceInternal
             monitor_.Lock();
             try
             {
-                while((state_ & (Sent | Done)) == 0)
+                while((state_ & Sent) == 0 && exception_ == null)
                 {
                     monitor_.Wait();
                 }

@@ -162,7 +162,7 @@ void
 Ice::AsyncResult::waitForSent()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    while(!(_state & (Sent | Done)))
+    while(!(_state & Sent) && !_exception.get())
     {
         _monitor.wait();
     }
