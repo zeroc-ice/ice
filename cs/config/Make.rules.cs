@@ -184,6 +184,7 @@ $(bindir)/$(POLICY_TARGET):
         <assemblyIdentity name=\"$(PKG)\" publicKeyToken=\"$(publicKeyToken)\" culture=\"\"/> \n \
         <publisherPolicy apply=\"yes\"/> \n \
         <bindingRedirect oldVersion=\"$(SHORT_VERSION).0.0\" newVersion=\"$(VERSION).0\"/> \n \
+        <bindingRedirect oldVersion=\"$(SHORT_VERSION).1.0\" newVersion=\"$(VERSION).0\"/> \n \
       </dependentAssembly> \n \
     </assemblyBinding> \n \
   </runtime> \n \

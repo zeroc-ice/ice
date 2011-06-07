@@ -234,6 +234,7 @@ policy:
         <assemblyIdentity name="$(PKG)" publicKeyToken="$(publicKeyToken)" culture=""/>
         <publisherPolicy apply="yes"/>
         <bindingRedirect oldVersion="$(SHORT_VERSION).0.0" newVersion="$(VERSION).0"/>
+        <bindingRedirect oldVersion="$(SHORT_VERSION).1.0" newVersion="$(VERSION).0"/>
       </dependentAssembly>
     </assemblyBinding>
   </runtime>
