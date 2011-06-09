@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Glacier2, Version=3.4.2.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Ice, Version=3.4.2.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
       <Private>True</Private>
