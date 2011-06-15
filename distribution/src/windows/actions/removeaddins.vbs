@@ -14,3 +14,30 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 
 fso.DeleteFile vs2008File
 fso.DeleteFile vs2010File
+
+Const HKEY_CURRENT_USER = &H80000001
+strComputer = "."
+
+Set registryObj = GetObject("winmgmts:{impersonationLevel=impersonate}!\\" & _
+ strComputer & "\root\default:StdRegProv")
+
+
+vs2008Key = "Software\Microsoft\VisualStudio\9.0\PreloadAddinStateManaged"
+registryObj.EnumValues HKEY_CURRENT_USER, vs2008Key, arrSubKeys
+If Not TypeName(arrSubKeys) = "Null" Then
+    For Each Subkey in arrSubKeys
+        If StrComp(Left(Subkey, Len("Ice.VisualStudio.Connect")), "Ice.VisualStudio.Connect", vbTextCompare) = 0 Then
+            registryObj.DeleteValue HKEY_CURRENT_USER, vs2008key, Subkey
+        End If
+    Next
+End If
+
+vs2010Key = "Software\Microsoft\VisualStudio\10.0\PreloadAddinStateManaged"
+registryObj.EnumValues HKEY_CURRENT_USER, vs2010Key, arrSubKeys
+If Not TypeName(arrSubKeys) = "Null" Then
+    For Each Subkey in arrSubKeys
+        If StrComp(Left(Subkey, Len("Ice.VisualStudio.Connect")), "Ice.VisualStudio.Connect", vbTextCompare) = 0 Then
+            registryObj.DeleteValue HKEY_CURRENT_USER, vs2010key, Subkey
+        End If
+    Next
+End If
