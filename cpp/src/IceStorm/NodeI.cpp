@@ -203,6 +203,13 @@ NodeI::start()
     // By setting _checkTask first we stop recovery() from setting it
     // to the regular election interval.
     //
+    
+    //
+    // We use this lock to ensure that recovery is called before CheckTask
+    // is scheduled, even if timeout is 0
+    //
+    Lock sync(*this);
+    
     _checkTask = new CheckTask(this);
     _timer->schedule(_checkTask, IceUtil::Time::seconds((_nodes.size() - _id) * 2));
     recovery();
