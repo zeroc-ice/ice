@@ -12,8 +12,13 @@ vs2010File = documentsDir & "Visual Studio 2010\Addins\Ice-VS2010.AddIn"
 
 Set fso = CreateObject("Scripting.FileSystemObject")
 
-fso.DeleteFile vs2008File
-fso.DeleteFile vs2010File
+If fso.FileExists(vs2008File) Then
+    fso.DeleteFile vs2008File
+End If
+
+If fso.FileExists(vs2010File) Then
+    fso.DeleteFile vs2010File
+End If
 
 Const HKEY_CURRENT_USER = &H80000001
 strComputer = "."
