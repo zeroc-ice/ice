@@ -4647,7 +4647,7 @@
     <ROW Action="VSADDIN_PROPS_DIR" Type="51" Source="VSADDIN_PROPS_DIR" Target="[%ALLUSERSPROFILE]\ZeroC"/>
     <ROW Action="fixinstalldir.vbs" Type="3078" Source="fixinstalldir.vbs"/>
     <ROW Action="install2008templates" Type="3170" Source="VS_2008_INSTALL_DIR" Target="[VS_2008_INSTALL_DIR]devenv.exe /installvstemplates"/>
-    <ROW Action="removeaddins.vbs" Type="3142" Source="removeaddins.vbs"/>
+    <ROW Action="removeaddins.vbs" Type="1094" Source="removeaddins.vbs"/>
     <ROW Action="vsplugin.vbs" Type="262" Source="vsplugin.vbs_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
