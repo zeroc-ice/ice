@@ -235,7 +235,7 @@ class StopCommand : public TimedServerCommand
 {
 public:
 
-    StopCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
+    StopCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int, bool = true);
 
     static bool isStopped(ServerI::InternalServerState);
 
@@ -251,6 +251,7 @@ public:
 private:
 
     std::vector<AMD_Server_stopPtr> _stopCB;
+    bool _deactivate;
 };
 
 class StartCommand : public TimedServerCommand

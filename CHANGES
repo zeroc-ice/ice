@@ -20,6 +20,18 @@ subdirectory of each language mapping (e.g., cpp/CHANGES).
 
 
 ======================================================================
+Changes since version 3.4.2
+======================================================================
+
+General Changes
+===============
+
+- Fixed IceGrid bug where the server deactivation timeout would be
+  ignored if the server was not deactivated using the IceGrid
+  administrative facility.
+
+
+======================================================================
 Changes since version 3.4.1
 ======================================================================
 

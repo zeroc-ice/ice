@@ -606,8 +606,8 @@ StartCommand::finished()
     _startCB.clear();
 }
 
-StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout) : 
-    TimedServerCommand(server, timer, timeout)
+StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout, bool deactivate)
+    : TimedServerCommand(server, timer, timeout), _deactivate(deactivate)
 {
 }
 
@@ -633,7 +633,10 @@ StopCommand::nextState()
 void
 StopCommand::execute()
 {
-    _server->deactivate();
+    if(_deactivate)
+    {
+        _server->deactivate();
+    }
 }
 
 void
@@ -1258,7 +1261,7 @@ ServerI::adapterDeactivated(const string& id)
         if((_state == Active || _state == WaitForActivation) &&
            _serverLifetimeAdapters.find(id) != _serverLifetimeAdapters.end())
         {
-            setStateNoSync(Deactivating);
+            _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout, false);
         }
         command = nextCommand();
     }

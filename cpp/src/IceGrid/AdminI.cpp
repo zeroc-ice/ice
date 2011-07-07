@@ -938,7 +938,7 @@ AdminI::checkIsReadOnly() const
     if(_database->isReadOnly())
     {
         DeploymentException ex;
-        ex.reason = "this operation is only allowed on a slave or read-only master registry.";
+        ex.reason = "this operation is not allowed on a slave or read-only master registry.";
         throw ex;
     }
 }
