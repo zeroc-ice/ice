@@ -437,6 +437,8 @@ generated from the section label.
         <property name="Registry.PermissionsVerifier" class="proxy" />
         <property name="Registry.ReplicaName" />
         <property name="Registry.ReplicaSessionTimeout" />
+        <property name="Registry.RequireNodeCertCN" />
+        <property name="Registry.RequireReplicaCertCN" />
         <property name="Registry.Server" class="objectadapter" />
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />

@@ -24,7 +24,8 @@ import signal
 
 print "cleaning databases...",
 sys.stdout.flush()
-Util.cleanDbDir("db/registry")
+Util.cleanDbDir("db/master")
+Util.cleanDbDir("db/slave")
 Util.cleanDbDir("db/node")
 Util.cleanDbDir("certs")
 print "ok"
@@ -57,14 +58,27 @@ makecerts.expect("Sign the certificate?")
 makecerts.sendline("y")
 makecerts.expect("1 out of 1 certificate requests certified, commit?")
 makecerts.sendline("y")
+makecerts.expect("Sign the certificate?")
+makecerts.sendline("y")
+makecerts.expect("1 out of 1 certificate requests certified, commit?")
+makecerts.sendline("y")
 makecerts.waitTestSuccess()
 print "ok"
 
 print "starting icegrid...",
 sys.stdout.flush()
-registryProps = " --Ice.PrintAdapterReady"
-registry = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.registry' + registryProps)
-registry.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
+masterProps = " --Ice.PrintAdapterReady"
+master = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.master' + masterProps)
+master.expect('IceGrid.Registry.Internal ready')
+master.expect('IceGrid.Registry.Server ready')
+master.expect('IceGrid.Registry.Client ready')
+
+slaveProps = " --Ice.PrintAdapterReady"
+slave = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.slave' + slaveProps)
+slave.expect('IceGrid.Registry.Internal ready')
+slave.expect('IceGrid.Registry.Server ready')
+slave.expect('IceGrid.Registry.Client ready')
+
 node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.node --Ice.PrintAdapterReady %s' % (args))
 node.expect('IceGrid.Node ready')
 print "ok"
@@ -116,9 +130,13 @@ admin.sendline('node shutdown Node')
 admin.expect('>>>')
 node.waitTestSuccess(timeout=120)
 
+admin.sendline('registry shutdown Slave')
+admin.expect('>>>')
+slave.waitTestSuccess()
+
 admin.sendline('registry shutdown Master')
 admin.expect('>>>')
-registry.waitTestSuccess()
+master.waitTestSuccess()
 
 admin.sendline('exit')
 admin.waitTestSuccess(timeout=120)

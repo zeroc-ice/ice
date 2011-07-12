@@ -1,7 +1,7 @@
 #
 # The IceGrid locator proxy.
 #
-Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062 -t 10000
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062 -t 10000:ssl -p 14062 -t 10000
 
 #
 # IceGrid node configuration.
@@ -26,5 +26,5 @@ IceSSL.CertAuthFile=ca_cert.pem
 IceSSL.CertFile=node_cert.pem
 IceSSL.KeyFile=node_key.pem
 
-IceSSL.TrustOnly.Client=CN="Server";CN="IceGrid Registry"
-IceSSL.TrustOnly.Server=CN="IceGrid Registry"
+IceSSL.TrustOnly.Client=CN="Server";CN="Master";CN="Slave"
+IceSSL.TrustOnly.Server=CN="Master";CN="Slave"

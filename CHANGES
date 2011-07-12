@@ -26,6 +26,14 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Added support for replica and node name verification when securing
+  the IceGrid node and registries. The names are matched against the
+  certificate common name. The connection is rejected if the
+  certificate CN doesn't match the replica or node name. The
+  properties IceGrid.Registry.RequireNodeCertCN and
+  IceGrid.Registry.RequireReplicaCertCN must be set to 1 to enable
+  this verification.
+
 - Fixed IceGrid bug where the server deactivation timeout would be
   ignored if the server was not deactivated using the IceGrid
   administrative facility.

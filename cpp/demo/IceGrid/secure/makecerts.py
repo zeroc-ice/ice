@@ -44,8 +44,9 @@ runIceca("init --overwrite --no-password")
 print
 print
 
-createCertificate("registry", "IceGrid Registry")
-createCertificate("node", "IceGrid Node")
+createCertificate("master", "Master")
+createCertificate("slave", "Slave")
+createCertificate("node", "Node")
 createCertificate("glacier2", "Glacier2")
 createCertificate("server", "Server")
 

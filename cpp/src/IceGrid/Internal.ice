@@ -702,7 +702,7 @@ interface InternalRegistry extends FileReader
      *
      **/
     NodeSession* registerNode(InternalNodeInfo info, Node* prx, LoadInfo loadInf)
-        throws NodeActiveException;
+        throws NodeActiveException, PermissionDeniedException;
 
     /**
      *
@@ -721,7 +721,7 @@ interface InternalRegistry extends FileReader
      *
      **/
     ReplicaSession* registerReplica(InternalReplicaInfo info, InternalRegistry* prx)
-        throws ReplicaActiveException;
+        throws ReplicaActiveException, PermissionDeniedException;
 
     /**
      *

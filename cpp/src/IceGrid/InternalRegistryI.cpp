@@ -19,6 +19,8 @@
 #include <IceGrid/ReplicaSessionI.h>
 #include <IceGrid/ReplicaSessionManager.h>
 #include <IceGrid/FileCache.h>
+#include <IceSSL/IceSSL.h>
+#include <IceSSL/RFC2253.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -38,6 +40,8 @@ InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
     Ice::PropertiesPtr properties = database->getCommunicator()->getProperties();
     _nodeSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
     _replicaSessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
+    _requireNodeCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireNodeCertCN", 0);
+    _requireReplicaCertCN = properties->getPropertyAsIntWithDefault("IceGrid.Registry.RequireNodeCertCN", 0);
 }
 
 InternalRegistryI::~InternalRegistryI()
@@ -50,7 +54,56 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
                                 const LoadInfo& load, 
                                 const Ice::Current& current)
 {
-    const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
+    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+    const Ice::LoggerPtr logger = traceLevels->logger;
+    if(!info || !node)
+    {
+        return 0;
+    }
+
+    if(_requireNodeCertCN)
+    {
+        try
+        {
+            IceSSL::ConnectionInfoPtr sslConnInfo = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            if(sslConnInfo)
+            {
+                if (sslConnInfo->certs.empty() ||
+                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                {
+                    if(traceLevels->node > 0)
+                    {
+                        Ice::Trace out(logger, traceLevels->nodeCat);
+                        out << "certificate CN doesn't match node name `" << info->name << "'";
+                    }
+                    throw PermissionDeniedException("certificate CN doesn't match node name `" + info->name + "'");
+                }
+            }
+            else
+            {
+                if(traceLevels->node > 0)
+                {
+                    Ice::Trace out(logger, traceLevels->nodeCat);
+                    out << "node certificate for `" << info->name << "' is required to connect to this registry";
+                }
+                throw PermissionDeniedException("node certificate is required to connect to this registry");
+            }
+        }
+        catch(const PermissionDeniedException& ex)
+        {
+            throw ex;
+        }
+        catch(const IceUtil::Exception&)
+        {
+            if(traceLevels->node > 0)
+            {
+                Ice::Trace out(logger, traceLevels->nodeCat);
+                out << "unexpected exception while verifying certificate for node `" << info->name << "'";
+            }
+            throw PermissionDeniedException("unable to verify certificate for node `" + info->name + "'");
+        }
+    }
+ 
     try
     {
         NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
@@ -68,7 +121,56 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
                                    const InternalRegistryPrx& prx,
                                    const Ice::Current& current)
 {
-    const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
+    const TraceLevelsPtr traceLevels = _database->getTraceLevels();
+    const Ice::LoggerPtr logger = traceLevels->logger;
+    if(!info || !prx)
+    {
+        return 0;
+    }
+
+    if(_requireReplicaCertCN)
+    {
+        try
+        {
+            IceSSL::ConnectionInfoPtr sslConnInfo = IceSSL::ConnectionInfoPtr::dynamicCast(current.con->getInfo());
+            if(sslConnInfo)
+            {
+                if (sslConnInfo->certs.empty() ||
+                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                {
+                    if(traceLevels->replica > 0)
+                    {
+                        Ice::Trace out(logger, traceLevels->replicaCat);
+                        out << "certificate CN doesn't match replica name `" << info->name << "'";
+                    }
+                    throw PermissionDeniedException("certificate CN doesn't match replica name `" + info->name + "'");
+                }
+            }
+            else
+            {
+                if(traceLevels->replica > 0)
+                {
+                    Ice::Trace out(logger, traceLevels->replicaCat);
+                    out << "replica certificate for `" << info->name << "' is required to connect to this registry";
+                }
+                throw PermissionDeniedException("replica certificate is required to connect to this registry");
+            }
+        }
+        catch(const PermissionDeniedException& ex)
+        {
+            throw ex;
+        }
+        catch(const IceUtil::Exception&)
+        {
+            if(traceLevels->replica > 0)
+            {
+                Ice::Trace out(logger, traceLevels->replicaCat);
+                out << "unexpected exception while verifying certificate for replica `" << info->name << "'";
+            }
+            throw PermissionDeniedException("unable to verify certificate for replica `" + info->name + "'");
+        }
+    }
+    
     try
     {
         ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
