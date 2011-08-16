@@ -44,6 +44,7 @@ filesToRemove = [ \
     "distribution/makedist.py", \
     "cpp/config/makegitignore.py", \
     "rb/config/Make.rules.Darwin", \
+    "cpp/src/slice2confluence", \
 ]
 
 #
