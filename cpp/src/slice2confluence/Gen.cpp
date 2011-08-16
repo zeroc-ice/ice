@@ -694,14 +694,14 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     {
         homeLink += "/";
     }
-    homeLink += "index.conf";
+    homeLink += "index";
 
     string indexLink = getLinkPath(0, container, false, onEnumPage);
     if(!indexLink.empty())
     {
         indexLink += "/";
     }
-    indexLink += "_sindex.conf";
+    indexLink += "_sindex";
 
     string imageDir = getImageDir();
 
@@ -1644,7 +1644,7 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 Slice::StartPageGenerator::StartPageGenerator(const Files& files)
     : GeneratorBase(_out, files)
 {
-    openDoc("index.conf", "Slice API Documentation");
+    openDoc("index", "Slice API Documentation");
 }
 
 Slice::StartPageGenerator::~StartPageGenerator()
@@ -1701,12 +1701,12 @@ Slice::StartPageGenerator::printHeaderFooter()
     string imageDir = getImageDir();
     if(imageDir.empty())
     {
-        _out << getLinkMarkup("_sindex.conf", "Index");
+        _out << getLinkMarkup("_sindex", "Index");
     }
     else
     {
         string src = imageDir + "/index.gif";
-        _out << getLinkMarkup("_sindex.conf", getImageMarkup(src, "Index Button"));
+        _out << getLinkMarkup("_sindex", getImageMarkup(src, "Index Button"));
     }
     end(); // td
     end(); // tr
@@ -1827,7 +1827,7 @@ TOCGenerator::TOCGenerator(const Files& files, const string& header, const strin
     : GeneratorBase(_out, files)
 {
     _footer = footer;
-    openDoc("_sindex.conf", "Slice API Index", header, footer);
+    openDoc("_sindex", "Slice API Index", header, footer);
 
     start("h1");
     _out << "Slice API Index";
