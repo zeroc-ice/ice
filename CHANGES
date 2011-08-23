@@ -39,6 +39,13 @@ General Changes
   administrative facility.
 
 
+Visual Studio Add-in Changes
+============================
+
+- Fixed a bug that affects Visual Studio C++ projects that build 
+  static libraries.
+
+
 ======================================================================
 Changes since version 3.4.1
 ======================================================================

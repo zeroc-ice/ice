@@ -37,6 +37,91 @@ using System.Xml;
 
 namespace Ice.VisualStudio
 {
+    public interface LinkerAdapter
+    {
+        String AdditionalDependencies
+        {
+            get;
+            set;
+        }
+
+        String AdditionalLibraryDirectories
+        {
+            get;
+            set;
+        }
+    }
+
+    public class DynamicLinkerAdapter : LinkerAdapter
+    {
+        public DynamicLinkerAdapter(VCLinkerTool linkerTool)
+        {
+            _linkerTool = linkerTool;
+        }
+
+        public String AdditionalDependencies
+        {
+            get
+            {
+                return _linkerTool.AdditionalDependencies;
+            }
+
+            set
+            {
+                _linkerTool.AdditionalDependencies = value;
+            }
+        }
+
+        public String AdditionalLibraryDirectories
+        {
+            get
+            {
+                return _linkerTool.AdditionalLibraryDirectories;
+            }
+
+            set
+            {
+                _linkerTool.AdditionalLibraryDirectories = value;
+            }
+        }
+
+        private VCLinkerTool _linkerTool;
+    }
+
+    public class StaticLinkerAdapter : LinkerAdapter
+    {
+        public StaticLinkerAdapter(VCLibrarianTool librarianTool)
+        {
+            _librarianTool = librarianTool;
+        }
+
+        public String AdditionalDependencies
+        {
+            get
+            {
+                return "";
+            }
+
+            set
+            {
+            }
+        }
+
+        public String AdditionalLibraryDirectories
+        {
+            get
+            {
+                return "";
+            }
+
+            set
+            {
+            }
+        }
+
+        private VCLibrarianTool _librarianTool;
+    }
+
     public class ComponentList : List<string>
     {
         public ComponentList()
@@ -602,7 +687,7 @@ namespace Ice.VisualStudio
             return false;
         }
 
-        public static void addCppLib(VCLinkerTool tool, string component, bool debug)
+        public static void addCppLib(LinkerAdapter tool, string component, bool debug)
         {
             if(tool == null || String.IsNullOrEmpty(component))
             {
@@ -636,7 +721,7 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static bool removeCppLib(VCLinkerTool tool, string component, bool debug)
+        public static bool removeCppLib(LinkerAdapter tool, string component, bool debug)
         {
             if(tool == null || String.IsNullOrEmpty(tool.AdditionalDependencies))
             {
@@ -841,7 +926,7 @@ namespace Ice.VisualStudio
             return;
         }
 
-        public static bool addIceCppLibraryDir(VCLinkerTool tool, Project project, bool x64)
+        public static bool addIceCppLibraryDir(LinkerAdapter tool, Project project, bool x64)
         {
             if(tool == null || project == null)
             {
@@ -909,7 +994,7 @@ namespace Ice.VisualStudio
             return changed;
         }
 
-        public static void removeIceCppLibraryDir(VCLinkerTool tool, string iceHome)
+        public static void removeIceCppLibraryDir(LinkerAdapter tool, string iceHome)
         {
             if(tool == null || String.IsNullOrEmpty(tool.AdditionalLibraryDirectories))
             {
@@ -1811,10 +1896,19 @@ namespace Ice.VisualStudio
 
                         VCCLCompilerTool compilerTool =
                             (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                        VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                        bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                        LinkerAdapter linkerAdapter;
+                        if(staticLib)
+                        {
+                            linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                        }
+                        else
+                        {
+                            linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                        }
 
                         Util.removeIceCppEnvironment((VCDebugSettings)conf.DebugSettings, iceHome);
-                        Util.removeIceCppLibraryDir(linkerTool, iceHome);
+                        Util.removeIceCppLibraryDir(linkerAdapter, iceHome);
                         Util.removeCppIncludes(compilerTool, iceHome, Util.getProjectOutputDirRaw(p));
 
                         //
@@ -2050,6 +2144,21 @@ namespace Ice.VisualStudio
                 return false;
             }
 
+            if (conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeGeneric ||
+               conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeUnknown)
+            {
+                string err = "Configuration Type: '" + conf.ConfigurationType.ToString() + "' not suported by Ice Visual Studio Add-in";
+                Util.write(project, Util.msgLevel.msgError,
+                    "------ Slice compilation failed: Project: " + Util.getTraceProjectName(project) + " ------\n\n" +
+                    err);
+                MessageBox.Show(err, "Ice Visual Studio Add-in", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
+                                (MessageBoxOptions)0);
+
+                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0, err);
+
+                return false;
+            }
+
             bool x64 = false;
 
             if(conf == null || String.IsNullOrEmpty(conf.Name))
@@ -2075,7 +2184,18 @@ namespace Ice.VisualStudio
             VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
 
             Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project, x64);
-            bool libChanged = Util.addIceCppLibraryDir(linkerTool, project, x64);
+            bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+            LinkerAdapter linkerAdapter;
+            if(staticLib)
+            {
+                linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+            }
+            else
+            {
+                linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+            }
+
+            bool libChanged = Util.addIceCppLibraryDir(linkerAdapter, project, x64);
             bool includesChanged = Util.addCppIncludes(compilerTool, project);
 
             return libChanged | includesChanged;
@@ -2099,11 +2219,20 @@ namespace Ice.VisualStudio
 
                 VCCLCompilerTool compilerTool =
                     (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                LinkerAdapter linkerAdapter;
+                if(staticLib)
+                {
+                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                }
+                else
+                {
+                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                }
 
 
                 Util.removeIceCppEnvironment((VCDebugSettings)conf.DebugSettings, "$(IceHome)");
-                Util.removeIceCppLibraryDir(linkerTool, "$(IceHome)");
+                Util.removeIceCppLibraryDir(linkerAdapter, "$(IceHome)");
                 Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(project));
                 Util.removeIcePropertySheet(conf);
             }
@@ -2128,9 +2257,18 @@ namespace Ice.VisualStudio
                 }
                 VCCLCompilerTool compilerTool =
                     (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                LinkerAdapter linkerAdapter;
+                if(staticLib)
+                {
+                   linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                }
+                else
+                { 
+                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                }
 
-                if(compilerTool == null || linkerTool == null)
+                if(compilerTool == null || linkerAdapter == null)
                 {
                     continue;
                 }
@@ -2143,7 +2281,7 @@ namespace Ice.VisualStudio
                     {
                         continue;
                     }
-                    Util.addCppLib(linkerTool, component, debug);
+                    Util.addCppLib(linkerAdapter, component, debug);
                 }
             }
         }
@@ -2172,9 +2310,18 @@ namespace Ice.VisualStudio
                 }
                 VCCLCompilerTool compilerTool =
                     (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                LinkerAdapter linkerAdapter;
+                if(staticLib)
+                {
+                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                }
+                else
+                {
+                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                }
 
-                if(compilerTool == null || linkerTool == null)
+                if(compilerTool == null || linkerAdapter == null)
                 {
                     continue;
                 }
@@ -2197,7 +2344,7 @@ namespace Ice.VisualStudio
                         continue;
                     }
 
-                    if(Util.removeCppLib(linkerTool, s, debug) && !removed.Contains(s))
+                    if(Util.removeCppLib(linkerAdapter, s, debug) && !removed.Contains(s))
                     {
                         removed.Add(s);
                     }
@@ -2253,9 +2400,18 @@ namespace Ice.VisualStudio
 
                 VCCLCompilerTool compilerTool =
                     (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                LinkerAdapter linkerAdapter;
+                if(staticLib)
+                {
+                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                }
+                else
+                {
+                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                }
 
-                if(compilerTool == null || linkerTool == null)
+                if(compilerTool == null || linkerAdapter == null)
                 {
                     continue;
                 }
@@ -2278,7 +2434,7 @@ namespace Ice.VisualStudio
                 }
                 libName += ".lib";
 
-                string additionalDependencies = linkerTool.AdditionalDependencies;
+                string additionalDependencies = linkerAdapter.AdditionalDependencies;
                 if(String.IsNullOrEmpty(additionalDependencies))
                 {
                     continue;
@@ -2346,7 +2502,7 @@ namespace Ice.VisualStudio
 
         public static void verifyProjectSettings(Project project)
         {
-            if (isCppProject(project))
+            if(isCppProject(project))
             {
                 addIceCppConfigurations(project); ;
             }
@@ -3125,7 +3281,7 @@ namespace Ice.VisualStudio
         }
 
         static public bool checkCppRunTimeLibrary(Builder builder, Project project, VCCLCompilerTool compilerTool,
-                                                  VCLinkerTool linkerTool)
+                                                  LinkerAdapter linkerTool)
         {
             //
             // Check the project run time library for the active configuration.
