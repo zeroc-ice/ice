@@ -464,6 +464,12 @@ namespace Ice.VisualStudio
                     _changed = true;
                 }
 
+                if(chkTie.Checked != Util.getProjectPropertyAsBool(_project, Util.PropertyIceTie))
+                {
+                    Util.setProjectProperty(_project, Util.PropertyIceTie, chkTie.Checked.ToString());
+                    _changed = true;
+                }
+
                 if(chkStreaming.Checked != Util.getProjectPropertyAsBool(_project, Util.PropertyIceStreaming))
                 {
                     Util.setProjectProperty(_project, Util.PropertyIceStreaming, chkStreaming.Checked.ToString());
@@ -594,6 +600,11 @@ namespace Ice.VisualStudio
             }
 
             if(chkIcePrefix.Checked != Util.getProjectPropertyAsBool(_project, Util.PropertyIcePrefix))
+            {
+                return true;
+            }
+
+            if(chkTie.Checked != Util.getProjectPropertyAsBool(_project, Util.PropertyIceTie))
             {
                 return true;
             }
