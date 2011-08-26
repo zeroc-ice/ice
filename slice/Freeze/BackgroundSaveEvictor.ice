@@ -78,7 +78,7 @@ local interface BackgroundSaveEvictor extends Evictor
      * @param id The identity of the Ice object.
      *
      * @throws Ice.NotRegisteredException Raised if this object was not
-     * locked with {link #keep} or {@link #keepFacet}.
+     * locked with {@link #keep} or {@link #keepFacet}.
      *
      * @see #keepFacet
      * @see #release

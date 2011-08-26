@@ -281,7 +281,7 @@ local interface Communicator
 
     /**
      *
-     * Add a servant factory to this communicator. Installing a
+     * <p>Add a servant factory to this communicator. Installing a
      * factory with an id for which a factory is already registered
      * throws {@link AlreadyRegisteredException}.</p>
      *
@@ -310,7 +310,6 @@ local interface Communicator
      * </li>
      *
      * </ol>
-     * <p>
      *
      * @param factory The factory to add.
      *
