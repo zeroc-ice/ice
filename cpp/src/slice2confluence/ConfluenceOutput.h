@@ -28,8 +28,13 @@ public:
     void endElement(); // End an element.
     void attr(const std::string&, const std::string&); // Add an attribute to an element.
     
+    std::string convertCommentHTML(std::string comment);
+    std::string escapeComment(std::string comment);
+    
+    std::string getAnchorMarkup(const std::string&, const std::string& = "");
     std::string getLinkMarkup(const std::string&, const std::string& = "", const std::string& = "", const std::string& = "");
     std::string getImageMarkup(const std::string&, const std::string& = "");
+    std::string getNavMarkup(const std::string&, const std::string&);
     
     void startEscapes();
     void endEscapes();
@@ -48,6 +53,7 @@ private:
     bool _escape;
     
     std::string _listMarkers;
+    std::string _commentListMarkers;
 };
 
 template<typename T>

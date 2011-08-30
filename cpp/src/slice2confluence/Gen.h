@@ -14,13 +14,15 @@
 #include <IceUtil/OutputUtil.h>
 #include <ConfluenceOutput.h>
 
+#include <iterator>
+
 namespace Slice
 {
 
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
               const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
-              unsigned, unsigned);
-
+              unsigned, unsigned, const ::std::vector<std::string>& = ::std::vector<std::string>());
+    
 typedef ::std::set< ::std::string> Files;
 
 class GeneratorBase : private ::IceUtil::noncopyable
@@ -36,6 +38,12 @@ public:
     static void setIndexCount(int);
     static void warnSummary(int);
     static void setSymbols(const ContainedList&);
+    static void setSortOrder(const std::vector<std::string>&);
+    static bool compareSymbolNames(const std::string&, const std::string&);
+    
+    static std::string removeNewlines(std::string);
+    static std::string trim(std::string);
+    static std::string getUpper(const std::string&);
 
     void closeStream();
 
@@ -51,14 +59,17 @@ protected:
     void start(const ::std::string&, const ::std::string& = ::std::string());
     void end();
     
+    std::string getAnchorMarkup(const std::string&, const std::string& = "");
     std::string getImageMarkup(const std::string&, const std::string& = "");
     std::string getLinkMarkup(const std::string&, const std::string& = "", const std::string& = "", const std::string& = "");
-
-    void removeNewlines(std::string);
+    std::string getNavMarkup(const std::string&, const std::string&);
+    
+    bool hasEnding(const std::string&, const std::string&);
     
     void printComment(const ContainedPtr&, const ContainerPtr&, const ::std::string&, bool = false);
     void printMetaData(const ContainedPtr&);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
+    std::string getSummary(const ContainedPtr&, const ContainerPtr&, bool, bool);
 
     void printHeaderFooter(const ContainedPtr&);
     void printSearch();
@@ -82,6 +93,11 @@ protected:
 
     static size_t _indexCount;
     static size_t _warnSummary;
+    
+    static std::vector<std::string> _sortOrder;
+    
+    static const std::string MODULE_SUFFIX;
+    static const std::string INDEX_NAME;
 
 private:
 
@@ -121,10 +137,13 @@ private:
     void warnOldStyleIdent(const ::std::string&, const ::std::string&);
 };
 
+    typedef ::std::pair< ::std::string, ::std::string> StringPair;
 class StartPageGenerator : private GeneratorBase
 {
 public:
 
+    
+    
     StartPageGenerator(const Files&);
     ~StartPageGenerator();
     void generate(const ModulePtr&);
@@ -134,7 +153,7 @@ private:
     using GeneratorBase::printHeaderFooter;
     void printHeaderFooter();
 
-    typedef ::std::pair< ::std::string, ::std::string> StringPair;
+   
     typedef ::std::vector<StringPair> ModuleDescriptions;
     ModuleDescriptions _modules;
     Confluence::ConfluenceOutput _out;

@@ -47,6 +47,28 @@ Init init;
 
 }
 
+static vector<string>
+splitCommas(string& str)
+{
+    vector<string> strings;
+    size_t oldPos = 0;
+    size_t commaPos = str.find(",");
+    string token;
+    
+    while (commaPos != string::npos)
+    {
+        token = str.substr(oldPos, commaPos-oldPos);
+        strings.push_back(token);
+        
+        oldPos = commaPos+1;
+        commaPos = str.find(",", oldPos);
+    }
+    token = str.substr(oldPos);
+    strings.push_back(token);
+    
+    return strings;
+}
+
 void
 interruptedCallback(int signal)
 {
@@ -69,6 +91,7 @@ usage(const char* n)
         "-IDIR                Put DIR in the include file search path.\n"
         "-E                   Print preprocessor output on stdout.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
+        "--sort-order a,b,c   Define the sorting order for module navigation.\n"
         "--hdr FILE           Use the contents of FILE as the header.\n"
         "--ftr FILe           Use the contents of FILE as the footer.\n"
         "--indexhdr FILE      Use the contents of FILE as the header of the index/toc page (default=--hdr).\n"
@@ -95,6 +118,7 @@ compile(int argc, char* argv[])
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg, ".");
+    opts.addOpt("", "sort-order", IceUtilInternal::Options::NeedArg, ".");
     opts.addOpt("", "hdr", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "ftr", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "indexhdr", IceUtilInternal::Options::NeedArg);
@@ -153,8 +177,11 @@ compile(int argc, char* argv[])
     }
 
     bool preprocess = opts.isSet("E");
-
+    
     string output = opts.optArg("output-dir");
+    
+    string sortorderstring = opts.optArg("sort-order");
+    vector<string> sort_order = splitCommas(sortorderstring);
 
     string header = opts.optArg("hdr");
 
@@ -268,7 +295,7 @@ compile(int argc, char* argv[])
         try
         {
             Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
-                            searchAction, indexCount, summaryCount);
+                            searchAction, indexCount, summaryCount, sort_order);
         }
         catch(const Slice::FileException& ex)
         {

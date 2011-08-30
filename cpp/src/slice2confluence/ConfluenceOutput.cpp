@@ -22,7 +22,8 @@ Confluence::ConfluenceOutput::ConfluenceOutput() :
     _se(false),
     _text(false),
     _escape(false),
-    _listMarkers("")
+    _listMarkers(""),
+    _commentListMarkers("")
 {
 }
 
@@ -31,7 +32,8 @@ Confluence::ConfluenceOutput::ConfluenceOutput(ostream& os) :
     _se(false),
     _text(false),
     _escape(false),
-    _listMarkers("")
+    _listMarkers(""),
+    _commentListMarkers("")
 {
 }
 
@@ -40,7 +42,8 @@ Confluence::ConfluenceOutput::ConfluenceOutput(const char* s) :
     _se(false),
     _text(false),
     _escape(false),
-    _listMarkers("")
+    _listMarkers(""),
+    _commentListMarkers("")
 {
 }
 
@@ -62,6 +65,136 @@ Confluence::ConfluenceOutput::print(const char* s)
     {
         OutputBase::print(s);
     }
+}
+
+string 
+Confluence::ConfluenceOutput::escapeComment(string comment)
+{
+    string escapeChars = "\\{}-*|[]"; //backslash ("\\") needs to be first because it gets added later
+    for (string::iterator i = escapeChars.begin(); i < escapeChars.end(); ++i)
+    {
+        string c(1, *i);
+        string replacement = "\\" + c;
+        
+        size_t pos = comment.find(c);
+        while (pos != string::npos)
+        {
+            cout << "COMMENT: " << comment << endl;
+            comment.replace(pos, c.size(), replacement);
+            cout << "COMMENT AFTER: " << comment << endl;
+            
+            pos = comment.find(c, pos+replacement.size());
+        }
+    }
+    return comment;
+}
+
+string 
+Confluence::ConfluenceOutput::convertCommentHTML(string comment)
+{
+    escapeComment(comment);
+    
+    size_t tagStart = comment.find("<");
+    while (tagStart != string::npos)
+    {
+        size_t tagEnd = comment.find(">", tagStart);
+        string tag = comment.substr(tagStart + 1, tagEnd - (tagStart + 1));
+        string replacement = "";
+        bool isEndTag = tag[0] == '/';
+        if (isEndTag) 
+        {
+            //strip slash character
+            tag.erase(remove(tag.begin(), tag.end(), '/'), tag.end());
+        }
+        
+        size_t spacepos = tag.find(" ");
+        if (spacepos != string::npos)
+        {
+            //strip attributes from tag
+            tag = tag.substr(0, spacepos);
+        }
+        
+        if (!strcmp(tag.c_str(), "tt"))
+        {
+            if (!isEndTag)
+            {
+                replacement = "{{{";
+            }
+            else
+            {
+                replacement = "}}}";
+            }
+        }
+        else if (!strcmp(tag.c_str(), "p"))
+        {
+            if (!isEndTag)
+            {
+                replacement = "\n\n";
+            }
+            else
+            {
+                replacement = "\n\n";
+            }
+        }
+        else if (!strcmp(tag.c_str(), "ol"))
+        {
+            if (!isEndTag)
+            {
+                if (_commentListMarkers.empty())
+                {
+                    replacement = "\n";
+                }
+                _commentListMarkers.append("#");
+
+            }
+            else
+            {
+                _commentListMarkers.erase(_commentListMarkers.size()-1);
+            }
+        }
+        else if (!strcmp(tag.c_str(), "ul"))
+        {
+            if (!isEndTag)
+            {
+                if (_commentListMarkers.empty())
+                {
+                    replacement = "\n";
+                }
+                _commentListMarkers.append("*");
+            }
+            else
+            {
+                _commentListMarkers.erase(_commentListMarkers.size()-1);
+            }
+        }
+        else if (!strcmp(tag.c_str(), "li"))
+        {
+            if (!isEndTag)
+            {
+                ostringstream oss;
+                oss << "\n" << _commentListMarkers << " ";
+                replacement = oss.str();
+            }
+            //do nothing for end tag
+        }
+        else 
+        {
+            if (!isEndTag)
+            {
+                replacement = "{{";
+            }
+            else
+            {
+                replacement = "}}";
+            }
+        }
+        
+        //apply replacement
+        comment.replace(tagStart, tagEnd + 1 - tagStart, replacement);
+        
+        tagStart = comment.find("<");
+    }
+    return comment;
 }
 
 void
@@ -95,69 +228,109 @@ Confluence::ConfluenceOutput::startElement(const string& element)
     if (!strcmp(tagname, "p")) 
     {
         _out << "\n";
-    } else if (!strcmp(tagname, "dl")) 
+    } 
+    else if (!strcmp(tagname, "b")) 
     {
-        _out << "\n";
-    } else if (!strcmp(tagname, "dt")) 
-    {
-        _out << "+";
-    } else if (!strcmp(tagname, "dd")) 
-    {
-        _out << "* ";
-    } else if (!strcmp(tagname, "table")) 
-    {
-        _out << "\n";
-    } else if (!strcmp(tagname, "tbody")) 
-    {
-        _out << "\n";
-    } else if (!strcmp(tagname, "tr")) 
-    {
-        _out << "\n";
-    } else if (!strcmp(tagname, "td")) 
-    {
-        _out << "|";
-    } else if (!strcmp(tagname, "th")) 
-    {
-        _out << "||";
-    } else if (!strcmp(tagname, "div")) 
+        _out << "*";
+    } 
+    else if (!strcmp(tagname, "panel")) 
     {
         _out << "{panel}";
-    } else if (!strcmp(tagname, "span")) 
+    } 
+    else if (!strcmp(tagname, "blockquote")) 
     {
-        _out << "{panel}";
-    } else if (!strcmp(tagname, "ol")) 
+        _out << "{section}{column:width=10px}{column} {column}";
+    } 
+    else if (!strcmp(tagname, "dl")) 
     {
+        _out << "\n";
+    } 
+    else if (!strcmp(tagname, "dt")) 
+    {
+        _out << "";
+    } 
+    else if (!strcmp(tagname, "dd")) 
+    {
+        _out << "--- ";
+    } 
+    else if (!strcmp(tagname, "table")) 
+    {
+        _out << "{table}\n";
+    } 
+    else if (!strcmp(tagname, "tr")) 
+    {
+        _out << "{tr}\n";
+    } 
+    else if (!strcmp(tagname, "td")) 
+    {
+        _out << "{td}";
+    } 
+    else if (!strcmp(tagname, "th")) 
+    {
+        _out << "{th}";
+    } 
+    else if (!strcmp(tagname, "div")) 
+    {
+        _out << "{div}";
+    } 
+    else if (!strcmp(tagname, "span")) 
+    {
+        _out << "{span}";
+    } 
+    else if (!strcmp(tagname, "ol")) 
+    {
+        if (_listMarkers.empty())
+        {
+            _out << "\n";
+        }
         _listMarkers.append("#");
-        _out << "\n";
-    } else if (!strcmp(tagname, "ul")) 
+    } 
+    else if (!strcmp(tagname, "ul")) 
     {
+        if (_listMarkers.empty())
+        {
+            _out << "\n";
+        }
         _listMarkers.append("*");
-        _out << "\n";
-    } else if (!strcmp(tagname, "li")) 
+    } 
+    else if (!strcmp(tagname, "li")) 
     {
-        _out << _listMarkers << " ";
-    } else if (!strcmp(tagname, "hr")) 
+        _out << "\n" << _listMarkers << " ";
+    } 
+    else if (!strcmp(tagname, "hr")) 
     {
         _out << "----";
-    } else if (!strcmp(tagname, "h1")) 
+    } 
+    else if (!strcmp(tagname, "h1")) 
     {
-        _out << "h1. ";
-    } else if (!strcmp(tagname, "h2")) 
+        _out << "\nh1. ";
+    } 
+    else if (!strcmp(tagname, "h2")) 
     {
-        _out << "h2. ";
-    } else if (!strcmp(tagname, "h3")) 
+        _out << "\nh2. ";
+    } 
+    else if (!strcmp(tagname, "h3")) 
     {
-        _out << "h3. ";
-    } else if (!strcmp(tagname, "h4")) 
+        _out << "\nh3. ";
+    } 
+    else if (!strcmp(tagname, "h4")) 
     {
-        _out << "h4. ";
-    } else if (!strcmp(tagname, "h5")) 
+        _out << "\nh4. ";
+    } 
+    else if (!strcmp(tagname, "h5")) 
     {
-        _out << "h5. ";
-    } else if (!strcmp(tagname, "h6")) 
+        _out << "\nh5. ";
+    } 
+    else if (!strcmp(tagname, "h6")) 
     {
-        _out << "h6. ";
-    } else {
+        _out << "\nh6. ";
+    } 
+    else if (!strcmp(tagname, "tt")) 
+    {
+        _out << "{{";
+    } 
+    else 
+    {
         _out << "{" << escaped << "}";
     }
     
@@ -185,7 +358,6 @@ Confluence::ConfluenceOutput::endElement()
     string element = _elementStack.top();
     _elementStack.pop();
     
-    
     string escaped;
     if (_escape)
     {
@@ -203,69 +375,109 @@ Confluence::ConfluenceOutput::endElement()
     if (!strcmp(tagname, "p")) 
     {
         _out << "\n";
-    } else if (!strcmp(tagname, "dl")) 
+    }
+    else if (!strcmp(tagname, "b")) 
+    {
+        _out << "*";
+    } 
+    else if (!strcmp(tagname, "panel")) 
+    {
+        _out << "{panel}\n";
+    } 
+    else if (!strcmp(tagname, "blockquote")) 
+    {
+        _out << "{column}{section}\n";
+    } 
+    else if (!strcmp(tagname, "dl")) 
     {
         _out << "\n";
-    } else if (!strcmp(tagname, "dt")) 
+    } 
+    else if (!strcmp(tagname, "dt")) 
     {
-        _out << "+\n";
-    } else if (!strcmp(tagname, "dd")) 
-    {
-        _out << "\n\n";
-    } else if (!strcmp(tagname, "table")) 
+        _out << " ";
+    }
+    else if (!strcmp(tagname, "dd")) 
     {
         _out << "\n";
-    } else if (!strcmp(tagname, "tbody")) 
+    }
+    else if (!strcmp(tagname, "table")) 
+    {
+        _out << "{table}\n";
+    }
+    else if (!strcmp(tagname, "tr")) 
+    {
+        _out << "{tr}\n";
+    }
+    else if (!strcmp(tagname, "td")) 
+    {
+        _out << "{td}\n";
+    }
+    else if (!strcmp(tagname, "th")) 
     {
         _out << "";
-    } else if (!strcmp(tagname, "tr")) 
+    }
+    else if (!strcmp(tagname, "div")) 
     {
-        _out << "|\n";
-    } else if (!strcmp(tagname, "td")) 
+        _out << "{div}";
+    }
+    else if (!strcmp(tagname, "span")) 
     {
-        _out << "";
-    } else if (!strcmp(tagname, "th")) 
-    {
-        _out << "";
-    } else if (!strcmp(tagname, "div")) 
-    {
-        _out << "{panel}";
-    } else if (!strcmp(tagname, "span")) 
-    {
-        _out << "{panel}";
-    } else if (!strcmp(tagname, "ol")) 
+        _out << "{span}";
+    }
+    else if (!strcmp(tagname, "ol")) 
     {
         _listMarkers.erase(_listMarkers.size()-1);
-        _out << "\n";
-    } else if (!strcmp(tagname, "ul")) 
+        if (_listMarkers.empty())
+        {
+            _out << "\n";
+        }
+    }
+    else if (!strcmp(tagname, "ul")) 
     {
         _listMarkers.erase(_listMarkers.size()-1);
-        _out << "\n";
-    } else if (!strcmp(tagname, "li")) 
+        if (_listMarkers.empty())
+        {
+            _out << "\n";
+        }
+    }
+    else if (!strcmp(tagname, "li")) 
     {
-        _out << "\n";
-    } else if (!strcmp(tagname, "hr")) 
-    {
-        _out << "\n\n";
-    } else if (!strcmp(tagname, "h1")) 
-    {
-        _out << "\n\n";
-    } else if (!strcmp(tagname, "h2")) 
-    {
-        _out << "\n\n";
-    } else if (!strcmp(tagname, "h3")) 
+        //nothing to do
+    }
+    else if (!strcmp(tagname, "hr")) 
     {
         _out << "\n\n";
-    } else if (!strcmp(tagname, "h4")) 
+    }
+    else if (!strcmp(tagname, "h1")) 
     {
         _out << "\n\n";
-    } else if (!strcmp(tagname, "h5")) 
+    }
+    else if (!strcmp(tagname, "h2")) 
     {
         _out << "\n\n";
-    } else if (!strcmp(tagname, "h6")) 
+    }
+    else if (!strcmp(tagname, "h3")) 
     {
         _out << "\n\n";
-    } else {
+    }
+    else if (!strcmp(tagname, "h4")) 
+    {
+        _out << "\n\n";
+    }
+    else if (!strcmp(tagname, "h5")) 
+    {
+        _out << "\n\n";
+    }
+    else if (!strcmp(tagname, "h6")) 
+    {
+        _out << "\n\n";
+    }
+    else if (!strcmp(tagname, "tt")) 
+    {
+        _out << "}}";
+    }
+    else
+    {
         _out << "{" << escaped << "}";
     }
     
@@ -308,6 +520,36 @@ Confluence::ConfluenceOutput::getImageMarkup(const string& url, const string& ti
     }
     oss << "!";
     return oss.str(); //leak?
+}
+
+string
+Confluence::ConfluenceOutput::getAnchorMarkup(const std::string& anchor, const std::string& text)
+{
+    ostringstream oss;
+    oss << "{anchor:" << anchor << "}";
+    if (!text.empty())
+    {
+        oss << text << "\n";
+    }
+    return oss.str(); //leak?
+}
+
+string
+Confluence::ConfluenceOutput::getNavMarkup(const std::string& prevLink, const std::string& nextLink)
+{
+    ostringstream oss;
+    oss << "{znav:";
+    if (!prevLink.empty())
+    {
+        oss << "prev=" << prevLink << "|";
+    }
+    if (!nextLink.empty())
+    {
+        oss << "next=" << nextLink;
+    }
+    oss << "}\n";
+    oss << "{section}{section}\n";
+    return oss.str();
 }
 
 void
