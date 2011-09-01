@@ -308,7 +308,7 @@ local interface ObjectAdapter
      * the servant. If the servant implements multiple Ice objects,
      * {@link #remove} has to be called for all those Ice objects.
      * Removing an identity that is not in the map throws
-     * {@link NotRegisteredException].
+     * {@link NotRegisteredException}.
      *
      * @return The removed servant.
      *

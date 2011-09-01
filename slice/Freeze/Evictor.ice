@@ -302,7 +302,7 @@ local interface Evictor extends Ice::ServantLocator
     /**
      * 
      * Like {@link #hasObject}, but with a facet. Calling <tt>hasObject(id)</tt>
-     * is equivalent to calling {@link #hasFacet] with an empty
+     * is equivalent to calling {@link #hasFacet} with an empty
      * facet.
      *
      * @return true if the identity is managed by the evictor for the
