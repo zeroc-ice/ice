@@ -426,8 +426,8 @@ Slice::GeneratorBase::removeNewlines(string str)
 string
 Slice::GeneratorBase::trim(string str)
 {
-    string out = str.erase( str.find_last_not_of(" ") + 1);
-    out = out.erase(0 , out.find_first_not_of(" "));
+    string out = str.erase( str.find_last_not_of(" \n\r\t") + 1);
+    out = out.erase(0 , out.find_first_not_of(" \n\r\t"));
     return out;
 }
 
@@ -462,7 +462,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     {
         comment.erase(pos + 1);
         _out.zeroIndent();
-        _out << _out.convertCommentHTML(removeNewlines(comment));
+        _out << removeNewlines(comment);
         _out.restoreIndent();
         _out << "\n";
     }
@@ -729,7 +729,7 @@ Slice::GeneratorBase::getSummary(const ContainedPtr& p, const ContainerPtr& modu
     }
     
     string summary = getComment(p, container, true, forIndex);
-    oss << _out.convertCommentHTML(removeNewlines(summary));
+    oss << removeNewlines(summary);
     
     if(deprecated)
     {
@@ -1123,6 +1123,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
         //
         if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
         {
+//            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             comment += '[';
             ++summarySize;
             ++i;
@@ -1140,7 +1141,9 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
                 literal += s[i];
             }
             size_t sz = 0;
+            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
+            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_END;
             summarySize += sz;
 
             //
@@ -1158,6 +1161,8 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
         {
             static const string atLink = "{@link";
             string::size_type pos = s.find(atLink, i);
+            
+            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             if(pos != i)
             {
                 comment += '{';
@@ -1172,6 +1177,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
             string literal = s.substr(pos + atLink.size(), endpos - pos - atLink.size());
             size_t sz = 0;
             comment += toString(toSliceID(literal, contained->file()), container, false, forIndex, summary ? &sz : 0);
+            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_END;
             summarySize += sz;
             i = static_cast<unsigned int>(endpos);
         }
@@ -1193,8 +1199,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
         cerr << contained->file() << ": warning: summary size (" << summarySize << ") exceeds " << _warnSummary
              << " characters: `" << comment << "'" << endl;
     }
-
-    return removeNewlines(comment);
+    return removeNewlines(_out.convertCommentHTML(comment));
 }
 
 string
@@ -1294,34 +1299,17 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
         
         target.pop_front();
     }
-
-    if(forEnum)
-    {
-        if(!path.empty())
-        {
-//            path = "../" + path;
-        }
-        else
-        {
-            path = "";
-        }
-    }
     
-    if (forIndex && path == parent)
+    if ((forIndex && path == parent) || (parent.empty() && path.find("-") == string::npos) || path == parent)
     {
         //link to parent, add suffix
         path += MODULE_SUFFIX;
-//        path = parent + MODULE_SUFFIX;
     }
-    else if (path.find("-") == string::npos && path != INDEX_NAME && path != "" && parent != "")
+    else if (path.find("-") == string::npos && path != INDEX_NAME && !path.empty() && !parent.empty() && path != parent)
     {
         //intra-package links need package name, unlike with html dir structure
         path = parent + "-" + path;
     }
-//    else if (path.find("-") == string::npos && path != "") {
-//        //link to a top level page, add suffix
-//        path += MODULE_SUFFIX;
-//    }
     
     return path;
 }
@@ -2151,7 +2139,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), false);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), false));
             if (!summary.empty())
             {
                 start("dd");
@@ -2189,7 +2177,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2220,7 +2208,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2253,7 +2241,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2286,7 +2274,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2319,7 +2307,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2352,7 +2340,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2385,7 +2373,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2418,7 +2406,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             end();
             
             string metadata;
-            string summary = getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true);
+            string summary = trim(getSummary(*q, p, (*q)->findMetaData("deprecate", metadata), true));
             if (!summary.empty())
             {
                 start("dd");
@@ -2614,7 +2602,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
             end();
             
             string metadata;
-            string summary = getSummary(*q, e, (*q)->findMetaData("deprecate", metadata), false);
+            string summary = trim(getSummary(*q, e, (*q)->findMetaData("deprecate", metadata), false));
             if (!summary.empty())
             {
                 start("dd");
@@ -2753,7 +2741,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             start("dt", "Symbol");
             _out << toString(*q, c, false);
             end();
-            string summary = getSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false);
+            string summary = trim(getSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false));
             if (!summary.empty())
             {
                 start("dd");
@@ -2782,7 +2770,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             start("dt", "Symbol");
             _out << toString(*q, c, false);
             end();
-            string summary = getSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false);
+            string summary = trim(getSummary(*q, c, (*q)->findMetaData("deprecate", metadata), false));
             if (!summary.empty())
             {
                 start("dd");
@@ -2959,10 +2947,18 @@ Slice::StructGenerator::generate(const StructPtr& s)
             start("dt", "Symbol");
             _out << toString(*q, s, false);
             end();
-            start("dd");
             string metadata;
-            printSummary(*q, s, (*q)->findMetaData("deprecate", metadata), false);
-            end();
+            string summary = trim(getSummary(*q, s, (*q)->findMetaData("deprecate", metadata), false));
+            if (!summary.empty())
+            {
+                start("dd");
+                printSummary(*q, s, (*q)->findMetaData("deprecate", metadata), false);
+                end();
+            }
+            else
+            {
+                _out << "\n";
+            }
         }
         end();
     }

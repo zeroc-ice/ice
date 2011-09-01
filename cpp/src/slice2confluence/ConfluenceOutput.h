@@ -1,4 +1,6 @@
 #include <IceUtil/OutputUtil.h>
+#include <list>
+#include <utility>
 
 #ifndef CONFLUENCE_OUTPUT
 #define CONFLUENCE_OUTPUT
@@ -40,6 +42,20 @@ public:
     void endEscapes();
     
     std::string currentElement() const;
+    
+    /**
+     * Wrap sections in these markers to prevent them from being confluence-escaped.
+     * The regular confluence-escaping process will remove these markers.
+     */
+    const static std::string TEMP_ESCAPER_START; // wrap sections
+    const static std::string TEMP_ESCAPER_END; // wrap sections
+    
+    /**
+     * Gets the start and end positions of all TEMP_ESCAPED sections of the given string.
+     */
+    std::list<std::pair<unsigned int,unsigned int> > getMarkerLimits(const std::string&);
+    
+    std::string removeMarkers(std::string);
     
 private:
     

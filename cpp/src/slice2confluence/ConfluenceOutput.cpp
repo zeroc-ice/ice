@@ -1,6 +1,7 @@
 #include <ConfluenceOutput.h>
 #include <iostream>
 #include <sstream>
+#include <utility>
 #include <string.h>
 
 using namespace std;
@@ -16,6 +17,9 @@ namespace Confluence
 // ----------------------------------------------------------------------
 // ConfluenceOutput
 // ----------------------------------------------------------------------
+
+const string Confluence::ConfluenceOutput::TEMP_ESCAPER_START = "$$$$$$$";
+const string Confluence::ConfluenceOutput::TEMP_ESCAPER_END = "!!!!!!!";
 
 Confluence::ConfluenceOutput::ConfluenceOutput() :
     OutputBase(),
@@ -70,21 +74,84 @@ Confluence::ConfluenceOutput::print(const char* s)
 string 
 Confluence::ConfluenceOutput::escapeComment(string comment)
 {
-    string escapeChars = "\\{}-*|[]"; //backslash ("\\") needs to be first because it gets added later
+    list< pair<unsigned int,unsigned int> > escaperLimits = getMarkerLimits(comment);
+    string escapeChars = "\\{}-*|[]";
+    
+    //for each escape character
     for (string::iterator i = escapeChars.begin(); i < escapeChars.end(); ++i)
     {
         string c(1, *i);
-        string replacement = "\\" + c;
+        string replacement;
+        
+        if (c == "\\")
+        {
+            replacement = "&#92;";
+        }
+        else if (c == "{")
+        {
+            replacement = "&#123;";
+        }
+        else if (c == "}")
+        {
+            replacement = "&#125;";
+        }
+        else if (c == "-")
+        {
+            replacement = "&#45;";
+        }
+        else if (c == "*")
+        {
+            replacement = "&#42;";
+        }
+        else if (c == "|")
+        {
+            replacement = "&#124;";
+        }
+        else if (c == "[")
+        {
+            replacement = "&#91;";
+        }
+        else if (c == "]")
+        {
+            replacement = "&#93;";
+        }
         
         size_t pos = comment.find(c);
+        
+        //for each position of a found escape character
         while (pos != string::npos)
         {
-            cout << "COMMENT: " << comment << endl;
-            comment.replace(pos, c.size(), replacement);
-            cout << "COMMENT AFTER: " << comment << endl;
+            pair<unsigned int,unsigned int> *region = NULL;
             
-            pos = comment.find(c, pos+replacement.size());
+            //is this pos in an escaped section?
+            for (list<pair<unsigned int,unsigned int> >::iterator i = escaperLimits.begin(); i != escaperLimits.end(); ++i)
+            {
+                if (pos >= i->first && pos <= i->second)
+                {
+                    region = &*i;
+                    break;
+                }
+            }
+            
+            if (region == NULL)
+            {
+                comment.replace(pos, c.size(), replacement);
+                pos = comment.find(c, pos+replacement.size());
+            }
+            else
+            {
+//                cout << "skipping ahead to: '" << comment.substr(region->second) << "'"<< endl;
+                pos = comment.find(c, region->second+1);
+            }
         }
+    }
+    
+//    cout << "COMMENT: " << comment << endl;
+    comment = removeMarkers(comment);
+    size_t f = comment.find("This exception is raised if the ");
+    if (f != string::npos)
+    {
+        cout << "AFTER: " << comment << endl;
     }
     return comment;
 }
@@ -118,11 +185,11 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         {
             if (!isEndTag)
             {
-                replacement = "{{{";
+                replacement = "{{";
             }
             else
             {
-                replacement = "}}}";
+                replacement = "}}";
             }
         }
         else if (!strcmp(tag.c_str(), "p"))
@@ -177,21 +244,57 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             }
             //do nothing for end tag
         }
-        else 
+        else if (!strcmp(tag.c_str(), "dl"))
         {
             if (!isEndTag)
             {
-                replacement = "{{";
+                replacement = "\n";
             }
             else
             {
-                replacement = "}}";
+                replacement = "\n";
             }
+        }
+        else if (!strcmp(tag.c_str(), "dt"))
+        {
+            if (!isEndTag)
+            {
+                replacement = "";
+            }
+            else
+            {
+                replacement = " ";
+            }
+        }
+        else if (!strcmp(tag.c_str(), "dd"))
+        {
+            if (!isEndTag)
+            {
+                replacement = "--- ";
+            }
+            else
+            {
+                replacement = "\n";
+            }
+        }
+        else if (!strcmp(tag.c_str(), "em"))
+        {
+            if (!isEndTag)
+            {
+                replacement = "_";
+            }
+            else
+            {
+                replacement = "_";
+            }
+        }
+        else 
+        {
+            replacement = "*{{UNRECOGNIZED MARKUP: " + tag + "}}*";
         }
         
         //apply replacement
         comment.replace(tagStart, tagEnd + 1 - tagStart, replacement);
-        
         tagStart = comment.find("<");
     }
     return comment;
@@ -550,6 +653,62 @@ Confluence::ConfluenceOutput::getNavMarkup(const std::string& prevLink, const st
     oss << "}\n";
     oss << "{section}{section}\n";
     return oss.str();
+}
+
+list< pair<unsigned int,unsigned int> > 
+Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
+{
+    list< pair<unsigned int,unsigned int> > pairs;
+    
+    size_t start = str.find(TEMP_ESCAPER_START); 
+    size_t end;
+    while (start != string::npos)
+    {
+        end = str.find(TEMP_ESCAPER_END, start+TEMP_ESCAPER_START.size());
+        if (end != string::npos)
+        {
+            pair<unsigned int, unsigned int> p = make_pair((unsigned int)start, (unsigned int)end+TEMP_ESCAPER_END.size());
+//            cout << "adding pair (" << p.first << ", " << p.second << ") for '" << str << "'"  << endl; 
+            pairs.push_back(p);
+            start = str.find(TEMP_ESCAPER_START, end+TEMP_ESCAPER_END.size());
+        }
+        else
+        {
+            cerr << "getEscaperLimits FOUND START OF ESCAPER WITH NO MATCHING END IN STRING:" << endl << str.substr(start) << endl;
+            break;
+        }
+    }
+    
+    return pairs;
+}
+
+string 
+Confluence::ConfluenceOutput::removeMarkers(string str)
+{
+    //remove starts
+//    cout << "REMOVE STARTS FROM STR: " << str << endl;
+    size_t start = str.find(TEMP_ESCAPER_START);
+    while (start != string::npos)
+    {
+        str.erase(start, TEMP_ESCAPER_START.size());
+        start = str.find(TEMP_ESCAPER_START, start);
+    }
+    
+//    cout << "WITH STARTS REMOVED: " << str << endl;
+    
+    //remove ends
+    size_t end = str.find(TEMP_ESCAPER_END);
+    while (end != string::npos)
+    {
+        str.erase(end, TEMP_ESCAPER_END.size());
+        end = str.find(TEMP_ESCAPER_END, end);
+    }
+    size_t f = str.find("This exception is raised if the ");
+    if (f != string::npos)
+    {
+        cout << "WITH STOPS REMOVED?: " << str << endl;
+    }
+    return str;
 }
 
 void
