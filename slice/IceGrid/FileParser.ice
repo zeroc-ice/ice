@@ -47,7 +47,7 @@ interface FileParser
      * @param adminProxy An Admin proxy, used only to retrieve default
      * templates when needed. May be null.
      *
-     * @returns The application descriptor.
+     * @return The application descriptor.
      *
      * @throws ParseException Raised if an error occurred during parsing.
      *
