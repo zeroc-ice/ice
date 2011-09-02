@@ -75,7 +75,7 @@ string
 Confluence::ConfluenceOutput::escapeComment(string comment)
 {
     list< pair<unsigned int,unsigned int> > escaperLimits = getMarkerLimits(comment);
-    string escapeChars = "\\{}-*|[]";
+    string escapeChars = "\\{}-_*|[]";
     
     //for each escape character
     for (string::iterator i = escapeChars.begin(); i < escapeChars.end(); ++i)
@@ -106,6 +106,10 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
         else if (c == "|")
         {
             replacement = "&#124;";
+        }
+        else if (c == "_")
+        {
+            replacement = "&#95;";
         }
         else if (c == "[")
         {
@@ -140,26 +144,21 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
             }
             else
             {
-//                cout << "skipping ahead to: '" << comment.substr(region->second) << "'"<< endl;
+                //skip ahead past the marked section
                 pos = comment.find(c, region->second+1);
             }
         }
     }
-    
-//    cout << "COMMENT: " << comment << endl;
     comment = removeMarkers(comment);
-    size_t f = comment.find("This exception is raised if the ");
-    if (f != string::npos)
-    {
-        cout << "AFTER: " << comment << endl;
-    }
     return comment;
 }
 
 string 
 Confluence::ConfluenceOutput::convertCommentHTML(string comment)
 {
-    escapeComment(comment);
+    comment = escapeComment(comment);
+    
+    bool italics = false;
     
     size_t tagStart = comment.find("<");
     while (tagStart != string::npos)
@@ -175,10 +174,54 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         }
         
         size_t spacepos = tag.find(" ");
+        list<pair<string,string> > attributes;
+        
+        string rest;
         if (spacepos != string::npos)
         {
-            //strip attributes from tag
+            //get the rest and seperate into attrs
+            rest = tag.substr(spacepos);
+            
+            //get just the tag
             tag = tag.substr(0, spacepos);
+            
+            size_t nextSpace = 0;
+            size_t lastSpace = 0;
+            do
+            {
+                lastSpace = nextSpace;
+                nextSpace = rest.find(" ", lastSpace+1); //rest starts with a space
+                
+                string setting;
+                if (nextSpace == string::npos)
+                {
+                    setting = rest.substr(lastSpace);
+                }
+                else {
+                    setting = rest.substr(lastSpace, nextSpace-lastSpace);
+                }
+                
+                size_t eqPos = setting.find("=");
+                if (eqPos != string::npos)
+                {
+                    string aName = setting.substr(1, eqPos-1);
+                    string aVal = setting.substr(eqPos+1);
+                    //remove quotes from val
+                    size_t qPos = aVal.find("\"");
+                    while (qPos != string::npos)
+                    {
+                        aVal.erase(qPos, 1);
+                        qPos = aVal.find("\"");
+                    }
+                    
+                    pair<string,string> p = make_pair(aName, aVal);
+                    attributes.push_back(p);
+                }
+                else
+                {
+                    //bad attribute, ignore
+                }
+            } while (nextSpace != string::npos);
         }
         
         if (!strcmp(tag.c_str(), "tt"))
@@ -194,13 +237,43 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         }
         else if (!strcmp(tag.c_str(), "p"))
         {
+            //special case: Some classes add markup
+            for (list<pair<string,string> >::iterator i = attributes.begin(); i != attributes.end(); ++i)
+            {
+                if (i->first == "class" && i->second == "Note")
+                {
+                    italics = true;
+                    break;
+                }
+                if (i->first == "class" && i->second == "Deprecated")
+                {
+                    italics = true;
+                    break;
+                }
+            }
+            
             if (!isEndTag)
             {
-                replacement = "\n\n";
+                if (italics)
+                {
+                    replacement = "\n\n_";
+                }
+                else
+                {
+                    replacement = "\n\n";
+                }
             }
             else
             {
-                replacement = "\n\n";
+                if (italics)
+                {
+                    replacement = "_\n\n";
+                    italics = false;
+                }
+                else
+                {
+                    replacement = "\n\n";
+                }
             }
         }
         else if (!strcmp(tag.c_str(), "ol"))
@@ -294,8 +367,53 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         }
         
         //apply replacement
-        comment.replace(tagStart, tagEnd + 1 - tagStart, replacement);
+        if (!strcmp(tag.c_str(), "p"))
+        {
+            comment.erase(tagStart, tagEnd + 1 - tagStart);
+            size_t displace = comment.find_first_not_of(" \n\r\t", tagStart); //skip ahead over whitespace
+            comment.insert(displace, replacement);
+        }
+        else
+        {
+            comment.replace(tagStart, tagEnd + 1 - tagStart, replacement); //don't skip whitespace
+        }
+        
+        
+        //special case: terminate <p> (and any italics) on double newline or end of comment
+        size_t dnl = comment.find("\n\n", tagStart+replacement.size());
         tagStart = comment.find("<");
+        
+        if (italics)
+        {
+            if (tagStart == string::npos && dnl == string::npos)
+            {
+                //end italics before javadoc markup
+                size_t atPos = comment.find("@", tagStart+replacement.size());
+                if (atPos != string::npos)
+                {
+                    //found markup. now move to the last non-whitespace char before the markup and end italics 
+                    string before = comment.substr(0, atPos);
+                    size_t endLocation = before.find_last_not_of(" \n\r\t");
+                    comment.insert(endLocation, "_");
+                    italics = false;
+                }
+                else
+                {
+                    //no markup; end of comment
+                    size_t endLocation = comment.find_last_not_of(" \n\r\t");
+                    comment.insert(endLocation, "_");
+                    italics = false;
+                }
+            }
+            else if (dnl != string::npos && (tagStart == string::npos || dnl < tagStart))
+            {
+                string before = comment.substr(0, dnl);
+                size_t endLocation = before.find_last_not_of(" \n\r\t");
+                comment.insert(endLocation, "_");
+                italics = false;
+            }
+        }
+        
     }
     return comment;
 }
@@ -668,13 +786,12 @@ Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
         if (end != string::npos)
         {
             pair<unsigned int, unsigned int> p = make_pair((unsigned int)start, (unsigned int)end+TEMP_ESCAPER_END.size());
-//            cout << "adding pair (" << p.first << ", " << p.second << ") for '" << str << "'"  << endl; 
             pairs.push_back(p);
             start = str.find(TEMP_ESCAPER_START, end+TEMP_ESCAPER_END.size());
         }
         else
         {
-            cerr << "getEscaperLimits FOUND START OF ESCAPER WITH NO MATCHING END IN STRING:" << endl << str.substr(start) << endl;
+            cerr << "getEscaperLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:" << endl << str.substr(start) << endl;
             break;
         }
     }
@@ -686,7 +803,6 @@ string
 Confluence::ConfluenceOutput::removeMarkers(string str)
 {
     //remove starts
-//    cout << "REMOVE STARTS FROM STR: " << str << endl;
     size_t start = str.find(TEMP_ESCAPER_START);
     while (start != string::npos)
     {
@@ -694,19 +810,12 @@ Confluence::ConfluenceOutput::removeMarkers(string str)
         start = str.find(TEMP_ESCAPER_START, start);
     }
     
-//    cout << "WITH STARTS REMOVED: " << str << endl;
-    
     //remove ends
     size_t end = str.find(TEMP_ESCAPER_END);
     while (end != string::npos)
     {
         str.erase(end, TEMP_ESCAPER_END.size());
         end = str.find(TEMP_ESCAPER_END, end);
-    }
-    size_t f = str.find("This exception is raised if the ");
-    if (f != string::npos)
-    {
-        cout << "WITH STOPS REMOVED?: " << str << endl;
     }
     return str;
 }

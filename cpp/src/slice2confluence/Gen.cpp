@@ -462,7 +462,9 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     {
         comment.erase(pos + 1);
         _out.zeroIndent();
-        _out << removeNewlines(comment);
+        
+        _out << comment;
+        
         _out.restoreIndent();
         _out << "\n";
     }
@@ -733,7 +735,7 @@ Slice::GeneratorBase::getSummary(const ContainedPtr& p, const ContainerPtr& modu
     
     if(deprecated)
     {
-        oss << "\nDeprecated.\n";
+        oss << " _(Deprecated)_ \n";
     }
     return oss.str();
 }
@@ -1199,7 +1201,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
         cerr << contained->file() << ": warning: summary size (" << summarySize << ") exceeds " << _warnSummary
              << " characters: `" << comment << "'" << endl;
     }
-    return removeNewlines(_out.convertCommentHTML(comment));
+    return trim(_out.convertCommentHTML(removeNewlines(comment)));
 }
 
 string
@@ -2093,7 +2095,7 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
         deprecateReason = "This module is deprecated.";
         if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
         {
-            deprecateReason = metadata.substr(10);
+            deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
     start("h2");
@@ -2437,6 +2439,10 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             {
                 _out << "local ";
             }
+            else
+            {
+                _out << " ";
+            }
             TypePtr type = (*q)->type();
             _out << "sequence&lt;" << toString(type, p, false, true) << "&gt; " << toString(*q, p);
             end();
@@ -2447,7 +2453,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
                 deprecateReason = "This type is deprecated.";
                 if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
                 {
-                    deprecateReason = metadata.substr(10);
+                    deprecateReason = "_" + trim(metadata.substr(10)) + "_";
                 }
             }
 
@@ -2470,6 +2476,10 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             {
                 _out << "local ";
             }
+            else
+            {
+                _out << " ";
+            }
             TypePtr keyType = (*q)->keyType();
             TypePtr valueType = (*q)->valueType();
             _out << "dictionary&lt;" << toString(keyType, p, false, true) << ", "
@@ -2482,7 +2492,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
                 deprecateReason = "This type is deprecated.";
                 if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
                 {
-                    deprecateReason = removeNewlines(metadata.substr(10));
+                    deprecateReason = "_" + trim(metadata.substr(10)) + "_";
                 }
             }
 
@@ -2498,7 +2508,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
         end();
         for(ConstList::const_iterator q = consts.begin(); q != consts.end(); ++q)
         {
-            start("tt");
+            start("h3");
             _out << "const " << toString((*q)->type(), p, false, true) << " " << toString(*q, p) << " = ";
             if(EnumPtr::dynamicCast((*q)->type()))
             {
@@ -2513,17 +2523,15 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
             _out << "\n";
 
             string metadata, deprecateReason;
-            start("blockquote");
             if((*q)->findMetaData("deprecate", metadata))
             {
                 deprecateReason = "This type is deprecated.";
                 if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
                 {
-                    deprecateReason = metadata.substr(10);
+                    deprecateReason = "_" + trim(metadata.substr(10)) + "_";
                 }
             }
             printComment(*q, p, deprecateReason, true);
-            end();
         }
         _out << "\n{ztop}\n";
     }
@@ -2558,7 +2566,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         deprecateReason = "This module is deprecated.";
         if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
         {
-            deprecateReason = metadata.substr(10);
+            deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
 
@@ -2615,6 +2623,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
             }
         }
         end();
+        _out << "\n{ztop}\n";
     }
 
     if(!dataMembers.empty())
@@ -2625,7 +2634,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         start("p");
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            start("tt");
+            start("h3");
             printMetaData(*q);
             TypePtr type = (*q)->type();
             _out << toString(type, e) << " " << trim(toString(*q, e)) << ";";
@@ -2634,7 +2643,6 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
 
             string reason;
             metadata.clear();
-            start("blockquote");
             if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
             {
                 reason = "This member is deprecated.";
@@ -2644,11 +2652,12 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
                 }
             }
             printComment(*q, e, reason);
-            end();
         }
         end();
+        _out << "\n{ztop}\n";
     }
         
+    
     start("hr");
     end();
     printHeaderFooter(e);
@@ -2689,7 +2698,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         deprecateReason += " is deprecated.";
         if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
         {
-            deprecateReason = metadata.substr(10);
+            deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
 
@@ -2755,6 +2764,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             }
         }
         end();
+        _out << "\n{ztop}\n";
     }
 
     DataMemberList dataMembers = c->dataMembers();
@@ -2784,6 +2794,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             }
         }
         end();
+        _out << "\n{ztop}\n";
     }
 
     if(!operations.empty())
@@ -2793,7 +2804,6 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         end();
         for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
         {
-//            start("panel");
             start("h3", "Synopsis");
             TypePtr returnType = (*q)->returnType();
             _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
@@ -2837,12 +2847,13 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
                 reason = "This operation is deprecated.";
                 if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
                 {
-                    reason = metadata.substr(10);
+                    reason = "_" + metadata.substr(10) + "_";
                 }
             }
             printComment(*q, c, reason);
-//            end();//panel
         }
+        
+        _out << "\n{ztop}\n";
     }
 
     if(!dataMembers.empty())
@@ -2853,7 +2864,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         start("p");
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            start("tt");
+            start("h3");
             printMetaData(*q);
             TypePtr type = (*q)->type();
             _out << toString(type, c, false) << " " << trim(toString(*q, c)) << ";";
@@ -2862,7 +2873,6 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 
             string reason;
             metadata.clear();
-            start("blockquote");
             if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
             {
                 reason = "This member is deprecated.";
@@ -2872,9 +2882,9 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
                 }
             }
             printComment(*q, c, reason);
-            end();
         }
         end();
+        _out << "\n{ztop}\n";
     }
 
     start("hr");
@@ -2915,7 +2925,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         deprecateReason = "This module is deprecated.";
         if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
         {
-            deprecateReason = metadata.substr(10);
+            deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
 
@@ -2961,6 +2971,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
             }
         }
         end();
+        _out << "\n{ztop}\n";
     }
 
     if(!dataMembers.empty())
@@ -2971,7 +2982,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         start("p");
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            start("tt");
+            start("h3");
             printMetaData(*q);
             TypePtr type = (*q)->type();
             _out << toString(type, s, false) << " " << trim(toString(*q, s)) << ";";
@@ -2980,7 +2991,6 @@ Slice::StructGenerator::generate(const StructPtr& s)
 
             string reason;
             metadata.clear();
-            start("blockquote");
             if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
             {
                 reason = "This member is deprecated.";
@@ -2990,9 +3000,9 @@ Slice::StructGenerator::generate(const StructPtr& s)
                 }
             }
             printComment(*q, s, reason);
-            end();
         }
         end();
+        _out << "\n{ztop}\n";
     }
         
     start("hr");
@@ -3033,7 +3043,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         deprecateReason = "This enumeration is deprecated.";
         if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
         {
-            deprecateReason = metadata.substr(10);
+            deprecateReason = "_" + trim(metadata.substr(10)) + "_";
         }
     }
 
@@ -3074,6 +3084,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
             end();
         }
         end();
+        _out << "\n{ztop}\n";
     }
         
     closeDoc();
