@@ -44,7 +44,7 @@ local interface ServantLocator
      * receives that user exception; otherwise, the client receives
      * {@link UnknownUserException}.
      *
-     * If {@link #locate} throws any exception, the Ice run time does <EM>not</EM>
+     * If {@link #locate} throws any exception, the Ice run time does <em>not</em>
      * call {@link finished}.
      *
      * <p class="Note">If you call {@link #locate} from your own code, you
