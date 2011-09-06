@@ -705,7 +705,7 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
                 _out << ",";
             }
         }
-        _out << " ]";
+        _out << " ] ";
     }
 }
 
@@ -1217,6 +1217,7 @@ Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
         }
         anchor += *i;
     }
+    
     return anchor;
 }
 
@@ -1429,30 +1430,36 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
     }
 
     string s = contained->scoped();
-    ContainerPtr p = container;
-    ContainedPtr q = ContainedPtr::dynamicCast(p);
-
-    if(!q) // Container is the global module
-    {
-        return s.substr(2);
-    }
+    cout << "SCOPED: " << s.substr(2) << endl;
     
-    do
+    OperationPtr o = OperationPtr::dynamicCast(contained);//TODO: Shawn was here
+    if (o)
     {
-        string s2 = q->scoped();
-        s2 += "::";
+        ContainerPtr p = container;
+        ContainedPtr q = ContainedPtr::dynamicCast(p);
 
-        if(s.find(s2) == 0)
+        if(!q) // Container is the global module
         {
-            return s.substr(s2.size());
+            return s.substr(2);
         }
+        
+        do
+        {
+            string s2 = q->scoped();
+            s2 += "::";
 
-        p = q->container();
-        q = ContainedPtr::dynamicCast(p);
+            if(s.find(s2) == 0)
+            {
+                cout << "MINIMIZED: " << s.substr(s2.size()) << endl;
+                return s.substr(s2.size());
+            }
+
+            p = q->container();
+            q = ContainedPtr::dynamicCast(p);
+        }
+        while(q);
     }
-    while(q);
-
-    return s;
+    return s.substr(2);//s
 }
 
 StringList
@@ -2637,7 +2644,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
             start("h3");
             printMetaData(*q);
             TypePtr type = (*q)->type();
-            _out << toString(type, e) << " " << trim(toString(*q, e)) << ";";
+            _out << toString(type, e, false) << " " << trim(toString(*q, e)) << ";";
             end();
             _out << "\n";
 
@@ -2657,7 +2664,6 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         _out << "\n{ztop}\n";
     }
         
-    
     start("hr");
     end();
     printHeaderFooter(e);
@@ -2806,7 +2812,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
         {
             start("h3", "Synopsis");
             TypePtr returnType = (*q)->returnType();
-            _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
+            _out << (returnType ? toString(returnType, c, false) : string("void"))
                  << trim(toString(*q, c)) << "(";
             ParamDeclList params = (*q)->parameters();
             ParamDeclList::const_iterator r = params.begin();
