@@ -75,7 +75,7 @@ string
 Confluence::ConfluenceOutput::escapeComment(string comment)
 {
     list< pair<unsigned int,unsigned int> > escaperLimits = getMarkerLimits(comment);
-    string escapeChars = "\\{}-_*|[]";
+    string escapeChars = "\\{}-_+*|[]";
     
     //for each escape character
     for (string::iterator i = escapeChars.begin(); i < escapeChars.end(); ++i)
@@ -85,39 +85,43 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
         
         if (c == "\\")
         {
-            replacement = "&#92;";
+            replacement = "\\\\";
         }
         else if (c == "{")
         {
-            replacement = "&#123;";
+            replacement = "\\{";
         }
         else if (c == "}")
         {
-            replacement = "&#125;";
+            replacement = "\\}";
         }
         else if (c == "-")
         {
-            replacement = "&#45;";
+            replacement = "\\-";
         }
         else if (c == "*")
         {
-            replacement = "&#42;";
+            replacement = "\\*";
         }
         else if (c == "|")
         {
-            replacement = "&#124;";
+            replacement = "\\|";
         }
         else if (c == "_")
         {
-            replacement = "&#95;";
+            replacement = "\\_";
+        }
+        else if (c == "+")
+        {
+            replacement = "\\+";
         }
         else if (c == "[")
         {
-            replacement = "&#91;";
+            replacement = "\\[";
         }
         else if (c == "]")
         {
-            replacement = "&#93;";
+            replacement = "\\]";
         }
         
         size_t pos = comment.find(c);
