@@ -18,6 +18,12 @@ module Ice
 local class TCPEndpointInfo;
 local class UDPEndpointInfo;
 local interface Endpoint;
+
+/**
+ *
+ * A sequence of endpoints.
+ *
+ **/
 local sequence<Endpoint> EndpointSeq;
 
 };

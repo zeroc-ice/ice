@@ -122,11 +122,11 @@ exception AlreadySubscribed
  **/
 exception BadQoS
 {
-    /*
+    /**
      *
      * The reason for the failure.
      *
-     */
+     **/
     string reason;
 };
 

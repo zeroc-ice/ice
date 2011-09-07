@@ -25,6 +25,11 @@ module IceGrid
  **/
 exception ApplicationNotExistException
 {
+    /**
+     *
+     * The name of the application.
+     *
+     **/
     string name;
 };
 
@@ -321,8 +326,6 @@ exception AllocationTimeoutException extends AllocationException
  * This exception is raised if a client is denied the ability to create
  * a session with IceGrid.
  *
- * @see SessionFactory#createSession
- *
  **/
 exception PermissionDeniedException
 {
@@ -367,6 +370,11 @@ exception ObserverAlreadyRegisteredException
  **/
 exception FileNotAvailableException
 {
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
     string reason;
 };
 

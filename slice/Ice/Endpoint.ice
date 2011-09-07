@@ -18,7 +18,18 @@
 module Ice
 {
 
+/**
+ *
+ * Uniquely identifies TCP endpoints.
+ *
+ **/
 const short TCPEndpointType = 1;
+
+/**
+ *
+ * Uniquely identifies UDP endpoints.
+ *
+ **/
 const short UDPEndpointType = 3;
 
 /**
@@ -138,18 +149,30 @@ local class UDPEndpointInfo extends IPEndpointInfo
 {
      /**
       *
-      * The protocol version supported by the endpoint.
+      * The protocol major version supported by the endpoint.
       *
       **/
      byte protocolMajor;
+
+     /**
+      *
+      * The protocol minor version supported by the endpoint.
+      *
+      **/
      byte protocolMinor;
 
      /**
       *
-      * The encoding version supported by the endpoint.
+      * The encoding major version supported by the endpoint.
       *
       **/
      byte encodingMajor;
+
+     /**
+      *
+      * The encoding minor version supported by the endpoint.
+      *
+      **/
      byte encodingMinor;
 
     /**

@@ -53,6 +53,11 @@ local exception NotFoundException extends DatabaseException
  **/
 local exception DeadlockException extends DatabaseException
 {
+    /**
+     *
+     * The transaction in which the deadlock occurred.
+     *
+     **/
     Transaction tx;
 };
 
@@ -68,12 +73,23 @@ local exception InvalidPositionException
 
 /**
  *
- * Exception raised when Freeze fails to locate an index
+ * Exception raised when Freeze fails to locate an index.
  *
  **/
 local exception IndexNotFoundException
 {
+    /**
+     *
+     * The name of the map in which the index could not be found.
+     *
+     **/
     string mapName;
+
+    /**
+     *
+     * The name of the index.
+     *
+     **/
     string indexName;
 };
 

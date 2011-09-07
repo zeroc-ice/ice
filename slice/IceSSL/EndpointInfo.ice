@@ -22,6 +22,11 @@
 module IceSSL
 {
 
+/**
+ *
+ * Uniquely identifies SSL endpoints.
+ *
+ **/
 const short EndpointType = 2;
 
 /**

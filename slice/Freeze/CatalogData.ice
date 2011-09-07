@@ -24,8 +24,25 @@ module Freeze
 
 struct CatalogData
 {
+    /**
+     *
+     * True if this entry describes an evictor database, false if it describes a map database.
+     *
+     **/
     bool evictor;
+
+    /**
+     *
+     * The Slice type for the database key.
+     *
+     **/
     string key;
+
+    /**
+     *
+     * The Slice type for the database value.
+     *
+     **/
     string value;
 };
 

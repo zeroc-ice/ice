@@ -93,7 +93,7 @@ local interface EvictorIterator
      *
      * Obtains the next identity in the iteration.
      *
-     * @returns The next identity in the iteration.
+     * @return The next identity in the iteration.
      *
      * @throws NoSuchElementException Raised if there is no further
      * elements in the iteration.
