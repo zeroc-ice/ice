@@ -744,7 +744,7 @@ Confluence::ConfluenceOutput::getImageMarkup(const string& url, const string& ti
         oss << "|" << title;
     }
     oss << "!";
-    return oss.str(); //leak?
+    return oss.str();
 }
 
 string
@@ -756,7 +756,7 @@ Confluence::ConfluenceOutput::getAnchorMarkup(const std::string& anchor, const s
     {
         oss << text << "\n";
     }
-    return oss.str(); //leak?
+    return oss.str();
 }
 
 string

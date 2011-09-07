@@ -1125,7 +1125,6 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
         //
         if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
         {
-//            comment += Confluence::ConfluenceOutput::TEMP_ESCAPER_START;
             comment += '[';
             ++summarySize;
             ++i;
@@ -1430,35 +1429,62 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
     }
 
     string s = contained->scoped();
-    cout << "SCOPED: " << s.substr(2) << endl;
     
-    OperationPtr o = OperationPtr::dynamicCast(contained);//TODO: Shawn was here
-    if (o)
-    {
-        ContainerPtr p = container;
-        ContainedPtr q = ContainedPtr::dynamicCast(p);
+    ContainerPtr p = container;
+    ContainedPtr q = ContainedPtr::dynamicCast(p);
 
-        if(!q) // Container is the global module
+    if(!q) // Container is the global module
+    {
+        return s.substr(2);
+    }
+    
+    
+//    do
+//    {
+//        string s2 = q->scoped(); //containing scope
+//        s2 += "::";
+//        
+//        if(s.find(s2) == 0)
+//        {
+//            if (q->scoped().find("::", 2) != string::npos)
+//            {
+//                return "MIN3::"+s.substr(s2.size());
+//            }
+//            return "MIN2::" + s.substr(2);
+//        }
+//        
+//        p = q->container();
+//        q = ContainedPtr::dynamicCast(p);
+//    }
+//    while(q);
+    
+    string s2 = q->scoped(); //containing scope
+    s2 += "::";
+
+    if(s.find(s2) == 0)
+    {
+        string after = s.substr(s2.size());
+        if (after.find("::") == string::npos)
         {
-            return s.substr(2);
+            return after;
         }
         
-        do
-        {
-            string s2 = q->scoped();
-            s2 += "::";
-
-            if(s.find(s2) == 0)
-            {
-                cout << "MINIMIZED: " << s.substr(s2.size()) << endl;
-                return s.substr(s2.size());
-            }
-
-            p = q->container();
-            q = ContainedPtr::dynamicCast(p);
-        }
-        while(q);
+//        if (q->scoped().find("::", 2) != string::npos)
+//        {
+//            //there are at least two components above contained.
+//            //locally scoped const/member/operation
+//            return s.substr(s2.size());
+//        }
+//        else if (s.find("::"+q->name()) == 0)
+//        {
+//            //within this module
+//            return s.substr(s2.size());
+//        }
     }
+
+    p = q->container();
+    q = ContainedPtr::dynamicCast(p);
+    
     return s.substr(2);//s
 }
 
@@ -2813,7 +2839,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
             start("h3", "Synopsis");
             TypePtr returnType = (*q)->returnType();
             _out << (returnType ? toString(returnType, c, false) : string("void"))
-                 << trim(toString(*q, c)) << "(";
+                 << " " << trim(toString(*q, c)) << "(";
             ParamDeclList params = (*q)->parameters();
             ParamDeclList::const_iterator r = params.begin();
             while(r != params.end())
@@ -3069,29 +3095,58 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     printComment(e, e->container(), deprecateReason, false);
 
     EnumeratorList enumerators = e->getEnumerators();
+    
     if(!enumerators.empty())
     {
         start("h2");
-        _out << "Enumerators";
+        _out << "Enumerator Index";
         end();
         start("dl");
         for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
         {
             start("dt", "Symbol");
-            _out << (*q)->name();
+            _out << toString(*q, e->container(), false, true);
             end();
+            string summary = trim(getSummary(*q, e->container(), false, true));
+            if (!summary.empty())
+            {
+                start("dd");
+                _out << summary;
+                end();
+            }
+            else
+            {
+                _out << "\n";
+            }
+        }
+        end();
+        _out << "\n{ztop}\n";
+        
+    }
+    
+    if(!enumerators.empty())
+    {
+        start("h2");
+        _out << "Enumerators";
+        end();
+        start("p");
+        for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+        {
+            start("h3");
+            _out << toString(*q, e->container(), true, true);
+            end();
+            _out << "\n";
 
-            start("dd");
             string reason;
             //
             // Enumerators do not support metadata.
             //
             printComment(*q, e->container(), reason, false);
-            end();
         }
         end();
         _out << "\n{ztop}\n";
     }
+   
         
     closeDoc();
 
