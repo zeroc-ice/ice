@@ -426,7 +426,7 @@ public:
 
     ConstIterator(MapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
         _helper(IteratorHelper::create(mapHelper, true)), 
-        _communicator(_communicator),
+        _communicator(communicator),
         _refValid(false)
     {
     }
