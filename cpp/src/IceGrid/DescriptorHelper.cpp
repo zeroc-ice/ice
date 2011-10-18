@@ -198,16 +198,6 @@ updateSeqElts(const Seq& seq, const Seq& update, const Ice::StringSeq& remove, G
     return result;
 }
 
-template<typename Dict> Dict
-getDictUpdatedElts(const Dict& ldict, const Dict& rdict)
-{
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<Dict::mapped_type>());
-#else
-    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<typename Dict::mapped_type>());
-#endif
-}
-
 template<typename EqFunc, typename Dict> Dict
 getDictUpdatedEltsWithEq(const Dict& ldict, const Dict& rdict, EqFunc eq)
 {
@@ -221,6 +211,16 @@ getDictUpdatedEltsWithEq(const Dict& ldict, const Dict& rdict, EqFunc eq)
         }
     }
     return result;
+}
+
+template<typename Dict> Dict
+getDictUpdatedElts(const Dict& ldict, const Dict& rdict)
+{
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<Dict::mapped_type>());
+#else
+    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<typename Dict::mapped_type>());
+#endif
 }
 
 template <typename Dict> Ice::StringSeq

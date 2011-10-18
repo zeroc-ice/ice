@@ -18,19 +18,7 @@ namespace Ice
 {
 
 class LocalObject;
-
-}
-
-namespace IceInternal
-{
-
 ICE_API IceUtil::Shared* upCast(::Ice::LocalObject*);
-
-}
-
-namespace Ice
-{
-
 typedef IceInternal::Handle< LocalObject > LocalObjectPtr;
 
 }

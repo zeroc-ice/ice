@@ -21,19 +21,7 @@ namespace IceSSL
 {
 
 class DHParams;
-
-}
-
-namespace IceInternal
-{
-
 IceUtil::Shared* upCast(IceSSL::DHParams*);
-
-}
-
-namespace IceSSL
-{
-
 typedef IceInternal::Handle<DHParams> DHParamsPtr;
 
 }

@@ -11,7 +11,8 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-CXX	                = c++
+CXX                     = c++
+#CXX	                = clang++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 
@@ -35,7 +36,9 @@ ifneq ($(embedded_runpath_prefix),)
     endif
 endif
 
-LDPLATFORMFLAGS		+= -rdynamic
+ifeq ($(CXX),c++)
+     LDPLATFORMFLAGS		+= -rdynamic
+endif
 
 #
 # Needed to link IcePHP extension.

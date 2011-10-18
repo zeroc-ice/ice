@@ -38,6 +38,11 @@ General Changes
   ignored if the server was not deactivated using the IceGrid
   administrative facility.
 
+C++ Changes
+===========
+
+- Added support for clang compiler on Mac OS X.
+
 
 Visual Studio Add-in Changes
 ============================

@@ -40,6 +40,12 @@ throwMemoryLimitException(const char* file, int line, size_t requested, size_t m
     throw Ice::MemoryLimitException(file, line, s.str());
 }
 
+void
+throwMarshalException(const char* file, int line, const string& reason)
+{
+    throw Ice::MarshalException(file, line, reason);
+}
+
 }
 
 }

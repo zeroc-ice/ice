@@ -31,7 +31,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::LocalObject* IceInternal::upCast(ConnectionI* p) { return p; }
+Ice::LocalObject* Ice::upCast(ConnectionI* p) { return p; }
 
 namespace
 {

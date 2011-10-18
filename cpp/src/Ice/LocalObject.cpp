@@ -13,7 +13,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(LocalObject* obj) { return obj; }
+IceUtil::Shared* Ice::upCast(LocalObject* obj) { return obj; }
 
 bool
 Ice::LocalObject::operator==(const LocalObject& r) const

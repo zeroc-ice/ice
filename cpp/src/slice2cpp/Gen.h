@@ -320,25 +320,6 @@ private:
         std::list<int> _useWstringHist;
     };
 
-    class IceInternalVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        IceInternalVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
-
-        virtual bool visitUnitStart(const UnitPtr&);
-        virtual void visitUnitEnd(const UnitPtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-    };
-
     class HandleVisitor : private ::IceUtil::noncopyable, public ParserVisitor
     {
     public:

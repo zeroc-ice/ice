@@ -37,7 +37,10 @@ namespace Ice
 {
 
 class Locator;
+ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Locator*);
+
 class Router;
+ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
 
 }
 
@@ -45,9 +48,6 @@ class Router;
 
 namespace IceInternal
 {
-
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Locator*);
-ICE_API ::IceProxy::Ice::Object* upCast(::IceProxy::Ice::Router*);
 
 class LocalExceptionWrapper;
 
@@ -1172,7 +1172,7 @@ public:
 
     TwowayCallbackNC(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : CallbackNC<T>(instance, excb, sentcb)
     {
-        checkCallback(instance, cb || excb != 0);
+        CallbackBase::checkCallback(instance, cb || excb != 0);
     }
 };
 
@@ -1188,7 +1188,7 @@ public:
 
     TwowayCallback(const TPtr& instance, bool cb, Exception excb, Sent sentcb) : Callback<T, CT>(instance, excb, sentcb)
     {
-        checkCallback(instance, cb || excb != 0);
+        CallbackBase::checkCallback(instance, cb || excb != 0);
     }
 };
 
@@ -1209,7 +1209,7 @@ public:
     OnewayCallbackNC(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
         CallbackNC<T>(instance, excb, sentcb), response(cb)
     {
-        checkCallback(instance, cb != 0 || excb != 0);
+        CallbackBase::checkCallback(instance, cb != 0 || excb != 0);
     }
 
     virtual void __completed(const ::Ice::AsyncResultPtr& result) const
@@ -1254,7 +1254,7 @@ public:
     OnewayCallback(const TPtr& instance, Response cb, Exception excb, Sent sentcb) : 
         Callback<T, CT>(instance, excb, sentcb),  response(cb)
     {
-        checkCallback(instance, cb != 0 || excb != 0);
+        CallbackBase::checkCallback(instance, cb != 0 || excb != 0);
     }
 
     virtual void __completed(const ::Ice::AsyncResultPtr& result) const

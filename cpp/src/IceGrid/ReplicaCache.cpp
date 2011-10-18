@@ -40,7 +40,7 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
     Lock sync(*this);
     
     ReplicaEntryPtr entry;
-    while(entry = getImpl(name))
+    while((entry = getImpl(name)))
     {
         ReplicaSessionIPtr session = entry->getSession();
         if(session->isDestroyed())

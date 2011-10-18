@@ -17,13 +17,13 @@ namespace Ice
 {
 
 class ConnectionI;
+ICE_API Ice::LocalObject* upCast(Ice::ConnectionI*);
+typedef IceInternal::Handle<ConnectionI> ConnectionIPtr;
 
 }
 
 namespace IceInternal
 {
-
-ICE_API Ice::LocalObject* upCast(Ice::ConnectionI*);
 
 enum AsyncStatus
 {
@@ -31,13 +31,6 @@ enum AsyncStatus
     AsyncStatusSent = 1,
     AsyncStatusInvokeSentCallback = 2
 };
-
-}
-
-namespace Ice
-{
-
-typedef IceInternal::Handle<ConnectionI> ConnectionIPtr;
 
 }
 

@@ -38,7 +38,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-IceUtil::Shared* IceInternal::upCast(IceSSL::Instance* p) { return p; }
+IceUtil::Shared* IceSSL::upCast(IceSSL::Instance* p) { return p; }
 
 namespace
 {

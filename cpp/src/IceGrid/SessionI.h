@@ -35,7 +35,7 @@ typedef IceUtil::Handle<Allocatable> AllocatablePtr;
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
 
-class BaseSessionI : virtual Ice::Object, public IceUtil::Mutex
+class BaseSessionI : virtual public Ice::Object, public IceUtil::Mutex
 {
 public:
 

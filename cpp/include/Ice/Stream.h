@@ -45,9 +45,6 @@ enum StreamTraitType
     StreamTraitTypeUnknown
 };
 
-// Forward declaration required for writer specializations.
-class MarshalException;
-
 //
 // Base trait template. This doesn't actually do anything -- we just
 // use it as a template that we can specialize.
@@ -542,7 +539,7 @@ struct StreamWriter<StreamTraitTypeByteEnum>
     {
         if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         outS->write(static_cast<Byte>(v));
     }
@@ -558,7 +555,7 @@ struct StreamReader<StreamTraitTypeByteEnum>
         inS->read(val);
         if(val > StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         v = static_cast<T>(val);
     }
@@ -573,7 +570,7 @@ struct StreamWriter<StreamTraitTypeShortEnum>
     {
         if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         outS->write(static_cast<Short>(v));
     }
@@ -589,7 +586,7 @@ struct StreamReader<StreamTraitTypeShortEnum>
         inS->read(val);
         if(val < 0 || val > StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         v = static_cast<T>(val);
     }
@@ -603,7 +600,7 @@ struct StreamWriter<StreamTraitTypeIntEnum>
     {
         if(static_cast<int>(v) < 0 || static_cast<int>(v) >= StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         outS->write(static_cast<Int>(v));
     }
@@ -619,7 +616,7 @@ struct StreamReader<StreamTraitTypeIntEnum>
         inS->read(val);
         if(val < 0 || val > StreamTrait<T>::enumLimit)
         {
-            throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+            IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
         v = static_cast<T>(val);
     }

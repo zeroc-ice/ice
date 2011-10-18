@@ -18,19 +18,7 @@ namespace IceSSL
 {
 
 class TrustManager;
-
-}
-
-namespace IceInternal
-{
-
 IceUtil::Shared* upCast(IceSSL::TrustManager*);
-
-}
-
-namespace IceSSL
-{
-
 typedef IceInternal::Handle<TrustManager> TrustManagerPtr;
 
 }

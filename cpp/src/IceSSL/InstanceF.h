@@ -18,19 +18,7 @@ namespace IceSSL
 {
 
 class Instance;
-
-}
-
-namespace IceInternal
-{
-
 IceUtil::Shared* upCast(IceSSL::Instance*);
-
-}
-
-namespace IceSSL
-{
-
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 }

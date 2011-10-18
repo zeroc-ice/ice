@@ -30,7 +30,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(AsyncResult* p) { return p; }
+IceUtil::Shared* Ice::upCast(AsyncResult* p) { return p; }
 
 IceUtil::Shared* IceInternal::upCast(OutgoingAsyncMessageCallback* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(OutgoingAsync* p) { return p; }
