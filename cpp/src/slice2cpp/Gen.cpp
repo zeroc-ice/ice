@@ -104,7 +104,12 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
         }
         else if(bp && bp->kind() == Builtin::KindFloat)
         {
-            out << value << "F";
+            out << value;
+            if(value.find(".") == string::npos)
+            {
+                out << ".0";
+            }
+            out << "F";
         }
         else
         {
