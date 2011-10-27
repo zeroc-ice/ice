@@ -1020,7 +1020,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << sp << nl << "#ifdef __APPLE__";
 
         string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
-        C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
+        C << nl << "extern \"C\" {";
+        C.inc();
+        C << nl << "void " << initfuncname << "();";
+        C << nl << "void " << initfuncname << "() {}";
+        C.dec();
+        C << nl << "}";
         C << nl << "#endif";
     }
     H << eb << ';';
@@ -4421,7 +4426,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
             C << sp << nl << "#ifdef __APPLE__";
             std::string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
-            C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
+            C << nl << "extern \"C\" {";
+            C.inc();
+            C << nl << "void " << initfuncname << "();";
+            C << nl << "void " << initfuncname << "() {}";
+            C.dec();
+            C << nl << "}";
             C << nl << "#endif";
         }
     }
