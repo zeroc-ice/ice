@@ -469,6 +469,7 @@ namespace IceInternal
         {
             get
             {
+                Debug.Assert(is_ != null); // Can only be called if response received.
                 return is_;
             }
         }
@@ -605,7 +606,8 @@ namespace IceInternal
         {
             instance_ = instance;
             operation_ = op;
-            is_ = new IceInternal.BasicStream(instance);
+            // Lazy initialized when response is received.
+            //is_ = new IceInternal.BasicStream(instance);
             os_ = new IceInternal.BasicStream(instance);
             state_ = 0;
             exception_ = null;
@@ -969,6 +971,8 @@ namespace IceInternal
                         _timerTask = null;
                     }
 
+                    Debug.Assert(is_ == null);
+                    is_ = new IceInternal.BasicStream(instance_);
                     is_.swap(istr);
                     replyStatus = is_.readByte();
 

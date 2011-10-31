@@ -20,7 +20,8 @@ public class AsyncResult
     {
         _instance = instance;
         _operation = op;
-        _is = new IceInternal.BasicStream(instance, false, false);
+        // Lazy initialized when response is received.
+        //_is = new IceInternal.BasicStream(instance, false, false);
         _os = new IceInternal.BasicStream(instance, false, false);
         _state = 0;
         _exception = null;
@@ -175,6 +176,7 @@ public class AsyncResult
 
     public final IceInternal.BasicStream __is()
     {
+        assert _is != null; // Can't only be called if response is received.
         return _is;
     }
 

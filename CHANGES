@@ -56,6 +56,9 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Minor marshalling/un-marhsalling performance improvement (removed
+  virtual specifier from streaming class).
+
 - Added missing throwLocalException method to Ice.AsyncResult
   interface.
 

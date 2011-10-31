@@ -213,6 +213,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                     _timerTask = null;
                 }
 
+                assert _is == null;
+                _is = new IceInternal.BasicStream(_instance);
                 _is.swap(is);
                 replyStatus = _is.readByte();
 
