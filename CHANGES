@@ -26,6 +26,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Fixed IceStorm bug which could cause a crash when using the Freeze
+  database backend and multiple threads were trying to write to the
+  database.
+
 - Fixed minor performance issue with bi-directional proxies.
 
 - Added support for replica and node name verification when securing
