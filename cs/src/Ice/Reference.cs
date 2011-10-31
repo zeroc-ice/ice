@@ -473,7 +473,7 @@ namespace IceInternal
 
         public override bool getCacheConnection()
         {
-            return false;
+            return true;
         }
 
         public override bool getPreferSecure()

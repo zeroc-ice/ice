@@ -498,7 +498,7 @@ IceInternal::FixedReference::getCollocationOptimized() const
 bool
 IceInternal::FixedReference::getCacheConnection() const
 {
-    return false;
+    return true;
 }
 
 bool

@@ -26,6 +26,8 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Fixed minor performance issue with bi-directional proxies.
+
 - Added support for replica and node name verification when securing
   the IceGrid node and registries. The names are matched against the
   certificate common name. The connection is rejected if the
@@ -49,6 +51,13 @@ Visual Studio Add-in Changes
 
 - Fixed a bug that affects Visual Studio C++ projects that build 
   static libraries.
+
+
+C# Changes
+==========
+
+- Added missing throwLocalException method to Ice.AsyncResult
+  interface.
 
 
 ======================================================================

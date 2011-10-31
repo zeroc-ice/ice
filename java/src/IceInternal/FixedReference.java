@@ -57,7 +57,7 @@ public class FixedReference extends Reference
     public final boolean
     getCacheConnection()
     {
-        return false;
+        return true;
     }
 
     public boolean

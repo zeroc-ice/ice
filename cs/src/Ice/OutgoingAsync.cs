@@ -61,6 +61,8 @@ namespace Ice
         bool isSent();
         void waitForSent();
 
+        void throwLocalException();
+
         bool sentSynchronously();
 
         string getOperation();
