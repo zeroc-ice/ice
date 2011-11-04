@@ -61,9 +61,18 @@ namespace IceSSL
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("failed to establish ssl connection\n");
-                    s.Append(IceInternal.Network.fdLocalAddressToString(_fd));
-                    Debug.Assert(_addr != null);
-                    s.Append("\nremote address = " + _addr.ToString() + "\n");
+                    if(_incoming)
+                    {
+                        s.Append(IceInternal.Network.addressesToString(IceInternal.Network.getLocalAddress(_fd),
+                                                                       IceInternal.Network.getRemoteAddress(_fd)));
+                    }
+                    else
+                    {
+                        Debug.Assert(_addr != null);
+                        s.Append(IceInternal.Network.addressesToString(IceInternal.Network.getLocalAddress(_fd),
+                                                                       _addr));
+                    }
+                    s.Append("\n");
                     s.Append(e.ToString());
                     _logger.trace(_instance.networkTraceCategory(), s.ToString());
                 }
@@ -379,14 +388,15 @@ namespace IceSSL
         //
         // Only for use by ConnectorI, AcceptorI.
         //
-        internal TransceiverI(Instance instance, Socket fd, IPEndPoint addr, string host, bool connected,
-                              string adapterName)
+        internal TransceiverI(Instance instance, Socket fd, string host, bool connected,
+                              bool incoming, string adapterName, IPEndPoint addr)
         {
             _instance = instance;
             _fd = fd;
-            _addr = addr;
             _host = host;
+            _incoming = incoming;
             _adapterName = adapterName;
+            _addr = addr;
             _stream = null;
             _logger = instance.communicator().getLogger();
             _stats = instance.communicator().getStats();
@@ -730,9 +740,10 @@ namespace IceSSL
 
         private Instance _instance;
         private Socket _fd;
-        private IPEndPoint _addr;
         private string _host;
+        private bool _incoming;
         private string _adapterName;
+        private IPEndPoint _addr;
         private SslStream _stream;
         private Ice.Logger _logger;
         private Ice.Stats _stats;

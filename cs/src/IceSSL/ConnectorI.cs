@@ -55,7 +55,7 @@ namespace IceSSL
                 //
                 // Nonblocking connect is handled by the transceiver.
                 //
-                return new TransceiverI(_instance, fd, _addr, _host, false, null);
+                return new TransceiverI(_instance, fd, _host, false, false, null, _addr);
             }
             catch(Ice.LocalException ex)
             {
