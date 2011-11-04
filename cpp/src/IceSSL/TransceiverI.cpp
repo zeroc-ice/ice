@@ -251,9 +251,19 @@ IceSSL::TransceiverI::initialize()
             struct sockaddr_storage localAddr;
             IceInternal::fdToLocalAddress(_fd, localAddr);
 
+            struct sockaddr_storage remoteAddr;
+            if(_incoming)
+            {
+                IceInternal::fdToRemoteAddress(_fd, remoteAddr);
+            }
+            else
+            {
+                remoteAddr = _connectAddr;
+            }
+
             out << "failed to establish ssl connection\n"
                     << "local address: " << IceInternal::addrToString(localAddr) << "\n"
-                    << "remote address: " << IceInternal::addrToString(_connectAddr) << "\n"
+                    << "remote address: " << IceInternal::addrToString(remoteAddr) << "\n"
                     << ex;
         }
         throw;

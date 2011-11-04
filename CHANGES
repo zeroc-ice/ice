@@ -44,6 +44,11 @@ General Changes
   ignored if the server was not deactivated using the IceGrid
   administrative facility.
 
+- Fixed IceSSL bug in all language mappings that could cause a server
+  to crash if a failure occurred during connection establishment and
+  network tracing was enabled.
+
+
 C++ Changes
 ===========
 

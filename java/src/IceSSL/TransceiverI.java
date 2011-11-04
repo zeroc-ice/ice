@@ -56,8 +56,18 @@ final class TransceiverI implements IceInternal.Transceiver
                 s.append("local address = ");
                 s.append(IceInternal.Network.addrToString(fd.getLocalAddress(), fd.getLocalPort()));
                 s.append("\nremote address = ");
-                assert(_connectAddr != null);
-                s.append(IceInternal.Network.addrToString(_connectAddr));
+                if(_incoming)
+                {
+                    final java.net.InetSocketAddress addr = (java.net.InetSocketAddress)fd.getRemoteSocketAddress();
+                    final java.net.InetAddress remoteAddr = addr != null ? addr.getAddress() : null;
+                    final int remotePort = addr != null ? addr.getPort() : -1;
+                    s.append(IceInternal.Network.addrToString(remoteAddr, remotePort));
+                }
+                else
+                {
+                    assert(_connectAddr != null);
+                    s.append(IceInternal.Network.addrToString(_connectAddr));
+                }
                 _logger.trace(_instance.networkTraceCategory(), s.toString());
             }
             throw ex;
