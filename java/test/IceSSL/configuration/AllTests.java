@@ -1133,6 +1133,40 @@ public class AllTests
             fact.destroyServer(server);
             comm.destroy();
         }
+        {
+            //
+            // Configure the server with both RSA and DSA certificates, but use the
+            // Alias property to select the DSA certificate. This should succeed.
+            //
+            Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+            initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            ServerFactoryPrx fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            java.util.Map<String, String> d = createServerProps(defaultProperties, defaultDir, defaultHost);
+            d.put("IceSSL.Keystore", "s_rsa_dsa_ca1.jks");
+            d.put("IceSSL.Alias", "dsacert");
+            d.put("IceSSL.Password", "password");
+            d.put("IceSSL.Truststore", "cacert1.jks");
+            d.put("IceSSL.VerifyPeer", "1");
+            ServerPrx server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+                //
+                // RSA is used by default, so we examine the negotiated cipher to determine whether
+                // DSA was actually used.
+                //
+                IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.cipher.toLowerCase().contains("dss"));
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+        }
         out.println("ok");
 
         out.print("testing IceSSL.TrustOnly... ");
