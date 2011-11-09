@@ -76,6 +76,9 @@ C# Changes
 Java Changes
 ============
 
+- Fixed a bug in the generated code for a Slice exception with no
+  data members: constructors are now generated correctly.
+
 - Fixed an IceSSL bug in which the IceSSL.Alias property was not
   working correctly.
 

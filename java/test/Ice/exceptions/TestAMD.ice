@@ -16,7 +16,9 @@ module Test
 
 interface Thrower;
 
-exception A
+exception Base {};
+
+exception A extends Base
 {
     int aMem;
 };

@@ -2610,28 +2610,28 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << sb;
 
+    //
+    // Constructors.
+    //
+    out << sp;
+    out << nl << "public " << name << "()";
+    out << sb;
+    if(base)
+    {
+        out << nl << "super();";
+    }
+    writeDataMemberInitializers(out, members, package);
+    out << eb;
+
+    out << sp;
+    out << nl << "public " << name << "(Throwable cause)";
+    out << sb;
+    out << nl << "super(cause);";
+    writeDataMemberInitializers(out, members, package);
+    out << eb;
+
     if(!allDataMembers.empty())
     {
-        //
-        // Constructors.
-        //
-        out << sp;
-        out << nl << "public " << name << "()";
-        out << sb;
-        if(base)
-        {
-            out << nl << "super();";
-        }
-        writeDataMemberInitializers(out, members, package);
-        out << eb;
-
-        out << sp;
-        out << nl << "public " << name << "(Throwable cause)";
-        out << sb;
-        out << nl << "super(cause);";
-        writeDataMemberInitializers(out, members, package);
-        out << eb;
-
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
