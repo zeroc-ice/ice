@@ -55,6 +55,9 @@ C++ Changes
 
 - Added support for clang compiler on Mac OS X.
 
+- Fixed issue where connection on a remote address would always fail
+  with an assert on Windows 8.
+
 
 Visual Studio Add-in Changes
 ============================
