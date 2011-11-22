@@ -2510,25 +2510,12 @@ namespace Ice.VisualStudio
             {
                 string iceHome = getIceHome();
                 string binDir = getCsBinDir(project);
-                string sliceCompiler = Util.slice2cs;
                 ComponentList components = Util.getIceDotNetComponents(project);
 
                 if(isSilverlightProject(project))
                 {
                     iceHome = getIceSlHome();
-                    sliceCompiler = Util.slice2sl;
                     components = Util.getIceSilverlightComponents(project);
-                }
-
-                String version = Builder.getSliceCompilerVersion(project, sliceCompiler);
-
-                string[] tokens = version.Split('.');
-                //
-                // Add patch version 0 if there isn't one
-                //
-                if(tokens.Length == 3)
-                {
-                    version += ".0";
                 }
 
                 foreach(string component in components)
@@ -2550,8 +2537,7 @@ namespace Ice.VisualStudio
                     {
                         if(r.Name.Equals(component, StringComparison.OrdinalIgnoreCase))
                         {
-                            if(!r.Path.Equals(reference) ||
-                               !r.Version.Equals(version))
+                            if(!r.Path.Equals(reference))
                             {
                                 bool copyLocal = getCopyLocal(project, component);
                                 Util.removeDotNetReference(project, component);
@@ -3073,6 +3059,10 @@ namespace Ice.VisualStudio
             List<Project> projects = new List<Project>();
             foreach(Project p in solution.Projects)
             {
+                if(projects.Contains(p))
+                {
+                    continue;
+                }
                 getProjects(solution, p, ref projects);
             }
             return projects;
@@ -3091,12 +3081,16 @@ namespace Ice.VisualStudio
                     }
                     getProjects(solution, p, ref projects);
                 }
+                return;
             }
-            if(projects.Find(
-                delegate(Project p)
-                {
-                    return project.UniqueName.Equals(p.UniqueName);
-                }) == null)
+            
+            if(!Util.isSliceBuilderEnabled(project))
+            {
+                // If builder isn't enabled we don't care about the project.
+                return;
+            }
+
+            if(!projects.Contains(project))
             {
                 projects.Add(project);
             }
@@ -3104,13 +3098,17 @@ namespace Ice.VisualStudio
 
         //
         // Rerturn a list of projects with match the build order
-        // of the solution.
+        // of the solution and have Slice builder enabled.
         //
         public static List<Project> buildOrder(Solution solution)
         {
             List<Project> projects = new List<Project>();
             foreach(Project p in solution.Projects)
             {
+                if(projects.Contains(p))
+                {
+                    continue;
+                }
                 buildOrder(solution, p, ref projects);
             }
             return projects;
@@ -3134,7 +3132,20 @@ namespace Ice.VisualStudio
                     }
                     buildOrder(solution, p, ref projects);
                 }
+                return;
             }
+            
+            if(!Util.isSliceBuilderEnabled(project))
+            {
+                // If builder isn't enabled we don't care about the project.
+                return;
+            }
+
+            if(projects.Contains(project))
+            {
+                return;
+            }
+
             BuildDependencies dependencies = solution.SolutionBuild.BuildDependencies;
             for(int i = 0; i < dependencies.Count; ++i)
             {
@@ -3152,11 +3163,8 @@ namespace Ice.VisualStudio
                     }
                 }
             }
-            if(projects.Find(
-                delegate(Project p)
-                    {
-                        return project.UniqueName.Equals(p.UniqueName);
-                    }) == null)
+
+            if(!projects.Contains(project))
             {
                 projects.Add(project);
             }
@@ -3187,12 +3195,15 @@ namespace Ice.VisualStudio
                     solutionFolderProjects(p, ref projects);
                 }
             }
-            else
+            
+            if(!Util.isSliceBuilderEnabled(project))
             {
-                if(!projects.Contains(project))
-                {
-                    projects.Add(project);
-                }
+                // If builder isn't enabled we don't care about the project.
+                return;
+            }
+            else if(!projects.Contains(project))
+            {
+                projects.Add(project);
             }
         }
 

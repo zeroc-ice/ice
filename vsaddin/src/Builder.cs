@@ -385,7 +385,7 @@ namespace Ice.VisualStudio
                         {
                             File.Delete(path);
                         }
-                        catch(System.IO.IOException)
+                        catch(System.SystemException)
                         { 
                             // Can happen if the file is used by another process.
                         }
@@ -2344,7 +2344,7 @@ namespace Ice.VisualStudio
                 {
                     File.Delete(generatedFileInfo.FullName);
                 }
-                catch(System.IO.IOException)
+                catch(System.SystemException)
                 {
                     // Can happen if the file is used by another process.
                 }
@@ -2412,7 +2412,7 @@ namespace Ice.VisualStudio
                 {
                     File.Delete(file);
                 }
-                catch(System.IO.IOException)
+                catch(System.SystemException)
                 {
                     // Can happen if the file is being used by another process.
                 }
