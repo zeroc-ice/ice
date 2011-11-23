@@ -3059,6 +3059,11 @@ namespace Ice.VisualStudio
             List<Project> projects = new List<Project>();
             foreach(Project p in solution.Projects)
             {
+                if(String.IsNullOrEmpty(p.Kind) || p.Kind.Equals(unloadedProjectGUID))
+                {
+                    continue;
+                }
+
                 if(projects.Contains(p))
                 {
                     continue;
@@ -3070,6 +3075,11 @@ namespace Ice.VisualStudio
 
         public static void getProjects(Solution solution, Project project, ref List<Project> projects)
         {
+            if(String.IsNullOrEmpty(project.Kind) || project.Kind.Equals(unloadedProjectGUID))
+            {
+                return;
+            }
+
             if(project.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
             {
                 foreach(ProjectItem item in project.ProjectItems)
@@ -3105,6 +3115,11 @@ namespace Ice.VisualStudio
             List<Project> projects = new List<Project>();
             foreach(Project p in solution.Projects)
             {
+                if(String.IsNullOrEmpty(p.Kind) || p.Kind.Equals(unloadedProjectGUID))
+                {
+                    continue;
+                }
+
                 if(projects.Contains(p))
                 {
                     continue;
@@ -3121,6 +3136,10 @@ namespace Ice.VisualStudio
         //
         public static void buildOrder(Solution solution, Project project, ref List<Project> projects)
         {
+            if(String.IsNullOrEmpty(project.Kind) || project.Kind.Equals(unloadedProjectGUID))
+            {
+                return;
+            }
             if(project.Kind == EnvDTE80.ProjectKinds.vsProjectKindSolutionFolder)
             {
                 foreach(ProjectItem item in project.ProjectItems)
@@ -3436,7 +3455,7 @@ namespace Ice.VisualStudio
         public const string refreshCommandGUID = "{1496A755-94DE-11D0-8C3F-00C04FC2AAE2}";
         public const string vsSmartDeviceCSharp = "{4D628B5B-2FBC-4AA6-8C16-197242AEB884}";
         public const string vsSmartDeviceVB = "{68B1623D-7FB9-47D8-8664-7ECEA3297D4F}";
-
+        public const string unloadedProjectGUID = "{67294A52-A4F0-11D2-AA88-00C04F688DDE}";
         public const int refreshCommandID = 222;
     }
 }
