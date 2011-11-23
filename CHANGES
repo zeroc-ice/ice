@@ -62,15 +62,18 @@ C++ Changes
 Visual Studio Add-in Changes
 ============================
 
-- Fixed a bug that affects Visual Studio C++ projects that build 
+- Fixed a bug that affects Visual Studio C++ projects that build
   static libraries.
 
 - Fixed a bug that could cause Visual Studio to hang opeing or building
   solutions containing a large number of projects.
 
-- Fixed a bug that afects Visual Studio clean, an exception was throw
+- Fixed a bug that affects Visual Studio clean, an exception was throw
   when try to removed generated files and the user is not authorized to
-  remove the files.
+  remove the files.  
+
+- Fixed a bug that affects Visual Studio solutions that contain unloaded
+  projects. 
 
 
 C# Changes
