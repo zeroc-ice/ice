@@ -1055,12 +1055,19 @@ namespace Ice.VisualStudio
                 for(int i = 0; i < dependencies.Count; ++i)
                 {
                     BuildDependency dp = dependencies.Item(i + 1);
+                    if(dp == null)
+                    {
+                        continue;
+                    }
                     if(dp.Project.Equals(project))
                     {
                         System.Array projects = dp.RequiredProjects as System.Array;
-                        foreach(Project p in projects)
+                        if(projects != null)
                         {
-                            buildProject(p, force, vsBuildScope.vsBuildScopeProject);
+                            foreach (Project p in projects)
+                            {
+                                buildProject(p, force, vsBuildScope.vsBuildScopeProject);
+                            }
                         }
                     }
                 }
@@ -1977,28 +1984,41 @@ namespace Ice.VisualStudio
 
         public void initDocumentEvents()
         {
-            // Csharp project item events.
-            _csProjectItemsEvents = 
-                (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
-            if(_csProjectItemsEvents != null)
+            try
             {
-                _csProjectItemsEvents.ItemAdded +=
-                    new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
-                _csProjectItemsEvents.ItemRemoved +=
-                    new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                // Csharp project item events.
+                _csProjectItemsEvents = 
+                    (EnvDTE.ProjectItemsEvents)_applicationObject.Events.GetObject("CSharpProjectItemsEvents");
+                if(_csProjectItemsEvents != null)
+                {
+                    _csProjectItemsEvents.ItemAdded +=
+                        new _dispProjectItemsEvents_ItemAddedEventHandler(csharpItemAdded);
+                    _csProjectItemsEvents.ItemRemoved +=
+                        new _dispProjectItemsEvents_ItemRemovedEventHandler(csharpItemRemoved);
+                }
+            }
+            catch(COMException)
+            {
+                // Can happen if the Visual Studio install don't support C#
             }
 
-            // Cpp project item events.
-            _vcProjectItemsEvents = 
-                (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
-            if(_vcProjectItemsEvents != null)
+            try
             {
-                _vcProjectItemsEvents.ItemAdded +=
-                    new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
-                _vcProjectItemsEvents.ItemRemoved +=
-                    new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                // Cpp project item events.
+                _vcProjectItemsEvents =
+                    (VCProjectEngineEvents)_applicationObject.Events.GetObject("VCProjectEngineEventsObject");
+                if (_vcProjectItemsEvents != null)
+                {
+                    _vcProjectItemsEvents.ItemAdded +=
+                        new _dispVCProjectEngineEvents_ItemAddedEventHandler(cppItemAdded);
+                    _vcProjectItemsEvents.ItemRemoved +=
+                        new _dispVCProjectEngineEvents_ItemRemovedEventHandler(cppItemRemoved);
+                }
             }
-
+            catch(COMException)
+            {
+                // Can happen if the Visual Studio install don't support C++
+            }
             // Visual Studio document events.
             _docEvents = _applicationObject.Events.get_DocumentEvents(null);
             if(_docEvents != null)
