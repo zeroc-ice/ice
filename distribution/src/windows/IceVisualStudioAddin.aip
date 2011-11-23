@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="7.3" version="8.0.2" Modules="enterprise" RootPath="." Language="en">
+<DOCUMENT Type="Advanced Installer" CreateVersion="7.3" version="8.6" Modules="enterprise" RootPath="." Language="en" Id="{EC3C1F41-1698-48BF-A385-F8EB4F254EB4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_UPGRADE" Value="No"/>
     <ROW Property="ALLUSERS" Value="2"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPCONTACT" Value="info@zeroc.com"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://www.zeroc.com"/>
-    <ROW Property="BannerBitmap" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1"/>
-    <ROW Property="DialogBitmap" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1"/>
+    <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="DefaultBuild:installer_header.bmp" Type="1" MsiKey="BannerBitmap"/>
+    <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:installer_main.bmp" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="Manufacturer" Value="Zeroc, Inc" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{091125B5-4F5C-44C7-92DE-FD64FC862F0C} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Ice Visual Studio Addin" ValueLocId="*"/>
-    <ROW Property="ProductVersion" Value="3.4.1.2"/>
+    <ROW Property="ProductVersion" Value="3.4.2.1"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{933BADDE-6A31-4CDC-AB46-FBDFC214EBDB}"/>
@@ -21,7 +21,7 @@
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1"/>
     <ROW Directory="ICE_INSTALL_DIR" Directory_Parent="TARGETDIR" DefaultDir="ICE_IN~1|ICE_INSTALL_DIR" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
-    <ROW Directory="bin_DIR" Directory_Parent="ICE_INSTALL_DIR" DefaultDir="bin" DirectoryOptions="3"/>
+    <ROW Directory="bin_DIR" Directory_Parent="ICE_INSTALL_DIR" DefaultDir="vsaddin" DirectoryOptions="3"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="IceVisualStudioAddin_VS2008.dll" ComponentId="{D1CA2155-0743-47A1-969C-5AE911569934}" Directory_="bin_DIR" Attributes="0" KeyPath="IceVisualStudioAddin_VS2008.dll"/>
@@ -32,8 +32,8 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC9\Release\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" Sequence="1" DigSign="true"/>
-    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;VC10\Release\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" Sequence="2" DigSign="true"/>
+    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\Ice-3.4.2\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="IceVisualStudioAddin_VS2010.dll" DigSign="true"/>
+    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\Ice-3.4.2\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="." Languages="en" InstallationType="4"/>
@@ -44,7 +44,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="..\..\..\verisign-code-signing.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0"/>
+    <ROW DigitalCertificate="..\..\..\verisign-code-signing.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" SignOptions="0" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
@@ -60,12 +60,12 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installer_header.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.1\src\windows\installer-header.bmp"/>
-    <ROW Name="installer_main.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.1\src\windows\installer-main.bmp"/>
+    <ROW Name="installer_header.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\installer-main.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="LicenseAgreementDlg" Control="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" Attributes="1048577" Text="[BannerBitmap]" Control_Next="AgreementText" MsiKey="LicenseAgreementDlg#BannerBitmap"/>
-    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.1\src\windows\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
+    <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="FileScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\LICENSE.rtf" Control_Next="Buttons" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
     <ROW Dialog_="VerifyReadyDlg" Control="Text" Type="Text" X="25" Y="100" Width="320" Height="40" Attributes="3" Text="Click &quot;Install&quot; to begin the installation.  If you want to review or change any of your installation settings, click &quot;Back&quot;.  Click &quot;Cancel&quot; to exit the wizard." Control_Next="Description" TextLocId="Control.Text.VerifyReadyDlg#Text" MsiKey="VerifyReadyDlg#Text"/>
     <ROW Dialog_="VerifyReadyDlg" Control="Title" Type="Text" X="15" Y="6" Width="304" Height="15" Attributes="196611" Text="Ready to Install" TextStyle="[DlgTitleFont]" Control_Next="Text_1" TextLocId="Control.Text.VerifyReadyDlg#Title" MsiKey="VerifyReadyDlg#Title"/>
     <ROW Dialog_="VerifyReadyDlg" Control="Text_1" Type="Text" X="25" Y="70" Width="304" Height="25" Attributes="65539" Property="TEXT_1_PROP" Text="Patching Ice installation in [ICE_INSTALL_DIR]" Control_Next="Install"/>
@@ -94,6 +94,7 @@
     <ROW Action="AI_PREPARE_UPGRADE" Type="65" Source="aicustact.dll" Target="PrepareUpgrade"/>
     <ROW Action="AI_RESTORE_LOCATION" Type="65" Source="aicustact.dll" Target="RestoreLocation"/>
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
+    <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFilesFolder]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
@@ -111,10 +112,10 @@
     <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
-    <ROW Condition="ICE_INSTALL_DIR" Description="Ice 3.4.1 must be installed before installing this Visual Studio plugin update."/>
+    <ROW Condition="ICE_INSTALL_DIR" Description="Ice 3.4.2 must be installed before installing this Visual Studio plugin update."/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
-    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\ZeroC\Ice 3.4.1" Name="InstallDir" Type="18"/>
+    <ROW Signature_="AppSearchSign_2" Root="2" Key="SOFTWARE\ZeroC\Ice 3.4.2" Name="InstallDir" Type="18"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
