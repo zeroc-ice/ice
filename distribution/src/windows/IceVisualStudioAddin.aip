@@ -32,8 +32,8 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\Ice-3.4.2\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="IceVisualStudioAddin_VS2010.dll" DigSign="true"/>
-    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;\Ice-3.4.2\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" DigSign="true"/>
+    <ROW File="IceVisualStudioAddin_VS2008.dll" Component_="IceVisualStudioAddin_VS2008.dll" FileName="IceVis~1.dll|IceVisualStudioAddin-VS2008.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\..\..\..\VC9\Release\vsaddin\bin\IceVisualStudioAddin-VS2008.dll" SelfReg="false" NextFile="IceVisualStudioAddin_VS2010.dll" DigSign="true"/>
+    <ROW File="IceVisualStudioAddin_VS2010.dll" Component_="IceVisualStudioAddin_VS2010.dll" FileName="IceVis~2.dll|IceVisualStudioAddin-VS2010.dll" Version="65535.65535.65535.65535" Attributes="0" SourcePath="..\..\..\..\VC10\Release\vsaddin\bin\IceVisualStudioAddin-VS2010.dll" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="." Languages="en" InstallationType="4"/>
@@ -44,7 +44,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="..\..\..\verisign-code-signing.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" SignOptions="0" SignTool="0"/>
+    <ROW DigitalCertificate="..\..\..\zeroc2011.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" SignOptions="7" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
