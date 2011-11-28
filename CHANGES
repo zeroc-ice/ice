@@ -62,24 +62,22 @@ C++ Changes
 Visual Studio Add-in Changes
 ============================
 
-- Fixed a bug that affects Visual Studio C++ projects that build
-  static libraries.
+- Fixed a bug with C++ projects that build static libraries.
 
-- Fixed a bug that could cause Visual Studio to hang opeing or building
-  solutions containing a large number of projects.
+- Fixed a bug that could cause Visual Studio to hang while opening or
+  building solutions containing a large number of projects.
 
-- Fixed a bug that affects Visual Studio clean, an exception was throw
-  when try to removed generated files and the user is not authorized to
-  remove the files.  
+- Fixed a bug during project cleaning in which an exception was thrown
+  when trying to remove generated files and the user is not authorized
+  to remove the files.  
 
-- Fixed a bug that affects Visual Studio solutions that contain unloaded
-  projects. 
+- Fixed a bug with solutions that contain unloaded projects. 
 
 
 C# Changes
 ==========
 
-- Minor marshalling/un-marhsalling performance improvement (removed
+- Minor marshalling/un-marshalling performance improvement (removed
   virtual specifier from streaming class).
 
 - Added missing throwLocalException method to Ice.AsyncResult

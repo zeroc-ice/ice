@@ -1136,7 +1136,7 @@ namespace Ice.VisualStudio
             if(conf.ConfigurationType == ConfigurationTypes.typeGeneric ||
                conf.ConfigurationType == ConfigurationTypes.typeUnknown)
             {
-                string err = "Configuration Type: '" + conf.ConfigurationType.ToString() + "' not suported by Ice Visual Studio Add-in";
+                string err = "Configuration Type: '" + conf.ConfigurationType.ToString() + "' not supported by Ice Visual Studio Add-in";
                 Util.write(project, Util.msgLevel.msgError,
                     "------ Slice compilation failed: Project: " + Util.getTraceProjectName(project) + " ------\n\n" +
                     err);
@@ -1639,21 +1639,21 @@ namespace Ice.VisualStudio
             catch(InvalidOperationException ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" +
+                           "An exception was thrown when trying to start the Slice compiler\n" +
                            ex.ToString());
                 
                 Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return "";
             }
             catch(System.ComponentModel.Win32Exception ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" +
+                           "An exception was thrown when trying to start the Slice compiler\n" +
                            ex.ToString());
                 Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return "";
             }
@@ -1881,20 +1881,20 @@ namespace Ice.VisualStudio
             catch(InvalidOperationException ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" +
+                           "An exception was thrown when trying to start the Slice compiler\n" +
                            ex.ToString());
                 addError(project, file, TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return false;
             }
             catch(System.ComponentModel.Win32Exception ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" + 
+                           "An exception was thrown when trying to start the Slice compiler\n" + 
                            ex.ToString());
                 addError(project, file, TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return false;
             }
@@ -2519,20 +2519,20 @@ namespace Ice.VisualStudio
             catch(InvalidOperationException ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" +
+                           "An exception was thrown when trying to start the Slice compiler\n" +
                            ex.ToString());
                 addError(project, file, TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return false;
             }
             catch(System.ComponentModel.Win32Exception ex)
             {
                 Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the slice compiler\n" +
+                           "An exception was thrown when trying to start the Slice compiler\n" +
                            ex.ToString());
                 addError(project, file, TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start slice compiler\n" +
+                         "An exception was thrown when trying to start the Slice compiler\n" +
                          ex.ToString());
                 return false;
             }
