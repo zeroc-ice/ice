@@ -16,7 +16,7 @@
 #include <IceUtil/StringUtil.h>
 #include <Slice/FileTracker.h>
 #include <Gen.h>
-
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 

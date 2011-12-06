@@ -1,9 +1,9 @@
-#include <IceUtil/OutputUtil.h>
-#include <list>
-#include <utility>
-
 #ifndef CONFLUENCE_OUTPUT
 #define CONFLUENCE_OUTPUT
+
+#include <IceUtil/OutputUtil.h>
+#include <list>
+
 
 namespace Confluence
 {
@@ -12,7 +12,7 @@ namespace Confluence
 // ConfluenceOutput
 // ----------------------------------------------------------------------
 
-class ICE_UTIL_API ConfluenceOutput : public IceUtilInternal::OutputBase
+class ConfluenceOutput : public IceUtilInternal::OutputBase
 {
 public:
     
@@ -98,10 +98,10 @@ operator<<(ConfluenceOutput& o, const IceUtilInternal::Separator&)
     return o;
 }
 
-class ICE_UTIL_API EndElement
+class EndElement
 {
 };
-extern ICE_UTIL_API EndElement ee;
+extern EndElement ee;
 
 template<>
 inline ConfluenceOutput&
@@ -111,7 +111,7 @@ operator<<(ConfluenceOutput& o, const EndElement&)
     return o;
 }
 
-class ICE_UTIL_API StartElement
+class StartElement
 {
 public:
     
@@ -134,7 +134,7 @@ operator<<(ConfluenceOutput& o, const StartElement& e)
     return o;
 }
 
-class ICE_UTIL_API Attribute
+class Attribute
 {
 public:
     
@@ -159,15 +159,15 @@ operator<<(ConfluenceOutput& o, const Attribute& e)
     return o;
 }
 
-class ICE_UTIL_API StartEscapes
+class StartEscapes
 {
 };
-extern ICE_UTIL_API StartEscapes startEscapes;
+extern StartEscapes startEscapes;
 
-class ICE_UTIL_API EndEscapes
+class EndEscapes
 {
 };
-extern ICE_UTIL_API EndEscapes endEscapes;
+extern EndEscapes endEscapes;
 
 template<>
 inline ConfluenceOutput&
@@ -185,7 +185,7 @@ operator<<(ConfluenceOutput& o, const EndEscapes&)
     return o;
 }
 
-ICE_UTIL_API ConfluenceOutput& operator<<(ConfluenceOutput&, std::ios_base& (*)(std::ios_base&));
+ConfluenceOutput& operator<<(ConfluenceOutput&, std::ios_base& (*)(std::ios_base&));
 
 }
 
