@@ -228,7 +228,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             } while (nextSpace != string::npos);
         }
         
-        if (!strcmp(tag.c_str(), "tt"))
+        if (tag.c_str() == "tt")
         {
             if (!isEndTag)
             {
@@ -239,7 +239,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 replacement = "}}";
             }
         }
-        else if (!strcmp(tag.c_str(), "p"))
+        else if (tag.c_str() == "p")
         {
             //special case: Some classes add markup
             for (list<pair<string,string> >::iterator i = attributes.begin(); i != attributes.end(); ++i)
@@ -280,7 +280,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 }
             }
         }
-        else if (!strcmp(tag.c_str(), "ol"))
+        else if (tag.c_str() == "ol")
         {
             if (!isEndTag)
             {
@@ -296,7 +296,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 _commentListMarkers.erase(_commentListMarkers.size()-1);
             }
         }
-        else if (!strcmp(tag.c_str(), "ul"))
+        else if (tag.c_str() == "ul")
         {
             if (!isEndTag)
             {
@@ -311,7 +311,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 _commentListMarkers.erase(_commentListMarkers.size()-1);
             }
         }
-        else if (!strcmp(tag.c_str(), "li"))
+        else if (tag.c_str() == "li")
         {
             if (!isEndTag)
             {
@@ -321,7 +321,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             }
             //do nothing for end tag
         }
-        else if (!strcmp(tag.c_str(), "dl"))
+        else if (tag.c_str() == "dl")
         {
             if (!isEndTag)
             {
@@ -332,7 +332,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 replacement = "\n";
             }
         }
-        else if (!strcmp(tag.c_str(), "dt"))
+        else if (tag.c_str() == "dt")
         {
             if (!isEndTag)
             {
@@ -343,7 +343,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 replacement = " ";
             }
         }
-        else if (!strcmp(tag.c_str(), "dd"))
+        else if (tag.c_str() == "dd")
         {
             if (!isEndTag)
             {
@@ -354,7 +354,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
                 replacement = "\n";
             }
         }
-        else if (!strcmp(tag.c_str(), "em"))
+        else if (tag.c_str() == "em")
         {
             if (!isEndTag)
             {
@@ -371,7 +371,7 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
         }
         
         //apply replacement
-        if (!strcmp(tag.c_str(), "p"))
+        if (tag.c_str() == "p")
         {
             comment.erase(tagStart, tagEnd + 1 - tagStart);
             size_t displace = comment.find_first_not_of(" \n\r\t", tagStart); //skip ahead over whitespace
@@ -450,59 +450,59 @@ Confluence::ConfluenceOutput::startElement(const string& element)
     tagname = element.substr(0, tagpos).c_str();
     
     
-    if (!strcmp(tagname, "p")) 
+    if (tagname == "p") 
     {
         _out << "\n";
     } 
-    else if (!strcmp(tagname, "b")) 
+    else if (tagname == "b") 
     {
         _out << "*";
     } 
-    else if (!strcmp(tagname, "panel")) 
+    else if (tagname == "panel") 
     {
         _out << "{panel}";
     } 
-    else if (!strcmp(tagname, "blockquote")) 
+    else if (tagname == "blockquote") 
     {
         _out << "{section}{column:width=10px}{column} {column}";
     } 
-    else if (!strcmp(tagname, "dl")) 
+    else if (tagname == "dl") 
     {
         _out << "\n";
     } 
-    else if (!strcmp(tagname, "dt")) 
+    else if (tagname == "dt") 
     {
         _out << "";
     } 
-    else if (!strcmp(tagname, "dd")) 
+    else if (tagname == "dd") 
     {
         _out << "--- ";
     } 
-    else if (!strcmp(tagname, "table")) 
+    else if (tagname == "table") 
     {
         _out << "{table}\n";
     } 
-    else if (!strcmp(tagname, "tr")) 
+    else if (tagname == "tr") 
     {
         _out << "{tr}\n";
     } 
-    else if (!strcmp(tagname, "td")) 
+    else if (tagname == "td") 
     {
         _out << "{td}";
     } 
-    else if (!strcmp(tagname, "th")) 
+    else if (tagname == "th") 
     {
         _out << "{th}";
     } 
-    else if (!strcmp(tagname, "div")) 
+    else if (tagname == "div") 
     {
         _out << "{div}";
     } 
-    else if (!strcmp(tagname, "span")) 
+    else if (tagname == "span") 
     {
         _out << "{span}";
     } 
-    else if (!strcmp(tagname, "ol")) 
+    else if (tagname == "ol") 
     {
         if (_listMarkers.empty())
         {
@@ -510,7 +510,7 @@ Confluence::ConfluenceOutput::startElement(const string& element)
         }
         _listMarkers.append("#");
     } 
-    else if (!strcmp(tagname, "ul")) 
+    else if (tagname == "ul") 
     {
         if (_listMarkers.empty())
         {
@@ -518,39 +518,39 @@ Confluence::ConfluenceOutput::startElement(const string& element)
         }
         _listMarkers.append("*");
     } 
-    else if (!strcmp(tagname, "li")) 
+    else if (tagname == "li") 
     {
         _out << "\n" << _listMarkers << " ";
     } 
-    else if (!strcmp(tagname, "hr")) 
+    else if (tagname == "hr") 
     {
         _out << "----";
     } 
-    else if (!strcmp(tagname, "h1")) 
+    else if (tagname == "h1") 
     {
         _out << "\nh1. ";
     } 
-    else if (!strcmp(tagname, "h2")) 
+    else if (tagname == "h2")
     {
         _out << "\nh2. ";
     } 
-    else if (!strcmp(tagname, "h3")) 
+    else if (tagname == "h3") 
     {
         _out << "\nh3. ";
     } 
-    else if (!strcmp(tagname, "h4")) 
+    else if (tagname == "h4")
     {
         _out << "\nh4. ";
     } 
-    else if (!strcmp(tagname, "h5")) 
+    else if (tagname == "h5") 
     {
         _out << "\nh5. ";
     } 
-    else if (!strcmp(tagname, "h6")) 
+    else if (tagname == "h6") 
     {
         _out << "\nh6. ";
     } 
-    else if (!strcmp(tagname, "tt")) 
+    else if (tagname == "tt") 
     {
         _out << "{{";
     } 
@@ -597,59 +597,59 @@ Confluence::ConfluenceOutput::endElement()
     string::size_type tagpos = element.find_first_of(" ");
     tagname = element.substr(0, tagpos).c_str();
     
-    if (!strcmp(tagname, "p")) 
+    if (tagname == "p") 
     {
         _out << "\n";
     }
-    else if (!strcmp(tagname, "b")) 
+    else if (tagname == "b") 
     {
         _out << "*";
     } 
-    else if (!strcmp(tagname, "panel")) 
+    else if (tagname == "panel") 
     {
         _out << "{panel}\n";
     } 
-    else if (!strcmp(tagname, "blockquote")) 
+    else if (tagname == "blockquote") 
     {
         _out << "{column}{section}\n";
     } 
-    else if (!strcmp(tagname, "dl")) 
+    else if (tagname == "dl") 
     {
         _out << "\n";
     } 
-    else if (!strcmp(tagname, "dt")) 
+    else if (tagname == "dt") 
     {
         _out << " ";
     }
-    else if (!strcmp(tagname, "dd")) 
+    else if (tagname == "dd") 
     {
         _out << "\n";
     }
-    else if (!strcmp(tagname, "table")) 
+    else if (tagname == "table")
     {
         _out << "{table}\n";
     }
-    else if (!strcmp(tagname, "tr")) 
+    else if (tagname == "tr")
     {
         _out << "{tr}\n";
     }
-    else if (!strcmp(tagname, "td")) 
+    else if (tagname == "td") 
     {
         _out << "{td}\n";
     }
-    else if (!strcmp(tagname, "th")) 
+    else if (tagname == "th") 
     {
         _out << "";
     }
-    else if (!strcmp(tagname, "div")) 
+    else if (tagname == "div") 
     {
         _out << "{div}";
     }
-    else if (!strcmp(tagname, "span")) 
+    else if (tagname == "span") 
     {
         _out << "{span}";
     }
-    else if (!strcmp(tagname, "ol")) 
+    else if (tagname == "ol") 
     {
         _listMarkers.erase(_listMarkers.size()-1);
         if (_listMarkers.empty())
@@ -657,7 +657,7 @@ Confluence::ConfluenceOutput::endElement()
             _out << "\n";
         }
     }
-    else if (!strcmp(tagname, "ul")) 
+    else if (tagname == "ul") 
     {
         _listMarkers.erase(_listMarkers.size()-1);
         if (_listMarkers.empty())
@@ -665,39 +665,39 @@ Confluence::ConfluenceOutput::endElement()
             _out << "\n";
         }
     }
-    else if (!strcmp(tagname, "li")) 
+    else if (tagname == "li") 
     {
         //nothing to do
     }
-    else if (!strcmp(tagname, "hr")) 
+    else if (tagname == "hr") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h1")) 
+    else if (tagname == "h1") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h2")) 
+    else if (tagname == "h2") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h3")) 
+    else if (tagname == "h3") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h4")) 
+    else if (tagname == "h4") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h5")) 
+    else if (tagname == "h5") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "h6")) 
+    else if (tagname == "h6") 
     {
         _out << "\n\n";
     }
-    else if (!strcmp(tagname, "tt")) 
+    else if (tagname == "tt") 
     {
         _out << "}}";
     }
