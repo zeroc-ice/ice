@@ -91,10 +91,98 @@ namespace IceInternal
 #if COMPACT
             //
             // The Compact Framework does not support the use of synchronous socket
-            // operations on a non-blocking socket. Returning false here forces the
-            // caller to schedule an asynchronous operation.
+            // operations on a non-blocking socket, so we start an asynchronous
+            // send here.
             //
-            return false;
+
+            Debug.Assert(_fd != null && _writeResult == null && _state == StateConnected);
+
+            //
+            // We limit the packet size for writing to ensure connection timeouts are based
+            // on a fixed packet size.
+            //
+            int packetSize = buf.b.remaining();
+            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
+            {
+                packetSize = _maxSendPacketSize;
+            }
+
+            IAsyncResult r = null;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                while(buf.b.hasRemaining())
+                {
+                    try
+                    {
+                        r = _fd.BeginSend(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None,
+                                          writeCallback, null);
+                    }
+                    catch(Win32Exception ex)
+                    {
+                        if(Network.connectionLost(ex))
+                        {
+                            throw new Ice.ConnectionLostException(ex);
+                        }
+
+                        throw new Ice.SocketException(ex);
+                    }
+                    catch(ObjectDisposedException ex)
+                    {
+                        throw new Ice.ConnectionLostException(ex);
+                    }
+
+                    if(r.CompletedSynchronously)
+                    {
+                        try
+                        {
+                            int ret = _fd.EndSend(r);
+                            if(ret == 0)
+                            {
+                                throw new Ice.ConnectionLostException();
+                            }
+                            Debug.Assert(ret > 0);
+
+                            if(_traceLevels.network >= 3)
+                            {
+                                string s = "sent " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
+                                _logger.trace(_traceLevels.networkCat, s);
+                            }
+
+                            if(_stats != null)
+                            {
+                                _stats.bytesSent(type(), ret);
+                            }
+
+                            buf.b.position(buf.b.position() + ret);
+                            if(packetSize > buf.b.remaining())
+                            {
+                                packetSize = buf.b.remaining();
+                            }
+                        }
+                        catch(Win32Exception ex)
+                        {
+                            if(Network.connectionLost(ex))
+                            {
+                                throw new Ice.ConnectionLostException(ex);
+                            }
+
+                            throw new Ice.SocketException(ex);
+                        }
+                        catch(ObjectDisposedException ex)
+                        {
+                            throw new Ice.ConnectionLostException(ex);
+                        }
+                    }
+                    else
+                    {
+                        _writeResult = r;
+                        return false;
+                    }
+                }
+            }
+
+            return true; // No more data to send.
 #else
             int packetSize = buf.b.remaining();
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
@@ -176,9 +264,86 @@ namespace IceInternal
 #if COMPACT
             //
             // The .NET Compact Framework does not support the use of synchronous socket
-            // operations on a non-blocking socket.
+            // operations on a non-blocking socket, so we use asynchronous reads instead.
             //
-            return false;
+
+            IAsyncResult r = null;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                while(buf.b.hasRemaining())
+                {
+                    int packetSize = buf.b.remaining();
+                    if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
+                    {
+                        packetSize = _maxReceivePacketSize;
+                    }
+
+                    Debug.Assert(_fd != null);
+
+                    try
+                    {
+                        r = _fd.BeginReceive(buf.b.rawBytes(), buf.b.position(), packetSize, SocketFlags.None, 
+                                             readCallback, null);
+                    }
+                    catch(Win32Exception ex)
+                    {
+                        if(Network.connectionLost(ex))
+                        {
+                            throw new Ice.ConnectionLostException(ex);
+                        }
+
+                        throw new Ice.SocketException(ex);
+                    }
+
+                    if(r.CompletedSynchronously)
+                    {
+                        try
+                        {
+                            int ret = _fd.EndReceive(r);
+                            if(ret == 0)
+                            {
+                                throw new Ice.ConnectionLostException();
+                            }
+
+                            Debug.Assert(ret > 0);
+
+                            if(_traceLevels.network >= 3)
+                            {
+                                string s = "received " + ret + " of " + packetSize + " bytes via tcp\n" + ToString();
+                                _logger.trace(_traceLevels.networkCat, s);
+                            }
+
+                            if(_stats != null)
+                            {
+                                _stats.bytesReceived(type(), ret);
+                            }
+
+                            buf.b.position(buf.b.position() + ret);
+                        }
+                        catch(Win32Exception ex)
+                        {
+                            if(Network.connectionLost(ex))
+                            {
+                                throw new Ice.ConnectionLostException(ex);
+                            }
+
+                            throw new Ice.SocketException(ex);
+                        }
+                        catch(ObjectDisposedException ex)
+                        {
+                            throw new Ice.ConnectionLostException(ex);
+                        }
+                    }
+                    else
+                    {
+                        _readResult = r;
+                        return false;
+                    }
+                }
+            }
+
+            return true;
 #else
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
             if(AssemblyUtil.osx_)
@@ -266,9 +431,125 @@ namespace IceInternal
 #endif
         }
 
+#if COMPACT
+        private void writeCallback(IAsyncResult r)
+        {
+            //
+            // Nothing to do if BeginSend completed synchronously.
+            //
+            if(r.CompletedSynchronously)
+            {
+                return;
+            }
+
+            AsyncCallback cb = null;
+            object state = null;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                //
+                // If startWrite saved a callback, we call it outside the synchronization.
+                //
+                cb = _writeCallback;
+                state = _writeCallbackState;
+                _writeCallback = null;
+                _writeCallbackState = null;
+            }
+
+            //
+            // Invoke the callback with an IAsyncResult wrapper object.
+            //
+            if(cb != null)
+            {
+                _resultWrapper.update(r, state, false);
+                cb(_resultWrapper);
+            }
+        }
+
+        private void readCallback(IAsyncResult r)
+        {
+            //
+            // Nothing to do if BeginSend completed synchronously.
+            //
+            if(r.CompletedSynchronously)
+            {
+                return;
+            }
+
+            AsyncCallback cb = null;
+            object state = null;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                //
+                // If startRead saved a callback, we call it outside the synchronization.
+                //
+                cb = _readCallback;
+                state = _readCallbackState;
+                _readCallback = null;
+                _readCallbackState = null;
+            }
+
+            //
+            // Invoke the callback with an IAsyncResult wrapper object.
+            //
+            if(cb != null)
+            {
+                _resultWrapper.update(r, state, false);
+                cb(_resultWrapper);
+            }
+        }
+#endif
+
         public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
-            Debug.Assert(_fd != null && _readResult == null);
+            Debug.Assert(_fd != null);
+
+            int packetSize = buf.b.remaining();
+            if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
+            {
+                packetSize = _maxReceivePacketSize;
+            }
+
+#if COMPACT
+            bool readPending = false;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                //
+                // Check if an asynchronous read is already pending (started in read()).
+                //
+                if(_readResult != null)
+                {
+                    Debug.Assert(_state >= StateConnected && !_readResult.CompletedSynchronously);
+
+                    //
+                    // If the read already completed, we behave as if it completed
+                    // synchronously and invoke the callback immediately, otherwise
+                    // we let readCallback invoke it later.
+                    //
+                    if(_readResult.IsCompleted)
+                    {
+                        readPending = true;
+                    }
+                    else
+                    {
+                        _readCallback = callback;
+                        _readCallbackState = state;
+                        return false;
+                    }
+                }
+            }
+
+            if(readPending)
+            {
+                _resultWrapper.update(_readResult, state, true);
+                callback(_resultWrapper);
+                return true;
+            }
+#endif
+
+            Debug.Assert(_readResult == null);
 
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
             if(AssemblyUtil.osx_)
@@ -277,12 +558,6 @@ namespace IceInternal
                 {
                     Network.setBlock(_fd, true);
                 }
-            }
-
-            int packetSize = buf.b.remaining();
-            if(_maxReceivePacketSize > 0 && packetSize > _maxReceivePacketSize)
-            {
-                packetSize = _maxReceivePacketSize;
             }
 
             try
@@ -367,7 +642,59 @@ namespace IceInternal
 
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
-            Debug.Assert(_fd != null && _writeResult == null);
+            Debug.Assert(_fd != null);
+
+            //
+            // We limit the packet size for writing to ensure connection timeouts are based
+            // on a fixed packet size.
+            //
+            int packetSize = buf.b.remaining();
+            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
+            {
+                packetSize = _maxSendPacketSize;
+            }
+
+#if COMPACT
+            bool writePending = false;
+
+            lock(this) // A monitor is not necessary here.
+            {
+                //
+                // Check if an asynchronous write is already pending (started in write()).
+                //
+                if(_writeResult != null)
+                {
+                    Debug.Assert(_state >= StateConnected && !_writeResult.CompletedSynchronously);
+
+                    //
+                    // If the write already completed, we behave as if it completed
+                    // synchronously and invoke the callback immediately, otherwise
+                    // we let writeCallback invoke it later.
+                    //
+                    if(_writeResult.IsCompleted)
+                    {
+                        writePending = true;
+                    }
+                    else
+                    {
+                        _writeCallback = callback;
+                        _writeCallbackState = state;
+                        completed = packetSize == buf.b.remaining();
+                        return false;
+                    }
+                }
+            }
+
+            if(writePending)
+            {
+                completed = packetSize == buf.b.remaining();
+                _resultWrapper.update(_writeResult, state, true);
+                callback(_resultWrapper);
+                return true;
+            }
+#endif
+
+            Debug.Assert(_writeResult == null);
 
             // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
             if(AssemblyUtil.osx_)
@@ -383,16 +710,6 @@ namespace IceInternal
                 _writeResult = Network.doConnectAsync(_fd, _addr, callback, state);
                 completed = false;
                 return _writeResult.CompletedSynchronously;
-            }
-
-            //
-            // We limit the packet size for beginWrite to ensure connection timeouts are based
-            // on a fixed packet size.
-            //
-            int packetSize = buf.b.remaining();
-            if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
-            {
-                packetSize = _maxSendPacketSize;
             }
 
             try
@@ -413,7 +730,7 @@ namespace IceInternal
             {
                 throw new Ice.ConnectionLostException(ex);
             }
-            
+
             completed = packetSize == buf.b.remaining();
             return _writeResult.CompletedSynchronously;
         }
@@ -534,6 +851,9 @@ namespace IceInternal
         //
         internal TcpTransceiver(Instance instance, Socket fd, IPEndPoint addr, bool connected)
         {
+#if COMPACT
+            _instance = instance;
+#endif
             _fd = fd;
             _addr = addr;
             _traceLevels = instance.traceLevels();
@@ -555,6 +875,61 @@ namespace IceInternal
             }
         }
 
+#if COMPACT
+        //
+        // We need a wrapper that implements IAsyncResult in order to manage the
+        // state value correctly.
+        //
+        internal class ResultWrapper : IAsyncResult
+        {
+            internal void update(IAsyncResult r, object state, bool completedSynchronously)
+            {
+                _result = r;
+                _state = state;
+                _completedSynchronously = completedSynchronously;
+            }
+
+            public Object AsyncState
+            {
+                get
+                {
+                    return _state;
+                }
+            }
+
+            public System.Threading.WaitHandle AsyncWaitHandle
+            {
+                get
+                {
+                    return _result.AsyncWaitHandle;
+                }
+            }
+
+            public bool CompletedSynchronously
+            {
+                get
+                {
+                    return _completedSynchronously;
+                }
+            }
+
+            public bool IsCompleted
+            {
+                get
+                {
+                    return _result.IsCompleted;
+                }
+            }
+
+            private IAsyncResult _result;
+            private object _state;
+            private bool _completedSynchronously;
+        }
+#endif
+
+#if COMPACT
+        private Instance _instance;
+#endif
         private Socket _fd;
         private IPEndPoint _addr;
         private TraceLevels _traceLevels;
@@ -568,6 +943,14 @@ namespace IceInternal
         private int _blocking = 0;
         private IAsyncResult _writeResult;
         private IAsyncResult _readResult;
+
+#if COMPACT
+        private AsyncCallback _writeCallback;
+        private object _writeCallbackState;
+        private AsyncCallback _readCallback;
+        private object _readCallbackState;
+        private ResultWrapper _resultWrapper = new ResultWrapper();
+#endif
 
         private const int StateNeedConnect = 0;
         private const int StateConnectPending = 1;
