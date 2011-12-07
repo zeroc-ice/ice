@@ -36,7 +36,7 @@ public:
     // printHeader() and then emits a "package" statement if
     // necessary.
     //
-    void openClass(const std::string&, const std::string& = std::string());
+    void openClass(const std::string&, const std::string&, const std::string& = std::string());
 
     virtual void printHeader();
 };

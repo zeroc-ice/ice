@@ -46,7 +46,7 @@ Slice::JavaOutput::JavaOutput(const char* s) :
 }
 
 void
-Slice::JavaOutput::openClass(const string& cls, const string& prefix)
+Slice::JavaOutput::openClass(const string& cls, const string& prefix, const string& sliceFile)
 {
     string package;
     string file;
@@ -130,7 +130,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix)
     {
         FileTracker::instance()->addFile(path);
         printHeader();
-        printGeneratedHeader(*this, file);
+        printGeneratedHeader(*this, sliceFile);
         if(!package.empty())
         {
             separator();
@@ -196,7 +196,7 @@ Slice::JavaGenerator::open(const string& absolute, const string& file)
     JavaOutput* out = createOutput();
     try
     {
-        out->openClass(absolute, _dir);
+        out->openClass(absolute, _dir, file);
     }
     catch(const FileException&)
     {
