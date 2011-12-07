@@ -9,8 +9,20 @@
 
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
+#include <TestCommon.h>
 
 using namespace Test;
+using namespace std;
+
+bool
+endsWith(const string& s, const string& findme)
+{
+    if(s.length() > findme.length())
+    {
+        return 0 == s.compare(s.length() - findme.length(), findme.length(), findme);
+    }
+    return false;
+}
 
 ThrowerI::ThrowerI()
 {
@@ -197,4 +209,50 @@ ThrowerI::throwAfterException_async(const AMD_Thrower_throwAfterExceptionPtr& cb
     cb->ice_exception(A());
 
     throw std::string();
+}
+
+void
+ThrowerI::throwE_async(const Test::AMD_Thrower_throwEPtr& cb, const Ice::Current&)
+{
+    cb->ice_exception(E("E"));
+}
+
+void
+ThrowerI::throwF_async(const Test::AMD_Thrower_throwFPtr& cb, const Ice::Current&)
+{
+    cb->ice_exception(F("F"));
+}
+
+void
+ThrowerI::throwG_async(const Test::AMD_Thrower_throwGPtr& cb, const Ice::Current&)
+{
+    try
+    {
+        throw G(__FILE__, __LINE__, "G");
+    }
+    catch(const G& ex)
+    {
+        ostringstream os;
+        ex.ice_print(os);
+        test(endsWith(os.str(), "Test::G"));
+        test(ex.data == "G");
+        cb->ice_exception(ex);
+    }
+}
+
+void
+ThrowerI::throwH_async(const Test::AMD_Thrower_throwHPtr& cb, const Ice::Current&)
+{
+    try
+    {
+        throw H(__FILE__, __LINE__, "H");
+    }
+    catch(const H& ex)
+    {
+        ostringstream os;
+        ex.ice_print(os);
+        test(endsWith(os.str(), "Test::H data:'H'"));
+        test(ex.data == "H");
+        cb->ice_exception(ex);
+    }
 }

@@ -358,22 +358,3 @@ Freeze::EvictorIBase::allDbs() const
     return result;
 }
 
-
-//
-// Print for the various exception types.
-//
-
-void
-Freeze::EvictorDeactivatedException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nevictor deactivated";
-}
-
-void
-Freeze::NoSuchElementException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nno such element";
-}
-

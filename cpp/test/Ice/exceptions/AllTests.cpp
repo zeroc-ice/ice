@@ -1417,6 +1417,65 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         test(false);
     }
+    
+    
+    try
+    {
+        thrower->throwE();
+    }
+    catch(const E& ex)
+    {
+        ostringstream os;
+        ex.ice_print(os);
+        test(os.str() == "Test::E");
+        test(ex.data == "E");
+    }
+    catch(...)
+    {
+        test(false);
+    }
+    
+    try
+    {
+        thrower->throwF();
+    }
+    catch(const F& ex)
+    {
+        ostringstream os;
+        ex.ice_print(os);
+        test(os.str() == "Test::F data:'F'");
+        test(ex.data == "F");
+    }
+    catch(...)
+    {
+        test(false);
+    }
+    
+    try
+    {
+        thrower->throwG();
+        test(false);
+    }
+    catch(const Ice::UnknownLocalException&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
+    
+    try
+    {
+        thrower->throwH();
+        test(false);
+    }
+    catch(const Ice::UnknownLocalException&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
 
     cout << "ok" << endl;
 

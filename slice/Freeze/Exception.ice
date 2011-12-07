@@ -25,6 +25,7 @@ local interface Transaction;
  * @see Connection
  *
  **/
+["cpp:ice_print"]
 local exception DatabaseException
 {
     /**
@@ -41,6 +42,7 @@ local exception DatabaseException
  * could not be found.
  *
  **/
+["cpp:ice_print"]
 local exception NotFoundException extends DatabaseException
 {
 };
@@ -51,6 +53,7 @@ local exception NotFoundException extends DatabaseException
  * this exception by aborting and trying the transaction again.
  *
  **/
+["cpp:ice_print"]
 local exception DeadlockException extends DatabaseException
 {
     /**
@@ -76,6 +79,7 @@ local exception InvalidPositionException
  * Exception raised when Freeze fails to locate an index.
  *
  **/
+["cpp:ice_print"]
 local exception IndexNotFoundException
 {
     /**

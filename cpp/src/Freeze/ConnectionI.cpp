@@ -196,10 +196,3 @@ Freeze::createConnection(const CommunicatorPtr& communicator, const string& envN
 {
     return new ConnectionI(SharedDbEnv::get(communicator, envName, &dbEnv));
 }
-
-void
-Freeze::TransactionAlreadyInProgressException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\ntransaction already in progress";
-}

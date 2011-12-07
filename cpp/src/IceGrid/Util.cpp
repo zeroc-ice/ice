@@ -17,13 +17,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-void
-IceGrid::SynchronizationException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nsynchronization exception";
-}
-
 string 
 IceGrid::toString(const vector<string>& v, const string& sep)
 {

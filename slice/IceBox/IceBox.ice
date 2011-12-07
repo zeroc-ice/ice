@@ -36,6 +36,7 @@ module IceBox
  * to load a service executable.
  *
  **/
+["cpp:ice_print"]
 local exception FailureException
 {
     /**

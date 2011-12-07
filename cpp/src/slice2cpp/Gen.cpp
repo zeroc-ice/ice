@@ -800,7 +800,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "return " << flatName << ';';
     C << eb;
 
-    if(p->isLocal())
+    StringList metaData = p->getMetaData();
+    if(find(metaData.begin(), metaData.end(), "cpp:ice_print") != metaData.end())
     {
         H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
@@ -7005,6 +7006,10 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     continue;
                 }
                 if(ClassDefPtr::dynamicCast(cont) && ss.find("virtual") == 0)
+                {
+                    continue;
+                }
+                if(ExceptionPtr::dynamicCast(cont) && ss == "ice_print")
                 {
                     continue;
                 }

@@ -12,6 +12,8 @@
 
 #include <Test.h>
 
+bool endsWith(const std::string&, const std::string&);
+
 class ThrowerI : public Test::Thrower
 {
 public:
@@ -41,6 +43,11 @@ public:
 
     virtual void throwAfterResponse(const Ice::Current&);
     virtual void throwAfterException(const Ice::Current&);
+    
+    virtual void throwE(const Ice::Current&);
+    virtual void throwF(const Ice::Current&);
+    virtual void throwG(const Ice::Current&);
+    virtual void throwH(const Ice::Current&);
 };
 
 #endif

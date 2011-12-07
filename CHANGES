@@ -58,6 +58,10 @@ C++ Changes
 - Fixed issue where connection on a remote address would always fail
   with an assert on Windows 8.
 
+- ice_print declaration for local exceptions is now optional, this
+  method is not declared by default, you can use "cpp:ice_print" 
+  metatadata to enable the method declaration. 
+
 
 Visual Studio Add-in Changes
 ============================

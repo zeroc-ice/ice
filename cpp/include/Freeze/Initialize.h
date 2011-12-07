@@ -84,7 +84,6 @@ public:
     virtual ~TransactionalEvictorDeadlockException() throw();
 
     virtual std::string ice_name() const;
-    virtual void ice_print(std::ostream&) const;
     virtual Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 

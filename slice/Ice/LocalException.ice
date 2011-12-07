@@ -23,6 +23,7 @@ module Ice
  * This exception is raised when a failure occurs during initialization.
  *
  **/
+["cpp:ice_print"]
 local exception InitializationException
 {
     /**
@@ -39,6 +40,7 @@ local exception InitializationException
  * a plug-in.
  *
  **/
+["cpp:ice_print"]
 local exception PluginInitializationException
 {
     /**
@@ -55,6 +57,7 @@ local exception PluginInitializationException
  * supported with collocation optimization.
  *
  **/
+["cpp:ice_print"]
 local exception CollocationOptimizationException
 {
 };
@@ -70,6 +73,7 @@ local exception CollocationOptimizationException
  * same ID.
  *
  **/
+["cpp:ice_print"]
 local exception AlreadyRegisteredException
 {
     /**
@@ -103,6 +107,7 @@ local exception AlreadyRegisteredException
  * is activated.
  *
  **/
+["cpp:ice_print"]
 local exception NotRegisteredException
 {
     /**
@@ -132,6 +137,7 @@ local exception NotRegisteredException
  * out-parameters, or an exception specification.
  *
  **/
+["cpp:ice_print"]
 local exception TwowayOnlyException
 {
     /**
@@ -153,6 +159,7 @@ local exception TwowayOnlyException
  * provide an implementation of the <tt>ice_clone</tt> operation (C++ only).
  *
  **/
+["cpp:ice_print"]
 local exception CloneNotImplementedException
 {
 };
@@ -166,6 +173,7 @@ local exception CloneNotImplementedException
  * <tt>Ice::UserException</tt>.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownException
 {
     /**
@@ -188,6 +196,7 @@ local exception UnknownException
  * declared <tt>local</tt>.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownLocalException extends UnknownException
 {
 };
@@ -207,6 +216,7 @@ local exception UnknownLocalException extends UnknownException
  * <tt>throws</tt> clause can be raised.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownUserException extends UnknownException
 {
 };
@@ -217,6 +227,7 @@ local exception UnknownUserException extends UnknownException
  * the version in the Ice header files.
  *
  **/
+["cpp:ice_print"]
 local exception VersionMismatchException
 {
 };
@@ -228,6 +239,7 @@ local exception VersionMismatchException
  * @see Communicator#destroy
  *
  **/
+["cpp:ice_print"]
 local exception CommunicatorDestroyedException
 {
 };
@@ -241,6 +253,7 @@ local exception CommunicatorDestroyedException
  * @see Communicator#shutdown
  *
  **/
+["cpp:ice_print"]
 local exception ObjectAdapterDeactivatedException
 {
     /**
@@ -259,6 +272,7 @@ local exception ObjectAdapterDeactivatedException
  * the same adapter id.
  *
  **/
+["cpp:ice_print"]
 local exception ObjectAdapterIdInUseException
 {
     /**
@@ -274,6 +288,7 @@ local exception ObjectAdapterIdInUseException
  * This exception is raised if no suitable endpoint is available.
  *
  **/
+["cpp:ice_print"]
 local exception NoEndpointException
 {
     /**
@@ -291,6 +306,7 @@ local exception NoEndpointException
  * endpoint.
  *
  **/
+["cpp:ice_print"]
 local exception EndpointParseException
 {
     /**
@@ -307,6 +323,7 @@ local exception EndpointParseException
  * endpoint selection type.
  *
  **/
+["cpp:ice_print"]
 local exception EndpointSelectionTypeParseException
 {
     /**
@@ -323,6 +340,7 @@ local exception EndpointSelectionTypeParseException
  * stringified identity.
  *
  **/
+["cpp:ice_print"]
 local exception IdentityParseException
 {
     /**
@@ -339,6 +357,7 @@ local exception IdentityParseException
  * stringified proxy.
  *
  **/
+["cpp:ice_print"]
 local exception ProxyParseException
 {
     /**
@@ -354,6 +373,7 @@ local exception ProxyParseException
  * This exception is raised if an illegal identity is encountered.
  *
  **/
+["cpp:ice_print"]
 local exception IllegalIdentityException
 {
     /**
@@ -372,6 +392,7 @@ local exception IllegalIdentityException
  * <tt>local</tt>.
  *
  **/
+["cpp:ice_print"]
 local exception RequestFailedException
 {
     /** The identity of the Ice Object to which the request was sent. */
@@ -390,6 +411,7 @@ local exception RequestFailedException
  * that is, if no facets with the given identity exist.
  *
  **/
+["cpp:ice_print"]
 local exception ObjectNotExistException extends RequestFailedException
 {
 };
@@ -400,6 +422,7 @@ local exception ObjectNotExistException extends RequestFailedException
  * but at least one facet with the given identity exists.
  *
  **/
+["cpp:ice_print"]
 local exception FacetNotExistException extends RequestFailedException
 {
 };
@@ -411,6 +434,7 @@ local exception FacetNotExistException extends RequestFailedException
  * client or the server using an outdated Slice specification.
  *
  **/
+["cpp:ice_print"]
 local exception OperationNotExistException extends RequestFailedException
 {
 };
@@ -423,6 +447,7 @@ local exception OperationNotExistException extends RequestFailedException
  * should be inspected.
  *
  **/
+["cpp:ice_print"]
 local exception SyscallException
 {
     /**
@@ -442,6 +467,7 @@ local exception SyscallException
  * This exception indicates socket errors.
  *
  **/
+["cpp:ice_print"]
 local exception SocketException extends SyscallException
 {
 };
@@ -451,6 +477,7 @@ local exception SocketException extends SyscallException
  * This exception indicates file errors.
  *
  **/
+["cpp:ice_print"]
 local exception FileException extends SyscallException
 {
     /** The path of the file responsible for the error. */
@@ -462,6 +489,7 @@ local exception FileException extends SyscallException
  * This exception indicates connection failures.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectFailedException extends SocketException
 {
 };
@@ -472,6 +500,7 @@ local exception ConnectFailedException extends SocketException
  * the server host actively refuses a connection.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectionRefusedException extends ConnectFailedException
 {
 };
@@ -481,6 +510,7 @@ local exception ConnectionRefusedException extends ConnectFailedException
  * This exception indicates a lost connection.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectionLostException extends SocketException
 {
 };
@@ -491,6 +521,7 @@ local exception ConnectionLostException extends SocketException
  * {@link DNSException#error} should be inspected.
  *
  **/
+["cpp:ice_print"]
 local exception DNSException
 {
     /**
@@ -516,6 +547,7 @@ local exception DNSException
  * This exception indicates a timeout condition.
  *
  **/
+["cpp:ice_print"]
 local exception TimeoutException
 {
 };
@@ -525,6 +557,7 @@ local exception TimeoutException
  * This exception indicates a connection establishment timeout condition.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectTimeoutException extends TimeoutException
 {
 };
@@ -534,6 +567,7 @@ local exception ConnectTimeoutException extends TimeoutException
  * This exception indicates a connection closure timeout condition.
  *
  **/
+["cpp:ice_print"]
 local exception CloseTimeoutException extends TimeoutException
 {
 };
@@ -544,6 +578,7 @@ local exception CloseTimeoutException extends TimeoutException
  * idle for some time.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectionTimeoutException extends TimeoutException
 {
 };
@@ -554,6 +589,7 @@ local exception ConnectionTimeoutException extends TimeoutException
  * conditions.
  *
  **/
+["cpp:ice_print"]
 local exception ProtocolException
 {
     /**
@@ -570,6 +606,7 @@ local exception ProtocolException
  * magic number ('I', 'c', 'e', 'P').
  *
  **/
+["cpp:ice_print"]
 local exception BadMagicException extends ProtocolException
 {
     /**
@@ -585,6 +622,7 @@ local exception BadMagicException extends ProtocolException
  * This exception indicates an unsupported protocol version.
  *
  **/
+["cpp:ice_print"]
 local exception UnsupportedProtocolException extends ProtocolException
 {
     /**
@@ -621,6 +659,7 @@ local exception UnsupportedProtocolException extends ProtocolException
  * This exception indicates an unsupported data encoding version.
  *
  **/
+["cpp:ice_print"]
 local exception UnsupportedEncodingException extends ProtocolException
 {
     /**
@@ -657,6 +696,7 @@ local exception UnsupportedEncodingException extends ProtocolException
  * This exception indicates that an unknown protocol message has been received.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownMessageException extends ProtocolException
 {
 };
@@ -667,6 +707,7 @@ local exception UnknownMessageException extends ProtocolException
  * that is not yet validated.
  *
  **/
+["cpp:ice_print"]
 local exception ConnectionNotValidatedException extends ProtocolException
 {
 };
@@ -677,6 +718,7 @@ local exception ConnectionNotValidatedException extends ProtocolException
  * received.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownRequestIdException extends ProtocolException
 {
 };
@@ -686,6 +728,7 @@ local exception UnknownRequestIdException extends ProtocolException
  * This exception indicates that an unknown reply status has been received.
  *
  **/
+["cpp:ice_print"]
 local exception UnknownReplyStatusException extends ProtocolException
 {
 };
@@ -702,6 +745,7 @@ local exception UnknownReplyStatusException extends ProtocolException
  * the application code.
  *
  **/
+["cpp:ice_print"]
 local exception CloseConnectionException extends ProtocolException
 {
 };
@@ -714,6 +758,7 @@ local exception CloseConnectionException extends ProtocolException
  * @see Connection#close
  *
  **/
+["cpp:ice_print"]
 local exception ForcedCloseConnectionException extends ProtocolException
 {
 };
@@ -724,6 +769,7 @@ local exception ForcedCloseConnectionException extends ProtocolException
  * than the minimum required size.
  *
  **/
+["cpp:ice_print"]
 local exception IllegalMessageSizeException extends ProtocolException
 {
 };
@@ -733,6 +779,7 @@ local exception IllegalMessageSizeException extends ProtocolException
  * This exception indicates a problem with compressing or uncompressing data.
  *
  **/
+["cpp:ice_print"]
 local exception CompressionException extends ProtocolException
 {
 };
@@ -745,6 +792,7 @@ local exception CompressionException extends ProtocolException
  * size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
  *
  **/
+["cpp:ice_print"]
 local exception DatagramLimitException extends ProtocolException
 {
 };
@@ -754,6 +802,7 @@ local exception DatagramLimitException extends ProtocolException
  * This exception is raised for errors during marshaling or unmarshaling data.
  *
  **/
+["cpp:ice_print"]
 local exception MarshalException extends ProtocolException
 {
 };
@@ -763,6 +812,7 @@ local exception MarshalException extends ProtocolException
  * This exception is raised if inconsistent data is received while unmarshaling a proxy.
  *
  **/
+["cpp:ice_print"]
 local exception ProxyUnmarshalException extends MarshalException
 {
 };
@@ -772,6 +822,7 @@ local exception ProxyUnmarshalException extends MarshalException
  * This exception is raised if an out-of-bounds condition occurs during unmarshaling.
  *
  **/
+["cpp:ice_print"]
 local exception UnmarshalOutOfBoundsException extends MarshalException
 {
 };
@@ -786,6 +837,7 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
  * @see Communicator#findObjectFactory
  *
  **/
+["cpp:ice_print"]
 local exception NoObjectFactoryException extends MarshalException
 {
     /**
@@ -808,6 +860,7 @@ local exception NoObjectFactoryException extends MarshalException
  * an operation is subscribed to the wrong topic.
  *
  **/
+["cpp:ice_print"]
 local exception UnexpectedObjectException extends MarshalException
 {
     /**
@@ -830,6 +883,7 @@ local exception UnexpectedObjectException extends MarshalException
  * This exception is raised if a request size exceeds the limit specified by the <tt>Ice.MessageSizeMax</tt> property.
  *
  **/
+["cpp:ice_print"]
 local exception MemoryLimitException extends MarshalException
 {
 };
@@ -841,6 +895,7 @@ local exception MemoryLimitException extends MarshalException
  * marshaling or unmarshaling.
  *
  **/
+["cpp:ice_print"]
 local exception StringConversionException extends MarshalException
 {
 };
@@ -851,6 +906,7 @@ local exception StringConversionException extends MarshalException
  * This exception indicates a malformed data encapsulation.
  *
  **/
+["cpp:ice_print"]
 local exception EncapsulationException extends MarshalException
 {
 };
@@ -862,6 +918,7 @@ local exception EncapsulationException extends MarshalException
  * feature
  *
  **/
+["cpp:ice_print"]
 local exception FeatureNotSupportedException
 {
     /**
@@ -879,6 +936,7 @@ local exception FeatureNotSupportedException
  * such as the IceSSL plug-in.
  *
  **/
+["cpp:ice_print"]
 local exception SecurityException
 {
     /**
@@ -895,6 +953,7 @@ local exception SecurityException
  * change the connection properties of a fixed proxy.
  *
  **/
+["cpp:ice_print"]
 local exception FixedProxyException
 {
 };
@@ -905,6 +964,7 @@ local exception FixedProxyException
  * re-dispatching such a request is not possible.
  *
  **/
+["cpp:ice_print"]
 local exception ResponseSentException
 {
 };

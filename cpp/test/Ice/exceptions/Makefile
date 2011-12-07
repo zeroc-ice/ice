@@ -16,6 +16,8 @@ COLLOCATED	= collocated
 
 TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
+OBJS		= ExceptionsI.o
+
 COBJS		= Test.o \
 		  Client.o \
 		  AllTests.o
@@ -33,7 +35,8 @@ COLOBJS		= Test.o \
 		  Collocated.o \
 		  AllTests.o
 
-SRCS		= $(COBJS:.o=.cpp) \
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(SAMDOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
@@ -44,20 +47,20 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(COBJS) $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OBJS) $(LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(SOBJS) $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(OBJS) $(LIBS)
 
-$(SERVERAMD): $(SAMDOBJS)
+$(SERVERAMD): $(SAMDOBJS) $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(OBJS) $(LIBS)
 
-$(COLLOCATED): $(COLOBJS)
+$(COLLOCATED): $(COLOBJS) $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(OBJS) $(LIBS)
 
 include .depend
