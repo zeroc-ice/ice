@@ -50,7 +50,7 @@ class SessionRefreshThread : public IceUtil::Thread
 
 public:
     
-    SessionRefreshThread(const SessionHelperPtr&, const Glacier2::RouterPrx&, long period);
+    SessionRefreshThread(const SessionHelperPtr&, const Glacier2::RouterPrx&, Ice::Long);
     virtual void run();
     void done();
     void success();
@@ -61,7 +61,7 @@ private:
     const Glacier2::Callback_Router_refreshSessionPtr _cb;
     const SessionHelperPtr _session;
     const Glacier2::RouterPrx _router;
-    long _period;
+    Ice::Long _period;
     bool _done;
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };

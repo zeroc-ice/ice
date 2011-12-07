@@ -50,7 +50,7 @@ private:
 }
 
 Glacier2::SessionRefreshThread::SessionRefreshThread(const Glacier2::SessionHelperPtr& session, 
-                                                     const Glacier2::RouterPrx& router, long period) :
+                                                     const Glacier2::RouterPrx& router, Ice::Long period) :
     _cb(Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshThread::success, 
                                                     &SessionRefreshThread::failure)),
     _session(session),
@@ -80,7 +80,7 @@ Glacier2::SessionRefreshThread::run()
 
         if(!_done)
         {
-            _monitor.timedWait(IceUtil::Time::seconds((int)_period));
+            _monitor.timedWait(IceUtil::Time::seconds(_period));
         }
 
         if(_done)
@@ -566,7 +566,7 @@ Glacier2::SessionHelper::connected(const Glacier2::RouterPrx& router, const Glac
     assert(router);
     Ice::ConnectionPtr conn = router->ice_getCachedConnection();
     string category = router->getCategoryForClient();
-    long timeout = router->getSessionTimeout();
+    Ice::Long timeout = router->getSessionTimeout();
     
     {
         IceUtil::Mutex::Lock sync(_mutex);
