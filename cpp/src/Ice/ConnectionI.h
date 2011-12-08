@@ -323,6 +323,7 @@ private:
     int _dispatchCount;
 
     State _state; // The current state.
+    bool _shutdownInitiated;
 };
 
 }

@@ -1420,11 +1420,24 @@ namespace Ice
                     {
                         if(_state == StateClosing)
                         {
+                            //
+                            // Only initiate shutdown if not already done. It
+                            // might have already been done if the sent callback
+                            // or AMI callback was dispatched when the connection
+                            // was already in the closing state.
+                            //
                             try
                             {
-                                initiateShutdown();
+                                if(!_shutdownInitiated)
+                                {
+                                    initiateShutdown();
+                                }
+                                else
+                                {
+                                    setState(StateClosed);
+                                }
                             }
-                            catch(LocalException ex)
+                            catch(Ice.LocalException ex)
                             {
                                 setState(StateClosed, ex);
                             }
@@ -2004,6 +2017,9 @@ namespace Ice
         {
             Debug.Assert(_state == StateClosing);
             Debug.Assert(_dispatchCount == 0);
+            Debug.Assert(!_shutdownInitiated);
+
+            _shutdownInitiated = true;
 
             if(!_endpoint.datagram())
             {
@@ -2873,6 +2889,7 @@ namespace Ice
         private int _dispatchCount;
 
         private int _state; // The current state.
+        private bool _shutdownInitiated = false; 
 
         private IceInternal.Incoming _incomingCache;
         private object _incomingCacheMutex = new object();

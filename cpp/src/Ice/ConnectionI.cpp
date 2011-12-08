@@ -1489,9 +1489,22 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingAsyn
         {
             if(_state == StateClosing)
             {
+                //
+                // Only initiate shutdown if not already done. It
+                // might have already been done if the sent callback
+                // or AMI callback was dispatched when the connection
+                // was already in the closing state.
+                //
                 try
                 {
-                    initiateShutdown();
+                    if(!_shutdownInitiated)
+                    {
+                        initiateShutdown();
+                    }
+                    else
+                    {
+                        setState(StateClosed);
+                    }
                 }
                 catch(const LocalException& ex)
                 {
@@ -1771,7 +1784,8 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _readHeader(false),
     _writeStream(_instance.get()),
     _dispatchCount(0),
-    _state(StateNotInitialized)
+    _state(StateNotInitialized),
+    _shutdownInitiated(false)
 {
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
@@ -2056,6 +2070,9 @@ Ice::ConnectionI::initiateShutdown()
 {
     assert(_state == StateClosing);
     assert(_dispatchCount == 0);
+    assert(!_shutdownInitiated);
+    
+    _shutdownInitiated = true;
 
     if(!_endpoint->datagram())
     {

@@ -1221,11 +1221,24 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     if(_state == StateClosing)
                     {
+                        //
+                        // Only initiate shutdown if not already done. It
+                        // might have already been done if the sent callback
+                        // or AMI callback was dispatched when the connection
+                        // was already in the closing state.
+                        //
                         try
                         {
-                            initiateShutdown();
+                            if(!_shutdownInitiated)
+                            {
+                                initiateShutdown();
+                            }
+                            else
+                            {
+                                setState(StateClosed);
+                            }
                         }
-                        catch(LocalException ex)
+                        catch(Ice.LocalException ex)
                         {
                             setState(StateClosed, ex);
                         }
@@ -1786,6 +1799,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
         assert(_state == StateClosing);
         assert(_dispatchCount == 0);
+        assert(!_shutdownInitiated);
+
+        _shutdownInitiated = true;
 
         if(!_endpoint.datagram())
         {
@@ -2718,6 +2734,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private int _dispatchCount;
 
     private int _state; // The current state.
+    private boolean _shutdownInitiated = false;
 
     private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
