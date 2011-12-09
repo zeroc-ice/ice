@@ -353,7 +353,7 @@ public class Client
 
                 Console.Out.Write("testing SessionHelper communicator after destroy... ");
                 Console.Out.Flush();
-                test(_session.communicator() == null);
+                test(_session.communicator() != null);
                 Console.Out.WriteLine("ok");
 
 
@@ -431,7 +431,7 @@ public class Client
 
                 Console.Out.Write("testing SessionHelper communicator after connect failure... ");
                 Console.Out.Flush();
-                test(_session.communicator() == null);
+                test(_session.communicator() != null);
                 Console.Out.WriteLine("ok");
 
                 Console.Out.Write("testing SessionHelper destroy after connect failure... ");

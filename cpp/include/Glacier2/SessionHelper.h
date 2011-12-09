@@ -33,111 +33,37 @@ namespace Glacier2
 const int GLACIER2_SSL_PORT = 4064;
 const int GLACIER2_TCP_PORT = 4063;
 
-class SessionCallback;
-typedef IceUtil::Handle<SessionCallback> SessionCallbackPtr;
-
-class SessionHelper;
+class GLACIER2_API SessionHelper : public IceUtil::Shared
+{
+    
+public:
+    
+    virtual void destroy() = 0;
+    virtual Ice::CommunicatorPtr communicator() const = 0;
+    virtual std::string categoryForClient() const = 0;
+    virtual Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr&) = 0;
+    virtual Glacier2::SessionPrx session() const = 0;
+    virtual bool isConnected() const = 0;
+    virtual Ice::ObjectAdapterPtr objectAdapter() = 0;
+    
+    bool operator==(const Glacier2::SessionHelper&) const;
+    bool operator!=(const Glacier2::SessionHelper&) const;
+};
 typedef IceUtil::Handle<SessionHelper> SessionHelperPtr;
 
-class SessionFactoryHelper;
-typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
-
-class ConnectThread;
-class DestroyInternal;
-
-class SessionRefreshThread : public IceUtil::Thread
+class GLACIER2_API SessionCallback : public IceUtil::Shared
 {
 
 public:
-    
-    SessionRefreshThread(const SessionHelperPtr&, const Glacier2::RouterPrx&, Ice::Long);
-    virtual void run();
-    void done();
-    void success();
-    void failure(const Ice::Exception&);
-    
-private:
-    
-    const Glacier2::Callback_Router_refreshSessionPtr _cb;
-    const SessionHelperPtr _session;
-    const Glacier2::RouterPrx _router;
-    Ice::Long _period;
-    bool _done;
-    IceUtil::Monitor<IceUtil::Mutex> _monitor;
-};
-typedef IceUtil::Handle<SessionRefreshThread> SessionRefreshThreadPtr;
 
-class SessionCallback : public IceUtil::Shared
-{
-
-public:
-    
-    virtual ~SessionCallback(){}
     virtual void createdCommunicator(const SessionHelperPtr& session) = 0;
     virtual void connected(const SessionHelperPtr&) = 0;
     virtual void disconnected(const SessionHelperPtr&) = 0;
     virtual void connectFailed(const SessionHelperPtr&, const Ice::Exception&) = 0;
 };
+typedef IceUtil::Handle<SessionCallback> SessionCallbackPtr;
 
-class ConnectStrategy : public IceUtil::Shared
-{
-
-public:
-    
-    virtual Glacier2::SessionPrx connect(const Glacier2::RouterPrx& router) = 0;    
-};
-typedef IceUtil::Handle< ConnectStrategy> ConnectStrategyPtr;
-
-class SessionHelper : public IceUtil::Shared
-{
-    
-public:
-    
-    SessionHelper(const SessionCallbackPtr&, const Ice::InitializationData&);
-    void destroy();
-    Ice::CommunicatorPtr communicator() const;
-    std::string categoryForClient() const;
-    Ice::ObjectPrx addWithUUID(const Ice::ObjectPtr&);
-    Glacier2::SessionPrx session() const;
-    bool isConnected() const;
-    Ice::ObjectAdapterPtr objectAdapter();
-    
-    friend class Glacier2::DestroyInternal;
-    friend class Glacier2::ConnectThread;
-    friend class Glacier2::SessionFactoryHelper;
-    
-     bool operator==(const SessionHelper&) const;
-     bool operator!=(const SessionHelper&) const;
-
-private:
-    
-    void destroy(const IceUtil::ThreadPtr&);
-
-    Ice::ObjectAdapterPtr internalObjectAdapter();
-    void connected(const RouterPrx&, const SessionPrx&);
-    void destroyInternal(const Ice::DispatcherCallPtr&);
-    
-    void connect(const std::map<std::string, std::string>&);
-    void connect(const std::string&, const std::string&, const std::map<std::string, std::string>&);
-    
-    void connectImpl(const ConnectStrategyPtr&);
-    void dispatchCallback(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
-    void dispatchCallbackAndWait(const Ice::DispatcherCallPtr&, const Ice::ConnectionPtr&);
-
-    IceUtil::Mutex _mutex;
-    Ice::CommunicatorPtr _communicator;
-    Ice::ObjectAdapterPtr _adapter;
-    Glacier2::RouterPrx _router;
-    Glacier2::SessionPrx _session;
-    SessionRefreshThreadPtr _refreshThread;
-    std::string _category;
-    bool _connected;
-    bool _destroy;
-    Ice::InitializationData _initData;
-    SessionCallbackPtr _callback;
-};
-
-class SessionFactoryHelper : public IceUtil::Shared
+class GLACIER2_API SessionFactoryHelper : public IceUtil::Shared
 {
 
 public:
@@ -183,6 +109,7 @@ private:
     SessionCallbackPtr _callback;
     std::map< std::string, std::string> _context;
 };
+typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
 
 }
 

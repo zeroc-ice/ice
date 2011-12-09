@@ -19,8 +19,7 @@ OBJS		= PermissionsVerifier.obj \
 		  SSLInfo.obj \
 		  Session.obj \
 		  Application.obj \
-		  SessionHelper.obj \
-		  SessionFactoryHelper.obj
+		  SessionHelper.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

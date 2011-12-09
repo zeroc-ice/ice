@@ -99,6 +99,7 @@ tests = [
     ("Glacier2/ssl", ["service", "novalgrind", "novc6"]), # valgrind doesn't work well with openssl
     ("Glacier2/dynamicFiltering", ["service", "novc6"]),
     ("Glacier2/staticFiltering", ["service", "noipv6", "novc6"]),
+    ("Glacier2/sessionHelper", ["service", "novc6"]),
     ]
 
 #

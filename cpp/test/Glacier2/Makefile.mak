@@ -17,6 +17,7 @@ SUBDIRS		= router \
 		  staticFiltering \
 		  dynamicFiltering \
 		  sessionControl \
+		  sessionHelper \
 		  ssl
 
 $(EVERYTHING)::

@@ -166,7 +166,7 @@ public class SessionHelper
                 return;
             }
             _session = null;
-
+            _connected = false;
             //
             // Run the destroyInternal in a thread. This is because it
             // destroyInternal makes remote invocations.
@@ -409,7 +409,6 @@ public class SessionHelper
             _router = null;
 
             communicator = _communicator;
-            _communicator = null;
 
             Debug.Assert(communicator != null);
 
@@ -440,7 +439,7 @@ public class SessionHelper
             //
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
-        _connected = false;
+
         if(sessionRefresh != null)
         {
             sessionRefresh.done();
@@ -493,10 +492,15 @@ public class SessionHelper
         catch(Ice.LocalException ex)
         {
             _destroy = true;
-            dispatchCallback(delegate()
-                             {
-                                 _callback.connectFailed(this, ex);
-                             }, null);
+            new Thread(
+                new ThreadStart(delegate()
+                    {
+                        dispatchCallback(delegate()
+                            {
+                                _callback.connectFailed(this, ex);
+                            }, 
+                            null);
+                    })).Start();
             return;
         }
 
@@ -523,7 +527,6 @@ public class SessionHelper
                     catch(Exception)
                     {
                     }
-                    _communicator = null;
                     dispatchCallback(delegate()
                                      {
                                          _callback.connectFailed(this, ex);
@@ -574,7 +577,7 @@ public class SessionHelper
         }
     }
 
-    private Ice.InitializationData _initData;
+    private readonly Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _adapter;
     private Glacier2.RouterPrx _router;
@@ -584,7 +587,7 @@ public class SessionHelper
 
     private SessionRefreshThread _sessionRefresh;
     private Thread _refreshThread;
-    private SessionCallback _callback;
+    private readonly SessionCallback _callback;
     private bool _destroy = false;
 }
 
