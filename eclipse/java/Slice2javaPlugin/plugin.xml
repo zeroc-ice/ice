@@ -86,7 +86,7 @@
          point="org.eclipse.ui.propertyPages">
       <page
             class="com.zeroc.slice2javaplugin.properties.ProjectProperties"
-            id="Slice2JavaPlugin.properties.samplePropertyPage"
+            id="Slice2JavaPlugin.properties.ProjectProperties"
             name="%page.name.0">
             <enabledWhen>
                 <adapt type="org.eclipse.core.resources.IProject">
@@ -94,7 +94,18 @@
                 </adapt>
             </enabledWhen>
       </page>
-   </extension>
+      <page
+            class="com.zeroc.slice2javaplugin.properties.SliceFilePropertyPage"
+            id="com.zeroc.slice2javaplugin.properties.SliceFilePropertyPage"
+            name="%page.name.0"
+            nameFilter="*.ice">
+         <enabledWhen>
+            <adapt type="org.eclipse.core.resources.IFile">
+                  <test property="org.eclipse.core.resources.projectNature" value="com.zeroc.Slice2JavaPlugin.Slice2JavaNature"/>
+            </adapt>
+         </enabledWhen>
+      </page>
+   </extension> 
    <extension
          point="org.eclipse.jdt.core.classpathContainerInitializer">
       <classpathContainerInitializer
@@ -128,5 +139,30 @@
             name="Slice source file"
             base-type="org.eclipse.core.runtime.text"
             file-extensions="ice"/>
+   </extension>
+   <extension
+         point="org.eclipse.ui.decorators">
+        <decorator
+            id="com.zeroc.slice2javaplugin.decorator.GeneratedDecorator"
+            label="Generated slice2java sources"
+            state="true"
+            class= "com.zeroc.slice2javaplugin.decorator.GeneratedDecorator"
+            objectClass="org.eclipse.core.resources.IResource"
+            adaptable="true">
+            <description>
+            Decorator for slice2java generated source code.
+            </description>
+        </decorator> 
+        <decorator
+            id="com.zeroc.slice2javaplugin.decorator.SliceDecorator"
+            label="Slice sources"
+            state="true"
+            class= "com.zeroc.slice2javaplugin.decorator.SliceDecorator"
+            objectClass="org.eclipse.core.resources.IResource"
+            adaptable="true">
+            <description>
+            Decorator for Slice source code.
+            </description>
+        </decorator> 
    </extension>
 </plugin>

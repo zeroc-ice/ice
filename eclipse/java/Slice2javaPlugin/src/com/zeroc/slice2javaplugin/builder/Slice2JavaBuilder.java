@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -72,8 +73,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
      * @see org.eclipse.core.internal.events.InternalBuilder#build(int,
      * java.util.Map, org.eclipse.core.runtime.IProgressMonitor)
      */
-    @SuppressWarnings("unchecked")
-    protected IProject[] build(int kind, Map args, IProgressMonitor monitor)
+    protected IProject[] build(int kind, @SuppressWarnings("rawtypes")Map args, IProgressMonitor monitor)
         throws CoreException
     {
         long start = System.currentTimeMillis();
@@ -360,36 +360,90 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             cmd.add("--output-dir=" + state.generated.getProjectRelativePath().toString());
             cmd.add("--list-generated");
         }
+        List<String> cmdBase = new LinkedList<String>();
+        cmdBase.addAll(cmd);
         
         cmd.addAll(state.config.getCommandLine());
         
+        Set<IFile> resourcesWithArguments = new  HashSet<IFile>();
+        
+        boolean allHasOptions = true;
         for(Iterator<IFile> p = files.iterator(); p.hasNext();)
         {
-            cmd.add(p.next().getLocation().toOSString());
-        }
-
-        if(state.out != null)
-        {
-            for(Iterator<String> p = cmd.iterator(); p.hasNext();)
+            IFile f = p.next();
+            if(!Configuration.resourceHasOptions(f))
             {
-                state.out.print(p.next());
-                state.out.print(" ");
+                allHasOptions = false;
+                cmd.add(f.getLocation().toOSString());
             }
-            state.out.println("");
+            else
+            {
+                resourcesWithArguments.add(f);
+            }
         }
-        ProcessBuilder builder = new ProcessBuilder(cmd);
-        if(err == null)
+       
+        ProcessBuilder builder;
+        IPath rootLocation = getProject().getLocation();
+        Map<String, String> env;
+        int status = 0;
+        
+        if(!allHasOptions)
         {
-            builder.redirectErrorStream(true);
+            builder = new ProcessBuilder(cmd);
+            if(err == null)
+            {
+                builder.redirectErrorStream(true);
+            }
+                
+            builder.directory(rootLocation.toFile());
+            env = builder.environment();
+            Configuration.setupSharedLibraryPath(env);
+    
+            status = runSliceCompiler(builder, state, out, err);
         }
         
-        IPath rootLocation = getProject().getLocation();
-        builder.directory(rootLocation.toFile());
-        Map<String, String> env = builder.environment();
-        state.config.setupSharedLibraryPath(env);
-
+        for(Iterator<IFile> p = resourcesWithArguments.iterator(); p.hasNext();)
+        {
+            IFile f = p.next();
+            cmd = new LinkedList<String>();
+            cmd.addAll(cmdBase);
+            cmd.addAll(state.config.getCommandLine(f));
+            
+            cmd.add(f.getLocation().toOSString());
+            
+            builder = new ProcessBuilder(cmd);
+            if(err == null)
+            {
+                builder.redirectErrorStream(true);
+            }
+            builder.directory(rootLocation.toFile());
+            env = builder.environment();
+            Configuration.setupSharedLibraryPath(env);
+            
+            status = runSliceCompiler(builder, state, out, err);
+        }
+        
+        return status;
+    }
+    
+    private int
+    runSliceCompiler(ProcessBuilder builder, BuildState state, StringBuffer out, StringBuffer err)
+        throws CoreException
+    {
         try
         {
+            
+            
+            if(state.out != null)
+            {
+                for(Iterator<String> p = builder.command().iterator(); p.hasNext();)
+                {
+                    state.out.print(p.next());
+                    state.out.print(" ");
+                }
+                state.out.println("");
+            }
+            
             Process proc = builder.start();
 
             StreamReaderThread outThread = new StreamReaderThread(proc.getInputStream(), out);
@@ -420,7 +474,6 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         {
             throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
         }
-        // not reached
     }
 
     private void
@@ -628,6 +681,8 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         // Do the build.
         build(state, candidates, false, out, null);
 
+        out = mergeXmls(out, false);
+        
         // Refresh the generated subdirectory prior to processing the
         // generated files list.
         state.generated.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -644,7 +699,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             for(IFile f : newGeneratedJavaFiles)
             {
                 // Mark the resource as derived.
-                f.setDerived(true);
+                f.setDerived(true, null);
             }
 
             if(!outputEntry.error)
@@ -694,6 +749,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             StringBuffer err = new StringBuffer();
             if(build(state, depends, true, out, err) == 0)
             {
+                out = mergeXmls(out, true);
                 // Parse the new dependency set.
                 state.dependencies.updateDependencies(out.toString());
             }
@@ -789,6 +845,8 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
         candidates.addAll(state.dependencies.errorSliceFiles);
         state.dependencies.errorSliceFiles.clear();
 
+        Set<IFile> candidatesTmp = new HashSet<IFile>();
+
         for(Iterator<IFile> p = candidates.iterator(); p.hasNext();)
         {
             IFile f = p.next();
@@ -801,7 +859,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                     IFile potentialCandidate = q.next();
                     if(potentialCandidate.exists())
                     {
-                        candidates.add(potentialCandidate);
+                        candidatesTmp.add(potentialCandidate);
                     }
                 }
             }
@@ -813,6 +871,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                 state.dependencies.reverseSliceSliceDependencies.remove(f);
             }
         }
+        candidates.addAll(candidatesTmp);
 
         // Remove all the removed files from the candidates list.
         candidates.removeAll(removed);
@@ -858,7 +917,8 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             
             // Do the build.
             build(state, candidates, false, out, null);
-    
+            out = mergeXmls(out, false);
+            
             // Refresh the generated directory prior to processing the generated
             // files list.
             state.generated.refreshLocal(IResource.DEPTH_INFINITE, monitor);
@@ -876,7 +936,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                 for(IFile f : newGeneratedJavaFiles)
                 {
                     // Mark the resource as derived.
-                    f.setDerived(true);
+                    f.setDerived(true, null);
                 }
 
                 // If the build of the file didn't result in an error, add to
@@ -991,6 +1051,7 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
             // dependencies if no problems resulted in the build.
             if(build(state, depends, true, out, err) == 0)
             {
+                out = mergeXmls(out, true);
                 // Parse the new dependency set.
                 state.dependencies.updateDependencies(out.toString());
             }
@@ -1000,6 +1061,75 @@ public class Slice2JavaBuilder extends IncrementalProjectBuilder
                 state.err.println(err.toString());    
             }
         }
+    }
+    
+    //
+    // This method merge the XML produced by multiple Slice translator
+    // invocations in a single XML. If depend argument is true, the input
+    // buffer is treated as a dependencies XML, otherwise is treated as
+    // a generated list XML.
+    //
+    private StringBuffer
+    mergeXmls(StringBuffer input, boolean depend)
+    {
+        //
+        // Merge depend XMLs in a single XML
+        //
+        String v = input.toString();
+        StringTokenizer lines = new StringTokenizer(v, System.getProperty("line.separator"));
+        boolean firstLine = true;
+        boolean firstGenerated = true;
+        StringBuffer out = new StringBuffer();
+        while(lines.hasMoreTokens())
+        {
+            String line = lines.nextToken();
+            if(line.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>") &&
+            !firstLine)
+            {
+                continue;
+            }
+
+            if(depend)
+            {
+                if(line.equals("<dependencies>"))
+                {
+                    if(firstGenerated)
+                    {
+                        firstGenerated = false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else if(line.equals("</dependencies>") && lines.hasMoreTokens())
+                {
+                    continue;
+                }
+            }
+            else
+            {
+                if(line.equals("<generated>"))
+                {
+                    if(firstGenerated)
+                    {
+                        firstGenerated = false;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else if(line.equals("</generated>") && lines.hasMoreTokens())
+                {
+                    continue;
+                }
+            }
+
+            out.append(line + "\n");
+            firstLine = false;
+        }
+        return out;
     }
 
     private static class Slice2JavaGeneratedParser

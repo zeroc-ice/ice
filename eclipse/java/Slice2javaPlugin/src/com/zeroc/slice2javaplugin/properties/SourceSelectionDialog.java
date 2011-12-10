@@ -100,7 +100,6 @@ class SourceSelectionDialog extends SelectionDialog
     /*
      * (non-Javadoc) Method declared on Dialog.
      */
-    @SuppressWarnings("unchecked")
     protected Control createDialogArea(Composite parent)
     {
         // page group
@@ -108,7 +107,7 @@ class SourceSelectionDialog extends SelectionDialog
 
         // create the input element, which has the root resource
         // as its only child
-        ArrayList input = new ArrayList();
+        ArrayList<IProject> input = new ArrayList<IProject>();
         input.add(root);
 
         createMessageArea(composite);
@@ -155,7 +154,7 @@ class SourceSelectionDialog extends SelectionDialog
                     }
 
                     // filter out the desired resource types
-                    ArrayList results = new ArrayList();
+                    ArrayList<Object> results = new ArrayList<Object>();
                     for(int i = 0; i < members.length; i++)
                     {
                         if(members[i] instanceof IFolder)
@@ -168,7 +167,7 @@ class SourceSelectionDialog extends SelectionDialog
                 // input element case
                 if(o instanceof ArrayList)
                 {
-                    return ((ArrayList) o).toArray();
+                    return ((ArrayList<Object>) o).toArray();
                 }
                 return new Object[0];
             }
@@ -178,7 +177,6 @@ class SourceSelectionDialog extends SelectionDialog
     /**
      * Initializes this dialog's controls.
      */
-    @SuppressWarnings("unchecked")
     private void initializeDialog()
     {
         getOkButton().setEnabled(false);
@@ -200,7 +198,7 @@ class SourceSelectionDialog extends SelectionDialog
                 }
             });
 
-            for(Iterator iter = getInitialElementSelections().iterator(); iter.hasNext(); )
+            for(Iterator<?> iter = getInitialElementSelections().iterator(); iter.hasNext(); )
             {
                 IResource cur = (IResource)iter.next();
                 selectionGroup.setGrayChecked(cur, true);
@@ -223,7 +221,6 @@ class SourceSelectionDialog extends SelectionDialog
      * <code>Dialog</code> method builds a list of the selected resources for
      * later retrieval by the client and closes this dialog.
      */
-    @SuppressWarnings("unchecked")
     protected void okPressed()
     {
         /*
@@ -231,7 +228,7 @@ class SourceSelectionDialog extends SelectionDialog
          * ArrayList list = new ArrayList(); while (resultEnum.hasNext()) {
          * list.add(resultEnum.next()); } setResult(list);
          */
-        ArrayList list = new ArrayList();
+        ArrayList<Object> list = new ArrayList<Object>();
         if(multiple)
         {
             Object[] objs = selectionGroup.getCheckedElements();

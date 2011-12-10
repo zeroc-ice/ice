@@ -31,12 +31,12 @@ public class ToggleNatureAction implements IObjectActionDelegate
      * 
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
-    @SuppressWarnings("unchecked")
+
     public void run(IAction action)
     {
         if(_selection instanceof IStructuredSelection)
         {
-            for(Iterator it = ((IStructuredSelection) _selection).iterator(); it.hasNext();)
+            for(Iterator<?> it = ((IStructuredSelection) _selection).iterator(); it.hasNext();)
             {
                 Object element = it.next();
                 IProject project = null;

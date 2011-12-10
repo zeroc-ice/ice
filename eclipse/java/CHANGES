@@ -1,9 +1,26 @@
 ======================================================================
-CHANGES for Slice2Java Eclipse Plug-in 3.4.1.20110201
+CHANGES for Slice2Java Eclipse Plug-in 3.4.2.20111017
 ======================================================================
 
 This file describes the change history for the Slice2Java Eclipse
 plug-in.
+
+======================================================================
+Changes since version 3.4.1.20110201
+======================================================================
+
+- The plug-in now allows to set per Slice file options.
+
+- For Android projects Ice Library is now automatically configured.
+
+- Added an Extra Arguments field, that allow to pass extra arguments
+  to Slice compilers.
+
+- Added decorators to Slice and Slice2java generated folders to made
+  it easy to identify as such.
+
+- Get rid of the tab to configure library, that is now an extra section
+  in the options tab.
 
 
 ======================================================================

@@ -19,11 +19,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Preferences;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.Preferences.IPropertyChangeListener;
-import org.eclipse.core.runtime.Preferences.PropertyChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -66,10 +67,11 @@ public class Activator extends AbstractUIPlugin
     {
         super.start(context);
         _plugin = this;
-
+        
+        IEclipsePreferences prefs = new InstanceScope().getNode(PLUGIN_ID);
         // set the listener for the preference change
-        Preferences prefs = getPluginPreferences();
-        prefs.addPropertyChangeListener(new IPropertyChangeListener()
+        //Preferences prefs = getPluginPreferences();
+        prefs.addPreferenceChangeListener(new IPreferenceChangeListener()
         {
             public List<IJavaProject> getSlice2JavaProjects(IJavaModel javaModel)
             {
@@ -97,9 +99,10 @@ public class Activator extends AbstractUIPlugin
 
                 return pl;
             }
-            public void propertyChange(PropertyChangeEvent event)
+            
+            public void preferenceChange(PreferenceChangeEvent event)
             {
-                String property = event.getProperty();
+                String property = event.getKey();
                 if(PluginPreferencePage.SDK_PATH.equals(property))
                 {
                     IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -131,6 +134,7 @@ public class Activator extends AbstractUIPlugin
                         job.schedule(); // start as soon as possible
                     }
                 }
+                
             }
         });
     }

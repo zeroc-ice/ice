@@ -10,7 +10,7 @@
 
 import os, sys, fnmatch, re, getopt, xml.dom.minidom, time
 
-sys.path.append(os.path.join(os.path.dirname(__file__), "..", "distribution", "lib"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "distribution", "lib"))
 from DistUtils import *
 
 #

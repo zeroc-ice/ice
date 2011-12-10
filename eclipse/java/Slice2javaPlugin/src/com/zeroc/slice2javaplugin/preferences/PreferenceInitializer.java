@@ -25,16 +25,12 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
     private String getDefaultHome()
     {
         String os = System.getProperty("os.name");
-        if(os.equals("Linux"))
+        if(os.startsWith("Windows"))
         {
-            return "/usr";
-        }
-        else if(os.startsWith("Windows"))
-        {
-            File f = new File("C:\\Ice-3.4.1");
+            File f = new File("C:\\Program Files\\ZeroC\\Ice-3.4.2");
             if(!f.exists())
             {
-                File f2 = new File("C:\\Ice-3.4.1-VC90");
+                File f2 = new File("C:\\Program Files (x86)\\ZeroC\\Ice-3.4.2");
                 if(f2.exists())
                 {
                     return f2.toString();
@@ -42,7 +38,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer
             }
             return f.toString();
         }
-        return "/opt/Ice-3.4.1";
+        if(os.equals("Linux"))
+        {
+            File f = new File("/usr/bin/slice2java");
+            if(f.exists())
+            {
+                return "/usr";
+            }
+        }
+        return "/opt/Ice-3.4.2";
     }
 
     /*
