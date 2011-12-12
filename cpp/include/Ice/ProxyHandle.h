@@ -13,15 +13,6 @@
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
 
-//
-// We include Handle.h here to make sure that the Ice::Handle template
-// is defined before any definition of upCast().
-//
-// See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
-// on why this is necessary.
-//
-#include <Ice/Handle.h>
-
 #include <iosfwd>
 
 namespace IceInternal

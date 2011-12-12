@@ -14,15 +14,6 @@
 #include <Ice/Config.h>
 
 //
-// We include ProxyHandle.h here to make sure that the Ice::ProxyHandle
-// template is defined before any definition of upCast().
-//
-// See http://gcc.gnu.org/bugzilla/show_bug.cgi?id=25495 for information
-// on why this is necessary.
-//
-#include <Ice/ProxyHandle.h>
-
-//
 // "Handle" or "smart pointer" template for classes derived from
 // IceInternal::GCShared, IceUtil::Shared, or IceUtil::SimpleShared.
 //
