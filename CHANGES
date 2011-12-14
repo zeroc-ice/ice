@@ -97,6 +97,12 @@ Java Changes
 - Fixed an IceSSL bug in which the IceSSL.Alias property was not
   working correctly.
 
+Python Changes
+==============
+
+- Fixed a bug that cause IceGrid python server activation hang,
+  when trace is enabled for the python server.
+
 
 ======================================================================
 Changes since version 3.4.1

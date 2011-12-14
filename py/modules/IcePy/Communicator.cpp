@@ -205,6 +205,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::CommunicatorPtr communicator;
     try
     {
+        AllowThreads allowThreads;
         if(hasArgs)
         {
             communicator = Ice::initialize(argc, argv, data);
