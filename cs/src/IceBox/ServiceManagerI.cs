@@ -994,7 +994,19 @@ class ServiceManagerI : ServiceManagerDisp_
             name = service;
             entryPoint = value;
             args = new string[0];
+
             int start = value.IndexOf(':');
+            if(start != -1)
+            {
+                if(value.Length > 3 &&
+                   start == 1 &&
+                   System.Char.IsLetter(value[0]) &&
+                   (value[2] == '\\' || value[2] == '/'))
+                {
+                    start = value.IndexOf(':', 3);
+                }
+            }
+
             if(start != -1)
             {
                 //
