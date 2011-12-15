@@ -544,7 +544,6 @@ namespace Ice.VisualStudio
                 _solutionEvents.ProjectRemoved -= new _dispSolutionEvents_ProjectRemovedEventHandler(projectRemoved);
                 _solutionEvents.ProjectRenamed -= new _dispSolutionEvents_ProjectRenamedEventHandler(projectRenamed);
                 _solutionEvents = null;
-
             }
             _buildEvents.OnBuildBegin -= new _dispBuildEvents_OnBuildBeginEventHandler(buildBegin);
             _buildEvents.OnBuildDone -= new _dispBuildEvents_OnBuildDoneEventHandler(buildDone);
@@ -1679,7 +1678,7 @@ namespace Ice.VisualStudio
             return version.Trim();
         }
 
-        private static string getSliceCompilerArgs(Project project, bool depend)
+        private static string getSliceCompilerArgs(Project project, string file, bool depend)
         {
             IncludePathList includes = 
                 new IncludePathList(Util.getProjectProperty(project, Util.PropertyIceIncludePath));
@@ -1704,7 +1703,7 @@ namespace Ice.VisualStudio
                     args += "--dll-export=" + dllExportSymbol + " ";
                 }
 
-                String preCompiledHeader = Util.getPrecompileHeader(project);
+                String preCompiledHeader = Util.getPrecompileHeader(project, file);
                 if(!String.IsNullOrEmpty(preCompiledHeader))
                 {
                     args += "--add-header=" + Util.quote(preCompiledHeader) + " ";
@@ -1858,7 +1857,7 @@ namespace Ice.VisualStudio
                 return false;
             }
 
-            string args = getSliceCompilerArgs(project, true) + " " + Util.quote(file);
+            string args = getSliceCompilerArgs(project, file, true) + " " + Util.quote(file);
 
             System.Diagnostics.Process process = new System.Diagnostics.Process();
             process.StartInfo.FileName = sliceCompiler;
@@ -2468,7 +2467,7 @@ namespace Ice.VisualStudio
                 return false;
             }
 
-            string args = getSliceCompilerArgs(project, false);
+            string args = getSliceCompilerArgs(project, file, false);
 
             if(!String.IsNullOrEmpty(outputDir))
             {

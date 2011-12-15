@@ -1965,18 +1965,44 @@ namespace Ice.VisualStudio
             }
         }
 
-        public static String getPrecompileHeader(Project project)
+        public static String getPrecompileHeader(Project project, string file)
         {
-            string preCompiledHeader = "";
+            String preCompiledHeader = "";
+            ProjectItem cppGenerated = Util.findItem(
+                Builder.getCppGeneratedFileName(project, file, Util.getSourceExt(project)));
+
+            VCProject cppProject = (VCProject)project.Object;
+            VCFile cppFile = null;
+            if(cppProject != null && cppGenerated != null)
+            {
+                cppFile = (VCFile)cppProject.Files.Item(cppGenerated.Name);
+            }
+
 
             VCConfiguration configuration = getActiveVCConfiguration(project);
+            VCFileConfiguration fileConfiguration = null;
+
             if(configuration == null)
             {
                 return preCompiledHeader;
             }
 
-            VCCLCompilerTool compilerTool =
-            (VCCLCompilerTool)(((IVCCollection)configuration.Tools).Item("VCCLCompilerTool"));
+            if(cppFile != null)
+            {
+                fileConfiguration = (VCFileConfiguration)((IVCCollection)cppFile.FileConfigurations).Item(configuration.Name);
+            }
+
+            VCCLCompilerTool compilerTool = null;
+
+            if(fileConfiguration != null)
+            {
+                compilerTool = (VCCLCompilerTool)fileConfiguration.Tool;
+            }
+            else
+            {
+                compilerTool = (VCCLCompilerTool)(((IVCCollection)configuration.Tools).Item("VCCLCompilerTool"));
+            }
+
             if(compilerTool == null)
             {
                 return preCompiledHeader;
