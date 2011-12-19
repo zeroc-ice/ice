@@ -1975,7 +1975,11 @@ namespace Ice.VisualStudio
             VCFile cppFile = null;
             if(cppProject != null && cppGenerated != null)
             {
-                cppFile = (VCFile)cppProject.Files.Item(cppGenerated.Name);
+                IVCCollection files = (IVCCollection)cppProject.Files;
+                if(files != null)
+                {
+                    cppFile = (VCFile)files.Item(cppGenerated.Name);
+                }
             }
 
 
