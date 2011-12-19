@@ -230,7 +230,6 @@
             <include name="Freeze/**"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
-                <attribute name="Class-Path" value="db.jar db-${db.version}.jar /usr/share/java/db-${db.version}.jar ../db.jar"/>
             </manifest>
         </jar>
         <jar jarfile="${lib.dir}/Freeze.jar" basedir="${src.dir}" update="yes">
