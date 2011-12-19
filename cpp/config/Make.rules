@@ -127,6 +127,11 @@ USE_READLINE		?= no
 #
 #CXXARCHFLAGS		     = -arch i386 -arch x86_64
 
+#
+# Default Mutex protocol: one of PrioNone or PrioInherit.
+#
+#DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -175,6 +180,10 @@ ifneq ($(embedded_runpath_prefix),)
     runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 else
     create_runpath_symlink = no
+endif
+
+ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
+    ICEUTIL_FLAGS           = -DPRIO_INHERIT
 endif
 
 OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)

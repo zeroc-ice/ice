@@ -241,10 +241,4 @@ public:
 }
 #endif
 
-
-//
-// The default Mutex protocol
-//
-#define ICE_DEFAULT_MUTEX_PROTOCOL PrioNone
-
 #endif

@@ -43,7 +43,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS        := $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..
+CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
 
 LINKWITH        := $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
 
