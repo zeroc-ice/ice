@@ -197,23 +197,14 @@ namespace IceInternal
 
         public static object createInstance(Type t)
         {
-            ConstructorInfo[] constructors = t.GetConstructors();
-
-            if(constructors.Length == 0)
+            try
+            {
+                return Activator.CreateInstance(t);
+            }
+            catch(MemberAccessException)
             {
                 return null;
             }
-
-            ParameterInfo[] firstConstructor = constructors[0].GetParameters();
-
-            int paramCount = firstConstructor.Length;
-            Type[] constructor = new Type[paramCount];
-            for(int i = 0; i < paramCount; i++)
-            {
-                constructor[i] = firstConstructor[i].ParameterType;
-            }
-
-            return t.GetConstructor(constructor).Invoke(new object[]{});
         }
 
 #if !COMPACT
