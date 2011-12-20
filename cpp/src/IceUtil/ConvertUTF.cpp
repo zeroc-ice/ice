@@ -59,10 +59,10 @@ using namespace IceUtil;
 namespace IceUtilInternal
 {
 
-static const int halfShift  = 10; /* used for shifting by 10 bits */
+const int halfShift  = 10; /* used for shifting by 10 bits */
 
-static const UTF32 halfBase = 0x0010000UL;
-static const UTF32 halfMask = 0x3FFUL;
+const UTF32 halfBase = 0x0010000UL;
+const UTF32 halfMask = 0x3FFUL;
 
 #define UNI_SUR_HIGH_START  (UTF32)0xD800
 #define UNI_SUR_HIGH_END    (UTF32)0xDBFF
@@ -81,7 +81,7 @@ static const UTF32 halfMask = 0x3FFUL;
  * left as-is for anyone who may want to do such conversion, which was
  * allowed in earlier algorithms.
  */
-static const char trailingBytesForUTF8[256] = {
+const char trailingBytesForUTF8[256] = {
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -97,7 +97,7 @@ static const char trailingBytesForUTF8[256] = {
  * This table contains as many values as there might be trailing bytes
  * in a UTF-8 sequence.
  */
-static const UTF32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 
+const UTF32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080UL, 
                      0x03C82080UL, 0xFA082080UL, 0x82082080UL };
 
 /*
@@ -107,7 +107,7 @@ static const UTF32 offsetsFromUTF8[6] = { 0x00000000UL, 0x00003080UL, 0x000E2080
  * (I.e., one byte sequence, two byte... etc.). Remember that sequencs
  * for *legal* UTF-8 will be 4 or fewer bytes total.
  */
-static const UTF8 firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
+const UTF8 firstByteMark[7] = { 0x00, 0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC };
 
 /* --------------------------------------------------------------------- */
 
@@ -202,7 +202,7 @@ ConversionResult ConvertUTF16toUTF8 (
  * definition of UTF-8 goes up to 4-byte sequences.
  */
 
-static Boolean isLegalUTF8(const UTF8 *source, int length) {
+Boolean isLegalUTF8(const UTF8 *source, int length) {
     UTF8 a;
     const UTF8 *srcptr = source+length;
     switch (length) {

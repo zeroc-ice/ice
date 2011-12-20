@@ -320,7 +320,12 @@ Ice::CommunicatorI::begin_flushBatchRequests(const Callback_Communicator_flushBa
     return begin_flushBatchRequestsInternal(cb, cookie);
 }
 
-static const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+namespace
+{
+
+const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+
+}
 
 AsyncResultPtr
 Ice::CommunicatorI::begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr& cb,

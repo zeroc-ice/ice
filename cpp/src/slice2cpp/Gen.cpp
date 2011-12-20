@@ -524,7 +524,9 @@ Slice::Gen::generate(const UnitPtr& p)
         ChecksumMap map = createChecksums(p);
         if(!map.empty())
         {
-            C << sp << nl << "static const char* __sliceChecksums[] =";
+            C << sp << nl << "namespace";
+            C << nl << "{";
+            C << sp << nl << "const char* __sliceChecksums[] =";
             C << sb;
             for(ChecksumMap::const_iterator q = map.begin(); q != map.end(); ++q)
             {
@@ -540,7 +542,8 @@ Slice::Gen::generate(const UnitPtr& p)
             }
             C << nl << "0";
             C << eb << ';';
-            C << nl << "static IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
+            C << nl << "const IceInternal::SliceChecksumInit __sliceChecksumInit(__sliceChecksums);";
+            C << sp << nl << "}";
         }
     }
 }
@@ -794,7 +797,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     string flatName = p->flattenedScope() + p->name() + "_name";
 
-    C << sp << nl << "static const char* " << flatName << " = \"" << p->scoped().substr(2) << "\";";
+    C << sp << nl << "namespace";
+    C << nl << "{";
+    C << sp << nl << "const char* " << flatName << " = \"" << p->scoped().substr(2) << "\";";
+    C << sp << nl << "}";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
     C << nl << "return " << flatName << ';';
@@ -993,8 +999,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << eb;
         C << eb << ';';
 
-        C << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr " << factoryName
+        C << sp << nl << "namespace";
+        C << nl << "{";
+        C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr " << factoryName
           << "__Ptr = new " << factoryName << ';';
+        C << sp << nl << "}";
 
         C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
         C << nl << scoped.substr(2) << "::ice_factory()";
@@ -1017,7 +1026,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << nl << "::IceInternal::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
         C << eb;
         C << eb << ';';
-        C << sp << nl << "static " << factoryName << "__Init "<< factoryName << "__i;";
+        C << sp << nl << "namespace";
+        C << nl << "{";
+        C << sp << nl << "const " << factoryName << "__Init "<< factoryName << "__i;";
+        C << sp << nl << "}";
         C << sp << nl << "#ifdef __APPLE__";
 
         string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
@@ -3693,7 +3705,7 @@ Slice::Gen::ObjectDeclVisitor::visitModuleStart(const ModulePtr& p)
     string name = fixKwd(p->name());
 
     H << sp << nl << "namespace " << name << nl << '{';
-
+    C << sp << nl << "namespace" << nl << "{";
     return true;
 }
 
@@ -3701,6 +3713,7 @@ void
 Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr& p)
 {
     H << sp << nl << '}';
+    C << sp << nl << "}";
 }
 
 void
@@ -3729,7 +3742,7 @@ void
 Slice::Gen::ObjectDeclVisitor::visitOperation(const OperationPtr& p)
 {
     string flatName = p->flattenedScope() + p->name() + "_name";
-    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->name() << "\";";
+    C << sp << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
 }
 
 Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
@@ -4057,8 +4070,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         string flatName = p->flattenedScope() + p->name() + "_ids";
 
-        C << sp;
-        C << nl << "static const ::std::string " << flatName << '[' << ids.size() << "] =";
+        C << sp << nl << "namespace";
+        C << nl << "{";
+        C << nl << "const ::std::string " << flatName << '[' << ids.size() << "] =";
         C << sb;
 
         StringList::const_iterator r = ids.begin();
@@ -4071,6 +4085,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
         C << eb << ';';
+        C << sp << nl << "}";
 
         C << sp;
         C << nl << "bool" << nl << scoped.substr(2)
@@ -4153,8 +4168,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
               << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 
             string flatName = p->flattenedScope() + p->name() + "_all";
-            C << sp;
-            C << nl << "static ::std::string " << flatName << "[] =";
+            C << sp << nl << "namespace";
+            C << nl << "{";
+            C << nl << "const ::std::string " << flatName << "[] =";
             C << sb;
             q = allOpNames.begin();
             while(q != allOpNames.end())
@@ -4166,12 +4182,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 }
             }
             C << eb << ';';
+            C << sp << nl << "}";
             C << sp;
             C << nl << "::Ice::DispatchStatus" << nl << scoped.substr(2)
               << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
             C << sb;
 
-            C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
+            C << nl << "::std::pair< const ::std::string*, const ::std::string*> r = "
               << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
               << ", current.operation);";
             C << nl << "if(r.first == r.second)";
@@ -4219,8 +4236,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
                 string opAttrFlatName = p->flattenedScope() + p->name() + "_operationAttributes";
 
-                C << sp;
-                C << nl << "static int " << opAttrFlatName << "[] = ";
+                C << sp << nl << "namespace";
+                C << nl << "{";
+                C << nl << "const int " << opAttrFlatName << "[] = ";
                 C << sb;
 
                 q = allOpNames.begin();
@@ -4243,13 +4261,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 }
 
                 C << eb << ';';
+                C << sp << nl << "}";
+                
                 C << sp;
 
                 C << nl << "::Ice::Int" << nl << scoped.substr(2)
                   << "::ice_operationAttributes(const ::std::string& opName) const";
                 C << sb;
 
-                C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
+                C << nl << "::std::pair< const ::std::string*, const ::std::string*> r = "
                   << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
                   << ", opName);";
                 C << nl << "if(r.first == r.second)";
@@ -4398,8 +4418,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb << ';';
 
             string flatName = factoryName + "_Ptr";
-            C << sp;
-            C << nl << "static ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
+            C << sp << nl << "namespace";
+            C << nl << "{";
+            C << nl << "const ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
+            C << sp << nl << "}";
 
             C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
             C << sb;
@@ -4423,8 +4445,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
             C << eb << ';';
 
-            C << sp;
-            C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
+            C << sp << nl << "namespace";
+            C << nl << "{";
+            C << nl << "const " << factoryName << "__Init " << factoryName << "__i;";
+            C << sp << nl << "}";
             C << sp << nl << "#ifdef __APPLE__";
             std::string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
             C << nl << "extern \"C\" {";

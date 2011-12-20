@@ -402,8 +402,11 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     {
         typeId = "wstring";
     }
-    C << sp << nl << "static const ::std::string " << staticName << " = \"" << typeId << "\";";
-
+    C << sp << nl << "namespace";
+    C << sb;
+    C << sp << nl << "const ::std::string " << staticName << " = \"" << typeId << "\";";
+    C << eb;
+    
     C << sp << nl << "const ::std::string&" << nl << name << "::typeId()";
     C << sb;
     C << nl << "return " << staticName << ";";

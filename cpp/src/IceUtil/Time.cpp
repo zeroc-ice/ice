@@ -26,7 +26,7 @@ using namespace IceUtil;
 namespace
 {
 
-static double frequency = -1.0;
+double frequency = -1.0;
 
 //
 // Initialize the frequency
@@ -53,9 +53,9 @@ public:
         }
     }
 };
-static InitializeFrequency frequencyInitializer;
+InitializeFrequency frequencyInitializer;
 
-};
+}
 #endif
 
 Time::Time() :

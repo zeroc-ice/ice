@@ -35,7 +35,10 @@ using namespace IceUtilInternal;
 using namespace Ice;
 using namespace IceGrid;
 
-static const char* _commandsHelp[][3] = {
+namespace
+{
+
+const char* _commandsHelp[][3] = {
 { "application", "add", 
 "application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 "                          Add application described in DESC. If specified\n"
@@ -235,6 +238,8 @@ static const char* _commandsHelp[][3] = {
 },
 { 0, 0, 0 }
 };
+
+}
 
 namespace IceGrid
 {

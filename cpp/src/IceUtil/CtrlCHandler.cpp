@@ -55,7 +55,12 @@ CtrlCHandlerException::CtrlCHandlerException(const char* file, int line) :
 {
 }
 
-static const char* ctrlCHandlerName = "IceUtil::CtrlCHandlerException";
+namespace
+{
+
+const char* ctrlCHandlerName = "IceUtil::CtrlCHandlerException";
+
+}
 
 string
 CtrlCHandlerException::ice_name() const
