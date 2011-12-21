@@ -162,7 +162,7 @@ public class Buffer
         catch(OutOfMemoryError ex)
         {
             _capacity = b.capacity(); // Restore the previous capacity.
-            throw new Ice.MarshalException("OutOfMemoryError occurred while allocating a ByteBuffer", ex);
+            throw ex;
         }
     }
 

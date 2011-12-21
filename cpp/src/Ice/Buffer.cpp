@@ -75,9 +75,7 @@ IceInternal::Buffer::Container::reserve(size_type n)
     if(!p)
     {
         _capacity = c; // Restore the previous capacity.
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw std::bad_alloc();
     }
     _buf = p;
 }

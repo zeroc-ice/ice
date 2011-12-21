@@ -147,10 +147,8 @@ namespace IceInternal
             }
             catch(System.OutOfMemoryException ex)
             {
-                _capacity = b.capacity(); // Restore the previous capacity.
-                Ice.MarshalException e = new Ice.MarshalException(ex);
-                e.reason = "OutOfMemoryException occurred while allocating a ByteBuffer";
-                throw e;
+                _capacity = b.capacity(); // Restore the previous capacity
+                throw;
             }
             catch(System.Exception ex)
             {
