@@ -1358,49 +1358,6 @@ IceInternal::Instance::destroy()
     return true;
 }
 
-IceInternal::UTF8BufferI::UTF8BufferI() :
-    _buffer(0),
-    _offset(0)
-{
-}
-
-IceInternal::UTF8BufferI::~UTF8BufferI()
-{
-    free(_buffer);
-}
-
-Byte* 
-IceInternal::UTF8BufferI::getMoreBytes(size_t howMany, Byte* firstUnused)
-{
-    if(_buffer == 0)
-    {
-        _buffer = (Byte*)malloc(howMany);
-    }
-    else
-    {
-        assert(firstUnused != 0);
-        _offset = firstUnused - _buffer;
-        _buffer = (Byte*)realloc(_buffer, _offset + howMany);
-    }
-
-    return _buffer + _offset;
-}
-
-Byte* 
-IceInternal::UTF8BufferI::getBuffer()
-{
-    return _buffer;
-}
-
-void
-IceInternal::UTF8BufferI::reset()
-{
-    free(_buffer);
-    _buffer = 0;
-    _offset = 0;
-}
-
-
 IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) :
     _communicator(communicator)
 {
