@@ -576,10 +576,6 @@ Slice::Gen::writeExtraHeaders(IceUtilInternal::Output& out)
             out << "\n#define " << guard;
         }
         out << "\n#include <";
-        if(!_include.empty())
-        {
-            out << _include << '/';
-        }
         out << hdr << '>';
         if(!guard.empty())
         {
