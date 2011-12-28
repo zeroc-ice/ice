@@ -726,7 +726,11 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     DataMemberList members = p->dataMembers();
     DataMemberList classMembers = p->classDataMembers();
     ClassList bases = p->bases();
-    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
+    }
 
     _out << sp << nl << "#region Marshaling support";
 
@@ -756,7 +760,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             emitGeneratedCodeAttribute();
         }
         _out << nl << "public sealed ";
-        if(hasBaseClass && bases.front()->declaration()->usesClasses())
+        if(base && !base->allClassDataMembers().empty())
         {
             _out << "new ";
         }
