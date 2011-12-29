@@ -1095,14 +1095,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << sb;
         if(p->hasDefaultValues())
         {
-            H << nl << _dllExport << name << "();";
+            H << nl << _dllExport << name << "() :";
 
-            C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name()) << "() :";
-            C.inc();
-            writeDataMemberInitializers(C, dataMembers, _useWstring);
-            C.dec();
-            C << sb;
-            C << eb;
+            H.inc();
+            writeDataMemberInitializers(H, dataMembers, _useWstring);
+            H.dec();
+            H << sb;
+            H << eb << nl;
         }
     }
 
