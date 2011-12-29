@@ -525,6 +525,7 @@ public class SliceTask extends org.apache.tools.ant.Task
 
         public String[] _dependencies;
         public long _timeStamp;
+        public static final long serialVersionUID = 0L;
     }
 
     private String

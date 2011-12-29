@@ -2232,4 +2232,5 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     private transient IceInternal.Reference _reference;
     private transient _ObjectDel _delegate;
+    public static final long serialVersionUID = 0L;
 }

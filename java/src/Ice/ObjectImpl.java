@@ -458,4 +458,6 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
             }
         }
     }
+
+    public static final long serialVersionUID = 0L;
 }

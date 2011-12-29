@@ -30,4 +30,6 @@ public enum DispatchStatus implements java.io.Serializable
      * Indicates that an operation was dispatched asynchronously.
      **/
     DispatchAsync;
+
+    public static final long serialVersionUID = 0L;
 }

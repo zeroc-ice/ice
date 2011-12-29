@@ -2567,6 +2567,41 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
+    out << nl << "public static final long serialVersionUID = ";
+    string serialVersionUID;
+    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    {
+        string::size_type pos = serialVersionUID.rfind(":") + 1;
+        if(pos == string::npos)
+        {
+            ostringstream os;
+            os << "Invalid serialVersionUID for class `" << p->scoped() << "' default to slice2java generated value.";
+            emitWarning("", "", os.str());
+            out << computeSerialVersionUUID(p);
+        }
+        else
+        {
+            long v = 0;
+            serialVersionUID = serialVersionUID.substr(pos);
+            if(serialVersionUID != "0")
+            {
+                v = atol(serialVersionUID.c_str());
+                if(v == 0) // conversion error
+                {
+                    ostringstream os;
+                    os << "Invalid serialVersionUID for class `" << p->scoped() << "' default to slice2java generated value.";
+                    emitWarning("", "", os.str());
+                    out << computeSerialVersionUUID(p);
+                }
+            }
+            out << v;
+        }
+    }
+    else
+    {
+        out << computeSerialVersionUUID(p);
+    }
+    out << "L;";
     out << eb;
     close();
 }
@@ -3311,6 +3346,43 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << eb;
         }
     }
+    
+    out << nl;
+    out << nl << "public static final long serialVersionUID = ";
+    string serialVersionUID;
+    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    {
+        string::size_type pos = serialVersionUID.rfind(":") + 1;
+        if(pos == string::npos)
+        {
+            ostringstream os;
+            os << "Invalid serialVersionUID for struct `" << p->scoped() << "' default to slice2java generated value.";
+            emitWarning("", "", os.str());
+            out << computeSerialVersionUUID(p);
+        }
+        else
+        {
+            long v = 0;
+            serialVersionUID = serialVersionUID.substr(pos);
+            if(serialVersionUID != "0")
+            {
+                v = atol(serialVersionUID.c_str());
+                if(v == 0) // conversion error
+                {
+                    ostringstream os;
+                    os << "Invalid serialVersionUID for struct `" << p->scoped() << "' default to slice2java generated value.";
+                    emitWarning("", "", os.str());
+                    out << computeSerialVersionUUID(p);
+                }
+            }
+            out << v;
+        }
+    }
+    else
+    {
+        out << computeSerialVersionUUID(p);
+    }
+    out << "L;";
 
     out << eb;
     close();
@@ -4426,8 +4498,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "return null;";
         out << eb;
     }
-
+    
+    //
+    // Avoid serialVersionUID warnings for Proxy Helper classes.
+    //
+    out << nl;
+    out << nl << "public static final long serialVersionUID = 0L;";
     out << eb;
+
     close();
 
     if(_stream)
@@ -5382,7 +5460,12 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     writeDispatchAndMarshalling(out, p, _stream);
-
+    
+    //
+    // Avoid serialVersionUID warnings for dispatch classes.
+    //
+    out << nl;
+    out << nl << "public static final long serialVersionUID = 0L;";
     out << eb;
     close();
 

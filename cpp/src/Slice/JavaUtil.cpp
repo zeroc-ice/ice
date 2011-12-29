@@ -11,6 +11,7 @@
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
+#include <Slice/MD5.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/DisableWarnings.h>
 
@@ -30,6 +31,100 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+long
+Slice::computeSerialVersionUUID(const ClassDefPtr& p)
+{
+    ostringstream os;
+
+    ClassList bases = p->bases();
+    os << "Name: " << p->scoped();
+
+    os << " Bases: [";
+    for(ClassList::const_iterator i = bases.begin(); i != bases.end();)
+    {
+        os << (*i)->scoped();
+        i++;
+        if(i != l.end())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    
+    os << " Members: [";
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    {
+        os << (*i)->name() << ":" << (*i)->type();
+        i++;
+        if(i != l.end())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    
+    const string data = os.str();
+    MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
+    vector<unsigned char> bytes;
+    bytes.resize(16);
+    md5.getDigest(reinterpret_cast<unsigned char*>(&bytes[0]));
+    
+    long h0 = 0;
+    long h1 = 0;
+    for(int i = 0; i < 8; ++i)
+    {
+        h0 |= (long)bytes[i] << (i * 4);
+    }
+    if(h0)
+    
+    for(int i = 0; i < 8; ++i)
+    {
+        h1 |= (long)bytes[i + 8] << (i * 4);
+    }
+    return abs(h0 ^ h1);
+}
+
+long
+Slice::computeSerialVersionUUID(const StructPtr& p)
+{
+    ostringstream os;
+
+    os << "Name: " << p->scoped();
+    os << " Members: [";
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    {
+        os << (*i)->name() << ":" << (*i)->type();
+        i++;
+        if(i != l.end())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    
+    const string data = os.str();
+    MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
+    vector<unsigned char> bytes;
+    bytes.resize(16);
+    md5.getDigest(reinterpret_cast<unsigned char*>(&bytes[0]));
+    
+    long h0 = 0;
+    long h1 = 0;
+    for(int i = 0; i < 8; ++i)
+    {
+        h0 |= (long)bytes[i] << (i * 4);
+    }
+    
+    for(int i = 0; i < 8; ++i)
+    {
+        h1 |= (long)bytes[i + 8] << (i * 4);
+    }
+    
+    return abs(h0 ^ h1);
+}
 
 Slice::JavaOutput::JavaOutput()
 {
@@ -2825,6 +2920,11 @@ Slice::JavaGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
                     continue;
                 }
                 else if(s.substr(prefix.size(), pos - prefix.size()) == "protobuf")
+                {
+                    result.push_back(s);
+                    continue;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) == "serialVersionUID")
                 {
                     result.push_back(s);
                     continue;
