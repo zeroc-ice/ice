@@ -145,7 +145,7 @@ namespace IceInternal
 
                 b.order(ByteBuffer.ByteOrder.LITTLE_ENDIAN);
             }
-            catch(System.OutOfMemoryException ex)
+            catch(System.OutOfMemoryException)
             {
                 _capacity = b.capacity(); // Restore the previous capacity
                 throw;
