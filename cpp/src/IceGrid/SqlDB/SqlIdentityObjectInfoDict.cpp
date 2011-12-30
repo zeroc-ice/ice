@@ -127,8 +127,8 @@ SqlIdentityObjectInfoDict::find(const DatabaseConnectionPtr& connection,
     if(query.next())
     {
         IceGrid::ObjectInfo info;
-        info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-        info.type = query.value(2).toString().toStdString();
+        info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+        info.type = query.value(2).toString().toUtf8().data();
         return info;
     }
     else
@@ -158,8 +158,8 @@ SqlIdentityObjectInfoDict::findByType(const DatabaseConnectionPtr& connection,
     while(query.next())
     {
          IceGrid::ObjectInfo info;
-         info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-         info.type = query.value(2).toString().toStdString();
+         info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+         info.type = query.value(2).toString().toUtf8().data();
          infos.push_back(info);
     }
     return infos;
@@ -181,11 +181,11 @@ SqlIdentityObjectInfoDict::getMap(const DatabaseConnectionPtr& connection,
 
     while(query.next())
     {
-         Ice::Identity id = _communicator->stringToIdentity(query.value(0).toString().toStdString());
+         Ice::Identity id = _communicator->stringToIdentity(query.value(0).toString().toUtf8().data());
 
          IceGrid::ObjectInfo info;
-         info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-         info.type = query.value(2).toString().toStdString();
+         info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+         info.type = query.value(2).toString().toUtf8().data();
 
          objectMap[id] = info;
     }

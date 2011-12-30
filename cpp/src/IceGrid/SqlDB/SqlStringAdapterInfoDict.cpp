@@ -132,9 +132,9 @@ SqlStringAdapterInfoDict::find(const DatabaseConnectionPtr& connection,
     if(query.next())
     {
         IceGrid::AdapterInfo info;
-        info.id = query.value(0).toString().toStdString();
-        info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-        info.replicaGroupId = query.value(2).toString().toStdString();
+        info.id = query.value(0).toString().toUtf8().data();
+        info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+        info.replicaGroupId = query.value(2).toString().toUtf8().data();
         return info;
     }
     else
@@ -164,9 +164,9 @@ SqlStringAdapterInfoDict::findByReplicaGroupId(const DatabaseConnectionPtr& conn
     while(query.next())
     {
         IceGrid::AdapterInfo info;
-        info.id = query.value(0).toString().toStdString();
-        info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-        info.replicaGroupId = query.value(2).toString().toStdString();
+        info.id = query.value(0).toString().toUtf8().data();
+        info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+        info.replicaGroupId = query.value(2).toString().toUtf8().data();
         infos.push_back(info);
     }
     return infos;
@@ -189,9 +189,9 @@ SqlStringAdapterInfoDict::getMap(const DatabaseConnectionPtr& connection,
     while(query.next())
     {
         IceGrid::AdapterInfo info;
-        info.id = query.value(0).toString().toStdString();
-        info.proxy = _communicator->stringToProxy(query.value(1).toString().toStdString());
-        info.replicaGroupId = query.value(2).toString().toStdString();
+        info.id = query.value(0).toString().toUtf8().data();
+        info.proxy = _communicator->stringToProxy(query.value(1).toString().toUtf8().data());
+        info.replicaGroupId = query.value(2).toString().toUtf8().data();
         adapterMap[info.id] = info;
     }
 }

@@ -241,11 +241,11 @@ SqlStringApplicationInfoDict::find(const DatabaseConnectionPtr& connection,
     if(query.next())
     {
         IceGrid::ApplicationInfo info;
-        info.uuid = query.value(1).toString().toStdString();
+        info.uuid = query.value(1).toString().toUtf8().data();
         info.createTime = query.value(2).toLongLong();
-        info.createUser = query.value(3).toString().toStdString();
+        info.createUser = query.value(3).toString().toUtf8().data();
         info.updateTime = query.value(4).toLongLong();
-        info.updateUser = query.value(5).toString().toStdString();
+        info.updateUser = query.value(5).toString().toUtf8().data();
         info.revision = query.value(6).toInt();
 
         QByteArray bytes = query.value(7).toByteArray();
@@ -284,14 +284,14 @@ SqlStringApplicationInfoDict::getMap(const DatabaseConnectionPtr& connection,
 
     while(query.next())
     {
-        string name = query.value(0).toString().toStdString();
+        string name = query.value(0).toString().toUtf8().data();
 
         IceGrid::ApplicationInfo info;
-        info.uuid = query.value(1).toString().toStdString();
+        info.uuid = query.value(1).toString().toUtf8().data();
         info.createTime = query.value(2).toLongLong();
-        info.createUser = query.value(3).toString().toStdString();
+        info.createUser = query.value(3).toString().toUtf8().data();
         info.updateTime = query.value(4).toLongLong();
-        info.updateUser = query.value(5).toString().toStdString();
+        info.updateUser = query.value(5).toString().toUtf8().data();
         info.revision = query.value(6).toInt();
 
         QByteArray bytes = query.value(7).toByteArray();

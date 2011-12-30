@@ -119,7 +119,7 @@ SqlSubscriberMap::QoSMap::find(const DatabaseConnectionPtr& connection,
     QoS qos;
     while(query.next())
     {
-        qos[query.value(2).toString().toStdString()] = query.value(3).toString().toStdString();
+        qos[query.value(2).toString().toUtf8().data()] = query.value(3).toString().toUtf8().data();
     }
     return qos;
 }
@@ -295,13 +295,13 @@ SqlSubscriberMap::find(const DatabaseConnectionPtr& connection,
     if(query.next())
     {
         SubscriberRecord record;
-        record.topicName = query.value(2).toString().toStdString();
+        record.topicName = query.value(2).toString().toUtf8().data();
         record.id = key.id;
-        record.link = query.value(3).toString().toStdString() == "true" ? true : false;
-        record.obj = _communicator->stringToProxy(query.value(4).toString().toStdString());
+        record.link = string(query.value(3).toString().toUtf8().data()) == "true" ? true : false;
+        record.obj = _communicator->stringToProxy(query.value(4).toString().toUtf8().data());
         record.cost = query.value(5).toInt();
         record.theTopic = 
-            TopicPrx::uncheckedCast(_communicator->stringToProxy(query.value(6).toString().toStdString()));
+            TopicPrx::uncheckedCast(_communicator->stringToProxy(query.value(6).toString().toUtf8().data()));
 
         record.theQoS = _qosMap.find(connection, key);
 
@@ -330,17 +330,17 @@ SqlSubscriberMap::getMap(const DatabaseConnectionPtr& connection,
     while(query.next())
     {
         SubscriberRecordKey key;
-        key.topic = _communicator->stringToIdentity(query.value(0).toString().toStdString());
-        key.id = _communicator->stringToIdentity(query.value(1).toString().toStdString());
+        key.topic = _communicator->stringToIdentity(query.value(0).toString().toUtf8().data());
+        key.id = _communicator->stringToIdentity(query.value(1).toString().toUtf8().data());
 
         SubscriberRecord record;
-        record.topicName = query.value(2).toString().toStdString();
+        record.topicName = query.value(2).toString().toUtf8().data();
         record.id = key.id;
-        record.link = query.value(3).toString().toStdString() == "true" ? true : false;
-        record.obj = _communicator->stringToProxy(query.value(4).toString().toStdString());
+        record.link = string(query.value(3).toString().toUtf8().data()) == "true" ? true : false;
+        record.obj = _communicator->stringToProxy(query.value(4).toString().toUtf8().data());
         record.cost = query.value(5).toInt();
         record.theTopic = 
-            TopicPrx::uncheckedCast(_communicator->stringToProxy(query.value(6).toString().toStdString()));
+            TopicPrx::uncheckedCast(_communicator->stringToProxy(query.value(6).toString().toUtf8().data()));
 
         record.theQoS = _qosMap.find(connection, key);
 
