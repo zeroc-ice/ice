@@ -19,13 +19,13 @@ namespace Slice
 //
 // Compute Java serialVersionUID for a Slice class
 //
-long
+SLICE_API long
 computeSerialVersionUUID(const ClassDefPtr&);
 
 //
 // Compute Java serialVersionUID for a Slice struct
 //
-long
+SLICE_API long
 computeSerialVersionUUID(const StructPtr&);
 
 class SLICE_API JavaOutput : public ::IceUtilInternal::Output
