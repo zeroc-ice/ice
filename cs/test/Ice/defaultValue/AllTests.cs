@@ -43,6 +43,12 @@ public class AllTests
             test(v.nc2 == Test.Nested.Color.green);
             test(v.nc3 == Test.Nested.Color.blue);
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -61,6 +67,12 @@ public class AllTests
             test(v.nc1 == Test.ConstNestedColor1.value);
             test(v.nc2 == Test.ConstNestedColor2.value);
             test(v.nc3 == Test.ConstNestedColor3.value);
+            test(v.zeroI == Test.ConstZeroI.value);
+            test(v.zeroL == Test.ConstZeroL.value);
+            test(v.zeroF == Test.ConstZeroF.value);
+            test(v.zeroDotF == Test.ConstZeroDotF.value);
+            test(v.zeroD == Test.ConstZeroD.value);
+            test(v.zeroDotD == Test.ConstZeroDotD.value);
         }
 
         {
@@ -82,6 +94,12 @@ public class AllTests
             test(v.nc2 == Test.Nested.Color.green);
             test(v.nc3 == Test.Nested.Color.blue);
             //test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -96,6 +114,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -116,6 +140,12 @@ public class AllTests
             test(v.nc2 == Test.Nested.Color.green);
             test(v.nc3 == Test.Nested.Color.blue);
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -130,6 +160,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -150,6 +186,12 @@ public class AllTests
             test(v.nc1 == Test.Nested.Color.red);
             test(v.nc2 == Test.Nested.Color.green);
             test(v.nc3 == Test.Nested.Color.blue);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -164,6 +206,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -176,6 +224,12 @@ public class AllTests
             test(v.l == 4);
             test(v.f == 5.1F);
             test(v.d == 6.2);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         {
@@ -190,6 +244,12 @@ public class AllTests
             test(v.d == 6.2);
             test(v.str.Equals("foo bar"));
             test(v.noDefault == null);
+            test(v.zeroI == 0);
+            test(v.zeroL == 0);
+            test(v.zeroF == 0);
+            test(v.zeroDotF == 0);
+            test(v.zeroD == 0);
+            test(v.zeroDotD == 0);
         }
 
         Console.Out.WriteLine("ok");

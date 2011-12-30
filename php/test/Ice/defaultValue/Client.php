@@ -62,6 +62,12 @@ function allTests()
         test($v->nc2 == $nGreen);
         test($v->nc3 == $nBlue);
         test(strlen($v->noDefault) == 0);
+        test($v->zeroI == 0);
+        test($v->zeroL == 0);
+        test($v->zeroF == 0);
+        test($v->zeroDotF == 0);
+        test($v->zeroD == 0);
+        test($v->zeroDotD == 0);
     }
 
     {
@@ -80,6 +86,12 @@ function allTests()
         test($v->nc1 == constant($NS ? "Test\\ConstNestedColor1" : "Test_ConstNestedColor1"));
         test($v->nc2 == constant($NS ? "Test\\ConstNestedColor2" : "Test_ConstNestedColor2"));
         test($v->nc3 == constant($NS ? "Test\\ConstNestedColor3" : "Test_ConstNestedColor3"));
+        test($v->zeroI == constant($NS ? "Test\\ConstZeroI" : "Test_ConstZeroI"));
+        test($v->zeroL == constant($NS ? "Test\\ConstZeroL" : "Test_ConstZeroL"));
+        test($v->zeroF == constant($NS ? "Test\\ConstZeroF" : "Test_ConstZeroF"));
+        test($v->zeroDotF == constant($NS ? "Test\\ConstZeroDotF" : "Test_ConstZeroDotF"));
+        test($v->zeroD == constant($NS ? "Test\\ConstZeroD" : "Test_ConstZeroD"));
+        test($v->zeroDotD == constant($NS ? "Test\\ConstZeroDotD" : "Test_ConstZeroDotD"));
     }
 
     {
@@ -94,6 +106,12 @@ function allTests()
         test($v->d == 6.2);
         test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
         test(strlen($v->noDefault) == 0);
+        test($v->zeroI == 0);
+        test($v->zeroL == 0);
+        test($v->zeroF == 0);
+        test($v->zeroDotF == 0);
+        test($v->zeroD == 0);
+        test($v->zeroDotD == 0);
     }
 
     {
@@ -114,6 +132,12 @@ function allTests()
         test($v->nc1 == $nRed);
         test($v->nc2 == $nGreen);
         test($v->nc3 == $nBlue);
+        test($v->zeroI == 0);
+        test($v->zeroL == 0);
+        test($v->zeroF == 0);
+        test($v->zeroDotF == 0);
+        test($v->zeroD == 0);
+        test($v->zeroDotD == 0);
     }
 
     {
@@ -128,6 +152,12 @@ function allTests()
         test($v->d == 6.2);
         test($v->str == "foo \\ \"bar\n \r\n\t\013\f\007\b? \007 \007");
         test(strlen($v->noDefault) == 0);
+        test($v->zeroI == 0);
+        test($v->zeroL == 0);
+        test($v->zeroF == 0);
+        test($v->zeroDotF == 0);
+        test($v->zeroD == 0);
+        test($v->zeroDotD == 0);
     }
 
     {
@@ -148,6 +178,12 @@ function allTests()
         test($v->nc1 == $nRed);
         test($v->nc2 == $nGreen);
         test($v->nc3 == $nBlue);
+        test($v->zeroI == 0);
+        test($v->zeroL == 0);
+        test($v->zeroF == 0);
+        test($v->zeroDotF == 0);
+        test($v->zeroD == 0);
+        test($v->zeroDotD == 0);
     }
     echo "ok\n";
 }

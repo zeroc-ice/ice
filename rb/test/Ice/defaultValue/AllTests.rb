@@ -28,6 +28,12 @@ def allTests()
     test(v.nc2 == Test::Nested::Color::Green)
     test(v.nc3 == Test::Nested::Color::Blue)
     test(v.noDefault == '')
+    test(v.zeroI == 0)
+    test(v.zeroL == 0)
+    test(v.zeroF == 0)
+    test(v.zeroDotF == 0)
+    test(v.zeroD == 0)
+    test(v.zeroDotD == 0)
 
     v = Test::Struct2.new
     test(v.boolTrue == Test::ConstBool)
@@ -44,7 +50,13 @@ def allTests()
     test(v.nc1 == Test::ConstNestedColor1)
     test(v.nc2 == Test::ConstNestedColor2)
     test(v.nc3 == Test::ConstNestedColor3)
-
+    test(v.zeroI == Test::ConstZeroI)
+    test(v.zeroL == Test::ConstZeroL)
+    test(v.zeroF == Test::ConstZeroF)
+    test(v.zeroDotF == Test::ConstZeroDotF)
+    test(v.zeroD == Test::ConstZeroD)
+    test(v.zeroDotD == Test::ConstZeroDotD)
+    
     v = Test::Base.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -56,7 +68,14 @@ def allTests()
     test(v.d == 6.2)
     test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
     test(v.noDefault == '')
-
+    test(v.noDefault == '')
+    test(v.zeroI == 0)
+    test(v.zeroL == 0)
+    test(v.zeroF == 0)
+    test(v.zeroDotF == 0)
+    test(v.zeroD == 0)
+    test(v.zeroDotD == 0)
+    
     v = Test::Derived.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -74,7 +93,14 @@ def allTests()
     test(v.nc2 == Test::Nested::Color::Green)
     test(v.nc3 == Test::Nested::Color::Blue)
     test(v.noDefault == '')
-
+    test(v.noDefault == '')
+    test(v.zeroI == 0)
+    test(v.zeroL == 0)
+    test(v.zeroF == 0)
+    test(v.zeroDotF == 0)
+    test(v.zeroD == 0)
+    test(v.zeroDotD == 0)
+    
     v = Test::BaseEx.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -86,7 +112,14 @@ def allTests()
     test(v.d == 6.2)
     test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07")
     test(v.noDefault == '')
-
+    test(v.noDefault == '')
+    test(v.zeroI == 0)
+    test(v.zeroL == 0)
+    test(v.zeroF == 0)
+    test(v.zeroDotF == 0)
+    test(v.zeroD == 0)
+    test(v.zeroDotD == 0)
+    
     v = Test::DerivedEx.new
     test(!v.boolFalse)
     test(v.boolTrue)
@@ -104,6 +137,13 @@ def allTests()
     test(v.nc1 == Test::Nested::Color::Red)
     test(v.nc2 == Test::Nested::Color::Green)
     test(v.nc3 == Test::Nested::Color::Blue)
-
+    test(v.noDefault == '')
+    test(v.zeroI == 0)
+    test(v.zeroL == 0)
+    test(v.zeroF == 0)
+    test(v.zeroDotF == 0)
+    test(v.zeroD == 0)
+    test(v.zeroDotD == 0)
+    
     puts "ok"
 end

@@ -40,6 +40,12 @@ struct Struct1
     Nested::Color nc2 = Nested::green;
     Nested::Color nc3 = Nested::blue;
     string noDefault;
+    int zeroI = 0;
+    long zeroL = 0;
+    float zeroF = 0;
+    float zeroDotF = 0.0;
+    double zeroD = 0;
+    double zeroDotD = 0;
 };
 
 const bool ConstBool = true;
@@ -56,6 +62,12 @@ const Color ConstColor3 = blue;
 const Nested::Color ConstNestedColor1 = ::Test::Nested::red;
 const Nested::Color ConstNestedColor2 = Test::Nested::green;
 const Nested::Color ConstNestedColor3 = Nested::blue;
+const int ConstZeroI = 0;
+const long ConstZeroL = 0;
+const float ConstZeroF = 0;
+const float ConstZeroDotF = 0.0;
+const double ConstZeroD = 0;
+const double ConstZeroDotD = 0;
 
 struct Struct2
 {
@@ -73,6 +85,12 @@ struct Struct2
     Nested::Color nc1 = ConstNestedColor1;
     Nested::Color nc2 = ConstNestedColor2;
     Nested::Color nc3 = ConstNestedColor3;
+    int zeroI = ConstZeroI;
+    long zeroL = ConstZeroL;
+    float zeroF = ConstZeroF;
+    float zeroDotF = ConstZeroDotF;
+    double zeroD = ConstZeroD;
+    double zeroDotD = ConstZeroDotD;
 };
 
 ["cpp:class"]
@@ -94,6 +112,12 @@ struct Struct3
     Nested::Color nc2 = Nested::green;
     Nested::Color nc3 = Nested::blue;
     string noDefault;
+    int zeroI = 0;
+    long zeroL = 0;
+    float zeroF = 0;
+    float zeroDotF = 0.0;
+    double zeroD = 0;
+    double zeroDotD = 0;
 };
 
 class Base
@@ -108,6 +132,12 @@ class Base
     double d = 6.2;
     string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
     string noDefault;
+    int zeroI = 0;
+    long zeroL = 0;
+    float zeroF = 0;
+    float zeroDotF = 0.0;
+    double zeroD = 0;
+    double zeroDotD = 0;
 };
 
 class Derived extends Base
@@ -132,6 +162,12 @@ exception BaseEx
     double d = 6.2;
     string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
     string noDefault;
+    int zeroI = 0;
+    long zeroL = 0;
+    float zeroF = 0;
+    float zeroDotF = 0.0;
+    double zeroD = 0;
+    double zeroDotD = 0;
 };
 
 exception DerivedEx extends BaseEx

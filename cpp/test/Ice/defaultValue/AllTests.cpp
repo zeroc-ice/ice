@@ -37,6 +37,12 @@ allTests()
         test(v.nc2 == Nested::green);
         test(v.nc3 == Nested::blue);
         test(v.noDefault.empty());
+        test(v.zeroI == 0);
+        test(v.zeroL == 0);
+        test(v.zeroF == 0);
+        test(v.zeroDotF == 0);
+        test(v.zeroD == 0);
+        test(v.zeroDotD == 0);
     }
 
     {
@@ -55,6 +61,12 @@ allTests()
         test(v.nc1 == ConstNestedColor1);
         test(v.nc2 == ConstNestedColor2);
         test(v.nc3 == ConstNestedColor3);
+        test(v.zeroI == ConstZeroI);
+        test(v.zeroL == ConstZeroL);
+        test(v.zeroF == ConstZeroF);
+        test(v.zeroDotF == ConstZeroDotF);
+        test(v.zeroD == ConstZeroD);
+        test(v.zeroDotD == ConstZeroDotD);
     }
 
     {
@@ -75,6 +87,12 @@ allTests()
         test(v->nc2 == Nested::green);
         test(v->nc3 == Nested::blue);
         test(v->noDefault.empty());
+        test(v->zeroI == 0);
+        test(v->zeroL == 0);
+        test(v->zeroF == 0);
+        test(v->zeroDotF == 0);
+        test(v->zeroD == 0);
+        test(v->zeroDotD == 0);
     }
 
     {
@@ -89,6 +107,12 @@ allTests()
         test(v->d == 6.2);
         test(v->str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v->noDefault.empty());
+        test(v->zeroI == 0);
+        test(v->zeroL == 0);
+        test(v->zeroF == 0);
+        test(v->zeroDotF == 0);
+        test(v->zeroD == 0);
+        test(v->zeroDotD == 0);
     }
 
     {
@@ -109,6 +133,12 @@ allTests()
         test(v->nc1 == Nested::red);
         test(v->nc2 == Nested::green);
         test(v->nc3 == Nested::blue);
+        test(v->zeroI == 0);
+        test(v->zeroL == 0);
+        test(v->zeroF == 0);
+        test(v->zeroDotF == 0);
+        test(v->zeroD == 0);
+        test(v->zeroDotD == 0);
     }
 
     {
@@ -123,6 +153,12 @@ allTests()
         test(v.d == 6.2);
         test(v.str == "foo \\ \"bar\n \r\n\t\v\f\a\b? \007 \x07");
         test(v.noDefault.empty());
+        test(v.zeroI == 0);
+        test(v.zeroL == 0);
+        test(v.zeroF == 0);
+        test(v.zeroDotF == 0);
+        test(v.zeroD == 0);
+        test(v.zeroDotD == 0);
     }
 
     {
@@ -143,6 +179,12 @@ allTests()
         test(v.nc1 == Nested::red);
         test(v.nc2 == Nested::green);
         test(v.nc3 == Nested::blue);
+        test(v.zeroI == 0);
+        test(v.zeroL == 0);
+        test(v.zeroF == 0);
+        test(v.zeroDotF == 0);
+        test(v.zeroD == 0);
+        test(v.zeroDotD == 0);
     }
 
     cout << "ok" << endl;
