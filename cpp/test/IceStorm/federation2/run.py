@@ -248,7 +248,6 @@ def runtest(type, **args):
         nRetry -= 1
     if len(line) > 0:
         print line
-        TestUtil.killServers()
         sys.exit(1)
     print "ok"
 

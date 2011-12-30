@@ -984,7 +984,7 @@ def getQtSqlOptions(prefix, dataDir = None):
         options += sqlHost
 
     options += ' --' + prefix+ '.SQL.Port='
-    if sqlPassword != None:
+    if sqlPort != None:
         options += sqlPort
 
     options += ' --' + prefix+ '.SQL.UserName='
