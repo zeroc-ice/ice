@@ -3736,8 +3736,12 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 void
 Slice::Gen::ObjectDeclVisitor::visitOperation(const OperationPtr& p)
 {
-    string flatName = p->flattenedScope() + p->name() + "_name";
-    C << sp << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+    if(cl && !cl->isLocal())
+    {
+        string flatName = p->flattenedScope() + p->name() + "_name";
+        C << sp << nl << "const ::std::string " << flatName << " = \"" << p->name() << "\";";
+    }
 }
 
 Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dllExport, bool stream) :
