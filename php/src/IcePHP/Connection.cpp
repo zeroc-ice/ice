@@ -236,7 +236,8 @@ handleConnectionFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<Ice::ConnectionPtr>* obj = static_cast<Wrapper<Ice::ConnectionPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 #ifdef _WIN32
@@ -271,11 +272,11 @@ handleConnectionCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 //
 // Predefined methods for Connection.
 //
-static function_entry _interfaceMethods[] =
+static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
-static function_entry _connectionClassMethods[] =
+static zend_function_entry _connectionClassMethods[] =
 {
     ZEND_ME(Ice_Connection, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Connection, __toString, NULL, ZEND_ACC_PUBLIC)
@@ -297,7 +298,7 @@ ZEND_METHOD(Ice_ConnectionInfo, __construct)
 //
 // Predefined methods for ConnectionInfo.
 //
-static function_entry _connectionInfoClassMethods[] =
+static zend_function_entry _connectionInfoClassMethods[] =
 {
     ZEND_ME(Ice_ConnectionInfo, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
@@ -329,7 +330,8 @@ handleConnectionInfoFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<Ice::ConnectionInfoPtr>* obj = static_cast<Wrapper<Ice::ConnectionInfoPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 bool

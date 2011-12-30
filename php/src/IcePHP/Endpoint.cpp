@@ -115,7 +115,8 @@ handleEndpointFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<Ice::EndpointPtr>* obj = static_cast<Wrapper<Ice::EndpointPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 ZEND_METHOD(Ice_EndpointInfo, __construct)
@@ -213,10 +214,11 @@ handleEndpointInfoFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<Ice::EndpointInfoPtr>* obj = static_cast<Wrapper<Ice::EndpointInfoPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
-static function_entry _interfaceMethods[] =
+static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
@@ -224,7 +226,7 @@ static function_entry _interfaceMethods[] =
 //
 // Predefined methods for Endpoint.
 //
-static function_entry _endpointMethods[] =
+static zend_function_entry _endpointMethods[] =
 {
     ZEND_ME(Ice_Endpoint, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Endpoint, __toString, NULL, ZEND_ACC_PUBLIC)
@@ -236,7 +238,7 @@ static function_entry _endpointMethods[] =
 //
 // Predefined methods for EndpointInfo.
 //
-static function_entry _endpointInfoMethods[] =
+static zend_function_entry _endpointInfoMethods[] =
 {
     ZEND_ME(Ice_EndpointInfo, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_EndpointInfo, type, NULL, ZEND_ACC_PUBLIC)

@@ -20,16 +20,6 @@ extern "C"
 ZEND_FUNCTION(Ice_createProperties);
 }
 
-#define ICEPHP_PROPERTIES_FUNCTIONS \
-    ZEND_FE(Ice_createProperties, NULL)
-
-#ifdef ICEPHP_USE_NAMESPACES
-#   define ICEPHP_PROPERTIES_NS_FUNCTIONS \
-    ZEND_NS_FALIAS("Ice", createProperties, Ice_createProperties, NULL)
-#else
-#   define ICEPHP_PROPERTIES_NS_FUNCTIONS
-#endif
-
 namespace IcePHP
 {
 

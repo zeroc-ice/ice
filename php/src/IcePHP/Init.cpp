@@ -22,10 +22,73 @@ using namespace IcePHP;
 
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
+ZEND_BEGIN_ARG_INFO(Ice_initialize_arginfo, 1)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(Ice_createProperties_arginfo, 1)
+ZEND_END_ARG_INFO()
+
+#define ICEPHP_COMMUNICATOR_FUNCTIONS \
+    ZEND_FE(Ice_initialize, Ice_initialize_arginfo) \
+    ZEND_FE(Ice_register, NULL) \
+    ZEND_FE(Ice_unregister, NULL) \
+    ZEND_FE(Ice_find, NULL) \
+    ZEND_FE(Ice_getProperties, NULL)
+
+#ifdef ICEPHP_USE_NAMESPACES
+#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS \
+    ZEND_NS_FALIAS("Ice", initialize, Ice_initialize, Ice_initialize_arginfo) \
+    ZEND_NS_FALIAS("Ice", register, Ice_register, NULL) \
+    ZEND_NS_FALIAS("Ice", unregister, Ice_unregister, NULL) \
+    ZEND_NS_FALIAS("Ice", find, Ice_find, NULL) \
+    ZEND_NS_FALIAS("Ice", getProperties, Ice_getProperties, NULL)
+#else
+#   define ICEPHP_COMMUNICATOR_NS_FUNCTIONS
+#endif
+
+#define ICEPHP_OPERATION_FUNCTIONS \
+    ZEND_FE(IcePHP_defineOperation,  NULL)
+
+#define ICEPHP_PROPERTIES_FUNCTIONS \
+    ZEND_FE(Ice_createProperties, Ice_createProperties_arginfo)
+
+#ifdef ICEPHP_USE_NAMESPACES
+#   define ICEPHP_PROPERTIES_NS_FUNCTIONS \
+    ZEND_NS_FALIAS("Ice", createProperties, Ice_createProperties, Ice_createProperties_arginfo)
+#else
+#   define ICEPHP_PROPERTIES_NS_FUNCTIONS
+#endif
+
+#define ICEPHP_TYPE_FUNCTIONS \
+    ZEND_FE(IcePHP_defineEnum,          NULL) \
+    ZEND_FE(IcePHP_defineStruct,        NULL) \
+    ZEND_FE(IcePHP_defineSequence,      NULL) \
+    ZEND_FE(IcePHP_defineDictionary,    NULL) \
+    ZEND_FE(IcePHP_defineProxy,         NULL) \
+    ZEND_FE(IcePHP_declareClass,        NULL) \
+    ZEND_FE(IcePHP_defineClass,         NULL) \
+    ZEND_FE(IcePHP_defineException,     NULL) \
+    ZEND_FE(IcePHP_stringify,           NULL) \
+    ZEND_FE(IcePHP_stringifyException,  NULL)
+
+#define ICEPHP_UTIL_FUNCTIONS \
+    ZEND_FE(Ice_stringVersion, NULL) \
+    ZEND_FE(Ice_intVersion, NULL) \
+    ZEND_FE(Ice_generateUUID, NULL)
+
+#ifdef ICEPHP_USE_NAMESPACES
+#   define ICEPHP_UTIL_NS_FUNCTIONS \
+    ZEND_NS_FALIAS("Ice", stringVersion, Ice_stringVersion, NULL) \
+    ZEND_NS_FALIAS("Ice", intVersion, Ice_intVersion, NULL) \
+    ZEND_NS_FALIAS("Ice", generateUUID, Ice_generateUUID, NULL)
+#else
+#   define ICEPHP_UTIL_NS_FUNCTIONS
+#endif
+
 //
 // Entries for all global functions.
 //
-function_entry ice_functions[] =
+zend_function_entry ice_functions[] =
 {
     ICEPHP_COMMUNICATOR_FUNCTIONS
     ICEPHP_COMMUNICATOR_NS_FUNCTIONS

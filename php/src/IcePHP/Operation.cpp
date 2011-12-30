@@ -218,7 +218,7 @@ IcePHP::OperationI::~OperationI()
     if(_zendFunction)
     {
         delete []_zendFunction->arg_info;
-        efree(_zendFunction->function_name);
+        efree(const_cast<char*>(_zendFunction->function_name));
         efree(_zendFunction);
     }
 }
@@ -238,12 +238,16 @@ IcePHP::OperationI::function()
         for(p = inParams.begin(); p != inParams.end(); ++p, ++i)
         {
             getArgInfo(argInfo[i], *p, false);
+#if PHP_VERSION_ID < 50400
             argInfo[i].required_num_args = static_cast<zend_uint>(numParams);
+#endif
         }
         for(p = outParams.begin(); p != outParams.end(); ++p, ++i)
         {
             getArgInfo(argInfo[i], *p, true);
+#if PHP_VERSION_ID < 50400
             argInfo[i].required_num_args = static_cast<zend_uint>(numParams);
+#endif
         }
 
         string fixed = fixIdent(name);
@@ -255,9 +259,11 @@ IcePHP::OperationI::function()
         _zendFunction->prototype = 0;
         _zendFunction->num_args = static_cast<zend_uint>(numParams);
         _zendFunction->arg_info = argInfo;
-        _zendFunction->pass_rest_by_reference = 0;
         _zendFunction->required_num_args = _zendFunction->num_args;
+#if PHP_VERSION_ID < 50400
+        _zendFunction->pass_rest_by_reference = 0;
         _zendFunction->return_reference = 0;
+#endif
         _zendFunction->handler = ZEND_FN(IcePHP_Operation_call);
     }
 
@@ -293,15 +299,16 @@ IcePHP::OperationI::getArgInfo(zend_arg_info& arg, const TypeInfoPtr& info, bool
     arg.name = 0;
     arg.class_name = 0;
     arg.allow_null = 1;
-    if(SequenceInfoPtr::dynamicCast(info) || DictionaryInfoPtr::dynamicCast(info))
-    {
-        arg.array_type_hint = 1;
-    }
-    else
-    {
-        arg.array_type_hint = 0;
-    }
+
+    const bool isArray = SequenceInfoPtr::dynamicCast(info) || DictionaryInfoPtr::dynamicCast(info);
+
+#if PHP_VERSION_ID < 50400
+    arg.array_type_hint = isArray ? 1 : 0;
     arg.return_reference = 0;
+#else
+    arg.type_hint = isArray ? IS_ARRAY : 0;
+#endif
+
     arg.pass_by_reference = out ? 1 : 0;
 }
 

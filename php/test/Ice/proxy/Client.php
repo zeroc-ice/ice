@@ -722,7 +722,7 @@ function allTests($communicator)
     return $cl;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $myClass = allTests($communicator);
 $myClass->shutdown();
 $communicator->destroy();

@@ -33,18 +33,6 @@ ZEND_FUNCTION(IcePHP_stringify);
 ZEND_FUNCTION(IcePHP_stringifyException);
 }
 
-#define ICEPHP_TYPE_FUNCTIONS \
-    ZEND_FE(IcePHP_defineEnum,          NULL) \
-    ZEND_FE(IcePHP_defineStruct,        NULL) \
-    ZEND_FE(IcePHP_defineSequence,      NULL) \
-    ZEND_FE(IcePHP_defineDictionary,    NULL) \
-    ZEND_FE(IcePHP_defineProxy,         NULL) \
-    ZEND_FE(IcePHP_declareClass,        NULL) \
-    ZEND_FE(IcePHP_defineClass,         NULL) \
-    ZEND_FE(IcePHP_defineException,     NULL) \
-    ZEND_FE(IcePHP_stringify,           NULL) \
-    ZEND_FE(IcePHP_stringifyException,  NULL)
-
 namespace IcePHP
 {
 

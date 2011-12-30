@@ -1,5 +1,5 @@
 ======================================================================
-CHANGES for Ice 3.4.2
+CHANGES for Ice 3.5
 ======================================================================
 
 The entries below contain brief descriptions of the changes in a
@@ -27,7 +27,7 @@ Changes since version 3.4.2
 General Changes
 ===============
 
-- Fixed IceStorm bug which could cause a crash when using the Freeze
+- Fixed IceStorm bug that could cause a crash when using the Freeze
   database backend and multiple threads were trying to write to the
   database.
 
@@ -55,12 +55,12 @@ C++ Changes
 
 - Added support for clang compiler on Mac OS X.
 
-- Fixed issue where connection on a remote address would always fail
-  with an assert on Windows 8.
+- Fixed issue where a connection to a remote address would always fail
+  with an assertion on Windows 8.
 
-- ice_print declaration for local exceptions is now optional, this
-  method is not declared by default, you can use "cpp:ice_print" 
-  metatadata to enable the method declaration. 
+- Declaring ice_print for local exceptions is now optional. This
+  method is not declared by default, but you can use the metadata tag
+  "cpp:ice_print" to enable the method declaration. 
 
 
 Visual Studio Add-in Changes
@@ -97,15 +97,38 @@ Java Changes
 - Fixed an IceSSL bug in which the IceSSL.Alias property was not
   working correctly.
 
-- Java classes and structs types, now define a serialVersionUID 
-  member, users can  override the default generated value using 
-  metadata [java:serialVersionUID:<value>]
+- The mapping for Slice classes and structures now defines a
+  serialVersionUID member. You can override the default UID using the
+  metadata [java:serialVersionUID:<value>].
+
 
 Python Changes
 ==============
 
-- Fixed a bug that cause IceGrid python server activation hang,
-  when trace is enabled for the python server.
+- Fixed a bug that caused IceGrid activation of a Python server to
+  hang when tracing was enabled for the server.
+
+
+PHP Changes
+===========
+
+- Added compatibility with PHP 5.4.
+
+- Fixed a bug in Ice_initialize: if an array was passed representing
+  the command-line arguments, the function was not updating that array
+  to remove Ice-specific options.
+
+- It is no longer necessary to use call-time reference arguments when
+  passing the command-line argument array to Ice_initialize and
+  Ice_createProperties, as these functions now force their arguments
+  to be passed by reference. For example, where you used to call a
+  function like this:
+
+  $communicator = Ice_initialize(&$argv);
+
+  you can now use this:
+
+  $communicator = Ice_initialize($argv);
 
 
 ======================================================================

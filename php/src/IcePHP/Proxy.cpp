@@ -59,7 +59,11 @@ extern "C"
 static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
 static void handleFreeStorage(void* TSRMLS_DC);
 static zend_object_value handleClone(zval* TSRMLS_DC);
+#if PHP_VERSION_ID < 50400
 static union _zend_function* handleGetMethod(zval**, char*, int TSRMLS_DC);
+#else
+static union _zend_function* handleGetMethod(zval**, char*, int, const _zend_literal* TSRMLS_DC);
+#endif
 static int handleCompare(zval*, zval* TSRMLS_DC);
 }
 
@@ -1418,7 +1422,8 @@ handleFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<ProxyPtr>* obj = static_cast<Wrapper<ProxyPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 #ifdef _WIN32
@@ -1461,7 +1466,11 @@ handleClone(zval* zv TSRMLS_DC)
 extern "C"
 #endif
 static union _zend_function*
+#if PHP_VERSION_ID < 50400
 handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
+#else
+handleGetMethod(zval** zv, char* method, int len, const _zend_literal* key TSRMLS_DC)
+#endif
 {
     zend_function* result;
 
@@ -1470,7 +1479,11 @@ handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
     // any of our predefined proxy methods. If it returns 0, then we return a
     // function that will check the class definition.
     //
+#if PHP_VERSION_ID < 50400
     result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
+#else
+    result = zend_get_std_object_handlers()->get_method(zv, method, len, key TSRMLS_CC);
+#endif
     if(!result)
     {
         Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(*zv TSRMLS_CC);
@@ -1532,7 +1545,7 @@ handleCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 //
 // Predefined methods for ObjectPrx.
 //
-static function_entry _proxyMethods[] =
+static zend_function_entry _proxyMethods[] =
 {
     ZEND_ME(Ice_ObjectPrx, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_ObjectPrx, __toString, NULL, ZEND_ACC_PUBLIC)

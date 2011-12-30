@@ -22,20 +22,6 @@ ZEND_FUNCTION(Ice_intVersion);
 ZEND_FUNCTION(Ice_generateUUID);
 }
 
-#define ICEPHP_UTIL_FUNCTIONS \
-    ZEND_FE(Ice_stringVersion, NULL) \
-    ZEND_FE(Ice_intVersion, NULL) \
-    ZEND_FE(Ice_generateUUID, NULL)
-
-#ifdef ICEPHP_USE_NAMESPACES
-#   define ICEPHP_UTIL_NS_FUNCTIONS \
-    ZEND_NS_FALIAS("Ice", stringVersion, Ice_stringVersion, NULL) \
-    ZEND_NS_FALIAS("Ice", intVersion, Ice_intVersion, NULL) \
-    ZEND_NS_FALIAS("Ice", generateUUID, Ice_generateUUID, NULL)
-#else
-#   define ICEPHP_UTIL_NS_FUNCTIONS
-#endif
-
 namespace IcePHP
 {
 

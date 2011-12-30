@@ -129,7 +129,7 @@ function allTests($communicator)
     return $testIntf;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $server = allTests($communicator);
 $server->shutdown();
 $communicator->destroy();

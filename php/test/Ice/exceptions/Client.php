@@ -378,7 +378,7 @@ function allTests($communicator)
     return $thrower;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $thrower = allTests($communicator);
 $thrower->shutdown();
 $communicator->destroy();

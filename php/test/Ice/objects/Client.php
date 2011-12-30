@@ -391,7 +391,7 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $factory = new MyObjectFactory();
 $communicator->addObjectFactory($factory, "::Test::B");
 $communicator->addObjectFactory($factory, "::Test::C");

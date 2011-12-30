@@ -236,7 +236,7 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $initial = allTests($communicator);
 $initial->shutdown();
 $communicator->destroy();

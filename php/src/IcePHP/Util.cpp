@@ -17,6 +17,7 @@ using namespace std;
 using namespace IcePHP;
 using namespace Slice::PHP;
 
+#if PHP_VERSION_ID < 50400
 #ifdef _WIN32
 extern "C"
 #endif
@@ -25,20 +26,25 @@ dtor_wrapper(void* p)
 {
     zval_ptr_dtor(static_cast<zval**>(p));
 }
+#endif
 
 void*
 IcePHP::createWrapper(zend_class_entry* ce, size_t sz TSRMLS_DC)
 {
     zend_object* obj;
-    zval* tmp;
 
     obj = static_cast<zend_object*>(emalloc(sz));
-    obj->ce = ce;
-    obj->guards = 0;
 
+    zend_object_std_init(obj, ce TSRMLS_CC);
+
+#if PHP_VERSION_ID < 50400
+    zval* tmp;
     obj->properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
     zend_hash_init(obj->properties, 0, 0, dtor_wrapper, 0);
     zend_hash_copy(obj->properties, &ce->default_properties, (copy_ctor_func_t)zval_add_ref, &tmp, sizeof(zval*));
+#else
+    object_properties_init(obj, ce);
+#endif
 
     return obj;
 }

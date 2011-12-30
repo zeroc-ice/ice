@@ -20,9 +20,6 @@ extern "C"
 ZEND_FUNCTION(IcePHP_defineOperation);
 }
 
-#define ICEPHP_OPERATION_FUNCTIONS \
-    ZEND_FE(IcePHP_defineOperation,  NULL)
-
 namespace IcePHP
 {
 

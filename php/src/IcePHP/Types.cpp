@@ -2405,7 +2405,8 @@ handleTypeInfoFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<TypeInfoPtr>* obj = static_cast<Wrapper<TypeInfoPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 static bool
@@ -2718,7 +2719,8 @@ handleExceptionInfoFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<ExceptionInfoPtr>* obj = static_cast<Wrapper<ExceptionInfoPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 
@@ -2853,7 +2855,7 @@ ZEND_FUNCTION(IcePHP_stringifyException)
 //
 // Predefined methods for IcePHP_TypeInfo.
 //
-static function_entry _typeInfoMethods[] =
+static zend_function_entry _typeInfoMethods[] =
 {
     {0, 0, 0}
 };
@@ -2861,7 +2863,7 @@ static function_entry _typeInfoMethods[] =
 //
 // Predefined methods for IcePHP_ExceptionInfo.
 //
-static function_entry _exceptionInfoMethods[] =
+static zend_function_entry _exceptionInfoMethods[] =
 {
     {0, 0, 0}
 };

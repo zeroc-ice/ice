@@ -88,7 +88,7 @@ function allTests($communicator)
     return $checksum;
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 $checksum = allTests($communicator);
 $checksum->shutdown();
 $communicator->destroy();

@@ -525,7 +525,7 @@ function allTests($communicator)
     $com->shutdown();
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 allTests($communicator);
 $communicator->destroy();
 exit();

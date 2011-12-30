@@ -493,7 +493,8 @@ handleFreeStorage(void* p TSRMLS_DC)
 {
     Wrapper<Ice::PropertiesPtr>* obj = static_cast<Wrapper<Ice::PropertiesPtr>*>(p);
     delete obj->ptr;
-    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
+    zend_object_std_dtor(static_cast<zend_object*>(p) TSRMLS_CC);
+    efree(p);
 }
 
 #ifdef _WIN32
@@ -589,11 +590,11 @@ ZEND_FUNCTION(Ice_createProperties)
 //
 // Predefined methods for Properties.
 //
-static function_entry _interfaceMethods[] =
+static zend_function_entry _interfaceMethods[] =
 {
     {0, 0, 0}
 };
-static function_entry _classMethods[] =
+static zend_function_entry _classMethods[] =
 {
     ZEND_ME(Ice_Properties, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     ZEND_ME(Ice_Properties, __toString, NULL, ZEND_ACC_PUBLIC)

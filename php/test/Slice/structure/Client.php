@@ -225,7 +225,7 @@ function allTests($communicator)
     echo "ok\n";
 }
 
-$communicator = Ice_initialize(&$argv);
+$communicator = Ice_initialize($argv);
 allTests($communicator);
 $communicator->destroy();
 
