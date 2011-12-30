@@ -45,7 +45,7 @@ Slice::computeSerialVersionUUID(const ClassDefPtr& p)
     {
         os << (*i)->scoped();
         i++;
-        if(i != l.end())
+        if(i != bases.end())
         {
             os << ", ";
         }
@@ -58,7 +58,7 @@ Slice::computeSerialVersionUUID(const ClassDefPtr& p)
     {
         os << (*i)->name() << ":" << (*i)->type();
         i++;
-        if(i != l.end())
+        if(i != members.end())
         {
             os << ", ";
         }
@@ -98,7 +98,7 @@ Slice::computeSerialVersionUUID(const StructPtr& p)
     {
         os << (*i)->name() << ":" << (*i)->type();
         i++;
-        if(i != l.end())
+        if(i != members.end())
         {
             os << ", ";
         }
