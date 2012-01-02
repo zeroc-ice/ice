@@ -2065,16 +2065,22 @@ namespace Ice.VisualStudio
 
         public Project getActiveProject()
         {
-            Array projects = (Array)_applicationObject.ActiveSolutionProjects;
-            if(projects != null && projects.Length > 0)
+            Array projects = null;
+            if(_applicationObject.ActiveSolutionProjects != null)
             {
-                return projects.GetValue(0) as Project;
+                projects = (Array)_applicationObject.ActiveSolutionProjects;
+                if (projects != null && projects.Length > 0)
+                {
+                    return projects.GetValue(0) as Project;
+                }
             }
+
             projects = (Array)_applicationObject.Solution.SolutionBuild.StartupProjects;
             if(projects != null && projects.Length > 0)
             {
                 return projects.GetValue(0) as Project;
             }
+
             projects = (Array)_applicationObject.Solution.Projects;
             if(projects != null && projects.Length > 0)
             {
@@ -2106,6 +2112,11 @@ namespace Ice.VisualStudio
 
                 VCFile file = obj as VCFile;
                 if(file == null)
+                {
+                    return;
+                }
+
+                if(_applicationObject.ActiveSolutionProjects == null)
                 {
                     return;
                 }
@@ -2163,12 +2174,19 @@ namespace Ice.VisualStudio
                 {
                     return;
                 }
+
+                if(_applicationObject.ActiveSolutionProjects == null)
+                {
+                    return;
+                }
+
                 if(!Util.isSliceFilename(file.Name))
                 {
                     return;
                 }
 
                 string fullPath = file.FullPath;
+
                 Array projects = (Array)_applicationObject.ActiveSolutionProjects;
                 if(projects == null)
                 {
