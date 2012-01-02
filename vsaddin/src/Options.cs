@@ -121,9 +121,9 @@ public class Options
         public string val;
     }
 
-    public struct OptionValueVector
+    public class OptionValueVector
     {
-        public List<string> vals;
+        public List<string> vals = new List<string>();
     }
 
     ValidOpts _validOpts = new ValidOpts(); // Valid options and their details.
