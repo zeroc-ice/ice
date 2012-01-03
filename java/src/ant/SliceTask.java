@@ -22,6 +22,9 @@ import org.apache.tools.ant.types.Commandline.Argument;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -29,6 +32,26 @@ import java.io.FileWriter;
 import java.io.StringReader;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
+import org.xml.sax.SAXException;
 
 /**
  * An abstract ant task for slice translators. The task minimizes
@@ -210,119 +233,27 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected java.util.List<SliceDependency>
     parseDependencies(String allDependencies)
     {
-        java.util.List<SliceDependency> dependencies = new java.util.LinkedList<SliceDependency>();
+        Slice2JavaDependenciesParser parser = new Slice2JavaDependenciesParser();
         try
         {
-            BufferedReader in = new BufferedReader(new StringReader(allDependencies));
-            StringBuilder depline = new StringBuilder(1024);
-            String line;
-
-            while((line = in.readLine()) != null)
-            {
-                if(line.length() == 0)
-                {
-                    continue;
-                }
-                else if(line.endsWith("\\"))
-                {
-                    depline.append(line.substring(0, line.length() - 1));
-                }
-                else
-                {
-                    depline.append(line);
-
-                    //
-                    // It's easier to split up the filenames if we first convert Windows
-                    // path separators into Unix path separators.
-                    //
-                    char[] chars = depline.toString().toCharArray();
-                    int pos = 0;
-                    while(pos < chars.length)
-                    {
-                        if(chars[pos] == '\\')
-                        {
-                            if(pos + 1 < chars.length)
-                            {
-                                //
-                                // Only convert the backslash if it's not an escape.
-                                //
-                                if(chars[pos + 1] != ' ' && chars[pos + 1] != ':' && chars[pos + 1] != '\r' &&
-                                   chars[pos + 1] != '\n')
-                                {
-                                    chars[pos] = '/';
-                                }
-                            }
-                        }
-                        ++pos;
-                    }
-
-                    //
-                    // Split the dependencies up into filenames. Note that filenames containing
-                    // spaces are escaped and the initial file may have escaped colons
-                    // (e.g., "C\:/Program\ Files/...").
-                    //
-                    java.util.ArrayList<String> l = new java.util.ArrayList<String>();
-                    StringBuilder file = new StringBuilder(128);
-                    pos = 0;
-                    while(pos < chars.length)
-                    {
-                        if(chars[pos] == '\\') // Skip backslash of an escaped character.
-                        {
-                            if(pos + 1 >= chars.length)
-                            {
-                                throw new BuildException("dependency parse failure");
-                            }
-                            file.append(chars[++pos]);
-                        }
-                        else if(Character.isWhitespace(chars[pos]))
-                        {
-                            if(file.length() > 0)
-                            {
-                                l.add(file.toString());
-                                file = new StringBuilder(128);
-                            }
-                        }
-                        else
-                        {
-                            file.append(chars[pos]);
-                        }
-                        ++pos;
-                    }
-                    if(file.length() > 0)
-                    {
-                        l.add(file.toString());
-                    }
-
-                    //
-                    // Create SliceDependency. We need to remove the trailing colon from the first file.
-                    // We also normalize the pathname for this platform.
-                    //
-                    SliceDependency depend = new SliceDependency();
-                    depend._dependencies = new String[l.size()];
-                    l.toArray(depend._dependencies);
-                    depend._timeStamp = new java.util.Date().getTime();
-                    pos = depend._dependencies[0].lastIndexOf(':');
-                    if(pos != depend._dependencies[0].length() - 1)
-                    {
-                        throw new BuildException("dependency parse failure");
-                    }
-                    depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
-                    for(int i = 0; i < depend._dependencies.length; ++i)
-                    {
-                        depend._dependencies[i] = new File(depend._dependencies[i]).toString();
-                    }
-                    dependencies.add(depend);
-
-                    depline = new StringBuilder(1024);
-                }
-            }
+            InputStream in = new ByteArrayInputStream(allDependencies.getBytes());
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new BufferedInputStream(in));
+            parser.visit(doc);
+        }
+        catch(SAXException ex)
+        {
+            throw new BuildException("Unable to read dependencies from slice translator: " + ex);
+        }
+        catch(ParserConfigurationException ex)
+        {
+            throw new BuildException("Unable to read dependencies from slice translator: " + ex);
         }
         catch(java.io.IOException ex)
         {
             throw new BuildException("Unable to read dependencies from slice translator: " + ex);
         }
 
-        return dependencies;
+        return parser.dependencies;
     }
 
     protected String
@@ -542,6 +473,78 @@ public class SliceTask extends org.apache.tools.ant.Task
             }
         }
         return null;
+    }
+
+    private class Slice2JavaDependenciesParser
+    {
+        java.util.List<SliceDependency> dependencies = new java.util.LinkedList<SliceDependency>();
+        
+        private Node findNode(Node n, String qName)
+            throws SAXException
+        {
+            NodeList children = n.getChildNodes();
+            for(int i = 0; i < children.getLength(); ++i)
+            {
+                Node child = children.item(i);
+                if(child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(qName))
+                {
+                    return child;
+                }
+            }
+            throw new SAXException("no such node: " + qName);
+        }
+
+        private void visitDependencies(Node n) throws SAXException
+        {
+            NodeList children = n.getChildNodes();
+            for(int i = 0; i < children.getLength(); ++i)
+            {
+                if(children.item(i).getNodeType() == Node.ELEMENT_NODE && children.item(i).getNodeName().equals("source"))
+                {
+                    String source = ((Element)children.item(i)).getAttribute("name");
+                    if(source.length() == 0)
+                    {
+                        throw new SAXException("empty name attribute");
+                    }
+                    List<String> dependsOn = visitDependsOn(children.item(i));
+                    SliceDependency depend = new SliceDependency();
+                    depend._timeStamp = new java.util.Date().getTime();
+                    depend._dependencies = new String[dependsOn.size() + 1];
+                    depend._dependencies[0] = source;
+                    for(int j = 0; j < dependsOn.size(); j++)
+                    {
+                        depend._dependencies[j + 1] = dependsOn.get(j);
+                    }
+                    dependencies.add(depend);
+                }
+            }
+        }
+
+        private List<String> visitDependsOn(Node source) throws SAXException
+        {
+            List<String> depends = new ArrayList<String>();
+            NodeList dependencies = source.getChildNodes();
+            for(int j = 0; j < dependencies.getLength(); ++j)
+            {
+                if(dependencies.item(j).getNodeType() == Node.ELEMENT_NODE && dependencies.item(j).getNodeName().equals("dependsOn"))
+                {
+                    Element dependsOn = (Element)dependencies.item(j);
+                    String name = dependsOn.getAttribute("name");
+                    if(name.length() == 0)
+                    {
+                        throw new SAXException("empty name attribute");
+                    }
+                    depends.add(name);
+                }
+            }
+            return depends;
+        }
+        
+        public void visit(Node doc) throws SAXException
+        {
+            Node n = findNode(doc, "dependencies");
+            visitDependencies(n);
+        }
     }
 
     protected File _dependencyFile;

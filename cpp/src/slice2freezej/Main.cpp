@@ -1456,6 +1456,7 @@ usage(const char* n)
         "                          is sensitive).\n"
         "--output-dir DIR          Create files in the directory DIR.\n"
         "--depend                  Generate Makefile dependencies.\n"
+        "--depend-xml              Generate dependencies in XML format.\n"
         "-d, --debug               Print debug messages.\n"
         "--ice                     Permit `Ice' prefix (for building Ice source code only).\n"
         "--underscore              Permit underscores in Slice identifiers.\n"
@@ -1479,6 +1480,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "dict-index", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
+    opts.addOpt("", "depend-xml");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -1734,6 +1736,7 @@ compile(int argc, char* argv[])
     string output = opts.optArg("output-dir");
 
     bool depend = opts.isSet("depend");
+    bool dependxml = opts.isSet("depend-xml");
 
     bool debug = opts.isSet("debug");
 
@@ -1758,10 +1761,15 @@ compile(int argc, char* argv[])
 
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
+    
+    if(dependxml)
+    {
+        cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+    }
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
-        if(depend)
+        if(depend || dependxml)
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], args[idx], cppArgs);
             FILE* cppHandle = icecpp->preprocess(false);
@@ -1780,7 +1788,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::Java, includePaths))
+            if(!icecpp->printMakefileDependencies(depend ? Preprocessor::Java : Preprocessor::JavaXML, includePaths))
             {
                 u->destroy();
                 return EXIT_FAILURE;
@@ -1826,6 +1834,11 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
         }
+        
+        if(dependxml)
+        {
+            cout << "</dependencies>\n";
+        }
 
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
@@ -1837,7 +1850,7 @@ compile(int argc, char* argv[])
         }
     }
 
-    if(depend)
+    if(depend || dependxml)
     {
         u->destroy();
         return EXIT_SUCCESS;

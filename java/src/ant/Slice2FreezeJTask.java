@@ -369,7 +369,7 @@ public class Slice2FreezeJTask extends SliceTask
         if(!sliceFiles.isEmpty())
         {
             cmd = new StringBuilder(256);
-            cmd.append("--depend");
+            cmd.append("--depend-xml");
 
             //
             // Add --ice

@@ -309,7 +309,7 @@ public class Slice2JavaTask extends SliceTask
             // Update the dependencies.
             //
             cmd = new StringBuilder(256);
-            cmd.append("--depend");
+            cmd.append("--depend-xml");
 
             //
             // Add --ice
