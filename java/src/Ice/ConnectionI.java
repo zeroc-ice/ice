@@ -1571,14 +1571,22 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
-        IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-        IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
-        IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
-        IceUtilInternal.Assert.FinalizerAssert(_requests.isEmpty());
-        IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_startCallback == null);
+            IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
+            IceUtilInternal.Assert.FinalizerAssert(_dispatchCount == 0);
+            IceUtilInternal.Assert.FinalizerAssert(_sendStreams.isEmpty());
+            IceUtilInternal.Assert.FinalizerAssert(_requests.isEmpty());
+            IceUtilInternal.Assert.FinalizerAssert(_asyncRequests.isEmpty());
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private static final int StateNotInitialized = 0;

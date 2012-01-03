@@ -47,13 +47,6 @@ class Acceptor implements IceInternal.Acceptor
         _acceptor = acceptor;
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        super.finalize();
-    }
-
     final private IceInternal.Acceptor _acceptor;
     private Configuration _configuration;
 }

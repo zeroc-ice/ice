@@ -126,13 +126,6 @@ final class Transceiver implements IceInternal.Transceiver
         _configuration = configuration;
     }
 
-    protected synchronized void
-    finalize()
-        throws Throwable
-    {
-        super.finalize();
-    }
-
     final private IceInternal.Transceiver _transceiver;
     final private Configuration _configuration;
     private boolean _initialized = false;

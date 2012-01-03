@@ -132,9 +132,17 @@ public final class Timer extends Thread
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_instance == null);
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     public void

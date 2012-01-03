@@ -107,11 +107,20 @@ public class ConnectionI implements Connection
     finalize()
         throws Throwable
     {
-        if(_dbEnv != null)
+        try
         {
-            _logger.warning("leaked Connection for DbEnv \"" + _envName + "\"");
+            if(_dbEnv != null)
+            {
+                _logger.warning("leaked Connection for DbEnv \"" + _envName + "\"");
+            }
         }
-        super.finalize();
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     ConnectionI(SharedDbEnv dbEnv)

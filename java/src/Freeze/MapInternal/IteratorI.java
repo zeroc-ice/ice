@@ -237,15 +237,24 @@ class IteratorI<K, V> implements Freeze.Map.EntryIterator<java.util.Map.Entry<K,
     finalize()
         throws Throwable
     {
-        if(_cursor != null)
+        try
         {
-            _trace.logger.warning(
-                "iterator leaked for Map \"" + _dbName + "\"; the application " +
-                "should have closed it earlier by calling Map.EntryIterator.close(), " +
-                "Map.closeAllIterators(), Map.close(), Connection.close(), or (if also " +
-                "leaking a transaction) Transaction.commit() or Transaction.rollback()");
+            if(_cursor != null)
+            {
+                _trace.logger.warning(
+                    "iterator leaked for Map \"" + _dbName + "\"; the application " +
+                    "should have closed it earlier by calling Map.EntryIterator.close(), " +
+                    "Map.closeAllIterators(), Map.close(), Connection.close(), or (if also " +
+                    "leaking a transaction) Transaction.commit() or Transaction.rollback()");
+            }
         }
-        super.finalize();
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     void

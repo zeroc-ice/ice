@@ -425,13 +425,21 @@ public final class OutgoingConnectionFactory
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
-        //IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
-        //IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
-        IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
-        IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_destroyed);
+            IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
+            IceUtilInternal.Assert.FinalizerAssert(_connectionsByEndpoint.isEmpty());
+            IceUtilInternal.Assert.FinalizerAssert(_pendingConnectCount == 0);
+            IceUtilInternal.Assert.FinalizerAssert(_pending.isEmpty());
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private java.util.List<EndpointI>

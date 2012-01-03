@@ -1038,25 +1038,33 @@ public final class ObjectAdapterI implements ObjectAdapter
     finalize()
         throws Throwable
     {
-        if(!_deactivated)
+        try
         {
-            _instance.initializationData().logger.warning("object adapter `" + getName() +
-                                                          "' has not been deactivated");
+            if(!_deactivated)
+            {
+                _instance.initializationData().logger.warning("object adapter `" + getName() +
+                                                            "' has not been deactivated");
+            }
+            else if(!_destroyed)
+            {
+                _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
+            }
+            else
+            {
+                IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
+                //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
+                //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
+                IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
+                IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
+            }
         }
-        else if(!_destroyed)
+        catch(java.lang.Exception ex)
         {
-            _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
         }
-        else
+        finally
         {
-            IceUtilInternal.Assert.FinalizerAssert(_threadPool == null);
-            //IceUtilInternal.Assert.FinalizerAssert(_servantManager == null); // Not cleared, it needs to be immutable.
-            //IceUtilInternal.Assert.FinalizerAssert(_incomingConnectionFactories.isEmpty());
-            IceUtilInternal.Assert.FinalizerAssert(_directCount == 0);
-            IceUtilInternal.Assert.FinalizerAssert(!_waitForActivate);
+            super.finalize();
         }
-
-        super.finalize();
     }
 
     private ObjectPrx

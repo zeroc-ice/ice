@@ -418,10 +418,18 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
-        IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_state == StateFinished);
+            IceUtilInternal.Assert.FinalizerAssert(_connections.isEmpty());
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private static final int StateActive = 0;

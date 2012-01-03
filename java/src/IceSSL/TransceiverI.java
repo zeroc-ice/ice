@@ -351,9 +351,17 @@ final class TransceiverI implements IceInternal.Transceiver
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private NativeConnectionInfo

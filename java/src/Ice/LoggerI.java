@@ -37,21 +37,6 @@ public class LoggerI implements Logger
         }
     }
 
-    protected void
-    finalize()
-    {
-        if(_out != null)
-        {
-            try
-            {
-                _out.close();
-            }
-            catch(java.lang.Exception ex)
-            {
-            }
-        }
-    }
-
     public void
     print(String message)
     {

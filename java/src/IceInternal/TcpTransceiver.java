@@ -286,9 +286,17 @@ final class TcpTransceiver implements Transceiver
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_fd == null);
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_fd == null);
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private java.nio.channels.SocketChannel _fd;

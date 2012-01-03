@@ -210,7 +210,17 @@ public final class ThreadPool
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_destroyed);
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_destroyed);
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     public synchronized void

@@ -206,11 +206,19 @@ public final class ObjectAdapterFactory
     finalize()
         throws Throwable
     {
-        IceUtilInternal.Assert.FinalizerAssert(_instance == null);
-        IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
-        //IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty())
-
-        super.finalize();
+        try
+        {
+            IceUtilInternal.Assert.FinalizerAssert(_instance == null);
+            IceUtilInternal.Assert.FinalizerAssert(_communicator == null);
+            IceUtilInternal.Assert.FinalizerAssert(_adapters.isEmpty());
+        }
+        catch(java.lang.Exception ex)
+        {
+        }
+        finally
+        {
+            super.finalize();
+        }
     }
 
     private Instance _instance;
