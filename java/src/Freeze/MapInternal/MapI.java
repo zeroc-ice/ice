@@ -1051,18 +1051,15 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     {
         int count = 0;
 
-        synchronized(_iteratorList)
-        {
-            java.util.Iterator<IteratorI> p = _iteratorList.iterator();
+        java.util.Iterator<IteratorI> p = _iteratorList.iterator();
 
-            while(p.hasNext())
+        while(p.hasNext())
+        {
+            IteratorI i = p.next();
+            if(i != except)
             {
-                IteratorI i = p.next();
-                if(i != except)
-                {
-                    i.close();
-                    ++count;
-                }
+                i.close();
+                ++count;
             }
         }
 
@@ -1072,13 +1069,10 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
     Object
     addIterator(IteratorI i)
     {
-        synchronized(_iteratorList)
-        {
-            _iteratorList.addFirst(i);
-            java.util.Iterator<IteratorI> p = _iteratorList.iterator();
-            p.next();
-            return p;
-        }
+        _iteratorList.addFirst(i);
+        java.util.Iterator<IteratorI> p = _iteratorList.iterator();
+        p.next();
+        return p;
     }
 
     void
@@ -1087,10 +1081,7 @@ public abstract class MapI<K, V> extends java.util.AbstractMap<K, V>
         @SuppressWarnings("unchecked")
         java.util.Iterator<IteratorI> i = (java.util.Iterator<IteratorI>)token;
 
-        synchronized(_iteratorList)
-        {
-            i.remove();
-        }
+        i.remove();
     }
 
     //
