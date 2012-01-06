@@ -15,6 +15,7 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 
+#include <Ice/CommunicatorF.h>
 #include <Ice/Connection.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ConnectionFactoryF.h>
@@ -67,7 +68,7 @@ public:
     class StartCallback : virtual public IceUtil::Shared
     {
     public:
-        
+
         virtual void connectionStartCompleted(const ConnectionIPtr&) = 0;
         virtual void connectionStartFailed(const ConnectionIPtr&, const Ice::LocalException&) = 0;
     };
@@ -146,7 +147,7 @@ public:
     void invokeException(const LocalException&, int);
 
     void dispatch(const StartCallbackPtr&, const std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&,
-                  Byte, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&, 
+                  Byte, Int, Int, const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&,
                   const IceInternal::OutgoingAsyncPtr&, IceInternal::BasicStream&);
     void finish();
 
@@ -165,21 +166,21 @@ private:
 
     struct OutgoingMessage
     {
-        OutgoingMessage(IceInternal::BasicStream* str, bool comp) : 
-	    stream(str), out(0), compress(comp), requestId(0), adopted(false), isSent(false)
-	{
-	}
+        OutgoingMessage(IceInternal::BasicStream* str, bool comp) :
+            stream(str), out(0), compress(comp), requestId(0), adopted(false), isSent(false)
+        {
+        }
 
         OutgoingMessage(IceInternal::OutgoingMessageCallback* o, IceInternal::BasicStream* str, bool comp, int rid) :
-	    stream(str), out(o), compress(comp), requestId(rid), adopted(false), isSent(false)
-	{
-	}
+            stream(str), out(o), compress(comp), requestId(rid), adopted(false), isSent(false)
+        {
+        }
 
-        OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str, 
+        OutgoingMessage(const IceInternal::OutgoingAsyncMessageCallbackPtr& o, IceInternal::BasicStream* str,
                         bool comp, int rid) :
-	    stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false), isSent(false)
-	{
-	}
+            stream(str), out(0), outAsync(o), compress(comp), requestId(rid), adopted(false), isSent(false)
+        {
+        }
 
         void adopt(IceInternal::BasicStream*);
         bool sent(ConnectionI*, bool);
@@ -194,8 +195,8 @@ private:
         bool isSent;
     };
 
-    ConnectionI(const IceInternal::InstancePtr&, const IceInternal::ConnectionReaperPtr&, 
-                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&, 
+    ConnectionI(const Ice::CommunicatorPtr&, const IceInternal::InstancePtr&, const IceInternal::ConnectionReaperPtr&,
+                const IceInternal::TransceiverPtr&, const IceInternal::ConnectorPtr&,
                 const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&);
     virtual ~ConnectionI();
 
@@ -266,9 +267,10 @@ private:
 
     AsyncResultPtr begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
-    const IceInternal::TransceiverPtr _transceiver;
+    Ice::CommunicatorPtr _communicator;
     const IceInternal::InstancePtr _instance;
     const IceInternal::ConnectionReaperPtr _reaper;
+    const IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
     const std::string _type;
     const IceInternal::ConnectorPtr _connector;

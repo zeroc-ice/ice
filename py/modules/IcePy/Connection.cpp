@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Connection.h>
+#include <Communicator.h>
 #include <ConnectionInfo.h>
 #include <Endpoint.h>
 #include <ObjectAdapter.h>
@@ -287,7 +288,8 @@ connectionBeginFlushBatchRequests(ConnectionObject* self, PyObject* args, PyObje
         return 0;
     }
 
-    return createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), 0);
+    PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    return createAsyncResult(result, 0, reinterpret_cast<PyObject*>(self), communicator.get());
 }
 
 #ifdef WIN32

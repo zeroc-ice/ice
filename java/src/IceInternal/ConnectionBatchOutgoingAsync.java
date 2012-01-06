@@ -11,9 +11,10 @@ package IceInternal;
 
 public class ConnectionBatchOutgoingAsync extends BatchOutgoingAsync
 {
-    public ConnectionBatchOutgoingAsync(Ice.ConnectionI con, Instance instance, String operation, CallbackBase callback)
+    public ConnectionBatchOutgoingAsync(Ice.ConnectionI con, Ice.Communicator communicator, Instance instance,
+                                        String operation, CallbackBase callback)
     {
-        super(instance, operation, callback);
+        super(communicator, instance, operation, callback);
         _connection = con;
     }
 

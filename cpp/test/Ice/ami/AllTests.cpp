@@ -1975,66 +1975,128 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing AsyncResult operations... " << flush;
     {
-        Test::TestIntfPrx indirect = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
-        Ice::AsyncResultPtr r;
-        r = indirect->begin_op();
-        try
         {
-            r->waitForCompleted();
-            r->throwLocalException();
-            test(false);
-        }
-        catch(const Ice::NoEndpointException&)
-        {
-        }
-
-        testController->holdAdapter();
-        Ice::AsyncResultPtr r1;
-        Ice::AsyncResultPtr r2;
-        try
-        {
-            r1 = p->begin_op();
-            Ice::ByteSeq seq;
-            seq.resize(1024); // Make sure the request doesn't compress too well.
-            for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+            Test::TestIntfPrx indirect = Test::TestIntfPrx::uncheckedCast(p->ice_adapterId("dummy"));
+            Ice::AsyncResultPtr r;
+            r = indirect->begin_op();
+            try
             {
-                *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+                r->waitForCompleted();
+                r->throwLocalException();
+                test(false);
             }
-            while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
-            
-            test(r1 == r1);
-            test(r1 != r2);
+            catch(const Ice::NoEndpointException&)
+            {
+            }
 
-            test(r1->getHash() == r1->getHash());
-            test(r1->getHash() != r2->getHash());
-            test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
-            
-            test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
-                 (!r1->sentSynchronously() && !r1->isCompleted()));
-            
-            test(!r2->sentSynchronously() && !r2->isCompleted());
-        }
-        catch(...)
-        {
+            testController->holdAdapter();
+            Ice::AsyncResultPtr r1;
+            Ice::AsyncResultPtr r2;
+            try
+            {
+                r1 = p->begin_op();
+                Ice::ByteSeq seq;
+                seq.resize(1024); // Make sure the request doesn't compress too well.
+                for(Ice::ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                {
+                    *q = static_cast<Ice::Byte>(IceUtilInternal::random(255));
+                }
+                while((r2 = p->begin_opWithPayload(seq))->sentSynchronously());
+
+                test(r1 == r1);
+                test(r1 != r2);
+
+                test(r1->getHash() == r1->getHash());
+                test(r1->getHash() != r2->getHash());
+                test(r1->getHash() < r2->getHash() || r2->getHash() < r1->getHash());
+
+                test((r1->sentSynchronously() && r1->isSent() && !r1->isCompleted()) ||
+                     (!r1->sentSynchronously() && !r1->isCompleted()));
+
+                test(!r2->sentSynchronously() && !r2->isCompleted());
+            }
+            catch(...)
+            {
+                testController->resumeAdapter();
+                throw;
+            }
             testController->resumeAdapter();
-            throw;
+
+            r1->waitForSent();
+            test(r1->isSent());
+
+            r2->waitForSent();
+            test(r2->isSent());
+
+            r1->waitForCompleted();
+            test(r1->isCompleted());
+
+            r2->waitForCompleted();
+            test(r2->isCompleted());
+
+            test(r1->getOperation() == "op");
+            test(r2->getOperation() == "opWithPayload");
         }
-        testController->resumeAdapter();
 
-        r1->waitForSent();
-        test(r1->isSent());
+        {
+            Ice::AsyncResultPtr r;
 
-        r2->waitForSent();
-        test(r2->isSent());
+            //
+            // Twoway
+            //
+            r = p->begin_ice_ping();
+            test(r->getOperation() == "ice_ping");
+            test(!r->getConnection()); // Expected
+            test(r->getCommunicator() == communicator);
+            test(r->getProxy() == p);
+            p->end_ice_ping(r);
 
-        r1->waitForCompleted();
-        test(r1->isCompleted());
+            Test::TestIntfPrx p2;
 
-        r2->waitForCompleted();
-        test(r2->isCompleted());
+            //
+            // Oneway
+            //
+            p2 = p->ice_oneway();
+            r = p2->begin_ice_ping();
+            test(r->getOperation() == "ice_ping");
+            test(!r->getConnection()); // Expected
+            test(r->getCommunicator() == communicator);
+            test(r->getProxy() == p2);
 
-        test(r1->getOperation() == "op");
-        test(r2->getOperation() == "opWithPayload");
+            //
+            // Batch request via proxy
+            //
+            p2 = p->ice_batchOneway();
+            p2->ice_ping();
+            r = p2->begin_ice_flushBatchRequests();
+            test(!r->getConnection()); // Expected
+            test(r->getCommunicator() == communicator);
+            test(r->getProxy() == p2);
+            p2->end_ice_flushBatchRequests(r);
+
+            //
+            // Batch request via connection
+            //
+            Ice::ConnectionPtr con = p->ice_getConnection();
+            p2 = p->ice_batchOneway();
+            p2->ice_ping();
+            r = con->begin_flushBatchRequests();
+            test(r->getConnection() == con);
+            test(r->getCommunicator() == communicator);
+            test(!r->getProxy()); // Expected
+            con->end_flushBatchRequests(r);
+
+            //
+            // Batch request via communicator
+            //
+            p2 = p->ice_batchOneway();
+            p2->ice_ping();
+            r = communicator->begin_flushBatchRequests();
+            test(!r->getConnection()); // Expected
+            test(r->getCommunicator() == communicator);
+            test(!r->getProxy()); // Expected
+            communicator->end_flushBatchRequests(r);
+        }
     }
     cout << "ok" << endl;
 

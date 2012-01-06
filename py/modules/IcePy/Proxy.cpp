@@ -1637,7 +1637,8 @@ proxyBeginIceFlushBatchRequests(ProxyObject* self, PyObject* args, PyObject* kwd
         return 0;
     }
 
-    return createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, 0);
+    PyObjectHandle communicator = getCommunicatorWrapper(*self->communicator);
+    return createAsyncResult(result, reinterpret_cast<PyObject*>(self), 0, communicator.get());
 }
 
 #ifdef WIN32

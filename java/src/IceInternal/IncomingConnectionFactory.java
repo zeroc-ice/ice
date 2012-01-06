@@ -144,7 +144,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 connections.add(connection);
             }
         }
-        
+
         return connections;
     }
 
@@ -183,7 +183,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 Thread.yield();
                 return;
             }
-                
+
             //
             // Reap closed connections.
             //
@@ -237,7 +237,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
             try
             {
-                connection = new Ice.ConnectionI(_instance, _reaper, transceiver, null, _endpoint, _adapter);
+                connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, transceiver, null,
+                                                 _endpoint, _adapter);
             }
             catch(Ice.LocalException ex)
             {
@@ -279,7 +280,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             return _transceiver.toString();
         }
 
-        assert(_acceptor != null);      
+        assert(_acceptor != null);
         return _acceptor.toString();
     }
 
@@ -356,9 +357,10 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             if(_transceiver != null)
             {
                 _endpoint = h.value;
-                Ice.ConnectionI connection = 
-                    new Ice.ConnectionI(_instance, _reaper, _transceiver, null, _endpoint, _adapter);
-                connection.start(null);                
+                Ice.ConnectionI connection =
+                    new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, _transceiver, null, _endpoint,
+                                        _adapter);
+                connection.start(null);
                 _connections.add(connection);
             }
             else
@@ -384,7 +386,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
                 catch(Ice.LocalException e)
                 {
-                    // Here we ignore any exceptions in close().                        
+                    // Here we ignore any exceptions in close().
                 }
             }
 
@@ -396,7 +398,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
                 catch(Ice.LocalException e)
                 {
-                    // Here we ignore any exceptions in close().                        
+                    // Here we ignore any exceptions in close().
                 }
             }
 

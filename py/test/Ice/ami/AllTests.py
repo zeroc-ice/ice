@@ -879,6 +879,60 @@ def allTests(communicator):
     test(r1.getOperation() == "op")
     test(r2.getOperation() == "opWithPayload")
 
+    #
+    # Twoway
+    #
+    r = p.begin_ice_ping()
+    test(r.getOperation() == "ice_ping")
+    test(r.getConnection() == None) # Expected
+    test(r.getCommunicator() == communicator)
+    test(r.getProxy() == p)
+    p.end_ice_ping(r)
+
+    #
+    # Oneway
+    #
+    p2 = p.ice_oneway()
+    r = p2.begin_ice_ping()
+    test(r.getOperation() == "ice_ping")
+    test(r.getConnection() == None) # Expected
+    test(r.getCommunicator() == communicator)
+    test(r.getProxy() == p2)
+
+    #
+    # Batch request via proxy
+    #
+    p2 = p.ice_batchOneway()
+    p2.ice_ping()
+    r = p2.begin_ice_flushBatchRequests()
+    test(r.getConnection() == None) # Expected
+    test(r.getCommunicator() == communicator)
+    test(r.getProxy() == p2)
+    p2.end_ice_flushBatchRequests(r)
+
+    #
+    # Batch request via connection
+    #
+    con = p.ice_getConnection()
+    p2 = p.ice_batchOneway()
+    p2.ice_ping()
+    r = con.begin_flushBatchRequests()
+    test(r.getConnection() == con)
+    test(r.getCommunicator() == communicator)
+    test(r.getProxy() == None) # Expected
+    con.end_flushBatchRequests(r)
+
+    #
+    # Batch request via communicator
+    #
+    p2 = p.ice_batchOneway()
+    p2.ice_ping()
+    r = communicator.begin_flushBatchRequests()
+    test(r.getConnection() == None) # Expected
+    test(r.getCommunicator() == communicator)
+    test(r.getProxy() == None) # Expected
+    communicator.end_flushBatchRequests(r)
+
     print "ok"
 
     p.shutdown()

@@ -16,8 +16,10 @@ package Ice;
  **/
 public class AsyncResult
 {
-    protected AsyncResult(IceInternal.Instance instance, String op, IceInternal.CallbackBase del)
+    protected AsyncResult(Communicator communicator, IceInternal.Instance instance, String op,
+                          IceInternal.CallbackBase del)
     {
+        _communicator = communicator;
         _instance = instance;
         _operation = op;
         // Lazy initialized when response is received.
@@ -35,7 +37,7 @@ public class AsyncResult
      **/
     public Communicator getCommunicator()
     {
-        return null;
+        return _communicator;
     }
 
     /**
@@ -417,6 +419,7 @@ public class AsyncResult
         _instance.initializationData().logger.error(s);
     }
 
+    protected Communicator _communicator;
     protected IceInternal.Instance _instance;
     protected String _operation;
 

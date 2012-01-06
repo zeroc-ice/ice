@@ -853,7 +853,7 @@ AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequestsInternal(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     ConnectionBatchOutgoingAsyncPtr result =
-        new ConnectionBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb, cookie);
+        new ConnectionBatchOutgoingAsync(this, _communicator, _instance, __flushBatchRequests_name, cb, cookie);
     try
     {
         result->__send();
@@ -1749,15 +1749,17 @@ Ice::ConnectionI::invokeException(const LocalException& ex, int invokeNum)
     }
 }
 
-Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
+Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
+                              const InstancePtr& instance,
                               const ConnectionReaperPtr& reaper,
                               const TransceiverPtr& transceiver,
                               const ConnectorPtr& connector,
                               const EndpointIPtr& endpoint,
                               const ObjectAdapterPtr& adapter) :
-    _transceiver(transceiver),
+    _communicator(communicator),
     _instance(instance),
     _reaper(reaper),
+    _transceiver(transceiver),
     _desc(transceiver->toString()),
     _type(transceiver->type()),
     _connector(connector),
@@ -2025,6 +2027,7 @@ Ice::ConnectionI::setState(State state)
 #ifndef ICE_USE_IOCP
             _transceiver->close();
 #endif
+            _communicator = 0;
             break;
         }
         }

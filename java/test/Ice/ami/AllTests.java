@@ -2090,52 +2090,114 @@ public class AllTests
         out.print("testing AsyncResult operations... ");
         out.flush();
         {
-            TestIntfPrx indirect = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
-            Ice.AsyncResult r = indirect.begin_op();
-            try
             {
-                r.waitForCompleted();
-                r.throwLocalException();
-                test(false);
+                TestIntfPrx indirect = TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
+                Ice.AsyncResult r = indirect.begin_op();
+                try
+                {
+                    r.waitForCompleted();
+                    r.throwLocalException();
+                    test(false);
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+
+                testController.holdAdapter();
+                Ice.AsyncResult r1;
+                Ice.AsyncResult r2;
+                try
+                {
+                    r1 = p.begin_op();
+                    byte[] seq = new byte[10024];
+                    new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+                    while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+
+                    test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
+                         !r1.sentSynchronously() && !r1.isCompleted());
+
+                    test(!r2.sentSynchronously() && !r2.isCompleted());
+                }
+                finally
+                {
+                    testController.resumeAdapter();
+                }
+
+                r1.waitForSent();
+                test(r1.isSent());
+
+                r2.waitForSent();
+                test(r2.isSent());
+
+                r1.waitForCompleted();
+                test(r1.isCompleted());
+
+                r2.waitForCompleted();
+                test(r2.isCompleted());
+
+                test(r1.getOperation().equals("op"));
+                test(r2.getOperation().equals("opWithPayload"));
             }
-            catch(Ice.NoEndpointException ex)
+
             {
+                Ice.AsyncResult r;
+
+                //
+                // Twoway
+                //
+                r = p.begin_ice_ping();
+                test(r.getOperation().equals("ice_ping"));
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p);
+                p.end_ice_ping(r);
+
+                TestIntfPrx p2;
+
+                //
+                // Oneway
+                //
+                p2 = (TestIntfPrx)p.ice_oneway();
+                r = p2.begin_ice_ping();
+                test(r.getOperation().equals("ice_ping"));
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p2);
+
+                //
+                // Batch request via proxy
+                //
+                p2 = (TestIntfPrx)p.ice_batchOneway();
+                p2.ice_ping();
+                r = p2.begin_ice_flushBatchRequests();
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p2);
+                p2.end_ice_flushBatchRequests(r);
+
+                //
+                // Batch request via connection
+                //
+                Ice.Connection con = p.ice_getConnection();
+                p2 = (TestIntfPrx)p.ice_batchOneway();
+                p2.ice_ping();
+                r = con.begin_flushBatchRequests();
+                test(r.getConnection() == con);
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == null); // Expected
+                con.end_flushBatchRequests(r);
+
+                //
+                // Batch request via communicator
+                //
+                p2 = (TestIntfPrx)p.ice_batchOneway();
+                p2.ice_ping();
+                r = communicator.begin_flushBatchRequests();
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == null); // Expected
+                communicator.end_flushBatchRequests(r);
             }
-
-            testController.holdAdapter();
-            Ice.AsyncResult r1;
-            Ice.AsyncResult r2;
-            try
-            {
-                r1 = p.begin_op();
-                byte[] seq = new byte[10024];
-                new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
-                while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
-
-                test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted() ||
-                     !r1.sentSynchronously() && !r1.isCompleted());
-
-                test(!r2.sentSynchronously() && !r2.isCompleted());
-            }
-            finally
-            {
-                testController.resumeAdapter();
-            }
-
-            r1.waitForSent();
-            test(r1.isSent());
-
-            r2.waitForSent();
-            test(r2.isSent());
-
-            r1.waitForCompleted();
-            test(r1.isCompleted());
-
-            r2.waitForCompleted();
-            test(r2.isCompleted());
-
-            test(r1.getOperation().equals("op"));
-            test(r2.getOperation().equals("opWithPayload"));
         }
         out.println("ok");
 

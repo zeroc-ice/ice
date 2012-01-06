@@ -1427,48 +1427,110 @@ public class AllTests
         Console.Out.Write("testing AsyncResult operations... ");
         Console.Out.Flush();
         {
-            testController.holdAdapter();
-            Ice.AsyncResult r1;
-            Ice.AsyncResult r2;
-            try
             {
-                r1 = p.begin_op();
-                byte[] seq = new byte[10024];
-                (new System.Random()).NextBytes(seq);
-                while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
-                
-                test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
-                     !r1.sentSynchronously() && !r1.isCompleted_());
-                
-                test(!r2.sentSynchronously() && !r2.isCompleted_());
-                
-                test(!r1.IsCompleted && !r1.CompletedSynchronously);
-                test(!r2.IsCompleted && !r2.CompletedSynchronously);
+                testController.holdAdapter();
+                Ice.AsyncResult r1;
+                Ice.AsyncResult r2;
+                try
+                {
+                    r1 = p.begin_op();
+                    byte[] seq = new byte[10024];
+                    (new System.Random()).NextBytes(seq);
+                    while((r2 = p.begin_opWithPayload(seq)).sentSynchronously());
+
+                    test(r1.sentSynchronously() && r1.isSent() && !r1.isCompleted_() ||
+                         !r1.sentSynchronously() && !r1.isCompleted_());
+
+                    test(!r2.sentSynchronously() && !r2.isCompleted_());
+
+                    test(!r1.IsCompleted && !r1.CompletedSynchronously);
+                    test(!r2.IsCompleted && !r2.CompletedSynchronously);
+                }
+                finally
+                {
+                    testController.resumeAdapter();
+                }
+
+                WaitHandle w1 = r1.AsyncWaitHandle;
+                WaitHandle w2 = r2.AsyncWaitHandle;
+
+                r1.waitForSent();
+                test(r1.isSent());
+
+                r2.waitForSent();
+                test(r2.isSent());
+
+                r1.waitForCompleted();
+                test(r1.isCompleted_());
+                w1.WaitOne();
+
+                r2.waitForCompleted();
+                test(r2.isCompleted_());
+                w2.WaitOne();
+
+                test(r1.getOperation().Equals("op"));
+                test(r2.getOperation().Equals("opWithPayload"));
             }
-            finally
+
             {
-                testController.resumeAdapter();
+                Ice.AsyncResult r;
+
+                //
+                // Twoway
+                //
+                r = p.begin_ice_ping();
+                test(r.getOperation().Equals("ice_ping"));
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p);
+                p.end_ice_ping(r);
+
+                Test.TestIntfPrx p2;
+
+                //
+                // Oneway
+                //
+                p2 = p.ice_oneway() as Test.TestIntfPrx;
+                r = p2.begin_ice_ping();
+                test(r.getOperation().Equals("ice_ping"));
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p2);
+
+                //
+                // Batch request via proxy
+                //
+                p2 = p.ice_batchOneway() as Test.TestIntfPrx;
+                p2.ice_ping();
+                r = p2.begin_ice_flushBatchRequests();
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == p2);
+                p2.end_ice_flushBatchRequests(r);
+
+                //
+                // Batch request via connection
+                //
+                Ice.Connection con = p.ice_getConnection();
+                p2 = p.ice_batchOneway() as Test.TestIntfPrx;
+                p2.ice_ping();
+                r = con.begin_flushBatchRequests();
+                test(r.getConnection() == con);
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == null); // Expected
+                con.end_flushBatchRequests(r);
+
+                //
+                // Batch request via communicator
+                //
+                p2 = p.ice_batchOneway() as Test.TestIntfPrx;
+                p2.ice_ping();
+                r = communicator.begin_flushBatchRequests();
+                test(r.getConnection() == null); // Expected
+                test(r.getCommunicator() == communicator);
+                test(r.getProxy() == null); // Expected
+                communicator.end_flushBatchRequests(r);
             }
-
-            WaitHandle w1 = r1.AsyncWaitHandle;
-            WaitHandle w2 = r2.AsyncWaitHandle;
-
-            r1.waitForSent();
-            test(r1.isSent());
-
-            r2.waitForSent();
-            test(r2.isSent());
-
-            r1.waitForCompleted();
-            test(r1.isCompleted_());
-            w1.WaitOne();
-
-            r2.waitForCompleted();
-            test(r2.isCompleted_());
-            w2.WaitOne();
-
-            test(r1.getOperation().Equals("op"));
-            test(r2.getOperation().Equals("opWithPayload"));
         }
         Console.Out.WriteLine("ok");
 

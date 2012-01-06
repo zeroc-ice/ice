@@ -12,6 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionI.h>
 #include <Ice/InstanceF.h>
@@ -64,7 +65,7 @@ public:
 
 private:
 
-    OutgoingConnectionFactory(const InstancePtr&);
+    OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
     virtual ~OutgoingConnectionFactory();
     friend class Instance;
 
@@ -140,6 +141,7 @@ private:
     void handleException(const Ice::LocalException&, bool);
     void handleConnectionException(const Ice::LocalException&, bool);
 
+    Ice::CommunicatorPtr _communicator;
     const InstancePtr _instance;
     const ConnectionReaperPtr _reaper;
     bool _destroyed;

@@ -641,7 +641,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
     {
         IceInternal.ConnectionBatchOutgoingAsync result =
-            new IceInternal.ConnectionBatchOutgoingAsync(this, _instance, __flushBatchRequests_name, cb);
+            new IceInternal.ConnectionBatchOutgoingAsync(this, _communicator, _instance, __flushBatchRequests_name, cb);
         try
         {
             result.__send();
@@ -1471,10 +1471,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
     }
 
-    public ConnectionI(IceInternal.Instance instance, IceInternal.ConnectionReaper reaper,
+    public ConnectionI(Communicator communicator, IceInternal.Instance instance, IceInternal.ConnectionReaper reaper,
                        IceInternal.Transceiver transceiver, IceInternal.Connector connector,
                        IceInternal.EndpointI endpoint, ObjectAdapter adapter)
     {
+        _communicator = communicator;
         _instance = instance;
         _reaper = reaper;
         _transceiver = transceiver;
@@ -1753,6 +1754,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             {
                 assert(_state == StateClosed);
                 _transceiver.close();
+                _communicator = null;
                 break;
             }
             }
@@ -2685,6 +2687,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         boolean isSent;
     }
 
+    private Communicator _communicator;
     private final IceInternal.Instance _instance;
     private final IceInternal.ConnectionReaper _reaper;
     private final IceInternal.Transceiver _transceiver;

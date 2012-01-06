@@ -686,7 +686,7 @@ public final class Instance
 
             _pluginManager = new Ice.PluginManagerI(communicator);
 
-            _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+            _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
             _servantFactoryManager = new ObjectFactoryManager();
 

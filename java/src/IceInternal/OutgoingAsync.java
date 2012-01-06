@@ -13,7 +13,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
 {
     public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase callback)
     {
-        super(((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation, callback);
+        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
+              callback);
         _proxy = (Ice.ObjectPrxHelperBase)prx;
     }
 
@@ -90,6 +91,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         _os.startWriteEncaps();
     }
 
+    @Override
     public Ice.ObjectPrx getProxy()
     {
         return _proxy;
@@ -457,8 +459,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return interval.value;
     }
 
-    private final void
-    __runTimerTask()
+    private final void __runTimerTask()
     {
         Ice.ConnectionI connection;
         synchronized(_monitor)

@@ -124,7 +124,7 @@ namespace IceInternal
     {
         public virtual Ice.Communicator getCommunicator()
         {
-            return null;
+            return communicator_;
         }
 
         public virtual Ice.Connection getConnection()
@@ -270,7 +270,7 @@ namespace IceInternal
                     monitor_.Unlock();
                 }
             }
-        }        
+        }
 
         public Ice.AsyncResult whenSent(Ice.AsyncCallback cb)
         {
@@ -337,9 +337,9 @@ namespace IceInternal
                 {
                     throw new System.ArgumentException("sent callback already set");
                 }
-                sentCallback_ = delegate(Ice.AsyncResult result) 
+                sentCallback_ = delegate(Ice.AsyncResult result)
                                 {
-                                    cb(result.sentSynchronously());                        
+                                    cb(result.sentSynchronously());
                                 };
                 if((state_ & Sent) == 0)
                 {
@@ -602,8 +602,9 @@ namespace IceInternal
             }
         }
 
-        protected OutgoingAsyncBase(IceInternal.Instance instance, string op, object cookie)
+        protected OutgoingAsyncBase(Ice.Communicator communicator, Instance instance, string op, object cookie)
         {
+            communicator_ = communicator;
             instance_ = instance;
             operation_ = op;
             // Lazy initialized when response is received.
@@ -727,6 +728,7 @@ namespace IceInternal
             }
         }
 
+        protected Ice.Communicator communicator_;
         protected IceInternal.Instance instance_;
         protected string operation_;
 
@@ -754,7 +756,8 @@ namespace IceInternal
     abstract public class OutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
     {
         public OutgoingAsync(Ice.ObjectPrx prx, string operation, object cookie) :
-            base(((Ice.ObjectPrxHelperBase)prx).reference__().getInstance(), operation, cookie)
+            base(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).reference__().getInstance(), operation,
+                 cookie)
         {
             proxy_ = (Ice.ObjectPrxHelperBase)prx;
         }
@@ -846,8 +849,8 @@ namespace IceInternal
                 state_ |= Sent;
 
                 //
-                // It's possible for the request to be done already when using IOCP. This 
-                // is the case for example if the send callback is dispatched after the 
+                // It's possible for the request to be done already when using IOCP. This
+                // is the case for example if the send callback is dispatched after the
                 // read callback for the response/exception.
                 //
                 if((state_ & Done) == 0)
@@ -911,7 +914,7 @@ namespace IceInternal
                 int interval = handleException(exc, sent); // This will throw if the invocation can't be retried.
                 if(interval > 0)
                 {
-                    instance_.retryQueue().add(this, interval); 
+                    instance_.retryQueue().add(this, interval);
                 }
                 else
                 {
@@ -937,7 +940,7 @@ namespace IceInternal
                 int interval = handleException(exc); // This will throw if the invocation can't be retried.
                 if(interval > 0)
                 {
-                    instance_.retryQueue().add(this, interval); 
+                    instance_.retryQueue().add(this, interval);
                 }
                 else
                 {
@@ -1143,7 +1146,7 @@ namespace IceInternal
                 {
                     interval = handleException(ex, false);
                 }
-                
+
                 if(interval > 0)
                 {
                     instance_.retryQueue().add(this, interval);
@@ -1349,7 +1352,7 @@ namespace IceInternal
         }
 
         protected T responseCallback_;
-    };
+    }
 
     public class TwowayOutgoingAsync<T> : OutgoingAsync<T>
     {
@@ -1369,9 +1372,9 @@ namespace IceInternal
         {
             _completed(this, responseCallback_, exceptionCallback_);
         }
-        
+
         private ProxyTwowayCallback<T> _completed;
-    };
+    }
 
     public class OnewayOutgoingAsync<T> : OutgoingAsync<T>
     {
@@ -1381,7 +1384,7 @@ namespace IceInternal
             Debug.Assert(cb != null);
             _completed = cb;
         }
-        
+
         override protected Ice.AsyncCallback getCompletedCallback()
         {
             return completed__;
@@ -1410,8 +1413,8 @@ namespace IceInternal
 
     public class BatchOutgoingAsync : OutgoingAsyncBase, OutgoingAsyncMessageCallback
     {
-        public BatchOutgoingAsync(Instance instance, string operation, object cookie) :
-            base(instance, operation, cookie)
+        public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, string operation, object cookie) :
+            base(communicator, instance, operation, cookie)
         {
         }
 
@@ -1449,7 +1452,8 @@ namespace IceInternal
     public class ProxyBatchOutgoingAsync : BatchOutgoingAsync
     {
         public ProxyBatchOutgoingAsync(Ice.ObjectPrx proxy, string operation, object cookie) :
-            base(((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance(), operation, cookie)
+            base(proxy.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance(), operation,
+                 cookie)
         {
             _proxy = proxy;
         }
@@ -1491,8 +1495,9 @@ namespace IceInternal
 
     public class ConnectionBatchOutgoingAsync : BatchOutgoingAsync
     {
-        public ConnectionBatchOutgoingAsync(Ice.ConnectionI con, Instance instance, string operation, object cookie) :
-            base(instance, operation, cookie)
+        public ConnectionBatchOutgoingAsync(Ice.ConnectionI con, Ice.Communicator communicator, Instance instance,
+                                            string operation, object cookie) :
+            base(communicator, instance, operation, cookie)
         {
             _connection = con;
         }
@@ -1519,10 +1524,8 @@ namespace IceInternal
     {
         public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
                                               object cookie) :
-            base(instance, operation, cookie)
+            base(communicator, instance, operation, cookie)
         {
-            _communicator = communicator;
-
             //
             // _useCount is initialized to 1 to prevent premature callbacks.
             // The caller must invoke ready() after all flush requests have
@@ -1534,11 +1537,6 @@ namespace IceInternal
             // Assume all connections are flushed synchronously.
             //
             sentSynchronously_ = true;
-        }
-
-        public override Ice.Communicator getCommunicator()
-        {
-            return _communicator;
         }
 
         public void flushConnection(Ice.Connection con)
@@ -1632,7 +1630,6 @@ namespace IceInternal
             }
         }
 
-        private Ice.Communicator _communicator;
         private int _useCount;
     }
 }

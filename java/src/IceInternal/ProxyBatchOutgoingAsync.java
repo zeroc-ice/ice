@@ -13,12 +13,12 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
 {
     public ProxyBatchOutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase callback)
     {
-        super(((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation, callback);
+        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
+              callback);
         _proxy = prx;
     }
 
-    public void
-    __send()
+    public void __send()
     {
         //
         // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
@@ -45,6 +45,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         }
     }
 
+    @Override
     public Ice.ObjectPrx getProxy()
     {
         return _proxy;

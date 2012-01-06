@@ -46,7 +46,7 @@ public:
 
     virtual Ice::CommunicatorPtr getCommunicator() const
     {
-        return 0;
+        return _communicator;
     }
 
     virtual Ice::ConnectionPtr getConnection() const
@@ -113,8 +113,8 @@ protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);
 
-    AsyncResult(const IceInternal::InstancePtr&, const std::string&, const IceInternal::CallbackBasePtr&, 
-                const LocalObjectPtr&);
+    AsyncResult(const CommunicatorPtr&, const IceInternal::InstancePtr&, const std::string&,
+                const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     void __sentAsync();
     void __response();
@@ -124,6 +124,7 @@ protected:
 
     virtual ~AsyncResult(); // Must be heap-allocated.
 
+    const CommunicatorPtr _communicator;
     const IceInternal::InstancePtr _instance;
     const std::string& _operation;
     const IceInternal::CallbackBasePtr _callback;
@@ -233,7 +234,8 @@ class ICE_API BatchOutgoingAsync : public OutgoingAsyncMessageCallback, public I
 {
 public:
 
-    BatchOutgoingAsync(const InstancePtr&, const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+    BatchOutgoingAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&, const CallbackBasePtr&,
+                       const Ice::LocalObjectPtr&);
 
     virtual bool __sent(Ice::ConnectionI*);
     virtual void __sent();
@@ -264,8 +266,8 @@ class ICE_API ConnectionBatchOutgoingAsync : public BatchOutgoingAsync
 {
 public:
 
-    ConnectionBatchOutgoingAsync(const Ice::ConnectionIPtr&, const InstancePtr&, const std::string&,
-                                 const CallbackBasePtr&, const Ice::LocalObjectPtr&);
+    ConnectionBatchOutgoingAsync(const Ice::ConnectionIPtr&, const Ice::CommunicatorPtr&, const InstancePtr&,
+                                 const std::string&, const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
     void __send();
 
@@ -289,17 +291,10 @@ public:
     void completed(const Ice::AsyncResultPtr&);
     void sent(const Ice::AsyncResultPtr&);
 
-    virtual Ice::CommunicatorPtr
-    getCommunicator() const
-    {
-        return _communicator;
-    }
-
 private:
 
     void check(const Ice::AsyncResultPtr&, const Ice::LocalException*, bool);
 
-    const Ice::CommunicatorPtr _communicator;
     int _useCount;
 };
 

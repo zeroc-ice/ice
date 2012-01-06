@@ -11,9 +11,9 @@ package IceInternal;
 
 public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback
 {
-    public BatchOutgoingAsync(Instance instance, String operation, CallbackBase callback)
+    public BatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation, CallbackBase callback)
     {
-        super(instance, operation, callback);
+        super(communicator, instance, operation, callback);
     }
 
     public boolean __sent(Ice.ConnectionI connection)

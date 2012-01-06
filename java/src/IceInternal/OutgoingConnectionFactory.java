@@ -40,7 +40,7 @@ public final class OutgoingConnectionFactory
             }
         }
     };
-    
+
     interface CreateConnectionCallback
     {
         void setConnection(Ice.ConnectionI connection, boolean compress);
@@ -64,6 +64,7 @@ public final class OutgoingConnectionFactory
         }
 
         _destroyed = true;
+        _communicator = null;
         notifyAll();
     }
 
@@ -415,8 +416,9 @@ public final class OutgoingConnectionFactory
     //
     // Only for use by Instance.
     //
-    OutgoingConnectionFactory(Instance instance)
+    OutgoingConnectionFactory(Ice.Communicator communicator, Instance instance)
     {
+        _communicator = communicator;
         _instance = instance;
         _destroyed = false;
     }
@@ -678,28 +680,28 @@ public final class OutgoingConnectionFactory
         // in case the communicator is destroyed.
         //
         Ice.ConnectionI connection = null;
-	try
-	{
+        try
+        {
             if(_destroyed)
             {
                 throw new Ice.CommunicatorDestroyedException();
             }
 
-            connection = new Ice.ConnectionI(_instance, _reaper, transceiver, ci.connector, 
+            connection = new Ice.ConnectionI(_communicator, _instance, _reaper, transceiver, ci.connector,
                                              ci.endpoint.compress(false), null);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    try
-	    {
-		transceiver.close();
-	    }
-	    catch(Ice.LocalException exc)
-	    {
-		// Ignore
-	    }
+        }
+        catch(Ice.LocalException ex)
+        {
+            try
+            {
+                transceiver.close();
+            }
+            catch(Ice.LocalException exc)
+            {
+                // Ignore
+            }
             throw ex;
-	}
+        }
 
         _connections.put(ci.connector, connection);
         _connectionsByEndpoint.put(connection.endpoint(), connection);
@@ -1199,12 +1201,13 @@ public final class OutgoingConnectionFactory
         private ConnectorInfo _current;
     }
 
+    private Ice.Communicator _communicator;
     private final Instance _instance;
     private final ConnectionReaper _reaper = new ConnectionReaper();
     private boolean _destroyed;
 
     private MultiHashMap<Connector, Ice.ConnectionI> _connections = new MultiHashMap<Connector, Ice.ConnectionI>();
-    private MultiHashMap<EndpointI, Ice.ConnectionI> _connectionsByEndpoint = 
+    private MultiHashMap<EndpointI, Ice.ConnectionI> _connectionsByEndpoint =
         new MultiHashMap<EndpointI, Ice.ConnectionI>();
     private java.util.Map<Connector, java.util.HashSet<ConnectCallback> > _pending =
         new java.util.HashMap<Connector, java.util.HashSet<ConnectCallback> >();

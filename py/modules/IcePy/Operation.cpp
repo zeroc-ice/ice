@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Operation.h>
+#include <Communicator.h>
 #include <Current.h>
 #include <Proxy.h>
 #include <Types.h>
@@ -1810,7 +1811,8 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkAsyncTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),
+                                                         static_cast<const Ice::Byte*>(0));
         if(!params.empty())
         {
             pparams.first = &params[0];
@@ -1893,6 +1895,7 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     obj->invocation = new InvocationPtr(this);
     obj->proxy = _pyProxy;
     Py_INCREF(obj->proxy);
+    obj->communicator = getCommunicatorWrapper(_communicator);
     return reinterpret_cast<PyObject*>(obj);
 }
 
@@ -2542,6 +2545,7 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
     obj->invocation = new InvocationPtr(this);
     obj->proxy = _pyProxy;
     Py_INCREF(obj->proxy);
+    obj->communicator = getCommunicatorWrapper(_prx->ice_getCommunicator());
     return reinterpret_cast<PyObject*>(obj);
 }
 

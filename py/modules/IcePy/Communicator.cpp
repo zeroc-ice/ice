@@ -760,7 +760,7 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
         return 0;
     }
 
-    return createAsyncResult(result, 0, 0, reinterpret_cast<PyObject*>(self));
+    return createAsyncResult(result, 0, 0, self->wrapper);
 }
 
 #ifdef WIN32

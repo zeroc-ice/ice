@@ -14,8 +14,7 @@ public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
     public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
                                           CallbackBase callback)
     {
-        super(instance, operation, callback);
-        _communicator = communicator;
+        super(communicator, instance, operation, callback);
 
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
@@ -28,12 +27,6 @@ public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
         // Assume all connections are flushed synchronously.
         //
         _sentSynchronously = true;
-    }
-
-    @Override
-    public Ice.Communicator getCommunicator()
-    {
-        return _communicator;
     }
 
     public void flushConnection(Ice.Connection con)
@@ -114,7 +107,6 @@ public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
         }
     }
 
-    private Ice.Communicator _communicator;
     private int _useCount;
 
     private Ice.Callback _cb = new Ice.Callback()

@@ -120,6 +120,7 @@ IceInternal::OutgoingConnectionFactory::destroy()
 #endif
 
     _destroyed = true;
+    _communicator = 0;
     notifyAll();
 }
 
@@ -437,7 +438,9 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(const Communicat
     }
 }
 
-IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
+IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const CommunicatorPtr& communicator,
+                                                                  const InstancePtr& instance) :
+    _communicator(communicator),
     _instance(instance),
     _reaper(new ConnectionReaper()),
     _destroyed(false),
@@ -675,7 +678,8 @@ IceInternal::OutgoingConnectionFactory::createConnection(const TransceiverPtr& t
             throw Ice::CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-        connection = new ConnectionI(_instance, _reaper, transceiver, ci.connector, ci.endpoint->compress(false), 0);
+        connection = new ConnectionI(_communicator, _instance, _reaper, transceiver, ci.connector,
+                                     ci.endpoint->compress(false), 0);
     }
     catch(const Ice::LocalException&)
     {
@@ -1420,7 +1424,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
         try
         {
-            connection = new ConnectionI(_instance, _reaper, transceiver, 0, _endpoint, _adapter);
+            connection = new ConnectionI(_adapter->getCommunicator(), _instance, _reaper, transceiver, 0, _endpoint,
+                                         _adapter);
         }
         catch(const LocalException& ex)
         {
@@ -1551,7 +1556,8 @@ IceInternal::IncomingConnectionFactory::initialize(const string& oaName)
         const_cast<TransceiverPtr&>(_transceiver) = _endpoint->transceiver(const_cast<EndpointIPtr&>(_endpoint));
         if(_transceiver)
         {
-            ConnectionIPtr connection = new ConnectionI(_instance, _reaper, _transceiver, 0, _endpoint, _adapter);
+            ConnectionIPtr connection = new ConnectionI(_adapter->getCommunicator(), _instance, _reaper, _transceiver,
+                                                        0, _endpoint, _adapter);
             connection->start(0);            
             _connections.insert(connection);
         }

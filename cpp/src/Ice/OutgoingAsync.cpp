@@ -50,22 +50,22 @@ namespace
 class AsynchronousException : public DispatchWorkItem
 {
 public:
-    
+
     AsynchronousException(const IceInternal::InstancePtr& instance,
                           const Ice::AsyncResultPtr& result,
                           const Ice::Exception& ex) :
         DispatchWorkItem(instance), _result(result), _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
     {
     }
-    
+
     virtual void
     run()
     {
         _result->__exception(*_exception.get());
     }
-    
+
 private:
-    
+
     const Ice::AsyncResultPtr _result;
     const auto_ptr<Ice::Exception> _exception;
 };
@@ -73,31 +73,33 @@ private:
 class AsynchronousSent : public DispatchWorkItem
 {
 public:
-    
-    AsynchronousSent(const IceInternal::InstancePtr& instance, const Ice::AsyncResultPtr& result) : 
+
+    AsynchronousSent(const IceInternal::InstancePtr& instance, const Ice::AsyncResultPtr& result) :
         DispatchWorkItem(instance), _result(result)
     {
     }
-    
+
     virtual void
     run()
     {
         _result->__sent();
     }
-    
+
 private:
-    
+
     const Ice::AsyncResultPtr _result;
 };
 
 };
 
-Ice::AsyncResult::AsyncResult(const IceInternal::InstancePtr& instance,
+Ice::AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
+                              const IceInternal::InstancePtr& instance,
                               const string& op,
                               const CallbackBasePtr& del,
                               const LocalObjectPtr& cookie) :
+    _communicator(communicator),
     _instance(instance),
-    _operation(op), 
+    _operation(op),
     _callback(del),
     _cookie(cookie),
     _is(instance.get()),
@@ -141,7 +143,7 @@ Ice::AsyncResult::isCompleted() const
     return _state & Done;
 }
 
-void 
+void
 Ice::AsyncResult::waitForCompleted()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
@@ -151,7 +153,7 @@ Ice::AsyncResult::waitForCompleted()
     }
 }
 
-bool 
+bool
 Ice::AsyncResult::isSent() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
@@ -223,19 +225,19 @@ Ice::AsyncResult::__sent()
 
     if(_callback)
     {
-	try
-	{
-	    AsyncResultPtr self(this);
-	    _callback->__sent(self);
-	}
-	catch(const std::exception& ex)
-	{
-	    __warning(ex);
-	}
-	catch(...)
-	{
-	    __warning();
-	}
+        try
+        {
+            AsyncResultPtr self(this);
+            _callback->__sent(self);
+        }
+        catch(const std::exception& ex)
+        {
+            __warning(ex);
+        }
+        catch(...)
+        {
+            __warning();
+        }
     }
 }
 
@@ -260,27 +262,27 @@ void
 Ice::AsyncResult::__exception(const Ice::Exception& ex)
 {
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-	_state |= Done;
-	_exception.reset(ex.ice_clone());
-	_monitor.notifyAll();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+        _state |= Done;
+        _exception.reset(ex.ice_clone());
+        _monitor.notifyAll();
     }
 
     if(_callback)
     {
-	try
-	{
+        try
+        {
             AsyncResultPtr self(this);
             _callback->__completed(self);
-	}
-	catch(const std::exception& ex)
-	{
-	    __warning(ex);
-	}
-	catch(...)
-	{
-	    __warning();
-	}
+        }
+        catch(const std::exception& ex)
+        {
+            __warning(ex);
+        }
+        catch(...)
+        {
+            __warning();
+        }
     }
 }
 
@@ -308,19 +310,19 @@ Ice::AsyncResult::__response()
 
     if(_callback)
     {
-	try
-	{
-	    AsyncResultPtr self(this);
+        try
+        {
+            AsyncResultPtr self(this);
             _callback->__completed(self);
-	}
-	catch(const std::exception& ex)
-	{
-	    __warning(ex);
-	}
-	catch(...)
-	{
-	    __warning();
-	}
+        }
+        catch(const std::exception& ex)
+        {
+            __warning(ex);
+        }
+        catch(...)
+        {
+            __warning();
+        }
     }
 }
 
@@ -369,7 +371,7 @@ Ice::AsyncResult::__check(const AsyncResultPtr& r, const string& operation)
     }
     else if(&r->_operation != &operation)
     {
-        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Incorrect operation for end_" + operation + 
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "Incorrect operation for end_" + operation +
                                                 " method: " + r->_operation);
     }
 }
@@ -403,11 +405,11 @@ Ice::AsyncResult::__warning() const
     }
 }
 
-IceInternal::OutgoingAsync::OutgoingAsync(const ObjectPrx& prx, 
+IceInternal::OutgoingAsync::OutgoingAsync(const ObjectPrx& prx,
                                           const std::string& operation,
                                           const CallbackBasePtr& delegate,
                                           const Ice::LocalObjectPtr& cookie) :
-    AsyncResult(prx->__reference()->getInstance(), operation, delegate, cookie),
+    AsyncResult(prx->ice_getCommunicator(), prx->__reference()->getInstance(), operation, delegate, cookie),
     _proxy(prx)
 {
 }
@@ -474,7 +476,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
             implicitContext->write(prxContext, &_os);
         }
     }
-        
+
     _os.startWriteEncaps();
 }
 
@@ -487,8 +489,8 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
     _state |= Sent;
 
     //
-    // It's possible for the request to be done already when using IOCP. This 
-    // is the case for example if the send callback is dispatched after the 
+    // It's possible for the request to be done already when using IOCP. This
+    // is the case for example if the send callback is dispatched after the
     // read callback for the response/exception.
     //
     if(!(_state & Done))
@@ -531,7 +533,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc, bool sent
             _timerTaskConnection = 0;
         }
     }
-     
+
     //
     // NOTE: at this point, synchronization isn't needed, no other threads should be
     // calling on the callback.
@@ -601,7 +603,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 
         _is.swap(is);
         _is.read(replyStatus);
-        
+
         switch(replyStatus)
         {
             case replyOK:
@@ -609,14 +611,14 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
             {
                 break;
             }
-            
+
             case replyObjectNotExist:
             case replyFacetNotExist:
             case replyOperationNotExist:
             {
                 Identity ident;
                 ident.__read(&_is);
-                
+
                 //
                 // For compatibility with the old FacetPath.
                 //
@@ -631,10 +633,10 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                     }
                     facet.swap(facetPath[0]);
                 }
-                
+
                 string operation;
                 _is.read(operation, false);
-                
+
                 auto_ptr<RequestFailedException> ex;
                 switch(replyStatus)
                 {
@@ -643,19 +645,19 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                         ex.reset(new ObjectNotExistException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     case replyFacetNotExist:
                     {
                         ex.reset(new FacetNotExistException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     case replyOperationNotExist:
                     {
                         ex.reset(new OperationNotExistException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     default:
                     {
                         assert(false);
@@ -668,14 +670,14 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                 ex->operation = operation;
                 ex->ice_throw();
             }
-            
+
             case replyUnknownException:
             case replyUnknownLocalException:
             case replyUnknownUserException:
             {
                 string unknown;
                 _is.read(unknown, false);
-                
+
                 auto_ptr<UnknownException> ex;
                 switch(replyStatus)
                 {
@@ -684,42 +686,42 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                         ex.reset(new UnknownException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     case replyUnknownLocalException:
                     {
                         ex.reset(new UnknownLocalException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     case replyUnknownUserException:
                     {
                         ex.reset(new UnknownUserException(__FILE__, __LINE__));
                         break;
                     }
-                    
+
                     default:
                     {
                         assert(false);
                         break;
                     }
                 }
-                
+
                 ex->unknown = unknown;
                 ex->ice_throw();
             }
-            
+
             default:
             {
                 throw UnknownReplyStatusException(__FILE__, __LINE__);
             }
         }
 
-	_state |= Done;
-	if(replyStatus == replyOK)
-	{
-	    _state |= OK;
-	}
-	_monitor.notifyAll();
+        _state |= Done;
+        if(replyStatus == replyOK)
+        {
+            _state |= OK;
+        }
+        _monitor.notifyAll();
     }
     catch(const LocalException& ex)
     {
@@ -803,20 +805,20 @@ IceInternal::OutgoingAsync::handleException(const Ice::LocalException& exc, bool
         // close connection message, the server guarantees that all outstanding requests
         // can safely be repeated.
         //
-        // An ObjectNotExistException can always be retried as well without violating 
+        // An ObjectNotExistException can always be retried as well without violating
         // "at-most-once" (see the implementation of the checkRetryAfterException method of
         // the ProxyFactory class for the reasons why it can be useful).
-        // 
-        if(!sent || 
-           dynamic_cast<const CloseConnectionException*>(&exc) || 
+        //
+        if(!sent ||
+           dynamic_cast<const CloseConnectionException*>(&exc) ||
            dynamic_cast<const ObjectNotExistException*>(&exc))
         {
             exc.ice_throw();
         }
 
         //
-        // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the 
-        // request cannot be resent without potentially violating the "at-most-once" 
+        // Throw the exception wrapped in a LocalExceptionWrapper, to indicate that the
+        // request cannot be resent without potentially violating the "at-most-once"
         // principle.
         //
         throw LocalExceptionWrapper(exc, false);
@@ -855,11 +857,12 @@ IceInternal::OutgoingAsync::runTimerTask() // Implementation of TimerTask::runTi
     }
 }
 
-IceInternal::BatchOutgoingAsync::BatchOutgoingAsync(const InstancePtr& instance, 
+IceInternal::BatchOutgoingAsync::BatchOutgoingAsync(const CommunicatorPtr& communicator,
+                                                    const InstancePtr& instance,
                                                     const std::string& operation,
                                                     const CallbackBasePtr& delegate,
                                                     const Ice::LocalObjectPtr& cookie) :
-    AsyncResult(instance, operation, delegate, cookie)
+    AsyncResult(communicator, instance, operation, delegate, cookie)
 {
 }
 
@@ -889,11 +892,11 @@ IceInternal::BatchOutgoingAsync::__finished(const Ice::LocalException& exc, bool
     __exception(exc);
 }
 
-IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectPrx& proxy, 
+IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectPrx& proxy,
                                                               const std::string& operation,
                                                               const CallbackBasePtr& delegate,
                                                               const Ice::LocalObjectPtr& cookie) :
-    BatchOutgoingAsync(proxy->__reference()->getInstance(), operation, delegate, cookie),
+    BatchOutgoingAsync(proxy->ice_getCommunicator(), proxy->__reference()->getInstance(), operation, delegate, cookie),
     _proxy(proxy)
 {
 }
@@ -927,11 +930,12 @@ IceInternal::ProxyBatchOutgoingAsync::__send()
 }
 
 IceInternal::ConnectionBatchOutgoingAsync::ConnectionBatchOutgoingAsync(const ConnectionIPtr& con,
+                                                                        const CommunicatorPtr& communicator,
                                                                         const InstancePtr& instance,
                                                                         const string& operation,
                                                                         const CallbackBasePtr& delegate,
                                                                         const Ice::LocalObjectPtr& cookie) :
-    BatchOutgoingAsync(instance, operation, delegate, cookie),
+    BatchOutgoingAsync(communicator, instance, operation, delegate, cookie),
     _connection(con)
 {
 }
@@ -961,8 +965,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::CommunicatorBatchOutgoingAsync(cons
                                                                             const string& operation,
                                                                             const CallbackBasePtr& delegate,
                                                                             const Ice::LocalObjectPtr& cookie) :
-    BatchOutgoingAsync(instance, operation, delegate, cookie),
-    _communicator(communicator)
+    BatchOutgoingAsync(communicator, instance, operation, delegate, cookie)
 {
     //
     // _useCount is initialized to 1 to prevent premature callbacks.
@@ -1090,8 +1093,8 @@ public:
     {
         //
         // Called by the AsyncResult constructor to verify the delegate. The dummy
-        // delegate is passed when the user used a begin_ method without delegate. 
-        // By returning 0 here, we tell the AsyncResult that no delegates was 
+        // delegate is passed when the user used a begin_ method without delegate.
+        // By returning 0 here, we tell the AsyncResult that no delegates was
         // provided.
         //
         return 0;

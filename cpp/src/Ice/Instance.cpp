@@ -982,7 +982,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _pluginManager = new PluginManagerI(communicator, _dynamicLibraryList);
 
-        _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+        _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
         _servantFactoryManager = new ObjectFactoryManager();
 
