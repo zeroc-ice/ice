@@ -246,7 +246,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter = null;
-            if(!properties.getProperty("IceBox.ServiceManager.Endpoints").equals(""))
+            if(properties.getProperty("IceBox.ServiceManager.Endpoints").length() != 0)
             {
                 adapter = _communicator.createObjectAdapter("IceBox.ServiceManager");
 
@@ -260,7 +260,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // Parse the property set with the prefix "IceBox.Service.". These
             // properties should have the following format:
             //
-            // IceBox.Service.Foo=Package.Foo [args]
+            // IceBox.Service.Foo=[jar-or-dir:]Package.Foo [args]
             //
             // We parse the service properties specified in IceBox.LoadOrder
             // first, then the ones from remaining services.
@@ -425,11 +425,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             _communicator.waitForShutdown();
             Ice.Application.defaultInterrupt();
-
-            //
-            // Invoke stop() on the services.
-            //
-            stopAll();
         }
         catch(FailureException ex)
         {
@@ -439,7 +434,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             ex.printStackTrace(pw);
             pw.flush();
             _logger.error(sw.toString());
-            stopAll();
             return 1;
         }
         catch(Throwable ex)
@@ -449,8 +443,14 @@ public class ServiceManagerI extends _ServiceManagerDisp
             ex.printStackTrace(pw);
             pw.flush();
             _logger.error("ServiceManager: caught exception:\n" + sw.toString());
-            stopAll();
             return 1;
+        }
+        finally
+        {
+            //
+            // Invoke stop() on the services.
+            //
+            stopAll();
         }
 
         return 0;

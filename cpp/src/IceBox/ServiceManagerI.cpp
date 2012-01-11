@@ -554,6 +554,20 @@ IceBox::ServiceManagerI::start()
         stopAll();
         return false;
     }
+    catch(const std::exception& ex)
+    {
+        Error out(_logger);
+        out << "ServiceManager: " << ex.what();
+        stopAll();
+        return false;
+    }
+    catch(...)
+    {
+        Error out(_logger);
+        out << "ServiceManager: unknown exception";
+        stopAll();
+        return false;
+    }
 
     return true;
 }

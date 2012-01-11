@@ -337,7 +337,7 @@ class ServiceManagerI : ServiceManagerDisp_
             // Parse the property set with the prefix "IceBox.Service.". These
             // properties should have the following format:
             //
-            // IceBox.Service.Foo=Package.Foo [args]
+            // IceBox.Service.Foo=<assembly>:Package.Foo [args]
             //
             // We parse the service properties specified in IceBox.LoadOrder
             // first, then the ones from remaining services.
@@ -498,25 +498,23 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             _communicator.waitForShutdown();
-            // XXX:
-            //Ice.Application.defaultInterrupt();
-
-            //
-            // Invoke stop() on the services.
-            //
-            stopAll();
         }
         catch(FailureException ex)
         {
             _logger.error(ex.ToString());
-            stopAll();
             return 1;
         }
         catch(Exception ex)
         {
             _logger.error("ServiceManager: caught exception:\n" + ex.ToString());
-            stopAll();
             return 1;
+        }
+        finally
+        {
+            //
+            // Invoke stop() on the services.
+            //
+            stopAll();
         }
 
         return 0;
@@ -809,8 +807,8 @@ class ServiceManagerI : ServiceManagerDisp_
             }
 
             //
-            // First, for each service, we call stop on the service and flush its database environment to
-            // the disk. Services are stopped in the reverse order of which they were started.
+            // For each service, we call stop on the service and flush its database environment to
+            // the disk. Services are stopped in the reverse order of the order they were started.
             //
             _services.Reverse();
             List<string> stoppedServices = new List<string>();
