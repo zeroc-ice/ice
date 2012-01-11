@@ -1835,11 +1835,6 @@ compile(int argc, char* argv[])
             }
         }
         
-        if(dependxml)
-        {
-            cout << "</dependencies>\n";
-        }
-
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(mutex);
 
@@ -1848,6 +1843,11 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
         }
+    }
+    
+    if(dependxml)
+    {
+        cout << "</dependencies>\n";
     }
 
     if(depend || dependxml)
