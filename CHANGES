@@ -81,6 +81,9 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Fixed a bug in Ice.Application for Mono that could cause the VM to
+  crash when a signal occurred.
+
 - Minor marshalling/un-marshalling performance improvement (removed
   virtual specifier from streaming class).
 

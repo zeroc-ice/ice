@@ -227,6 +227,7 @@ namespace Ice
 
                 status = doMain(args, initData);
 
+                _signals.destroy();
                 _signals = null;
             }
             else
@@ -821,12 +822,16 @@ namespace Ice
         private interface Signals
         {
             void register(SignalHandler handler);
+            void destroy();
         }
 
         private class MonoSignals : Signals
         {
             public void register(SignalHandler handler)
             {
+                _handler = handler;
+                _destroyed = false;
+
                 try
                 {
                     //
@@ -848,18 +853,28 @@ namespace Ice
                     object SIGTERM = Enum.Parse(sigs, "SIGTERM");
                     Type stdlib = a.GetType("Mono.Unix.Native.Stdlib");
                     MethodInfo method = stdlib.GetMethod("signal", BindingFlags.Static | BindingFlags.Public);
-                    Type del = a.GetType("Mono.Unix.Native.SignalHandler");
-                    _delegate = Delegate.CreateDelegate(del, handler.Target, handler.Method);
+                    Type delType = a.GetType("Mono.Unix.Native.SignalHandler");
+                    Delegate del = Delegate.CreateDelegate(delType, this, "callback");
                     object[] args = new object[2];
                     args[0] = SIGHUP;
-                    args[1] = _delegate;
+                    args[1] = del;
                     method.Invoke(null, args);
                     args[0] = SIGINT;
-                    args[1] = _delegate;
+                    args[1] = del;
                     method.Invoke(null, args);
                     args[0] = SIGTERM;
-                    args[1] = _delegate;
+                    args[1] = del;
                     method.Invoke(null, args);
+
+                    //
+                    // Doing certain activities within Mono's signal dispatch thread
+                    // can cause the VM to crash, so we use a separate thread to invoke
+                    // the handler.
+                    //
+                    _thread = new Thread(new ThreadStart(run));
+                    _thread.IsBackground = true;
+                    _thread.Name = "Ice.Application.SignalThread";
+                    _thread.Start();
                 }
                 catch(System.DllNotFoundException)
                 {
@@ -875,7 +890,88 @@ namespace Ice
                 }
             }
 
-            private Delegate _delegate;
+            public void destroy()
+            {
+                _m.Lock();
+                try
+                {
+                    _destroyed = true;
+                    _m.Notify();
+                }
+                finally
+                {
+                    _m.Unlock();
+                }
+
+                if(_thread != null)
+                {
+                    _thread.Join();
+                    _thread = null;
+                }
+            }
+
+            private void callback(int sig)
+            {
+                _m.Lock();
+                try
+                {
+                    _signals.Add(sig);
+                    _m.Notify();
+                }
+                finally
+                {
+                    _m.Unlock();
+                }
+            }
+
+            private void run()
+            {
+                while(true)
+                {
+                    List<int> signals = null;
+                    bool destroyed = false;
+
+                    _m.Lock();
+                    try
+                    {
+                        if(!_destroyed && _signals.Count == 0)
+                        {
+                            _m.Wait();
+                        }
+
+                        if(_signals.Count > 0)
+                        {
+                            signals = _signals;
+                            _signals = new List<int>();
+                        }
+
+                        destroyed = _destroyed;
+                    }
+                    finally
+                    {
+                        _m.Unlock();
+                    }
+
+                    if(signals != null)
+                    {
+                        foreach(int sig in signals)
+                        {
+                            _handler(sig);
+                        }
+                    }
+
+                    if(destroyed)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            private SignalHandler _handler;
+            private bool _destroyed;
+            private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
+            private Thread _thread;
+            private List<int> _signals = new List<int>();
         }
 
         private class WindowsSignals : Signals
@@ -895,6 +991,10 @@ namespace Ice
 
                 bool rc = NativeMethods.SetConsoleCtrlHandler(_callback, true);
                 Debug.Assert(rc);
+            }
+
+            public void destroy()
+            {
             }
 
             private CtrlCEventHandler _callback;
