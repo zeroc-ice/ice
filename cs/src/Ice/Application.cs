@@ -884,10 +884,6 @@ namespace Ice
                     //
                     Util.getProcessLogger().warning("unable to initialize signals");
                 }
-                catch(System.Exception)
-                {
-                    Debug.Assert(false);
-                }
             }
 
             public void destroy()
