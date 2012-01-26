@@ -185,7 +185,8 @@ Glacier2::RequestQueue::RequestQueue(const RequestQueueThreadPtr& requestQueueTh
     _callback(newCallback_Object_ice_invoke(this, &RequestQueue::response, &RequestQueue::exception,
                                             &RequestQueue::sent)),
     _flushCallback(newCallback_Connection_flushBatchRequests(this, &RequestQueue::exception, &RequestQueue::sent)),
-    _pendingSend(false)
+    _pendingSend(false),
+    _destroyed(false)
 {
 }
 
@@ -241,6 +242,37 @@ Glacier2::RequestQueue::flushRequests(set<Ice::ObjectPrx>& batchProxies)
 }
 
 void
+Glacier2::RequestQueue::destroy()
+{
+    IceUtil::Mutex::Lock lock(*this);
+
+    _destroyed = true;
+
+    //
+    // Although the session has been destroyed, we cannot destroy this queue
+    // until all requests have completed.
+    //
+    if(_requests.empty())
+    {
+        destroyInternal();
+    }
+}
+
+void
+Glacier2::RequestQueue::destroyInternal()
+{
+    //
+    // Must be called with the mutex locked.
+    //
+
+    //
+    // Remove cyclic references.
+    //
+    const_cast<Ice::Callback_Object_ice_invokePtr&>(_callback) = 0;
+    const_cast<Ice::Callback_Connection_flushBatchRequestsPtr&>(_flushCallback) = 0;
+}
+
+void
 Glacier2::RequestQueue::flush()
 {
     assert(_connection);
@@ -289,6 +321,11 @@ Glacier2::RequestQueue::flush()
             _pendingSendRequest = 0;
         }
     }
+
+    if(_destroyed && _requests.empty())
+    {
+        destroyInternal();
+    }
 }
 
 void
@@ -312,6 +349,11 @@ Glacier2::RequestQueue::flush(set<Ice::ObjectPrx>& batchProxies)
         }
     }
     _requests.clear();
+
+    if(_destroyed)
+    {
+        destroyInternal();
+    }
 }
 
 void

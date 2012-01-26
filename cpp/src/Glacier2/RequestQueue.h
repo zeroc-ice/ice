@@ -65,7 +65,11 @@ public:
     bool addRequest(const RequestPtr&);
     void flushRequests(std::set<Ice::ObjectPrx>&);
 
+    void destroy();
+
 private:
+
+    void destroyInternal();
 
     void flush();
     void flush(std::set<Ice::ObjectPrx>&);
@@ -83,6 +87,7 @@ private:
     std::deque<RequestPtr> _requests;
     bool _pendingSend;
     RequestPtr _pendingSendRequest;
+    bool _destroyed;
 };
 typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
 
