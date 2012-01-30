@@ -611,6 +611,7 @@ namespace IceInternal
             //is_ = new IceInternal.BasicStream(instance);
             os_ = new IceInternal.BasicStream(instance);
             state_ = 0;
+            sentSynchronously_ = false;
             exception_ = null;
             _cookie = cookie;
         }

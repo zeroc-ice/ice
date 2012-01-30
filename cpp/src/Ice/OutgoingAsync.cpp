@@ -105,6 +105,7 @@ Ice::AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
     _is(instance.get()),
     _os(instance.get()),
     _state(0),
+    _sentSynchronously(false),
     _exception(0)
 {
     if(!_callback)

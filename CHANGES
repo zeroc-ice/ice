@@ -28,7 +28,7 @@ General Changes
 ===============
 
 - Improved server disable to prevent the IceGrid locator from
-  returning endpoints of disabed servers. See the Ice manual for more
+  returning endpoints of disabled servers. See the Ice manual for more
   information.
 
 - Fixed a per-session memory leak in Glacier2 that occurred when
@@ -59,6 +59,9 @@ General Changes
 
 C++ Changes
 ===========
+
+- Fixed a bug that could cause an assertion failure when flushing
+  batch requests.
 
 - Added support for clang compiler on Mac OS X.
 

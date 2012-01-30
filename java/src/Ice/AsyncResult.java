@@ -26,6 +26,7 @@ public class AsyncResult
         //_is = new IceInternal.BasicStream(instance, false, false);
         _os = new IceInternal.BasicStream(instance, false, false);
         _state = 0;
+        _sentSynchronously = false;
         _exception = null;
         _callback = del;
     }
