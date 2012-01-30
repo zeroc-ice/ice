@@ -20,12 +20,14 @@ ServerAdapterI::ServerAdapterI(const NodeIPtr& node,
                                ServerI* server, 
                                const string& serverName,
                                const AdapterPrx& proxy,
-                               const string& id) :
+                               const string& id, 
+                               bool enabled) :
     _node(node),
     _this(proxy),
     _serverId(serverName),
     _id(id),
-    _server(server)
+    _server(server),
+    _enabled(enabled)
 {
 }
 
@@ -39,7 +41,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
 {
     {
         Lock sync(*this);
-        if(_proxy)
+        if(_enabled && _proxy)
         {
             //
             // Return the adapter direct proxy.
@@ -53,7 +55,7 @@ ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Cur
             // Nothing else waits for this adapter so we must make sure that this 
             // adapter if still activatable.
             //
-            if(!_server->isAdapterActivatable(_id))
+            if(!_enabled || !_server->isAdapterActivatable(_id))
             {
                 cb->ice_response(0);
                 return;
@@ -113,14 +115,14 @@ ServerAdapterI::getDirectProxy(const Ice::Current& current) const
     // Return the adapter direct proxy if it's set. Otherwise, throw. The caller can eventually
     // activate the adapter if it's activatable.
     //
-    if(_proxy)
+    if(_proxy && _enabled)
     {
         return _proxy;
     }
     else
     {
         AdapterNotActiveException ex;
-        ex.activatable = _server->isAdapterActivatable(_id);
+        ex.activatable = _enabled && _server->isAdapterActivatable(_id);
         throw ex;
     }
 }
@@ -203,6 +205,13 @@ ServerAdapterI::destroy()
     {
         // Ignore.
     }
+}
+
+void
+ServerAdapterI::updateEnabled()
+{
+    Lock sync(*this);
+    _enabled = _server->isEnabled();
 }
 
 void

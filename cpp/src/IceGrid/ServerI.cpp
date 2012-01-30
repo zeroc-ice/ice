@@ -790,6 +790,7 @@ void
 ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 {
     bool activate = false;
+    ServerAdapterDict adpts;
     {
         Lock sync(*this);
         checkDestroyed();
@@ -816,7 +817,13 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
             return; // Nothing to change!
         }
 
+        adpts = _adapters;
         _node->observerUpdateServer(getDynamicInfo());
+    }
+
+    for(ServerAdapterDict::iterator r = adpts.begin(); r != adpts.end(); ++r)
+    {
+        r->second->updateEnabled();
     }
 
     if(activate)
@@ -1896,7 +1903,8 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 if(!servant)
                 {
                     AdapterPrx proxy = AdapterPrx::uncheckedCast(adapter->createProxy(id));
-                    servant = new ServerAdapterI(_node, this, _id, proxy, (*r)->id);
+                    servant = new ServerAdapterI(_node, this, _id, proxy, (*r)->id, _activation != Disabled ||
+                                                 _failureTime != IceUtil::Time());
                     adapter->add(servant, id);
                 }
                 _adapters.insert(make_pair((*r)->id, servant));

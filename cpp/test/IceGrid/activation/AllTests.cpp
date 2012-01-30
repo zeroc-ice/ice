@@ -364,6 +364,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-always") == IceGrid::Inactive);
+
+
+        test(admin->getServerState("server") == IceGrid::Inactive);
+        admin->enableServer("server", true);
+        communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+        int pid = admin->getServerPid("server");
+        admin->enableServer("server", false);
+        test(admin->getServerState("server") == IceGrid::Active);
+        try
+        {
+            communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+            test(false);
+        }
+        catch(const Ice::NoEndpointException&)
+        {
+        }
+        admin->enableServer("server", true);
+        communicator->stringToProxy("server")->ice_locatorCacheTimeout(0)->ice_ping();
+        test(admin->getServerPid("server") == pid);
+        admin->stopServer("server");
+        test(admin->getServerState("server") == IceGrid::Inactive);
     }
     catch(const Ice::LocalException& ex)
     {

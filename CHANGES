@@ -27,6 +27,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Improved server disable to prevent the IceGrid locator from
+  returning endpoints of disabed servers. See the Ice manual for more
+  information.
+
 - Fixed a per-session memory leak in Glacier2 that occurred when
   request buffering was enabled.
 
