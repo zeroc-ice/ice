@@ -1070,8 +1070,6 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
         out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
         out << sb;
-        out << nl << "try";
-        out << sb;
         if(allClassMembers.size() > 1)
         {
             out << nl << "switch(__member)";
@@ -1092,7 +1090,14 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             }
             string memberName = fixKwd((*d)->name());
             string memberType = typeToString((*d)->type(), TypeModeMember, package);
+            out << nl << "if(v == null || v instanceof " << memberType << ")";
+            out << sb;
             out << nl << memberName << " = (" << memberType << ")v;";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+            out << eb;
             if(allClassMembers.size() > 1)
             {
                 out << nl << "break;";
@@ -1103,11 +1108,6 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         {
             out << eb;
         }
-        out << eb;
-        out << nl << "catch(ClassCastException ex)";
-        out << sb;
-        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-        out << eb;
         out << eb;
 
         out << sp << nl << "public String" << nl << "type()";
@@ -2799,8 +2799,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
             out << sb;
-            out << nl << "try";
-            out << sb;
             if(allClassMembers.size() > 1)
             {
                 out << nl << "switch(__member)";
@@ -2821,7 +2819,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
                 string memberName = fixKwd((*d)->name());
                 string memberType = typeToString((*d)->type(), TypeModeMember, package);
+                out << nl << "if(v == null || v instanceof " << memberType << ")";
+                out << sb;
                 out << nl << memberName << " = (" << memberType << ")v;";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+                out << eb;
                 if(allClassMembers.size() > 1)
                 {
                     out << nl << "break;";
@@ -2832,11 +2837,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 out << eb;
             }
-            out << eb;
-            out << nl << "catch(ClassCastException ex)";
-            out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-            out << eb;
             out << eb;
 
             out << sp << nl << "public String" << nl << "type()";
@@ -3061,12 +3061,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return true;";
     out << eb;
     out << nl << typeS << " _r = null;";
-    out << nl << "try";
+    out << nl << "if(rhs instanceof " << typeS << ")";
     out << sb;
     out << nl << "_r = (" << typeS << ")rhs;";
-    out << eb;
-    out << nl << "catch(ClassCastException ex)";
-    out << sb;
     out << eb;
     out << sp << nl << "if(_r != null)";
     out << sb;
@@ -3222,8 +3219,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
             out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
             out << sb;
-            out << nl << "try";
-            out << sb;
             if(classMembers.size() > 1)
             {
                 out << nl << "switch(__member)";
@@ -3244,7 +3239,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
                 string memberName = fixKwd((*d)->name());
                 string memberType = typeToString((*d)->type(), TypeModeMember, package);
+                out << nl << "if(v == null || v instanceof " << memberType << ")";
+                out << sb;
                 out << nl << memberName << " = (" << memberType << ")v;";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+                out << eb;
                 if(classMembers.size() > 1)
                 {
                     out << nl << "break;";
@@ -3255,11 +3257,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 out << eb;
             }
-            out << eb;
-            out << nl << "catch(ClassCastException ex)";
-            out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-            out << eb;
             out << eb;
 
             out << sp << nl << "public String" << nl << "type()";
@@ -3820,11 +3817,11 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << sp << nl << "public void";
         out << nl << "patch(Ice.Object v)";
         out << sb;
-        out << nl << "try";
+        out << nl << "if(v == null || v instanceof " << typeS << ")";
         out << sb;
         out << nl << "value = (" << typeS << ")v;";
         out << eb;
-        out << nl << "catch(ClassCastException ex)";
+        out << nl << "else";
         out << sb;
         out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         out << eb;
@@ -4300,11 +4297,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx __d = null;";
     out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "try";
+    out << nl << "if(__obj instanceof " << name << "Prx)";
     out << sb;
     out << nl << "__d = (" << name << "Prx)__obj;";
     out << eb;
-    out << nl << "catch(ClassCastException ex)";
+    out << nl << "else";
     out << sb;
     out << nl << "if(__obj.ice_isA(ice_staticId()))";
     out << sb;
@@ -4323,11 +4320,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx __d = null;";
     out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "try";
+    out << nl << "if(__obj instanceof " << name << "Prx)";
     out << sb;
     out << nl << "__d = (" << name << "Prx)__obj;";
     out << eb;
-    out << nl << "catch(ClassCastException ex)";
+    out << nl << "else";
     out << sb;
     out << nl << "if(__obj.ice_isA(ice_staticId(), __ctx))";
     out << sb;
@@ -4390,11 +4387,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << name << "Prx __d = null;";
     out << nl << "if(__obj != null)";
     out << sb;
-    out << nl << "try";
+    out << nl << "if(__obj instanceof " << name << "Prx)";
     out << sb;
     out << nl << "__d = (" << name << "Prx)__obj;";
     out << eb;
-    out << nl << "catch(ClassCastException ex)";
+    out << nl << "else";
     out << sb;
     out << nl << name << "PrxHelper __h = new " << name << "PrxHelper();";
     out << nl << "__h.__copyFrom(__obj);";
@@ -5337,11 +5334,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "public Ice.DispatchStatus run(Ice.Object __obj)";
             out << sb;
             out << nl << fixKwd(name) << " __servant = null;";
-            out << nl << "try";
+            out << nl << "if(__obj == null || __obj instanceof " << fixKwd(name) << ")";
             out << sb;
             out << nl << "__servant = (" << fixKwd(name) << ")__obj;";
             out << eb;
-            out << nl << "catch(ClassCastException __ex)";
+            out << nl << "else";
             out << sb;
             out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
             out << eb;
