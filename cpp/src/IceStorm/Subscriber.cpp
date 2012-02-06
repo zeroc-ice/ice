@@ -805,7 +805,6 @@ Subscriber::error(bool dec, const Ice::Exception& e)
             if(traceLevels->subscriber > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-                out << this << " ";
                 out << _instance->communicator()->identityToString(_rec.id);
                 if(traceLevels->subscriber > 1)
                 {
@@ -834,7 +833,6 @@ Subscriber::error(bool dec, const Ice::Exception& e)
         if(traceLevels->subscriber > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-            out << this << " ";
             out << _instance->communicator()->identityToString(_rec.id);
             if(traceLevels->subscriber > 1)
             {
@@ -944,7 +942,7 @@ Subscriber::setState(Subscriber::SubscriberState state)
         if(traceLevels->subscriber > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->subscriberCat);
-            out << this << " endpoints: " << IceStormInternal::describeEndpoints(_rec.obj) 
+            out << "endpoints: " << IceStormInternal::describeEndpoints(_rec.obj) 
                 << " transition from: " << stateToString(_state) << " to: " << stateToString(state);
         }
         _state = state;
