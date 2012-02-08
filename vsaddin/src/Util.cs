@@ -1099,7 +1099,22 @@ namespace Ice.VisualStudio
 
         public static bool isSliceBuilderEnabled(Project project)
         {
-            return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
+            try
+            {
+                if(isCppProject(project) ||
+                   isCSharpProject(project) ||
+                   isVBProject(project) ||
+                   isSilverlightProject(project) ||
+                   isCSharpSmartDeviceProject(project) ||
+                   isVBSmartDeviceProject(project))
+                {
+                    return Util.getProjectPropertyAsBool(project, Util.PropertyIce);
+                }
+            }
+            catch(System.NotImplementedException)
+            {
+            }
+            return false;
         }
 
         public static bool isCSharpProject(Project project)
@@ -3304,8 +3319,14 @@ namespace Ice.VisualStudio
 
             if(result == 0)
             {
-                aggregatableProject = (Microsoft.VisualStudio.Shell.Interop.IVsAggregatableProject)hierarchy;
-                result = aggregatableProject.GetAggregateProjectTypeGuids(out guids);
+                try
+                {
+                    aggregatableProject = (Microsoft.VisualStudio.Shell.Interop.IVsAggregatableProject)hierarchy;
+                    result = aggregatableProject.GetAggregateProjectTypeGuids(out guids);
+                }
+                catch(InvalidCastException)
+                {
+                }
             }
             return guids;
         }
