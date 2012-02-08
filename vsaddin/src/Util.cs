@@ -165,19 +165,27 @@ namespace Ice.VisualStudio
 
         public new bool Contains(string value)
         {
-            string found = base.Find(delegate(string s)
-                                    {
-                                        return s.Equals(value.Trim(), StringComparison.CurrentCultureIgnoreCase);
-                                    });
-            return found != null;
+            string v = base.Find(delegate(string s)
+                                     {
+                                         return s.Equals(value.Trim(), StringComparison.CurrentCultureIgnoreCase);
+                                     });
+            return v != null;
         }
 
         public new bool Remove(string value)
         {
             value = value.Trim();
-            if(Contains(value))
+            //
+            // To do the remove case insensitive, first find the value
+            // doing case insensitive comparison and then remove that.
+            //
+            string v = base.Find(delegate(string s)
+                                     {
+                                         return s.Equals(value.Trim(), StringComparison.CurrentCultureIgnoreCase);
+                                     });
+            if(v != null)
             {
-                return base.Remove(value);
+                return base.Remove(v);
             }
             return false;
         }
@@ -706,6 +714,8 @@ namespace Ice.VisualStudio
             }
             libName += ".lib";
 
+            libName = libName.ToLower();
+
             string additionalDependencies = tool.AdditionalDependencies;
             if(String.IsNullOrEmpty(additionalDependencies))
             {
@@ -734,6 +744,7 @@ namespace Ice.VisualStudio
                 libName += "d";
             }
             libName += ".lib";
+            libName = libName.ToLower();
 
             ComponentList components = new ComponentList(tool.AdditionalDependencies.Split(' '));
             if(components.Contains(libName))
