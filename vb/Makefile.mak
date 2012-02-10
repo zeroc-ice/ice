@@ -19,4 +19,4 @@ $(EVERYTHING)::
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 test::
-	@python $(top_srcdir)/allTests.py
+# dummy test target for top level test target

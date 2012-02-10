@@ -10,21 +10,32 @@
 top_srcdir = cpp
 !include cpp/config/Make.rules.mak
 
-SUBDIRS			= cpp java py php
-CLEAN_SUBDIRS		= java py php cpp
-DEPEND_SUBDIRS		= cpp py php
-INSTALL_SUBDIRS		= cpp java py php
+SUBDIRS			= cpp java py
+CLEAN_SUBDIRS		= java py cpp
+DEPEND_SUBDIRS		= cpp py
+INSTALL_SUBDIRS		= cpp java py
+TEST_SUBDIRS		= cpp java py 
+
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+SUBDIRS			= $(SUBDIRS) php
+CLEAN_SUBDIRS		= php $(CLEAN_SUBDIRS)
+DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php
+INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php
+TEST_SUBDIRS		= $(TEST_SUBDIRS) php
+!endif
 
 !if "$(CPP_COMPILER)" == "VC60"
-SUBDIRS			= $(SUBDIRS) rb
-CLEAN_SUBDIRS		= rb $(CLEAN_SUBDIRS)
-DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) rb
-INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) rb
+SUBDIRS			= $(SUBDIRS) php rb
+CLEAN_SUBDIRS		= rb php $(CLEAN_SUBDIRS)
+DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) php rb
+INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) php rb
+TEST_SUBDIRS		= $(TEST_SUBDIRS) php rb
 !else
 SUBDIRS			= $(SUBDIRS) cs vb vsaddin
 CLEAN_SUBDIRS		= cs vb vsaddin $(CLEAN_SUBDIRS)
 DEPEND_SUBDIRS		= $(DEPEND_SUBDIRS) cs vb
 INSTALL_SUBDIRS		= $(INSTALL_SUBDIRS) cs
+TEST_SUBDIRS		= $(TEST_SUBDIRS) cs
 !endif
 
 all::
@@ -43,9 +54,14 @@ depend::
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) depend" || exit 1
 
 install::
-	@for %i in ( $(INSTALL_SUBDIRS) ) do \
+	@for %i in ( $(TEST_SUBDIRS) ) do \
 	    @echo "making install in %i" && \
 	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) install" || exit 1
+
+test::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making test in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) test" || exit 1
 
 cpp::
 	@echo "making all in cpp" && \
