@@ -17,7 +17,7 @@ public final class OutgoingConnectionFactory
     private static class MultiHashMap<K, V> extends java.util.HashMap<K, java.util.List<V>>
     {
         public void
-        put(K key, V value)
+        putOne(K key, V value)
         {
             java.util.List<V> list = this.get(key);
             if(list == null)
@@ -703,9 +703,9 @@ public final class OutgoingConnectionFactory
             throw ex;
         }
 
-        _connections.put(ci.connector, connection);
-        _connectionsByEndpoint.put(connection.endpoint(), connection);
-        _connectionsByEndpoint.put(connection.endpoint().compress(true), connection);
+        _connections.putOne(ci.connector, connection);
+        _connectionsByEndpoint.putOne(connection.endpoint(), connection);
+        _connectionsByEndpoint.putOne(connection.endpoint().compress(true), connection);
         return connection;
     }
 
