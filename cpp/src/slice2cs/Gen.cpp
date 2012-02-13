@@ -2938,7 +2938,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sp;
             emitGeneratedCodeAttribute();
             _out << nl << "public sealed ";
-            if(base && base->usesClasses())
+            if(base && !base->allClassDataMembers().empty())
             {
                 _out << "new ";
             }
