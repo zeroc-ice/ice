@@ -128,6 +128,37 @@ struct Struct3
     double zeroDotD = 0;
 };
 
+//
+// Struct4 would normally map to a C# struct because we have omitted
+// the string members, and don't contains clr:class metadata, but as it
+// contains default values it is mapped to a class.
+//
+struct Struct4
+{
+    bool boolFalse = false;
+    bool boolTrue = true;
+    byte b = 1;
+    short s = 2;
+    int i = 3;
+    long l = 4;
+    float f = 5.1;
+    double d = 6.2;
+    //string str = "foo \\ \"bar\n \r\n\t\v\f\a\b\? \007 \x07";
+    Color c1 = ::Test::red;
+    Color c2 = Test::green;
+    Color c3 = blue;
+    Nested::Color nc1 = ::Test::Nested::red;
+    Nested::Color nc2 = Nested::green;
+    Nested::Color nc3 = Nested::blue;
+    //string noDefault;
+    int zeroI = 0;
+    long zeroL = 0;
+    float zeroF = 0;
+    float zeroDotF = 0.0;
+    double zeroD = 0;
+    double zeroDotD = 0;
+};
+
 class Base
 {
     bool boolFalse = false;

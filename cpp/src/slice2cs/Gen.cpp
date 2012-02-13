@@ -3166,7 +3166,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     emitPartialTypeAttributes();
-    if(isValueType(p))
+    if(isValueType(p) && !p->hasDefaultValues())
     {
         _out << nl << "public partial struct " << name;
     }
@@ -3194,7 +3194,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "#endregion"; // Slice data members
 
-    bool isClass = !isValueType(p);
+    bool isClass = !isValueType(p) || p->hasDefaultValues();
 
     _out << sp << nl << "#region Constructor";
     if(isClass)

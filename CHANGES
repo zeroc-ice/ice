@@ -100,6 +100,8 @@ C# Changes
 - Added missing throwLocalException method to Ice.AsyncResult
   interface.
 
+- Struct types that contains default values are mapped to a class.
+
 
 Java Changes
 ============
