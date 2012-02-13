@@ -40,7 +40,22 @@ public final class Util
         //
         // getResourceAsStream returns null if the resource can't be found.
         //
-        java.io.InputStream stream = cl.getResourceAsStream(path);
+        java.io.InputStream stream = null;
+        try
+        {
+            stream = cl.getResourceAsStream(path);
+        }
+        catch(IllegalArgumentException ex)
+        {
+            //
+            // With JDK-7 this can happen if the result url (base url + path) produces a 
+            // malformed url for an URLClassLoader. For example the code in following
+            // comment will produce this exception under Windows.
+            //
+            // URLClassLoader cl = new URLClassLoader(new URL[] {new URL("http://localhost:8080/")});
+            // java.io.InputStream in = IceInternal.Util.openResource(cl, "c:\\foo.txt");
+            //
+        }
         if(stream == null)
         {
             try
