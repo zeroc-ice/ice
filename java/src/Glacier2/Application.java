@@ -108,7 +108,8 @@ public abstract class Application extends Ice.Application
 
     /**
      * Called to restart the application's Glacier2 session. This
-     * method never returns.
+     * method never returns. The exception produce an application restart
+     * when called from the Application main thread.
      *
      * @throws RestartSessionException This exception is always thrown.
      **/
@@ -124,16 +125,17 @@ public abstract class Application extends Ice.Application
      * <code>createSession</code> always precedes a call to
      * <code>runWithSession</code>. If <code>Ice.LocalException</code>
      * is thrown from this method, the application is terminated.
-
+     *
      * @return The Glacier2 session.
      **/
     abstract public Glacier2.SessionPrx
     createSession();
 
     /**
-     * Called when the base class detects that the session has been destroyed.
-     * A subclass can override this method to take action after the loss of
-     * connectivity with the Glacier2 router.
+     * Called when the session refresh thread detects that the session has been
+     * destroyed. A subclass can override this method to take action after the
+     * loss of connectivity with the Glacier2 router. This method is always
+     * called from the session refresh thread.
      **/
     public void
     sessionDestroyed()
