@@ -60,6 +60,10 @@ General Changes
 C++ Changes
 ===========
 
+- Added the property IceSSL.InitOpenSSL, which allows an application
+  to disable the OpenSSL startup and shutdown activities in the IceSSL
+  plug-in.
+
 - Fixed a bug that could cause an assertion failure when flushing
   batch requests.
 

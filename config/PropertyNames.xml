@@ -493,6 +493,7 @@ generated from the section label.
         <property name="EntropyDaemon" />
         <property name="FindCert.[any]" />
         <property name="ImportCert.[any]" />
+        <property name="InitOpenSSL" />
         <property name="KeyFile" />
         <property name="Keystore" />
         <property name="KeystorePassword" />

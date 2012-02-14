@@ -67,6 +67,7 @@ private:
     void parseProtocols(const Ice::StringSeq&);
 
     Ice::LoggerPtr _logger;
+    bool _initOpenSSL;
     IceInternal::ProtocolPluginFacadePtr _facade;
     int _securityTraceLevel;
     std::string _securityTraceCategory;
