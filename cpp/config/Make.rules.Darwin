@@ -16,6 +16,13 @@ CXX                     = c++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 
+#
+# By default we build binaries with both architectures
+#
+ifeq ($(CXXARCHFLAGS),)
+	CXXARCHFLAGS	:= -arch i386 -arch x86_64
+endif
+
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= $(CXXARCHFLAGS) -O2 -DNDEBUG $(CXXFLAGS)
 else

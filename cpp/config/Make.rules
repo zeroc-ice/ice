@@ -34,9 +34,20 @@ create_runpath_symlink	?= no
 
 #
 # Define LP64 as yes or no if you want force a 32 or 64 bit. The
-# default is platform-dependent
+# default is platform-dependent. This property has no effect in Mac
+# OS X. In Mac OS X use CXXARCHFLAGS bellow to establish the build 
+# architectures.
 #
 #LP64			?= yes
+
+#
+# The build architectures for gcc/llvm based builds. The format of these
+# build flags are OS dependent. For example, under Mac OS X to build
+# binaries which support both i386 and x86_64 you would use "-arch
+# i386 -arch x86_64".  The default is OS version dependent. Be aware
+# that this value may conflict with the setting of LP64 above.
+#
+#CXXARCHFLAGS		     = -arch i386 -arch x86_64
 
 #
 # Define USE_READLINE as yes if you want to build parts of Ice using
@@ -117,15 +128,6 @@ USE_READLINE		?= no
 # Generate position independent code unless GENPIC is set to no
 #
 #GENPIC                     ?= yes
-
-#
-# The build architectures for gcc based builds. The format of these
-# build flags are OS dependent. For example, under Mac OS X to build
-# binaries which support both i386 and x86_64 you would use "-arch
-# i386 -arch x86_64".  The default is OS version dependent. Be aware
-# that this value may conflict with the setting of LP64 above.
-#
-#CXXARCHFLAGS		     = -arch i386 -arch x86_64
 
 #
 # Default Mutex protocol: one of PrioNone or PrioInherit.
