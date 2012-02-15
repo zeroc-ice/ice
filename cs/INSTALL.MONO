@@ -135,7 +135,7 @@ Installation
 
 Open config/Make.rules.cs and change the "prefix" variable to hold the
 top-level installation directory. This directory will be created
-automatically if necessary. Also review the comments for the "no_gac"
+automatically if necessary. Also review the comments for the "GACINSTALL"
 variable and decide whether to enable it. Next, run
 
 $ make install
@@ -145,7 +145,7 @@ MONO_PATH. When building applications, you need to reference the
 libraries with the -r option to mcs.
 
 Alternatively, you can add the libraries to the global assembly cache.
-To do this, use
+To do this, either set GACINSTALL before building the libraries, or use
 
 $ gacutil -i <library.dll>
 
