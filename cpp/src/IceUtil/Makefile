@@ -26,9 +26,7 @@ OBJS		= ArgVector.o \
 		  Options.o \
 		  OutputUtil.o \
 		  Random.o \
-		  RWRecMutex.o \
 		  RecMutex.o \
-		  StaticMutex.o \
 		  Shared.o \
 		  StringUtil.o \
 		  Thread.o \

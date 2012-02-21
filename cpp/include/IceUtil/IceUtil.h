@@ -28,10 +28,8 @@
 #include <IceUtil/MutexProtocol.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/RWRecMutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
-#include <IceUtil/StaticMutex.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/ThreadException.h>
 #include <IceUtil/Time.h>
