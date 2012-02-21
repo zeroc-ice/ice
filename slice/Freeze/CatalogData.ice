@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_CATALOG_DATA_ICE
-#define FREEZE_CATALOG_DATA_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -48,4 +47,3 @@ struct CatalogData
 
 };
 
-#endif

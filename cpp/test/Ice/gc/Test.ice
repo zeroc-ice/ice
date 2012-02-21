@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 module Test
 {
@@ -193,5 +192,3 @@ module DDD
 };
 
 };
-
-#endif

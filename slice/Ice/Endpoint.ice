@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_ICE
-#define ICE_ENDPOINT_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/EndpointF.ice>
@@ -209,4 +208,3 @@ local class OpaqueEndpointInfo extends EndpointInfo
 
 };
 
-#endif

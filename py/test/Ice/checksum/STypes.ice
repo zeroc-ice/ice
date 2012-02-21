@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef STYPES_ICE
-#define STYPES_ICE
+#pragma once
 
 module Test
 {
@@ -431,5 +430,3 @@ local class LocalClass
 };
 
 };
-
-#endif

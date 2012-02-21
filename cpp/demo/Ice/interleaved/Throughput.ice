@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef THROUGHPUT_ICE
-#define THROUGHPUT_ICE
+#pragma once
 
 module Demo
 {
@@ -50,5 +49,3 @@ interface Throughput
 };
 
 };
-
-#endif

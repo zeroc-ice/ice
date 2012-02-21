@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -33,4 +32,3 @@ interface Callback
 
 };
 
-#endif

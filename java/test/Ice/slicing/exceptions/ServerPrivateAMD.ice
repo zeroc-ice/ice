@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_AMD_ICE
-#define SERVERPRIVATE_AMD_ICE
+#pragma once
 
 [["java:package:test.Ice.slicing.exceptions.serverAMD"]]
 module Test
@@ -80,5 +79,3 @@ exception UnknownMostDerived2 extends UnknownIntermediate
 };
 
 };
-
-#endif

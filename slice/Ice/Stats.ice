@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STATS_ICE
-#define ICE_STATS_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -51,4 +50,3 @@ local interface Stats
 
 };
 
-#endif

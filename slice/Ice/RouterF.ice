@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTER_F_ICE
-#define ICE_ROUTER_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -19,4 +18,3 @@ interface Router;
 
 };
 
-#endif

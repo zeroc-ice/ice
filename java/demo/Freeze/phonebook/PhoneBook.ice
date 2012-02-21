@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef PHONE_BOOK_ICE
-#define PHONE_BOOK_ICE
+#pragma once
 
 #include <Ice/Identity.ice>
 
@@ -49,5 +48,3 @@ interface PhoneBook
 };
 
 };
-
-#endif

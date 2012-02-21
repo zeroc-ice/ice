@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.retry"]]
 module Test
@@ -21,5 +20,3 @@ interface Retry
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_ICE
-#define FREEZE_EVICTOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -338,4 +337,3 @@ local interface Evictor extends Ice::ServantLocator
 
 };
 
-#endif

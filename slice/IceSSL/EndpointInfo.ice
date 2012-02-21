@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ENDPOINT_INFO_ICE
-#define ICE_SSL_ENDPOINT_INFO_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -40,4 +39,3 @@ local class EndpointInfo extends Ice::IPEndpointInfo
 
 };
 
-#endif

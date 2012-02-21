@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LIBRARY_ICE
-#define LIBRARY_ICE
+#pragma once
 
 module Demo
 {
@@ -231,5 +230,3 @@ interface Library
 };
 
 };
-
-#endif

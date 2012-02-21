@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BOX_ICE_BOX_ICE
-#define ICE_BOX_ICE_BOX_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -192,4 +191,3 @@ interface ServiceManager
 
 };
 
-#endif

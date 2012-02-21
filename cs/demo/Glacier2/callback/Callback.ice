@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#pragma once
 
 module Demo
 {
@@ -25,5 +24,3 @@ interface Callback
 };
 
 };
-
-#endif

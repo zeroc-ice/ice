@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef PERF_ICE
-#define PERF_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -43,5 +42,3 @@ interface Ping
 };
 
 };
-
-#endif

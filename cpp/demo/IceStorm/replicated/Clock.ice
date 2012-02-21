@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLOCK_ICE
-#define CLOCK_ICE
+#pragma once
 
 module Demo
 {
@@ -20,4 +19,3 @@ interface Clock
 
 };
 
-#endif

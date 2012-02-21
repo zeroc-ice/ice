@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.binding"]]
 module Test
@@ -36,5 +35,3 @@ interface RemoteCommunicator
 };
 
 };
-
-#endif

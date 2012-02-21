@@ -7,14 +7,12 @@
 //
 // **********************************************************************
 
-#ifndef SIMPLE_ICE
-#define SIMPLE_ICE
+#pragma once
 
-module Demo {
+module Demo
+{
     interface Printer
     {
         void printString(string s);
     };
 };
-
-#endif

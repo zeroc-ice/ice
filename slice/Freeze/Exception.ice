@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EXCEPTION_ICE
-#define FREEZE_EXCEPTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -99,4 +98,3 @@ local exception IndexNotFoundException
 
 };
 
-#endif

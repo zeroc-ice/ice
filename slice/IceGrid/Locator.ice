@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_LOCATOR_ICE
-#define ICE_GRID_LOCATOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -54,4 +53,3 @@ interface Locator extends Ice::Locator
 
 };
 
-#endif

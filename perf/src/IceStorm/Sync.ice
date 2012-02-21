@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SYNC_ICE
-#define SYNC_ICE
+#pragma once
 
 module Perf
 {
@@ -18,5 +17,3 @@ interface Sync
 };
 
 };
-
-#endif

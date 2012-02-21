@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_AMD_ICE
-#define SERVERPRIVATE_AMD_ICE
+#pragma once
 
 #include <TestAMD.ice>
 
@@ -44,5 +43,3 @@ exception UnknownDerivedException extends BaseException
 };
 
 };
-
-#endif

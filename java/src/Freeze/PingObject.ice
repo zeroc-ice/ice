@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_PING_OBJECT_ICE
-#define FREEZE_PING_OBJECT_ICE
+#pragma once
 
 module Freeze
 {
@@ -18,5 +17,3 @@ class PingObject
 };
 
 };
-
-#endif

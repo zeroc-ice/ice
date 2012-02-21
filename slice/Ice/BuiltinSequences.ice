@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BUILTIN_SEQUENCES_ICE
-#define ICE_BUILTIN_SEQUENCES_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -47,4 +46,3 @@ sequence<Object*> ObjectProxySeq;
 
 };
 
-#endif

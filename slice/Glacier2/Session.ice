@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_SESSION_ICE
-#define GLACIER2_SESSION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -268,4 +267,3 @@ interface SSLSessionManager
 
 };
 
-#endif

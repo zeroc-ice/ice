@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CASINO_STORE_ICE
-#define CASINO_STORE_ICE
+#pragma once
 
 #include <Casino.ice>
 #include <Ice/Identity.ice>
@@ -90,4 +89,3 @@ module CasinoStore
     };
 };
 
-#endif

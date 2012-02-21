@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef HR_ICE
-#define HR_ICE
+#pragma once
 
 //
 // Corresponds to the well-known Dept/Emp Oracle demo database.
@@ -88,5 +87,3 @@ interface DeptFactory
 };
 
 };
-
-#endif

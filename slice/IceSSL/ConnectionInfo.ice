@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONNECTION_INFO_ICE
-#define ICE_SSL_CONNECTION_INFO_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -33,4 +32,3 @@ local class ConnectionInfo extends Ice::IPConnectionInfo
 
 };
 
-#endif

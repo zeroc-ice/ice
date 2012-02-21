@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_ICE
-#define ICE_COMMUNICATOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -507,4 +506,3 @@ local interface Communicator
 
 };
 
-#endif

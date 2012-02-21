@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CONTROLLER_ICE
-#define CONTROLLER_ICE
+#pragma once
 
 module Test
 {
@@ -19,6 +18,3 @@ interface Controller
 };
 
 };
-
-#endif
-

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef WSTRING_ICE
-#define WSTRING_ICE
+#pragma once
 
 ["cpp:type:wstring"] module Test1
 {
@@ -72,4 +71,3 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
 
 };
 
-#endif

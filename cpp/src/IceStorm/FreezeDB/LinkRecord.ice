@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LINK_RECORD_ICE
-#define LINK_RECORD_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -31,5 +30,3 @@ struct LinkRecord
 };
 
 }; // End module IceStorm
-
-#endif

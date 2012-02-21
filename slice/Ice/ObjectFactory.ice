@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_FACTORY_ICE
-#define ICE_OBJECT_FACTORY_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -59,4 +58,3 @@ local interface ObjectFactory
 
 };
 
-#endif

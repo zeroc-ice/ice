@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GREET_ICE
-#define GREET_ICE
+#pragma once
 
 module Demo
 {
@@ -22,5 +21,3 @@ interface Greet
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/Locator.ice>
 
@@ -55,5 +54,3 @@ interface TestIntf
 };
 
 };
-
-#endif

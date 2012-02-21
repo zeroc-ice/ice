@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SESSION_ICE
-#define SESSION_ICE
+#pragma once
 
 module Demo
 {
@@ -58,5 +57,3 @@ interface SessionFactory
 };
 
 };
-
-#endif

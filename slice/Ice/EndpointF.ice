@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_F_ICE
-#define ICE_ENDPOINT_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -28,4 +27,3 @@ local sequence<Endpoint> EndpointSeq;
 
 };
 
-#endif

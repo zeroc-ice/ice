@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 #include <Glacier2/Session.ice>
 
 module Voip
@@ -14,16 +16,16 @@ module Voip
 
 interface Control
 {
-	void incomingCall();
+    void incomingCall();
 };
 
 interface Session extends Glacier2::Session
 {
-	void setControl(Control* ctrl);
-	
-	void simulateCall(int delay);
-	
-	void refresh();
+    void setControl(Control* ctrl);
+
+    void simulateCall(int delay);
+
+    void refresh();
 };
 
 };

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ELECTION_ICE
-#define ELECTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -306,4 +305,3 @@ interface Node
 
 };
 
-#endif 

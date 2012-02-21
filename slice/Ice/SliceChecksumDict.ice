@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SLICE_CHECKSUM_DICT_ICE
-#define ICE_SLICE_CHECKSUM_DICT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -24,4 +23,3 @@ dictionary<string, string> SliceChecksumDict;
 
 };
 
-#endif

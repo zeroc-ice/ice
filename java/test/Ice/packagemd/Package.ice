@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 [["java:package:test.Ice.packagemd.testpkg"]]
 module Test2
 {

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef DISCOVERY_ICE
-#define DISCOVERY_ICE
+#pragma once
 
 module Demo
 {
@@ -25,4 +24,3 @@ interface Discover
 
 };
 
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_ICE
-#define ICE_OBJECT_ADAPTER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -660,4 +659,3 @@ local interface ObjectAdapter
 
 };
 
-#endif

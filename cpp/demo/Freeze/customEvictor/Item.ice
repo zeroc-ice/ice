@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef WAREHOUSE_ICE
-#define WAREHOUSE_ICE
+#pragma once
 
 //
 // The main definitions for our simple Warehouse application
@@ -32,4 +31,3 @@ interface Item
 
 };
 
-#endif

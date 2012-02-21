@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_STORAGE_ICE
-#define FREEZE_EVICTOR_STORAGE_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -71,4 +70,3 @@ struct ObjectRecord
 
 };
 
-#endif

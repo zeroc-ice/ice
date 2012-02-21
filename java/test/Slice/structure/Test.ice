@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 [["java:package:test.Slice.structure"]]
 module Test
 {

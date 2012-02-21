@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_AMD_ICE
-#define TEST_AMD_ICE
+#pragma once
 
 module Test
 {
@@ -110,5 +109,3 @@ class Forward;          // Forward-declared class defined in another compilation
 };
 
 };
-
-#endif

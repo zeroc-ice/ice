@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef V31_FORMAT_ICE
-#define V31_FORMAT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -22,4 +21,3 @@ dictionary<string, LinkRecord> LinkRecordDict;
 
 }; // End module IceStorm
 
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LIBRARY_ICE
-#define LIBRARY_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -284,5 +283,3 @@ interface Library
 };
 
 };
-
-#endif

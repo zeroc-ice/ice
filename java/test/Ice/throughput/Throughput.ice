@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef THROUGHPUT_ICE
-#define THROUGHPUT_ICE
+#pragma once
 
 [["java:package:test.Ice.throughput"]]
 module Demo
@@ -65,4 +64,3 @@ interface Throughput
 
 };
 
-#endif

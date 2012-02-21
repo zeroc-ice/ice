@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_BACKGROUND_SAVE_EVICTOR_ICE
-#define FREEZE_BACKGROUND_SAVE_EVICTOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -109,5 +108,4 @@ local interface BackgroundSaveEvictor extends Evictor
 };
 
 
-#endif
 

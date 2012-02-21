@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 module Filesystem
 {
     exception GenericError

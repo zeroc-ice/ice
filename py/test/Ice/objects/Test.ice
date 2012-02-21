@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 module Test
 {
@@ -96,5 +95,3 @@ class Initial
 };
 
 };
-
-#endif

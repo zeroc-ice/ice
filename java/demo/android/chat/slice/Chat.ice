@@ -7,9 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CHAT_ICE
-#define CHAT_ICE
-
+#pragma once
 
 /**
  *
@@ -38,5 +36,3 @@ exception InvalidMessageException
 };
 
 };
-
-#endif

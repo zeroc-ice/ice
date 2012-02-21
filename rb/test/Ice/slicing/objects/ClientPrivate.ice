@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTPRIVATE_ICE
-#define CLIENTPRIVATE_ICE
+#pragma once
 
 #include <Test.ice>
 
@@ -22,5 +21,3 @@ class D3 extends B
 };
 
 };
-
-#endif

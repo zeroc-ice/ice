@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef VALUE_ICE
-#define VALUE_ICE
+#pragma once
 
 module Demo
 {
@@ -46,4 +45,3 @@ interface Initial
 
 };
 
-#endif

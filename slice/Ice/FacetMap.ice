@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_FACET_MAP_ICE
-#define ICE_FACET_MAP_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -24,4 +23,3 @@ local dictionary<string, Object> FacetMap;
 
 };
 
-#endif

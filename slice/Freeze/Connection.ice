@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_CONNECTION_ICE
-#define FREEZE_CONNECTION_ICE
+#pragma once
 
 #include <Freeze/Transaction.ice>
 #include <Ice/CommunicatorF.ice>
@@ -102,4 +101,3 @@ local interface Connection
 
 };
 
-#endif

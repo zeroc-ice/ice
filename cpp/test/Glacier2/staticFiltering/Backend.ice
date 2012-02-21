@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef BACKEND_ICE
-#define BACKEND_ICE
+#pragma once
 
 module Test
 {
@@ -20,4 +19,3 @@ interface Backend
 
 };
 
-#endif

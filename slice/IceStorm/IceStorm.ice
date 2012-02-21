@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STORM_ICE
-#define ICE_STORM_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -373,4 +372,3 @@ interface TopicManager
 
 };
 
-#endif

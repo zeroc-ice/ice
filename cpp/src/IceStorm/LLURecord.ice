@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LLURECORD_ICE
-#define LLURECORD_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -26,4 +25,3 @@ struct LogUpdate
 
 };
 
-#endif

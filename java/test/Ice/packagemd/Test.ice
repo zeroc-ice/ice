@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 #include <Package.ice>
 #include <NoPackage.ice>
 

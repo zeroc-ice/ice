@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_REGISTRY_ICE
-#define ICE_GRID_REGISTRY_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -123,4 +122,3 @@ interface Registry
 
 };
 
-#endif

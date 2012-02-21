@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_ICE
-#define SERVERPRIVATE_ICE
+#pragma once
 
 [["java:package:test.Ice.slicing.exceptions.server"]]
 module Test
@@ -80,5 +79,3 @@ exception UnknownMostDerived2 extends UnknownIntermediate
 };
 
 };
-
-#endif

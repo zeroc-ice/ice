@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_F_ICE
-#define FREEZE_EVICTOR_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -21,4 +20,3 @@ local interface TransactionalEvictor;
 
 };
 
-#endif

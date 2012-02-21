@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 module Test
 {
@@ -18,5 +17,3 @@ interface TestIntf
 };
 
 };
-
-#endif

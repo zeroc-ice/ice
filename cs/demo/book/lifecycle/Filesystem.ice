@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-module Filesystem {
+#pragma once
+
+module Filesystem
+{
     exception GenericError
     {
         string reason;

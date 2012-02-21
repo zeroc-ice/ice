@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_ICE
-#define SERVERPRIVATE_ICE
+#pragma once
 
 #include <Test.ice>
 
@@ -36,5 +35,3 @@ exception UnknownMostDerived2 extends UnknownIntermediate
 };
 
 };
-
-#endif

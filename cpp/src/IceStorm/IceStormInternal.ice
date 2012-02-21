@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STORM_INTERNAL_ICE
-#define ICE_STORM_INTERNAL_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -120,4 +119,3 @@ interface TopicManagerInternal extends TopicManager
 
 }; // End module IceStorm
 
-#endif

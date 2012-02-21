@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CIRCULARA_ICE
-#define CIRCULARA_ICE
+#pragma once
 
 #include <CircularB.ice>
 
@@ -21,5 +20,3 @@ class A
 };
 
 };
-
-#endif

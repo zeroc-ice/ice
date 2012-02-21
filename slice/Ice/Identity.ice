@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_IDENTITY_ICE
-#define ICE_IDENTITY_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -58,4 +57,3 @@ sequence<Identity> IdentitySeq;
 
 };
 
-#endif

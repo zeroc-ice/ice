@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SUBSCRIBER_RECORD_ICE
-#define SUBSCRIBER_RECORD_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -68,4 +67,3 @@ sequence<SubscriberRecord> SubscriberRecordSeq;
 
 }; // End module IceStorm
 
-#endif

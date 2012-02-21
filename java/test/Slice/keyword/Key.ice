@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 [["java:package:test.Slice.keyword"]]
 module abstract
 {
@@ -75,4 +77,3 @@ const int finally = 0;
 const int getClass = 0;
 
 };
-

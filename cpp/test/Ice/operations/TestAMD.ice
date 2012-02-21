@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_AMD_ICE
-#define TEST_AMD_ICE
+#pragma once
 
 #include <Ice/Current.ice>
 
@@ -179,4 +178,3 @@ dictionary<MyStruct, MyEnum> MyStructMyEnumD;
 
 };
 
-#endif

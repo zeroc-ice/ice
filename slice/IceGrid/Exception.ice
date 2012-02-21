@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_EXCEPTION_ICE
-#define ICE_GRID_EXCEPTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -381,4 +380,3 @@ exception FileNotAvailableException
 
 };
 
-#endif

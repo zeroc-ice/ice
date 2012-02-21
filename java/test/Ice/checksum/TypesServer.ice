@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLASS_ICE
-#define CLASS_ICE
+#pragma once
 
 [["java:package:test.Ice.checksum.server"]]
 module Test
@@ -432,5 +431,3 @@ local class LocalClass
 };
 
 };
-
-#endif

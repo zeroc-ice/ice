@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef INVOKE_ICE
-#define INVOKE_ICE
+#pragma once
 
 module Demo
 {
@@ -51,4 +50,3 @@ interface Printer
 };
 };
 
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATEAMD_ICE
-#define SERVERPRIVATEAMD_ICE
+#pragma once
 
 #include <TestAMD.ice>
 
@@ -36,5 +35,3 @@ exception UnknownMostDerived2 extends UnknownIntermediate
 };
 
 };
-
-#endif

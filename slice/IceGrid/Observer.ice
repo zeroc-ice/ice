@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_OBSERVER_ICE
-#define ICE_GRID_OBSERVER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -392,4 +391,3 @@ interface RegistryObserver
 
 };
 
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CASINO_ICE
-#define CASINO_ICE
+#pragma once
 
 module Casino
 {
@@ -94,5 +93,3 @@ module Casino
         ["freeze:write"] Bet* createBet(int amount, int lifetime);
     };
 };
-
-#endif

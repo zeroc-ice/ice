@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_USERACCOUNTMAPPER_ICE
-#define ICE_GRID_USERACCOUNTMAPPER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -56,4 +55,3 @@ interface UserAccountMapper
 
 };
 
-#endif

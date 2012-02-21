@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 #include <Filesystem.ice>
 #include <Ice/Identity.ice>
 

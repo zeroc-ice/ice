@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_ICE
-#define ICE_PROPERTIES_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -269,4 +268,3 @@ interface PropertiesAdmin
 
 };
 
-#endif

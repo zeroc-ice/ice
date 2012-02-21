@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_INTERNAL_ICE
-#define ICE_GRID_INTERNAL_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -757,4 +756,3 @@ interface InternalRegistry extends FileReader
 
 };
 
-#endif

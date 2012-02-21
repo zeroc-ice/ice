@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LATENCY_ICE
-#define LATENCY_ICE
+#pragma once
 
 module Demo
 {
@@ -19,4 +18,3 @@ class Ping
 
 };
 
-#endif

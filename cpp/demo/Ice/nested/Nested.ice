@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef NESTED_ICE
-#define NESTED_ICE
+#pragma once
 
 module Demo
 {
@@ -20,4 +19,3 @@ interface Nested
 
 };
 
-#endif

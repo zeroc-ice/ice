@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_SSL_INFO_ICE
-#define GLACIER2_SSL_INFO_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -48,4 +47,3 @@ struct SSLInfo
 
 };
 
-#endif

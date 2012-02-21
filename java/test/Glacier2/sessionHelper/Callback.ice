@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#pragma once
 
 [["java:package:test.Glacier2.sessionHelper"]]
 module Test
@@ -40,4 +39,3 @@ interface Callback
 
 };
 
-#endif

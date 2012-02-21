@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CHAT_SESSION_ICE
-#define CHAT_SESSION_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 #include <Glacier2/Session.ice>
@@ -121,5 +120,3 @@ interface ChatSession extends Glacier2::Session
 };
 
 };
-
-#endif

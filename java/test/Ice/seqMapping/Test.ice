@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.seqMapping"]]
 module Test
@@ -53,5 +52,3 @@ class Baz
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TESTICE
-#define TESTICE
+#pragma once
 
 [["java:package:test.Ice.inheritance"]]
 module Test
@@ -83,5 +82,3 @@ interface Initial
 };
 
 };
-
-#endif

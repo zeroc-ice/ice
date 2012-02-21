@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_ICE
-#define ICE_CONNECTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -219,4 +218,3 @@ local class UDPConnectionInfo extends IPConnectionInfo
 
 };
 
-#endif

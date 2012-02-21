@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_LOCATOR_ICE
-#define ICE_SERVANT_LOCATOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -116,4 +115,3 @@ local interface ServantLocator
 
 };
 
-#endif

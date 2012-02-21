@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.slicing.exceptions"]]
 module Test
@@ -56,5 +55,3 @@ interface TestIntf
 };
 
 };
-
-#endif

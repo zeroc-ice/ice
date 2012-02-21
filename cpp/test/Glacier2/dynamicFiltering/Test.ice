@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Glacier2/Session.ice>
 
@@ -55,4 +54,3 @@ interface TestSession extends Glacier2::Session
 
 };
 
-#endif

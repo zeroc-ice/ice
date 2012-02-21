@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_AMD_ICE
-#define TEST_AMD_ICE
+#pragma once
 
 module Test
 {
@@ -79,5 +78,3 @@ module Mod
 };
 
 };
-
-#endif

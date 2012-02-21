@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_ROUTER_ICE
-#define GLACIER2_ROUTER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -197,4 +196,3 @@ interface Admin
 
 };
 
-#endif

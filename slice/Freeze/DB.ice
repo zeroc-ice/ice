@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_DB_ICE
-#define FREEZE_DB_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -36,4 +35,3 @@ sequence<byte> Value;
 
 };
 
-#endif

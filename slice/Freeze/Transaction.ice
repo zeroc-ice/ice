@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_TRANSACTION_ICE
-#define FREEZE_TRANSACTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -56,4 +55,3 @@ local interface Transaction
 
 };
 
-#endif

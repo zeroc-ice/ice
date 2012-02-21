@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h"]]
 
@@ -197,4 +196,3 @@ sequence<ClassStruct> ClassStructSeq;
 
 };
 
-#endif

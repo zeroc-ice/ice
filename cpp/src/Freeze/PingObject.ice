@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_PING_OBJECT_ICE
-#define FREEZE_PING_OBJECT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -21,4 +20,3 @@ class PingObject
 
 };
 
-#endif

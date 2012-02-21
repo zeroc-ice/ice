@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_AMD_ICE
-#define TEST_AMD_ICE
+#pragma once
 
 [["java:package:test.Ice.exceptions.AMD"]]
 module Test
@@ -68,5 +67,3 @@ exception D
 };
 
 };
-
-#endif

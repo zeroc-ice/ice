@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_ADMIN_ICE
-#define ICE_GRID_ADMIN_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -1515,4 +1514,3 @@ interface AdminSession extends Glacier2::Session
 
 };
 
-#endif

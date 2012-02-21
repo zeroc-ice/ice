@@ -8,8 +8,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PLUGIN_ICE
-#define ICE_PLUGIN_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -116,4 +115,3 @@ local interface PluginManager
 
 };
 
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.exceptions"]]
 module Test
@@ -73,5 +72,3 @@ exception D
 };
 
 };
-
-#endif

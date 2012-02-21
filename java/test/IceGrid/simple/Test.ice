@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.IceGrid.simple"]]
 module Test
@@ -20,5 +19,3 @@ interface TestIntf
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCAL_EXCEPTION_ICE
-#define ICE_LOCAL_EXCEPTION_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -972,4 +971,3 @@ local exception ResponseSentException
 
 };
 
-#endif

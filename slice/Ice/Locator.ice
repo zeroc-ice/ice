@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCATOR_ICE
-#define ICE_LOCATOR_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -203,4 +202,3 @@ interface LocatorRegistry
 
 };
 
-#endif

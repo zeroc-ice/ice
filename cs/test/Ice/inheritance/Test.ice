@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TESTICE
-#define TESTICE
+#pragma once
 
 module Test
 {
@@ -82,5 +81,3 @@ interface Initial
 };
 
 };
-
-#endif

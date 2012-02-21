@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_F_ICE
-#define ICE_CONNECTION_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -20,4 +19,3 @@ local interface Connection;
 
 };
 
-#endif

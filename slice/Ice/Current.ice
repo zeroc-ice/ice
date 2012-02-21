@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CURRENT_ICE
-#define ICE_CURRENT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -151,4 +150,3 @@ local struct Current
 
 };
 
-#endif

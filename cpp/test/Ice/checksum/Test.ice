@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/SliceChecksumDict.ice>
 
@@ -24,4 +23,3 @@ interface Checksum
 
 };
 
-#endif

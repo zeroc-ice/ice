@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_TYPES_ICE
-#define ICE_ENDPOINT_TYPES_ICE
+#pragma once
 
 
 [["cpp:header-ext:h"]]
@@ -37,4 +36,3 @@ enum EndpointSelectionType
 
 };
 
-#endif

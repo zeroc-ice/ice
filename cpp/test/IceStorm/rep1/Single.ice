@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SINGLE_ICE
-#define SINGLE_ICE
+#pragma once
 
 module Test
 {
@@ -19,5 +18,3 @@ interface Single
 };
 
 };
-
-#endif

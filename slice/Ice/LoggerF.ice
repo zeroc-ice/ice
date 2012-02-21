@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_F_ICE
-#define ICE_LOGGER_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -19,4 +18,3 @@ local interface Logger;
 
 };
 
-#endif

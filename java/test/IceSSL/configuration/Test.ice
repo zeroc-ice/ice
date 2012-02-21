@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.IceSSL.configuration"]]
 module Test
@@ -31,5 +30,3 @@ interface ServerFactory
 };
 
 };
-
-#endif

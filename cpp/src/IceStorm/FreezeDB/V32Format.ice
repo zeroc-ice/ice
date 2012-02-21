@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef V32_FORMAT_ICE
-#define V32_FORMAT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -22,4 +21,3 @@ sequence<LinkRecord> LinkRecordSeq;
 
 }; // End module IceStorm
 
-#endif

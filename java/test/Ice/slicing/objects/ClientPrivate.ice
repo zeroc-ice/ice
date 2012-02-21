@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLIENTPRIVATE_ICE
-#define CLIENTPRIVATE_ICE
+#pragma once
 
 [["java:package:test.Ice.slicing.objects.client"]]
 module Test
@@ -132,5 +131,3 @@ class Forward
 };
 
 };
-
-#endif

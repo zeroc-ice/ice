@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef LIBRARY_GLACIER2_SESSION_ICE
-#define LIBRARY_GLACIER2_SESSION_ICE
+#pragma once
 
 #include <Glacier2/Session.ice>
 
@@ -46,5 +45,3 @@ interface Glacier2Session extends Glacier2::Session
 };
 
 };
-
-#endif

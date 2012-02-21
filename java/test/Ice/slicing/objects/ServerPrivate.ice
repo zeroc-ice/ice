@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_ICE
-#define SERVERPRIVATE_ICE
+#pragma once
 
 [["java:package:test.Ice.slicing.objects.server"]]
 module Test
@@ -154,5 +153,3 @@ class Forward
 };
 
 };
-
-#endif

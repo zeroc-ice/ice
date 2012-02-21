@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef NEW_CONTACT_DATA_ICE
-#define NEW_CONTACT_DATA_ICE
+#pragma once
 
 module Demo
 {
@@ -28,6 +27,3 @@ struct NewContactData
 };
 
 };
-
-
-#endif

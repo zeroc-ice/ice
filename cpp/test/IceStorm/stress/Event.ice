@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef EVENT_ICE
-#define EVENT_ICE
+#pragma once
 
 module Test
 {
@@ -19,5 +18,3 @@ interface Event
 };
 
 };
-
-#endif

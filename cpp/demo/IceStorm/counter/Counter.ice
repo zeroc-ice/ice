@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef COUNTER_ICE
-#define COUNTER_ICE
+#pragma once
 
 module Demo
 {
@@ -28,4 +27,3 @@ interface Counter
 
 };
 
-#endif

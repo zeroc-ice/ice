@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/Current.ice>
 
@@ -180,5 +179,3 @@ exception SomeException {};
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Endpoint.ice>
@@ -40,5 +39,3 @@ interface TestIntfController
 };
 
 };
-
-#endif

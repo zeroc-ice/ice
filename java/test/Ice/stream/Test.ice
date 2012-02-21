@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -90,5 +89,3 @@ exception MyException
 };
 
 };
-
-#endif

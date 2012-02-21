@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVERPRIVATE_ICE
-#define SERVERPRIVATE_ICE
+#pragma once
 
 #include <Test.ice>
 
@@ -44,5 +43,3 @@ exception UnknownDerivedException extends BaseException
 };
 
 };
-
-#endif

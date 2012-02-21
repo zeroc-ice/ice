@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLASS_ICE
-#define CLASS_ICE
+#pragma once
 
 module Test
 {
@@ -436,5 +435,3 @@ local class LocalClass
 };
 
 };
-
-#endif

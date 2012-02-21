@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_CONNECTION_F_ICE
-#define FREEZE_CONNECTION_F_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -19,4 +18,3 @@ local interface Connection;
 
 };
 
-#endif

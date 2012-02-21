@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#pragma once
+
 #include <Filesystem.ice>
 
 module Filesystem

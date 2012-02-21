@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 #include <Ice/Identity.ice>
 
@@ -113,5 +112,3 @@ interface RemoteEvictorFactory
 };
 
 };
-
-#endif

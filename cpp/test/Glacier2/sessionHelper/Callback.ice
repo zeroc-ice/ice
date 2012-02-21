@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#pragma once
 
 module Test
 {
@@ -39,4 +38,3 @@ interface Callback
 
 };
 
-#endif

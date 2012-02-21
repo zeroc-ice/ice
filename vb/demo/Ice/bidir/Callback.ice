@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_ICE
-#define CALLBACK_ICE
+#pragma once
 
 #include <Ice/Identity.ice>
 
@@ -26,5 +25,3 @@ interface CallbackSender
 };
 
 };
-
-#endif

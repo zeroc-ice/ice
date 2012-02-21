@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_IMPLICIT_CONTEXT_ICE
-#define ICE_IMPLICIT_CONTEXT_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -108,4 +107,3 @@ local interface ImplicitContext
 };
 };
 
-#endif

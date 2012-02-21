@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.facets"]]
 module Test
@@ -60,5 +59,3 @@ interface H extends G
 };
 
 };
-
-#endif

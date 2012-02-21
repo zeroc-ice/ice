@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_FILE_PARSER_ICE
-#define ICE_GRID_FILE_PARSER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -59,4 +58,3 @@ interface FileParser
 
 };
 
-#endif

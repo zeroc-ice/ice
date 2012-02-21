@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH2_FILE_SERVER_ICE
-#define ICE_PATCH2_FILE_SERVER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -143,4 +142,3 @@ interface Admin
 
 };
 
-#endif

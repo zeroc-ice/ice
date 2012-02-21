@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TEST_ICE
-#define TEST_ICE
+#pragma once
 
 [["java:package:test.Ice.defaultValue"]]
 module Test
@@ -155,5 +154,3 @@ exception DerivedEx extends BaseEx
 };
 
 };
-
-#endif

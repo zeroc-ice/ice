@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FORWARD_ICE
-#define FORWARD_ICE
+#pragma once
 
 module Test
 {
@@ -26,5 +25,3 @@ class Forward
 };
 
 };
-
-#endif

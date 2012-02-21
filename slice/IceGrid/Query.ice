@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_QUERY_ICE
-#define ICE_GRID_QUERY_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -128,4 +127,3 @@ enum LoadSample
 
 };
 
-#endif

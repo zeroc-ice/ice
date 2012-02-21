@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef NRVO_ICE
-#define NRVO_ICE
+#pragma once
 
 [["cpp:include:MyStringSeq.h"]]
 
@@ -27,4 +26,3 @@ interface Nrvo
 
 };
 
-#endif

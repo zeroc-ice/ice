@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SESSION_CONTROL_ICE
-#define SESSION_CONTROL_ICE
+#pragma once
 
 #include <Glacier2/Session.ice>
 
@@ -24,4 +23,3 @@ interface Session extends Glacier2::Session
 
 };
 
-#endif

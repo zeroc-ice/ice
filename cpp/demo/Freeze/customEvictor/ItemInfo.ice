@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ITEM_INFO_ICE
-#define ITEM_INFO_ICE
+#pragma once
 
 //
 // Data types persisted in the Freeze database
@@ -25,5 +24,3 @@ struct ItemInfo
 };
 
 };
-
-#endif

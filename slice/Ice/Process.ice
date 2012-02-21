@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROCESS_ICE
-#define ICE_PROCESS_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -53,4 +52,3 @@ interface Process
 
 };
 
-#endif

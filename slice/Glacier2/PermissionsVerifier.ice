@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_PERMISSIONS_VERIFIER_ICE
-#define GLACIER2_PERMISSIONS_VERIFIER_ICE
+#pragma once
 
 [["cpp:header-ext:h"]]
 
@@ -72,4 +71,3 @@ interface SSLPermissionsVerifier
 
 };
 
-#endif
