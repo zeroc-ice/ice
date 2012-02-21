@@ -55,7 +55,7 @@ tests = [
     ("Ice/checksum", ["core"]),
     ("Ice/stream", ["core"]),
     ("Ice/hold", ["core"]),
-    ("Ice/custom", ["core", "novc6"]),
+    ("Ice/custom", ["core", "novc6", "nossl"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),
     ("Ice/background", ["core"]),

@@ -9,6 +9,7 @@
 
 #include <Ice/DynamicLibrary.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Unicode.h>
 
 #ifndef _WIN32
 #   include <dlfcn.h>
@@ -21,8 +22,9 @@ using namespace std;
 IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
 
-IceInternal::DynamicLibrary::DynamicLibrary()
-    : _hnd(0)
+IceInternal::DynamicLibrary::DynamicLibrary(const Ice::StringConverterPtr& stringConverter) : 
+    _stringConverter(stringConverter),
+    _hnd(0)
 {
 }
 
@@ -155,7 +157,7 @@ bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {
 #ifdef _WIN32
-    _hnd = LoadLibrary(lib.c_str());
+    _hnd = LoadLibraryW(IceUtil::stringToWstring(nativeToUTF8(_stringConverter, lib)).c_str());
 #else
 
     int flags = RTLD_NOW | RTLD_GLOBAL;
@@ -193,7 +195,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
     string newName = "_" + name;
     symbol_type result = GetProcAddress(_hnd, newName.c_str());
 #  else
-    symbol_type result = GetProcAddress(_hnd,name.c_str());
+    symbol_type result = GetProcAddress(_hnd, name.c_str());
 #  endif
 #else
     symbol_type result = dlsym(_hnd, name.c_str());

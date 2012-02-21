@@ -11,6 +11,7 @@
 #define ICE_DYNAMIC_LIBRARY_H
 
 #include <Ice/DynamicLibraryF.h>
+#include <Ice/StringConverter.h>
 #include <IceUtil/Shared.h>
 
 namespace IceInternal
@@ -20,7 +21,7 @@ class ICE_API DynamicLibrary : public ::IceUtil::Shared
 {
 public:
 
-    DynamicLibrary();
+    DynamicLibrary(const Ice::StringConverterPtr&);
     ~DynamicLibrary();
 
 #ifdef _WIN32
@@ -88,6 +89,7 @@ private:
 #endif
 
     std::string _err;
+    const Ice::StringConverterPtr _stringConverter;
 };
 
 class ICE_API DynamicLibraryList : public ::IceUtil::Shared

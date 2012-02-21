@@ -298,7 +298,6 @@ void
 Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
 {
     assert(_communicator);
-
     //
     // Separate the entry point from the arguments.
     //
@@ -343,7 +342,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // Load the entry point symbol.
     //
     PluginPtr plugin;
-    DynamicLibraryPtr library = new DynamicLibrary();
+    DynamicLibraryPtr library = new DynamicLibrary(IceInternal::getInstance(_communicator)->initializationData().stringConverter);
     DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
     if(sym == 0)
     {

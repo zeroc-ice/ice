@@ -1609,6 +1609,10 @@ def runTests(start, expanded, num = 0, script = False):
                 print "%s*** test not supported with mono%s" % (prefix, suffix)
                 continue
 
+            if args.find("ssl") != -1 and ("nossl" in config):
+                print "%s*** test not supported with IceSSL%s" % (prefix, suffix)
+                continue
+
             # If this is java and we're running ipv6 under windows then skip.
             if isWin32() and i.find(os.path.join("java","test")) != -1 and args.find("ipv6") != -1:
                 print "%s*** test not supported under windows%s" % (prefix, suffix)
