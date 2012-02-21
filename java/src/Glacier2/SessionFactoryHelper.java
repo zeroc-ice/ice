@@ -321,7 +321,7 @@ public class SessionFactoryHelper
     }
 
     private SessionCallback _callback;
-    private String _routerHost = "127.0.0.1";
+    private String _routerHost = "localhost";
     private Ice.InitializationData _initData;
     private Ice.Identity _identity = new Ice.Identity("router", "Glacier2");
     private boolean _secure = true;

@@ -794,7 +794,7 @@ SessionHelperI::dispatchCallbackAndWait(const Ice::DispatcherCallPtr& call, cons
 }
 
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& callback) :
-    _routerHost("127.0.0.1"),
+    _routerHost("localhost"),
     _secure(true),
     _port(0),
     _timeout(10000),
@@ -808,7 +808,7 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const SessionCallbackPtr& c
 
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationData& initData,
                                            const SessionCallbackPtr& callback) :
-    _routerHost("127.0.0.1"),
+    _routerHost("localhost"),
     _secure(true),
     _port(0),
     _timeout(10000),
@@ -825,7 +825,7 @@ Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::InitializationDa
 }
 
 Glacier2::SessionFactoryHelper::SessionFactoryHelper(const Ice::PropertiesPtr& properties, const SessionCallbackPtr& callback) :
-    _routerHost("127.0.0.1"),
+    _routerHost("localhost"),
     _secure(true),
     _port(0),
     _timeout(10000),
