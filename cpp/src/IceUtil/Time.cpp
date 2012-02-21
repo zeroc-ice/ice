@@ -20,7 +20,6 @@
 #endif
 
 #ifdef __APPLE__
-#   include <CoreServices/CoreServices.h>
 #   include <mach/mach.h>
 #   include <mach/mach_time.h>
 #endif
@@ -68,14 +67,16 @@ InitializeFrequency frequencyInitializer;
 namespace
 {
 
-mach_timebase_info_data_t initTimeBase = {0, 0};
+double machMultiplier = 1.0;
 class InitializeTime
 {
 public:
 
     InitializeTime()
     {
+        mach_timebase_info_data_t initTimeBase = { 0, 0 };
         mach_timebase_info(&initTimeBase);
+        machMultiplier = static_cast<double>(initTimeBase.numer) / initTimeBase.denom / ICE_INT64(1000);
     }
 };
 InitializeTime initializeTime;
@@ -148,7 +149,7 @@ IceUtil::Time::now(Clock clock)
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #elif defined(__APPLE__)
-       return Time((mach_absolute_time() * initTimeBase.numer / initTimeBase.denom) / ICE_INT64(1000));
+       return Time(mach_absolute_time() * machMultiplier);
 #else
         struct timespec ts;
         if(clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
