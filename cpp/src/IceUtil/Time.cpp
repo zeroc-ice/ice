@@ -19,6 +19,12 @@
 #   include <sys/time.h>
 #endif
 
+#ifdef __APPLE__
+#   include <CoreServices/CoreServices.h>
+#   include <mach/mach.h>
+#   include <mach/mach_time.h>
+#endif
+
 using namespace IceUtil;
 
 #ifdef _WIN32
@@ -54,6 +60,25 @@ public:
     }
 };
 InitializeFrequency frequencyInitializer;
+
+}
+#endif
+
+#ifdef __APPLE__
+namespace
+{
+
+mach_timebase_info_data_t initTimeBase = {0, 0};
+class InitializeTime
+{
+public:
+
+    InitializeTime()
+    {
+        mach_timebase_info(&initTimeBase);
+    }
+};
+InitializeTime initializeTime;
 
 }
 #endif
@@ -111,9 +136,9 @@ IceUtil::Time::now(Clock clock)
 #  endif
             return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
         }
-#elif defined(__hpux) || defined(__APPLE__)
+#elif defined(__hpux)
         //
-        // HP/MacOS does not support CLOCK_MONOTONIC
+        // HP does not support CLOCK_MONOTONIC
         //
         struct timeval tv;
         if(gettimeofday(&tv, 0) < 0)
@@ -122,6 +147,8 @@ IceUtil::Time::now(Clock clock)
             throw SyscallException(__FILE__, __LINE__, errno);
         }
         return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
+#elif defined(__APPLE__)
+       return Time((mach_absolute_time() * initTimeBase.numer / initTimeBase.denom) / ICE_INT64(1000));
 #else
         struct timespec ts;
         if(clock_gettime(CLOCK_MONOTONIC, &ts) < 0)
