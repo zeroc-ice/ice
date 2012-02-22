@@ -67,8 +67,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     //
     // Compute _serviceName
     //
-    _defaultLocator = LocatorPrx::uncheckedCast(
-        _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
+    
 
     if(_serviceType == icegridregistry)
     {
@@ -77,9 +76,11 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     }
     else
     {
-        if(_defaultLocator != 0)
+	Ice::LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(
+            _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
+        if(defaultLocator != 0)
         {
-            _icegridInstanceName = _defaultLocator->ice_getIdentity().category;
+            _icegridInstanceName = defaultLocator->ice_getIdentity().category;
         }
 
         if(_serviceType == icegridnode)

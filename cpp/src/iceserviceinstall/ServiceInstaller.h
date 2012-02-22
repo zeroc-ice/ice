@@ -66,7 +66,6 @@ private:
 
     Ice::PropertiesPtr _serviceProperties;
     std::string _serviceName;
-    Ice::LocatorPrx _defaultLocator;
 
     std::string _icegridInstanceName;
     std::string _nodeName;
