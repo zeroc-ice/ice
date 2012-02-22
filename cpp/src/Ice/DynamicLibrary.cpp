@@ -119,7 +119,6 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
         lib += "." + version;
     }
-    lib += ".dylib";
 #elif defined(__hpux)
     lib = "lib" + libName;
     if(!version.empty())
@@ -145,10 +144,31 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
 #endif
 
+#ifdef __APPLE__
+    //
+    // On OS X fallback to .so and .bundle extensions if the default
+    // .dylib fails.
+    //
+    if(!load(lib + ".dylib"))
+    {
+        string errMsg = _err;
+        if(!load(lib + ".so"))
+        {
+            errMsg += "; " + _err;
+            if(!load(lib + ".bundle"))
+            {
+                _err = errMsg + "; " + _err;
+                return 0;
+            }
+        }
+        _err = "";
+    }
+#else
     if(!load(lib))
     {
         return 0;
     }
+#endif
 
     return getSymbol(funcName);
 }
