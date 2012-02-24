@@ -25,10 +25,8 @@ OBJS		= ArgVector.obj \
 		  Options.obj \
 		  OutputUtil.obj \
 		  Random.obj \
-		  RWRecMutex.obj \
 		  RecMutex.obj \
 		  Shared.obj \
-		  StaticMutex.obj \
 		  StringUtil.obj \
 		  Thread.obj \
 		  ThreadException.obj \
