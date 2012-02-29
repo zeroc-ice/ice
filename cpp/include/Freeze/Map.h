@@ -222,13 +222,6 @@ public:
 
     typedef value_type& reference;
 
-    Iterator(MapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
-        _helper(IteratorHelper::create(mapHelper, false)),
-        _communicator(communicator),
-        _refValid(false)
-    {
-    }
-
     Iterator(IteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
         _helper(helper),
         _communicator(communicator),
@@ -423,13 +416,6 @@ public:
     typedef value_type* pointer;
 
     typedef value_type& reference;
-
-    ConstIterator(MapHelper& mapHelper, const Ice::CommunicatorPtr& communicator) :
-        _helper(IteratorHelper::create(mapHelper, true)), 
-        _communicator(communicator),
-        _refValid(false)
-    {
-    }
 
     ConstIterator(IteratorHelper* helper, const Ice::CommunicatorPtr& communicator) :
         _helper(helper),
