@@ -110,8 +110,7 @@ SRCS		= Acceptor.cs \
 		  UdpTransceiver.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
-		  ValueWriter.cs \
-		  XMLOutput.cs
+		  ValueWriter.cs
 
 GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Communicator.cs \
