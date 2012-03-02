@@ -18,9 +18,53 @@
       <!-- Create the time stamp -->
       <tstamp/>
     </target>
-
+    
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
+    
+    <condition property="thirdparty.home" value="${env.ProgramFiles(x86)}\ZeroC\Ice-${ice.version}-ThirdParty">
+        <and>
+            <os family="Windows"/>
+            <not><isset property="thirdparty.home"/></not>
+            <or>
+                <and>
+                    <or>
+                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
+                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
+                    </or>
+                </and>
+                <and>
+                    <or>
+                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
+                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
+                    </or>
+                </and>
+            </or>
+        </and>
+    </condition>
+
+    <condition property="thirdparty.home" value="${env.ProgramFiles}\ZeroC\Ice-${ice.version}-ThirdParty">
+        <and>
+            <os family="Windows"/>
+            <not><isset property="thirdparty.home"/></not>
+        </and>
+    </condition>
+    
+    
+    <!-- Set default prefix directory, just if prefix is not set -->
+    <condition property="prefix" value="${env.SystemDrive}\Ice-${ice.version}">
+        <and>
+            <os family="windows"/>
+            <not><isset property="prefix"/></not>
+        </and>
+    </condition>
+
+    <condition property="prefix" value="/opt/Ice-${ice.version}">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="prefix"/></not>
+        </and>
+    </condition>
 
     <!-- Use -Xlint when requested -->
     <condition property="javac.lint" value="-Xlint:${lint}" else="-Xlint:none">
@@ -43,7 +87,7 @@
     <pathconvert property="ice.top.dir">
       <path location="${top.dir}"/>
     </pathconvert>
-
+    
     <condition property="slice.translator" value="slice2java.exe" else="slice2java">
       <os family="windows"/>
     </condition>
@@ -147,19 +191,32 @@
           <available file="/usr/bin/${slice.translator}"/>
         </and>
     </condition>
-    <condition property="ice.dir" value="C:\Program Files\ZeroC\Ice-${ice.version}">
+    
+    <condition property="ice.dir" value="${env.ProgramFiles(x86)}\ZeroC\Ice-${ice.version}">
         <and>
-            <os family="windows"/>
+            <os family="Windows"/>
             <not><isset property="ice.dir"/></not>
-            <available file="C:\Program Files\ZeroC\Ice-${ice.version}\bin\${slice.translator}"/>
+            <or>
+                <and>
+                    <or>
+                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
+                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
+                    </or>
+                </and>
+                <and>
+                    <or>
+                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
+                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
+                    </or>
+                </and>
+            </or>
         </and>
     </condition>
-    <condition property="ice.dir" value="C:\Program Files (x86)\ZeroC\Ice-${ice.version}">
+    
+    <condition property="ice.dir" value="${env.ProgramFiles}\ZeroC\Ice-${ice.version}">
         <and>
-            <!-- We can't check for PROCESSOR_ARCHITECTURE because it's set to x86 by ant even on AMD64 platforms. -->
             <os family="windows"/>
             <not><isset property="ice.dir"/></not>
-            <available file="C:\Program Files (x86)\ZeroC\Ice-${ice.version}\bin\${slice.translator}"/>
         </and>
     </condition>
     <condition property="ice.dir" value="/opt/Ice-${ice.version}">
@@ -208,10 +265,91 @@
             <available file="/opt/Ice-${ice.version}/lib/db.jar"/>
         </and>
     </condition>
-
+    <condition property="db.jar.file" value="/opt/db-${db.version}/lib/db.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="db.jar.file"/></not>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="/opt/db-${db.version}/lib/db.jar"/>
+        </and>
+    </condition>
+    <condition property="db.jar.file" value="/opt/db/lib/db.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="db.jar.file"/></not>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="/opt/db/lib/db.jar"/>
+        </and>
+    </condition>    
+    <condition property="db.jar.file" value="${thirdparty.home}/lib/db.jar">
+        <and>
+            <os family="windows"/>
+            <not><isset property="db.jar.file"/></not>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="${thirdparty.home}/lib/db.jar"/>
+        </and>
+    </condition>
+    
     <path id="db.classpath">
         <pathelement location="${db.jar.file}"/>
     </path>
+    
+    <!-- Set jgoodies.common to the path name of the Jgoodies Common JAR file -->
+    <condition property="jgoodies.common" value="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.common"/></not>
+            <not><available classname="com.jgoodies.common.base.SystemUtils"/></not>
+            <available file="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar"/>
+        </and>
+    </condition>
+    <condition property="jgoodies.common" 
+               value="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar">
+        <and>
+            <os family="windows"/>
+            <not><isset property="jgoodies.common"/></not>
+	  <not><available classname="com.jgoodies.common.base.SystemUtils"/></not>
+            <available file="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar"/>
+        </and>
+    </condition>
+    
+    <!-- Set jgoodies.forms to the path name of the Jgoodies Forms JAR file -->
+    <condition property="jgoodies.forms" value="/usr/share/java/jgoodies-forms-${jgoodies-forms.version}.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.forms"/></not>
+            <not><available classname="com.jgoodies.forms.builder.DefaultFormBuilder"/></not>
+            <available file="/usr/share/java/jgoodies-forms-${jgoodies-forms.version}.jar"/>
+        </and>
+    </condition>
+    <condition property="jgoodies.forms" 
+               value="${thirdparty.home}/lib/jgoodies-forms-${jgoodies-forms.version}.jar">
+        <and>
+            <os family="windows"/>
+            <not><isset property="jgoodies.forms"/></not>
+            <not><available classname="com.jgoodies.forms.builder.DefaultFormBuilder"/></not>
+            <available file="${thirdparty.home}/lib/jgoodies-forms-${jgoodies-forms.version}.jar"/>
+        </and>
+    </condition>
+    
+    <!-- Set jgoodies.looks to the path name of the Jgoodies Looks JAR file -->
+    <condition property="jgoodies.looks" value="/usr/share/java/jgoodies-looks-${jgoodies-looks.version}.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="jgoodies.looks"/></not>
+            <not><available classname="com.jgoodies.looks.Options"/></not>
+            <available file="/usr/share/java/jgoodies-looks-${jgoodies-looks.version}.jar"/>
+        </and>
+    </condition>
+    <condition property="jgoodies.looks" 
+               value="${thirdparty.home}/lib/jgoodies-looks-${jgoodies-looks.version}.jar">
+        <and>
+            <os family="windows"/>
+            <not><isset property="jgoodies.looks"/></not>
+            <not><available classname="com.jgoodies.looks.Options"/></not>
+            <available file="${thirdparty.home}/lib/jgoodies-looks-${jgoodies-looks.version}.jar"/>
+        </and>
+    </condition>
 
     <target name="config-init-warn" if="ice.warn.duplicate.translator">
         <echo message="Found ${slice.translator} in both ${ice.cpp.dir}/bin and ${ice.dir}/cpp/bin, ${ice.cpp.dir}/bin/${slice.translator} will be used!" level="warning"/>
