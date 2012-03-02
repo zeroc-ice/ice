@@ -35,11 +35,7 @@ ice_bin_dist = 1
 x64suffix		= \x64
 !endif
 
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITEW6432)" == "AMD64"
-ice_bin_dist_dir = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)
-!else
 ice_bin_dist_dir = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)
-!endif
 
 #
 # The following variables might also be defined:
