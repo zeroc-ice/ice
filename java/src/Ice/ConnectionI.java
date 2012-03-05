@@ -350,7 +350,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         throws IceInternal.LocalExceptionWrapper
     {
         int requestId = 0;
-        final IceInternal.BasicStream os = out.__os();
+        final IceInternal.BasicStream os = out.__getOs();
 
         if(_exception != null)
         {
@@ -393,7 +393,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         int status;
         try
         {
-            status = sendMessage(new OutgoingMessage(out, out.__os(), compress, requestId));
+            status = sendMessage(new OutgoingMessage(out, out.__getOs(), compress, requestId));
         }
         catch(Ice.LocalException ex)
         {
@@ -751,12 +751,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _batchStream.pos(IceInternal.Protocol.headerSize);
         _batchStream.writeInt(_batchRequestNum);
 
-        _batchStream.swap(outAsync.__os());
+        _batchStream.swap(outAsync.__getOs());
 
         int status;
         try
         {
-            OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.__os(), _batchRequestCompress, 0);
+            OutgoingMessage message = new OutgoingMessage(outAsync, outAsync.__getOs(), _batchRequestCompress, 0);
             status = sendMessage(message);
         }
         catch(Ice.LocalException ex)

@@ -114,7 +114,7 @@ public abstract class Direct implements Ice.Request
     }
 
     public Ice.Object
-    servant()
+    getServant()
     {
         return _servant;
     }

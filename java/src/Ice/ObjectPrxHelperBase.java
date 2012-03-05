@@ -209,7 +209,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__os();
+            IceInternal.BasicStream __os = __result.__getOs();
             __os.writeString(__id);
             __os.endWriteEncaps();
             __result.__send(true);
@@ -243,7 +243,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         boolean __ret;
-        IceInternal.BasicStream __is = __result.__is();
+        IceInternal.BasicStream __is = __result.__getIs();
         __is.startReadEncaps();
         __ret = __is.readBool();
         __is.endReadEncaps();
@@ -381,7 +381,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__os();
+            IceInternal.BasicStream __os = __result.__getOs();
             __os.endWriteEncaps();
             __result.__send(true);
         }
@@ -540,7 +540,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__os();
+            IceInternal.BasicStream __os = __result.__getOs();
             __os.endWriteEncaps();
             __result.__send(true);
         }
@@ -574,7 +574,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         String[] __ret = null;
-        IceInternal.BasicStream __is = __result.__is();
+        IceInternal.BasicStream __is = __result.__getIs();
         __is.startReadEncaps();
         __ret = StringSeqHelper.read(__is);
         __is.endReadEncaps();
@@ -716,7 +716,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__os();
+            IceInternal.BasicStream __os = __result.__getOs();
             __os.endWriteEncaps();
             __result.__send(true);
         }
@@ -749,7 +749,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         String __ret = null;
-        IceInternal.BasicStream __is = __result.__is();
+        IceInternal.BasicStream __is = __result.__getIs();
         __is.startReadEncaps();
         __ret = __is.readString();
         __is.endReadEncaps();
@@ -965,7 +965,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(operation, mode, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__os();
+            IceInternal.BasicStream __os = __result.__getOs();
             __os.writeBlob(inParams);
             __os.endWriteEncaps();
             __result.__send(true);
@@ -995,7 +995,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         boolean ok = __result.__wait();
         if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
         {
-            IceInternal.BasicStream __is = __result.__is();
+            IceInternal.BasicStream __is = __result.__getIs();
             __is.startReadEncaps();
             int sz = __is.getReadEncapsSize();
             if(outParams != null)
@@ -2110,7 +2110,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
-            IceInternal.BasicStream __is = __result.__is();
+            IceInternal.BasicStream __is = __result.__getIs();
             __is.skipEmptyEncaps();
         }
     }

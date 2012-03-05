@@ -649,14 +649,14 @@ template<typename key_type, typename KeyCodec, typename Compare>
 class KeyCompare : public KeyCompareBase
 {
 public:
-    KeyCompare(const Compare& compare, 
+    KeyCompare(const Compare& mapCompare, 
                const Ice::CommunicatorPtr& communicator) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-        KeyCompareBase(enableKeyCompare(compare)),
+        KeyCompareBase(enableKeyCompare(mapCompare)),
 #else
         KeyCompareBase(true),
 #endif
-        _compare(compare),
+        _compare(mapCompare),
         _communicator(communicator)
     {}
 
@@ -736,13 +736,13 @@ public:
     }
 
 protected:
-    MapIndex(const std::string& name, const Compare& compare) :
+    MapIndex(const std::string& mapName, const Compare& mapCompare) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-        MapIndexBase(name, enableKeyCompare(compare)),
+        MapIndexBase(mapName, enableKeyCompare(mapCompare)),
 #else
-        MapIndexBase(name, true),
+        MapIndexBase(mapName, true),
 #endif
-        _compare(compare)
+        _compare(mapCompare)
     {}
 
 private:
@@ -765,8 +765,8 @@ public:
     }
 
 protected:
-    MapIndex(const std::string& name, const IceEncodingCompare&):
-        MapIndexBase(name, false)
+    MapIndex(const std::string& mapName, const IceEncodingCompare&):
+        MapIndexBase(mapName, false)
     {}
 };
 #endif
@@ -1179,8 +1179,8 @@ public:
 
 protected:
 
-    Map(const Ice::CommunicatorPtr& communicator) :
-        _communicator(communicator)
+    Map(const Ice::CommunicatorPtr& mapCommunicator) :
+        _communicator(mapCommunicator)
     {
     }
 

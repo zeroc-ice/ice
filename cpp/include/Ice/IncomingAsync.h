@@ -53,7 +53,7 @@ protected:
     bool __validateResponse(bool);
 
     // Inlined for speed optimization.
-    BasicStream* __os() { return &_os; }
+    BasicStream* __getOs() { return &_os; }
 
 private:
 

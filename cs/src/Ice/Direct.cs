@@ -113,7 +113,7 @@ namespace IceInternal
             }
         }
         
-        public Ice.Object servant()
+        public Ice.Object getServant()
         {
             return _servant;
         }

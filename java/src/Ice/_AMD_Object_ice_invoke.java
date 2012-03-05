@@ -24,7 +24,7 @@ final class _AMD_Object_ice_invoke extends IceInternal.IncomingAsync implements 
         {
             try
             {
-                __os().writeBlob(outParams);
+                __getOs().writeBlob(outParams);
             }
             catch(Ice.LocalException ex)
             {

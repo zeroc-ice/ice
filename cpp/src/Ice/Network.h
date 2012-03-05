@@ -108,7 +108,7 @@ class ICE_API NativeInfo : virtual public IceUtil::Shared
 {
 public:
     
-    NativeInfo(SOCKET fd = INVALID_SOCKET) : _fd(fd)
+    NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
     {
     }
 

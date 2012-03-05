@@ -4088,7 +4088,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "__result.__prepare(__" << op->name() << "_name, " << sliceModeToIceMode(op->sendMode())
                 << ", __ctx, __explicitCtx);";
-            out << nl << "IceInternal.BasicStream __os = __result.__os();";
+            out << nl << "IceInternal.BasicStream __os = __result.__getOs();";
             iter = 0;
             for(pli = paramList.begin(); pli != paramList.end(); ++pli)
             {
@@ -4171,7 +4171,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
 
-                out << nl << "IceInternal.BasicStream __is = __result.__is();";
+                out << nl << "IceInternal.BasicStream __is = __result.__getIs();";
                 if(ret || !outParams.empty())
                 {
                     out << nl << "__is.startReadEncaps();";
@@ -5372,7 +5372,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "try";
             out << sb;
-            out << sp << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
+            out << sp << nl << "Ice.DispatchStatus __status = __direct.getServant().__collocDispatch(__direct);";
             out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
             out << sb;
             out << nl << "__direct.throwUserException();";
@@ -6147,7 +6147,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             {
                 out << nl << "try";
                 out << sb;
-                out << nl << "IceInternal.BasicStream __os = this.__os();";
+                out << nl << "IceInternal.BasicStream __os = this.__getOs();";
                 for(pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
                     StringList metaData = (*pli)->getMetaData();
@@ -6190,7 +6190,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                     out << sb;
                     out << nl << "if(__validateResponse(false))";
                     out << sb;
-                    out << nl << "__os().writeUserException(__ex);";
+                    out << nl << "__getOs().writeUserException(__ex);";
                     out << nl << "__response(false);";
                     out << eb;
                     out << eb;

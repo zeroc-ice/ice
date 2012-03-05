@@ -206,7 +206,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     }
 
     final protected BasicStream
-    __os()
+    __getOs()
     {
         return _os;
     }

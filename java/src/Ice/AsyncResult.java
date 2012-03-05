@@ -172,12 +172,12 @@ public class AsyncResult
         return _operation;
     }
 
-    public final IceInternal.BasicStream __os()
+    public final IceInternal.BasicStream __getOs()
     {
         return _os;
     }
 
-    public final IceInternal.BasicStream __is()
+    public final IceInternal.BasicStream __getIs()
     {
         assert _is != null; // Can't only be called if response is received.
         return _is;

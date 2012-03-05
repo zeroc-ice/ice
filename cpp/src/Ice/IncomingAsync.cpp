@@ -312,7 +312,7 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
     {
         try
         {
-            __os()->writeBlob(outParams);
+            __getOs()->writeBlob(outParams);
         }
         catch(const LocalException& ex)
         {
@@ -330,7 +330,7 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byt
     {
         try
         {
-            __os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+            __getOs()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
         }
         catch(const LocalException& ex)
         {

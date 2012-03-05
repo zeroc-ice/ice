@@ -1708,7 +1708,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
     
         try
         {
-            __direct.servant()->__collocDispatch(__direct);
+            __direct.getServant()->__collocDispatch(__direct);
         }
         catch(const ::std::exception& __ex)
         {
@@ -1766,7 +1766,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
     
         try
         {
-            __direct.servant()->__collocDispatch(__direct);
+            __direct.getServant()->__collocDispatch(__direct);
         }
         catch(const ::std::exception& __ex)
         {
@@ -1829,7 +1829,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
     
         try
         {
-            __direct.servant()->__collocDispatch(__direct);
+            __direct.getServant()->__collocDispatch(__direct);
         }
         catch(const ::std::exception& __ex)
         {
@@ -1893,7 +1893,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
     
         try
         {
-            __direct.servant()->__collocDispatch(__direct);
+            __direct.getServant()->__collocDispatch(__direct);
         }
         catch(const ::std::exception& __ex)
         {

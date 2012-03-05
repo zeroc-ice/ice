@@ -2706,7 +2706,7 @@ namespace Ice
 
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }
@@ -2746,7 +2746,7 @@ namespace Ice
 
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
             }
             finally
@@ -2786,7 +2786,7 @@ namespace Ice
 
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }
@@ -2827,7 +2827,7 @@ namespace Ice
 
             try
             {
-                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);
+                DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);
                 Debug.Assert(status__ == DispatchStatus.DispatchOK);
                 return result__;
             }

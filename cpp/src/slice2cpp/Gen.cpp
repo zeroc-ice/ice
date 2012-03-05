@@ -2481,15 +2481,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             paramsAMI.push_back(typeString);
             paramsDeclAMI.push_back(typeString + ' ' + paramName);
             argsAMI.push_back(paramName);
-	    inParams.push_back(*q);
+            inParams.push_back(*q);
         }
-	else
-	{
+        else
+        {
             outParamsAMI.push_back(typeString);
-	    outParamsDeclAMI.push_back(typeString + ' ' + paramName);
-	    outParamsDeclEndAMI.push_back(typeStringEndAMI + ' ' + paramName);
-	    outParams.push_back(*q);
-	}
+            outParamsDeclAMI.push_back(typeString + ' ' + paramName);
+            outParamsDeclEndAMI.push_back(typeStringEndAMI + ' ' + paramName);
+            outParams.push_back(*q);
+        }
     }
 
     //
@@ -2657,10 +2657,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "__result->__prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
     C << nl << "::IceInternal::BasicStream* __os = __result->__getOs();";
-    writeMarshalCode(C, inParams, 0, StringList(), true);
+    writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
     if(p->sendsClasses())
     {
-	C << nl << "__os->writePendingObjects();";
+        C << nl << "__os->writePendingObjects();";
     }
     C << nl << "__os->endWriteEncaps();";
     C << nl << "__result->__send(true);";
@@ -3211,7 +3211,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = __og.os();";
-        writeMarshalCode(C, inParams, 0, StringList(), true);
+        writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
         if(p->sendsClasses())
         {
             C << nl << "__os->writePendingObjects();";
@@ -3444,6 +3444,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
     vector<string> params;
     vector<string> paramsDecl;
+    vector<string> directParamsDecl;
     vector<string> args;
     vector<string> argMembers;
 
@@ -3473,6 +3474,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
         params.push_back(typeString);
         paramsDecl.push_back(typeString + ' ' + paramName);
+        directParamsDecl.push_back(typeString + " __p_" + paramName);
         args.push_back(paramName);
         argMembers.push_back("_m_" + paramName);
     }
@@ -3520,7 +3522,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
             string resultRef = outputTypeToString(ret, p->getMetaData(), _useWstring);
             C << resultRef + " __result";
         }
-        C << paramsDecl << "const ::Ice::Current& __current" << epar << " : ";
+        C << directParamsDecl << "const ::Ice::Current& __current" << epar << " : ";
         C.inc();
         C << nl << "::IceInternal::Direct(__current)";
 
@@ -3533,7 +3535,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         {
             if(args[i] != "__current")
             {
-                C << "," << nl << argMembers[i] + "(" + args[i] + ")";
+                C << "," << nl << argMembers[i] + "(__p_" + args[i] + ")";
             }
         }
         C.dec();
@@ -3629,7 +3631,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
         C << nl << "try";
         C << sb;
-        C << nl << "__direct.servant()->__collocDispatch(__direct);";
+        C << nl << "__direct.getServant()->__collocDispatch(__direct);";
         C << eb;
 #if 0
         C << nl << "catch(const ::std::exception& __ex)";
@@ -6584,11 +6586,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = this->__os();";
-        writeMarshalCode(C, outParams, 0, StringList(), true);
+        C << nl << "::IceInternal::BasicStream* __os = this->__getOs();";
+        writeMarshalCode(C, outParams, 0, StringList(), TypeContextInParam);
         if(ret)
         {
-            writeMarshalUnmarshalCode(C, ret, "__ret", true, "", true, p->getMetaData(), true);
+            writeMarshalUnmarshalCode(C, ret, "__ret", true, "", true, p->getMetaData(), TypeContextInParam);
         }
         if(p->returnsClasses())
         {
@@ -6623,7 +6625,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
-            C << nl << "__os()->write(*__ex);";
+            C << nl << "__getOs()->write(*__ex);";
             C << nl << "__response(false);";
             C << eb;
             C << eb;

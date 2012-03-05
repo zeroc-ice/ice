@@ -159,7 +159,7 @@ namespace IceInternal
             }
         }
         
-        protected internal BasicStream os__()
+        protected internal BasicStream getOs__()
         {
             return os_;
         }
@@ -241,7 +241,7 @@ namespace Ice
         {
             try
             {
-                os__().writeBlob(outParams);
+                getOs__().writeBlob(outParams);
             }
             catch(Ice.LocalException ex)
             {

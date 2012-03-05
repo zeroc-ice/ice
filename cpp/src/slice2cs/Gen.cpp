@@ -5810,7 +5810,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "try";
             _out << sb;
 
-            _out << nl << "Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);";
+            _out << nl << "Ice.DispatchStatus status__ = direct__.getServant().collocDispatch__(direct__);";
             if(!throws.empty())
             {
                 _out << nl << "if(status__ == Ice.DispatchStatus.DispatchUserException)";
@@ -6105,7 +6105,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         {
             _out << nl << "try";
             _out << sb;
-            _out << nl << "IceInternal.BasicStream os__ = this.os__();";
+            _out << nl << "IceInternal.BasicStream os__ = this.getOs__();";
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string typeS = typeToString(q->first);
@@ -6146,7 +6146,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 _out << sb;
                 _out << nl << "if(validateResponse__(false))";
                 _out << sb;
-                _out << nl << "os__().writeUserException(ex__);";
+                _out << nl << "getOs__().writeUserException(ex__);";
                 _out << nl << "response__(false);";
                 _out << eb;
                 _out << eb;

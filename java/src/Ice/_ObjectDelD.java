@@ -39,7 +39,7 @@ public class _ObjectDelD implements _ObjectDel
         
         try
         {
-            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            DispatchStatus __status = __direct.getServant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
@@ -88,7 +88,7 @@ public class _ObjectDelD implements _ObjectDel
                 
         try
         {
-            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            DispatchStatus __status = __direct.getServant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
         }
         catch(Throwable __ex)
@@ -137,7 +137,7 @@ public class _ObjectDelD implements _ObjectDel
 
         try
         {
-            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            DispatchStatus __status = __direct.getServant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
@@ -187,7 +187,7 @@ public class _ObjectDelD implements _ObjectDel
 
         try
         {
-            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            DispatchStatus __status = __direct.getServant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }

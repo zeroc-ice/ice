@@ -576,11 +576,9 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& fixedParam, bool marshal,
                                  const string& str, bool pointer, const StringList& metaData, int typeCtx)
 {
-    string fixedParam = fixKwd(param);
-
     string stream;
     if(str.empty())
     {
@@ -686,7 +684,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 
         if(marshal)
         {
-	    string seqType = findMetaData(metaData, typeCtx);
+            string seqType = findMetaData(metaData, typeCtx);
             string scope = fixKwd(seq->scope());
 
             if(seqType == "array" || seqType == "range:array")
@@ -751,7 +749,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     << fixedParam << ".first; ___" << fixedParam << " != " << fixedParam << ".second; ++___"
                     << fixedParam << ")";
                 out << sb;
-                writeMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true, "", true, l, false);
+                writeMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true, "", true, l);
                 out << eb;
             }
             else if(!seqType.empty())
@@ -810,7 +808,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
         }
         else
         {
-	    string seqType = findMetaData(metaData, typeCtx);
+            string seqType = findMetaData(metaData, typeCtx);
             string scope = fixKwd(seq->scope());
             if(seqType == "array" || seqType == "range:array")
             {
@@ -832,7 +830,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                         StringList l;
                         l.push_back("cpp:type:" + seqType);
                         out << nl << seqType << " ___" << fixedParam << ";";
-                        writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
+                        writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l);
                     }
                 }
                 else if(builtin->kind() == Builtin::KindByte)
@@ -896,11 +894,11 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 }
                 if(typeCtx & TypeContextAMIPrivateEnd)
                 {
-                    writeMarshalUnmarshalCode(out, seq, fixedParam, false, "", true, md, false);
+                    writeMarshalUnmarshalCode(out, seq, fixedParam, false, "", true, md);
                 }
                 else
                 {
-                    writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, md, false);
+                    writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, md);
                     out << nl << fixedParam << ".first = ___" << fixedParam << ".begin();";
                     out << nl << fixedParam << ".second = ___" << fixedParam << ".end();";
                 }
@@ -1005,7 +1003,7 @@ Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr&
     }
     if(ret)
     {
-        writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData, false);
+        writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData);
     }
 }
 
@@ -1015,7 +1013,7 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePt
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-        writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(),
+        writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(), 
                                   typeCtx);
     }
     if(ret)
@@ -1236,7 +1234,7 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const TypePtr& ret
     }
     if(ret)
     {
-	writeParamEndCode(out, ret, "__ret", metaData);
+        writeParamEndCode(out, ret, "__ret", metaData);
     }
 }
 

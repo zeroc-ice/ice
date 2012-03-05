@@ -142,7 +142,7 @@ IceInternal::Direct::destroy()
 }
 
 const ObjectPtr&
-IceInternal::Direct::servant()
+IceInternal::Direct::getServant()
 {
     return _servant;
 }

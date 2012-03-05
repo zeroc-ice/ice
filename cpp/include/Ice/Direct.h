@@ -28,7 +28,7 @@ public:
     Direct(const Ice::Current&);
     void destroy();
 
-    const Ice::ObjectPtr& servant();
+    const Ice::ObjectPtr& getServant();
 
     virtual bool isCollocated();
     virtual const Ice::Current& getCurrent();

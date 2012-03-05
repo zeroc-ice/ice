@@ -23,8 +23,8 @@ IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
 
 IceInternal::DynamicLibrary::DynamicLibrary(const Ice::StringConverterPtr& stringConverter) : 
-    _stringConverter(stringConverter),
-    _hnd(0)
+    _hnd(0),
+    _stringConverter(stringConverter)
 {
 }
 
