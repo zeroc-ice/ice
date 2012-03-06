@@ -1075,14 +1075,12 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << nl;
         if(p->hasDefaultValues())
         {
-            H << nl << name << "();";
-
-            C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name()) << "() :";
-            C.inc();
-            writeDataMemberInitializers(C, dataMembers, _useWstring);
-            C.dec();
-            C << sb;
-            C << eb;
+            H << nl << name << "() :";
+            H.inc();
+            writeDataMemberInitializers(H, dataMembers, _useWstring);
+            H.dec();
+            H << sb;
+            H << eb;
         }
         else
         {
@@ -1095,7 +1093,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << sb;
         if(p->hasDefaultValues())
         {
-            H << nl << _dllExport << name << "() :";
+            H << nl << name << "() :";
 
             H.inc();
             writeDataMemberInitializers(H, dataMembers, _useWstring);
@@ -1130,25 +1128,23 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             H << "explicit ";
         }
-        H << name << spar << types << epar << ';';
-
-        C << sp << nl << fixKwd(p->scoped()).substr(2) << "::"
-          << fixKwd(p->name()) << spar << paramDecls << epar << " :";
-        C.inc();
+        H << fixKwd(p->name()) << spar << paramDecls << epar << " :";
+        H.inc();
 
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
             {
-                C << ',';
+                H << ',';
             }
             string memberName = fixKwd((*q)->name());
-            C << nl << memberName << '(' << "__ice_" << (*q)->name() << ')';
+            H << nl << memberName << '(' << "__ice_" << (*q)->name() << ')';
         }
 
-        C.dec();
-        C << sb;
-        C << eb;
+        H.dec();
+        H << sb;
+        H << eb;
+        H << nl;
     }
 
     H << sp;
@@ -1235,7 +1231,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     if(!p->isLocal())
     {
         //
-        // None of these member functions is virtual!
+        // None of these member functions are virtual!
         //
         H << sp << nl << dllExport << "void __write(::IceInternal::BasicStream*) const;";
         H << nl << dllExport << "void __read(::IceInternal::BasicStream*);";
@@ -3845,7 +3841,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << "typedef " << p->name() << "Prx ProxyType;";
     }
     H << nl << "typedef " << p->name() << "Ptr PointerType;";
-    H << nl;
 
     vector<string> params;
     vector<string> allTypes;
@@ -3868,27 +3863,17 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->hasDefaultValues())
         {
-            H << nl << name << "();";
-
-            C << sp << nl << scoped.substr(2) << "::" << name << "() :";
-            C.inc();
-            writeDataMemberInitializers(C, dataMembers, _useWstring);
-            C.dec();
-            C << sb;
-            C << eb;
+            H << name << "() :";
+            H.inc();
+            writeDataMemberInitializers(H, dataMembers, _useWstring);
+            H.dec();
+            H << sb;
+            H << eb;
         }
         else
         {
-            H << nl << name << "() {}";
-        }
-        if(!allParamDecls.empty())
-        {
-            H << nl;
-            if(allParamDecls.size() == 1)
-            {
-                H << "explicit ";
-            }
-            H << name << spar << allTypes << epar << ';';
+            H << sp << nl << name << "()";
+            H << sb << eb;
         }
 
         /*
@@ -3932,7 +3917,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
          */
 
         emitOneShotConstructor(p);
-
+        H << sp;
+        
         /*
          * Strong guarantee
 
@@ -4064,6 +4050,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
           << "(const ::Ice::Current& = ::Ice::Current()) const;";
         H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
         H << nl << "static const ::std::string& ice_staticId();";
+        
         if(!dataMembers.empty())
         {
             H << sp;
@@ -5140,7 +5127,7 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
         {
             if(emitVirtualBaseInitializers(bases.front(), virtualInheritance))
             {
-                C << ',';
+                H << ',';
             }
         }
     }
@@ -5157,18 +5144,18 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
     }
     upcall += ")";
 
-    C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug";
-    C.restoreIndent();
-    C << nl << fixKwd(p->name()) << upcall;
-    C.zeroIndent();
-    C << nl << "#else";
-    C.restoreIndent();
-    C << nl << fixKwd(p->scoped()) << upcall;
-    C.zeroIndent();
-    C << nl << "#endif";
-    C << nl;
-    C.restoreIndent();
+    H.zeroIndent();
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug";
+    H.restoreIndent();
+    H << nl << fixKwd(p->name()) << upcall;
+    H.zeroIndent();
+    H << nl << "#else";
+    H.restoreIndent();
+    H << nl << fixKwd(p->scoped()) << upcall;
+    H.zeroIndent();
+    H << nl << "#endif";
+    H << nl;
+    H.restoreIndent();
 
     return true;
 }
@@ -5177,21 +5164,25 @@ void
 Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 {
     DataMemberList allDataMembers = p->allDataMembers();
-    DataMemberList::const_iterator q;
-
-    vector<string> allParamDecls;
-
-    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
-    {
-        string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData(), _useWstring);
-        allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
-    }
 
     if(!allDataMembers.empty())
     {
-        C << sp << nl << fixKwd(p->scoped()).substr(2) << "::" << fixKwd(p->name())
-	  << spar << allParamDecls << epar << " :";
-        C.inc();
+        DataMemberList::const_iterator q;
+        vector<string> allParamDecls;
+
+        for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        {
+            string typeName = inputTypeToString((*q)->type(), (*q)->getMetaData(), _useWstring);
+            allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
+        }
+
+        H << sp << nl;
+        if(allParamDecls.size() == 1)
+        {
+            H << "explicit ";
+        }
+        H << fixKwd(p->name()) << spar << allParamDecls << epar << " :";
+        H.inc();
 
         DataMemberList dataMembers = p->dataMembers();
 
@@ -5203,28 +5194,28 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             {
                 if(!dataMembers.empty())
                 {
-                    C << ',';
+                    H << ',';
                 }
             }
         }
 
         if(!dataMembers.empty())
         {
-            C << nl;
+            H << nl;
         }
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
             {
-                C << ',' << nl;
+                H << ',' << nl;
             }
             string memberName = fixKwd((*q)->name());
-            C << memberName << '(' << "__ice_" << (*q)->name() << ')';
+            H << memberName << '(' << "__ice_" << (*q)->name() << ')';
         }
 
-        C.dec();
-        C << sb;
-        C << eb;
+        H.dec();
+        H << sb;
+        H << eb;
     }
 }
 
