@@ -77,7 +77,6 @@ Slice::computeSerialVersionUUID(const ClassDefPtr& p)
     {
         h0 |= (long)bytes[i] << (i * 4);
     }
-    if(h0)
     
     for(int i = 0; i < 8; ++i)
     {

@@ -2575,21 +2575,25 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(pos == string::npos)
         {
             ostringstream os;
-            os << "Invalid serialVersionUID for class `" << p->scoped() << "' default to slice2java generated value.";
+            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
             emitWarning("", "", os.str());
             out << computeSerialVersionUUID(p);
         }
         else
         {
-            long v = 0;
+            IceUtil::Int64 v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-                v = atol(serialVersionUID.c_str());
+#ifdef WIN32
+                v = _atoi64(serialVersionUID.c_str());
+#else
+                v = atoll(serialVersionUID.c_str());
+#endif
                 if(v == 0) // conversion error
                 {
                     ostringstream os;
-                    os << "Invalid serialVersionUID for class `" << p->scoped() << "' default to slice2java generated value.";
+                    os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
                     emitWarning("", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
@@ -3353,21 +3357,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         if(pos == string::npos)
         {
             ostringstream os;
-            os << "Invalid serialVersionUID for struct `" << p->scoped() << "' default to slice2java generated value.";
+            os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
             emitWarning("", "", os.str());
             out << computeSerialVersionUUID(p);
         }
         else
         {
-            long v = 0;
+            IceUtil::Int64 v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-                v = atol(serialVersionUID.c_str());
+#ifdef WIN32
+                v = _atoi64(serialVersionUID.c_str());
+#else
+                v = atoll(serialVersionUID.c_str());
+#endif
                 if(v == 0) // conversion error
                 {
                     ostringstream os;
-                    os << "Invalid serialVersionUID for struct `" << p->scoped() << "' default to slice2java generated value.";
+                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
                     emitWarning("", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
