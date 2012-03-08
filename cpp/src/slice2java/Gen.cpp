@@ -14,6 +14,7 @@
 #include <IceUtil/Functional.h>
 #include <IceUtil/Iterator.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/InputUtil.h>
 #include <cstring>
 
 #include <limits>
@@ -2585,12 +2586,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-#ifdef WIN32
-                v = _atoi64(serialVersionUID.c_str());
-#else
-                v = atoll(serialVersionUID.c_str());
-#endif
-                if(v == 0) // conversion error
+                if(!IceUtilInternal::stringToInt64(serialVersionUID, v)) // conversion error
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
@@ -3367,12 +3363,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-#ifdef WIN32
-                v = _atoi64(serialVersionUID.c_str());
-#else
-                v = atoll(serialVersionUID.c_str());
-#endif
-                if(v == 0) // conversion error
+                if(!IceUtilInternal::stringToInt64(serialVersionUID, v)) // conversion error
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
