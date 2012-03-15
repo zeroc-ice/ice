@@ -249,11 +249,22 @@ Slice::Preprocessor::preprocess(bool keepComments)
 
 bool
 Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<string>& includePaths,
-                                               const string& cppSourceExt, const string& pyPrefix)
+                                               const string& cppSourceExt, const string& optValue)
 {
     if(!checkInputFile())
     {
         return false;
+    }
+    
+    string cppHeaderExt;
+    string pyPrefix;
+    if(lang == CPlusPlus)
+    {
+        cppHeaderExt = optValue;
+    }
+    else if(lang == Python)
+    {
+        pyPrefix = optValue;
     }
 
     //
@@ -452,10 +463,11 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             //
             // Change .o[bj] suffix to the cpp source extension suffix.
             //
-            string::size_type pos;
-            while((pos = result.find(suffix)) != string::npos)
+            string::size_type pos = result.find(suffix);
+            if(pos != string::npos)
             {
-                result.replace(pos, suffix.size() - 1, "." + cppSourceExt);
+                string name = result.substr(0, pos);
+                result.replace(0, pos + suffix.size() - 1, name + "." + cppHeaderExt + " " + name + "." + cppSourceExt);
             }
             break;
         }
@@ -514,7 +526,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             // Change .o[bj] suffix to .cs suffix.
             //
             string::size_type pos;
-            while((pos = result.find(suffix)) != string::npos)
+            if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".cs");
             }
@@ -530,7 +542,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
                 result = pyPrefix + result;
             }
             string::size_type pos;
-            while((pos = result.find(suffix)) != string::npos)
+            if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, "_ice.py");
             }
@@ -542,7 +554,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             // Change .o[bj] suffix to .rb suffix.
             //
             string::size_type pos;
-            while((pos = result.find(suffix)) != string::npos)
+            if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".rb");
             }
@@ -554,7 +566,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
             // Change .o[bj] suffix to .php suffix.
             //
             string::size_type pos;
-            while((pos = result.find(suffix)) != string::npos)
+            if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".php");
             }

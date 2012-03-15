@@ -74,7 +74,10 @@ C++ Changes
 
 - Declaring ice_print for local exceptions is now optional. This
   method is not declared by default, but you can use the metadata tag
-  "cpp:ice_print" to enable the method declaration. 
+  "cpp:ice_print" to enable the method declaration.
+
+- slice2cpp --depend option now include generated header file in 
+  Makefile dependencies.
 
 
 Visual Studio Add-in Changes

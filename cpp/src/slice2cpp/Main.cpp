@@ -100,6 +100,7 @@ compile(int argc, char* argv[])
     opts.addOpt("", "dll-export", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "impl");
     opts.addOpt("", "depend");
+    opts.addOpt("", "depend-header");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
@@ -220,7 +221,7 @@ compile(int argc, char* argv[])
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension))
+            if(!icecpp->printMakefileDependencies(Preprocessor::CPlusPlus, includePaths, sourceExtension, headerExtension))
             {
                 return EXIT_FAILURE;
             }
