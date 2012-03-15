@@ -379,23 +379,43 @@
             </and>
         </condition>
 
-        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice-${ice.version}.jar">
+        <!-- Ice jar file -->
+        <condition property="ice.jar.file" value="${dist.lib.dir}/Ice-${ice.version}.jar">
             <and>
-                <not><isset property="dist.jar.file"/></not>
+                <not><isset property="ice.jar.file"/></not>
                 <available file="${dist.lib.dir}/Ice-${ice.version}.jar"/>
             </and>
         </condition>
 
-        <condition property="dist.jar.file" value="${dist.lib.dir}/Ice.jar">
+        <condition property="ice.jar.file" value="${dist.lib.dir}/Ice.jar">
             <and>
-                <not><isset property="dist.jar.file"/></not>
+                <not><isset property="ice.jar.file"/></not>
                 <available file="${dist.lib.dir}/Ice.jar"/>
             </and>
         </condition>
 
         <path id="ice.classpath">
-            <pathelement location="${dist.jar.file}"/>
+            <pathelement location="${ice.jar.file}"/>
         </path>
+        
+        <!-- Glacier2 jar file -->
+        <condition property="glacier2.jar.file" value="${dist.lib.dir}/Glacier2-${ice.version}.jar">
+            <and>
+                <not><isset property="glacier2.jar.file"/></not>
+                <available file="${dist.lib.dir}/Glacier2-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="glacier2.jar.file" value="${dist.lib.dir}/Glacier2.jar">
+            <and>
+                <not><isset property="glacier2.jar.file"/></not>
+                <available file="${dist.lib.dir}/Glacier2.jar"/>
+            </and>
+        </condition>
+
+        <path id="glacier2.classpath">
+            <pathelement location="${glacier2.jar.file}"/>
+        </path>        
 
         <!-- Set freeze.classpath with the distribution Freeze.jar file -->
         <condition property="freeze.jar.file" value="${dist.lib.dir}/Freeze-${ice.version}.jar">
@@ -415,6 +435,64 @@
         <path id="freeze.classpath">
             <pathelement location="${freeze.jar.file}"/>
             <path refid="db.classpath"/>
+        </path>
+        
+        
+        <!-- IceBox jar file -->
+        <condition property="icebox.jar.file" value="${dist.lib.dir}/IceBox-${ice.version}.jar">
+            <and>
+                <not><isset property="icebox.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceBox-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="icebox.jar.file" value="${dist.lib.dir}/IceBox.jar">
+            <and>
+                <not><isset property="icebox.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceBox.jar"/>
+            </and>
+        </condition>
+
+        <path id="icebox.classpath">
+            <pathelement location="${icebox.jar.file}"/>
+        </path>
+        
+        <!-- IceStorm jar file -->
+        <condition property="icestorm.jar.file" value="${dist.lib.dir}/IceStorm-${ice.version}.jar">
+            <and>
+                <not><isset property="icestorm.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceStorm-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="icestorm.jar.file" value="${dist.lib.dir}/IceStorm.jar">
+            <and>
+                <not><isset property="icestorm.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceStorm.jar"/>
+            </and>
+        </condition>
+        
+        <path id="icestorm.classpath">
+            <pathelement location="${icestorm.jar.file}"/>
+        </path>
+        
+        <!-- IceGrid jar file -->
+        <condition property="icegrid.jar.file" value="${dist.lib.dir}/IceGrid-${ice.version}.jar">
+            <and>
+                <not><isset property="icegrid.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceGrid-${ice.version}.jar"/>
+            </and>
+        </condition>
+
+        <condition property="icegrid.jar.file" value="${dist.lib.dir}/IceGrid.jar">
+            <and>
+                <not><isset property="icegrid.jar.file"/></not>
+                <available file="${dist.lib.dir}/IceGrid.jar"/>
+            </and>
+        </condition>
+
+        <path id="icegrid.classpath">
+            <pathelement location="${icegrid.jar.file}"/>
         </path>
 
         <condition property="certs.dir" value="${ice.top.dir}/certs" else="${ice.top.dir}/../certs">

@@ -161,8 +161,9 @@ Android
 -------
 
 The Ice run time (lib/Ice.jar) is fully compatible with Android 2.1 or
-later. The IceSSL plug-in requires Android 2.2 or later (see the
-release notes for more information on SSL in Android).
+later. The IceSSL plug-in included in (lib/Ice.jar) requires Android 
+2.2 or later (see the release notes for more information on SSL in 
+Android).
 
 Refer to the sections "Eclipse Development" and "Using Ice in Android"
 below for additional details.
@@ -225,8 +226,9 @@ To build only the Ice run time (Ice.jar), use the following command:
 
   ant ice-jar
 
-To build the Ice run time along with Freeze and the IceGrid
-administrative console, use this command:
+To build the Ice run time along with Freeze, IceBox, IceGrid, IceStorm,
+IcePatch2 services  and the IceGrid administrative console, use 
+this command:
 
   ant jar
 
@@ -264,8 +266,10 @@ specified by the "prefix" variable in config/build.properties.
 It is not necessary to rebuild Ice for Java after changing the
 value of the prefix variable.
 
-After installation add Ice.jar (and optionally Freeze.jar) to your
-CLASSPATH.
+After installation add Ice.jar to your CLASSPATH, if you plan to use 
+other Ice services you must also add the service corresponding jar 
+files Freeze.jar, Glacier2.jar, IceBox.jar, IceStorm.jar, IcePatch2.jar
+and IceGrid.jar.
 
 
 ======================================================================
@@ -363,10 +367,15 @@ Note that the Glacier2/router test will fail if it is run with the
 CLASSPATH.
 
 If you want to try out any of the demos, make sure to add lib/Ice.jar
-and "classes" to your CLASSPATH. Then change to the desired demo
-directory and follow the instructions in the README file. If no README
-file is present, the demo can be run by entering the following command
-to start the server:
+and "classes" to your CLASSPATH.
+
+For demos that use Ice services you must also add the service 
+corresponding jar files Freeze.jar, Glacier2.jar, IceBox.jar, 
+IceStorm.jar and IceGrid.jar to your CLASSPATH.
+
+Then change to the desired demo directory and follow the instructions
+in the README file. If no README file is present, the demo can be run 
+by entering the following command to start the server:
 
   $ java Server
 

@@ -85,6 +85,26 @@ public class ProjectProperties extends PropertyPage
                 {
                     jars.add("Freeze.jar");
                 }
+                if(_glacier2Jar.getSelection())
+                {
+                    jars.add("Glacier2.jar");
+                }
+                if(_iceBoxJar.getSelection())
+                {
+                    jars.add("IceBox.jar");
+                }
+                if(_iceStormJar.getSelection())
+                {
+                    jars.add("IceStorm.jar");
+                }
+                if(_iceGridJar.getSelection())
+                {
+                    jars.add("IceGrid.jar");
+                }
+                if(_icePatch2Jar.getSelection())
+                {
+                    jars.add("IcePatch2.jar");
+                }
                 _config.setJars(jars);
             }
 
@@ -118,8 +138,8 @@ public class ProjectProperties extends PropertyPage
         }
         catch(IOException e)
         {
-            ErrorDialog.openError(getShell(), "Error", "Error saving preferences",
-                    new Status(Status.ERROR, Activator.PLUGIN_ID, 0, null, e));
+            ErrorDialog.openError(getShell(), "Error", "Error saving preferences", new Status(Status.ERROR,
+                    Activator.PLUGIN_ID, 0, null, e));
             return false;
         }
         return true;
@@ -129,16 +149,32 @@ public class ProjectProperties extends PropertyPage
     {
         _jarsGroup = new Group(composite, SWT.NONE);
         _jarsGroup.setText("Add references to the following JAR files:");
-        
+
         GridLayout gridLayout = new GridLayout();
-        gridLayout.numColumns = 1;
+        gridLayout.numColumns = 7;
 
         _jarsGroup.setLayout(gridLayout);
         _jarsGroup.setLayoutData(new GridData(GridData.FILL_BOTH));
-        
+
         _freezeJar = new Button(_jarsGroup, SWT.CHECK);
-        _freezeJar.setText("Freeze.jar");
+        _freezeJar.setText("Freeze");
+
+        _glacier2Jar = new Button(_jarsGroup, SWT.CHECK);
+        _glacier2Jar.setText("Glacier2");
+
+        _iceBoxJar = new Button(_jarsGroup, SWT.CHECK);
+        _iceBoxJar.setText("IceBox");
+
+        _iceGridJar = new Button(_jarsGroup, SWT.CHECK);
+        _iceGridJar.setText("IceGrid");
+
+        _icePatch2Jar = new Button(_jarsGroup, SWT.CHECK);
+        _icePatch2Jar.setText("IcePatch2");
+
+        _iceStormJar = new Button(_jarsGroup, SWT.CHECK);
+        _iceStormJar.setText("IceStorm");
     }
+
     /**
      * @see PreferencePage#createContents(Composite)
      */
@@ -187,6 +223,26 @@ public class ProjectProperties extends PropertyPage
             {
                 _freezeJar.setSelection(true);
             }
+            else if(jarFile.equals("Glacier2.jar"))
+            {
+                _glacier2Jar.setSelection(true);
+            }
+            else if(jarFile.equals("IceBox.jar"))
+            {
+                _iceBoxJar.setSelection(true);
+            }
+            else if(jarFile.equals("IceGrid.jar"))
+            {
+                _iceGridJar.setSelection(true);
+            }
+            else if(jarFile.equals("IcePatch2.jar"))
+            {
+                _icePatch2Jar.equals(true);
+            }
+            else if(jarFile.equals("IceStorm.jar"))
+            {
+                _iceStormJar.setSelection(true);
+            }
         }
         _defines.setText(Configuration.fromList(_config.getDefines()));
         _meta.setText(Configuration.fromList(_config.getMeta()));
@@ -198,11 +254,10 @@ public class ProjectProperties extends PropertyPage
         _extraArguments.setText(_config.getExtraArguments());
 
         //
-        // Android projects don't support extra Jar.
+        // Android projects don't support Freeze.
         //
-        _jarsGroup.setEnabled(!_config.isAndroidProject());
         _freezeJar.setEnabled(!_config.isAndroidProject());
-        
+
         checkValid();
     }
 
@@ -306,9 +361,9 @@ public class ProjectProperties extends PropertyPage
 
         Label l = new Label(tc, SWT.WRAP);
         l.setForeground(new Color(null, 255, 0, 0));
-        l.setText("This subdirectory is used by the plug-in to manage the source files generated from " +
-                  "your Slice definitions. It should not be used for any other purpose. " +
-                  "Files added manually are removed during project rebuilds.");
+        l.setText("This subdirectory is used by the plug-in to manage the source files generated from "
+                + "your Slice definitions. It should not be used for any other purpose. "
+                + "Files added manually are removed during project rebuilds.");
 
         GridData gridData = new GridData(GridData.FILL_BOTH);
         gridData.widthHint = 400;
@@ -357,17 +412,17 @@ public class ProjectProperties extends PropertyPage
                         {
                             if(path.members().length > 0)
                             {
-                                ErrorDialog.openError(getShell(), "Error", 
-                                            "Generated code location should be an empty folder",
-                                            new Status(Status.ERROR, Activator.PLUGIN_ID, "The chosen directory '" +
-                                                       path.getFullPath().toOSString() + "' is not empty." ));
+                                ErrorDialog.openError(getShell(), "Error",
+                                        "Generated code location should be an empty folder", new Status(Status.ERROR,
+                                                Activator.PLUGIN_ID, "The chosen directory '"
+                                                        + path.getFullPath().toOSString() + "' is not empty."));
                                 return;
                             }
                         }
                         catch(CoreException ex)
                         {
-                            ErrorDialog.openError(getShell(), "Error", ex.toString(),
-                                        new Status(Status.ERROR, Activator.PLUGIN_ID, 0, "Failed to set generated code location.", ex));
+                            ErrorDialog.openError(getShell(), "Error", ex.toString(), new Status(Status.ERROR,
+                                    Activator.PLUGIN_ID, 0, "Failed to set generated code location.", ex));
                             return;
                         }
                         _generatedDir.setText(newPath);
@@ -375,12 +430,17 @@ public class ProjectProperties extends PropertyPage
                 }
             }
         });
-        
+
         return composite;
     }
-    
+
     private Button _freezeJar;
-    
+    private Button _glacier2Jar;
+    private Button _iceBoxJar;
+    private Button _iceGridJar;
+    private Button _icePatch2Jar;
+    private Button _iceStormJar;
+
     private Text _generatedDir;
     private List _sourceDirectories;
     private Group _jarsGroup;

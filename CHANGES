@@ -123,6 +123,8 @@ Java Changes
   serialVersionUID member. You can override the default UID using the
   metadata [java:serialVersionUID:<value>].
 
+- Ice services are now build in separate JAR files.
+
 
 Python Changes
 ==============

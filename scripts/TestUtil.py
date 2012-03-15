@@ -184,7 +184,12 @@ def configurePaths():
     if iceHome == "/usr":
         javaDir = os.path.join("/", "usr", "share", "java")
         addClasspath(os.path.join(javaDir, "Ice.jar"))
+        addClasspath(os.path.join(javaDir, "Glacier2.jar"))
         addClasspath(os.path.join(javaDir, "Freeze.jar"))
+        addClasspath(os.path.join(javaDir, "IceBox.jar"))
+        addClasspath(os.path.join(javaDir, "IceStorm.jar"))
+        addClasspath(os.path.join(javaDir, "IceGrid.jar"))
+        addClasspath(os.path.join(javaDir, "IcePatch2.jar"))
         return # That's it, we're done!
     
     if isWin32():
@@ -212,8 +217,13 @@ def configurePaths():
         # The Ice.jar and Freeze.jar comes from the installation
         # directory or the toplevel dir.
         javaDir = os.path.join(getIceDir("java"), "lib")
-	addClasspath(os.path.join(javaDir, "Ice.jar"))
-	addClasspath(os.path.join(javaDir, "Freeze.jar"))
+        addClasspath(os.path.join(javaDir, "Ice.jar"))
+        addClasspath(os.path.join(javaDir, "Glacier2.jar"))
+        addClasspath(os.path.join(javaDir, "Freeze.jar"))
+        addClasspath(os.path.join(javaDir, "IceBox.jar"))
+        addClasspath(os.path.join(javaDir, "IceStorm.jar"))
+        addClasspath(os.path.join(javaDir, "IceGrid.jar"))
+        addClasspath(os.path.join(javaDir, "IcePatch2.jar"))
     addClasspath(os.path.join(javaDir))
     
     # 

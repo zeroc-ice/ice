@@ -33,6 +33,7 @@
 	<javac srcdir=".:${generated.dir}" destdir="${class.dir}" debug="${debug}">
             <exclude name="${generated.dir}/**"/>
             <classpath refid="ice.classpath"/>
+            <classpath refid="glacier2.classpath"/>
 	    <compilerarg value="${javac.lint}"/>
         </javac>
     </target>

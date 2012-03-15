@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.zeroc.slice2javaplugin.Activator;
@@ -167,7 +168,17 @@ public class Configuration
             IJavaProject javaProject = JavaCore.create(_project);
             if(getAddJars())
             {
-                addLibrary(javaProject);
+                if(isAndroidProject())
+                {
+                    for(String jar : getJars())
+                    {
+                        addLibrary(javaProject, jar);
+                    }
+                }
+                else
+                {
+                    addLibrary(javaProject);
+                }
             }
             else
             {
@@ -201,14 +212,36 @@ public class Configuration
         fixGeneratedCP(null, getGeneratedDir());
 
         IJavaProject javaProject = JavaCore.create(_project);
-        addLibrary(javaProject);
+        if(isAndroidProject())
+        {
+            for(String jar : getJars())
+            {
+                addLibrary(javaProject, jar);
+            }
+        }
+        else
+        {
+            addLibrary(javaProject);
+        }
     }
 
     public void deinstall()
         throws CoreException
     {
         IJavaProject javaProject = JavaCore.create(_project);
-        removeLibrary(javaProject);
+        if(isAndroidProject())
+        {
+            removeLibrary(javaProject, "Ice.jar");
+            removeLibrary(javaProject, "Glacier2.jar");
+            removeLibrary(javaProject, "IceBox.jar");
+            removeLibrary(javaProject, "IceGrid.jar");
+            removeLibrary(javaProject, "IcePatch2.jar");
+            removeLibrary(javaProject, "IceStorm.jar");
+        }
+        else
+        {
+            removeLibrary(javaProject);
+        }
         removedGeneratedCP();
         IFolder generatedFolder = _project.getFolder(getGeneratedDir());
         if(generatedFolder != null && generatedFolder.exists())
@@ -480,7 +513,31 @@ public class Configuration
     {
         if(setValue(JARS_KEY, fromList(jars)))
         {
-            IceClasspathContainerIntializer.reinitialize(_project, this);
+            if(isAndroidProject())
+            {
+                IJavaProject javaProject = JavaCore.create(_project);
+                ArrayList<String> removeJars = new ArrayList<String>();
+                removeJars.add("Glacier2.jar");
+                removeJars.add("IceBox.jar");
+                removeJars.add("IceGrid.jar");
+                removeJars.add("IcePatch2.jar");
+                removeJars.add("IceStorm.jar");
+                
+                for(String jar : jars)
+                {
+                    iceJars.remove(jar);
+                    addLibrary(javaProject, jar);
+                }
+                
+                for(String jar : removeJars)
+                {
+                    removeLibrary(javaProject, jar);
+                }
+            }
+            else
+            {
+                IceClasspathContainerIntializer.reinitialize(_project, this);
+            }
         }
     }
 
@@ -913,21 +970,47 @@ public class Configuration
             }
         }
     }
+    
+    private void addLibrary(IJavaProject project, String jar)
+        throws CoreException
+    {
+        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + jar), null, null);
+        
+        IClasspathEntry[] entries = project.getRawClasspath();
+        boolean found = false;
+        for(int i = 0; i < entries.length; ++i)
+        {
+            if(entries[i].equals(cpEntry))
+            {
+                found = true;
+                break;
+            }
+        }
+    
+        if(!found)
+        {
+            IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
+            System.arraycopy(entries, 0, newEntries, 0, entries.length);
+            newEntries[entries.length] = cpEntry;
+    
+            try
+            {
+                project.setRawClasspath(newEntries, null);
+            }
+            catch(JavaModelException e)
+            {
+                throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
+            }
+        }
+    }
 
     public void removeLibrary(IJavaProject project)
         throws CoreException
     {
-        IClasspathEntry cpEntry = null;
-        if(!isAndroidProject())
-        {
-            cpEntry = IceClasspathContainerIntializer.getContainerEntry();
-        }
-        else
-        {
-            cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/Ice.jar"), null, null);
-        }
-        IClasspathEntry[] entries = project.getRawClasspath();
+        IClasspathEntry cpEntry = IceClasspathContainerIntializer.getContainerEntry();
 
+        IClasspathEntry[] entries = project.getRawClasspath();
+    
         for(int i = 0; i < entries.length; ++i)
         {
             if(entries[i].equals(cpEntry))
@@ -935,7 +1018,35 @@ public class Configuration
                 IClasspathEntry[] newEntries = new IClasspathEntry[entries.length - 1];
                 System.arraycopy(entries, 0, newEntries, 0, i);
                 System.arraycopy(entries, i + 1, newEntries, i, entries.length - i - 1);
-
+    
+                try
+                {
+                    project.setRawClasspath(newEntries, null);
+                }
+                catch(JavaModelException e)
+                {
+                    throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.toString(), null));
+                }
+                break;
+            }
+        }
+    }
+    
+    public void removeLibrary(IJavaProject project, String lib)
+        throws CoreException
+    {
+        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + lib), null, null);
+        
+        IClasspathEntry[] entries = project.getRawClasspath();
+    
+        for(int i = 0; i < entries.length; ++i)
+        {
+            if(entries[i].equals(cpEntry))
+            {
+                IClasspathEntry[] newEntries = new IClasspathEntry[entries.length - 1];
+                System.arraycopy(entries, 0, newEntries, 0, i);
+                System.arraycopy(entries, i + 1, newEntries, i, entries.length - i - 1);
+    
                 try
                 {
                     project.setRawClasspath(newEntries, null);

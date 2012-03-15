@@ -1,6 +1,6 @@
-#Fri Dec 19 14:20:37 NST 2008
+#Tue Jan 31 23:00:39 CET 2012
 eclipse.preferences.version=1
 iceIncludes=true
 includes=slice
-jars=
+jars=Ice.jar;Glacier2.jar
 tie=true
