@@ -16,7 +16,7 @@ public class InputStreamI implements InputStream
     {
         _communicator = communicator;
 
-        _is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false);
+        _is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
         _is.closure(this);
         _is.resize(data.length, true);
         IceInternal.Buffer buf = _is.getBuffer();

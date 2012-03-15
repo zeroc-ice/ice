@@ -337,7 +337,7 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
       << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance.get());";
+    C << nl << "IceInternal::BasicStream stream(instance.get(), true);";
     if(encaps)
     {
         C << nl << "stream.startWriteEncaps();";
@@ -358,7 +358,7 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
       << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance.get());";
+    C << nl << "IceInternal::BasicStream stream(instance.get(), true);";
     if(type->usesClasses())
     {
         C << nl << "stream.sliceObjects(false);";
@@ -719,7 +719,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
             assert(!indexTypes[i].type->usesClasses());
 
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
             
             string valueS;
             if(dict.indices[i].caseSensitive)
@@ -751,7 +751,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         else
         {
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
             
             C << nl << "__stream.b.resize(__bytes.size());";
             C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
@@ -1252,7 +1252,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     C << nl << fullName << "::" << "marshalKey(" << inputType << " __index, Freeze::Key& __bytes) const";
     C << sb;
     C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(_communicator);";
-    C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+    C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
     
     string valueS;
     if(caseSensitive)

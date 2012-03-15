@@ -29,7 +29,7 @@ using namespace IceInternal;
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
     _communicator(communicator)
 {
-    _is = new BasicStream(getInstance(communicator).get());
+    _is = new BasicStream(getInstance(communicator).get(), true);
     _is->closure(this);
     _is->writeBlob(data);
     _is->i = _is->b.begin();
@@ -38,7 +38,7 @@ Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const 
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
     _communicator(communicator)
 {
-    _is = new BasicStream(getInstance(communicator).get());
+    _is = new BasicStream(getInstance(communicator).get(), true);
     _is->closure(this);
     _is->writeBlob(data.first, data.second - data.first);
     _is->i = _is->b.begin();
@@ -343,60 +343,60 @@ Ice::InputStreamI::read(Ice::Double& v)
 }
 
 void
-Ice::InputStreamI::read(std::string& v, bool convert)
+Ice::InputStreamI::read(string& v, bool convert)
 {
     _is->read(v, convert);
 }
 
 void
-Ice::InputStreamI::read(std::vector<std::string>& v, bool convert)
+Ice::InputStreamI::read(vector<string>& v, bool convert)
 {
     _is->read(v, convert);
 }
 
 void
-Ice::InputStreamI::read(std::wstring& v)
+Ice::InputStreamI::read(wstring& v)
 {
     _is->read(v);
 }
 
 void
-Ice::InputStreamI::read(std::pair<const bool*, const bool*>& p, ::IceUtil::ScopedArray<bool>& result)
+Ice::InputStreamI::read(pair<const bool*, const bool*>& p, ::IceUtil::ScopedArray<bool>& result)
 {
     result.reset(_is->read(p));
 }
 
 void
-Ice::InputStreamI::read(std::pair<const Ice::Byte*, const Ice::Byte*>& p)
+Ice::InputStreamI::read(pair<const Ice::Byte*, const Ice::Byte*>& p)
 {
     _is->read(p);
 }
 void
-Ice::InputStreamI::read(std::pair<const Ice::Short*, const Ice::Short*>& p, ::IceUtil::ScopedArray<Ice::Short>& result)
+Ice::InputStreamI::read(pair<const Ice::Short*, const Ice::Short*>& p, ::IceUtil::ScopedArray<Ice::Short>& result)
 {
     result.reset(_is->read(p));
 }
 
 void
-Ice::InputStreamI::read(std::pair<const Ice::Int*, const Ice::Int*>& p, ::IceUtil::ScopedArray<Ice::Int>& result)
+Ice::InputStreamI::read(pair<const Ice::Int*, const Ice::Int*>& p, ::IceUtil::ScopedArray<Ice::Int>& result)
 {
     result.reset(_is->read(p));
 }
 
 void
-Ice::InputStreamI::read(std::pair<const Ice::Long*, const Ice::Long*>& p, ::IceUtil::ScopedArray<Ice::Long>& result)
+Ice::InputStreamI::read(pair<const Ice::Long*, const Ice::Long*>& p, ::IceUtil::ScopedArray<Ice::Long>& result)
 {
     result.reset(_is->read(p));
 }
 
 void
-Ice::InputStreamI::read(std::pair<const Ice::Float*, const Ice::Float*>& p, ::IceUtil::ScopedArray<Ice::Float>& result)
+Ice::InputStreamI::read(pair<const Ice::Float*, const Ice::Float*>& p, ::IceUtil::ScopedArray<Ice::Float>& result)
 {
     result.reset(_is->read(p));
 }
 
 void
-Ice::InputStreamI::read(std::pair<const Ice::Double*, const Ice::Double*>& p, 
+Ice::InputStreamI::read(pair<const Ice::Double*, const Ice::Double*>& p, 
                         ::IceUtil::ScopedArray<Ice::Double>& result)
 {
     result.reset(_is->read(p));
@@ -465,7 +465,7 @@ Ice::OutputStreamI::OutputStreamI(const Ice::CommunicatorPtr& communicator, Basi
 {
     if(!_os)
     {
-        _os = new BasicStream(getInstance(communicator).get());
+        _os = new BasicStream(getInstance(communicator).get(), true);
     }
     _os->closure(this);
 }

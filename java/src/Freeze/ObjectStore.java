@@ -291,7 +291,7 @@ class ObjectStore implements IceUtil.Store
     marshalKey(Ice.Identity v, Ice.Communicator communicator)
     {
         IceInternal.BasicStream os =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
         v.__write(os);
         IceInternal.Buffer buf = os.prepareWrite();
         byte[] r = new byte[buf.size()];
@@ -303,7 +303,7 @@ class ObjectStore implements IceUtil.Store
     unmarshalKey(byte[] b, Ice.Communicator communicator)
     {
         IceInternal.BasicStream is =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
         is.resize(b.length, true);
         IceInternal.Buffer buf = is.getBuffer();
         buf.b.position(0);
@@ -318,7 +318,7 @@ class ObjectStore implements IceUtil.Store
     marshalValue(ObjectRecord v, Ice.Communicator communicator)
     {
         IceInternal.BasicStream os =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
         os.startWriteEncaps();
         v.__write(os);
         os.writePendingObjects();
@@ -333,7 +333,7 @@ class ObjectStore implements IceUtil.Store
     unmarshalValue(byte[] b, Ice.Communicator communicator)
     {
         IceInternal.BasicStream is =
-            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), false, false);
+            new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
         is.sliceObjects(false);
         is.resize(b.length, true);
         IceInternal.Buffer buf = is.getBuffer();

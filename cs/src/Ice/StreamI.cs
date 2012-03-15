@@ -15,7 +15,7 @@ namespace Ice
         {
             _communicator = communicator;
 
-            _is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator));
+            _is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true);
             _is.closure(this);
             _is.resize(data.Length, true);
             IceInternal.Buffer buf = _is.getBuffer();
@@ -230,7 +230,7 @@ namespace Ice
     public class OutputStreamI : OutputStream
     {
         public OutputStreamI(Communicator communicator) :
-            this(communicator, new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator)))
+            this(communicator, new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true))
         {
         }
 
