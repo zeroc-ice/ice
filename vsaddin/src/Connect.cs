@@ -39,11 +39,20 @@ namespace Ice.VisualStudio
         [ComVisibleAttribute(false)]
         public static DTE getCurrentDTE()
         {
-            if(_builder == null)
+            if (_builder == null)
             {
                 return null;
             }
             return _builder.getCurrentDTE();
+        }
+
+        public static DTE2 getApplicationObject()
+        {
+            if (_builder == null)
+            {
+                return null;
+            }
+            return _builder.getApplicationObject();
         }
 
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
@@ -52,7 +61,6 @@ namespace Ice.VisualStudio
             {
                 _applicationObject = (DTE2)application;
                 _addInInstance = (AddIn)addInInst;
-
                 if(connectMode == ext_ConnectMode.ext_cm_Startup || connectMode == ext_ConnectMode.ext_cm_CommandLine)
                 {
                     if(_builder == null)

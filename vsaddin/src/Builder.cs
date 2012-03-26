@@ -87,6 +87,11 @@ namespace Ice.VisualStudio
             return _applicationObject.DTE;
         }
 
+        public DTE2 getApplicationObject()
+        {
+            return _applicationObject;
+        }
+
         public void init(DTE2 application, ext_ConnectMode connectMode, AddIn addInInstance)
         {
             _applicationObject = application;
@@ -2803,9 +2808,22 @@ namespace Ice.VisualStudio
 
             try
             {
+                string projectName = null;
+                if(commandLine)
+                {
+                    projectName = Util.getCommandLineArgument("/Project");
+                }
                 _building = true;
                 _buildScope = scope;
-                Project project = getSelectedProject();
+                Project project = null;
+                if(String.IsNullOrEmpty(projectName))
+                {
+                    project = getSelectedProject();
+                }
+                else
+                {
+                    project = Util.getProjectByNameOrFile(_applicationObject.Solution, projectName);
+                }
 
                 if(action == vsBuildAction.vsBuildActionBuild || action == vsBuildAction.vsBuildActionRebuildAll)
                 {

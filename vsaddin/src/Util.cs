@@ -3110,6 +3110,52 @@ namespace Ice.VisualStudio
             return list;
         }
 
+        public static String getCommandLineArgument(String arg)
+        {
+            String value = "";
+            DTE2 applicationObject = Connect.getApplicationObject();
+            if(!String.IsNullOrEmpty(applicationObject.CommandLineArguments))
+            {
+                if(applicationObject.CommandLineArguments.IndexOf(arg) != -1)
+                {
+                    String[] args = applicationObject.CommandLineArguments.Split(' ');
+                    for(int i = 0; i < args.Length; ++i)
+                    {
+                        //
+                        // We found the argument name next item
+                        // is the argument value.
+                        //
+                        if(args[i].Equals(arg))
+                        {
+                            if(i < args.Length - 1)
+                            {
+                                value = args[i + 1];
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+            return value;
+        }
+
+        public static Project getProjectByNameOrFile(Solution solution, string name)
+        {
+            Project project = null;
+            List<Project> projects = getProjects(solution);
+            foreach(Project p in projects)
+            {
+                if(p.Name.Equals(name) ||
+                   Path.GetFullPath(Path.Combine(Path.GetDirectoryName(solution.FullName), name)).Equals(
+                                                                                    Path.GetFullPath(p.FullName)))
+                {
+                    project = p;
+                    break;
+                }
+            }
+            return project;
+        }
+
         public static List<Project> getProjects(Solution solution)
         {
             List<Project> projects = new List<Project>();
