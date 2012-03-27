@@ -47,6 +47,10 @@ public class SessionFactoryHelper
     {
         _callback = callback;
         _initData = initData;
+        if(_initData.properties == null)
+        {
+            _initData.properties = Ice.Util.createProperties();
+        }
         setDefaultProperties();
     }
 
@@ -58,6 +62,11 @@ public class SessionFactoryHelper
     public
     SessionFactoryHelper(Ice.Properties properties, SessionCallback callback)
     {
+        if(properties == null)
+        {
+            throw new Ice.InitializationException(
+                                        "Attempt to create a SessionFactoryHelper with a null Properties argument");
+        }
         _callback = callback;
         _initData = new Ice.InitializationData();
         _initData.properties = properties;
