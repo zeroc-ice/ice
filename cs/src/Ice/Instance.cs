@@ -690,7 +690,8 @@ namespace IceInternal
                 _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
 #if COMPACT
-                _factoryAssemblies = _initData.properties.getPropertyAsList("Ice.FactoryAssemblies");
+                char[] separators = { ' ', '\t', '\n', '\r' };
+                _factoryAssemblies = _initData.properties.getProperty("Ice.FactoryAssemblies").Split(separators);
 #endif
 
                 {
