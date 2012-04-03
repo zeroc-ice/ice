@@ -195,15 +195,15 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
         totalSize += lineSize;
         lines.push_back(line);
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+        //
+        // Some eofbit cases will also set failbit. So first
+        // check eof.
+        //
         if(is.eof())
         {
             newOffset += line.size();
         }
-        else
-#else
-        if(!is.fail())
-#endif
+        else if(!is.fail())
         {
             newOffset = is.tellg();
         }
