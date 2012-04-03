@@ -71,9 +71,16 @@ namespace Ice.VisualStudio
                         // doesn't exist in VS2010
                         //
 #if VS2008
-                        EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
-                        EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
-                        prop.Value = false;
+                        try
+                        {
+                            EnvDTE.Properties props = _applicationObject.get_Properties("Projects", "VCGeneral");
+                            EnvDTE.Property prop = props.Item("ShowNoMatchingRuleDlg");
+                            prop.Value = false;
+                        }
+                        catch(System.Runtime.InteropServices.COMException)
+                        {
+                            // Can happen if C++ support is not installed.
+                        }
 #endif
                         _builder = new Builder();
                         _builder.commandLine = connectMode == ext_ConnectMode.ext_cm_CommandLine;
