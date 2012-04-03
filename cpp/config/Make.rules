@@ -185,7 +185,7 @@ else
 endif
 
 ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
-    ICEUTIL_FLAGS           = -DPRIO_INHERIT
+    ICEUTIL_FLAGS           = -DICE_PRIO_INHERIT
 endif
 
 OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
