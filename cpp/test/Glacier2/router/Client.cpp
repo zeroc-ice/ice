@@ -307,6 +307,9 @@ public:
         catch(const Ice::ConnectionLostException&)
         {
         }
+        catch(const Ice::ObjectNotExistException&)
+        {
+        }
         catch(const Ice::CommunicatorDestroyedException&)
         {
         }

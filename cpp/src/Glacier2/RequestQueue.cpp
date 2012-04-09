@@ -194,6 +194,10 @@ bool
 Glacier2::RequestQueue::addRequest(const RequestPtr& request)
 {
     IceUtil::Mutex::Lock lock(*this);
+    if(_destroyed)
+    {
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
     if(request->hasOverride())
     {
         for(deque<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
@@ -285,6 +289,7 @@ Glacier2::RequestQueue::flush()
     {
         try
         {
+            assert(_callback);
             Ice::AsyncResultPtr result = (*p)->invoke(_callback);
             if(!result)
             {
@@ -337,6 +342,7 @@ Glacier2::RequestQueue::flush(set<Ice::ObjectPrx>& batchProxies)
     {
         try
         {
+            assert(_callback);
             Ice::AsyncResultPtr result = (*p)->invoke(_callback);
             if(!result)
             {
