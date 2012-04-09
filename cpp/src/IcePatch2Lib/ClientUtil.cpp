@@ -154,8 +154,7 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1)),
     _log(0)
 {
-    PropertiesPtr properties = communicator->getProperties();
-
+    const PropertiesPtr properties = communicator->getProperties();
     const char* clientProxyProperty = "IcePatch2Client.Proxy";
     std::string clientProxy = properties->getProperty(clientProxyProperty);
     if(clientProxy.empty())
@@ -169,7 +168,9 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
                << "' or `" << endpointsProperty << "'.";
             throw os.str();
         }
-
+        ostringstream os;
+        os << "The property " << endpointsProperty << " is deprecated, use " << clientProxyProperty << " instead.";
+        communicator->getLogger()->warning(os.str());
         Identity id;
         id.category = properties->getPropertyWithDefault("IcePatch2.InstanceName", "IcePatch2");
         id.name = "server";
