@@ -6544,6 +6544,8 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     H << nl << "virtual void ice_response(" << params << ");";
     if(!throws.empty())
     {
+        H << nl << "// COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual";
+        H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
         H << nl << "virtual void ice_exception(const ::std::exception&);";
 
         H.zeroIndent();
