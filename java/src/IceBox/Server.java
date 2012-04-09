@@ -35,14 +35,36 @@ public final class Server extends Ice.Application
     public int
     run(String[] args)
     {
-        for(String arg : args)
+        final String prefix = "IceBox.Service.";
+        Ice.Properties properties = communicator().getProperties();
+        java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+        java.util.List<String> argSeq = new java.util.ArrayList<String>(args.length);
+        for(String s : args)
+        {  
+            argSeq.add(s);  
+        }
+
+        for(java.util.Map.Entry<String, String> entry : services.entrySet())
+        {
+            String name = entry.getKey().substring(prefix.length());
+            for(int i = 0; i < argSeq.size(); ++i)
+            {
+                if(argSeq.get(i).startsWith("--" + name))
+                {
+                    argSeq.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        for(String arg : argSeq)
         {
             if(arg.equals("-h") || arg.equals("--help"))
             {
                 usage();
                 return 0;
             }
-            else if(!arg.startsWith("--"))
+            else
             {
                 System.err.println("Server: unknown option `" + arg + "'");
                 usage();

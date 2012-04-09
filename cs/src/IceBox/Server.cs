@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 
 namespace IceBox
 {
@@ -27,16 +28,33 @@ public class Server
 
         public override int run(string[] args)
         {
-            for(int i = 0; i < args.Length; ++i)
+            List<String> argSeq = new List<String>(args);
+            const String prefix = "IceBox.Service.";
+            Ice.Properties properties = communicator().getProperties();
+            Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
+            foreach(KeyValuePair<string, string> pair in services)
             {
-                if(args[i].Equals("-h") || args[i].Equals("--help"))
+                String name = pair.Key.Substring(prefix.Length);
+                for(int i = 0; i < argSeq.Count; ++i)
+                {
+                    if(argSeq[i].StartsWith("--" + name, StringComparison.CurrentCulture))
+                    {
+                        argSeq.RemoveAt(i);
+                        i--;
+                    }
+                }
+            }
+
+            foreach(String s in argSeq)
+            {
+                if(s.Equals("-h") || s.Equals("--help"))
                 {
                     usage();
                     return 0;
                 }
-                else if(!args[i].StartsWith("--", StringComparison.CurrentCulture))
+                else
                 {
-                    Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
+                    Console.Error.WriteLine("Server: unknown option `" + s + "'");
                     usage();
                     return 1;
                 }
@@ -52,7 +70,6 @@ public class Server
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-
         App server = new App();
         return server.main(args, initData);
     }
