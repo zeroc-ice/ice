@@ -276,6 +276,7 @@
     <None Include="Hello.ice" />
     <None Include="res\HelloServer.ico" />
     <None Include="res\HelloServer.rc2" />
+    <None Include="config.server" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -450,6 +450,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.grid"
+			>
+		</File>
+		<File
+			RelativePath="application.xml"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

@@ -214,6 +214,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Hello.ice" />
+    <None Include="application.xml" />
+    <None Include="config.grid" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

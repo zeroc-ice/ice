@@ -210,6 +210,7 @@
   <ItemGroup>
     <None Include="Hello.ice" />
     <None Include="Discovery.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

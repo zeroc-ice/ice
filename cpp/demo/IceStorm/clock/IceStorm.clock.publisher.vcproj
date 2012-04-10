@@ -410,6 +410,18 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.pub"
+			>
+		</File>
+		<File
+			RelativePath="config.icebox"
+			>
+		</File>
+		<File
+			RelativePath="config.service"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

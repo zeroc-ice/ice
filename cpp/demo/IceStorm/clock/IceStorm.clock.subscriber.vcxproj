@@ -207,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Clock.ice" />
+    <None Include="config.sub" />
+    <None Include="config.icebox" />
+    <None Include="config.service" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -107,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Hello.ice" />
+    <None Include="config.admin" />
+    <None Include="config.icebox" />
+    <None Include="config.service" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

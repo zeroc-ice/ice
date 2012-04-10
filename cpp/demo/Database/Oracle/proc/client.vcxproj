@@ -134,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="HR.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

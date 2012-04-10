@@ -238,6 +238,7 @@
   <ItemGroup>
     <None Include="Casino.ice" />
     <None Include="CasinoStore.ice" />
+    <None Include="config.server" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

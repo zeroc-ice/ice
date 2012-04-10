@@ -207,6 +207,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Clock.ice" />
+    <None Include="application.xml" />
+    <None Include="config.pub" />
+    <None Include="config.grid" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

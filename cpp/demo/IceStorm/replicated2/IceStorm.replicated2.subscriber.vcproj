@@ -410,6 +410,34 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.sub"
+			>
+		</File>
+		<File
+			RelativePath="config.ib1"
+			>
+		</File>
+		<File
+			RelativePath="config.ib2"
+			>
+		</File>
+		<File
+			RelativePath="config.ib3"
+			>
+		</File>
+		<File
+			RelativePath="config.s1"
+			>
+		</File>
+		<File
+			RelativePath="config.s2"
+			>
+		</File>
+		<File
+			RelativePath="config.s3"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

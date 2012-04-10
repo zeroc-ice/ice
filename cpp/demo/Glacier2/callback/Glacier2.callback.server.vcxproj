@@ -214,6 +214,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Callback.ice" />
+    <None Include="config.server" />
+    <None Include="config.glacier2" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

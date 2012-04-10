@@ -220,6 +220,7 @@
   <ItemGroup>
     <None Include="Filesystem.ice" />
     <None Include="PersistentFilesystem.ice" />
+    <None Include="config.server" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

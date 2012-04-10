@@ -498,6 +498,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.server"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

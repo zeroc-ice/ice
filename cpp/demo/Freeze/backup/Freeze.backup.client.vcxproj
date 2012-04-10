@@ -227,6 +227,7 @@
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">IntLongMap.h;IntLongMap.cpp;%(Outputs)</Outputs>
     </CustomBuild>
+    <None Include="config" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

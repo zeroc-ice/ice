@@ -214,6 +214,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Nrvo.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

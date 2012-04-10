@@ -94,6 +94,7 @@
     <Compile Include="Session.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.client" />
     <None Include="README" />
     <None Include="Session.ice" />
   </ItemGroup>

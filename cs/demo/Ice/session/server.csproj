@@ -106,6 +106,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.server" />
     <None Include="README" />
     <None Include="Session.ice" />
   </ItemGroup>

@@ -103,6 +103,7 @@
   <ItemGroup>
     <None Include="Discovery.ice" />
     <None Include="Hello.ice" />
+    <None Include="config.server" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

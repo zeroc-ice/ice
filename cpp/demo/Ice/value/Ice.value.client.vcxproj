@@ -221,6 +221,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Value.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

@@ -103,6 +103,7 @@
     <Compile Include="Value.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.client" />
     <None Include="README" />
     <None Include="Value.ice" />
   </ItemGroup>

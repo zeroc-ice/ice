@@ -207,6 +207,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Throughput.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

@@ -253,6 +253,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="PhoneBook.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

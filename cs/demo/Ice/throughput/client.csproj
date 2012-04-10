@@ -94,6 +94,7 @@
     <Compile Include="Throughput.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.client" />
     <None Include="README" />
     <None Include="Throughput.ice" />
   </ItemGroup>

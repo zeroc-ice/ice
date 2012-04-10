@@ -124,6 +124,7 @@
     </EmbeddedResource>
     <None Include="Chat.ice" />
     <None Include="config.client" />
+    <None Include="README" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

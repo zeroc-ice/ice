@@ -95,6 +95,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Printer.ice" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -450,6 +450,26 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.admin"
+			>
+		</File>
+		<File
+			RelativePath="config.glacier2"
+			>
+		</File>
+		<File
+			RelativePath="config.master"
+			>
+		</File>
+		<File
+			RelativePath="config.node"
+			>
+		</File>
+		<File
+			RelativePath="config.slave"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

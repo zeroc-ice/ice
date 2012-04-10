@@ -262,6 +262,7 @@
     <None Include="Hello.ice" />
     <None Include="res\HelloClient.ico" />
     <None Include="res\HelloClient.rc2" />
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

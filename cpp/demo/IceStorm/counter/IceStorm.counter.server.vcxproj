@@ -214,6 +214,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Counter.ice" />
+    <None Include="config.server" />
+    <None Include="config.icebox" />
+    <None Include="config.service" />
     <None Include="README" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

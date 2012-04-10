@@ -750,6 +750,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.collocated"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

@@ -410,6 +410,18 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="application.xml"
+			>
+		</File>
+		<File
+			RelativePath="config.grid"
+			>
+		</File>
+		<File
+			RelativePath="config.pub"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

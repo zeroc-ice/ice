@@ -97,6 +97,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.server" />
     <None Include="README" />
     <None Include="Throughput.ice" />
   </ItemGroup>

@@ -99,6 +99,7 @@
   <ItemGroup>
     <None Include="Nested.ice" />
     <None Include="README" />
+    <None Include="config.client" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

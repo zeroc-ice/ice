@@ -252,6 +252,7 @@
     <ClInclude Include="Parser.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="config.client" />
     <None Include="README" />
   </ItemGroup>
   <ItemGroup>

@@ -410,6 +410,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config.client"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>

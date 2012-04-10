@@ -563,6 +563,10 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath="config"
+			>
+		</File>
+		<File
 			RelativePath="README"
 			>
 		</File>
