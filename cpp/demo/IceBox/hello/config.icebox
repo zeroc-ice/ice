@@ -19,7 +19,7 @@
 #
 # The IceBox server endpoint configuration
 #
-#IceBox.ServiceManager.Endpoints=tcp -p 9998 -h 127.0.0.1
+#IceBox.ServiceManager.Endpoints=tcp -p 9998 -h localhost
 
 #
 # Ice.Admin configuration
@@ -29,7 +29,7 @@
 # Enable Ice.Admin object:
 #
 Ice.Admin.InstanceName=DemoIceBox
-Ice.Admin.Endpoints=tcp -p 9996 -h 127.0.0.1
+Ice.Admin.Endpoints=tcp -p 9996 -h localhost
 
 #
 # The hello service

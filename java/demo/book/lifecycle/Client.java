@@ -22,7 +22,7 @@ public class Client extends Ice.Application
         //
         // Create a proxy for the root directory
         //
-        Ice.ObjectPrx base = communicator().stringToProxy("RootDir:default -p 10000");
+        Ice.ObjectPrx base = communicator().stringToProxy("RootDir:default -h localhost -p 10000");
 
         //
         // Down-cast the proxy to a Directory proxy.

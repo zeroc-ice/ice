@@ -14,9 +14,9 @@
    
      <server-template id="IceStorm">
        <parameter name="index"/>
-       <parameter name="topic-manager-endpoints" default="default"/>
-       <parameter name="publish-endpoints" default="default"/>
-       <parameter name="node-endpoints" default="default"/>
+       <parameter name="topic-manager-endpoints" default="default -h localhost"/>
+       <parameter name="publish-endpoints" default="default -h localhost"/>
+       <parameter name="node-endpoints" default="default -h localhost"/>
        <parameter name="instance-name"/>
 
        <icebox id="${instance-name}-${index}" exe="icebox" activation="on-demand">

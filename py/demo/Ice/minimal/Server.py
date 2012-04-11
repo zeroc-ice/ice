@@ -19,7 +19,7 @@ class HelloI(Demo.Hello):
 
 try:
     communicator = Ice.initialize(sys.argv)
-    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000")
+    adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h localhost -p 10000")
     adapter.add(HelloI(), communicator.stringToIdentity("hello"))
     adapter.activate()
     communicator.waitForShutdown()

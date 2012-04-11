@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the root
 # "directory" object in the server.
 #
-RootDir.Proxy=RootDir:default -p 10000
+RootDir.Proxy=RootDir:default -h localhost -p 10000
 
 #
 # Warn about connection exceptions

@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-Library.Endpoints=default -p 10000
+Library.Endpoints=default -h localhost -p 10000
 
 #
 # Set the evictor size. The size set here (3) is far too small for
@@ -15,7 +15,7 @@ EvictorSize=3
 # The client reads this property to create the reference to the
 # "library" object in the server.
 #
-Library.Proxy=library:default -p 10000
+Library.Proxy=library:default -h localhost -p 10000
 
 #
 # Don't warn about unknown properties. If this is not set we'll get a

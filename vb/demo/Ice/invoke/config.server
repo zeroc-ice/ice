@@ -3,7 +3,7 @@
 # "helloadapater". The following line sets the endpoints for this
 # adapter
 #
-Printer.Endpoints=tcp -p 10000:udp -p 10000
+Printer.Endpoints=tcp -h localhost -p 10000:udp -h localhost -p 10000
 
 #
 # Warn about connection exceptions

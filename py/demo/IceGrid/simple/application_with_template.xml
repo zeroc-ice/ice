@@ -17,7 +17,7 @@
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="python" activation="on-demand">
         <option>Server.py</option>
-        <adapter name="Hello" endpoints="tcp">
+        <adapter name="Hello" endpoints="tcp -h localhost">
           <object identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
         </adapter>
       </server>

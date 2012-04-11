@@ -2,7 +2,7 @@
 # The server creates one single object adapter with the name of the
 # service. The following line sets the endpoints for this adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -p 10000 -h localhost:udp -p 10000 -h localhost:ssl -p 10001 -h localhost
 
 #
 # Warn about connection exceptions

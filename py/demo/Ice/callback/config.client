@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "CallbackSender" object in the server.
 #
-CallbackSender.Proxy=callbackSender:default -p 10000
+CallbackSender.Proxy=callbackSender:default -h localhost -p 10000
 
 #
 # The client creates one single object adapter with the name

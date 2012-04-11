@@ -20,7 +20,7 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -h localhost -p 10000");
         adapter->add(new HelloI, communicator->stringToIdentity("hello"));
         adapter->activate();
         communicator->waitForShutdown();

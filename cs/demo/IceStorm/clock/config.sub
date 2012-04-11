@@ -8,7 +8,7 @@ Clock.Subscriber.Endpoints=tcp:udp
 #
 # This property is used by the clients to connect to IceStorm.
 #
-TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
+TopicManager.Proxy=DemoIceStorm/TopicManager:default -h localhost -p 10000
 
 #
 # Network Tracing

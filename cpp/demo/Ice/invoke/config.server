@@ -3,7 +3,7 @@
 # "Printer". The following line sets the endpoints for this
 # adapter.
 #
-Printer.Endpoints=default -p 10000
+Printer.Endpoints=default -h localhost -p 10000
 
 #
 # Warn about connection exceptions

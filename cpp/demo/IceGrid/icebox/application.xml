@@ -19,7 +19,7 @@
          <parameter name="session-timeout" default="0"/>
          <server id="${instance-name}" activation="manual" exe="glacier2router">
             <properties>
-               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="Ice.Admin.Endpoints" value="tcp -h localhost"/>
                <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
                <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
                <property name="Glacier2.InstanceName" value="${instance-name}"/>
@@ -41,7 +41,7 @@
          <icebox id="IceBox" activation="on-demand" exe="icebox">
             <description>A sample IceBox server</description>
             <properties>
-               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="Ice.Admin.Endpoints" value="tcp -h localhost"/>
                <property name="IceBox.InstanceName" value="${server}"/>
                <property name="IceBox.Trace.ServiceObserver" value="1"/>
             </properties>

@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-Casino.Endpoints=default -p 10000
+Casino.Endpoints=default -h localhost -p 10000
 
 #
 # The bank can have more chances of winning than regular players.

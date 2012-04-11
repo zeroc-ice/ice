@@ -4,7 +4,7 @@
 # loopback, so that the server is not directly accessible from the
 # Internet.
 #
-Callback.Server.Endpoints=tcp -h 127.0.0.1 -p 10000
+Callback.Server.Endpoints=tcp -h localhost -p 10000
 
 #
 # Warn about connection exceptions

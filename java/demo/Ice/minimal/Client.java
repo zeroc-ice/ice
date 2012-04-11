@@ -17,7 +17,7 @@ public class Client
         try
         {
             Ice.Communicator communicator = Ice.Util.initialize(args);
-            HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
+            HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -h localhost -p 10000"));
             hello.sayHello();
             communicator.destroy();
         }

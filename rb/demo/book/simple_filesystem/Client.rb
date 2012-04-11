@@ -51,7 +51,7 @@ begin
 
     # Create a proxy for the root directory
     #
-    obj = ic.stringToProxy("RootDir:default -p 10000")
+    obj = ic.stringToProxy("RootDir:default -h localhost -p 10000")
 
     # Down-cast the proxy to a Directory proxy
     #

@@ -27,7 +27,7 @@ Module Server
         Dim ic As Ice.Communicator = Nothing
         Try
             ic = Ice.Util.initialize(args)
-            Dim adapter As Ice.ObjectAdapter = ic.createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000")
+            Dim adapter As Ice.ObjectAdapter = ic.createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -h localhost -p 10000")
             Dim obj As Ice.Object = New PrinterI
             adapter.add(obj, ic.stringToIdentity("SimplePrinter"))
             adapter.activate()

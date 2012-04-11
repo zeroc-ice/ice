@@ -17,7 +17,7 @@ Module Client
         Dim ic As Ice.Communicator = Nothing
         Try
             ic = Ice.Util.initialize(args)
-            Dim obj As Ice.ObjectPrx = ic.stringToProxy("SimplePrinter:default -p 10000")
+            Dim obj As Ice.ObjectPrx = ic.stringToProxy("SimplePrinter:default -h localhost -p 10000")
             Dim printer As PrinterPrx = PrinterPrxHelper.checkedCast(obj)
             If printer Is Nothing Then
                 Throw New ApplicationException("Invalid proxy")

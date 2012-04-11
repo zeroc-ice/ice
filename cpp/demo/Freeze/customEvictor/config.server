@@ -2,7 +2,7 @@
 # The server creates an object adapter with the name "Warehouse". The
 # following line sets the endpoints for this adapter.
 #
-Warehouse.Endpoints=tcp -p 10000
+Warehouse.Endpoints=tcp -h localhost -p 10000
 
 #
 # Configure 10 threads in the server side thread pool. Setting

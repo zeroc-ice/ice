@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "greet" object in the server.
 #
-Greet.Proxy=greet:tcp -p 10000
+Greet.Proxy=greet:tcp -h localhost -p 10000
 
 Ice.Plugin.StringConverter=Ice:createStringConverter iconv=ISO8859-1 windows=1252
 

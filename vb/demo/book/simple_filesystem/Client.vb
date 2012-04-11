@@ -45,7 +45,7 @@ Module Client
 
             ' Create a proxy for the root directory
             '
-            Dim obj As Ice.ObjectPrx = ic.stringToProxy("RootDir:default -p 10000")
+            Dim obj As Ice.ObjectPrx = ic.stringToProxy("RootDir:default -h localhost -p 10000")
 
             ' Down-cast the proxy to a Directory proxy
             '

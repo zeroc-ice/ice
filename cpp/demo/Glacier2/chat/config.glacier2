@@ -7,7 +7,7 @@ Glacier2.InstanceName=DemoGlacier2
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
+Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -16,18 +16,18 @@ Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
 # on the loopback, so that the server is not directly accessible from
 # the Internet.
 #
-Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+Glacier2.Server.Endpoints=tcp -h localhost
 
 # 
 # The proxy of the session manager.
 #
-Glacier2.SessionManager=ChatSessionManager:tcp -h 127.0.0.1 -p 10001
+Glacier2.SessionManager=ChatSessionManager:tcp -h localhost -p 10001
 
 # 
 # For this demo, we use a custom permissions verifier collocated with
 # the session manager.
 # 
-Glacier2.PermissionsVerifier=ChatSessionVerifier:tcp -h 127.0.0.1 -p 10001
+Glacier2.PermissionsVerifier=ChatSessionVerifier:tcp -h localhost -p 10001
 
 #
 # The timeout for inactive sessions. If any client session is inactive

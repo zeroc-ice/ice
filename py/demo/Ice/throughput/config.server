@@ -3,7 +3,7 @@
 # "Throughput". The following line sets the endpoints for this
 # adapter.
 #
-Throughput.Endpoints=default -p 10000 -h 127.0.0.1
+Throughput.Endpoints=default -p 10000 -h localhost
 
 #
 # Warn about connection exceptions

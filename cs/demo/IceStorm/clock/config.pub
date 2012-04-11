@@ -1,7 +1,7 @@
 #
 # This property is used by the clients to connect to IceStorm.
 #
-TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000
+TopicManager.Proxy=DemoIceStorm/TopicManager:default -p 10000 -h localhost
 
 #
 # Network Tracing

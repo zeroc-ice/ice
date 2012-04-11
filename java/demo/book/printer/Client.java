@@ -17,7 +17,7 @@ public class Client
         try
         {
             ic = Ice.Util.initialize(args);
-            Ice.ObjectPrx base = ic.stringToProxy("SimplePrinter:default -p 10000");
+            Ice.ObjectPrx base = ic.stringToProxy("SimplePrinter:default -h localhost -p 10000");
             Demo.PrinterPrx printer = Demo.PrinterPrxHelper.checkedCast(base);
             if(printer == null)
             {

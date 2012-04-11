@@ -16,7 +16,7 @@
     <server-template id="SimpleServer">
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="./server.exe" activation="on-demand">
-        <adapter name="Hello" endpoints="tcp">
+        <adapter name="Hello" endpoints="tcp -h localhost">
           <object identity="hello-${index}" type="::Demo::Hello" property="Identity"/>
         </adapter>
       </server>

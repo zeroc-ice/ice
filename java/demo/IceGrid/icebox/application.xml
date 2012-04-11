@@ -9,7 +9,7 @@
             <properties>
                <property name="Hello.Identity" value="hello"/>
             </properties>
-            <adapter name="Hello-${name}" endpoints="default" id="Hello-${name}" replica-group="HelloGroup" server-lifetime="false"/>
+            <adapter name="Hello-${name}" endpoints="default -h localhost" id="Hello-${name}" replica-group="HelloGroup" server-lifetime="false"/>
          </service>
       </service-template>
       <server-template id="Glacier2">
@@ -19,7 +19,7 @@
          <parameter name="session-timeout" default="0"/>
          <server id="${instance-name}" activation="manual" exe="glacier2router">
             <properties>
-               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="Ice.Admin.Endpoints" value="tcp -h localhost"/>
                <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
                <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
                <property name="Glacier2.InstanceName" value="${instance-name}"/>
@@ -32,7 +32,7 @@
          <object identity="hello" type="::Demo::Hello"/>
       </replica-group>
       <node name="node1">
-         <server-instance template="Glacier2" instance-name="DemoGlacier2" client-endpoints="tcp -h localhost -p 4063" server-endpoints="tcp">
+         <server-instance template="Glacier2" instance-name="DemoGlacier2" client-endpoints="tcp -h localhost -p 4063" server-endpoints="tcp -h localhost">
             <properties>
                <property name="Glacier2.SessionManager" value="DemoIceGrid/AdminSessionManager"/>
                <property name="Glacier2.PermissionsVerifier" value="DemoGlacier2/NullPermissionsVerifier"/>
@@ -43,7 +43,7 @@
             <option>IceBox.Server</option>
             <properties>
                <property name="IceBox.InstanceName" value="${server}"/>
-               <property name="Ice.Admin.Endpoints" value="tcp -h 127.0.0.1"/>
+               <property name="Ice.Admin.Endpoints" value="tcp -h localhost"/>
                <property name="IceBox.Trace.ServiceObserver" value="1"/>
             </properties>
             <service-instance template="HelloService" name="Homer"/>

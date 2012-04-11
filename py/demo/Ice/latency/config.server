@@ -2,7 +2,7 @@
 # The server creates one single object adapter with the name
 # "Latency". The following line sets the endpoints for this adapter.
 #
-Latency.Endpoints=default -p 10000 -h 127.0.0.1
+Latency.Endpoints=default -p 10000 -h localhost
 
 #
 # Warn about connection exceptions

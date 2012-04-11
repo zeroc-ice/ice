@@ -59,7 +59,7 @@ class ObjectFactory implements Ice_ObjectFactory
 
 try
 {
-    $base = $ICE->stringToProxy("initial:default -p 10000");
+    $base = $ICE->stringToProxy("initial:default -h localhost -p 10000");
     $initial = Demo_InitialPrxHelper::checkedCast($base);
 
     echo "\n";

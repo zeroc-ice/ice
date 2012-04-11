@@ -1,4 +1,4 @@
-Callback.Client.CallbackServer=sender:tcp -p 10000
+Callback.Client.CallbackServer=sender:tcp -h localhost -p 10000
 
 #
 # Warn about connection exceptions

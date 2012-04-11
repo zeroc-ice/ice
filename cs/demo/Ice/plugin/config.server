@@ -30,4 +30,4 @@ Ice.Plugin.Logger=LoggerPlugin:LoggerPluginFactoryI
 # Hello Plugin Configuration
 #
 Ice.Plugin.Hello=HelloPlugin:HelloPluginFactoryI
-Hello.Endpoints=tcp -p 10000
+Hello.Endpoints=tcp -h localhost -p 10000

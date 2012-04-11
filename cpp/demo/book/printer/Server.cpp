@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     {
         ic = Ice::initialize(argc, argv);
         Ice::ObjectAdapterPtr adapter =
-            ic->createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -p 10000");
+            ic->createObjectAdapterWithEndpoints("SimplePrinterAdapter", "default -h localhost -p 10000");
         Ice::ObjectPtr object = new PrinterI;
         adapter->add(object, ic->stringToIdentity("SimplePrinter"));
         adapter->activate();

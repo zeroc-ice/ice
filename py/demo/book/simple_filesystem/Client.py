@@ -48,7 +48,7 @@ try:
 
     # Create a proxy to the root directory
     #
-    obj = ice.stringToProxy("RootDir:default -p 10000")
+    obj = ice.stringToProxy("RootDir:default -h localhost -p 10000")
 
     # Downcast the proxy to a Directory proxy
     #

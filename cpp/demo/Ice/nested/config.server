@@ -3,7 +3,7 @@
 # "Nested.Server". The following line sets the endpoints for this
 # adapter.
 #
-Nested.Server.Endpoints=default -p 10000 -t 10000
+Nested.Server.Endpoints=default -h localhost -p 10000 -t 10000
 
 #
 # The following properties configure the server thread pool. The

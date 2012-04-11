@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "library" object in the server.
 #
-Library.Proxy=library:default -p 10000
+Library.Proxy=library:default -h localhost -p 10000
 
 #
 # Warn about connection exceptions

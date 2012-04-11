@@ -3,7 +3,7 @@
 # "Throughput". The following line sets the endpoints for this
 # adapter.
 #
-Throughput.Endpoints=default -p 10000
+Throughput.Endpoints=default -p 10000 -h localhost
 
 #
 # For this test since the server is constantly receiving requests we

@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-MapFilesystem.Endpoints=default -h 127.0.0.1 -p 10000
+MapFilesystem.Endpoints=default -h localhost -p 10000
 
 #
 # Freeze Map Tracing.

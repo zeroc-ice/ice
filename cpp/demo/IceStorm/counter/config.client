@@ -1,7 +1,7 @@
 #
 # This property is used by the clients to connect to IceStorm.
 #
-Counter.Proxy=counter:tcp -p 12000
+Counter.Proxy=counter:tcp -h localhost -p 12000
 
 #
 # Network Tracing

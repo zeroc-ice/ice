@@ -3,7 +3,7 @@
 # "Greet". The following line sets the endpoints for this
 # adapter.
 #
-Greet.Endpoints=tcp -p 10000
+Greet.Endpoints=tcp -h localhost -p 10000
 
 #
 # Warn about connection exceptions

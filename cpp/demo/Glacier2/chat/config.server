@@ -4,7 +4,7 @@
 # loopback, so that the session server is not directly accessible from
 # the Internet.
 #
-ChatServer.Endpoints=tcp -h 127.0.0.1 -p 10001
+ChatServer.Endpoints=tcp -h localhost -p 10001
 
 #
 # Warn about connection exceptions

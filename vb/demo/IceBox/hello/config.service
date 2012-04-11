@@ -3,7 +3,7 @@
 # the service. The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -h localhost -p 10000:udp -h localhost -p 10000:ssl -h localhost -p 10001
 
 #
 # Warn about connection exceptions

@@ -37,7 +37,7 @@ try
         //
         $initData = new Ice_InitializationData;
         $initData->properties = Ice_createProperties();
-        $initData->properties->setProperty("Ice.Default.Router", "DemoGlacier2/router:tcp -p 4063 -h 127.0.0.1");
+        $initData->properties->setProperty("Ice.Default.Router", "DemoGlacier2/router:tcp -p 4063 -h localhost");
         $ICE = Ice_initialize($initData);
 
         try

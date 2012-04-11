@@ -21,7 +21,7 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
-        HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
+        HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -h localhost -p 10000"));
         hello->sayHello();
         communicator->destroy();
     }

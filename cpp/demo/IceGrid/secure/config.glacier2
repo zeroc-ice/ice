@@ -3,15 +3,15 @@
 #
 Glacier2.InstanceName=DemoGlacier2
 
-Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
-Glacier2.Server.Endpoints=ssl -h 127.0.0.1
+Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
+Glacier2.Server.Endpoints=ssl -h localhost
 
 Glacier2.SessionManager=DemoIceGrid/AdminSessionManager
 Glacier2.PermissionsVerifier=DemoGlacier2/NullPermissionsVerifier
 
 Glacier2.SessionTimeout=30
 
-Ice.Default.Locator=DemoIceGrid/Locator:ssl -p 4062
+Ice.Default.Locator=DemoIceGrid/Locator:ssl -h localhost -p 4062
 
 #
 # SSL Configuration

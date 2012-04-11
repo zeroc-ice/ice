@@ -7,7 +7,7 @@ Glacier2.InstanceName=DemoGlacier2
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
+Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -16,7 +16,7 @@ Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
 # on the loopback, so that the server is not directly accessible from
 # the Internet.
 #
-Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+Glacier2.Server.Endpoints=tcp -h localhost
 
 # 
 # For this demo, we use a null permissions verifier.

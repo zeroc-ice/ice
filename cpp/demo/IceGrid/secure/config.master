@@ -6,9 +6,9 @@ IceGrid.InstanceName=DemoIceGrid
 #
 # IceGrid registry configuration.
 #
-IceGrid.Registry.Client.Endpoints=tcp -p 4061 -t 10000:ssl -p 4062 -t 10000
-IceGrid.Registry.Server.Endpoints=ssl -t 10000
-IceGrid.Registry.Internal.Endpoints=ssl -t 10000
+IceGrid.Registry.Client.Endpoints=tcp -h localhost -p 4061 -t 10000:ssl -h localhost -p 4062 -t 10000
+IceGrid.Registry.Server.Endpoints=ssl -h localhost -t 10000
+IceGrid.Registry.Internal.Endpoints=ssl -h localhost -t 10000
 IceGrid.Registry.Data=db/master
 
 #
@@ -22,7 +22,7 @@ IceGrid.Registry.RequireReplicaCertCN=1
 # IceGrid admin clients must use a secure connection to connect to the
 # registry or use Glacier2.
 #
-IceGrid.Registry.AdminSessionManager.Endpoints=ssl -t 10000
+IceGrid.Registry.AdminSessionManager.Endpoints=ssl -h localhost -t 10000
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 
 #

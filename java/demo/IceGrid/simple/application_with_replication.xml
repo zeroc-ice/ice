@@ -17,7 +17,7 @@
       <parameter name="index"/>
       <server id="SimpleServer-${index}" exe="java" activation="on-demand">
         <option>Server</option>
-        <adapter name="Hello" endpoints="tcp" replica-group="ReplicatedHelloAdapter"/>
+        <adapter name="Hello" endpoints="tcp -h localhost" replica-group="ReplicatedHelloAdapter"/>
         <property name="Identity" value="hello"/>
       </server>
     </server-template>

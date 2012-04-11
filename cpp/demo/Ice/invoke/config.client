@@ -2,7 +2,7 @@
 # The client reads this property to create the reference to the
 # "Printer" object in the server.
 #
-Printer.Proxy=printer:default -p 10000
+Printer.Proxy=printer:default -h localhost -p 10000
 
 #
 # Warn about connection exceptions

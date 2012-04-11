@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-PhoneBook.Endpoints=default -p 10000
+PhoneBook.Endpoints=default -h localhost -p 10000
 
 #
 # Set the evictor size. The size set here (3) is far too small for

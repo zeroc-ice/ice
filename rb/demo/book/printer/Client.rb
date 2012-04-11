@@ -15,7 +15,7 @@ status = 0
 ic = nil
 begin
     ic = Ice::initialize(ARGV)
-    base = ic.stringToProxy("SimplePrinter:default -p 10000")
+    base = ic.stringToProxy("SimplePrinter:default -h localhost -p 10000")
     printer = Demo::PrinterPrx::checkedCast(base)
     if not printer
         raise "Invalid proxy"

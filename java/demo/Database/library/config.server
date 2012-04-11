@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-SessionFactory.Endpoints=tcp -p 10000:ssl -p 10001
+SessionFactory.Endpoints=tcp -h localhost -p 10000:ssl -h localhost -p 10001
 
 # JDBC configuration.
 JDBC.Username=USER

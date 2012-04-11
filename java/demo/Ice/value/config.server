@@ -3,7 +3,7 @@
 # "Value". The following line sets the endpoints for this
 # adapter.
 #
-Value.Endpoints=default -p 10000
+Value.Endpoints=default -h localhost -p 10000
 
 #
 # Warn about connection exceptions

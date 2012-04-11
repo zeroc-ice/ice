@@ -2,14 +2,14 @@
 # The client reads this property to create the reference to the
 # "Nested" object in the server.
 #
-Nested.Proxy=nestedServer:default -p 10000 -t 10000
+Nested.Proxy=nestedServer:default -h localhost -p 10000 -t 10000
 
 #
 # The client creates one single object adapter with the name
 # "Nested.Client". The following line sets the endpoints for this
 # adapter.
 #
-Nested.Client.Endpoints=default -t 10000
+Nested.Client.Endpoints=default -h localhost -t 10000
 
 #
 # The following properties configure the server thread pool. The

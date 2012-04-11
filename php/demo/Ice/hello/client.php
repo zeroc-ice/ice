@@ -34,11 +34,11 @@ if(isset($_POST["submitted"]))
     {
         if($have_ssl)
         {
-            $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
+            $p = $ICE->stringToProxy("hello:tcp -h localhost -p 10000:udp -h localhost -p 10000:ssl -h localhost -p 10001");
         }
         else
         {
-            $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
+            $p = $ICE->stringToProxy("hello:tcp -h localhost -p 10000:udp -h localhost -p 10000");
         }
 
         if(isset($_POST["mode"]))

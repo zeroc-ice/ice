@@ -1,7 +1,7 @@
 #
 # Configure the server endpoints.
 #
-EvictorFilesystem.Endpoints=default -h 127.0.0.1 -p 10000
+EvictorFilesystem.Endpoints=default -h localhost -p 10000
 
 #
 # Freeze Map Tracing.

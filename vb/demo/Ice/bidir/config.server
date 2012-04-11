@@ -1,4 +1,4 @@
-Callback.Server.Endpoints=tcp -p 10000
+Callback.Server.Endpoints=tcp -h localhost -p 10000
 
 #
 # Warn about connection exceptions

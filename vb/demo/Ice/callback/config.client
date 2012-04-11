@@ -2,14 +2,14 @@
 # The client contacts the server using the proxy specified by the CallbackServer
 # property, and provides the endpoints specified by the Endpoints property.
 #
-Callback.CallbackServer=callbackSender:default -p 10000
+Callback.CallbackServer=callbackSender:default -h localhost -p 10000
 
 #
 # The client creates one single object adapter with the name
 # "Callback.Client". The following line sets the endpoints for this
 # adapter.
 #
-Callback.Client.Endpoints=default
+Callback.Client.Endpoints=default -h localhost
 
 #
 # Warn about connection exceptions

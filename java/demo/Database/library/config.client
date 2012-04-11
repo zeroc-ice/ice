@@ -2,13 +2,13 @@
 # The client reads this property to create the reference to the
 # "SessionFactory" object in the server.
 #
-SessionFactory.Proxy=SessionFactory:default -p 10000
+SessionFactory.Proxy=SessionFactory:default -h localhost -p 10000
 
 #
 # The proxy to the Glacier2 router for all outgoing connections. This
 # must match the value of Glacier2.Client.Endpoints in config.glacier2.
 #
-#Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h 127.0.0.1
+#Ice.Default.Router=DemoGlacier2/router:ssl -p 4064 -h localhost
 
 #
 # No active connection management is permitted because of the session

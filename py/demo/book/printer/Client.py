@@ -17,7 +17,7 @@ status = 0
 ice = None
 try:
     ic = Ice.initialize(sys.argv)
-    base = ic.stringToProxy("SimplePrinter:default -p 10000")
+    base = ic.stringToProxy("SimplePrinter:default -h localhost -p 10000")
     printer = Demo.PrinterPrx.checkedCast(base)
     if not printer:
         raise RuntimeError("Invalid proxy")

@@ -32,7 +32,7 @@ public class Server
             // Create an object adapter.
             //
             Ice.ObjectAdapter adapter =
-                communicator().createObjectAdapterWithEndpoints("SimpleFilesystem", "default -h 127.0.0.1 -p 10000");
+                communicator().createObjectAdapterWithEndpoints("SimpleFilesystem", "default -h localhost -p 10000");
 
             //
             // Create the root directory (with name "/" and no parent)
