@@ -11,8 +11,8 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-CXX                     = c++
-#CXX	                = clang++
+CXX                     = clang++
+#CXX	                = g++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 
@@ -43,7 +43,7 @@ ifneq ($(embedded_runpath_prefix),)
     endif
 endif
 
-ifeq ($(CXX),c++)
+ifeq ($(CXX),g++)
      LDPLATFORMFLAGS		+= -rdynamic
 endif
 
