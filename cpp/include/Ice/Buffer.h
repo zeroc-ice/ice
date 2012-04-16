@@ -38,7 +38,6 @@ public:
         typedef Ice::Byte& reference;
         typedef const Ice::Byte& const_reference;
         typedef Ice::Byte* pointer;
-        typedef ptrdiff_t difference_type;
         typedef size_t size_type;
 
         Container(size_type maxCapacity);
