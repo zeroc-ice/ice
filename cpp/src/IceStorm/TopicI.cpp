@@ -63,11 +63,7 @@ public:
                const Ice::Current& current)
     {
         // The publish call does a cached read.
-        EventDataPtr event = new EventData(
-            current.operation,
-            current.mode,
-            Ice::ByteSeq(),
-            current.ctx);
+        EventDataPtr event = new EventData(current.operation, current.mode, Ice::ByteSeq(), current.ctx);
 
         //
         // COMPILERBUG: gcc 4.0.1 doesn't like this.

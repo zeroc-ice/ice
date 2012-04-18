@@ -546,6 +546,9 @@ public:
     bool ice_isSecure() const;
     ::Ice::ObjectPrx ice_secure(bool) const;
 
+    ::Ice::EncodingVersion ice_getEncodingVersion() const;
+    ::Ice::ObjectPrx ice_encodingVersion(const ::Ice::EncodingVersion&) const;
+
     bool ice_isPreferSecure() const;
     ::Ice::ObjectPrx ice_preferSecure(bool) const;
 

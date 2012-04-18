@@ -57,7 +57,8 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    Ice::CommunicatorPtr communicator = _store->communicator();
+    const Ice::CommunicatorPtr& communicator = _store->communicator();
+    const Ice::EncodingVersion& encoding = _store->encoding();
 
     TransactionIPtr transaction = _store->evictor()->beforeQuery();
     DbTxn* tx = transaction == 0 ? 0 : transaction->dbTxn();
@@ -99,7 +100,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                                 pkey.resize(pdbKey.get_size());
                                 
                                 Ice::Identity ident;
-                                ObjectStoreBase::unmarshal(ident, pkey, communicator);
+                                ObjectStoreBase::unmarshal(ident, pkey, communicator, encoding);
                                 identities.push_back(ident);
                                 flags = DB_NEXT_DUP;
                             }
@@ -315,6 +316,7 @@ Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn,
     assert(txn != 0);
     _store = store;
     _index._communicator = store->communicator();
+    _index._encoding = store->encoding();
     
     _db.reset(new Db(store->evictor()->dbEnv()->getEnv(), 0));
     _db->set_flags(DB_DUP | DB_DUPSORT);
@@ -377,12 +379,13 @@ int
 Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey, 
                                    const Dbt* dbValue, Dbt* result)
 {
-    Ice::CommunicatorPtr communicator = _store->communicator();
+    const Ice::CommunicatorPtr& communicator = _store->communicator();
+    const Ice::EncodingVersion& encoding = _store->encoding();
 
     ObjectRecord rec;
     Byte* first = static_cast<Byte*>(dbValue->get_data());
     Value value(first, first + dbValue->get_size());
-    ObjectStoreBase::unmarshal(rec, value, communicator);
+    ObjectStoreBase::unmarshal(rec, value, communicator, encoding);
 
     Key bytes;
     if(_index.marshalKey(rec.servant, bytes))

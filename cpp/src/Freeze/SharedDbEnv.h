@@ -70,6 +70,7 @@ public:
     DbEnv* getEnv() const;
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
+    const Ice::EncodingVersion& getEncoding() const;
 
     typedef std::map<std::string, MapDb*> SharedDbMap;
 
@@ -82,6 +83,7 @@ private:
     std::auto_ptr<DbEnv> _envHolder;
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
+    Ice::EncodingVersion _encoding;
     MapDb* _catalog;
     MapDb* _catalogIndexList;
 
@@ -116,6 +118,12 @@ inline const Ice::CommunicatorPtr&
 SharedDbEnv::getCommunicator() const
 {
     return _communicator;
+}
+
+inline const Ice::EncodingVersion& 
+SharedDbEnv::getEncoding() const
+{
+    return _encoding;
 }
 
 }

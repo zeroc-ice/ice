@@ -42,6 +42,7 @@ protected:
     Ice::Int untypedCount(const Freeze::Key&) const;
     
     Ice::CommunicatorPtr _communicator;
+    Ice::EncodingVersion _encoding;
 
 private:
 

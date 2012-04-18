@@ -159,6 +159,8 @@ Freeze::EvictorIBase::EvictorIBase(const ObjectAdapterPtr& adapter,
     _txTrace(0),
     _pingObject(new PingObject)
 {
+    _encoding = _dbEnv->getEncoding();
+
     _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
     _txTrace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction");
     _deadlockWarning = (_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0);

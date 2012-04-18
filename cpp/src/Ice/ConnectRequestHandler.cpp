@@ -112,7 +112,7 @@ ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref,
     _flushing(false),
     _batchRequestInProgress(false),
     _batchRequestsSize(sizeof(requestBatchHdr)),
-    _batchStream(ref->getInstance().get(), _batchAutoFlush),
+    _batchStream(ref->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush),
     _updateRequestHandler(false)
 {
 }
@@ -182,7 +182,7 @@ ConnectRequestHandler::finishBatchRequest(BasicStream* os)
             _batchRequestsSize += _batchStream.b.size();
 
             Request req;
-            req.os = new BasicStream(_reference->getInstance().get(), _batchAutoFlush);
+            req.os = new BasicStream(_reference->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush);
             req.os->swap(_batchStream);
             _requests.push_back(req);
             return;
@@ -202,7 +202,7 @@ ConnectRequestHandler::abortBatchRequest()
             _batchRequestInProgress = false;
             notifyAll();
 
-            BasicStream dummy(_reference->getInstance().get(), _batchAutoFlush);
+            BasicStream dummy(_reference->getInstance().get(), Ice::currentProtocolEncoding, _batchAutoFlush);
             _batchStream.swap(dummy);
             _batchRequestsSize = sizeof(requestBatchHdr);
 
@@ -427,7 +427,7 @@ ConnectRequestHandler::flushRequests()
             }
             else
             {
-                BasicStream os(req.os->instance());
+                BasicStream os(req.os->instance(), Ice::currentProtocolEncoding);
                 _connection->prepareBatchRequest(&os);
                 try
                 {

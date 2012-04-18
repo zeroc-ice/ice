@@ -102,8 +102,8 @@ Ice::AsyncResult::AsyncResult(const CommunicatorPtr& communicator,
     _operation(op),
     _callback(del),
     _cookie(cookie),
-    _is(instance.get()),
-    _os(instance.get()),
+    _is(instance.get(), Ice::currentProtocolEncoding),
+    _os(instance.get(), Ice::currentProtocolEncoding),
     _state(0),
     _sentSynchronously(false),
     _exception(0)
@@ -411,7 +411,8 @@ IceInternal::OutgoingAsync::OutgoingAsync(const ObjectPrx& prx,
                                           const CallbackBasePtr& delegate,
                                           const Ice::LocalObjectPtr& cookie) :
     AsyncResult(prx->ice_getCommunicator(), prx->__reference()->getInstance(), operation, delegate, cookie),
-    _proxy(prx)
+    _proxy(prx),
+    _encoding(prx->__reference()->getEncoding())
 {
 }
 
@@ -477,8 +478,6 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
             implicitContext->write(prxContext, &_os);
         }
     }
-
-    _os.startWriteEncaps();
 }
 
 bool

@@ -320,9 +320,9 @@ writeCodecH(const TypePtr& type, const StringList& metaData, const string& name,
     H << sp;
     H.inc();
     H << nl << "static void write(" << inputTypeToString(type, metaData)
-      << ", Freeze::" << freezeType << "&, const ::Ice::CommunicatorPtr&);";
+      << ", Freeze::" << freezeType << "&, const ::Ice::CommunicatorPtr&, const Ice::EncodingVersion&);";
     H << nl << "static void read(" << typeToString(type, metaData) << "&, const Freeze::" << freezeType << "&, "
-      << "const ::Ice::CommunicatorPtr&);";
+      << "const ::Ice::CommunicatorPtr&, const Ice::EncodingVersion&);";
     H << nl << "static const std::string& typeId();";
     H << eb << ';';
 }
@@ -334,10 +334,11 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     string quotedFreezeType = "\"" + freezeType + "\"";
 
     C << sp << nl << "void" << nl << name << "::write(" << inputTypeToString(type, metaData) << " v, "
-      << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
+      << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator, "
+      << "const Ice::EncodingVersion& encoding)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance.get(), true);";
+    C << nl << "IceInternal::BasicStream stream(instance.get(), encoding, true);";
     if(encaps)
     {
         C << nl << "stream.startWriteEncaps();";
@@ -355,10 +356,11 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     C << eb;
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type, metaData) << "& v, "
-      << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
+      << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator, "
+      << "const Ice::EncodingVersion& encoding)";
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-    C << nl << "IceInternal::BasicStream stream(instance.get(), true);";
+    C << nl << "IceInternal::BasicStream stream(instance.get(), encoding, true);";
     if(type->usesClasses())
     {
         C << nl << "stream.sliceObjects(false);";
@@ -500,11 +502,11 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
         // Codec
         //
         H << nl << "static void write(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData)
-          << ", Freeze::Key&, const Ice::CommunicatorPtr&);";
+          << ", Freeze::Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);";
 
         H << nl << "static void read(" 
           << typeToString(indexTypes[i].type, indexTypes[i].metaData)
-          << "&, const Freeze::Key&, const ::Ice::CommunicatorPtr&);";
+          << "&, const Freeze::Key&, const ::Ice::CommunicatorPtr&, const Ice::EncodingVersion&);";
 
         H.dec();
         H << sp << nl << "protected:";
@@ -529,11 +531,11 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
       << "_InputIterator __first, _InputIterator __last, "
       << "const " << compare << "& __compare = " << compare << "())";
     H.inc();
-    H << nl << ": Freeze::Map" << templateParams <<"(__connection->getCommunicator())";
+    H << nl << ": Freeze::Map" << templateParams <<"(__connection->getCommunicator(), __connection->getEncoding())";
     H.dec();
     H << sb;
     H << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
-      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, this->_communicator);";
+      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, this->_communicator, this->_encoding);";
     H << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
@@ -686,7 +688,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
             // Can't optimize
             //
             C << nl << typeToString(valueType, valueMetaData) << " __x;";
-            C << nl << absolute << "ValueCodec::read(__x, __v, _communicator);";
+            C << nl << absolute << "ValueCodec::read(__x, __v, _communicator, _encoding);";
             string param = "__x";
             
             if(!dict.indices[i].member.empty())
@@ -700,26 +702,27 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
                     param += "." + dict.indices[i].member;
                 }
             }
-            C << nl << "write(" << param << ", __k, _communicator);";
+            C << nl << "write(" << param << ", __k, _communicator, _encoding);";
         }
         C << eb;
         
         C << sp << nl << "void" 
           << nl << absolute << "::" << className << "::" 
           << "write(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData)
-          << " __index, Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
+          << " __index, Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator, "
+          << "const Ice::EncodingVersion& __encoding)";
         C << sb;
         
         if(optimize)
         {
-            C << nl << absolute << "ValueCodec::write(__index, __bytes, __communicator);";
+            C << nl << absolute << "ValueCodec::write(__index, __bytes, __communicator, __encoding);";
         }
         else
         {
             assert(!indexTypes[i].type->usesClasses());
 
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding, true);";
             
             string valueS;
             if(dict.indices[i].caseSensitive)
@@ -741,17 +744,18 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         C << sp << nl << "void" 
           << nl << absolute << "::" << className << "::" 
           << "read(" << typeToString(indexTypes[i].type, indexTypes[i].metaData)
-          << "& __index, const Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
+          << "& __index, const Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator, "
+          << "const Ice::EncodingVersion& __encoding)";
         C << sb;
         
         if(optimize)
         {
-            C << nl << absolute << "ValueCodec::read(__index, __bytes, __communicator);";
+            C << nl << absolute << "ValueCodec::read(__index, __bytes, __communicator, __encoding);";
         }
         else
         {
             C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-            C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get(), __encoding, true);";
             
             C << nl << "__stream.b.resize(__bytes.size());";
             C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
@@ -769,11 +773,11 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
       << "(const Freeze::ConnectionPtr& __connection, const std::string& __dbName ,"
       << "bool __createDb, const " << compare << "& __compare)";
     C.inc();
-    C << nl << ": Freeze::Map" << templateParams <<"(__connection->getCommunicator())";
+    C << nl << ": Freeze::Map" << templateParams <<"(__connection->getCommunicator(), __connection->getEncoding())";
     C.dec();
     C << sb;
     C << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
-      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, _communicator);";
+      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, _communicator, _encoding);";
     C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
@@ -800,7 +804,8 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
       << " const " << compare << "& __compare)";
     C << sb;
     C << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
-      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, __connection->getCommunicator());";
+      << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, __connection->getCommunicator()"
+      <<", __connection->getEncoding());";
     C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
@@ -838,9 +843,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << " __index, bool __onlyDups)";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return iterator(_helper->index(" << indexName 
-          << ")->untypedFind(__bytes, false, __onlyDups), _communicator);";
+          << ")->untypedFind(__bytes, false, __onlyDups), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::const_iterator"
@@ -849,21 +854,21 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << " __index, bool __onlyDups) const";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return const_iterator(_helper->index(" << indexName 
-          << ")->untypedFind(__bytes, true, __onlyDups), _communicator);";
+          << ")->untypedFind(__bytes, true, __onlyDups), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::iterator"
           << nl << absolute << "::" << "beginFor" << capitalizedMembers[i] << "()";
         C << sb;
-        C << nl << "return iterator(_helper->index(" << indexName << ")->begin(false), _communicator);";
+        C << nl << "return iterator(_helper->index(" << indexName << ")->begin(false), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::const_iterator"
           << nl << absolute << "::" << "beginFor" << capitalizedMembers[i] << "() const";
         C << sb;
-        C << nl << "return const_iterator(_helper->index(" << indexName << ")->begin(true), _communicator);";
+        C << nl << "return const_iterator(_helper->index(" << indexName << ")->begin(true), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::iterator"
@@ -883,9 +888,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << "(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData) << " __index)";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return iterator(_helper->index(" << indexName 
-          << ")->untypedLowerBound(__bytes, false), _communicator);";
+          << ")->untypedLowerBound(__bytes, false), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::const_iterator"
@@ -893,9 +898,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << "(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData) << " __index) const";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return const_iterator(_helper->index(" << indexName 
-          << ")->untypedLowerBound(__bytes, true), _communicator);";
+          << ")->untypedLowerBound(__bytes, true), _communicator, _encoding);";
         C << eb;
         
         C << sp << nl << absolute << "::iterator"
@@ -903,9 +908,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << "(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData) << " __index)";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return iterator(_helper->index(" << indexName 
-          << ")->untypedUpperBound(__bytes, false), _communicator);";
+          << ")->untypedUpperBound(__bytes, false), _communicator, _encoding);";
         C << eb;
 
         C << sp << nl << absolute << "::const_iterator"
@@ -913,9 +918,9 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << "(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData) << " __index) const";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return const_iterator(_helper->index(" << indexName 
-          << ")->untypedUpperBound(__bytes, true), _communicator);";
+          << ")->untypedUpperBound(__bytes, true), _communicator, _encoding);";
         C << eb;
         
         C << sp << nl << "std::pair<" << absolute << "::iterator, "
@@ -944,7 +949,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
           << "(" << inputTypeToString(indexTypes[i].type, indexTypes[i].metaData) << " __index) const";
         C << sb;
         C << nl << "Freeze::Key __bytes;";
-        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator, _encoding);";
         C << nl << "return _helper->index(" << indexName 
           << ")->untypedCount(__bytes);";
         C << eb;
@@ -1252,7 +1257,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     C << nl << fullName << "::" << "marshalKey(" << inputType << " __index, Freeze::Key& __bytes) const";
     C << sb;
     C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(_communicator);";
-    C << nl << "IceInternal::BasicStream __stream(__instance.get(), true);";
+    C << nl << "IceInternal::BasicStream __stream(__instance.get(), _encoding, true);";
     
     string valueS;
     if(caseSensitive)

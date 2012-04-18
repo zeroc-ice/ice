@@ -1130,7 +1130,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 
 ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance, const ThreadPoolPtr& threadPool) :
     operation(SocketOperationNone), 
-    stream(instance.get()), 
+    stream(instance.get(), Ice::currentProtocolEncoding), 
     _threadPool(threadPool.get()), 
     _ioCompleted(false)
 #ifndef ICE_USE_IOCP

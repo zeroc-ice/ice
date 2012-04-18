@@ -24,8 +24,7 @@ class IteratorHelperI : public IteratorHelper
 {  
 public:
 
-    IteratorHelperI(const MapHelperI& m, bool readOnly, 
-                    const MapIndexBasePtr& index, bool onlyDups);
+    IteratorHelperI(const MapHelperI& m, bool readOnly, const MapIndexBasePtr& index, bool onlyDups);
     IteratorHelperI(const IteratorHelperI&);
 
     virtual 
@@ -108,10 +107,8 @@ class MapHelperI : public MapHelper
 {
 public:
    
-    MapHelperI(const ConnectionIPtr&, const std::string&, 
-               const std::string&, const std::string&,
-               const KeyCompareBasePtr&,
-               const std::vector<MapIndexBasePtr>&, bool);
+    MapHelperI(const ConnectionIPtr&, const std::string&, const std::string&, const std::string&, 
+               const KeyCompareBasePtr&, const std::vector<MapIndexBasePtr>&, bool);
 
     virtual ~MapHelperI();
 

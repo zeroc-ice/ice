@@ -46,6 +46,18 @@ Init init;
 Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
+const Ice::EncodingVersion&
+IceInternal::EndpointI::encoding() const
+{
+    return _encoding;
+}
+
+const Ice::ProtocolVersion&
+IceInternal::EndpointI::protocol() const
+{
+    return _protocol;
+}
+
 Ice::Int
 IceInternal::EndpointI::ice_getHash() const
 {
@@ -68,8 +80,69 @@ IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs)
     return vector<ConnectorPtr>();
 }
 
-IceInternal::EndpointI::EndpointI() : _hashInitialized(false)
+IceInternal::EndpointI::EndpointI(const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding) : 
+    _protocol(protocol),
+    _encoding(encoding), 
+    _hashInitialized(false)
 {
+}
+
+IceInternal::EndpointI::EndpointI() : 
+    _protocol(Ice::currentProtocol),
+    _encoding(Ice::currentEncoding), 
+    _hashInitialized(false) 
+{
+}
+
+void
+IceInternal::EndpointI::parseOption(const string& option, const string& arg, const string& desc, const string& str)
+{
+    if(option == "-v")
+    {
+        if(arg.empty())
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -v option in endpoint `" + desc + " " + str + "'";
+            throw ex;
+        }
+
+        try 
+        {
+            const_cast<Ice::ProtocolVersion&>(_protocol) = Ice::stringToProtocolVersion(arg);
+        }
+        catch(const Ice::VersionParseException& e)
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid protocol version `" + arg + "' in endpoint `" + desc + " " + str + "':\n" + e.str;
+            throw ex;
+        }
+    }
+    else if(option == "-e")
+    {
+        if(arg.empty())
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "no argument provided for -e option in endpoint `" + desc + " " + str + "'";
+            throw ex;
+        }
+
+        try 
+        {
+            const_cast<Ice::EncodingVersion&>(_encoding) = Ice::stringToEncodingVersion(arg);
+        }
+        catch(const Ice::VersionParseException& e)
+        {
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "invalid encoding version `" + arg + "' in endpoint `" + desc + " " + str + "':\n" + e.str;
+            throw ex;
+        }
+    }
+    else 
+    {
+        Ice::EndpointParseException ex(__FILE__, __LINE__);
+        ex.str = "unknown option `" + option + "' in `" + desc + " " + str + "'";
+        throw ex;
+    }
 }
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :

@@ -242,7 +242,7 @@ CtrlCHandler::~CtrlCHandler()
     // WORKAROUND: sigwait isn't a cancellation point on MacOS X, see
     // comment in sigwaitThread
     //
-    rc = pthread_kill(_tid, SIGTERM);
+    pthread_kill(_tid, SIGTERM);
     //assert(rc == 0); For some reaosns, this assert is sometime triggered
 #endif
     void* status = 0;

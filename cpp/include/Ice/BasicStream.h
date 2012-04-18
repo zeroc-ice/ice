@@ -41,7 +41,7 @@ public:
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
-    BasicStream(Instance*, bool = false);
+    BasicStream(Instance*, const Ice::EncodingVersion&, bool = false);
     ~BasicStream()
     {
         // Inlined for performance reasons.
@@ -80,8 +80,12 @@ public:
         b.resize(sz);
     }
 
-    void startWriteEncaps()
+    void startWriteEncaps();
+    
+    void startWriteEncaps(const Ice::EncodingVersion& encoding)
     {
+        checkSupportedEncoding(encoding);
+
         WriteEncaps* oldEncaps = _currentWriteEncaps;
         if(!oldEncaps) // First allocated encaps?
         {
@@ -92,11 +96,11 @@ public:
             _currentWriteEncaps = new WriteEncaps();
             _currentWriteEncaps->previous = oldEncaps;
         }
+        _currentWriteEncaps->encoding = encoding;
         _currentWriteEncaps->start = b.size();
 
         write(Ice::Int(0)); // Placeholder for the encapsulation length.
-        write(encodingMajor);
-        write(encodingMinor);
+        _currentWriteEncaps->encoding.__write(this);
     }
     void endWriteEncaps()
     {
@@ -131,8 +135,30 @@ public:
         }
     }
     void endWriteEncapsChecked(); // Used by public stream API.
+    void writeEmptyEncaps(const Ice::EncodingVersion& encoding)
+    {
+        checkSupportedEncoding(encoding);
+        write(Ice::Int(6)); // Size
+        encoding.__write(this);
+    }
+    void writeEncaps(const Ice::Byte* v, Ice::Int sz)
+    {
+        if(sz < 6)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
 
-    void startReadEncaps()
+        Container::size_type pos = b.size();
+        resize(pos + sz);
+        memcpy(&b[pos], &v[0], sz);
+    }
+
+    const Ice::EncodingVersion& getWriteEncoding() const
+    {
+        return _currentWriteEncaps ? _currentWriteEncaps->encoding : _encoding;
+    }
+
+    const Ice::EncodingVersion& startReadEncaps()
     {
         ReadEncaps* oldEncaps = _currentReadEncaps;
         if(!oldEncaps) // First allocated encaps?
@@ -165,17 +191,10 @@ public:
         }
         _currentReadEncaps->sz = sz;
 
-        Ice::Byte eMajor;
-        Ice::Byte eMinor;
-        read(eMajor);
-        read(eMinor);
-        if(eMajor != encodingMajor
-           || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
-        {
-            throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor);
-        }
-        _currentReadEncaps->encodingMajor = eMajor;
-        _currentReadEncaps->encodingMinor = eMinor;
+        _currentReadEncaps->encoding.__read(this);
+        checkSupportedEncoding(_currentReadEncaps->encoding); // Make sure the encoding is supported
+
+        return _currentReadEncaps->encoding;
     }
     void endReadEncaps()
     {
@@ -209,8 +228,9 @@ public:
             delete oldEncaps;
         }
     }
-    void skipEmptyEncaps()
+    Ice::EncodingVersion skipEmptyEncaps()
     {
+        Ice::EncodingVersion encoding;
         Ice::Int sz;
         read(sz);
         if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
@@ -222,12 +242,37 @@ public:
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        i += 2;
+        encoding.__read(this);
+        return encoding;
     }
     void endReadEncapsChecked(); // Used by public stream API.
+    Ice::EncodingVersion readEncaps(const Ice::Byte*& v, Ice::Int& sz)
+    {
+        Ice::EncodingVersion encoding;
+        v = i;
+        read(sz);
+        if(sz < 6)
+        {
+            throwEncapsulationException(__FILE__, __LINE__);
+        }
+
+        if(i + 2 > b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+
+        encoding.__read(this);
+        i += sz - sizeof(Ice::Int) - 2;
+        return encoding;
+    }
+
+    const Ice::EncodingVersion& getReadEncoding() const
+    {
+        return _currentReadEncaps ? _currentReadEncaps->encoding : _encoding;
+    }
 
     Ice::Int getReadEncapsSize();
-    void skipEncaps();
+    Ice::EncodingVersion skipEncaps();
 
     void startWriteSlice();
     void endWriteSlice();
@@ -539,7 +584,6 @@ private:
     // ordering.
     //
     void throwUnmarshalOutOfBoundsException(const char*, int);
-    void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
     void throwEncapsulationException(const char*, int);
 
     //
@@ -585,9 +629,7 @@ private:
 
         Container::size_type start;
         Ice::Int sz;
-
-        Ice::Byte encodingMajor;
-        Ice::Byte encodingMinor;
+        Ice::EncodingVersion encoding;
 
         PatchMap* patchMap;
         IndexToPtrMap* unmarshaledMap;
@@ -601,7 +643,7 @@ private:
     {
     public:
 
-        WriteEncaps() : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
+        WriteEncaps() : writeIndex(0), toBeMarshaledMap(0),marshaledMap(0),typeIdMap(0), typeIdIndex(0), previous(0)
         {
             // Inlined for performance reasons.
         }
@@ -629,6 +671,7 @@ private:
         void swap(WriteEncaps&);
 
         Container::size_type start;
+        Ice::EncodingVersion encoding;
 
         Ice::Int writeIndex;
         PtrToIndexMap* toBeMarshaledMap;
@@ -638,6 +681,14 @@ private:
 
         WriteEncaps* previous;
     };
+
+    //
+    // The encoding version to use when there's no encapsulation to
+    // read from or write to. This is for example used to read message
+    // headers or when the user is using the streaming API with no
+    // encapsulation.
+    //
+    Ice::EncodingVersion _encoding;
 
     ReadEncaps* _currentReadEncaps;
     WriteEncaps* _currentWriteEncaps;

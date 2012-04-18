@@ -27,13 +27,18 @@ class ICE_API IncomingBase : private IceUtil::noncopyable
 {
 public:
 
-    void adopt(IncomingBase&);
+    void __adopt(IncomingBase&);
+
+    BasicStream* __startWriteParams();
+    void __endWriteParams(bool);
+    void __writeEmptyParams();
+    void __writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
 
 protected:
 
     IncomingBase(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
     IncomingBase(IncomingBase&); // Adopts the argument. It must not be used afterwards.
-    
+
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
@@ -46,7 +51,6 @@ protected:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
-
     bool _response;
     Ice::Byte _compress;
 
@@ -83,15 +87,34 @@ public:
         return _inParamPos != 0;
     }
 
-    void invoke(const ServantManagerPtr&);
+    void invoke(const ServantManagerPtr&, BasicStream*);
 
     // Inlined for speed optimization.
-    BasicStream* is() { return &_is; }
-    BasicStream* os() { return &_os; }
+    BasicStream* startReadParams()
+    {
+        //
+        // Remember the encoding used by the input parameters, we'll
+        // encode the response parameters with the same encoding.
+        //
+        _current.encoding = _is->startReadEncaps();
+        return _is;
+    }
+    void endReadParams() const
+    {
+        _is->endReadEncaps();
+    }
+    void readEmptyParams()
+    {
+        _current.encoding = _is->skipEmptyEncaps();
+    }
+    void readParamEncaps(const Ice::Byte*& v, Ice::Int& sz)
+    {
+        _current.encoding = _is->readEncaps(v, sz);
+    }
 
 private:
 
-    BasicStream _is;
+    BasicStream* _is;
     
     IncomingAsyncPtr _cb;
     Ice::Byte* _inParamPos;

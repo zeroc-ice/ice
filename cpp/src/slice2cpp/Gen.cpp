@@ -2652,13 +2652,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "try";
     C << sb;
     C << nl << "__result->__prepare(" << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
-    C << nl << "::IceInternal::BasicStream* __os = __result->__getOs();";
-    writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
-    if(p->sendsClasses())
+    if(inParams.empty())
     {
-        C << nl << "__os->writePendingObjects();";
+        C << nl << "__result->__writeEmptyParams();";
     }
-    C << nl << "__os->endWriteEncaps();";
+    else 
+    {
+        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams();";
+        writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
+        if(p->sendsClasses())
+        {
+            C << nl << "__os->writePendingObjects();";
+        }
+        C << nl << "__result->__endWriteParams();";
+    }
     C << nl << "__result->__send(true);";
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -2714,20 +2721,19 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
         C << eb;
         C << eb;
-        C << nl << "::IceInternal::BasicStream* __is = __result->__getIs();";
         if(ret || !outParams.empty())
         {
-            C << nl << "__is->startReadEncaps();";
+            C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
             if(p->returnsClasses())
             {
                 C << nl << "__is->readPendingObjects();";
             }
-            C << nl << "__is->endReadEncaps();";
+            C << nl << "__result->__endReadParams();";
         }
         else
         {
-            C << nl << "__is->skipEmptyEncaps();";
+            C << nl << "__result->__readEmptyParams();";
         }
         if(ret)
         {
@@ -2779,20 +2785,19 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());";
         C << eb;
         C << eb;
-        C << nl << "::IceInternal::BasicStream* __is = __result->__getIs();";
         if(ret || !outParams.empty())
         {
-            C << nl << "__is->startReadEncaps();";
+            C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, ret, p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
             if(p->returnsClasses())
             {
                 C << nl << "__is->readPendingObjects();";
             }
-            C << nl << "__is->endReadEncaps();";
+            C << nl << "__result->__endReadParams();";
         }
         else
         {
-            C << nl << "__is->skipEmptyEncaps();";
+            C << nl << "__result->__readEmptyParams();";
         }
         C << eb;
     }
@@ -3202,16 +3207,21 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "::IceInternal::Outgoing __og(__handler.get(), " << flatName << ", "
       << operationModeToString(p->sendMode()) << ", __context);";
-    if(!inParams.empty())
+    if(inParams.empty())
+    {
+        C << nl << "__og.writeEmptyParams();";
+    }
+    else
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = __og.os();";
+        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams();";
         writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
         if(p->sendsClasses())
         {
             C << nl << "__os->writePendingObjects();";
         }
+        C << nl << "__og.endWriteParams();";
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
@@ -3228,7 +3238,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     writeAllocateCode(C, ParamDeclList(), ret, p->getMetaData(), _useWstring);
     if(!p->returnsData())
     {
-        C << nl << "if(!__og.is()->b.empty())";
+        C << nl << "if(__og.hasResponse())";
         C << sb;
     }
     C << nl << "try";
@@ -3300,18 +3310,17 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 
     if(ret || !outParams.empty())
     {
-        C << nl << "::IceInternal::BasicStream* __is = __og.is();";
-        C << nl << "__is->startReadEncaps();";
+        C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
         writeUnmarshalCode(C, outParams, ret, p->getMetaData());
         if(p->returnsClasses())
         {
             C << nl << "__is->readPendingObjects();";
         }
-        C << nl << "__is->endReadEncaps();";
+        C << nl << "__og.endReadParams();";
     }
     else
     {
-        C << nl << "__og.is()->skipEmptyEncaps();";
+        C << nl << "__og.readEmptyParams();";
     }
 
     if(ret)
@@ -4742,25 +4751,20 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
             if(!inParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
-                C << nl << "__is->startReadEncaps();";
+                C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, StringList(), _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
                 if(p->sendsClasses())
                 {
                     C << nl << "__is->readPendingObjects();";
                 }
-                C << nl << "__is->endReadEncaps();";
+                C << nl << "__inS.endReadParams();";
             }
             else
             {
-                C << nl << "__inS.is()->skipEmptyEncaps();";
+                C << nl << "__inS.readEmptyParams();";
             }
 
-            if(ret || !outParams.empty() || !throws.empty())
-            {
-                C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
-            }
             writeAllocateCode(C, outParams, 0, StringList(), _useWstring);
             if(!throws.empty())
             {
@@ -4773,11 +4777,21 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << retS << " __ret = ";
             }
             C << fixKwd(name) << args << ';';
-            writeMarshalCode(C, outParams, ret, p->getMetaData());
-            if(p->returnsClasses())
+            if(ret || !outParams.empty())
             {
-                C << nl << "__os->writePendingObjects();";
+                C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams();";
+                writeMarshalCode(C, outParams, ret, p->getMetaData());
+                if(p->returnsClasses())
+                {
+                    C << nl << "__os->writePendingObjects();";
+                }
+                C << nl << "__inS.__endWriteParams(true);";
             }
+            else
+            {
+                C << nl << "__inS.__writeEmptyParams();";
+            }
+            C << nl << "return ::Ice::DispatchOK;";
             if(!throws.empty())
             {
                 C << eb;
@@ -4786,13 +4800,12 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 {
                     C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
                     C << sb;
-                    C << nl << "__os->write(__ex);";
-                    C << nl << "return ::Ice::DispatchUserException;";
+                    C << nl << "__inS.__startWriteParams()->write(__ex);";
+                    C << nl << "__inS.__endWriteParams(false);";
                     C << eb;
                 }
+                C << nl << "return ::Ice::DispatchUserException;";
             }
-
-            C << nl << "return ::Ice::DispatchOK;";
         }
         else
         {
@@ -4800,19 +4813,18 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
             if(!inParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
-                C << nl << "__is->startReadEncaps();";
+                C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, StringList(), _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
                 if(p->sendsClasses())
                 {
                     C << nl << "__is->readPendingObjects();";
                 }
-                C << nl << "__is->endReadEncaps();";
+                C << nl << "__inS.endReadParams();";
             }
             else
             {
-                C << nl << "__inS.is()->skipEmptyEncaps();";
+                C << nl << "__inS.readEmptyParams();";
             }
 
             C << nl << classScopedAMD << '_' << name << "Ptr __cb = new IceAsync" << classScopedAMD << '_' << name
@@ -6579,7 +6591,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = this->__getOs();";
+        C << nl << "::IceInternal::BasicStream* __os = __startWriteParams();";
         writeMarshalCode(C, outParams, 0, StringList(), TypeContextInParam);
         if(ret)
         {
@@ -6589,6 +6601,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "__os->writePendingObjects();";
         }
+        C << nl << "__endWriteParams(true);";
         C << eb;
         C << nl << "catch(const ::Ice::Exception& __ex)";
         C << sb;
@@ -6596,7 +6609,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << nl << "return;";
         C << eb;
     }
-    C << nl << "__response(true);";
+    else
+    {
+        C << nl << "__writeEmptyParams();";
+    }
+    C << nl << "__response();";
     C << eb;
     C << eb;
 
@@ -6618,8 +6635,9 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
-            C << nl << "__getOs()->write(*__ex);";
-            C << nl << "__response(false);";
+            C << nl << "__startWriteParams()->write(*__ex);";
+            C << nl << "__endWriteParams(false);";
+            C << nl << "__response();";
             C << eb;
             C << eb;
         }

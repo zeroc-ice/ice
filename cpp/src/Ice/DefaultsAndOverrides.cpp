@@ -95,4 +95,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<bool&>(defaultPreferSecure) =
         properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+
+    value = properties->getPropertyWithDefault("Ice.Default.EncodingVersion", encodingVersionToString(currentEncoding));
+    defaultEncoding = stringToEncodingVersion(value);
+    checkSupportedEncoding(defaultEncoding);
 }

@@ -11,6 +11,7 @@
 #define ICE_PROTOCOL_H
 
 #include <Ice/Config.h>
+#include <Ice/Version.h>
 
 namespace IceInternal
 {
@@ -35,12 +36,15 @@ const ::Ice::Int headerSize = 14;
 extern const ::Ice::Byte magic[4];
 
 //
-// The current Ice protocol and encoding version
+// The current Ice protocol, protocol encoding and encoding version
 //
 const ::Ice::Byte protocolMajor = 1;
 const ::Ice::Byte protocolMinor = 0;
+const ::Ice::Byte protocolEncodingMajor = 1;
+const ::Ice::Byte protocolEncodingMinor = 0;
+
 const ::Ice::Byte encodingMajor = 1;
-const ::Ice::Byte encodingMinor = 0;
+const ::Ice::Byte encodingMinor = 1;
 
 //
 // The Ice protocol message types
@@ -67,6 +71,114 @@ enum ProtocolSupport
     EnableIPv6,
     EnableBoth
 };
+
+// Forward declaration
+class BasicStream;
+
+void stringToMajorMinor(const ::std::string&, Ice::Byte&, Ice::Byte&);
+
+template<typename T> std::string
+versionToString(const T& v)
+{
+    std::ostringstream os;
+    os << v;
+    return os.str();
+}
+
+template<typename T> T
+stringToVersion(const ::std::string& str)
+{
+    T v;
+    stringToMajorMinor(str, v.major, v.minor);
+    return v;
+}
+
+template<typename T> bool
+isSupported(const T& version, const T& supported)
+{
+    return version.major == supported.major && version.minor <= supported.minor;
+}
+
+void throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&, const Ice::ProtocolVersion&);
+void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, const Ice::EncodingVersion&);
+
+}
+
+namespace Ice
+{
+
+extern const ProtocolVersion Protocol_1_0;
+
+extern const EncodingVersion Encoding_1_0;
+extern const EncodingVersion Encoding_1_1;
+
+extern const ProtocolVersion currentProtocol;
+extern const EncodingVersion currentProtocolEncoding;
+
+extern const EncodingVersion currentEncoding;
+
+inline ::std::string 
+protocolVersionToString(const Ice::ProtocolVersion& v)
+{
+    return IceInternal::versionToString<ProtocolVersion>(v);
+}
+
+inline ::Ice::ProtocolVersion 
+stringToProtocolVersion(const ::std::string& v)
+{
+    return IceInternal::stringToVersion<ProtocolVersion>(v);
+}
+
+inline ::std::string 
+encodingVersionToString(const Ice::EncodingVersion& v)
+{
+    return IceInternal::versionToString<EncodingVersion>(v);
+}
+
+inline ::Ice::EncodingVersion 
+stringToEncodingVersion(const ::std::string& v)
+{
+    return IceInternal::stringToVersion<EncodingVersion>(v);
+}
+
+inline std::ostream&
+operator<<(std::ostream& out, const ProtocolVersion& version)
+{
+    return out << static_cast<int>(version.major) << "." << static_cast<int>(version.minor);
+}
+
+inline std::ostream&
+operator<<(std::ostream& out, const EncodingVersion& version)
+{
+    return out << static_cast<int>(version.major) << "." << static_cast<int>(version.minor);
+}
+
+inline void
+checkSupportedProtocol(const ProtocolVersion& v)
+{
+    if(!IceInternal::isSupported(v, currentProtocol))
+    {
+        IceInternal::throwUnsupportedProtocolException(__FILE__, __LINE__, v, currentProtocol);
+    }
+}
+
+inline void
+checkSupportedProtocolEncoding(const EncodingVersion& v)
+{
+    if(!IceInternal::isSupported(v, currentProtocolEncoding))
+    {
+        IceInternal::throwUnsupportedEncodingException(__FILE__, __LINE__, v, currentProtocolEncoding);
+    }
+}
+
+inline void
+checkSupportedEncoding(const EncodingVersion& v)
+{
+    if(!IceInternal::isSupported(v, currentEncoding))
+    {
+        IceInternal::throwUnsupportedEncodingException(__FILE__, __LINE__, v, currentEncoding);
+    }
+}
 
 }
 

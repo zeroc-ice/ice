@@ -88,11 +88,13 @@ public:
         if(result->getProxy()->end_ice_invoke(outParams, result))
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == cmp);
             in->read(s);
             test(s == cmp);
+            in->endEncapsulation();
             called();
         }
         else
@@ -117,12 +119,14 @@ public:
         else
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             try
             {
                 in->throwException();
             }
             catch(const Test::MyException&)
             {
+                in->endEncapsulation();
                 called();
             }
             catch(...)
@@ -137,11 +141,13 @@ public:
         if(ok)
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == testString);
             in->read(s);
             test(s == testString);
+            in->endEncapsulation();
             called();
         }
         else
@@ -155,11 +161,13 @@ public:
         if(ok)
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == cookie->getString());
             in->read(s);
             test(s == cookie->getString());
+            in->endEncapsulation();
             called();
         }
         else
@@ -177,12 +185,14 @@ public:
         else
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             try
             {
                 in->throwException();
             }
             catch(const Test::MyException&)
             {
+                in->endEncapsulation();
                 called();
             }
             catch(...)
@@ -202,12 +212,14 @@ public:
         else
         {
             Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
             try
             {
                 in->throwException();
             }
             catch(const Test::MyException&)
             {
+                in->endEncapsulation();
                 called();
             }
             catch(...)
@@ -235,32 +247,43 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(cl);
 
     Test::MyClassPrx oneway = cl->ice_oneway();
+    Test::MyClassPrx batchOneway = cl->ice_batchOneway();
 
     void (Callback::*nullEx)(const Ice::Exception&) = 0;
     void (Callback::*nullExWC)(const Ice::Exception&, const CookiePtr&) = 0;
-    
+
     cout << "testing ice_invoke... " << flush;
 
     {
-        Ice::ByteSeq inParams, outParams;
-        if(!oneway->ice_invoke("opOneway", Ice::Normal, inParams, outParams))
+        Ice::ByteSeq inEncaps, outEncaps;
+        if(!oneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps))
         {
             test(false);
         }
 
+        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
+        test(batchOneway->ice_invoke("opOneway", Ice::Normal, inEncaps, outEncaps));
+        batchOneway->ice_flushBatchRequests();
+
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
         out->write(testString);
-        out->finished(inParams);
+        out->endEncapsulation();
+        out->finished(inEncaps);
 
         // ice_invoke
-        if(cl->ice_invoke("opString", Ice::Normal, inParams, outParams))
+        if(cl->ice_invoke("opString", Ice::Normal, inEncaps, outEncaps))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == testString);
             in->read(s);
             test(s == testString);
+            in->endEncapsulation();
         }
         else
         {
@@ -268,15 +291,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         // ice_invoke with array mapping
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inParams[0], &inParams[0] + inParams.size());
-        if(cl->ice_invoke("opString", Ice::Normal, inPair, outParams))
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        if(cl->ice_invoke("opString", Ice::Normal, inPair, outEncaps))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == testString);
             in->read(s);
             test(s == testString);
+            in->endEncapsulation();
         }
         else
         {
@@ -285,14 +310,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        Ice::ByteSeq inParams, outParams;
-        if(cl->ice_invoke("opException", Ice::Normal, inParams, outParams))
+        Ice::ByteSeq inEncaps, outEncaps;
+        if(cl->ice_invoke("opException", Ice::Normal, inEncaps, outEncaps))
         {
             test(false);
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             try
             {
                 in->throwException();
@@ -304,6 +330,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 test(false);
             }
+            in->endEncapsulation();
         }
     }
 
@@ -314,27 +341,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         CookiePtr cookie = new Cookie();
 
-        Ice::ByteSeq inParams, outParams;
-        Ice::AsyncResultPtr result = oneway->begin_ice_invoke("opOneway", Ice::Normal, inParams);
-        if(!oneway->end_ice_invoke(outParams, result))
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::AsyncResultPtr result = oneway->begin_ice_invoke("opOneway", Ice::Normal, inEncaps);
+        if(!oneway->end_ice_invoke(outEncaps, result))
         {
             test(false);
         }
         
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
         out->write(testString);
-        out->finished(inParams);
+        out->endEncapsulation();
+        out->finished(inEncaps);
 
         // begin_ice_invoke with no callback
-        result = cl->begin_ice_invoke("opString", Ice::Normal, inParams);
-        if(cl->end_ice_invoke(outParams, result))
+        result = cl->begin_ice_invoke("opString", Ice::Normal, inEncaps);
+        if(cl->end_ice_invoke(outEncaps, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == testString);
             in->read(s);
             test(s == testString);
+            in->endEncapsulation();
         }
         else
         {
@@ -342,16 +373,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         };
 
         // begin_ice_invoke with no callback and array mapping
-        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inParams[0], &inParams[0] + inParams.size());
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
         result = cl->begin_ice_invoke("opString", Ice::Normal, inPair);
-        if(cl->end_ice_invoke(outParams, result))
+        if(cl->end_ice_invoke(outEncaps, result))
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             string s;
             in->read(s);
             test(s == testString);
             in->read(s);
             test(s == testString);
+            in->endEncapsulation();
         }
         else
         {
@@ -360,24 +393,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         // begin_ice_invoke with Callback
         CallbackPtr cb = new Callback(communicator, false);
-        cl->begin_ice_invoke("opString", Ice::Normal, inParams, Ice::newCallback(cb, &Callback::opString));
+        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opString));
         cb->check();
 
         // begin_ice_invoke with Callback and Cookie
         cb = new Callback(communicator, true);
-        cl->begin_ice_invoke("opString", Ice::Normal, inParams, Ice::newCallback(cb, &Callback::opString), cookie);
+        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opString), cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke 
         cb = new Callback(communicator, false);
         Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringNC, nullEx);
-        cl->begin_ice_invoke("opString", Ice::Normal, inParams, d);
+        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opStringWC, nullExWC);
-        cl->begin_ice_invoke("opString", Ice::Normal, inParams, d, cookie);
+        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, d, cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke and array mapping
@@ -395,17 +428,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         CookiePtr cookie = new Cookie();
-        Ice::ByteSeq inParams, outParams;
+        Ice::ByteSeq inEncaps, outEncaps;
 
         // begin_ice_invoke with no callback
-        Ice::AsyncResultPtr result = cl->begin_ice_invoke("opException", Ice::Normal, inParams);
-        if(cl->end_ice_invoke(outParams, result))
+        Ice::AsyncResultPtr result = cl->begin_ice_invoke("opException", Ice::Normal, inEncaps);
+        if(cl->end_ice_invoke(outEncaps, result))
         {
             test(false);
         }
         else
         {
-            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outParams);
+            Ice::InputStreamPtr in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
             try
             {
                 in->throwException();
@@ -417,29 +451,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 test(false);
             }
+            in->endEncapsulation();
         }
 
         // begin_ice_invoke with Callback
         CallbackPtr cb = new Callback(communicator, false);
-        cl->begin_ice_invoke("opException", Ice::Normal, inParams, Ice::newCallback(cb, &Callback::opException));
+        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opException));
         cb->check();
 
         // begin_ice_invoke with Callback and Cookie
         cb = new Callback(communicator, true);
-        cl->begin_ice_invoke("opException", Ice::Normal, inParams, Ice::newCallback(cb, &Callback::opException),
+        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, Ice::newCallback(cb, &Callback::opException),
                              cookie);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke
         cb = new Callback(communicator, false);
         Ice::Callback_Object_ice_invokePtr d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionNC, nullEx);
-        cl->begin_ice_invoke("opException", Ice::Normal, inParams, d);
+        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, d);
         cb->check();
 
         // begin_ice_invoke with Callback_Object_ice_invoke with Cookie
         cb = new Callback(communicator, false);
         d = Ice::newCallback_Object_ice_invoke(cb, &Callback::opExceptionWC, nullExWC);
-        cl->begin_ice_invoke("opException", Ice::Normal, inParams, d, cookie);
+        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps, d, cookie);
         cb->check();
     }
 

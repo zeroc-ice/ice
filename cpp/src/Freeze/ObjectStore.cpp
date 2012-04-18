@@ -28,7 +28,8 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
     _facet(facet),
     _evictor(evictor),
     _indices(indices),
-    _communicator(evictor->communicator())
+    _communicator(evictor->communicator()),
+    _encoding(evictor->encoding())
 {
     if(facet == "")
     {
@@ -223,7 +224,7 @@ Freeze::ObjectStoreBase::dbHasObject(const Identity& ident, const TransactionIPt
     }
 
     Key key;    
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
     Dbt dbKey;
     initializeInDbt(key, dbKey);
     
@@ -318,19 +319,25 @@ Freeze::ObjectStoreBase::save(Key& key, Value& value, Byte status, DbTxn* tx)
 }
 
 void 
-Freeze::ObjectStoreBase::marshal(const Identity& ident, Key& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::marshal(const Identity& ident, 
+                                 Key& bytes, 
+                                 const CommunicatorPtr& communicator, 
+                                 const EncodingVersion& encoding)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), true);
+    IceInternal::BasicStream stream(instance.get(), encoding, true);
     ident.__write(&stream);
     vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
 }
     
 void 
-Freeze::ObjectStoreBase::unmarshal(Identity& ident, const Key& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::unmarshal(Identity& ident, 
+                                   const Key& bytes, 
+                                   const CommunicatorPtr& communicator, 
+                                   const EncodingVersion& encoding)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), true);
+    IceInternal::BasicStream stream(instance.get(), encoding, true);
     stream.b.resize(bytes.size());
     memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
@@ -338,10 +345,13 @@ Freeze::ObjectStoreBase::unmarshal(Identity& ident, const Key& bytes, const Comm
 }
 
 void
-Freeze::ObjectStoreBase::marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::marshal(const ObjectRecord& v, 
+                                 Value& bytes, 
+                                 const CommunicatorPtr& communicator,
+                                 const EncodingVersion& encoding)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), true);
+    IceInternal::BasicStream stream(instance.get(), encoding, true);
     stream.startWriteEncaps();
     v.__write(&stream);
     stream.writePendingObjects();
@@ -350,10 +360,13 @@ Freeze::ObjectStoreBase::marshal(const ObjectRecord& v, Value& bytes, const Comm
 }
 
 void
-Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
+                                   const Value& bytes,
+                                   const CommunicatorPtr& communicator,
+                                   const EncodingVersion& encoding)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
-    IceInternal::BasicStream stream(instance.get(), true);
+    IceInternal::BasicStream stream(instance.get(), encoding, true);
     stream.sliceObjects(false);
     stream.b.resize(bytes.size());
     memcpy(&stream.b[0], &bytes[0], bytes.size());
@@ -380,7 +393,7 @@ Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tran
     }
 
     Key key;
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
 
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -423,7 +436,7 @@ Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tran
         }
     }
     
-    unmarshal(rec, value, _communicator);
+    unmarshal(rec, value, _communicator, _encoding);
     _evictor->initialize(ident, _facet, rec.servant);
     return true;
 }
@@ -444,10 +457,10 @@ Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, 
     }
 
     Key key;
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
 
     Value value;
-    marshal(rec, value, _communicator);
+    marshal(rec, value, _communicator, _encoding);
 
     Dbt dbKey;
     Dbt dbValue;
@@ -489,10 +502,10 @@ Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, 
     }
 
     Key key;
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
 
     Value value;
-    marshal(rec, value, _communicator);
+    marshal(rec, value, _communicator, _encoding);
 
     Dbt dbKey;
     Dbt dbValue;
@@ -547,7 +560,7 @@ Freeze::ObjectStoreBase::remove(const Identity& ident, const TransactionIPtr& tr
     }
 
     Key key;
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
    
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -595,7 +608,7 @@ bool
 Freeze::ObjectStoreBase::loadImpl(const Identity& ident, ObjectRecord& rec)
 {
     Key key;
-    marshal(ident, key, _communicator);
+    marshal(ident, key, _communicator, _encoding);
 
     Dbt dbKey;
     initializeInDbt(key, dbKey);
@@ -640,7 +653,7 @@ Freeze::ObjectStoreBase::loadImpl(const Identity& ident, ObjectRecord& rec)
         }
     }
     
-    unmarshal(rec, value, _communicator);
+    unmarshal(rec, value, _communicator, _encoding);
     _evictor->initialize(ident, _facet, rec.servant);
     return true;
 }

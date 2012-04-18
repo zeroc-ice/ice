@@ -48,10 +48,10 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     if(Ice::UDPEndpointInfoPtr::dynamicCast(ipinfo))
     {
         Ice::UDPEndpointInfoPtr udp = Ice::UDPEndpointInfoPtr::dynamicCast(ipinfo);
-        ctx["protocolMajor"] = udp->protocolMajor;
-        ctx["protocolMinor"] = udp->protocolMinor;
-        ctx["encodingMajor"] = udp->encodingMajor;
-        ctx["encodingMinor"] = udp->encodingMinor;
+        ctx["protocolMajor"] = udp->protocol.major;
+        ctx["protocolMinor"] = udp->protocol.minor;
+        ctx["encodingMajor"] = udp->encoding.major;
+        ctx["encodingMinor"] = udp->encoding.minor;
         ctx["mcastInterface"] = udp->mcastInterface;
         ctx["mcastTtl"] = udp->mcastTtl;
     }

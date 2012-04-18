@@ -26,8 +26,7 @@ class MapIndexI
 {
 public:
     
-    MapIndexI(const ConnectionIPtr&, MapDb&,
-              DbTxn*, bool, const MapIndexBasePtr&);
+    MapIndexI(const ConnectionIPtr&, MapDb&, DbTxn*, bool, const MapIndexBasePtr&);
 
     ~MapIndexI();
    
@@ -72,15 +71,15 @@ class MapDb : public ::Db
 {
 public:
     
-    MapDb(const ConnectionIPtr&, const std::string&, 
-          const std::string&, const std::string&,
+    MapDb(const ConnectionIPtr&, const std::string&, const std::string&, const std::string&,
           const KeyCompareBasePtr&, const std::vector<MapIndexBasePtr>&, bool);
     
 
     //
     // The constructor for catalogs
     //
-    MapDb(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&, DbEnv*);
+    MapDb(const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, const std::string&, const std::string&, 
+          const std::string&, DbEnv*);
     
     ~MapDb();
 
@@ -98,6 +97,7 @@ public:
 private:
 
     const Ice::CommunicatorPtr _communicator;
+    const Ice::EncodingVersion _encoding;
     const std::string _dbName;
     std::string _key;
     std::string _value;

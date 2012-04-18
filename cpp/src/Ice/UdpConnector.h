@@ -39,8 +39,8 @@ public:
 
 private:
     
-    UdpConnector(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int, Ice::Byte, Ice::Byte, 
-                 Ice::Byte, Ice::Byte, const std::string&);
+    UdpConnector(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int, 
+                 const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
     virtual ~UdpConnector();
     friend class UdpEndpointI;
 
@@ -48,10 +48,8 @@ private:
     struct sockaddr_storage _addr;
     const std::string _mcastInterface;
     const int _mcastTtl;
-    const Ice::Byte _protocolMajor;
-    const Ice::Byte _protocolMinor;
-    const Ice::Byte _encodingMajor;
-    const Ice::Byte _encodingMinor;
+    const Ice::ProtocolVersion _protocol;
+    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 };
 

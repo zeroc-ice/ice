@@ -86,6 +86,16 @@ IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
         return false;
     }
 
+    if(_protocol != p->_protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != p->_encoding)
+    {
+        return false;
+    }
+
     if(_connectionId != p->_connectionId)
     {
         return false;
@@ -118,6 +128,24 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
         return false;
     }
 
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol)
+    {
+        return false;
+    }
+
+    if(_encoding < p->_encoding)
+    {
+        return true;
+    }
+    else if(p->_encoding < _encoding)
+    {
+        return false;
+    }
+
     if(_connectionId < p->_connectionId)
     {
         return true;
@@ -131,12 +159,15 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
 }
 
 IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, const struct sockaddr_storage& addr,
-                               Ice::Int timeout, const string& connectionId) :
+                               Ice::Int timeout, const Ice::ProtocolVersion& protocol, 
+                               const Ice::EncodingVersion& encoding, const string& connectionId) :
     _instance(instance),
     _logger(instance->communicator()->getLogger()),
     _host(host),
     _addr(addr),
     _timeout(timeout),
+    _protocol(protocol),
+    _encoding(encoding),
     _connectionId(connectionId)
 {
 }

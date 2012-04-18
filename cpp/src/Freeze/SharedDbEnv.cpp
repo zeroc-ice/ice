@@ -501,6 +501,11 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     string propertyPrefix = string("Freeze.DbEnv.") + envName;
     string dbHome = properties->getPropertyWithDefault(propertyPrefix + ".DbHome", envName);
 
+    string encoding = properties->getPropertyWithDefault(propertyPrefix + ".EncodingVersion", 
+                                                         encodingVersionToString(Ice::currentEncoding));
+    _encoding = stringToEncodingVersion(encoding);
+    checkSupportedEncoding(_encoding);
+
     //
     // Normally the file lock is necessary, but for read-only situations (such as when
     // using the FreezeScript utilities) this property allows the file lock to be
@@ -595,8 +600,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
             //
             // Default checkpoint period is every 120 seconds
             //
-            Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
-                propertyPrefix + ".CheckpointPeriod", 120);
+            Int checkpointPeriod = properties->getPropertyAsIntWithDefault(propertyPrefix + ".CheckpointPeriod", 120);
             Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
         
             if(checkpointPeriod > 0)
@@ -608,8 +612,9 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
         //
         // Get catalogs
         //
-        _catalog = new MapDb(_communicator, catalogName(), CatalogKeyCodec::typeId(), CatalogValueCodec::typeId(), _env);
-        _catalogIndexList = new MapDb(_communicator, catalogIndexListName(), 
+        _catalog = new MapDb(_communicator, _encoding, catalogName(), CatalogKeyCodec::typeId(),
+                             CatalogValueCodec::typeId(), _env);
+        _catalogIndexList = new MapDb(_communicator, _encoding, catalogIndexListName(), 
                                       CatalogIndexListKeyCodec::typeId(), CatalogIndexListValueCodec::typeId(), _env);
 
     }

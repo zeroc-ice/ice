@@ -327,6 +327,31 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1->ice_isCollocationOptimized());
     prop->setProperty(property, "");
 
+    property = propertyPrefix + ".Encoding";
+    test(b1->ice_getEncodingVersion() == Ice::currentEncoding);
+    prop->setProperty(property, "1.0");
+    b1 = communicator->propertyToProxy(propertyPrefix);
+    test(b1->ice_getEncodingVersion().major == 1 && b1->ice_getEncodingVersion().minor == 0);
+    prop->setProperty(property, "6.5");
+    try 
+    {
+        communicator->propertyToProxy(propertyPrefix);
+        test(false);
+    }
+    catch(const Ice::UnsupportedEncodingException&)
+    {
+    }
+    prop->setProperty(property, "1.2");
+    try 
+    {
+        communicator->propertyToProxy(propertyPrefix);
+        test(false);
+    }
+    catch(const Ice::UnsupportedEncodingException&)
+    {
+    }
+    prop->setProperty(property, "");
+
     cout << "ok" << endl;
 
     cout << "testing proxyToProperty... " << flush;
@@ -337,7 +362,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     b1 = b1->ice_preferSecure(false);
     b1 = b1->ice_endpointSelection(Ice::Ordered);
     b1 = b1->ice_locatorCacheTimeout(100);
-
+    Ice::EncodingVersion v = { 1, 0 };
+    b1 = b1->ice_encodingVersion(v);
     Ice::ObjectPrx router = communicator->stringToProxy("router");
     router = router->ice_collocationOptimized(false);
     router = router->ice_connectionCached(true);
@@ -356,9 +382,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     b1 = b1->ice_locator(Ice::LocatorPrx::uncheckedCast(locator));
 
     Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
-    test(proxyProps.size() == 18);
+    test(proxyProps.size() == 21);
 
     test(proxyProps["Test"] == "test -t");
+    test(proxyProps["Test.Encoding"] == "1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
     test(proxyProps["Test.ConnectionCached"] == "1");
     test(proxyProps["Test.PreferSecure"] == "0");
@@ -366,6 +393,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
 
     test(proxyProps["Test.Locator"] == "locator -t");
+    test(proxyProps["Test.Locator.Encoding"] == Ice::encodingVersionToString(Ice::currentEncoding));
     test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
     test(proxyProps["Test.Locator.PreferSecure"] == "1");
@@ -373,11 +401,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
 
     test(proxyProps["Test.Locator.Router"] == "router -t");
+    test(proxyProps["Test.Locator.Router.Encoding"] == Ice::encodingVersionToString(Ice::currentEncoding));
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
+
+    try
+    {
+        Ice::EncodingVersion v = { 3, 4 };
+        b1->ice_encodingVersion(v);
+        test(false);
+    }
+    catch(const Ice::UnsupportedEncodingException&)
+    {
+    }
 
     cout << "ok" << endl;
 
@@ -401,6 +440,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
     test(base->ice_preferSecure(true)->ice_isPreferSecure());
     test(!base->ice_preferSecure(false)->ice_isPreferSecure());
+    test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() == Ice::Encoding_1_0);
+    test(base->ice_encodingVersion(Ice::Encoding_1_1)->ice_getEncodingVersion() == Ice::Encoding_1_1);
+    test(base->ice_encodingVersion(Ice::Encoding_1_0)->ice_getEncodingVersion() != Ice::Encoding_1_1);
     cout << "ok" << endl;
 
     cout << "testing proxy comparison... " << flush;
@@ -531,6 +573,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!(endpts2 < endpts1));
     test(endpts1 == communicator->stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")->ice_getEndpoints());
 
+    test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) == compObj1->ice_encodingVersion(Ice::Encoding_1_0));
+    test(compObj1->ice_encodingVersion(Ice::Encoding_1_0) != compObj1->ice_encodingVersion(Ice::Encoding_1_1));
+    test(compObj->ice_encodingVersion(Ice::Encoding_1_0) < compObj->ice_encodingVersion(Ice::Encoding_1_1));
+    test(!(compObj->ice_encodingVersion(Ice::Encoding_1_1) < compObj->ice_encodingVersion(Ice::Encoding_1_0)));
+
     //
     // TODO: Ideally we should also test comparison of fixed proxies.
     //
@@ -603,6 +650,81 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cl = checkedCast<Test::MyClassPrx>(base, c);
     c2 = cl->getContext();
     test(c == c2);
+
+    cout << "ok" << endl;
+
+    cout << "testing encoding versioning... " << flush;
+    string ref20 = "test:default -p 12010 -e 2.0";
+    Test::MyClassPrx cl20 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref20));
+    try 
+    {
+        cl20->ice_collocationOptimized(false)->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+        // Server 2.0 endpoint doesn't support 1.1 version.
+    }
+
+    string ref10 = "test:default -p 12010 -e 1.0";
+    Test::MyClassPrx cl10 = Test::MyClassPrx::uncheckedCast(communicator->stringToProxy(ref10));
+    try
+    {
+        cl10->ice_collocationOptimized(false)->ice_ping(); // Can't send request with 1.1 encoding on 1.0 endpoint.
+        test(false);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+        // Server 1.0 endpoint doesn't support 1.1 version.
+    }
+
+    // Server with 1.0 endpoint supports 1.0 encoding.
+    cl10->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+
+    // Server with 1.1 endpoint supports 1.0 encoding.
+    cl->ice_collocationOptimized(false)->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+
+    try
+    {
+        // Send request with bogus 1.2 encoding.
+        Ice::EncodingVersion version = { 1, 2 };
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->endEncapsulation();
+        vector<Ice::Byte> inEncaps;
+        out->finished(inEncaps);
+        inEncaps[4] = version.major;
+        inEncaps[5] = version.minor;
+        vector<Ice::Byte> outEncaps;
+        cl->ice_collocationOptimized(false)->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        test(false);
+    }
+    catch(const Ice::UnknownLocalException& ex)
+    {
+        // The server thrown an UnsupportedEncodingException
+        test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
+    }
+
+    try
+    {
+        // Send request with bogus 2.0 encoding.
+        Ice::EncodingVersion version = { 2, 0 };
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->endEncapsulation();
+        vector<Ice::Byte> inEncaps;
+        out->finished(inEncaps);
+        inEncaps[4] = version.major;
+        inEncaps[5] = version.minor;
+        vector<Ice::Byte> outEncaps;
+        cl->ice_collocationOptimized(false)->ice_invoke("ice_ping", Ice::Normal, inEncaps, outEncaps);
+        test(false);
+    }
+    catch(const Ice::UnknownLocalException& ex)
+    {
+        // The server thrown an UnsupportedEncodingException
+        test(ex.unknown.find("UnsupportedEncodingException") != string::npos);
+    }
 
     cout << "ok" << endl;
 
@@ -719,10 +841,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
-    Ice::ObjectPrx p1 = communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+    Ice::ObjectPrx p1 = communicator->stringToProxy("test:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     string pstr = communicator->proxyToString(p1);
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
-    
+
+    // 1.1 TCP endpoint encoded with 1.1 encoding.
+    Ice::ObjectPrx p2 = communicator->stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQE=");
+    test(communicator->proxyToString(p2) == "test -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 10000");
+
+    // 1.0 TCP endpoint encoded with 1.1 encoding.
+    p2 = communicator->stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=");
+    test(communicator->proxyToString(p2) == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
     {
@@ -730,11 +859,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
         if(!ssl)
         {
-            p1->ice_ping();
+            p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
         }
 
         // Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        p1 = communicator->stringToProxy("test:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         pstr = communicator->proxyToString(p1);
         test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
@@ -742,15 +871,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test that an SSL endpoint and a nonsense endpoint get written
         // back out as an opaque endpoint.
         //
-        p1 = communicator->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+        p1 = communicator->stringToProxy("test:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
         pstr = communicator->proxyToString(p1);
         if(!ssl)
         {
-            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
 
         //
@@ -760,7 +889,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         try
         {
-            p1->ice_ping();
+            p1->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
             test(false);
         }
         catch(const Ice::NoEndpointException&)
@@ -782,11 +911,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pstr = communicator->proxyToString(p2);
         if(!ssl)
         {
-            test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
-            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
     }
 

@@ -44,12 +44,12 @@ public:
 
     virtual Int getHash() const;
 
-    virtual Ice::CommunicatorPtr getCommunicator() const
+    virtual CommunicatorPtr getCommunicator() const
     {
         return _communicator;
     }
 
-    virtual Ice::ConnectionPtr getConnection() const
+    virtual ConnectionPtr getConnection() const
     {
         return 0;
     }
@@ -82,31 +82,39 @@ public:
         return _operation;
     }
 
-    //
-    // The following methods are used by begin_ and end_ methods to start or complete
-    // the asynchronous invocation.
-    //
-    IceInternal::BasicStream*
+    ::IceInternal::BasicStream*
     __getOs()
     {
         return &_os;
     }
 
-    IceInternal::BasicStream*
-    __getIs()
+    ::IceInternal::BasicStream* __startReadParams()
     {
+        _is.startReadEncaps();
         return &_is;
+    }
+    void __endReadParams()
+    {
+        _is.endReadEncaps();
+    }
+    void __readEmptyParams()
+    {
+        _is.skipEmptyEncaps();
+    }
+    void __readParamEncaps(const ::Ice::Byte*& encaps, ::Ice::Int& sz)
+    {
+        _is.readEncaps(encaps, sz);
     }
 
     bool __wait();
     void __throwUserException();
-    void __exceptionAsync(const Ice::Exception&);
+    void __exceptionAsync(const Exception&);
 
     static void __check(const AsyncResultPtr&, const ::IceProxy::Ice::Object*, const ::std::string&);
-    static void __check(const AsyncResultPtr&, const ::Ice::Connection*, const ::std::string&);
-    static void __check(const AsyncResultPtr&, const ::Ice::Communicator*, const ::std::string&);
+    static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
+    static void __check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
-    void __exception(const Ice::Exception&); // Required to be public for AsynchronousException
+    void __exception(const Exception&); // Required to be public for AsynchronousException
     void __sent(); // Required to be public for AsynchronousSent
 
 protected:
@@ -213,6 +221,31 @@ public:
 
     bool __send(bool);
 
+    BasicStream* __startWriteParams()
+    {
+        _os.startWriteEncaps(_encoding);
+        return &_os;
+    }
+    void __endWriteParams()
+    {
+        _os.endWriteEncaps();
+    }
+    void __writeEmptyParams()
+    {
+        _os.writeEmptyEncaps(_encoding);
+    }
+    void __writeParamEncaps(const ::Ice::Byte* encaps, ::Ice::Int size)
+    {
+        if(size == 0)
+        {
+            _os.writeEmptyEncaps(_encoding);
+        }
+        else
+        {
+            _os.writeEncaps(encaps, size);
+        }
+    }
+
 protected:
 
     Ice::ObjectPrx _proxy;
@@ -226,6 +259,7 @@ private:
     Ice::ConnectionIPtr _timerTaskConnection;
 
     Handle< IceDelegate::Ice::Object> _delegate;
+    Ice::EncodingVersion _encoding;
     int _cnt;
     Ice::OperationMode _mode;
 };

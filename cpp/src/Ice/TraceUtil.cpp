@@ -114,6 +114,12 @@ printRequestHeader(ostream& s, BasicStream& stream)
             s << ", ";
         }
     }
+
+    Ice::EncodingVersion v = stream.skipEncaps();
+    if(v > Ice::Encoding_1_0)
+    {
+        s << "\nencoding = " << v;
+    }
 }
 
 static Byte
@@ -206,7 +212,6 @@ printBatchRequest(ostream& s, BasicStream& stream)
     {
         s << "\nrequest #" << i << ':';
         printRequestHeader(s, stream);
-        stream.skipEncaps();
     }
 }
 

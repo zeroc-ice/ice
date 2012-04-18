@@ -313,9 +313,9 @@ public:
     virtual void endSlice() = 0;
     virtual void skipSlice() = 0;
 
-    virtual void startEncapsulation() = 0;
+    virtual Ice::EncodingVersion startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
-    virtual void skipEncapsulation() = 0;
+    virtual Ice::EncodingVersion skipEncapsulation() = 0;
 
     virtual void readPendingObjects() = 0;
 
@@ -422,6 +422,7 @@ public:
     virtual void startSlice() = 0;
     virtual void endSlice() = 0;
 
+    virtual void startEncapsulation(const Ice::EncodingVersion&) = 0;
     virtual void startEncapsulation() = 0;
     virtual void endEncapsulation() = 0;
 

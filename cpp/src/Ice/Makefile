@@ -107,7 +107,8 @@ OBJS		= Acceptor.o \
 		  Transceiver.o \
 		  UdpConnector.o \
 		  UdpEndpointI.o \
-		  UdpTransceiver.o
+		  UdpTransceiver.o \
+		  Version.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
@@ -146,7 +147,9 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
-		  $(SDIR)/Stats.ice
+		  $(SDIR)/Stats.ice \
+		  $(SDIR)/Version.ice
+
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice

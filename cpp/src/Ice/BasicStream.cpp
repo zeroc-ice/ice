@@ -76,10 +76,11 @@ private:
 
 }
 
-IceInternal::BasicStream::BasicStream(Instance* instance, bool unlimited) :
+IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion& encoding, bool unlimited) :
     IceInternal::Buffer(instance->messageSizeMax()),
     _instance(instance),
     _closure(0),
+    _encoding(encoding),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1),
@@ -191,6 +192,7 @@ void
 IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
 {
     std::swap(start, other.start);
+    std::swap(encoding, other.encoding);
 
     std::swap(writeIndex, other.writeIndex);
     std::swap(toBeMarshaledMap, other.toBeMarshaledMap);
@@ -206,9 +208,7 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
 {
     std::swap(start, other.start);
     std::swap(sz, other.sz);
-
-    std::swap(encodingMajor, other.encodingMajor);
-    std::swap(encodingMinor, other.encodingMinor);
+    std::swap(encoding, other.encoding);
 
     std::swap(patchMap, other.patchMap);
     std::swap(unmarshaledMap, other.unmarshaledMap);
@@ -216,6 +216,25 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
     std::swap(typeIdIndex, other.typeIdIndex);
 
     std::swap(previous, other.previous);
+}
+
+void
+IceInternal::BasicStream::startWriteEncaps()
+{
+    //
+    // If no encoding version is specified, use the current write
+    // encapsulation encoding version if there's a current write
+    // encapsulation, otherwise, use the stream encoding version.
+    //
+
+    if(_currentWriteEncaps)
+    {
+        startWriteEncaps(_currentWriteEncaps->encoding);
+    }
+    else
+    {
+        startWriteEncaps(_encoding);
+    }
 }
 
 void
@@ -245,7 +264,7 @@ IceInternal::BasicStream::getReadEncapsSize()
     return _currentReadEncaps->sz - static_cast<Int>(sizeof(Int)) - 2;
 }
 
-void
+EncodingVersion
 IceInternal::BasicStream::skipEncaps()
 {
     Int sz;
@@ -258,7 +277,11 @@ IceInternal::BasicStream::skipEncaps()
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    i += sz - sizeof(Int);
+    EncodingVersion encoding;
+    read(encoding.major);
+    read(encoding.minor);
+    i += sz - sizeof(Int) - 2;
+    return encoding;
 }
 
 void
@@ -322,7 +345,7 @@ IceInternal::BasicStream::skipSlice()
 }
 
 void
-IceInternal::BasicStream::readAndCheckSeqSize(int minSize, Ice::Int& sz)
+IceInternal::BasicStream::readAndCheckSeqSize(int minSize, Int& sz)
 {
     readSize(sz);
 
@@ -409,7 +432,7 @@ IceInternal::BasicStream::readTypeId(string& id)
     read(isIndex);
     if(isIndex)
     {
-        Ice::Int index;
+        Int index;
         readSize(index);
         TypeIdReadMap::const_iterator k = _currentReadEncaps->typeIdMap->find(index);
         if(k == _currentReadEncaps->typeIdMap->end())
@@ -526,7 +549,7 @@ struct BasicStreamWriteBoolHelper
     {
         for(int idx = 0; idx < sz; ++idx)
         {
-           b[pos + idx] = static_cast<Ice::Byte>(*(begin + idx));
+           b[pos + idx] = static_cast<Byte>(*(begin + idx));
         }
     }
 };
@@ -1639,7 +1662,7 @@ IceInternal::BasicStream::write(const wstring* begin, const wstring* end)
 void
 IceInternal::BasicStream::read(wstring& v)
 {
-    Ice::Int sz;
+    Int sz;
     readSize(sz);
     if(sz > 0)
     {
@@ -1803,10 +1826,10 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     while(true)
     {
         //
-        // If we slice all the way down to Ice::Object, we throw
-        // because Ice::Object is abstract.
+        // If we slice all the way down to Object, we throw
+        // because Object is abstract.
         //
-        if(id == Ice::Object::ice_staticId())
+        if(id == Object::ice_staticId())
         {
             throw NoObjectFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
@@ -2070,12 +2093,12 @@ IceInternal::BasicStream::readPendingObjects()
             }
             catch(const std::exception& ex)
             {
-                Ice::Warning out(_instance->initializationData().logger);
+                Warning out(_instance->initializationData().logger);
                 out << "std::exception raised by ice_postUnmarshal:\n" << ex;
             }
             catch(...)
             {
-                Ice::Warning out(_instance->initializationData().logger);
+                Warning out(_instance->initializationData().logger);
                 out << "unknown exception raised by ice_postUnmarshal";
             }
         }
@@ -2095,17 +2118,6 @@ IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, i
 }
 
 void
-IceInternal::BasicStream::throwUnsupportedEncodingException(const char* file, int line, Byte eMajor, Byte eMinor)
-{   
-    UnsupportedEncodingException ex(file, line);
-    ex.badMajor = static_cast<unsigned char>(eMajor);
-    ex.badMinor = static_cast<unsigned char>(eMinor);
-    ex.major = static_cast<unsigned char>(encodingMajor);
-    ex.minor = static_cast<unsigned char>(encodingMinor);
-    throw ex;
-}
-
-void
 IceInternal::BasicStream::throwEncapsulationException(const char* file, int line)
 {
     throw EncapsulationException(file, line);
@@ -2121,12 +2133,12 @@ IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
     }
     catch(const std::exception& ex)
     {
-        Ice::Warning out(_instance->initializationData().logger);
+        Warning out(_instance->initializationData().logger);
         out << "std::exception raised by ice_preMarshal:\n" << ex;
     }
     catch(...)
     {
-        Ice::Warning out(_instance->initializationData().logger);
+        Warning out(_instance->initializationData().logger);
         out << "unknown exception raised by ice_preMarshal";
     }
     v->__write(this);

@@ -80,6 +80,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
         return 0;
     }
 
+    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+
     //
     // Create new reference
     //
@@ -89,6 +91,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, const Ice::Connecti
                               "",  // Facet
                               connection->endpoint()->datagram() ? Reference::ModeDatagram : Reference::ModeTwoway,
                               connection->endpoint()->secure(),
+                              defaultsAndOverrides->defaultEncoding,
                               connection);
 }
 
@@ -654,6 +657,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "EndpointSelection",
         "ConnectionCached",
         "PreferSecure",
+        "EncodingVersion",
         "LocatorCacheTimeout",
         "Locator",
         "Router",
@@ -723,6 +727,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     bool collocationOptimized = defaultsAndOverrides->defaultCollocationOptimization;
     bool cacheConnection = true;
     bool preferSecure = defaultsAndOverrides->defaultPreferSecure;
+    EncodingVersion encoding = defaultsAndOverrides->defaultEncoding;
     Ice::EndpointSelectionType endpointSelection = defaultsAndOverrides->defaultEndpointSelection;
     int locatorCacheTimeout = defaultsAndOverrides->defaultLocatorCacheTimeout;
 
@@ -771,6 +776,14 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
         property = propertyPrefix + ".PreferSecure";
         preferSecure = properties->getPropertyAsIntWithDefault(property, preferSecure) > 0;
 
+        property = propertyPrefix + ".EncodingVersion";
+        string encodingStr = properties->getProperty(property);
+        if(!encodingStr.empty())
+        {
+            encoding = stringToEncodingVersion(encodingStr);
+            checkSupportedEncoding(encoding);
+        }
+
         property = propertyPrefix + ".EndpointSelection";
         if(!properties->getProperty(property).empty())
         {
@@ -804,6 +817,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
                                  facet,
                                  mode,
                                  secure,
+                                 encoding,
                                  endpoints,
                                  adapterId,
                                  locatorInfo,

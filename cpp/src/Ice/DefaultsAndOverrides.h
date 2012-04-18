@@ -31,6 +31,7 @@ public:
     Ice::EndpointSelectionType defaultEndpointSelection;
     int defaultLocatorCacheTimeout;
     bool defaultPreferSecure;
+    Ice::EncodingVersion defaultEncoding;
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;

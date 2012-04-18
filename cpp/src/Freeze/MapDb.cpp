@@ -86,6 +86,7 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                      bool createDb) :
     Db(connection->dbEnv()->getEnv(), 0),
     _communicator(connection->communicator()),
+    _encoding(connection->encoding()),
     _dbName(dbName),
     _trace(connection->trace()),
     _keyCompare(keyCompare)
@@ -207,6 +208,7 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                 assert(indexBase->_impl == 0);
                 assert(indexBase->_communicator == 0);
                 indexBase->_communicator = connection->communicator();
+                indexBase->_encoding = connection->encoding();
                 
                 auto_ptr<MapIndexI> indexI;
 
@@ -369,9 +371,15 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
     }
 }
 
-Freeze::MapDb::MapDb(const Ice::CommunicatorPtr& communicator, const string& dbName, const string& keyTypeId, const string& valueTypeId, DbEnv* env) :
+Freeze::MapDb::MapDb(const Ice::CommunicatorPtr& communicator, 
+                     const Ice::EncodingVersion& encoding,
+                     const string& dbName, 
+                     const string& keyTypeId, 
+                     const string& valueTypeId, 
+                     DbEnv* env) :
     Db(env, 0),
     _communicator(communicator),
+    _encoding(encoding),
     _dbName(dbName),
     _key(keyTypeId),
     _value(valueTypeId),
@@ -446,6 +454,7 @@ Freeze::MapDb::connectIndices(const vector<MapIndexBasePtr>& indices) const
         assert(q != _indices.end());
         indexBase->_impl = q->second;
         indexBase->_communicator = _communicator;
+        indexBase->_encoding = _encoding;
     }
 }
 

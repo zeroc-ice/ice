@@ -155,9 +155,9 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
     try
     {
         __result->__prepare(ice_isA_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__getOs();
+        IceInternal::BasicStream* __os = __result->__startWriteParams();
         __os->write(typeId);
-        __os->endWriteEncaps();
+        __result->__endWriteParams();
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -183,10 +183,9 @@ IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)
         }
     }
     bool __ret;
-    IceInternal::BasicStream* __is = __result->__getIs();
-    __is->startReadEncaps();
+    IceInternal::BasicStream* __is = __result->__startReadParams();
     __is->read(__ret);
-    __is->endReadEncaps();
+    __result->__endReadParams();
     return __ret;
 }
 
@@ -223,8 +222,7 @@ IceProxy::Ice::Object::begin_ice_ping(const Context* ctx,
     try
     {
         __result->__prepare(ice_ping_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__getOs();
-        __os->endWriteEncaps();
+        __result->__writeEmptyParams();
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -298,8 +296,7 @@ IceProxy::Ice::Object::begin_ice_ids(const Context* ctx,
     try
     {
         __result->__prepare(ice_ids_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__getOs();
-        __os->endWriteEncaps();
+        __result->__writeEmptyParams();
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -325,10 +322,9 @@ IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
         }
     }
     vector<string> __ret;
-    IceInternal::BasicStream* __is = __result->__getIs();
-    __is->startReadEncaps();
+    IceInternal::BasicStream* __is = __result->__startReadParams();
     __is->read(__ret);
-    __is->endReadEncaps();
+    __result->__endReadParams();
     return __ret;
 }
 
@@ -342,8 +338,7 @@ IceProxy::Ice::Object::begin_ice_id(const Context* ctx,
     try
     {
         __result->__prepare(ice_id_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__getOs();
-        __os->endWriteEncaps();
+        __result->__writeEmptyParams();
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -369,10 +364,9 @@ IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& __result)
         }
     }
     string __ret;
-    IceInternal::BasicStream* __is = __result->__getIs();
-    __is->startReadEncaps();
+    IceInternal::BasicStream* __is = __result->__startReadParams();
     __is->read(__ret);
-    __is->endReadEncaps();
+    __result->__endReadParams();
     return __ret;
 }
 
@@ -474,11 +468,10 @@ IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outParams, const AsyncResult
     bool ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
-        IceInternal::BasicStream* __is = __result->__getIs();
-        __is->startReadEncaps();
-        Int sz = __is->getReadEncapsSize();
-        __is->readBlob(outParams, sz);
-        __is->endReadEncaps();
+        const Byte* v;
+        Int sz;
+        __result->__readParamEncaps(v, sz);
+        vector<Byte>(v, v + sz).swap(outParams);
     }
     return ok;
 }
@@ -579,9 +572,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
     try
     {
         __result->__prepare(operation, mode, ctx);
-        BasicStream* __os = __result->__getOs();
-        __os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
-        __os->endWriteEncaps();
+        __result->__writeParamEncaps(inParams.first, static_cast<Int>(inParams.second - inParams.first));
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -598,12 +589,9 @@ IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outPara
     bool ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
-        IceInternal::BasicStream* __is = __result->__getIs();
-        __is->startReadEncaps();
-        Int sz = __is->getReadEncapsSize();
-        __is->readBlob(outParams.first, sz);
+        Int sz;
+        __result->__readParamEncaps(outParams.first, sz);
         outParams.second = outParams.first + sz;
-        __is->endReadEncaps();
     }
     return ok;
 }
@@ -802,6 +790,28 @@ IceProxy::Ice::Object::ice_secure(bool b) const
     {
         ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeSecure(b));
+        return proxy;
+    }
+}
+
+::Ice::EncodingVersion
+IceProxy::Ice::Object::ice_getEncodingVersion() const
+{
+    return _reference->getEncoding();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_encodingVersion(const ::Ice::EncodingVersion& encoding) const
+{
+    if(encoding == _reference->getEncoding())
+    {
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+        checkSupportedEncoding(encoding);
+        ObjectPrx proxy = __newInstance();
+        proxy->setup(_reference->changeEncoding(encoding));
         return proxy;
     }
 }
@@ -1337,8 +1347,7 @@ IceProxy::Ice::Object::__end(const ::Ice::AsyncResultPtr& __result, const std::s
                 throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
-        IceInternal::BasicStream* __is = __result->__getIs();
-        __is->skipEmptyEncaps();
+        __result->__readEmptyParams();
     }
 }
 
@@ -1452,8 +1461,9 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
     Outgoing __og(__handler.get(), ice_isA_name, ::Ice::Nonmutating, context);
     try
     {
-        BasicStream* __os = __og.os();
+        BasicStream* __os = __og.startWriteParams();
         __os->write(__id, false);
+        __og.endWriteParams();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1474,10 +1484,9 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
-        BasicStream* __is = __og.is();
-        __is->startReadEncaps();
+        BasicStream* __is = __og.startReadParams();
         __is->read(__ret);
-        __is->endReadEncaps();
+        __og.endReadParams();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1490,8 +1499,9 @@ void
 IceDelegateM::Ice::Object::ice_ping(const Context* context)
 {
     Outgoing __og(__handler.get(), ice_ping_name, ::Ice::Nonmutating, context);
+    __og.writeEmptyParams();
     bool __ok = __og.invoke();
-    if(!__og.is()->b.empty())
+    if(__og.hasResponse())
     {
         try
         {
@@ -1506,7 +1516,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context* context)
                     throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
                 }
             }
-            __og.is()->skipEmptyEncaps();
+            __og.readEmptyParams();
         }
         catch(const ::Ice::LocalException& __ex)
         {
@@ -1519,6 +1529,7 @@ vector<string>
 IceDelegateM::Ice::Object::ice_ids(const Context* context)
 {
     Outgoing __og(__handler.get(), ice_ids_name, ::Ice::Nonmutating, context);
+    __og.writeEmptyParams();
     vector<string> __ret;
     bool __ok = __og.invoke();
     try
@@ -1534,10 +1545,9 @@ IceDelegateM::Ice::Object::ice_ids(const Context* context)
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
-        BasicStream* __is = __og.is();
-        __is->startReadEncaps();
+        BasicStream* __is = __og.startReadParams();
         __is->read(__ret, false);
-        __is->endReadEncaps();
+        __og.endReadParams();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1550,6 +1560,7 @@ string
 IceDelegateM::Ice::Object::ice_id(const Context* context)
 {
     Outgoing __og(__handler.get(), ice_id_name, ::Ice::Nonmutating, context);
+    __og.writeEmptyParams();
     string __ret;
     bool __ok = __og.invoke();
     try
@@ -1565,10 +1576,9 @@ IceDelegateM::Ice::Object::ice_id(const Context* context)
                 throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
             }
         }
-        BasicStream* __is = __og.is();
-        __is->startReadEncaps();
+        BasicStream* __is = __og.startReadParams();
         __is->read(__ret, false);
-        __is->endReadEncaps();
+        __og.endReadParams();
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1587,8 +1597,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     Outgoing __og(__handler.get(), operation, mode, context);
     try
     {
-        BasicStream* __os = __og.os();
-        __os->writeBlob(inParams.first, static_cast<Int>(inParams.second - inParams.first));
+        __og.writeParamEncaps(inParams.first, static_cast<Int>(inParams.second - inParams.first));
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1599,11 +1608,10 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     {
         try
         {
-            BasicStream* __is = __og.is();
-            __is->startReadEncaps();
-            Int sz = __is->getReadEncapsSize();
-            __is->readBlob(outParams, sz);
-            __is->endReadEncaps();
+            const Byte* v;
+            Int sz;
+            __og.readParamEncaps(v, sz);
+            vector<Byte>(v, v + sz).swap(outParams);
         }
         catch(const ::Ice::LocalException& __ex)
         {
@@ -1993,9 +2001,7 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, Ope
         //
         // Implicit context
         //
-        const ImplicitContextIPtr& implicitContext =
-                __reference->getInstance()->getImplicitContext();
-
+        const ImplicitContextIPtr& implicitContext = __reference->getInstance()->getImplicitContext();
         const Context& prxContext = __reference->getContext()->getValue();
 
         if(implicitContext == 0)

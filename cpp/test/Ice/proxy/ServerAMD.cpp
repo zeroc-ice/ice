@@ -35,6 +35,7 @@ main(int argc, char* argv[])
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
+        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
 

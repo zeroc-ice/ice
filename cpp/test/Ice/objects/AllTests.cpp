@@ -58,137 +58,137 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(initial == base);
     cout << "ok" << endl;
 
-    cout << "testing constructor, copy constructor, and assignment operator... " << flush;
+    // cout << "testing constructor, copy constructor, and assignment operator... " << flush;
 
-    BasePtr ba1 = new Base;
-    test(ba1->theS.str == "");
-    test(ba1->str == "");
+    // BasePtr ba1 = new Base;
+    // test(ba1->theS.str == "");
+    // test(ba1->str == "");
 
-    S s;
-    s.str = "hello";
-    BasePtr ba2 = new Base(s, "hi");
-    test(ba2->theS.str == "hello");
-    test(ba2->str == "hi");
+    // S s;
+    // s.str = "hello";
+    // BasePtr ba2 = new Base(s, "hi");
+    // test(ba2->theS.str == "hello");
+    // test(ba2->str == "hi");
 
-    *ba1 = *ba2;
-    test(ba1->theS.str == "hello");
-    test(ba1->str == "hi");
+    // *ba1 = *ba2;
+    // test(ba1->theS.str == "hello");
+    // test(ba1->str == "hi");
 
-    BasePtr bp1 = new Base();
-    *bp1 = *ba2;
-    test(bp1->theS.str == "hello");
-    test(bp1->str == "hi");
+    // BasePtr bp1 = new Base();
+    // *bp1 = *ba2;
+    // test(bp1->theS.str == "hello");
+    // test(bp1->str == "hi");
 
-    cout << "ok" << endl;
+    // cout << "ok" << endl;
 
-    cout << "getting B1... " << flush;
-    BPtr b1 = initial->getB1();
-    test(b1);
-    cout << "ok" << endl;
+    // cout << "getting B1... " << flush;
+    // BPtr b1 = initial->getB1();
+    // test(b1);
+    // cout << "ok" << endl;
     
-    cout << "getting B2... " << flush;
-    BPtr b2 = initial->getB2();
-    test(b2);
-    cout << "ok" << endl;
+    // cout << "getting B2... " << flush;
+    // BPtr b2 = initial->getB2();
+    // test(b2);
+    // cout << "ok" << endl;
     
-    cout << "getting C... " << flush;
-    CPtr c = initial->getC();
-    test(c);
-    cout << "ok" << endl;
+    // cout << "getting C... " << flush;
+    // CPtr c = initial->getC();
+    // test(c);
+    // cout << "ok" << endl;
     
-    cout << "getting D... " << flush;
-    DPtr d = initial->getD();
-    test(d);
-    cout << "ok" << endl;
+    // cout << "getting D... " << flush;
+    // DPtr d = initial->getD();
+    // test(d);
+    // cout << "ok" << endl;
     
-    cout << "checking consistency... " << flush;
-    test(b1 != b2);
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
-    test(b1->theB == b1);
-    test(b1->theC == 0);
-    test(BPtr::dynamicCast(b1->theA));
-    test(BPtr::dynamicCast(b1->theA)->theA == b1->theA);
-    test(BPtr::dynamicCast(b1->theA)->theB == b1);
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC));
-    test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC)->theB == b1->theA);
-    if(!collocated)
-    {
-        test(b1->preMarshalInvoked);
-        test(b1->postUnmarshalInvoked());
-        test(b1->theA->preMarshalInvoked);
-        test(b1->theA->postUnmarshalInvoked());
-        test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
-        test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
-    }
-    // More tests possible for b2 and d, but I think this is already sufficient.
-    test(b2->theA == b2);
-    test(d->theC == 0);
-    cout << "ok" << endl;
+    // cout << "checking consistency... " << flush;
+    // test(b1 != b2);
+    // test(b1 != c);
+    // test(b1 != d);
+    // test(b2 != c);
+    // test(b2 != d);
+    // test(c != d);
+    // test(b1->theB == b1);
+    // test(b1->theC == 0);
+    // test(BPtr::dynamicCast(b1->theA));
+    // test(BPtr::dynamicCast(b1->theA)->theA == b1->theA);
+    // test(BPtr::dynamicCast(b1->theA)->theB == b1);
+    // test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC));
+    // test(CPtr::dynamicCast(BPtr::dynamicCast(b1->theA)->theC)->theB == b1->theA);
+    // if(!collocated)
+    // {
+    //     test(b1->preMarshalInvoked);
+    //     test(b1->postUnmarshalInvoked());
+    //     test(b1->theA->preMarshalInvoked);
+    //     test(b1->theA->postUnmarshalInvoked());
+    //     test(BPtr::dynamicCast(b1->theA)->theC->preMarshalInvoked);
+    //     test(BPtr::dynamicCast(b1->theA)->theC->postUnmarshalInvoked());
+    // }
+    // // More tests possible for b2 and d, but I think this is already sufficient.
+    // test(b2->theA == b2);
+    // test(d->theC == 0);
+    // cout << "ok" << endl;
 
-    cout << "getting B1, B2, C, and D all at once... " << flush;
-    initial->getAll(b1, b2, c, d);
-    test(b1);
-    test(b2);
-    test(c);
-    test(d);
-    cout << "ok" << endl;
+    // cout << "getting B1, B2, C, and D all at once... " << flush;
+    // initial->getAll(b1, b2, c, d);
+    // test(b1);
+    // test(b2);
+    // test(c);
+    // test(d);
+    // cout << "ok" << endl;
     
-    cout << "checking consistency... " << flush;
-    test(b1 != b2);
-    test(b1 != c);
-    test(b1 != d);
-    test(b2 != c);
-    test(b2 != d);
-    test(c != d);
-    test(b1->theA == b2);
-    test(b1->theB == b1);
-    test(b1->theC == 0);
-    test(b2->theA == b2);
-    test(b2->theB == b1);
-    test(b2->theC == c);
-    test(c->theB == b2);
-    test(d->theA == b1);
-    test(d->theB == b2);
-    test(d->theC == 0);
-    if(!collocated)
-    {
-        test(d->preMarshalInvoked);
-        test(d->postUnmarshalInvoked());
-        test(d->theA->preMarshalInvoked);
-        test(d->theA->postUnmarshalInvoked());
-        test(d->theB->preMarshalInvoked);
-        test(d->theB->postUnmarshalInvoked());
-        test(d->theB->theC->preMarshalInvoked);
-        test(d->theB->theC->postUnmarshalInvoked());
-    }
-    cout << "ok" << endl;
+    // cout << "checking consistency... " << flush;
+    // test(b1 != b2);
+    // test(b1 != c);
+    // test(b1 != d);
+    // test(b2 != c);
+    // test(b2 != d);
+    // test(c != d);
+    // test(b1->theA == b2);
+    // test(b1->theB == b1);
+    // test(b1->theC == 0);
+    // test(b2->theA == b2);
+    // test(b2->theB == b1);
+    // test(b2->theC == c);
+    // test(c->theB == b2);
+    // test(d->theA == b1);
+    // test(d->theB == b2);
+    // test(d->theC == 0);
+    // if(!collocated)
+    // {
+    //     test(d->preMarshalInvoked);
+    //     test(d->postUnmarshalInvoked());
+    //     test(d->theA->preMarshalInvoked);
+    //     test(d->theA->postUnmarshalInvoked());
+    //     test(d->theB->preMarshalInvoked);
+    //     test(d->theB->postUnmarshalInvoked());
+    //     test(d->theB->theC->preMarshalInvoked);
+    //     test(d->theB->theC->postUnmarshalInvoked());
+    // }
+    // cout << "ok" << endl;
 
-    cout << "testing protected members... " << flush;
-    EPtr e = initial->getE();
-    test(e->checkValues());
-    FPtr f = initial->getF();
-    test(f->checkValues());
-    test(f->e2->checkValues());
-    cout << "ok" << endl;
+    // cout << "testing protected members... " << flush;
+    // EPtr e = initial->getE();
+    // test(e->checkValues());
+    // FPtr f = initial->getF();
+    // test(f->checkValues());
+    // test(f->e2->checkValues());
+    // cout << "ok" << endl;
 
-    cout << "getting I, J and H... " << flush;
-    IPtr i = initial->getI();
-    test(i);
-    IPtr j = initial->getJ();
-    test(j && JPtr::dynamicCast(j));
-    IPtr h = initial->getH();
-    test(h && HPtr::dynamicCast(h));
-    cout << "ok" << endl;
+    // cout << "getting I, J and H... " << flush;
+    // IPtr i = initial->getI();
+    // test(i);
+    // IPtr j = initial->getJ();
+    // test(j && JPtr::dynamicCast(j));
+    // IPtr h = initial->getH();
+    // test(h && HPtr::dynamicCast(h));
+    // cout << "ok" << endl;
 
-    cout << "setting I... " << flush;
-    initial->setI(i);
-    initial->setI(j);
-    initial->setI(h);
-    cout << "ok" << endl;
+    // cout << "setting I... " << flush;
+    // initial->setI(i);
+    // initial->setI(j);
+    // initial->setI(h);
+    // cout << "ok" << endl;
 
 #if !defined(_MSC_VER) || (_MSC_VER >= 1300)
     if(!collocated)

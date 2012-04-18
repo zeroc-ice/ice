@@ -81,7 +81,7 @@ IceInternal::IncomingAsync::__deactivate(Incoming& in)
         _active = false;
     }
 
-    in.adopt(*this);
+    in.__adopt(*this);
 }
 
 void
@@ -187,7 +187,7 @@ IceInternal::IncomingAsync::ice_exception()
 }
 
 void
-IceInternal::IncomingAsync::__response(bool ok)
+IceInternal::IncomingAsync::__response()
 {
     try
     {
@@ -200,17 +200,6 @@ IceInternal::IncomingAsync::__response(bool ok)
 
         if(_response)
         {
-            _os.endWriteEncaps();
-            
-            if(ok)
-            {
-                *(_os.b.begin() + headerSize + 4) = replyOK;
-            }
-            else
-            {
-                *(_os.b.begin() + headerSize + 4) = replyUserException;
-            }
-
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -312,14 +301,14 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
     {
         try
         {
-            __getOs()->writeBlob(outParams);
+            __writeParamEncaps(&outParams[0], outParams.size(), ok);
         }
         catch(const LocalException& ex)
         {
             __exception(ex);
             return;
         }
-        __response(ok);
+        __response();
     }
 }
 
@@ -330,13 +319,13 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byt
     {
         try
         {
-            __getOs()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+            __writeParamEncaps(outParams.first, static_cast<Int>(outParams.second - outParams.first), ok);
         }
         catch(const LocalException& ex)
         {
             __exception(ex);
             return;
         }
-        __response(ok);
+        __response();
     }
 }

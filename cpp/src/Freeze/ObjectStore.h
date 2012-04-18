@@ -43,10 +43,10 @@ public:
     bool dbHasObject(const Ice::Identity&, const TransactionIPtr&) const;
     void save(Key& key, Value& value, Ice::Byte status, DbTxn* tx);
 
-    static void marshal(const Ice::Identity&, Key&, const Ice::CommunicatorPtr&);
-    static void unmarshal(Ice::Identity&, const Key&, const Ice::CommunicatorPtr&);
-    static void marshal(const ObjectRecord&, Value&, const Ice::CommunicatorPtr&);
-    static void unmarshal(ObjectRecord&, const Value&, const Ice::CommunicatorPtr&);
+    static void marshal(const Ice::Identity&, Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    static void unmarshal(Ice::Identity&, const Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    static void marshal(const ObjectRecord&, Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    static void unmarshal(ObjectRecord&, const Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
 
     bool load(const Ice::Identity&, const TransactionIPtr&, ObjectRecord&);
     void update(const Ice::Identity&, const ObjectRecord&, const TransactionIPtr&);
@@ -63,6 +63,7 @@ public:
     const std::string& dbName() const;
 
     const Ice::CommunicatorPtr& communicator() const;
+    const Ice::EncodingVersion& encoding() const;
     const std::string& facet() const;
 
 protected:
@@ -77,6 +78,7 @@ private:
     EvictorIBase* _evictor;
     std::vector<IndexPtr> _indices;
     Ice::CommunicatorPtr _communicator;
+    Ice::EncodingVersion _encoding;
     Ice::ObjectPtr _sampleServant;
 };
 
@@ -142,6 +144,12 @@ inline const Ice::CommunicatorPtr&
 ObjectStoreBase::communicator() const
 {
     return _communicator;
+}
+
+inline const Ice::EncodingVersion& 
+ObjectStoreBase::encoding() const
+{
+    return _encoding;
 }
 
 inline EvictorIBase*

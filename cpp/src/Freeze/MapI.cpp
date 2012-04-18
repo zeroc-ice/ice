@@ -32,9 +32,7 @@ Freeze::MapIndexBase::~MapIndexBase()
 {
 }
 
-Freeze::MapIndexBase::MapIndexBase(
-    const string& name,
-    bool enabled) :
+Freeze::MapIndexBase::MapIndexBase(const string& name, bool enabled) :
     KeyCompareBase(enabled),
     _name(name),
     _impl(0),
@@ -642,8 +640,7 @@ Freeze::IteratorHelperI::get(const Key*& key, const Value*& value) const
         }
         catch(const ::DbException& dx)
         {
-            handleDbException(dx, _key, dbKey, _value, dbValue,
-                              __FILE__, __LINE__);
+            handleDbException(dx, _key, dbKey, _value, dbValue, __FILE__, __LINE__);
         }
     }
 }

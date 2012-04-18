@@ -14,6 +14,7 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ConnectionF.ice>
 #include <Ice/Identity.ice>
+#include <Ice/Version.ice>
 
 module Ice
 {
@@ -146,6 +147,13 @@ local struct Current
      *
      **/
     int requestId;
+
+    /**
+     *
+     * The encoding version used to encode the input and output parameters.
+     *
+     **/
+    Ice::EncodingVersion encoding;
 };
 
 };

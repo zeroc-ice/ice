@@ -13,6 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <vector>
+#include <cstdio>
 #ifdef __BCPLUSPLUS__
 #  include <stdio.h>
 #endif

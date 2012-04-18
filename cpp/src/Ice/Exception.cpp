@@ -191,6 +191,13 @@ Ice::EndpointSelectionTypeParseException::ice_print(ostream& out) const
 }
 
 void
+Ice::VersionParseException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nerror while parsing version `" << str << "'";
+}
+
+void
 Ice::IdentityParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
@@ -418,16 +425,16 @@ void
 Ice::UnsupportedProtocolException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported protocol version: " << badMajor << "." << badMinor;
-    out << "\n(can only support protocols compatible with version " << major << "." << minor << ")";
+    out << ":\nprotocol error: unsupported protocol version: " << bad;
+    out << "\n(can only support protocols compatible with version " << supported << ")";
 }
 
 void
 Ice::UnsupportedEncodingException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: unsupported encoding version: " << badMajor << "." << badMinor;
-    out << "\n(can only support encodings compatible with version " << major << "." << major << ")";
+    out << ":\nprotocol error: unsupported encoding version: " << bad;
+    out << "\n(can only support encodings compatible with version " << supported << ")";
     if(!reason.empty())
     {
         out << "\n" << reason;

@@ -84,10 +84,11 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
                                 const Context* context) :
     _handler(handler),
     _state(StateUnsent),
-    _is(handler->getReference()->getInstance().get()),
-    _os(handler->getReference()->getInstance().get()),
+    _encoding(handler->getReference()->getEncoding()),
+    _is(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
+    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _sent(false)
-{
+{ 
     switch(_handler->getReference()->getMode())
     {
         case Reference::ModeTwoway:
@@ -150,13 +151,6 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
                 implicitContext->write(prxContext, &_os);
             }
         }
-        
-        //
-        // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward requests as
-        // blobs.
-        //
-        _os.startWriteEncaps();
     }
     catch(const LocalException& ex)
     {
@@ -169,8 +163,6 @@ IceInternal::Outgoing::invoke()
 {
     assert(_state == StateUnsent);
 
-    _os.endWriteEncaps();
-    
     switch(_handler->getReference()->getMode())
     {
         case Reference::ModeTwoway:
@@ -543,7 +535,7 @@ IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler) :
     _handler(handler),
     _connection(0),
     _sent(false),
-    _os(handler->getReference()->getInstance().get())
+    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding)
 {
 }
 
@@ -551,7 +543,7 @@ IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* ins
     _handler(0),
     _connection(connection),
     _sent(false), 
-    _os(instance)
+    _os(instance, Ice::currentProtocolEncoding)
 {
 }
 

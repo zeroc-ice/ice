@@ -85,8 +85,54 @@ public:
     void finished(const Ice::LocalException&, bool);
 
     // Inlined for speed optimization.
-    BasicStream* is() { return &_is; }
     BasicStream* os() { return &_os; }
+    BasicStream* startReadParams()
+    {
+        _is.startReadEncaps();
+        return &_is;
+    }
+    void endReadParams()
+    {
+        _is.endReadEncaps();
+    }
+    void readEmptyParams()
+    {
+        _is.skipEmptyEncaps();
+    }
+    void readParamEncaps(const Ice::Byte*& encaps, Ice::Int& sz)
+    {
+        _is.readEncaps(encaps, sz);
+    }
+
+    BasicStream* startWriteParams()
+    {
+        _os.startWriteEncaps(_encoding);
+        return &_os;
+    }
+    void endWriteParams()
+    {
+        _os.endWriteEncaps();
+    }
+    void writeEmptyParams()
+    {
+        _os.writeEmptyEncaps(_encoding);
+    }
+    void writeParamEncaps(const Ice::Byte* encaps, Ice::Int size)
+    {
+        if(size == 0)
+        {
+            _os.writeEmptyEncaps(_encoding);
+        }
+        else
+        {
+            _os.writeEncaps(encaps, size);
+        }
+    }
+
+    bool hasResponse() 
+    {
+        return !_is.b.empty();
+    }
 
     void throwUserException();
 
@@ -110,6 +156,7 @@ private:
         StateFailed
     } _state;
 
+    Ice::EncodingVersion _encoding;
     BasicStream _is;
     BasicStream _os;
     bool _sent;

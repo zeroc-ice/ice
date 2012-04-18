@@ -95,6 +95,7 @@ public:
  
     DeactivateController& deactivateController();
     const Ice::CommunicatorPtr& communicator() const;
+    const Ice::EncodingVersion& encoding() const;
     const SharedDbEnvPtr& dbEnv() const;
     const std::string& filename() const;
 
@@ -132,6 +133,7 @@ protected:
 
     Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
+    Ice::EncodingVersion _encoding;
 
     ServantInitializerPtr _initializer;
     
@@ -315,6 +317,12 @@ inline const Ice::CommunicatorPtr&
 EvictorIBase::communicator() const
 {
     return _communicator;
+}
+
+inline const Ice::EncodingVersion& 
+EvictorIBase::encoding() const
+{
+    return _encoding;
 }
 
 inline const SharedDbEnvPtr&

@@ -95,6 +95,12 @@ Freeze::ConnectionI::getCommunicator() const
     return _communicator;
 }
 
+EncodingVersion
+Freeze::ConnectionI::getEncoding() const
+{
+    return _encoding;
+}
+
 string
 Freeze::ConnectionI::getName() const
 {
@@ -152,6 +158,7 @@ Freeze::ConnectionI::~ConnectionI()
 
 Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _communicator(dbEnv->getCommunicator()),
+    _encoding(dbEnv->getEncoding()),
     _dbEnv(dbEnv),
     _envName(dbEnv->getEnvName()),
     _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),

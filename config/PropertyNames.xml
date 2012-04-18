@@ -245,10 +245,11 @@ generated from the section label.
     <class name="proxy" prefix-only="false">
         <suffix name="EndpointSelection" />
         <suffix name="ConnectionCached" />
-        <suffix name="PreferSecure"  />
-        <suffix name="LocatorCacheTimeout"  />
-        <suffix name="Locator"  />
-        <suffix name="Router"  />
+        <suffix name="PreferSecure" />
+        <suffix name="LocatorCacheTimeout" />
+        <suffix name="Locator" />
+        <suffix name="Router" />
+        <suffix name="EncodingVersion" />
         <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
     </class>
@@ -267,11 +268,11 @@ generated from the section label.
         <suffix name="ACM" />
         <suffix name="AdapterId" />
         <suffix name="Endpoints" />
-        <suffix name="Locator" />
+        <suffix name="Locator" class="proxy"/>
         <suffix name="PublishedEndpoints" />
         <suffix name="RegisterProcess" deprecated="true" />
         <suffix name="ReplicaGroupId" />
-        <suffix name="Router" />
+        <suffix name="Router" class="proxy"/>
         <suffix name="ProxyOptions" />
         <suffix name="ThreadPool" class="threadpool" />
     </class>
@@ -311,6 +312,7 @@ generated from the section label.
         <property name="Default.CollocationOptimization" deprecated="true" 
             deprecatedBy="Ice.Default.CollocationOptimized" />
         <property name="Default.CollocationOptimized" />
+        <property name="Default.EncodingVersion" />
         <property name="Default.EndpointSelection" />
         <property name="Default.Host" />
         <property name="Default.Locator" class="proxy" />
@@ -563,6 +565,7 @@ generated from the section label.
         <property name="DbEnv.[any].DbHome" />
         <property name="DbEnv.[any].DbPrivate" />
         <property name="DbEnv.[any].DbRecoverFatal" />
+        <property name="DbEnv.[any].EncodingVersion" />
         <property name="DbEnv.[any].LockFile" />
         <property name="DbEnv.[any].OldLogsAutoDelete" />
         <property name="DbEnv.[any].PeriodicCheckpointMinSize" />

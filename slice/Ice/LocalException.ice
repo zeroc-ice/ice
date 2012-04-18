@@ -12,6 +12,7 @@
 [["cpp:header-ext:h"]]
 
 #include <Ice/Identity.ice>
+#include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
 
 module Ice
@@ -336,6 +337,23 @@ local exception EndpointSelectionTypeParseException
 /**
  *
  * This exception is raised if there was an error while parsing a
+ * version.
+ *
+ **/
+["cpp:ice_print"]
+local exception VersionParseException
+{
+    /**
+     *
+     * The string that could not be parsed.
+     *
+     **/
+    string str;
+};
+
+/**
+ *
+ * This exception is raised if there was an error while parsing a
  * stringified identity.
  *
  **/
@@ -626,31 +644,17 @@ local exception UnsupportedProtocolException extends ProtocolException
 {
     /**
      *
-     * The major version number of the unsupported protocol.
+     * The version of the unsupported protocol.
      *
      **/
-    int badMajor;
+    ProtocolVersion bad;
 
     /**
      *
-     * The minor version number of the unsupported protocol.
+     * The version of the protocol that is supported.
      *
      **/
-    int badMinor;
-
-    /**
-     *
-     * The major version number of the protocol that is supported.
-     *
-     **/
-    int major;
-
-    /**
-     *
-     * The highest minor version number of the protocol that can be supported.
-     *
-     **/
-    int minor;
+    ProtocolVersion supported;
 };
 
 /**
@@ -663,31 +667,17 @@ local exception UnsupportedEncodingException extends ProtocolException
 {
     /**
      *
-     * The major version number of the unsupported encoding.
+     * The version of the unsupported encoding.
      *
      **/
-    int badMajor;
+    EncodingVersion bad;
 
     /**
      *
-     * The minor version number of the unsupported encoding.
+     * The version of the encoding that is supported.
      *
      **/
-    int badMinor;
-
-    /**
-     *
-     * The major version number of the encoding that is supported.
-     *
-     **/
-    int major;
-
-    /**
-     *
-     * The highest minor version number of the encoding that can be supported.
-     *
-     **/
-    int minor;
+    EncodingVersion supported;
 };
 
 /**

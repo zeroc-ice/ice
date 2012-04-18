@@ -20,8 +20,8 @@ class UdpEndpointI : public EndpointI
 {
 public:
 
-    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, Ice::Byte, Ice::Byte,
-                 Ice::Byte, Ice::Byte, bool, const std::string&, bool);
+    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, 
+                 const Ice::ProtocolVersion&, const Ice::EncodingVersion&, bool, const std::string&, bool);
     UdpEndpointI(const InstancePtr&, const std::string&, bool);
     UdpEndpointI(BasicStream*);
 
@@ -59,10 +59,6 @@ private:
     const Ice::Int _port;
     const std::string _mcastInterface;
     const Ice::Int _mcastTtl;
-    const Ice::Byte _protocolMajor;
-    const Ice::Byte _protocolMinor;
-    const Ice::Byte _encodingMajor;
-    const Ice::Byte _encodingMinor;
     const bool _connect;
     const std::string _connectionId;
     const bool _compress;

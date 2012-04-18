@@ -46,6 +46,8 @@ public:
     
     virtual Ice::CommunicatorPtr getCommunicator() const;
 
+    virtual Ice::EncodingVersion getEncoding() const;
+
     virtual std::string getName() const;
 
     //
@@ -74,6 +76,7 @@ public:
     const SharedDbEnvPtr& dbEnv() const;
        
     const Ice::CommunicatorPtr& communicator() const;
+    const Ice::EncodingVersion& encoding() const;
 
     const std::string&  envName() const;
     
@@ -90,6 +93,7 @@ private:
     int __getRefNoSync() const;
 
     const Ice::CommunicatorPtr _communicator;
+    const Ice::EncodingVersion _encoding;
     SharedDbEnvPtr _dbEnv;
     const std::string _envName;
     TransactionIPtr _transaction;
@@ -137,6 +141,12 @@ inline const Ice::CommunicatorPtr&
 ConnectionI::communicator() const
 {
     return _communicator;
+}
+
+inline const Ice::EncodingVersion&
+ConnectionI::encoding() const
+{
+    return _encoding;
 }
 
 inline Ice::Int

@@ -72,7 +72,8 @@ Freeze::EvictorIteratorI::nextBatch()
      
     Key firstKey = _key;
 
-    CommunicatorPtr communicator = _store->communicator();
+    const CommunicatorPtr& communicator = _store->communicator();
+    const EncodingVersion& encoding = _store->encoding();
    
     DbTxn* txn = _tx == 0 ? 0: _tx->dbTxn();
 
@@ -134,7 +135,7 @@ Freeze::EvictorIteratorI::nextBatch()
                                 flags = DB_NEXT;
                     
                                 Ice::Identity ident;
-                                ObjectStoreBase::unmarshal(ident, _key, communicator);
+                                ObjectStoreBase::unmarshal(ident, _key, communicator, encoding);
                                 if(_batch.size() < _batchSize)
                                 {
                                     _batch.push_back(ident);

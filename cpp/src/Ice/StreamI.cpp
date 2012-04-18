@@ -16,6 +16,8 @@
 #endif
 
 #include <Ice/StreamI.h>
+#include <Ice/Instance.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 
@@ -29,7 +31,8 @@ using namespace IceInternal;
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
     _communicator(communicator)
 {
-    _is = new BasicStream(getInstance(communicator).get(), true);
+    Instance* instance = getInstance(communicator).get();
+    _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
     _is->closure(this);
     _is->writeBlob(data);
     _is->i = _is->b.begin();
@@ -38,7 +41,8 @@ Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const 
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
     _communicator(communicator)
 {
-    _is = new BasicStream(getInstance(communicator).get(), true);
+    Instance* instance = getInstance(communicator).get();
+    _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
     _is->closure(this);
     _is->writeBlob(data.first, data.second - data.first);
     _is->i = _is->b.begin();
@@ -420,10 +424,10 @@ Ice::InputStreamI::endSlice()
     _is->endReadSlice();
 }
 
-void
+Ice::EncodingVersion
 Ice::InputStreamI::startEncapsulation()
 {
-    _is->startReadEncaps();
+    return _is->startReadEncaps();
 }
 
 void
@@ -432,10 +436,10 @@ Ice::InputStreamI::endEncapsulation()
     _is->endReadEncapsChecked();
 }
 
-void
+Ice::EncodingVersion
 Ice::InputStreamI::skipEncapsulation()
 {
-    _is->skipEncaps();
+    return _is->skipEncaps();
 }
 
 void
@@ -465,7 +469,8 @@ Ice::OutputStreamI::OutputStreamI(const Ice::CommunicatorPtr& communicator, Basi
 {
     if(!_os)
     {
-        _os = new BasicStream(getInstance(communicator).get(), true);
+        Instance* instance = getInstance(communicator).get();
+        _os = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
     }
     _os->closure(this);
 }
@@ -638,6 +643,12 @@ void
 Ice::OutputStreamI::endSlice()
 {
     _os->endWriteSlice();
+}
+
+void
+Ice::OutputStreamI::startEncapsulation(const Ice::EncodingVersion& version)
+{
+    _os->startWriteEncaps(version);
 }
 
 void

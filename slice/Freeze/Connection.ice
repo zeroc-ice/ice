@@ -10,6 +10,7 @@
 #pragma once
 
 #include <Freeze/Transaction.ice>
+#include <Ice/Version.ice>
 #include <Ice/CommunicatorF.ice>
 
 [["cpp:header-ext:h"]]
@@ -88,6 +89,13 @@ local interface Connection
      *
      **/
     ["cpp:const"] Ice::Communicator getCommunicator();
+
+    /**
+     *
+     * Returns the encoding version used to encode the data.
+     *
+     **/
+    ["cpp:const"] Ice::EncodingVersion getEncoding();
 
     /**
      *

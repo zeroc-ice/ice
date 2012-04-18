@@ -1395,12 +1395,12 @@ Freeze::BackgroundSaveEvictorI::stream(const BackgroundSaveEvictorElementPtr& el
     obj.store = &element->store;
     
     const Identity& ident = element->cachePosition->first;
-    ObjectStoreBase::marshal(ident, obj.key, _communicator);
+    ObjectStoreBase::marshal(ident, obj.key, _communicator, _encoding);
 
     if(element->status != destroyed)
     {
         EvictorIBase::updateStats(element->rec.stats, streamStart);
-        ObjectStoreBase::marshal(element->rec, obj.value, _communicator);
+        ObjectStoreBase::marshal(element->rec, obj.value, _communicator, _encoding);
     }
 }
 

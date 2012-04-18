@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/EndpointF.ice>
 
@@ -38,6 +39,20 @@ const short UDPEndpointType = 3;
  **/
 local class EndpointInfo
 {
+     /**
+      *
+      * The protocol version supported by the endpoint.
+      *
+      **/
+    ProtocolVersion protocol;
+
+     /**
+      *
+      * The encoding version supported by the endpoint.
+      *
+      **/
+    EncodingVersion encoding;
+
     /**
      *
      * The timeout for the endpoint in milliseconds. 0 means
@@ -146,34 +161,6 @@ local class TCPEndpointInfo extends IPEndpointInfo
  **/
 local class UDPEndpointInfo extends IPEndpointInfo
 {
-     /**
-      *
-      * The protocol major version supported by the endpoint.
-      *
-      **/
-     byte protocolMajor;
-
-     /**
-      *
-      * The protocol minor version supported by the endpoint.
-      *
-      **/
-     byte protocolMinor;
-
-     /**
-      *
-      * The encoding major version supported by the endpoint.
-      *
-      **/
-     byte encodingMajor;
-
-     /**
-      *
-      * The encoding minor version supported by the endpoint.
-      *
-      **/
-     byte encodingMinor;
-
     /**
      * 
      * The multicast interface.

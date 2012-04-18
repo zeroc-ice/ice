@@ -46,14 +46,11 @@ public:
 
 protected:
 
-    void __response(bool);
+    void __response();
     void __exception(const std::exception&);
     void __exception();
 
     bool __validateResponse(bool);
-
-    // Inlined for speed optimization.
-    BasicStream* __getOs() { return &_os; }
 
 private:
 
