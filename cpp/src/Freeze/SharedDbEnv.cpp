@@ -504,7 +504,7 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     string encoding = properties->getPropertyWithDefault(propertyPrefix + ".EncodingVersion", 
                                                          encodingVersionToString(Ice::currentEncoding));
     _encoding = stringToEncodingVersion(encoding);
-    checkSupportedEncoding(_encoding);
+    IceInternal::checkSupportedEncoding(_encoding);
 
     //
     // Normally the file lock is necessary, but for read-only situations (such as when

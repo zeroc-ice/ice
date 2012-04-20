@@ -19,11 +19,11 @@ public abstract class AMI_Object_ice_invoke extends Callback_Object_ice_invoke
      *
      * @param ok Indicates the result of the invocation. If <code>true</code>, the operation
      * completed succesfully; if <code>false</code>, the operation raised a user exception.
-     * @param outParams Contains the encoded out-parameters of the operation (if any) if <code>ok</code>
+     * @param outEncaps Contains the encoded out-parameters of the operation (if any) if <code>ok</code>
      * is <code>true</code>; otherwise, if <code>ok</code> is <code>false</code>, contains the
      * encoded user exception raised by the operation.
      **/
-    public abstract void ice_response(boolean ok, byte[] outParams);
+    public abstract void ice_response(boolean ok, byte[] outEncaps);
 
     /**
      * Called when the invocation raises an Ice run-time exception.
@@ -32,9 +32,9 @@ public abstract class AMI_Object_ice_invoke extends Callback_Object_ice_invoke
      **/
     public abstract void ice_exception(LocalException ex);
 
-    public final void response(boolean ok, byte[] outParams)
+    public final void response(boolean ok, byte[] outEncaps)
     {
-        ice_response(ok, outParams);
+        ice_response(ok, outEncaps);
     }
 
     public final void exception(LocalException ex)

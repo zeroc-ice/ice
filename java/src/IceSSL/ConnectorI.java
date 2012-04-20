@@ -79,18 +79,23 @@ final class ConnectorI implements IceInternal.Connector
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, int timeout, String connectionId)
+    ConnectorI(Instance instance, String host, java.net.InetSocketAddress addr, int timeout, 
+               Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, String connectionId)
     {
         _instance = instance;
         _logger = instance.communicator().getLogger();
         _host = host;
         _addr = addr;
         _timeout = timeout;
+        _protocol = protocol;
+        _encoding = encoding;
         _connectionId = connectionId;
 
         _hashCode = _addr.getAddress().getHostAddress().hashCode();
         _hashCode = 5 * _hashCode + _addr.getPort();
         _hashCode = 5 * _hashCode + _timeout;
+        _hashCode = 5 * _hashCode + _protocol.hashCode();
+        _hashCode = 5 * _hashCode + _encoding.hashCode();
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
 
@@ -118,6 +123,16 @@ final class ConnectorI implements IceInternal.Connector
             return false;
         }
 
+        if(!_protocol.equals(p._protocol))
+        {
+            return false;
+        }
+
+        if(!_encoding.equals(p._encoding))
+        {
+            return false;
+        }
+
         if(!_connectionId.equals(p._connectionId))
         {
             return false;
@@ -131,6 +146,8 @@ final class ConnectorI implements IceInternal.Connector
     private String _host;
     private java.net.InetSocketAddress _addr;
     private int _timeout;
+    private Ice.ProtocolVersion _protocol;
+    private Ice.EncodingVersion _encoding;
     private String _connectionId;
     private int _hashCode;
 }

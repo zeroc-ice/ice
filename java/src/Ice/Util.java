@@ -525,6 +525,151 @@ public final class Util
         return 30402; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
+    /**
+     * Converts a string to a protocol version.
+     *
+     * @param s The string to convert.
+     *
+     * @return The converted protocol version.
+     **/
+    static public Ice.ProtocolVersion
+    stringToProtocolVersion(String version)
+    {
+        return new Ice.ProtocolVersion(stringToMajor(version), stringToMinor(version));
+    }
+
+    /**
+     * Converts a string to an encoding version.
+     *
+     * @param s The string to convert.
+     *
+     * @return The converted object identity.
+     **/
+    static public Ice.EncodingVersion
+    stringToEncodingVersion(String version)
+    {
+        return new Ice.EncodingVersion(stringToMajor(version), stringToMinor(version));
+    }
+
+    /**
+     * Converts a protocol version to a string.
+     *
+     * @param v The protocol version to convert.
+     *
+     * @return The converted string.
+     **/
+    static public String 
+    protocolVersionToString(Ice.ProtocolVersion v)
+    {
+        return majorMinorToString(v.major, v.minor);
+    }
+
+    /**
+     * Converts an encoding version to a string.
+     *
+     * @param v The encoding version to convert.
+     *
+     * @return The converted string.
+     **/
+    static public String 
+    encodingVersionToString(Ice.EncodingVersion v)
+    {
+        return majorMinorToString(v.major, v.minor);
+    }
+
+    /**
+     * Returns the supported Ice protocol version.
+     *
+     * @return The Ice protocol version.
+     **/
+    static public Ice.ProtocolVersion
+    currentProtocol()
+    {
+        return (Ice.ProtocolVersion)IceInternal.Protocol.currentProtocol.clone();
+    }
+    
+    /**
+     * Returns the supported Ice encoding version.
+     *
+     * @return The Ice encoding version.
+     **/
+    static public Ice.EncodingVersion
+    currentEncoding() 
+    {
+        return (Ice.EncodingVersion)IceInternal.Protocol.currentEncoding.clone();
+    }
+
+    static private byte 
+    stringToMajor(String str)
+    {
+        int pos = str.indexOf('.');
+        if(pos == -1)
+        {
+            throw new Ice.VersionParseException("malformed version value `" + str + "'");
+        }
+            
+        String majStr = str.substring(0, pos);
+        int majVersion;
+        try
+        {
+            majVersion = Integer.parseInt(majStr);
+        }
+        catch(NumberFormatException ex)
+        {
+            throw new Ice.EndpointParseException("invalid version value `" + str + "'");
+        }
+        
+        if(majVersion < 1 || majVersion > 255)
+        {
+            throw new Ice.EndpointParseException("range error in version `" + str + "'");
+        }
+
+        return (byte)majVersion;
+    }
+
+    static private byte
+    stringToMinor(String str)
+    {
+        int pos = str.indexOf('.');
+        if(pos == -1)
+        {
+            throw new Ice.VersionParseException("malformed version value `" + str + "'");
+        }
+            
+        String minStr = str.substring(pos + 1, str.length());
+        int minVersion;
+        try
+        {
+            minVersion = Integer.parseInt(minStr);
+        }
+        catch(NumberFormatException ex)
+        {
+            throw new Ice.EndpointParseException("invalid version value `" + str + "'");
+        }
+        
+        if(minVersion < 0 || minVersion > 255)
+        {
+            throw new Ice.EndpointParseException("range error in version `" + str + "'");
+        }
+
+        return (byte)minVersion;
+    }
+
+    static private String 
+    majorMinorToString(byte major, byte minor)
+    {
+        StringBuilder str = new StringBuilder();
+        str.append(major < 0 ? (int)major + 255 : (int)major);
+        str.append(".");
+        str.append(minor < 0 ? (int)minor + 255 : (int)minor);
+        return str.toString();
+    }
+
+    public final static Ice.ProtocolVersion Protocol_1_0 = new Ice.ProtocolVersion((byte)1, (byte)0);
+
+    public final static Ice.EncodingVersion Encoding_1_0 = new Ice.EncodingVersion((byte)1, (byte)0);
+    public final static Ice.EncodingVersion Encoding_1_1 = new Ice.EncodingVersion((byte)1, (byte)1);
+
     private static String _localAddress = null;
     private static java.lang.Object _processLoggerMutex = new java.lang.Object();
     private static Logger _processLogger = null;

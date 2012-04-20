@@ -87,13 +87,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static DispatchStatus
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        IceInternal.BasicStream __is = __inS.is();
-        __is.startReadEncaps();
+        IceInternal.BasicStream __is = __inS.startReadParams();
         String __id = __is.readString();
-        __is.endReadEncaps();
+        __inS.endReadParams();
         boolean __ret = __obj.ice_isA(__id, __current);
-        IceInternal.BasicStream __os = __inS.os();
+        IceInternal.BasicStream __os = __inS.__startWriteParams();
         __os.writeBool(__ret);
+        __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
     }
 
@@ -120,7 +120,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static DispatchStatus
     ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        __inS.is().skipEmptyEncaps();
+        __inS.readEmptyParams();
         __obj.ice_ping(__current);
         return DispatchStatus.DispatchOK;
     }
@@ -151,10 +151,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static DispatchStatus
     ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        __inS.is().skipEmptyEncaps();
+        __inS.readEmptyParams();
         String[] __ret = __obj.ice_ids(__current);
-        IceInternal.BasicStream __os = __inS.os();
+        IceInternal.BasicStream __os = __inS.__startWriteParams();
         __os.writeStringSeq(__ret);
+        __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
     }
 
@@ -184,10 +185,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     public static DispatchStatus
     ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
-        __inS.is().skipEmptyEncaps();
+        __inS.readEmptyParams();
         String __ret = __obj.ice_id(__current);
-        IceInternal.BasicStream __os = __inS.os();
+        IceInternal.BasicStream __os = __inS.__startWriteParams();
         __os.writeString(__ret);
+        __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
     }
 

@@ -11,6 +11,6 @@ package Freeze.MapInternal;
 
 interface KeyCodec<K>
 {
-    public abstract byte[] encodeKey(K k, Ice.Communicator communicator);
-    public abstract K decodeKey(byte[] b, Ice.Communicator communicator);
+    public abstract byte[] encodeKey(K k, Ice.Communicator communicator, Ice.EncodingVersion encoding);
+    public abstract K decodeKey(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding);
 }

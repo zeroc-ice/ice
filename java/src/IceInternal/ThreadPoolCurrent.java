@@ -14,7 +14,7 @@ public final class ThreadPoolCurrent
     ThreadPoolCurrent(Instance instance, ThreadPool threadPool)
     {
         operation = SocketOperation.None;
-        stream = new BasicStream(instance);
+        stream = new BasicStream(instance, Protocol.currentProtocolEncoding);
 
         _threadPool = threadPool;
         _ioCompleted = false;

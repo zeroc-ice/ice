@@ -36,6 +36,12 @@ public abstract class Reference implements Cloneable
         return _secure;
     }
 
+    public final Ice.EncodingVersion
+    getEncoding() 
+    {
+        return _encoding;
+    }
+
     public final Ice.Identity
     getIdentity()
     {
@@ -148,6 +154,19 @@ public abstract class Reference implements Cloneable
         r._facet = newFacet;
         return r;
     }
+
+    public final Reference
+    changeEncoding(Ice.EncodingVersion newEncoding)
+    {
+        if(newEncoding.equals(_encoding))
+        {
+            return this;
+        }
+        Reference r = _instance.referenceFactory().copy(this);
+        r._encoding = newEncoding;
+        return r;
+    }
+
 
     public Reference
     changeCompress(boolean newCompress)
@@ -383,6 +402,11 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
+        if(!_encoding.equals(r._encoding))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -414,6 +438,7 @@ public abstract class Reference implements Cloneable
     private Ice.Identity _identity;
     private java.util.Map<String, String> _context;
     private String _facet;
+    private Ice.EncodingVersion _encoding;
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
 
@@ -423,7 +448,8 @@ public abstract class Reference implements Cloneable
               Ice.Identity identity,
               String facet,
               int mode,
-              boolean secure)
+              boolean secure,
+              Ice.EncodingVersion encoding)
     {
         //
         // Validate string arguments.
@@ -439,6 +465,7 @@ public abstract class Reference implements Cloneable
         _identity = identity;
         _context = _emptyContext;
         _facet = facet;
+        _encoding = encoding;
         _hashInitialized = false;
         _overrideCompress = false;
         _compress = false;

@@ -19,34 +19,27 @@ public abstract class Blobject extends Ice.ObjectImpl
     /**
      * Dispatch an incoming request.
      *
-     * @param inParams The encoded in-parameters for the operation.
-     * @param outParams The encoded out-paramaters and return value
+     * @param inEncaps The encoded in-parameters for the operation.
+     * @param outEncaps The encoded out-paramaters and return value
      * for the operation. The return value follows any out-parameters.
      * @param current The Current object to pass to the operation.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
-     * the return value is <code>false</code>; in this case, <code>outParams</code>
+     * the return value is <code>false</code>; in this case, <code>outEncaps</code>
      * must contain the encoded user exception. If the operation raises an
      * Ice run-time exception, it must throw it directly.
      **/
     public abstract boolean
-    ice_invoke(byte[] inParams, ByteSeqHolder outParams, Current current);
+    ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current);
 
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
-        byte[] inParams;
-        ByteSeqHolder outParams = new ByteSeqHolder();
-        IceInternal.BasicStream is = in.is();
-        is.startReadEncaps();
-        int sz = is.getReadEncapsSize();
-        inParams = is.readBlob(sz);
-        is.endReadEncaps();
-        boolean ok = ice_invoke(inParams, outParams, current);
-        if(outParams.value != null)
-        {
-            in.os().writeBlob(outParams.value);
-        }
+        byte[] inEncaps;
+        ByteSeqHolder outEncaps = new ByteSeqHolder();
+        inEncaps = in.readParamEncaps();
+        boolean ok = ice_invoke(inEncaps, outEncaps, current);
+        in.__writeParamEncaps(outEncaps.value, ok);
         if(ok)
         {
             return DispatchStatus.DispatchOK;

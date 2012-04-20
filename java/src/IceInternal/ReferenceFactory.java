@@ -41,6 +41,8 @@ public final class ReferenceFactory
             return null;
         }
 
+        DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+
         //
         // Create new reference
         //
@@ -51,6 +53,7 @@ public final class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            defaultsAndOverrides.defaultEncoding,
             fixedConnection);
         return updateCache(ref);
     }
@@ -655,6 +658,7 @@ public final class ReferenceFactory
         "EndpointSelection",
         "ConnectionCached",
         "PreferSecure",
+        "EncodingVersion",
         "LocatorCacheTimeout",
         "Locator",
         "Router",
@@ -726,6 +730,7 @@ public final class ReferenceFactory
         boolean collocationOptimized = defaultsAndOverrides.defaultCollocationOptimization;
         boolean cacheConnection = true;
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
+        Ice.EncodingVersion encoding = defaultsAndOverrides.defaultEncoding;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
@@ -778,6 +783,14 @@ public final class ReferenceFactory
             property = propertyPrefix + ".PreferSecure";
             preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
 
+            property = propertyPrefix + ".EncodingVersion";
+            String encodingStr = properties.getProperty(property);
+            if(!encodingStr.isEmpty())
+            {
+                encoding = Ice.Util.stringToEncodingVersion(encodingStr);
+                Protocol.checkSupportedEncoding(encoding);
+            }
+
             property = propertyPrefix + ".EndpointSelection";
             if(properties.getProperty(property).length() > 0)
             {
@@ -810,6 +823,7 @@ public final class ReferenceFactory
                                                  facet,
                                                  mode,
                                                  secure,
+                                                 encoding,
                                                  endpoints,
                                                  adapterId,
                                                  locatorInfo,

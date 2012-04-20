@@ -18,9 +18,10 @@ public class FixedReference extends Reference
                    String facet,
                    int mode,
                    boolean secure,
+                   Ice.EncodingVersion encoding,
                    Ice.ConnectionI connection)
     {
-        super(instance, communicator, identity, facet, mode, secure);
+        super(instance, communicator, identity, facet, mode, secure, encoding);
         _fixedConnection = connection;
     }
 

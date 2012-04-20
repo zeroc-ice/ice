@@ -23,7 +23,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
         throws com.sleepycat.db.DatabaseException
     {
         Ice.Communicator communicator = _store.communicator();
-        ObjectRecord rec = ObjectStore.unmarshalValue(value.getData(), communicator);
+        Ice.EncodingVersion encoding = _store.encoding();
+        ObjectRecord rec = ObjectStore.unmarshalValue(value.getData(), communicator, encoding);
 
         byte[] secondaryKey = marshalKey(rec.servant);
         if(secondaryKey != null)
@@ -86,6 +87,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             value.setPartial(true);
 
             Ice.Communicator communicator = _store.communicator();
+            Ice.EncodingVersion encoding = _store.encoding();
 
             TransactionI transaction = _store.evictor().beforeQuery();
             com.sleepycat.db.Transaction tx = transaction == null ? null : transaction.dbTxn();
@@ -123,7 +125,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
 
                         if(found)
                         {
-                            Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator);
+                            Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator, encoding);
                             identities.add(ident);
                             first = false;
                         }
@@ -300,6 +302,12 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     communicator()
     {
         return _store.communicator();
+    }
+
+    protected final Ice.EncodingVersion
+    encoding()
+    {
+        return _store.encoding();
     }
 
     void

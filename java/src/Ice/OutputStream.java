@@ -200,6 +200,13 @@ public interface OutputStream
 
     /**
      * Writes the start of an encapsulation to the stream.
+     *
+     * @param encoding The encoding version of the encapsulation.
+     **/
+    void startEncapsulation(Ice.EncodingVersion encoding);
+
+    /**
+     * Writes the start of an encapsulation to the stream.
      **/
     void startEncapsulation();
 

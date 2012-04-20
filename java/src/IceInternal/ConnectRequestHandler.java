@@ -16,7 +16,7 @@ public class ConnectRequestHandler
     {
         Request(BasicStream os)
         {
-            this.os = new BasicStream(os.instance());
+            this.os = new BasicStream(os.instance(), Protocol.currentProtocolEncoding);
             this.os.swap(os);
         }
 
@@ -121,7 +121,8 @@ public class ConnectRequestHandler
                 _batchRequestInProgress = false;
                 notifyAll();
 
-                BasicStream dummy = new BasicStream(_reference.getInstance(), _batchAutoFlush);
+                BasicStream dummy = new BasicStream(_reference.getInstance(), Protocol.currentProtocolEncoding,
+                                                    _batchAutoFlush);
                 _batchStream.swap(dummy);
                 _batchRequestsSize = Protocol.requestBatchHdr.length;
 
@@ -334,7 +335,7 @@ public class ConnectRequestHandler
         _flushing = false;
         _batchRequestInProgress = false;
         _batchRequestsSize = Protocol.requestBatchHdr.length;
-        _batchStream = new BasicStream(ref.getInstance(), _batchAutoFlush);
+        _batchStream = new BasicStream(ref.getInstance(), Protocol.currentProtocolEncoding, _batchAutoFlush);
         _updateRequestHandler = false;
     }
 
@@ -424,7 +425,7 @@ public class ConnectRequestHandler
                 }
                 else
                 {
-                    BasicStream os = new BasicStream(request.os.instance());
+                    BasicStream os = new BasicStream(request.os.instance(), Protocol.currentProtocolEncoding);
                     _connection.prepareBatchRequest(os);
                     try
                     {

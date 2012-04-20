@@ -153,30 +153,35 @@ operator<<(std::ostream& out, const EncodingVersion& version)
     return out << static_cast<int>(version.major) << "." << static_cast<int>(version.minor);
 }
 
-inline void
-checkSupportedProtocol(const ProtocolVersion& v)
+}
+
+namespace IceInternal
 {
-    if(!IceInternal::isSupported(v, currentProtocol))
+
+inline void
+checkSupportedProtocol(const Ice::ProtocolVersion& v)
+{
+    if(!isSupported(v, Ice::currentProtocol))
     {
-        IceInternal::throwUnsupportedProtocolException(__FILE__, __LINE__, v, currentProtocol);
+        throwUnsupportedProtocolException(__FILE__, __LINE__, v, Ice::currentProtocol);
     }
 }
 
 inline void
-checkSupportedProtocolEncoding(const EncodingVersion& v)
+checkSupportedProtocolEncoding(const Ice::EncodingVersion& v)
 {
-    if(!IceInternal::isSupported(v, currentProtocolEncoding))
+    if(!isSupported(v, Ice::currentProtocolEncoding))
     {
-        IceInternal::throwUnsupportedEncodingException(__FILE__, __LINE__, v, currentProtocolEncoding);
+        throwUnsupportedEncodingException(__FILE__, __LINE__, v, Ice::currentProtocolEncoding);
     }
 }
 
 inline void
-checkSupportedEncoding(const EncodingVersion& v)
+checkSupportedEncoding(const Ice::EncodingVersion& v)
 {
-    if(!IceInternal::isSupported(v, currentEncoding))
+    if(!isSupported(v, Ice::currentEncoding))
     {
-        IceInternal::throwUnsupportedEncodingException(__FILE__, __LINE__, v, currentEncoding);
+        throwUnsupportedEncodingException(__FILE__, __LINE__, v, Ice::currentEncoding);
     }
 }
 

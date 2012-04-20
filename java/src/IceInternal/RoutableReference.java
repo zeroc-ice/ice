@@ -334,6 +334,7 @@ public class RoutableReference extends Reference
         properties.put(prefix + ".PreferSecure", _preferSecure ? "1" : "0");
         properties.put(prefix + ".EndpointSelection", 
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered");
+        properties.put(prefix + ".EncodingVersion", Ice.Util.encodingVersionToString(getEncoding()));
 
         StringBuffer s = new StringBuffer();
         s.append(_locatorCacheTimeout);
@@ -631,6 +632,7 @@ public class RoutableReference extends Reference
                       String facet,
                       int mode,
                       boolean secure,
+                      Ice.EncodingVersion encoding,
                       EndpointI[] endpoints,
                       String adapterId,
                       LocatorInfo locatorInfo,
@@ -641,7 +643,7 @@ public class RoutableReference extends Reference
                       Ice.EndpointSelectionType endpointSelection,
                       int locatorCacheTimeout)
     {
-        super(instance, communicator, identity, facet, mode, secure);
+        super(instance, communicator, identity, facet, mode, secure, encoding);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;
@@ -691,13 +693,16 @@ public class RoutableReference extends Reference
         java.util.List<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
 
         //
-        // Filter out opaque endpoints.
+        // Filter out incompatible endpoints (whose encoding/protocol
+        // versions aren't supported by this runtime, or are opaque).
         //
-        for(EndpointI endpoint : allEndpoints)
+        final Ice.EncodingVersion encoding = getEncoding();
+        for(EndpointI p : allEndpoints)
         {
-            if(!(endpoint instanceof IceInternal.OpaqueEndpointI))
+            if(Protocol.isSupported(encoding, p.encoding()) && 
+               Protocol.isSupported(Protocol.currentProtocol, p.protocol()))
             {
-                endpoints.add(endpoint);
+                endpoints.add(p);
             }
         }
         

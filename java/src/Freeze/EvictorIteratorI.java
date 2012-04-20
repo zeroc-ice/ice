@@ -71,6 +71,7 @@ class EvictorIteratorI implements EvictorIterator
         try
         {
             Ice.Communicator communicator = _store.communicator();
+            Ice.EncodingVersion encoding = _store.encoding();
 
             byte[] firstKey = null;
             if(_key.getSize() > 0)
@@ -122,7 +123,7 @@ class EvictorIteratorI implements EvictorIterator
 
                             if(_batch.size() < _batchSize)
                             {
-                                Ice.Identity ident = ObjectStore.unmarshalKey(_key.getData(), communicator);
+                                Ice.Identity ident = ObjectStore.unmarshalKey(_key.getData(), communicator, encoding);
                                 _batch.add(ident);
                             }
                             else

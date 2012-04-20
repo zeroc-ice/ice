@@ -894,10 +894,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         // encode
         //
         out << sp << nl << "public byte[]" << nl << "encode" << keyValue << "(" << typeS
-            << " v, Ice.Communicator communicator)";
+            << " v, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
         out << sb;
         out << nl << "IceInternal.BasicStream __os = "
-            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);";
+            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
         if(encaps)
         {
             out << nl << "__os.startWriteEncaps();";
@@ -922,10 +922,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         // decode
         //
         out << sp << nl << "public " << typeS << nl << "decode" << keyValue
-            << "(byte[] b, Ice.Communicator communicator)";
+            << "(byte[] b, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
         out << sb;
         out << nl << "IceInternal.BasicStream __is = "
-            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);";
+            << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
         if(type->usesClasses())
         {
             out << nl << "__is.sliceObjects(false);";
@@ -1040,7 +1040,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         // encodeKey
         //
         out << sp << nl << "public byte[]";
-        out << nl << "encodeKey(" << indexKeyTypeS << " key, Ice.Communicator communicator)";
+        out << nl << "encodeKey(" << indexKeyTypeS << " key, Ice.Communicator communicator, "
+            << "Ice.EncodingVersion encoding)";
         out << sb;
         if(dict.indices[i].member.empty())
         {
@@ -1053,7 +1054,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 keyS = "key.toLowerCase()";
             }
 
-            out << nl << "return encodeValue(" << keyS << ", communicator);";
+            out << nl << "return encodeValue(" << keyS << ", communicator, encoding);";
         }
         else
         {
@@ -1065,7 +1066,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             keyS = objectToVar(indexTypes[i], keyS);
 
             out << nl << "IceInternal.BasicStream __os = "
-                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);";
+                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
             int iter = 0;
             writeMarshalUnmarshalCode(out, "", indexTypes[i], keyS, true, iter, false);
             assert(!indexTypes[i]->usesClasses());
@@ -1081,19 +1082,19 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         // decodeKey
         //
         out << sp << nl << "public " << indexKeyTypeS;
-        out << nl << "decodeKey(byte[] bytes, Ice.Communicator communicator)";
+        out << nl << "decodeKey(byte[] bytes, Ice.Communicator communicator, Ice.EncodingVersion encoding)";
         out << sb;
         if(dict.indices[i].member.empty())
         {
             //
             // Decode the full value (with an encaps!)
             //
-            out << nl << "return decodeValue(bytes, communicator);";
+            out << nl << "return decodeValue(bytes, communicator, encoding);";
         }
         else
         {
             out << nl << "IceInternal.BasicStream __is = "
-                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);";
+                << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
             out << nl << "__is.resize(bytes.length, true);";
             out << nl << "IceInternal.Buffer buf = __is.getBuffer();";
             out << nl << "buf.b.position(0);";
@@ -1403,7 +1404,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
         << "marshalKey(" << memberTypeString << " __key)";
     out << sb;
     out << nl << "IceInternal.BasicStream __os = "
-        << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), true, false);";
+        << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), encoding(), true, false);";
     int iter = 0;
     writeMarshalUnmarshalCode(out, "", dataMember->type(), valueS, true, iter, false);
     if(type->usesClasses())

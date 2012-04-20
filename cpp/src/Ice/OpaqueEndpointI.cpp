@@ -18,7 +18,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : _encoding(Ice::currentEncoding)
+namespace
+{
+const Ice::ProtocolVersion Protocol_0_0 = { 0, 0 };
+const Ice::EncodingVersion Encoding_0_0 = { 0, 0 };
+}
+
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
+    EndpointI(Protocol_0_0, Encoding_0_0),
+    _rawEncoding(Ice::currentEncoding)
 {
     const string delim = " \t\n\r";
 
@@ -140,7 +148,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : _encoding(Ice
                 
                 try 
                 {
-                    const_cast<Ice::EncodingVersion&>(_encoding) = Ice::stringToEncodingVersion(argument);
+                    _rawEncoding = Ice::stringToEncodingVersion(argument);
                 }
                 catch(const Ice::VersionParseException& e)
                 {
@@ -174,9 +182,11 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : _encoding(Ice
     }
 }
 
-IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) : _type(type)
+IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) :
+    EndpointI(Protocol_0_0, Encoding_0_0),
+    _type(type)
 {
-    _encoding = s->startReadEncaps();
+    _rawEncoding = s->startReadEncaps();
     Int sz = s->getReadEncapsSize();
     s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
     s->endReadEncaps();
@@ -186,7 +196,7 @@ void
 IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
 {
     s->write(_type);
-    s->startWriteEncaps(_encoding);
+    s->startWriteEncaps(_rawEncoding);
     s->writeBlob(_rawBytes);
     s->endWriteEncaps();
 }
@@ -196,7 +206,7 @@ IceInternal::OpaqueEndpointI::toString() const
 {
     ostringstream s;
     string val = Base64::encode(_rawBytes);
-    s << "opaque -t " << _type << " -e " << _encoding << " -v " << val;
+    s << "opaque -t " << _type << " -e " << _rawEncoding << " -v " << val;
     return s.str();
 }
 
@@ -207,7 +217,7 @@ class InfoI : public Ice::OpaqueEndpointInfo
 {
 public:
     
-    InfoI(Ice::Short type, const Ice::EncodingVersion& encoding, const Ice::ByteSeq& rawByes);
+    InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
 
     virtual Ice::Short
     type() const
@@ -236,8 +246,8 @@ private:
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
-InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& encoding, const Ice::ByteSeq& rawBytes) : 
-    Ice::OpaqueEndpointInfo(Ice::Protocol_1_0, encoding, -1, false, rawBytes), 
+InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes) : 
+    Ice::OpaqueEndpointInfo(Protocol_0_0, Encoding_0_0, -1, false, rawEncoding, rawBytes), 
     _type(type)
 {
 }
@@ -247,7 +257,7 @@ InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& encoding, const Ice::B
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const
 {
-    return new InfoI(_type, _encoding, _rawBytes);
+    return new InfoI(_type, _rawEncoding, _rawBytes);
 }
 
 Short
@@ -358,6 +368,11 @@ IceInternal::OpaqueEndpointI::operator==(const LocalObject& r) const
         return false;
     }
 
+    if(_rawEncoding != p->_rawEncoding)
+    {
+        return false;
+    }
+
     if(_rawBytes != p->_rawBytes)
     {
         return false;
@@ -394,6 +409,15 @@ IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
         return false;
     }
 
+    if(_rawEncoding < p->_rawEncoding)
+    {
+        return true;
+    }
+    else if(p->_rawEncoding < _rawEncoding)
+    {
+        return false;
+    }
+
     if(_rawBytes < p->_rawBytes)
     {
         return true;
@@ -410,6 +434,8 @@ Ice::Int
 IceInternal::OpaqueEndpointI::hashInit() const
 {
     Ice::Int h = _type;
+    hashAdd(h, _rawEncoding.major);
+    hashAdd(h, _rawEncoding.minor);
     hashAdd(h, _rawBytes);
     return h;
 }

@@ -101,7 +101,7 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
     }
 
     final protected void
-    __response(boolean ok)
+    __response()
     {
         try
         {
@@ -114,22 +114,6 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
 
             if(_response)
             {
-                _os.endWriteEncaps();
-
-                int save = _os.pos();
-                _os.pos(Protocol.headerSize + 4); // Reply status position.
-
-                if(ok)
-                {
-                    _os.writeByte(ReplyStatus.replyOK);
-                }
-                else
-                {
-                    _os.writeByte(ReplyStatus.replyUserException);
-                }
-
-                _os.pos(save);
-
                 _connection.sendResponse(_os, _compress);
             }
             else
@@ -203,12 +187,6 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
             }
         }
         return true;
-    }
-
-    final protected BasicStream
-    __getOs()
-    {
-        return _os;
     }
 
     private final boolean _retriable;

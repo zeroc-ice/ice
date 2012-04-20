@@ -16,7 +16,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     {
         _connection = connection;
         _sent = false;
-        _os = new BasicStream(instance);
+        _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
     }
 
     public
@@ -24,7 +24,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
     {
         _handler = handler;
         _sent = false;
-        _os = new BasicStream(handler.getReference().getInstance());
+        _os = new BasicStream(handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
     }
 
     public void

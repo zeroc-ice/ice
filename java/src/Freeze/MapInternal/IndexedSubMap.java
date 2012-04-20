@@ -138,7 +138,8 @@ class IndexedSubMap<K, V, I>
         next()
         {
             EntryI<K, V> entry = (EntryI<K, V>)_iterator.next();
-            return new Entry(_index.decodeKey(entry.getIndexBytes(), _map.connection().getCommunicator()));
+            return new Entry(_index.decodeKey(entry.getIndexBytes(), _map.connection().getCommunicator(),
+                                              _map.connection().getEncoding()));
         }
 
         public void
@@ -522,7 +523,8 @@ class IndexedSubMap<K, V, I>
         if(Search.search(type, _map.connection(), _index.dbName(), _index.db(), dbKey, null, _index, _view,
                          _index.traceLevels()))
         {
-            I k = _index.decodeKey(dbKey.getData(), _map.connection().getCommunicator());
+            I k = _index.decodeKey(dbKey.getData(), _map.connection().getCommunicator(),
+                                   _map.connection().getEncoding());
             return new Entry(k);
         }
 
@@ -609,28 +611,28 @@ class IndexedSubMap<K, V, I>
         final Entry
         ceiling(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return entrySearch(mapSearchType(Search.Type.CEILING), k);
         }
 
         final Entry
         floor(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return entrySearch(mapSearchType(Search.Type.FLOOR), k);
         }
 
         final Entry
         higher(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return entrySearch(mapSearchType(Search.Type.HIGHER), k);
         }
 
         final Entry
         lower(I key)
         {
-            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _index.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return entrySearch(mapSearchType(Search.Type.LOWER), k);
         }
 
@@ -680,7 +682,7 @@ class IndexedSubMap<K, V, I>
         final public boolean
         keyInRange(byte[] key)
         {
-            I k = _index.decodeKey(key, _map.connection().getCommunicator());
+            I k = _index.decodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return inRange(k, true);
         }
 
@@ -702,7 +704,8 @@ class IndexedSubMap<K, V, I>
         {
             if(_fromKey != null && _fromKeyBytes == null)
             {
-                _fromKeyBytes = _index.encodeKey(_fromKey, _map.connection().getCommunicator());
+                _fromKeyBytes = _index.encodeKey(_fromKey, _map.connection().getCommunicator(),
+                                                 _map.connection().getEncoding());
             }
             return _fromKeyBytes;
         }
@@ -712,7 +715,8 @@ class IndexedSubMap<K, V, I>
         {
             if(_toKey != null && _toKeyBytes == null)
             {
-                _toKeyBytes = _index.encodeKey(_toKey, _map.connection().getCommunicator());
+                _toKeyBytes = _index.encodeKey(_toKey, _map.connection().getCommunicator(),
+                                               _map.connection().getEncoding());
             }
             return _toKeyBytes;
         }

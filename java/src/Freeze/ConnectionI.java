@@ -97,6 +97,12 @@ public class ConnectionI implements Connection
         return _communicator;
     }
 
+    public Ice.EncodingVersion
+    getEncoding()
+    {
+        return _encoding;
+    }
+
     public String
     getName()
     {
@@ -127,6 +133,7 @@ public class ConnectionI implements Connection
     {
         _dbEnv = dbEnv;
         _communicator = dbEnv.getCommunicator();
+        _encoding = dbEnv.getEncoding();
         _logger = _communicator.getLogger();
         _envName = dbEnv.getEnvName();
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
@@ -228,6 +235,7 @@ public class ConnectionI implements Connection
     }
 
     private Ice.Communicator _communicator;
+    private Ice.EncodingVersion _encoding;
     private Ice.Logger _logger;
     private SharedDbEnv _dbEnv;
     private String _envName;

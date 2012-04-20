@@ -12,27 +12,28 @@ package IceInternal;
 public class BasicStream
 {
     public
-    BasicStream(Instance instance)
+    BasicStream(Instance instance, Ice.EncodingVersion encoding)
     {
-        this(instance, false);
+        this(instance, encoding, false);
     }
 
     public
-    BasicStream(Instance instance, boolean unlimited)
+    BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited)
     {
-        initialize(instance, unlimited, instance.cacheMessageBuffers() > 1);
+        initialize(instance, encoding, unlimited, instance.cacheMessageBuffers() > 1);
     }
 
     public
-    BasicStream(Instance instance, boolean unlimited, boolean direct)
+    BasicStream(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
     {
-        initialize(instance, unlimited, direct);
+        initialize(instance, encoding, unlimited, direct);
     }
 
     private void
-    initialize(Instance instance, boolean unlimited, boolean direct)
+    initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
     {
         _instance = instance;
+        _encoding = encoding;
         _buf = new Buffer(_instance.messageSizeMax(), direct);
         _closure = null;
         _unlimited = unlimited;
@@ -197,16 +198,30 @@ public class BasicStream
         return _buf;
     }
 
-    final private static byte[] _encapsBlob =
-    {
-        0, 0, 0, 0, // Placeholder for the encapsulation length.
-        Protocol.encodingMajor,
-        Protocol.encodingMinor
-    };
-
     public void
     startWriteEncaps()
     {
+        //
+        // If no encoding version is specified, use the current write
+        // encapsulation encoding version if there's a current write
+        // encapsulation, otherwise, use the stream encoding version.
+        //
+        
+        if(_writeEncapsStack != null)
+        {
+            startWriteEncaps(_writeEncapsStack.encoding);
+        }
+        else
+        {
+            startWriteEncaps(_encoding);
+        }
+    }
+
+    public void
+    startWriteEncaps(Ice.EncodingVersion encoding)
+    {
+        Protocol.checkSupportedEncoding(encoding);
+        
         {
             WriteEncaps curr = _writeEncapsCache;
             if(curr != null)
@@ -221,9 +236,11 @@ public class BasicStream
             curr.next = _writeEncapsStack;
             _writeEncapsStack = curr;
         }
-
+        _writeEncapsStack.encoding = encoding;
         _writeEncapsStack.start = _buf.size();
-        writeBlob(_encapsBlob);
+
+        writeInt(0); // Placeholder for the encapsulation length.
+        _writeEncapsStack.encoding.__write(this);
     }
 
     public void
@@ -253,6 +270,31 @@ public class BasicStream
     }
 
     public void
+    writeEmptyEncaps(Ice.EncodingVersion encoding)
+    {
+        Protocol.checkSupportedEncoding(encoding);
+        writeInt(6); // Size
+        encoding.__write(this);
+    }
+
+    public void 
+    writeEncaps(byte[] v)
+    {
+        if(v.length < 6)
+        {
+            throw new Ice.EncapsulationException();
+        }
+        expand(v.length);
+        _buf.b.put(v);
+    }
+
+    public Ice.EncodingVersion 
+    getWriteEncoding()
+    {
+        return _writeEncapsStack != null ? _writeEncapsStack.encoding : _encoding;
+    }
+
+    public Ice.EncodingVersion
     startReadEncaps()
     {
         {
@@ -291,19 +333,10 @@ public class BasicStream
         }
         _readEncapsStack.sz = sz;
 
-        byte eMajor = readByte();
-        byte eMinor = readByte();
-        if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
-        {
-            Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-            e.badMajor = eMajor < 0 ? eMajor + 256 : eMajor;
-            e.badMinor = eMinor < 0 ? eMinor + 256 : eMinor;
-            e.major = Protocol.encodingMajor;
-            e.minor = Protocol.encodingMinor;
-            throw e;
-        }
-        // _readEncapsStack.encodingMajor = eMajor; // Currently unused
-        // _readEncapsStack.encodingMinor = eMinor; // Currently unused
+        _readEncapsStack.encoding.__read(this);
+        Protocol.checkSupportedEncoding(_readEncapsStack.encoding); // Make sure the encoding is supported.
+
+        return _readEncapsStack.encoding;
     }
 
     public void
@@ -341,7 +374,7 @@ public class BasicStream
     }
 
     public void
-    skipEmptyEncaps()
+    skipEmptyEncaps(Ice.EncodingVersion encoding)
     {
         int sz = readInt();
         if(sz < 6)
@@ -354,13 +387,13 @@ public class BasicStream
             throw new Ice.EncapsulationException();
         }
 
-        try
+        if(encoding != null)
+        {
+            encoding.__read(this);
+        }
+        else
         {
             _buf.b.position(_buf.b.position() + 2);
-        }
-        catch(IllegalArgumentException ex)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
         }
     }
 
@@ -375,6 +408,48 @@ public class BasicStream
         endReadEncaps();
     }
 
+    public byte[] 
+    readEncaps(Ice.EncodingVersion encoding)
+    {
+        int sz = readInt();
+        if(sz < 6)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+
+        if(sz - 4 > _buf.b.remaining())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+        
+        if(encoding != null)
+        {
+            encoding.__read(this);
+            _buf.b.position(_buf.b.position() - 6);
+        }
+        else 
+        {
+            _buf.b.position(_buf.b.position() - 4);
+        }
+
+        byte[] v = new byte[sz];
+        try
+        {
+            _buf.b.get(v);
+            return v;
+        }
+        catch(java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public Ice.EncodingVersion 
+    getReadEncoding() 
+    {
+        return _readEncapsStack != null ? _readEncapsStack.encoding : _encoding;
+    }
+
     public int
     getReadEncapsSize()
     {
@@ -382,7 +457,7 @@ public class BasicStream
         return _readEncapsStack.sz - 6;
     }
 
-    public void
+    public Ice.EncodingVersion
     skipEncaps()
     {
         int sz = readInt();
@@ -390,6 +465,8 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+        encoding.__read(this);
         try
         {
             _buf.b.position(_buf.b.position() + sz - 4);
@@ -398,6 +475,7 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
+        return encoding;
     }
 
     public void
@@ -407,13 +485,15 @@ public class BasicStream
         _writeSlice = _buf.size();
     }
 
-    public void endWriteSlice()
+    public void 
+    endWriteSlice()
     {
         final int sz = _buf.size() - _writeSlice + 4;
         _buf.b.putInt(_writeSlice - 4, sz);
     }
 
-    public void startReadSlice()
+    public void 
+    startReadSlice()
     {
         int sz = readInt();
         if(sz < 4)
@@ -423,11 +503,13 @@ public class BasicStream
         _readSlice = _buf.b.position();
     }
 
-    public void endReadSlice()
+    public void 
+    endReadSlice()
     {
     }
 
-    public void skipSlice()
+    public void 
+    skipSlice()
     {
         int sz = readInt();
         if(sz < 4)
@@ -1932,7 +2014,7 @@ public class BasicStream
             return null;
         }
 
-        BasicStream cstream = new BasicStream(_instance);
+        BasicStream cstream = new BasicStream(_instance, _encoding);
         cstream.resize(headerSize + 4 + compressedLen, false);
         cstream.pos(0);
 
@@ -1991,7 +2073,7 @@ public class BasicStream
             _buf.b.get(compressed);
         }
 
-        BasicStream ucStream = new BasicStream(_instance);
+        BasicStream ucStream = new BasicStream(_instance, _encoding);
         ucStream.resize(uncompressedSize, false);
 
         try
@@ -2341,6 +2423,7 @@ public class BasicStream
         java.util.TreeMap<Integer, Ice.Object> unmarshaledMap;
         int typeIdIndex;
         java.util.TreeMap<Integer, String> typeIdMap;
+        Ice.EncodingVersion encoding;
         ReadEncaps next;
 
         void
@@ -2365,6 +2448,7 @@ public class BasicStream
         java.util.IdentityHashMap<Ice.Object, Integer> marshaledMap;
         int typeIdIndex;
         java.util.TreeMap<String, Integer> typeIdMap;
+        Ice.EncodingVersion encoding;
         WriteEncaps next;
 
         void
@@ -2380,6 +2464,8 @@ public class BasicStream
             }
         }
     }
+
+    private Ice.EncodingVersion _encoding;
 
     private ReadEncaps _readEncapsStack;
     private WriteEncaps _writeEncapsStack;

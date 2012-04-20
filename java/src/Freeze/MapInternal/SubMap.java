@@ -437,28 +437,28 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         final EntryI<K, V>
         ceiling(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return _map.entrySearch(mapSearchType(Search.Type.CEILING), k, true, this);
         }
 
         final EntryI<K, V>
         floor(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return _map.entrySearch(mapSearchType(Search.Type.FLOOR), k, true, this);
         }
 
         final EntryI<K, V>
         higher(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return _map.entrySearch(mapSearchType(Search.Type.HIGHER), k, true, this);
         }
 
         final EntryI<K, V>
         lower(K key)
         {
-            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator());
+            byte[] k = _map.encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return _map.entrySearch(mapSearchType(Search.Type.LOWER), k, true, this);
         }
 
@@ -508,7 +508,7 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         final public boolean
         keyInRange(byte[] key)
         {
-            K k = _map.decodeKey(key, _map.connection().getCommunicator());
+            K k = _map.decodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
             return inRange(k, true);
         }
 
@@ -530,7 +530,8 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         {
             if(_fromKey != null && _fromKeyBytes == null)
             {
-                _fromKeyBytes = _map.encodeKey(_fromKey, _map.connection().getCommunicator());
+                _fromKeyBytes = _map.encodeKey(_fromKey, _map.connection().getCommunicator(),
+                                               _map.connection().getEncoding());
             }
             return _fromKeyBytes;
         }
@@ -540,7 +541,8 @@ class SubMap<K, V> extends java.util.AbstractMap<K, V> implements NavigableMap<K
         {
             if(_toKey != null && _toKeyBytes == null)
             {
-                _toKeyBytes = _map.encodeKey(_toKey, _map.connection().getCommunicator());
+                _toKeyBytes = _map.encodeKey(_toKey, _map.connection().getCommunicator(),
+                                             _map.connection().getEncoding());
             }
             return _toKeyBytes;
         }

@@ -192,10 +192,8 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
     s->read(const_cast<bool&>(_compress));
     if(s->getReadEncoding() > Ice::Encoding_1_0)
     {
-        s->read(const_cast<Byte&>(_protocol.major));
-        s->read(const_cast<Byte&>(_protocol.minor));
-        s->read(const_cast<Byte&>(_encoding.major));
-        s->read(const_cast<Byte&>(_encoding.minor));
+        const_cast<Ice::ProtocolVersion&>(_protocol).__read(s);
+        const_cast<Ice::EncodingVersion&>(_encoding).__read(s);
     }
     else
     {
@@ -216,10 +214,8 @@ IceSSL::EndpointI::streamWrite(IceInternal::BasicStream* s) const
     s->write(_compress);
     if(s->getWriteEncoding() > Ice::Encoding_1_0)
     {
-        s->write(_protocol.major);
-        s->write(_protocol.minor);
-        s->write(_encoding.major);
-        s->write(_encoding.minor);
+        _protocol.__write(s);
+        _encoding.__write(s);
     }
     s->endWriteEncaps();
 }

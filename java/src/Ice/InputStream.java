@@ -217,13 +217,17 @@ public interface InputStream
 
     /**
      * Reads the start of an encapsulation.
+     *
+     * @return The encapsulation encoding version.
      **/
-    void startEncapsulation();
+    Ice.EncodingVersion startEncapsulation();
 
     /**
      * Skips over an encapsulation.
+     *
+     * @return The encapsulation encoding version.
      **/
-    void skipEncapsulation();
+    Ice.EncodingVersion skipEncapsulation();
 
     /**
      * Indicates that the end of an encapsulation has been reached.

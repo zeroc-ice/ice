@@ -230,7 +230,6 @@ public:
     }
     Ice::EncodingVersion skipEmptyEncaps()
     {
-        Ice::EncodingVersion encoding;
         Ice::Int sz;
         read(sz);
         if(sz != static_cast<Ice::Int>(sizeof(Ice::Int)) + 2)
@@ -242,6 +241,8 @@ public:
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
+
+        Ice::EncodingVersion encoding;
         encoding.__read(this);
         return encoding;
     }

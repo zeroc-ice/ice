@@ -23,27 +23,22 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
      *
      * @param cb The callback object through which the invocation's results
      * must be delivered.
-     * @param inParams The encoded input parameters.
+     * @param inEncaps The encoded input parameters.
      * @param current The Current object, which provides important information
      * about the request, such as the identity of the target object and the
      * name of the operation.
      **/
     public abstract void
-    ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
+    ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
 
     public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
-        byte[] inParams;
-        IceInternal.BasicStream is = in.is();
-        is.startReadEncaps();
-        int sz = is.getReadEncapsSize();
-        inParams = is.readBlob(sz);
-        is.endReadEncaps();
+        byte[] inEncaps = in.readParamEncaps();
         AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(in);
         try
         {
-            ice_invoke_async(cb, inParams, current);
+            ice_invoke_async(cb, inEncaps, current);
         }
         catch(java.lang.Exception ex)
         {

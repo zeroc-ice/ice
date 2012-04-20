@@ -23,8 +23,8 @@ public class AsyncResult
         _instance = instance;
         _operation = op;
         // Lazy initialized when response is received.
-        //_is = new IceInternal.BasicStream(instance, false, false);
-        _os = new IceInternal.BasicStream(instance, false, false);
+        //_is = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
+        _os = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding, false, false);
         _state = 0;
         _sentSynchronously = false;
         _exception = null;
@@ -177,10 +177,29 @@ public class AsyncResult
         return _os;
     }
 
-    public final IceInternal.BasicStream __getIs()
+    public IceInternal.BasicStream
+    __startReadParams()
     {
-        assert _is != null; // Can't only be called if response is received.
+        _is.startReadEncaps();
         return _is;
+    }
+
+    public void 
+    __endReadParams()
+    {
+        _is.endReadEncaps();
+    }
+
+    public void 
+    __readEmptyParams()
+    {
+        _is.skipEmptyEncaps(null);
+    }
+
+    public byte[]
+    __readParamEncaps()
+    {
+        return _is.readEncaps(null);
     }
 
     public final boolean __wait()

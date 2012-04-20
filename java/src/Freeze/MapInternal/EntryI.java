@@ -19,6 +19,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         _valueBytes = valueBytes;
         _indexBytes = indexBytes;
         _communicator = map.connection().getCommunicator();
+        _encoding = map.connection().getEncoding();
         _key = key;
         _haveKey = key != null;
     }
@@ -29,7 +30,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         if(!_haveKey)
         {
             assert(_dbKey != null);
-            _key = _map.decodeKey(_dbKey.getData(), _communicator);
+            _key = _map.decodeKey(_dbKey.getData(), _communicator, _encoding);
             _haveKey = true;
         }
         return _key;
@@ -41,7 +42,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
         if(!_haveValue)
         {
             assert(_valueBytes != null);
-            _value = _map.decodeValue(_valueBytes, _communicator);
+            _value = _map.decodeValue(_valueBytes, _communicator, _encoding);
             _haveValue = true;
             //
             // Not needed anymore
@@ -123,6 +124,7 @@ class EntryI<K, V> implements java.util.Map.Entry<K, V>
     private byte[] _indexBytes;
 
     private Ice.Communicator _communicator;
+    private Ice.EncodingVersion _encoding;
     private K _key;
     private boolean _haveKey = false;
     private V _value;

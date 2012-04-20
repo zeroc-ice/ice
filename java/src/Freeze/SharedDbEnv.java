@@ -111,6 +111,12 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         return _key.communicator;
     }
 
+    public Ice.EncodingVersion
+    getEncoding()
+    {
+        return _encoding;
+    }
+
     public com.sleepycat.db.Environment
     getEnv()
     {
@@ -273,6 +279,11 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
 
         String propertyPrefix = "Freeze.DbEnv." + _key.envName;
         String dbHome = properties.getPropertyWithDefault(propertyPrefix + ".DbHome", _key.envName);
+
+        String encoding = properties.getPropertyWithDefault(
+            propertyPrefix + ".EncodingVersion", Ice.Util.encodingVersionToString(Ice.Util.currentEncoding()));
+        _encoding = Ice.Util.stringToEncodingVersion(encoding);
+        IceInternal.Protocol.checkSupportedEncoding(_encoding);
 
         java.io.File dir = new java.io.File(dbHome);
         if(!dir.exists())
@@ -549,6 +560,7 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private long _checkpointPeriod = 0;
     private int _kbyte = 0;
     private Thread _thread;
+    private Ice.EncodingVersion _encoding;
 
     private java.util.Map<Thread, TransactionalEvictorContext> _ctxMap =
         new java.util.HashMap<Thread, TransactionalEvictorContext>();

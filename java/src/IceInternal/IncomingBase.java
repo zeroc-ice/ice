@@ -18,7 +18,10 @@ public class IncomingBase
         _instance = instance;
         _response = response;
         _compress = compress;
-        _os = new BasicStream(instance);
+        if(_response)
+        {
+            _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        }
         _connection = connection;
 
         _current = new Ice.Current();
@@ -84,6 +87,71 @@ public class IncomingBase
         other._connection = null;
     }
 
+    public BasicStream
+    __startWriteParams()
+    {
+        if(_response)
+        {
+            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+            assert(_current.encoding != null); // Encoding for reply is known.
+            _os.writeByte((byte)0);
+            _os.startWriteEncaps(_current.encoding);
+        }
+    
+        //
+        // We still return the stream even if no response is expected. The
+        // servant code might still write some out parameters if for
+        // example a method with out parameters somehow and erroneously
+        // invoked as oneway (or if the invocation is invoked on a 
+        // blobject and the blobject erroneously writes a response).
+        //
+        return _os;
+    }
+    
+    public void 
+    __endWriteParams(boolean ok)
+    {
+        if(_response)
+        {
+            int save = _os.pos();
+            _os.pos(Protocol.headerSize + 4); // Reply status position.
+            _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+            _os.pos(save);
+            _os.endWriteEncaps();
+        }
+    }
+
+    public void 
+    __writeEmptyParams()
+    {
+        if(_response)
+        {
+            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+            assert(_current.encoding != null); // Encoding for reply is known.
+            _os.writeByte(ReplyStatus.replyOK);
+            _os.writeEmptyEncaps(_current.encoding);
+        }
+    }
+
+    public void 
+    __writeParamEncaps(byte[] v, boolean ok)
+    {
+        if(_response)
+        {
+            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+            assert(_current.encoding != null); // Encoding for reply is known.
+            _os.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+            if(v == null || v.length == 0)
+            {
+                _os.writeEmptyEncaps(_current.encoding);
+            }
+            else
+            {
+                _os.writeEncaps(v);
+            }
+        }
+    }
+
     //
     // These functions allow this object to be reused, rather than reallocated.
     //
@@ -111,9 +179,9 @@ public class IncomingBase
 
         _compress = compress;
 
-        if(_os == null)
+        if(_response && _os == null)
         {
-            _os = new BasicStream(instance);
+            _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
         }
 
         _connection = connection;
@@ -188,7 +256,6 @@ public class IncomingBase
             //
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUserException);
                 _os.startWriteEncaps();
@@ -243,7 +310,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 if(ex instanceof Ice.ObjectNotExistException)
                 {
@@ -294,7 +360,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
@@ -314,7 +379,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
@@ -334,7 +398,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
@@ -354,7 +417,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 //_os.writeString(ex.toString());
@@ -380,7 +442,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownUserException);
                 //_os.writeString(ex.toString());
@@ -406,7 +467,6 @@ public class IncomingBase
 
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 _os.writeByte(ReplyStatus.replyUnknownException);
                 //_os.writeString(ex.toString());

@@ -276,8 +276,8 @@ public class MapDb
     // The constructor for catalogs
     //
 
-    MapDb(Ice.Communicator communicator, String envName, String dbName, String key, String value,
-          com.sleepycat.db.Environment dbEnv)
+    MapDb(Ice.Communicator communicator, String envName, String dbName, String key,
+          String value, com.sleepycat.db.Environment dbEnv)
         throws com.sleepycat.db.DatabaseException
     {
         _communicator = communicator;

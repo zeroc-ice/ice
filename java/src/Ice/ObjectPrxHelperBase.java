@@ -209,9 +209,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__getOs();
+            IceInternal.BasicStream __os = __result.__startWriteParams();
             __os.writeString(__id);
-            __os.endWriteEncaps();
+            __result.__endWriteParams();
             __result.__send(true);
         }
         catch(LocalException __ex)
@@ -243,10 +243,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         boolean __ret;
-        IceInternal.BasicStream __is = __result.__getIs();
-        __is.startReadEncaps();
+        IceInternal.BasicStream __is = __result.__startReadParams();
         __ret = __is.readBool();
-        __is.endReadEncaps();
+        __result.__endReadParams();
         return __ret;
     }
 
@@ -381,8 +380,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__getOs();
-            __os.endWriteEncaps();
+            __result.__writeEmptyParams();
             __result.__send(true);
         }
         catch(LocalException __ex)
@@ -540,8 +538,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__getOs();
-            __os.endWriteEncaps();
+            __result.__writeEmptyParams();
             __result.__send(true);
         }
         catch(LocalException __ex)
@@ -574,10 +571,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         String[] __ret = null;
-        IceInternal.BasicStream __is = __result.__getIs();
-        __is.startReadEncaps();
+        IceInternal.BasicStream __is = __result.__startReadParams();
         __ret = StringSeqHelper.read(__is);
-        __is.endReadEncaps();
+        __result.__endReadParams();
         return __ret;
     }
 
@@ -716,8 +712,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__getOs();
-            __os.endWriteEncaps();
+            __result.__writeEmptyParams();
             __result.__send(true);
         }
         catch(LocalException __ex)
@@ -749,10 +744,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             }
         }
         String __ret = null;
-        IceInternal.BasicStream __is = __result.__getIs();
-        __is.startReadEncaps();
+        IceInternal.BasicStream __is = __result.__startReadParams();
         __ret = __is.readString();
-        __is.endReadEncaps();
+        __result.__endReadParams();
         return __ret;
     }
 
@@ -965,9 +959,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(operation, mode, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__getOs();
-            __os.writeBlob(inParams);
-            __os.endWriteEncaps();
+            __result.__writeParamEncaps(inParams);
             __result.__send(true);
         }
         catch(LocalException __ex)
@@ -995,14 +987,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         boolean ok = __result.__wait();
         if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
         {
-            IceInternal.BasicStream __is = __result.__getIs();
-            __is.startReadEncaps();
-            int sz = __is.getReadEncapsSize();
             if(outParams != null)
             {
-                outParams.value = __is.readBlob(sz);
+                outParams.value = __result.__readParamEncaps();
             }
-            __is.endReadEncaps();
         }
         return ok;
     }
@@ -1355,6 +1343,37 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         {
             return newInstance(_reference.changeSecure(b));
         }
+    }
+
+    /**
+     * Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
+     * parameters.
+     *
+     * @param e The encoding version to use to marshal requests parameters.
+     * @return The new proxy with the specified encoding version.
+     **/
+    public final ObjectPrx
+    ice_encodingVersion(Ice.EncodingVersion e)
+    {
+        if(e.equals(_reference.getEncoding()))
+        {
+            return this;
+        }
+        else
+        {
+            return newInstance(_reference.changeEncoding(e));
+        }
+    }
+
+    /**
+     * Returns the encoding version used to marshal requests parameters.
+     *
+     * @return The encoding version.
+     **/
+    public final Ice.EncodingVersion 
+    ice_getEncodingVersion()
+    {
+        return _reference.getEncoding();
     }
 
     /**
@@ -2110,8 +2129,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     throw new UnknownUserException(__ex.ice_name(), __ex);
                 }
             }
-            IceInternal.BasicStream __is = __result.__getIs();
-            __is.skipEmptyEncaps();
+            __result.__readEmptyParams();
         }
     }
 

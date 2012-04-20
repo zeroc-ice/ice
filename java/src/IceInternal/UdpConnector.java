@@ -46,21 +46,21 @@ final class UdpConnector implements Connector
     // Only for use by TcpEndpoint
     //
     UdpConnector(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl, 
-                 byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor, String connectionId)
+                 Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, String connectionId)
     {
         _instance = instance;
         _addr = addr;
         _mcastInterface = mcastInterface;
         _mcastTtl = mcastTtl;
-        _protocolMajor = protocolMajor;
-        _protocolMinor = protocolMinor;
-        _encodingMajor = encodingMajor;
-        _encodingMinor = encodingMinor;
+        _protocol = protocol;
+        _encoding = encoding;
         _connectionId = connectionId;
 
         _hashCode = _addr.getAddress().getHostAddress().hashCode();
         _hashCode = 5 * _hashCode + _addr.getPort();
         _hashCode = 5 * _hashCode + _mcastInterface.hashCode();
+        _hashCode = 5 * _hashCode + _protocol.hashCode();
+        _hashCode = 5 * _hashCode + _encoding.hashCode();
         _hashCode = 5 * _hashCode + _mcastTtl;
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
     }
@@ -89,22 +89,12 @@ final class UdpConnector implements Connector
             return false;
         }
 
-        if(_protocolMajor != p._protocolMajor)
+        if(!_protocol.equals(p._protocol))
         {
             return false;
         }
 
-        if(_protocolMinor != p._protocolMinor)
-        {
-            return false;
-        }
-
-        if(_encodingMajor != p._encodingMajor)
-        {
-            return false;
-        }
-
-        if(_encodingMinor != p._encodingMinor)
+        if(!_encoding.equals(p._encoding))
         {
             return false;
         }
@@ -126,10 +116,8 @@ final class UdpConnector implements Connector
     private java.net.InetSocketAddress _addr;
     private String _mcastInterface;
     private int _mcastTtl;
-    private byte _protocolMajor;
-    private byte _protocolMinor;
-    private byte _encodingMajor;
-    private byte _encodingMinor;
+    private Ice.ProtocolVersion _protocol;
+    private Ice.EncodingVersion _encoding;
     private String _connectionId;
     private int _hashCode;
 }

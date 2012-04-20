@@ -11,6 +11,18 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
+    public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding)
+    {
+        _protocol = protocol;
+        _encoding = encoding;
+    }
+
+    public EndpointI()
+    {
+        _protocol = Protocol.currentProtocol;
+        _encoding = Protocol.currentEncoding;
+    }
+
     public String
     toString()
     {
@@ -68,6 +80,16 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     public abstract boolean secure();
 
+    public Ice.ProtocolVersion protocol()
+    {
+        return _protocol;
+    }
+
+    public Ice.EncodingVersion encoding()
+    {
+        return _encoding;
+    }
+
     //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
@@ -107,8 +129,55 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     // Compare endpoints for sorting purposes.
     //
-    public abstract boolean equals(java.lang.Object obj);
-    public abstract int compareTo(EndpointI obj); // From java.lang.Comparable.
+    public boolean equals(java.lang.Object obj)
+    {
+        if(!(obj instanceof EndpointI))
+        {
+            return false;
+        }
+        return compareTo((EndpointI)obj) == 0;
+    }
+
+    public int compareTo(EndpointI p) // From java.lang.Comparable. 
+    {
+        if(_protocol.major < p._protocol.major)
+        {
+            return -1;
+        }
+        else if(p._protocol.major < _protocol.major)
+        {
+            return 1;
+        }
+
+        if(_protocol.minor < p._protocol.minor)
+        {
+            return -1;
+        }
+        else if(p._protocol.minor < _protocol.minor)
+        {
+            return 1;
+        }
+
+        if(_encoding.major < p._encoding.major)
+        {
+            return -1;
+        }
+        else if(p._encoding.major < _encoding.major)
+        {
+            return 1;
+        }
+
+        if(_encoding.minor < p._encoding.minor)
+        {
+            return -1;
+        }
+        else if(p._encoding.minor < _encoding.minor)
+        {
+            return 1;
+        }
+
+        return 0;
+    }
 
     public java.util.List<Connector>
     connectors(java.util.List<java.net.InetSocketAddress> addresses)
@@ -120,4 +189,52 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
         assert(false);
         return null;
     }
+
+    protected void
+    parseOption(String option, String arg, String desc, String str)
+    {
+        if(option.equals("-v"))
+        {
+            if(arg == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `" +
+                                                     desc + " "+ str + "'");
+            }
+
+            try
+            {
+                _protocol = Ice.Util.stringToProtocolVersion(str);
+            }
+            catch(Ice.VersionParseException e)
+            {
+                throw new Ice.EndpointParseException("invalid protocol version `" + arg + "' in endpoint `" +
+                                                     desc + " "+ str + "':\n" + e.str);
+            }
+        }            
+        else if(option.equals("-e"))
+        {
+            if(arg == null)
+            {
+                throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `" +
+                                                     desc + " " + str + "'");
+            }
+            
+            try
+            {
+                _encoding = Ice.Util.stringToEncodingVersion(str);
+            }
+            catch(Ice.VersionParseException e)
+            {
+                throw new Ice.EndpointParseException("invalid encoding version `" + arg + "' in endpoint `" +
+                                                     desc + " "+ str + "':\n" + e.str);
+            }
+        }
+        else
+        {
+            throw new Ice.EndpointParseException("unknown option `" + option + "' in `" + desc + " " + str + "'");
+        }
+    }
+
+    protected Ice.ProtocolVersion _protocol;
+    protected Ice.EncodingVersion _encoding;
 }

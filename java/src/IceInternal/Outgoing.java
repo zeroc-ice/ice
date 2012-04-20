@@ -18,10 +18,11 @@ public final class Outgoing implements OutgoingMessageCallback
         _state = StateUnsent;
         _sent = false;
         _handler = handler;
+        _encoding = handler.getReference().getEncoding();
 
         Instance instance = _handler.getReference().getInstance();
-        _is = new BasicStream(instance);
-        _os = new BasicStream(instance);
+        //_is = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
 
         writeHeader(operation, mode, context);
     }
@@ -37,6 +38,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _exception = null;
         _sent = false;
         _handler = handler;
+        _encoding = handler.getReference().getEncoding();
 
         writeHeader(operation, mode, context);
     }
@@ -44,7 +46,10 @@ public final class Outgoing implements OutgoingMessageCallback
     public void
     reclaim()
     {
-        _is.reset();
+        if(_is != null)
+        {
+            _is.reset();
+        }
         _os.reset();
     }
 
@@ -54,8 +59,6 @@ public final class Outgoing implements OutgoingMessageCallback
         throws LocalExceptionWrapper
     {
         assert(_state == StateUnsent);
-
-        _os.endWriteEncaps();
 
         switch(_handler.getReference().getMode())
         {
@@ -285,6 +288,10 @@ public final class Outgoing implements OutgoingMessageCallback
         
         assert(_state <= StateInProgress);
         
+        if(_is == null)
+        {
+            _is = new IceInternal.BasicStream(_handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
+        }
         _is.swap(is);
         byte replyStatus = _is.readByte();
         
@@ -422,15 +429,72 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     public BasicStream
-    is()
-    {
-        return _is;
-    }
-
-    public BasicStream
     os()
     {
         return _os;
+    }
+
+    public BasicStream 
+    startReadParams()
+    {
+        _is.startReadEncaps();
+        return _is;
+    }
+
+    public void 
+    endReadParams()
+    {
+        _is.endReadEncaps();
+    }
+
+    public void
+    readEmptyParams()
+    {
+        _is.skipEmptyEncaps(null);
+    }
+
+    public byte[]
+    readParamEncaps()
+    {
+        return _is.readEncaps(null);
+    }
+
+    public BasicStream
+    startWriteParams()
+    {
+        _os.startWriteEncaps(_encoding);
+        return _os;
+    }
+
+    public void
+    endWriteParams()
+    {
+        _os.endWriteEncaps();
+    }
+
+    public void
+    writeEmptyParams()
+    {
+        _os.writeEmptyEncaps(_encoding);
+    }
+
+    public void 
+    writeParamEncaps(byte[] encaps)
+    {
+        if(encaps.length == 0)
+        {
+            _os.writeEmptyEncaps(_encoding);
+        }
+        else
+        {
+            _os.writeEncaps(encaps);
+        }
+    }
+
+    public boolean 
+    hasResponse()
+    {
+        return !_is.isEmpty();
     }
 
     public void 
@@ -517,13 +581,6 @@ public final class Outgoing implements OutgoingMessageCallback
                     implicitContext.write(prxContext, _os);
                 }
             }
-
-            //
-            // Input and output parameters are always sent in an
-            // encapsulation, which makes it possible to forward requests as
-            // blobs.
-            //
-            _os.startWriteEncaps();
         }
         catch(Ice.LocalException ex)
         {
@@ -532,6 +589,7 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     private RequestHandler _handler;
+    private Ice.EncodingVersion _encoding;
     private BasicStream _is;
     private BasicStream _os;
     private boolean _sent;

@@ -166,7 +166,8 @@ public abstract class Index<K, V, I>
     {
         assert(_comparator != null);
         Ice.Communicator communicator = _map.connection().getCommunicator();
-        return _comparator.compare(decodeKey(k1, communicator), decodeKey(k2, communicator));
+        Ice.EncodingVersion encoding = _map.connection().getEncoding();
+        return _comparator.compare(decodeKey(k1, communicator, encoding), decodeKey(k2, communicator, encoding));
     }
 
     private class FindModel implements IteratorModel<K, V>
@@ -229,7 +230,7 @@ public abstract class Index<K, V, I>
     public int
     count(I key)
     {
-        byte[] k = encodeKey(key, _map.connection().getCommunicator());
+        byte[] k = encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -411,7 +412,7 @@ public abstract class Index<K, V, I>
         @SuppressWarnings("unchecked")
         I key = (I)o;
 
-        byte[] k = encodeKey(key, _map.connection().getCommunicator());
+        byte[] k = encodeKey(key, _map.connection().getCommunicator(), _map.connection().getEncoding());
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(k);
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -466,7 +467,7 @@ public abstract class Index<K, V, I>
         com.sleepycat.db.SecondaryCursor c = (com.sleepycat.db.SecondaryCursor)cursor;
 
         assert(fromKey != null);
-        byte[] k = encodeKey(fromKey, _map.connection().getCommunicator());
+        byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
 
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry();
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
@@ -529,7 +530,7 @@ public abstract class Index<K, V, I>
 
         if(fromKey != null)
         {
-            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator());
+            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
             dbIKey.setData(k);
             dbIKey.setReuseBuffer(false);
 
@@ -596,7 +597,7 @@ public abstract class Index<K, V, I>
 
         if(fromKey != null)
         {
-            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator());
+            byte[] k = encodeKey(fromKey, _map.connection().getCommunicator(), _map.connection().getEncoding());
             dbIKey.setData(k);
             dbIKey.setReuseBuffer(false);
 
@@ -652,8 +653,9 @@ public abstract class Index<K, V, I>
     protected byte[]
     marshalKey(byte[] value)
     {
-        V decodedValue = _map.decodeValue(value, _map.connection().getCommunicator());
-        return encodeKey(extractKey(decodedValue), _map.connection().getCommunicator());
+        V decodedValue = _map.decodeValue(value, _map.connection().getCommunicator(), _map.connection().getEncoding());
+        return encodeKey(extractKey(decodedValue), _map.connection().getCommunicator(), 
+                         _map.connection().getEncoding());
     }
 
     private EntryI<K, V>
@@ -663,7 +665,7 @@ public abstract class Index<K, V, I>
         I key = null;
         if(fromKey != null || toKey != null)
         {
-            key = decodeKey(dbIKey.getData(), _map.connection().getCommunicator());
+            key = decodeKey(dbIKey.getData(), _map.connection().getCommunicator(), _map.connection().getEncoding());
             if(!checkRange(key, fromKey, fromInclusive, toKey, toInclusive))
             {
                 return null;

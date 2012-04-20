@@ -14,7 +14,10 @@ public class OutputStreamI implements OutputStream
     public
     OutputStreamI(Communicator communicator)
     {
-        this(communicator, new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false));
+        _communicator = communicator;
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true, false);
+        _os.closure(this);
     }
 
     public
@@ -178,6 +181,12 @@ public class OutputStreamI implements OutputStream
     endSlice()
     {
         _os.endWriteSlice();
+    }
+
+    public void
+    startEncapsulation(Ice.EncodingVersion encoding)
+    {
+        _os.startWriteEncaps(encoding);
     }
 
     public void

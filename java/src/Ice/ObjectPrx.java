@@ -667,6 +667,22 @@ public interface ObjectPrx
     ObjectPrx ice_secure(boolean b);
 
     /**
+     * Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
+     * parameters.
+     *
+     * @param e The encoding version to use to marshal requests parameters.
+     * @return The new proxy with the specified encoding version.
+     **/
+    ObjectPrx ice_encodingVersion(Ice.EncodingVersion e);
+
+    /**
+     * Returns the encoding version used to marshal requests parameters.
+     *
+     * @return The encoding version.
+     **/
+    Ice.EncodingVersion ice_getEncodingVersion();
+
+    /**
      * Returns whether this proxy prefers secure endpoints.
      *
      * @return <code>true</code> if the proxy always attempts to invoke via secure endpoints before it

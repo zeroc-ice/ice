@@ -1450,12 +1450,12 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
         obj.status = element.status;
         obj.store = element.store;
-        obj.key = ObjectStore.marshalKey(element.identity, _communicator);
+        obj.key = ObjectStore.marshalKey(element.identity, _communicator, _encoding);
 
         if(element.status != destroyed)
         {
             updateStats(element.rec.stats, streamStart);
-            obj.value = ObjectStore.marshalValue(element.rec, _communicator);
+            obj.value = ObjectStore.marshalValue(element.rec, _communicator, _encoding);
         }
         return obj;
     }

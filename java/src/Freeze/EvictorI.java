@@ -326,6 +326,7 @@ abstract class EvictorI implements Evictor
             new java.util.HashMap<String, String>(facetTypes);
 
         _dbEnv = SharedDbEnv.get(_communicator, envName, dbEnv);
+        _encoding = _dbEnv.getEncoding();
 
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
@@ -432,6 +433,12 @@ abstract class EvictorI implements Evictor
         return _communicator;
     }
 
+    final Ice.EncodingVersion
+    encoding()
+    {
+        return _encoding;
+    }
+    
     final SharedDbEnv
     dbEnv()
     {
@@ -567,6 +574,7 @@ abstract class EvictorI implements Evictor
 
     protected final Ice.ObjectAdapter _adapter;
     protected final Ice.Communicator _communicator;
+    protected final Ice.EncodingVersion _encoding;
 
     protected final ServantInitializer _initializer;
 

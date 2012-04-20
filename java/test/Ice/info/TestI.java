@@ -38,10 +38,10 @@ public class TestI extends _TestIntfDisp
         if(ipinfo instanceof Ice.UDPEndpointInfo)
         {
             Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)ipinfo;
-            ctx.put("protocolMajor", Byte.toString(udp.protocolMajor));
-            ctx.put("protocolMinor", Byte.toString(udp.protocolMinor));
-            ctx.put("encodingMajor", Byte.toString(udp.encodingMajor));
-            ctx.put("encodingMinor", Byte.toString(udp.encodingMinor));
+            ctx.put("protocolMajor", Byte.toString(udp.protocol.major));
+            ctx.put("protocolMinor", Byte.toString(udp.protocol.minor));
+            ctx.put("encodingMajor", Byte.toString(udp.encoding.major));
+            ctx.put("encodingMinor", Byte.toString(udp.encoding.minor));
             ctx.put("mcastInterface", udp.mcastInterface);
             ctx.put("mcastTtl", Integer.toString(udp.mcastTtl));
         }

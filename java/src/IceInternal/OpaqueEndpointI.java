@@ -14,6 +14,10 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(String str)
     {
+        super(Protocol_0_0, Encoding_0_0);
+
+        _rawEncoding = Protocol.currentEncoding;
+
         int topt = 0;
         int vopt = 0;
 
@@ -57,13 +61,13 @@ final class OpaqueEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-                        throw new Ice.EndpointParseException("invalid timeout value `" + argument +
+                        throw new Ice.EndpointParseException("invalid type value `" + argument + 
                                                              "' in endpoint `opaque " + str + "'");
                     }
 
                     if(t < 0 || t > 65535)
                     {
-                        throw new Ice.EndpointParseException("timeout value `" + argument +
+                        throw new Ice.EndpointParseException("type value `" + argument +
                                                              "' out of range in endpoint `opaque " + str + "'");
                     }
 
@@ -76,6 +80,25 @@ final class OpaqueEndpointI extends EndpointI
                     break;
                 }
 
+                case 'e':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `opaque "
+                                                             + str + "'");
+                    }
+
+                    try
+                    {
+                        _rawEncoding = Ice.Util.stringToEncodingVersion(str);
+                    }
+                    catch(Ice.VersionParseException e)
+                    {
+                        throw new Ice.EndpointParseException("invalid encoding version `" + argument + 
+                                                             "' in endpoint `opaque " + str + "':\n" + e.str);
+                    }
+                }
+
                 case 'v':
                 {
                     if(argument == null)
@@ -83,6 +106,7 @@ final class OpaqueEndpointI extends EndpointI
                         throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `opaque "
                                                              + str + "'");
                     }
+
                     for(int j = 0; j < argument.length(); ++j)
                     {
                         if(!IceUtilInternal.Base64.isBase64(argument.charAt(j)))
@@ -123,8 +147,9 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(short type, BasicStream s)
     {
+        super(Protocol_0_0, Encoding_0_0);
         _type = type;
-        s.startReadEncaps();
+        _rawEncoding = s.startReadEncaps();
         int sz = s.getReadEncapsSize();
         _rawBytes = s.readBlob(sz);
         s.endReadEncaps();
@@ -138,7 +163,7 @@ final class OpaqueEndpointI extends EndpointI
     streamWrite(BasicStream s)
     {
         s.writeShort(_type);
-        s.startWriteEncaps();
+        s.startWriteEncaps(_rawEncoding);
         s.writeBlob(_rawBytes);
         s.endWriteEncaps();
     }
@@ -150,7 +175,7 @@ final class OpaqueEndpointI extends EndpointI
     _toString()
     {
         String val = IceUtilInternal.Base64.encode(_rawBytes);
-        return "opaque -t " + _type + " -v " + val;
+        return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
     }
 
     //
@@ -159,7 +184,7 @@ final class OpaqueEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.OpaqueEndpointInfo(-1, false, _rawBytes)
+        return new Ice.OpaqueEndpointInfo(_protocol, _encoding, -1, false, _rawEncoding, _rawBytes)
             {
                 public short type()
                 {
@@ -340,34 +365,15 @@ final class OpaqueEndpointI extends EndpointI
     //
     // Compare endpoints for sorting purposes
     //
-    public boolean
-    equals(java.lang.Object obj)
-    {
-        try
-        {
-            return compareTo((EndpointI)obj) == 0;
-        }
-        catch(ClassCastException ee)
-        {
-            assert(false);
-            return false;
-        }
-    }
-
     public int
     compareTo(EndpointI obj) // From java.lang.Comparable
     {
-        OpaqueEndpointI p = null;
-
-        try
+        if(!(obj instanceof OpaqueEndpointI))
         {
-            p = (OpaqueEndpointI)obj;
-        }
-        catch(ClassCastException ex)
-        {
-            return 1;
+            return type() < obj.type() ? -1 : 1;
         }
 
+        OpaqueEndpointI p = (OpaqueEndpointI)obj;
         if(this == p)
         {
             return 0;
@@ -378,6 +384,24 @@ final class OpaqueEndpointI extends EndpointI
             return -1;
         }
         else if(p._type < _type)
+        {
+            return 1;
+        }
+
+        if(_rawEncoding.major < p._rawEncoding.major)
+        {
+            return -1;
+        }
+        else if(p._rawEncoding.major < _rawEncoding.major)
+        {
+            return 1;
+        }
+
+        if(_rawEncoding.minor < p._rawEncoding.minor)
+        {
+            return -1;
+        }
+        else if(p._rawEncoding.minor < _rawEncoding.minor)
         {
             return 1;
         }
@@ -409,6 +433,8 @@ final class OpaqueEndpointI extends EndpointI
     calcHashValue()
     {
         _hashCode = _type;
+        _hashCode = 5 * _hashCode + _rawEncoding.major;
+        _hashCode = 5 * _hashCode + _rawEncoding.minor;
         for(int i = 0; i < _rawBytes.length; i++)
         {
             _hashCode = 5 * _hashCode + _rawBytes[i];
@@ -416,6 +442,10 @@ final class OpaqueEndpointI extends EndpointI
     }
 
     private short _type;
+    private Ice.EncodingVersion _rawEncoding;
     private byte[] _rawBytes;
     private int _hashCode;
+
+    private final static Ice.ProtocolVersion Protocol_0_0 = new Ice.ProtocolVersion((byte)0, (byte)0);
+    private final static Ice.EncodingVersion Encoding_0_0 = new Ice.EncodingVersion((byte)0, (byte)0);
 }

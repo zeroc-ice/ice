@@ -108,7 +108,7 @@ public final class EndpointFactoryManager
                     // and ask the factory to read the endpoint data from that stream to create
                     // the actual endpoint.
                     //
-                    BasicStream bs = new BasicStream(_instance, true, false);
+                    BasicStream bs = new BasicStream(_instance, Protocol.currentEncoding, true, false);
                     ue.streamWrite(bs);
                     Buffer buf = bs.getBuffer();
                     buf.b.position(0);

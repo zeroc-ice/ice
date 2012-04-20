@@ -17,7 +17,18 @@ final public class Incoming extends IncomingBase implements Ice.Request
     {
         super(instance, connection, adapter, response, compress, requestId);
 
-        _is = new BasicStream(instance);
+        //
+        // Prepare the response if necessary.
+        //
+        if(response)
+        {
+            _os.writeBlob(IceInternal.Protocol.replyHdr);
+            
+            //
+            // Add the request ID.
+            //
+            _os.writeInt(requestId);
+        }
     }
 
     //
@@ -45,11 +56,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _cb = null;
         _inParamPos = -1;
             
-        if(_is == null)
-        {
-            _is = new BasicStream(instance);
-        }
-
         super.reset(instance, connection, adapter, response, compress, requestId);
     }
 
@@ -59,17 +65,14 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _cb = null;
         _inParamPos = -1;
 
-        if(_is != null)
-        {
-            _is.reset();
-        }
-
         super.reclaim();
     }
 
     public void
-    invoke(ServantManager servantManager)
+    invoke(ServantManager servantManager, BasicStream stream)
     {
+        _is = stream;
+        
         //
         // Read the current.
         //
@@ -103,17 +106,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _current.ctx.put(first, second);
         }
 
-        if(_response)
-        {
-            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
-            _os.writeByte(ReplyStatus.replyOK);
-            _os.startWriteEncaps();
-        }
-
-        byte replyStatus = ReplyStatus.replyOK;
-
-        Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;        
-
         //
         // Don't put the code above into the try block below. Exceptions
         // in the code above are considered fatal, and must propagate to
@@ -139,11 +131,27 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     }
                     catch(Ice.UserException ex)
                     {
-                        _os.writeUserException(ex);
-                        replyStatus = ReplyStatus.replyUserException;
+                        Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
+                    
+                        if(_response)
+                        {
+                            _os.writeByte(ReplyStatus.replyUserException);
+                            _os.startWriteEncaps(encoding);
+                            _os.writeUserException(ex);
+                            _os.endWriteEncaps();
+                            _connection.sendResponse(_os, _compress);
+                        }
+                        else
+                        {
+                            _connection.sendNoResponse();
+                        }
+
+                        _connection = null;
+                        return;
                     }
                     catch(java.lang.Exception ex)
                     {
+                        _is.skipEncaps(); // Required for batch requests.
                         __handleException(ex);
                         return;
                     }
@@ -151,45 +159,54 @@ final public class Incoming extends IncomingBase implements Ice.Request
             }
         }
 
-        if(_servant != null)
+        try
         {
-            try
+            if(_servant != null)
             {
-                assert(replyStatus == ReplyStatus.replyOK);
-                dispatchStatus = _servant.__dispatch(this, _current);
-                if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                //
+                // DispatchAsync is a "pseudo dispatch status", used internally only
+                // to indicate async dispatch.
+                //
+                if(_servant.__dispatch(this, _current) == Ice.DispatchStatus.DispatchAsync)
                 {
-                    replyStatus = ReplyStatus.replyUserException;
+                    //
+                    // If this was an asynchronous dispatch, we're done here.
+                    //
+                    return;
+
                 }        
                 
-                if(dispatchStatus != Ice.DispatchStatus.DispatchAsync)
-                {
-                    if(_locator != null && !__servantLocatorFinished())
-                    {
-                        return;
-                    }
-                }
-            }
-            catch(java.lang.Exception ex)
-            {
                 if(_locator != null && !__servantLocatorFinished())
                 {
                     return;
                 }
-                __handleException(ex);
-                return;
-            }
-        }
-        else if(replyStatus == ReplyStatus.replyOK)
-        {
-            if(servantManager != null && servantManager.hasServant(_current.id))
-            {
-                replyStatus = ReplyStatus.replyFacetNotExist;
             }
             else
             {
-                replyStatus = ReplyStatus.replyObjectNotExist;
+                //
+                // Skip the input parameters, this is required for reading
+                // the next batch request if dispatching batch requests.
+                //
+                _is.skipEncaps(); 
+                
+                if(servantManager != null && servantManager.hasServant(_current.id))
+                {
+                    throw new Ice.FacetNotExistException(_current.id, _current.facet, _current.operation);
+                }
+                else
+                {
+                    throw new Ice.ObjectNotExistException(_current.id, _current.facet, _current.operation);
+                }
             }
+        }
+        catch(java.lang.Exception ex)
+        {
+            if(_locator != null && !__servantLocatorFinished())
+            {
+                return;
+            }
+            __handleException(ex);
+            return;
         }
         
         //
@@ -198,57 +215,10 @@ final public class Incoming extends IncomingBase implements Ice.Request
         // the caller of this operation.
         //
 
-        //
-        // DispatchAsync is "pseudo dispatch status", used internally
-        // only to indicate async dispatch.
-        //
-        if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
-        {
-            //
-            // If this was an asynchronous dispatch, we're done here.
-            //
-            return;
-        }
-
         assert(_connection != null);
 
         if(_response)
         {
-            _os.endWriteEncaps();
-            
-            if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
-            {
-                assert(replyStatus == ReplyStatus.replyObjectNotExist ||
-                       replyStatus == ReplyStatus.replyFacetNotExist);
-                
-                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
-                _os.writeByte(replyStatus);
-                
-                _current.id.__write(_os);
-
-                //
-                // For compatibility with the old FacetPath.
-                //
-                if(_current.facet == null || _current.facet.length() == 0)
-                {
-                    _os.writeStringSeq(null);
-                }
-                else
-                {
-                    String[] facetPath2 = { _current.facet };
-                    _os.writeStringSeq(facetPath2);
-                }
-
-                _os.writeString(_current.operation);
-            }
-            else
-            {
-                int save = _os.pos();
-                _os.pos(Protocol.headerSize + 4); // Reply status position.
-                _os.writeByte(replyStatus);
-                _os.pos(save);
-            }
-
             _connection.sendResponse(_os, _compress);
         }
         else
@@ -257,18 +227,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
 
         _connection = null;
-    }
-
-    public BasicStream
-    is()
-    {
-        return _is;
-    }
-
-    public BasicStream
-    os()
-    {
-        return _os;
     }
 
     public final void
@@ -307,13 +265,9 @@ final public class Incoming extends IncomingBase implements Ice.Request
             // Let's rewind _is and clean-up _os
             //
             _is.pos(_inParamPos);
-
             if(_response)
             {
-                _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); 
-                _os.writeByte(ReplyStatus.replyOK);
-                _os.startWriteEncaps();
             }
         }
     }
@@ -332,6 +286,37 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _cb.__deactivate(this);
             _cb = null;
         }
+    }
+
+    public final BasicStream
+    startReadParams()
+    {
+        //
+        // Remember the encoding used by the input parameters, we'll
+        // encode the response parameters with the same encoding.
+        //
+        _current.encoding = _is.startReadEncaps();
+        return _is;
+    }
+    
+    public final void
+    endReadParams()
+    {
+        _is.endReadEncaps();
+    }
+
+    public final void
+    readEmptyParams()
+    {
+        _current.encoding = new Ice.EncodingVersion();
+        _is.skipEmptyEncaps(_current.encoding);
+    }
+
+    public final byte[]
+    readParamEncaps()
+    {
+        _current.encoding = new Ice.EncodingVersion();
+        return _is.readEncaps(_current.encoding);
     }
 
     final void

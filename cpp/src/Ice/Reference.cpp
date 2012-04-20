@@ -1881,17 +1881,6 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 namespace
 {
 
-struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
-{
-public:
-
-    bool
-    operator()(const EndpointIPtr& p) const
-    {
-        return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
-    }
-};
-
 struct EndpointIsIncompatible : public unary_function<EndpointIPtr, bool>
 {
     const Reference* _reference;
@@ -1917,13 +1906,8 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     vector<EndpointIPtr> endpoints = allEndpoints;
 
     //
-    // Filter out unknown endpoints.
-    //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
-
-    //
     // Filter out incompatible endpoints (whose encoding/protocol
-    // versions aren't supported by this runtime).
+    // versions aren't supported by this runtime, or are opaque).
     //
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsIncompatible(this)), endpoints.end());
 

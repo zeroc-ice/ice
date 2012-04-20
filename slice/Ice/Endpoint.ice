@@ -187,6 +187,14 @@ local class OpaqueEndpointInfo extends EndpointInfo
 {
     /**
      *
+     * The encoding version of the opaque endpoint (to decode or
+     * encode the rawBytes).
+     * 
+     **/
+    Ice::EncodingVersion rawEncoding;
+
+    /**
+     *
      * The raw encoding of the opaque endpoint.
      *
      **/

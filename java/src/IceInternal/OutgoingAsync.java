@@ -11,11 +11,11 @@ package IceInternal;
 
 public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessageCallback
 {
-    public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase callback)
+    public OutgoingAsync(Ice.ObjectPrx prx, String operation, CallbackBase cb)
     {
-        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
-              callback);
+        super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation, cb);
         _proxy = (Ice.ObjectPrxHelperBase)prx;
+        _encoding = _proxy.__reference().getEncoding();
     }
 
     public void __prepare(String operation, Ice.OperationMode mode, java.util.Map<String, String> ctx,
@@ -87,8 +87,6 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 implicitContext.write(prxContext, _os);
             }
         }
-
-        _os.startWriteEncaps();
     }
 
     @Override
@@ -216,7 +214,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 }
 
                 assert _is == null;
-                _is = new IceInternal.BasicStream(_instance);
+                _is = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
                 _is.swap(is);
                 replyStatus = _is.readByte();
 
@@ -398,6 +396,38 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         return _sentSynchronously;
     }
 
+    public BasicStream
+    __startWriteParams()
+    {
+        _os.startWriteEncaps(_encoding);
+        return _os;
+    }
+
+    public void
+    __endWriteParams()
+    {
+        _os.endWriteEncaps();
+    }
+
+    public void
+    __writeEmptyParams()
+    {
+        _os.writeEmptyEncaps(_encoding);
+    }
+
+    public void 
+    __writeParamEncaps(byte[] encaps)
+    {
+        if(encaps == null || encaps.length == 0)
+        {
+            _os.writeEmptyEncaps(_encoding);
+        }
+        else
+        {
+            _os.writeEncaps(encaps);
+        }
+    }
+
     private int handleException(Ice.LocalException exc, boolean sent)
     {
         Ice.IntHolder interval = new Ice.IntHolder(0);
@@ -481,6 +511,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     private TimerTask _timerTask;
 
     private Ice._ObjectDel _delegate;
+    private Ice.EncodingVersion _encoding;
     private int _cnt;
     private Ice.OperationMode _mode;
 

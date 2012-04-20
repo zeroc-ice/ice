@@ -55,7 +55,7 @@ private:
     // All members are const, because endpoints are immutable.
     //
     Ice::Short _type;
-    Ice::EncodingVersion _encoding;
+    Ice::EncodingVersion _rawEncoding; // The encoding used for _rawBytes
     const std::vector<Ice::Byte> _rawBytes;
 };
 

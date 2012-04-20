@@ -16,7 +16,8 @@ public class InputStreamI implements InputStream
     {
         _communicator = communicator;
 
-        _is = new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), true, false);
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        _is = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true, false);
         _is.closure(this);
         _is.resize(data.length, true);
         IceInternal.Buffer buf = _is.getBuffer();
@@ -216,16 +217,16 @@ public class InputStreamI implements InputStream
         _is.skipSlice();
     }
 
-    public void
+    public Ice.EncodingVersion
     startEncapsulation()
     {
-        _is.startReadEncaps();
+        return _is.startReadEncaps();
     }
 
-    public void
+    public Ice.EncodingVersion
     skipEncapsulation()
     {
-        _is.skipEncaps();
+        return _is.skipEncaps();
     }
 
     public void

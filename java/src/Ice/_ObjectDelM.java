@@ -41,10 +41,9 @@ public class _ObjectDelM implements _ObjectDel
                         throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
-                IceInternal.BasicStream __is = __og.is();
-                __is.startReadEncaps();
+                IceInternal.BasicStream __is = __og.startReadParams();
                 boolean __ret = __is.readBool();
-                __is.endReadEncaps();
+                __og.endReadParams();
                 return __ret;
             }
             catch(LocalException __ex)
@@ -66,7 +65,7 @@ public class _ObjectDelM implements _ObjectDel
         try
         {
             boolean __ok = __og.invoke();
-            if(!__og.is().isEmpty())
+            if(__og.hasResponse())
             {
                 try
                 {
@@ -81,7 +80,7 @@ public class _ObjectDelM implements _ObjectDel
                             throw new UnknownUserException(__ex.ice_name(), __ex);
                         }
                     }
-                    __og.is().skipEmptyEncaps();
+                    __og.readEmptyParams();
                 }
                 catch(LocalException __ex)
                 {
@@ -116,10 +115,9 @@ public class _ObjectDelM implements _ObjectDel
                         throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
-                IceInternal.BasicStream __is = __og.is();
-                __is.startReadEncaps();
+                IceInternal.BasicStream __is = __og.startReadParams();
                 String[] __ret = __is.readStringSeq();
-                __is.endReadEncaps();
+                __og.endReadParams();
                 return __ret;
             }
             catch(LocalException __ex)
@@ -154,10 +152,9 @@ public class _ObjectDelM implements _ObjectDel
                         throw new UnknownUserException(__ex.ice_name(), __ex);
                     }
                 }
-                IceInternal.BasicStream __is = __og.is();
-                __is.startReadEncaps();
+                IceInternal.BasicStream __is = __og.startReadParams();
                 String __ret = __is.readString();
-                __is.endReadEncaps();
+                __og.endReadParams();
                 return __ret;
             }
             catch(LocalException __ex)
@@ -178,31 +175,16 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __og = __handler.getOutgoing(operation, mode, __context);
         try
         {
-            if(inParams != null)
-            {
-                try
-                {
-                    IceInternal.BasicStream __os = __og.os();
-                    __os.writeBlob(inParams);
-                }
-                catch(LocalException __ex)
-                {
-                    __og.abort(__ex);
-                }
-            }
+            __og.writeParamEncaps(inParams);
             boolean ok = __og.invoke();
             if(__handler.getReference().getMode() == IceInternal.Reference.ModeTwoway)
             {
                 try
                 {
-                    IceInternal.BasicStream __is = __og.is();
-                    __is.startReadEncaps();
-                    int sz = __is.getReadEncapsSize();
-                    if(outParams != null)
+                    if(outParams != null) 
                     {
-                        outParams.value = __is.readBlob(sz);
+                        outParams.value = __og.readParamEncaps();
                     }
-                    __is.endReadEncaps();
                 }
                 catch(LocalException __ex)
                 {

@@ -546,7 +546,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     //
                     // Reset the batch stream.
                     //
-                    _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+                    _batchStream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding,
+                                                               _batchAutoFlush);
                     _batchRequestNum = 0;
                     _batchRequestCompress = false;
                     _batchMarker = 0;
@@ -600,7 +601,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public synchronized void
     abortBatchRequest()
     {
-        _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+        _batchStream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding, 
+                                                   _batchAutoFlush);
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
@@ -709,7 +711,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         // Reset the batch stream.
         //
-        _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+        _batchStream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding, 
+                                                   _batchAutoFlush);
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
@@ -769,7 +772,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         //
         // Reset the batch stream.
         //
-        _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+        _batchStream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding, 
+                                                   _batchAutoFlush);
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
@@ -972,29 +976,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                             throw ex;
                         }
 
-                        byte pMajor = _readStream.readByte();
-                        byte pMinor = _readStream.readByte();
-                        if(pMajor != IceInternal.Protocol.protocolMajor || pMinor > IceInternal.Protocol.protocolMinor)
-                        {
-                            Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-                            e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-                            e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-                            e.major = IceInternal.Protocol.protocolMajor;
-                            e.minor = IceInternal.Protocol.protocolMinor;
-                            throw e;
-                        }
+                        _readProtocol.__read(_readStream);
+                        IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
 
-                        byte eMajor = _readStream.readByte();
-                        byte eMinor = _readStream.readByte();
-                        if(eMajor != IceInternal.Protocol.encodingMajor || eMinor > IceInternal.Protocol.encodingMinor)
-                        {
-                            Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-                            e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-                            e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-                            e.major = IceInternal.Protocol.encodingMajor;
-                            e.minor = IceInternal.Protocol.encodingMinor;
-                            throw e;
-                        }
+                        _readProtocolEncoding.__read(_readStream);
+                        IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
 
                         _readStream.readByte(); // messageType
                         _readStream.readByte(); // compress
@@ -1132,7 +1118,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 assert(info.stream == current.stream);
                 IceInternal.BasicStream stream = info.stream;
-                info.stream = new IceInternal.BasicStream(_instance);
+                info.stream = new IceInternal.BasicStream(_instance, IceInternal.Protocol.currentProtocolEncoding);
                 info.stream.swap(stream);
             }
 
@@ -1499,14 +1485,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchAutoFlush = initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0 ? true : false;
-        _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
+        _batchStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding, 
+                                                   _batchAutoFlush);
         _batchStreamInUse = false;
         _batchRequestNum = 0;
         _batchRequestCompress = false;
         _batchMarker = 0;
-        _readStream = new IceInternal.BasicStream(instance);
+        _readStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _readHeader = false;
-        _writeStream = new IceInternal.BasicStream(instance);
+        _writeStream = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _dispatchCount = 0;
         _state = StateNotInitialized;
 
@@ -1819,12 +1806,11 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             // Before we shut down, we send a close connection
             // message.
             //
-            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, false, false);
+            IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, 
+                                                                     IceInternal.Protocol.currentProtocolEncoding);
             os.writeBlob(IceInternal.Protocol.magic);
-            os.writeByte(IceInternal.Protocol.protocolMajor);
-            os.writeByte(IceInternal.Protocol.protocolMinor);
-            os.writeByte(IceInternal.Protocol.encodingMajor);
-            os.writeByte(IceInternal.Protocol.encodingMinor);
+            IceInternal.Protocol.currentProtocol.__write(os);
+            IceInternal.Protocol.currentProtocolEncoding.__write(os);
             os.writeByte(IceInternal.Protocol.closeConnectionMsg);
             os.writeByte((byte)0); // compression status: always report 0 for CloseConnection in Java.
             os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1880,10 +1866,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 if(_writeStream.size() == 0)
                 {
                     _writeStream.writeBlob(IceInternal.Protocol.magic);
-                    _writeStream.writeByte(IceInternal.Protocol.protocolMajor);
-                    _writeStream.writeByte(IceInternal.Protocol.protocolMinor);
-                    _writeStream.writeByte(IceInternal.Protocol.encodingMajor);
-                    _writeStream.writeByte(IceInternal.Protocol.encodingMinor);
+                    IceInternal.Protocol.currentProtocol.__write(_writeStream);
+                    IceInternal.Protocol.currentProtocolEncoding.__write(_writeStream);
                     _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                     _writeStream.writeByte((byte)0); // Compression status (always zero for validate connection).
                     _writeStream.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -1923,28 +1907,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     ex.badMagic = m;
                     throw ex;
                 }
-                byte pMajor = _readStream.readByte();
-                byte pMinor = _readStream.readByte();
-                if(pMajor != IceInternal.Protocol.protocolMajor)
-                {
-                    UnsupportedProtocolException e = new UnsupportedProtocolException();
-                    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-                    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-                    e.major = IceInternal.Protocol.protocolMajor;
-                    e.minor = IceInternal.Protocol.protocolMinor;
-                    throw e;
-                }
-                byte eMajor = _readStream.readByte();
-                byte eMinor = _readStream.readByte();
-                if(eMajor != IceInternal.Protocol.encodingMajor)
-                {
-                    UnsupportedEncodingException e = new UnsupportedEncodingException();
-                    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-                    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-                    e.major = IceInternal.Protocol.encodingMajor;
-                    e.minor = IceInternal.Protocol.encodingMinor;
-                    throw e;
-                }
+
+                _readProtocol.__read(_readStream);
+                IceInternal.Protocol.checkSupportedProtocol(_readProtocol);
+                
+                _readProtocolEncoding.__read(_readStream);
+                IceInternal.Protocol.checkSupportedProtocolEncoding(_readProtocolEncoding);
+                
                 byte messageType = _readStream.readByte();
                 if(messageType != IceInternal.Protocol.validateConnectionMsg)
                 {
@@ -2362,37 +2331,20 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 boolean response = !_endpoint.datagram() && requestId != 0;
                 in = getIncoming(adapter, response, compress, requestId);
-                IceInternal.BasicStream is = in.is();
-                stream.swap(is);
-                IceInternal.BasicStream os = in.os();
 
                 //
-                // Prepare the response if necessary.
+                // Dispatch the invocation.
                 //
-                if(response)
-                {
-                    assert(invokeNum == 1); // No further invocations if a response is expected.
-                    os.writeBlob(IceInternal.Protocol.replyHdr);
+                in.invoke(servantManager, stream);
 
-                    //
-                    // Add the request ID.
-                    //
-                    os.writeInt(requestId);
-                }
-
-                in.invoke(servantManager);
-
-                //
-                // If there are more invocations, we need the stream back.
-                //
-                if(--invokeNum > 0)
-                {
-                    stream.swap(is);
-                }
+                
+                --invokeNum;
 
                 reclaimIncoming(in);
                 in = null;
             }
+
+            stream.clear();
         }
         catch(LocalException ex)
         {
@@ -2637,7 +2589,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(adopt)
             {
-                IceInternal.BasicStream stream = new IceInternal.BasicStream(this.stream.instance());
+                IceInternal.BasicStream stream =
+                    new IceInternal.BasicStream(this.stream.instance(), IceInternal.Protocol.currentProtocolEncoding);
                 stream.swap(this.stream);
                 this.stream = stream;
                 adopt = false;
@@ -2752,6 +2705,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private IceInternal.Outgoing _outgoingCache;
     private java.lang.Object _outgoingCacheMutex = new java.lang.Object();
+
+    private Ice.ProtocolVersion _readProtocol = new Ice.ProtocolVersion();
+    private Ice.EncodingVersion _readProtocolEncoding = new Ice.EncodingVersion();
 
     private int _cacheBuffers;
 }
