@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel os.getcwd()!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel os.getcwd()!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 transformdb = os.path.join(TestUtil.getCppBinDir(), "transformdb")
 
@@ -38,36 +38,36 @@ if os.path.exists(tmp_dbdir):
     shutil.rmtree(tmp_dbdir)
 os.mkdir(tmp_dbdir)
 
-print "creating test database...",
+sys.stdout.write("creating test database... ")
 sys.stdout.flush()
 
 makedb = '"%s" "%s"' % (os.path.join(os.getcwd(), "makedb"), os.getcwd())
 proc = TestUtil.spawn(makedb)
 proc.waitTestSuccess()
-print "ok"
+print("ok")
 
 testold = os.path.join(os.getcwd(), "TestOld.ice")
 testnew = os.path.join(os.getcwd(), "TestNew.ice")
 transformxml = os.path.join(os.getcwd(), "transform.xml")
 checkxml = os.path.join(os.getcwd(), "check.xml")
 
-print "executing evictor transformations...",
+sys.stdout.write("executing evictor transformations... ")
 sys.stdout.flush()
 
 command = '"' + transformdb + '" -e -p --old "' + testold + '" --new "' + testnew + '" -f "' + transformxml + '" "' + dbdir + \
     '" evictor.db "' + check_dbdir + '" '
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
-print "ok"
+print("ok")
 
-print "validating database...",
+sys.stdout.write("validating database... ")
 sys.stdout.flush()
 
 command = '"' + transformdb + '" -e --old "' + testnew + '" --new "' + testnew + '" -f "' + checkxml + '" "' + check_dbdir + \
     '" evictor.db "' + tmp_dbdir + '"'
 proc = TestUtil.spawn(command)
 proc.waitTestSuccess()
-print "ok"
+print("ok")
 
 if TestUtil.appverifier:
     TestUtil.appVerifierAfterTestEnd([transformdb])

@@ -55,9 +55,9 @@ const Py_ssize_t CURRENT_REQUEST_ID = 7;
 extern "C"
 #endif
 static CurrentObject*
-currentNew(PyObject* /*arg*/)
+currentNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    CurrentObject* self = PyObject_New(CurrentObject, &CurrentType);
+    CurrentObject* self = reinterpret_cast<CurrentObject*>(type->tp_alloc(type, 0));
     if(!self)
     {
         return 0;
@@ -91,7 +91,7 @@ currentDealloc(CurrentObject* self)
     Py_XDECREF(self->ctx);
     Py_XDECREF(self->requestId);
     delete self->current;
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 #ifdef WIN32
@@ -216,7 +216,7 @@ currentGetter(CurrentObject* self, void* closure)
     {
         if(!self->requestId)
         {
-            self->requestId = PyInt_FromLong(self->current->requestId);
+            self->requestId = PyLong_FromLong(self->current->requestId);
             assert(self->requestId);
         }
         Py_INCREF(self->requestId);
@@ -256,8 +256,7 @@ PyTypeObject CurrentType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                               /* ob_size */
+    PyVarObject_HEAD_INIT(0, 0)
     STRCAST("IcePy.Current"),        /* tp_name */
     sizeof(CurrentObject),           /* tp_basicsize */
     0,                               /* tp_itemsize */
@@ -266,7 +265,7 @@ PyTypeObject CurrentType =
     0,                               /* tp_print */
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
-    0,                               /* tp_compare */
+    0,                               /* tp_reserved */
     0,                               /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
@@ -324,7 +323,7 @@ IcePy::createCurrent(const Ice::Current& current)
     //
     // Return an instance of IcePy.Current to hold the current information.
     //
-    CurrentObject* obj = currentNew(0);
+    CurrentObject* obj = currentNew(&CurrentType, 0, 0);
     if(obj)
     {
         *obj->current = current;

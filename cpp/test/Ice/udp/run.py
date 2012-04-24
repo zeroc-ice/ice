@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 #
 # COMPILERFIX: The server fails to start on Solaris when IPv6 is
@@ -26,7 +26,7 @@ from scripts import *
 # linked-local configured link.
 #
 if TestUtil.isSolaris() and TestUtil.ipv6:
-    print "test not supported on Solaris with IPv6"
+    print("test not supported on Solaris with IPv6")
     sys.exit(0)
 
 server = os.path.join(os.getcwd(), "server")
@@ -36,16 +36,17 @@ num = 5
 
 serverProc = []
 for i in range(0, num):
-    print "starting server #%d..." % (i + 1),
+    sys.stdout.write("starting server #%d... " % (i + 1))
+    sys.stdout.flush()
     serverProc.append(TestUtil.startServer(server, "%d" % i , adapter="McastTestAdapter"))
-    print "ok"
+    print("ok")
 
-print "starting client...",
+sys.stdout.write("starting client... ")
+sys.stdout.flush()
 clientProc = TestUtil.startClient(client, "%d" % num, startReader = False)
-print "ok"
+print("ok")
 clientProc.startReader()
 
 clientProc.waitTestSuccess()
 for p in serverProc:
     p.waitTestSuccess()
-

@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceGridAdmin
 
 testdir = os.getcwd();
 
@@ -52,11 +52,10 @@ def runIceGridRegistry():
 
 registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
 
-print "testing IceGrid file lock...",
+sys.stdout.write("testing IceGrid file lock... ")
 iceGrid = runIceGridRegistry()
 iceGrid.expect(".*IceUtil::FileLockedException.*")
 iceGrid.wait()
-print "ok"
+print("ok")
 
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)
-

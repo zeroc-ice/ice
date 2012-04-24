@@ -73,14 +73,41 @@ static PyMethodDef methods[] =
     { 0, 0 } /* sentinel */
 };
 
+#if PY_VERSION_HEX >= 0x03000000
+
+#   define INIT_RETURN return(0)
+
+static struct PyModuleDef iceModule =
+{
+    PyModuleDef_HEAD_INIT,
+    "IcePy",
+    "The Internet Communications Engine.",
+    -1,
+    methods,
+    NULL,
+    NULL,
+    NULL,
+    NULL
+};
+
+#else
+
+#   define INIT_RETURN return
+
 PyDoc_STRVAR(moduleDoc, "The Internet Communications Engine.");
+
+#endif
 
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
 extern "C" __global void
 #else
 PyMODINIT_FUNC
 #endif
+#if PY_VERSION_HEX >= 0x03000000
+PyInit_IcePy(void)
+#else
 initIcePy(void)
+#endif
 {
     PyObject* module;
 
@@ -89,64 +116,75 @@ initIcePy(void)
     //
     PyEval_InitThreads();
 
+#if PY_VERSION_HEX >= 0x03000000
+    //
+    // Create the module.
+    //
+    module = PyModule_Create(&iceModule);
+#else
     //
     // Initialize the module.
     //
     module = Py_InitModule3(STRCAST("IcePy"), methods, moduleDoc);
+#endif
 
     //
     // Install built-in Ice types.
     //
     if(!initProxy(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initTypes(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initProperties(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initCommunicator(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initCurrent(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initObjectAdapter(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initOperation(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initLogger(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initConnection(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initConnectionInfo(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initImplicitContext(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initEndpoint(module))
     {
-        return;
+        INIT_RETURN;
     }
     if(!initEndpointInfo(module))
     {
-        return;
+        INIT_RETURN;
     }
+
+#if PY_VERSION_HEX >= 0x03000000
+    return module;
+#endif
 }

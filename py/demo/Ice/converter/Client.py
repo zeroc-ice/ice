@@ -14,14 +14,14 @@ Ice.loadSlice('Greet.ice')
 import Demo
 
 def menu():
-    print """
+    print("""
 usage:
 t: send greeting with conversion
 u: send greeting without conversion
 s: shutdown server
 x: exit
 ?: help
-"""
+""")
 
 def decodeString(str):
     ret = ""
@@ -39,17 +39,17 @@ communicator2 = None
 class Client:
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         greet1 = Demo.GreetPrx.checkedCast(communicator1.propertyToProxy('Greet.Proxy'))
         if not greet1:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
         
         greet2 = Demo.GreetPrx.checkedCast(communicator2.propertyToProxy('Greet.Proxy'))
         if not greet2:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
         
         menu()
@@ -59,13 +59,15 @@ class Client:
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
                 if c == 't':
                     ret = greet1.exchangeGreeting(greeting)
-                    print "Received: \"" + decodeString(ret) + "\""
+                    print("Received: \"" + decodeString(ret) + "\"")
                 elif c == 'u':
                     ret = greet2.exchangeGreeting(greeting)
-                    print "Received: \"" + decodeString(ret) + "\""
+                    print("Received: \"" + decodeString(ret) + "\"")
                 elif c == 's':
                     greet1.shutdown()
                 elif c == 'x':
@@ -73,14 +75,14 @@ class Client:
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except KeyboardInterrupt:
                 break
             except EOFError:
                 break
-            except Ice.Exception, ex:
-                print ex
+            except Ice.Exception as ex:
+                print(ex)
 
         return 0
 

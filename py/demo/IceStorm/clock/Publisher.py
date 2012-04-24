@@ -15,7 +15,7 @@ import Demo
 
 class Publisher(Ice.Application):
     def usage(self):
-        print "Usage: " + self.appName() + " [--datagram|--twoway|--oneway] [topic]"
+        print("Usage: " + self.appName() + " [--datagram|--twoway|--oneway] [topic]")
 
     def run(self, args):
         try:
@@ -47,7 +47,7 @@ class Publisher(Ice.Application):
 
         manager = IceStorm.TopicManagerPrx.checkedCast(self.communicator().propertyToProxy('TopicManager.Proxy'))
         if not manager:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
 
         #
@@ -55,11 +55,11 @@ class Publisher(Ice.Application):
         #
         try:
             topic = manager.retrieve(topicName)
-        except IceStorm.NoSuchTopic, e:
+        except IceStorm.NoSuchTopic:
             try:
                 topic = manager.create(topicName)
-            except IceStorm.TopicExists, ex:
-                print self.appName() + ": temporary error. try again"
+            except IceStorm.TopicExists:
+                print(self.appName() + ": temporary error. try again")
                 return 1
 
         #
@@ -76,15 +76,15 @@ class Publisher(Ice.Application):
             publisher = publisher.ice_oneway();
         clock = Demo.ClockPrx.uncheckedCast(publisher)
 
-        print "publishing tick events. Press ^C to terminate the application."
+        print("publishing tick events. Press ^C to terminate the application.")
         try:
             while 1:
                 clock.tick(time.strftime("%m/%d/%Y %H:%M:%S"))
                 time.sleep(1)
-        except IOError, e:
+        except IOError:
             # Ignore
             pass
-        except Ice.CommunicatorDestroyedException, e:
+        except Ice.CommunicatorDestroyedException:
             # Ignore
             pass
                 

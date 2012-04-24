@@ -22,14 +22,22 @@ def allTests(communicator):
     test(custom)
 
     byteList = [1, 2, 3, 4, 5]
-    byteString = ''.join(map(chr, byteList))
+    if sys.version_info[0] == 2:
+        byteString = ''.join(map(chr, byteList))
+    else:
+        byteString = bytes(byteList)
     stringList = ['s1', 's2', 's3']
 
-    print "testing custom sequences...",
+    sys.stdout.write("testing custom sequences... ")
+    sys.stdout.flush()
 
     (r, b2) = custom.opByteString1(byteString)
-    test(isinstance(r, str))
-    test(isinstance(b2, str))
+    if sys.version_info[0] == 2:
+        test(isinstance(r, str))
+        test(isinstance(b2, str))
+    else:
+        test(isinstance(r, bytes))
+        test(isinstance(b2, bytes))
     test(r == byteString)
     test(b2 == byteString)
 
@@ -48,7 +56,10 @@ def allTests(communicator):
         test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList2(byteList)
-    test(isinstance(r, str))
+    if sys.version_info[0] == 2:
+        test(isinstance(r, str))
+    else:
+        test(isinstance(r, bytes))
     test(isinstance(b2, tuple))
     test(r == byteString)
     for i in range(0, len(byteList)):
@@ -102,6 +113,6 @@ def allTests(communicator):
     c.s4 = stringList;
     custom.sendC(c)
 
-    print "ok"
+    print("ok")
 
     return custom

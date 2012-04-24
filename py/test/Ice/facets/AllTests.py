@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test
+import Ice, Test, sys
 
 def test(b):
     if not b:
@@ -18,7 +18,8 @@ class EmptyI(Test.Empty):
 
 def allTests(communicator):
 
-    print "testing Ice.Admin.Facets property... ",
+    sys.stdout.write("testing Ice.Admin.Facets property... ")
+    sys.stdout.flush()
     test(len(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")) == 0)
     communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
     facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
@@ -37,9 +38,10 @@ def allTests(communicator):
     # facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
     # test(len(facetFilter) == 0);
     communicator.getProperties().setProperty("Ice.Admin.Facets", "");
-    print "ok"
+    print("ok")
 
-    print "testing facet registration exceptions... ",
+    sys.stdout.write("testing facet registration exceptions... ")
+    sys.stdout.flush()
     communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
@@ -56,9 +58,10 @@ def allTests(communicator):
         test(false)
     except Ice.NotRegisteredException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing removeAllFacets... ",
+    sys.stdout.write("testing removeAllFacets... ")
+    sys.stdout.flush()
     obj1 = EmptyI()
     obj2 = EmptyI()
     adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1")
@@ -81,17 +84,19 @@ def allTests(communicator):
     test(fm["f1"] == obj1)
     test(fm["f2"] == obj2)
     test(fm[""] == obj3)
-    print "ok"
+    print("ok")
 
     adapter.deactivate()
 
-    print "testing stringToProxy... ",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
     ref = "d:default -p 12010"
     db = communicator.stringToProxy(ref)
     test(db)
-    print "ok"
+    print("ok")
 
-    print "testing unchecked cast... ",
+    sys.stdout.write("testing unchecked cast... ")
+    sys.stdout.flush()
     obj = Ice.ObjectPrx.uncheckedCast(db)
     test(obj.ice_getFacet() == "")
     obj = Ice.ObjectPrx.uncheckedCast(db, "facetABCD")
@@ -108,9 +113,10 @@ def allTests(communicator):
     test(df2.ice_getFacet() == "facetABCD")
     df3 = Test.DPrx.uncheckedCast(df, "")
     test(df3.ice_getFacet() == "")
-    print "ok"
+    print("ok")
 
-    print "testing checked cast... ",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     obj = Ice.ObjectPrx.checkedCast(db)
     test(obj.ice_getFacet() == "")
     obj = Ice.ObjectPrx.checkedCast(db, "facetABCD")
@@ -127,9 +133,10 @@ def allTests(communicator):
     test(df2.ice_getFacet() == "facetABCD")
     df3 = Test.DPrx.checkedCast(df, "")
     test(df3.ice_getFacet() == "")
-    print "ok"
+    print("ok")
 
-    print "testing non-facets A, B, C, and D... ",
+    sys.stdout.write("testing non-facets A, B, C, and D... ")
+    sys.stdout.flush()
     d = Test.DPrx.checkedCast(db)
     test(d)
     test(d == db)
@@ -137,35 +144,39 @@ def allTests(communicator):
     test(d.callB() == "B")
     test(d.callC() == "C")
     test(d.callD() == "D")
-    print "ok"
+    print("ok")
 
-    print "testing facets A, B, C, and D... ",
+    sys.stdout.write("testing facets A, B, C, and D... ")
+    sys.stdout.flush()
     df = Test.DPrx.checkedCast(d, "facetABCD")
     test(df)
     test(df.callA() == "A")
     test(df.callB() == "B")
     test(df.callC() == "C")
     test(df.callD() == "D")
-    print "ok"
+    print("ok")
 
-    print "testing facets E and F... ",
+    sys.stdout.write("testing facets E and F... ")
+    sys.stdout.flush()
     ff = Test.FPrx.checkedCast(d, "facetEF")
     test(ff)
     test(ff.callE() == "E")
     test(ff.callF() == "F")
-    print "ok"
+    print("ok")
 
-    print "testing facet G... ",
+    sys.stdout.write("testing facet G... ")
+    sys.stdout.flush()
     gf = Test.GPrx.checkedCast(ff, "facetGH")
     test(gf)
     test(gf.callG() == "G")
-    print "ok"
+    print("ok")
 
-    print "testing whether casting preserves the facet... ",
+    sys.stdout.write("testing whether casting preserves the facet... ")
+    sys.stdout.flush()
     hf = Test.HPrx.checkedCast(gf)
     test(hf)
     test(hf.callG() == "G")
     test(hf.callH() == "H")
-    print "ok"
+    print("ok")
 
     return gf

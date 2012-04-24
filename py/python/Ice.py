@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os, threading, warnings, datetime
+import sys, string, imp, os, threading, warnings, datetime
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -157,7 +157,7 @@ object.
 #
 # Exceptions.
 #
-class Exception(exceptions.Exception):
+class Exception(Exception):     # Derives from built-in base 'Exception' class.
     '''The base class for all Ice exceptions.'''
     def __str__(self):
         return self.__class__.__name__
@@ -218,9 +218,10 @@ def getSliceDir():
 _pendingModules = {}
 
 def openModule(name):
-    if sys.modules.has_key(name):
+    global _pendingModules
+    if name in sys.modules:
         result = sys.modules[name]
-    elif _pendingModules.has_key(name):
+    elif name in _pendingModules:
         result = _pendingModules[name]
     else:
         result = createModule(name)
@@ -228,16 +229,17 @@ def openModule(name):
     return result
 
 def createModule(name):
-    l = string.split(name, ".")
+    global _pendingModules
+    l = name.split(".")
     curr = ''
     mod = None
 
     for s in l:
         curr = curr + s
 
-        if sys.modules.has_key(curr):
+        if curr in sys.modules:
             mod = sys.modules[curr]
-        elif _pendingModules.has_key(curr):
+        elif curr in _pendingModules:
             mod = _pendingModules[curr]
         else:
             nmod = imp.new_module(curr)
@@ -249,19 +251,21 @@ def createModule(name):
     return mod
 
 def updateModule(name):
-    if _pendingModules.has_key(name):
+    global _pendingModules
+    if name in _pendingModules:
         pendingModule = _pendingModules[name]
         mod = sys.modules[name]
         mod.__dict__.update(pendingModule.__dict__)
         del _pendingModules[name]
 
 def updateModules():
+    global _pendingModules
     for name in _pendingModules.keys():
-        if sys.modules.has_key(name):
+        if name in sys.modules:
             sys.modules[name].__dict__.update(_pendingModules[name].__dict__)
         else:
             sys.modules[name] = _pendingModules[name]
-        del _pendingModules[name]
+    _pendingModules = {}
 
 def createTempClass():
     class __temp: pass
@@ -795,9 +799,9 @@ class CtrlCHandler(threading.Thread):
         #
         # Setup and install signal handlers
         #
-        if signal.__dict__.has_key('SIGHUP'):
+        if 'SIGHUP' in signal.__dict__:
             signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
-        if signal.__dict__.has_key('SIGBREAK'):
+        if 'SIGBREAK' in signal.__dict__:
             signal.signal(signal.SIGBREAK, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
@@ -832,9 +836,9 @@ class CtrlCHandler(threading.Thread):
         #
         # Cleanup any state set by the CtrlCHandler.
         #
-        if signal.__dict__.has_key('SIGHUP'):
+        if 'SIGHUP' in signal.__dict__:
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
-        if signal.__dict__.has_key('SIGBREAK'):
+        if 'SIGBREAK' in signal.__dict__:
             signal.signal(signal.SIGBREAK, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
@@ -1326,13 +1330,15 @@ def proxyIdentityCompare(lhs, rhs):
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:
-        return True
+        return 0
     elif not lhs and rhs:
         return -1
     elif lhs and not rhs:
         return 1
     else:
-        return cmp(lhs.ice_getIdentity(), rhs.ice_getIdentity())
+        lid = lhs.ice_getIdentity()
+        rid = rhs.ice_getIdentity()
+        return (lid > rid) - (lid < rid)
 
 def proxyIdentityAndFacetEqual(lhs, rhs):
     '''Determines whether the identities and facets of two
@@ -1344,12 +1350,34 @@ def proxyIdentityAndFacetCompare(lhs, rhs):
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:
-        return True
+        return 0
     elif not lhs and rhs:
         return -1
     elif lhs and not rhs:
         return 1
     elif lhs.ice_getIdentity() != rhs.ice_getIdentity():
-        return cmp(lhs.ice_getIdentity(), rhs.ice_getIdentity())
+        lid = lhs.ice_getIdentity()
+        rid = rhs.ice_getIdentity()
+        return (lid > rid) - (lid < rid)
     else:
-        return cmp(lhs.ice_getFacet(), rhs.ice_getFacet())
+        lf = lhs.ice_getFacet()
+        rf = rhs.ice_getFacet()
+        return (lf > rf) - (lf < rf)
+
+#
+# Used by generated code. Defining these in the Ice module means the generated code
+# can avoid the need to qualify the type() and hash() functions with their module
+# names. Since the functions are in the __builtin__ module (for Python 2.x) and the
+# builtins module (for Python 3.x), it's easier to define them here.
+#
+def getType(o):
+    return type(o)
+
+#
+# Used by generated code. Defining this in the Ice module means the generated code
+# can avoid the need to qualify the hash() function with its module name. Since
+# the function is in the __builtin__ module (for Python 2.x) and the builtins
+# module (for Python 3.x), it's easier to define it here.
+#
+def getHash(o):
+    return hash(o)

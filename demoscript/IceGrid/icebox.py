@@ -9,11 +9,10 @@
 # **********************************************************************
 
 import sys, time, os
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
 
 def run(clientStr, desc = 'application'):
-    print "cleaning databases...",
+    sys.stdout.write("cleaning databases... ")
     sys.stdout.flush()
     nodeDir = os.path.join("db", "node")
     if not os.path.exists(nodeDir):
@@ -25,14 +24,14 @@ def run(clientStr, desc = 'application'):
         os.mkdir(regDir)
     else:
         Util.cleanDbDir(regDir)
-    print "ok"
+    print("ok")
 
     if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
-    print "starting icegridnode...",
+    sys.stdout.write("starting icegridnode... ")
     sys.stdout.flush()
     node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready')
@@ -41,9 +40,9 @@ def run(clientStr, desc = 'application'):
     if Util.getMapping() == "cpp":
         node.expect('IceGrid.Registry.AdminSessionManager ready')
     node.expect('IceGrid.Node ready')
-    print "ok"
+    print("ok")
 
-    print "deploying application...",
+    sys.stdout.write("deploying application... ")
     sys.stdout.flush()
     admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
     admin.expect('>>>')
@@ -51,19 +50,19 @@ def run(clientStr, desc = 'application'):
     admin.expect('>>>')
     admin.sendline("server start IceBox")
     admin.expect('>>>', timeout=15)
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
 
     for s in [ "Homer", "Marge", "Bart", "Lisa", "Maggie" ]:
-	client = Util.spawn(clientStr)
-	node.expect("Hello from %s" % s)
-	client.waitTestSuccess(timeout=1)
+        client = Util.spawn(clientStr)
+        node.expect("Hello from %s" % s)
+        client.waitTestSuccess(timeout=1)
 
-    print "ok"
+    print("ok")
 
-    print "testing stop/start of services...", 
+    sys.stdout.write("testing stop/start of services... ")
     sys.stdout.flush()
 
     admin.sendline("service stop IceBox Lisa")
@@ -78,7 +77,7 @@ def run(clientStr, desc = 'application'):
     client = Util.spawn(clientStr)
     node.expect("Hello from Marge")
     client.waitTestSuccess(timeout=1)
-    
+
     client = Util.spawn(clientStr)
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
@@ -104,7 +103,7 @@ def run(clientStr, desc = 'application'):
     client = Util.spawn(clientStr)
     node.expect("Hello from Lisa")
     client.waitTestSuccess(timeout=1)
-    
+
     client = Util.spawn(clientStr)
     node.expect("Hello from Maggie")
     client.waitTestSuccess(timeout=1)
@@ -113,9 +112,9 @@ def run(clientStr, desc = 'application'):
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 
-    print "ok"
+    print("ok")
 
-    print "testing administration with Glacier2...", 
+    sys.stdout.write("testing administration with Glacier2... ")
     sys.stdout.flush()
 
     admin.sendline("server start DemoGlacier2")
@@ -124,13 +123,13 @@ def run(clientStr, desc = 'application'):
 
     # Windows seems to have problems with the password input.
     if Util.isWin32():
-	admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo')
+        admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063" -u foo -p foo')
     else:
-	admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"')
-	admin.expect('user id:')
-	admin.sendline('foo')
-	admin.expect('password:')
-	admin.sendline('foo')
+        admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Default.Router="DemoGlacier2/router:tcp -h localhost -p 4063"')
+        admin.expect('user id:')
+        admin.sendline('foo')
+        admin.expect('password:')
+        admin.sendline('foo')
     admin.expect('>>>', timeout=100)
 
     admin.sendline("service start IceBox Homer")
@@ -158,7 +157,7 @@ def run(clientStr, desc = 'application'):
     node.expect("Hello from Bart")
     client.waitTestSuccess(timeout=1)
 
-    print "ok"
+    print("ok")
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')

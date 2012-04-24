@@ -44,4 +44,3 @@ def oneways(communicator, p):
         p.opByte(0xff, 0x0f)
     except Ice.TwowayOnlyException:
         pass
-

@@ -12,7 +12,7 @@ import os, sys, Ice
 
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print sys.argv[0] + ': Slice directory not found.'
+    print(sys.argv[0] + ': Slice directory not found.')
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Callback.ice")
@@ -20,17 +20,17 @@ import Demo
 
 class CallbackReceiverI(Demo.CallbackReceiver):
     def callback(self, num, current=None):
-        print "received callback #" + str(num)
+        print("received callback #" + str(num))
 
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('CallbackSender.Proxy'))
         if not server:
-            print self.appName() + ": invalid proxy"
+            print(self.appName() + ": invalid proxy")
             return 1
 
         adapter = self.communicator().createObjectAdapter("")
@@ -43,7 +43,6 @@ class Client(Ice.Application):
         server.addClient(ident)
         self.communicator().waitForShutdown()
 
-        print "here"
         return 0
 
 app = Client()

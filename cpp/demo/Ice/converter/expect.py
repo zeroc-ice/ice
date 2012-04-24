@@ -16,28 +16,28 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 
 server = Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')
 client = Util.spawn('./client')
 client.expect('.*==>')
 
-print "testing with conversion... ",
+sys.stdout.write("testing with conversion... ")
 sys.stdout.flush()
 client.sendline('u')
 server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
 client.expect('Received: "Bonne journ\\\\303\\\\251e"')
-print "ok"
+print("ok")
 
-print "testing without conversion... ",
+sys.stdout.write("testing without conversion... ")
 client.sendline('t')
 server.expect('Received \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
 client.expect('Received: "Bonne journ\\\\351e"')
-print "ok"
+print("ok")
 
 client.sendline('s')
 server.waitTestSuccess()

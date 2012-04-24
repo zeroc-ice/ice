@@ -36,9 +36,9 @@ struct ImplicitContextObject
 extern "C"
 #endif
 static ImplicitContextObject*
-implicitContextNew(PyObject* /*arg*/)
+implicitContextNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    ImplicitContextObject* self = PyObject_New(ImplicitContextObject, &ImplicitContextType);
+    ImplicitContextObject* self = reinterpret_cast<ImplicitContextObject*>(type->tp_alloc(type, 0));
     if(!self)
     {
         return 0;
@@ -54,27 +54,63 @@ static void
 implicitContextDealloc(ImplicitContextObject* self)
 {
     delete self->implicitContext;
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 #ifdef WIN32
 extern "C"
 #endif
-static int
-implicitContextCompare(ImplicitContextObject* c1, ImplicitContextObject* c2)
+static PyObject*
+implicitContextCompare(ImplicitContextObject* c1, PyObject* other, int op)
 {
-    if(*c1->implicitContext < *c2->implicitContext)
+    bool result;
+
+    if(PyObject_TypeCheck(other, &ImplicitContextType))
     {
-        return -1;
-    }
-    else if(*c1->implicitContext == *c2->implicitContext)
-    {
-        return 0;
+        ImplicitContextObject* c2 = reinterpret_cast<ImplicitContextObject*>(other);
+
+        switch(op)
+        {
+        case Py_EQ:
+            result = *c1->implicitContext == *c2->implicitContext;
+            break;
+        case Py_NE:
+            result = *c1->implicitContext != *c2->implicitContext;
+            break;
+        case Py_LE:
+            result = *c1->implicitContext <= *c2->implicitContext;
+            break;
+        case Py_GE:
+            result = *c1->implicitContext >= *c2->implicitContext;
+            break;
+        case Py_LT:
+            result = *c1->implicitContext < *c2->implicitContext;
+            break;
+        case Py_GT:
+            result = *c1->implicitContext > *c2->implicitContext;
+            break;
+        }
     }
     else
     {
-        return 1;
+        if(op == Py_EQ)
+        {
+            result = false;
+        }
+        else if(op == Py_NE)
+        {
+            result = true;
+        }
+        else
+        {
+            PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(c1)->tp_name, Py_TYPE(other)->tp_name);
+            return 0;
+        }
     }
+
+    PyObject* r = result ? getTrue() : getFalse();
+    Py_INCREF(r);
+    return r;
 }
 
 #ifdef WIN32
@@ -278,8 +314,7 @@ PyTypeObject ImplicitContextType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                              /* ob_size */
+    PyVarObject_HEAD_INIT(0, 0)
     STRCAST("IcePy.ImplicitContext"),    /* tp_name */
     sizeof(ImplicitContextObject),       /* tp_basicsize */
     0,                              /* tp_itemsize */
@@ -288,7 +323,7 @@ PyTypeObject ImplicitContextType =
     0,                              /* tp_print */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
-    reinterpret_cast<cmpfunc>(implicitContextCompare), /* tp_compare */
+    0,                              /* tp_reserved */
     0,                              /* tp_repr */
     0,                              /* tp_as_number */
     0,                              /* tp_as_sequence */
@@ -299,15 +334,20 @@ PyTypeObject ImplicitContextType =
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
+#if PY_VERSION_HEX >= 0x03000000
     Py_TPFLAGS_DEFAULT,             /* tp_flags */
+#else
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_HAVE_RICHCOMPARE,    /* tp_flags */
+#endif
     0,                              /* tp_doc */
     0,                              /* tp_traverse */
     0,                              /* tp_clear */
-    0,                              /* tp_richcompare */
+    reinterpret_cast<richcmpfunc>(implicitContextCompare), /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
     0,                              /* tp_iternext */
-    ImplicitContextMethods,              /* tp_methods */
+    ImplicitContextMethods,         /* tp_methods */
     0,                              /* tp_members */
     0,                              /* tp_getset */
     0,                              /* tp_base */
@@ -343,7 +383,7 @@ IcePy::initImplicitContext(PyObject* module)
 PyObject*
 IcePy::createImplicitContext(const Ice::ImplicitContextPtr& implicitContext)
 {
-    ImplicitContextObject* obj = implicitContextNew(0);
+    ImplicitContextObject* obj = implicitContextNew(&ImplicitContextType, 0, 0);
     if(obj)
     {
         obj->implicitContext = new Ice::ImplicitContextPtr(implicitContext);

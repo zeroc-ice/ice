@@ -7,14 +7,15 @@
 #
 # **********************************************************************
 
-import Ice, Test, threading
+import Ice, Test, sys, threading
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator, collocated):
-    print "testing stringToProxy...",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
 
     #
     # Test nil proxies.
@@ -192,9 +193,10 @@ def allTests(communicator, collocated):
         test(False)
     except Ice.EndpointParseException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing propertyToProxy... ",
+    sys.stdout.write("testing propertyToProxy... ")
+    sys.stdout.flush()
     prop = communicator.getProperties()
     propertyPrefix = "Foo.Proxy"
     prop.setProperty(propertyPrefix, "test:default -p 12010")
@@ -283,9 +285,10 @@ def allTests(communicator, collocated):
     #test(not b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "")
 
-    print "ok"
+    print("ok")
 
-    print "testing proxyToProperty... ",
+    sys.stdout.write("testing proxyToProperty... ")
+    sys.stdout.flush()
 
     b1 = communicator.stringToProxy("test")
     #b1 = b1.ice_collocationOptimized(true)
@@ -335,14 +338,17 @@ def allTests(communicator, collocated):
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
 
-    print "ok"
+    print("ok")
 
-    print "testing ice_getCommunicator...",
+    sys.stdout.write("testing ice_getCommunicator... ")
+    sys.stdout.flush()
 
     test(base.ice_getCommunicator() == communicator)
-    print "ok"
 
-    print "testing proxy methods... ",
+    print("ok")
+
+    sys.stdout.write("testing proxy methods... ")
+    sys.stdout.flush()
     test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) \
          == "other")
     test(base.ice_facet("facet").ice_getFacet() == "facet")
@@ -358,9 +364,10 @@ def allTests(communicator, collocated):
     #test(!base.ice_collocationOptimized(false)->ice_isCollocationOptimized())
     test(base.ice_preferSecure(True).ice_isPreferSecure())
     test(not base.ice_preferSecure(False).ice_isPreferSecure())
-    print "ok"
+    print("ok")
 
-    print "testing proxy comparison... ",
+    sys.stdout.write("testing proxy comparison... ")
+    sys.stdout.flush()
 
     test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
     test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
@@ -495,9 +502,10 @@ def allTests(communicator, collocated):
     # TODO: Ideally we should also test comparison of fixed proxies.
     #
 
-    print "ok"
+    print("ok")
 
-    print "testing checked cast...",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     cl = Test.MyClassPrx.checkedCast(base)
     test(cl)
 
@@ -520,9 +528,10 @@ def allTests(communicator, collocated):
     test(cl2 == obj)
     test(cl2 == derived)
 
-    print "ok"
+    print("ok")
 
-    print "testing checked cast with context...",
+    sys.stdout.write("testing checked cast with context... ")
+    sys.stdout.flush()
     tccp = Test.MyClassPrx.checkedCast(base)
     c = tccp.getContext()
     test(c == None or len(c) == 0)
@@ -533,9 +542,10 @@ def allTests(communicator, collocated):
     tccp = Test.MyClassPrx.checkedCast(base, c)
     c2 = tccp.getContext()
     test(c == c2)
-    print "ok"
+    print("ok")
 
-    print "testing opaque endpoints... ",
+    sys.stdout.write("testing opaque endpoints... ")
+    sys.stdout.flush()
 
     try:
         # Invalid -x option
@@ -667,6 +677,6 @@ def allTests(communicator, collocated):
         else:
             test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch")
 
-    print "ok"
+    print("ok")
 
     return cl

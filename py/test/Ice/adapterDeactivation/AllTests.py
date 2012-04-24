@@ -14,20 +14,20 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    print "testing stringToProxy... ",
+    sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("test:default -p 12010")
     test(base)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast... ",
+    sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
     obj = Test.TestIntfPrx.checkedCast(base)
     test(obj)
     test(obj == base)
-    print "ok"
+    print("ok")
 
-    print "creating/destroying/recreating object adapter... ",
+    sys.stdout.write("creating/destroying/recreating object adapter... ")
     sys.stdout.flush()
     adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
     try:
@@ -39,24 +39,24 @@ def allTests(communicator):
 
     adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default")
     adapter.destroy()
-    print "ok"
+    print("ok")
 
-    print "creating/activating/deactivating object adapter in one operation... ",
+    sys.stdout.write("creating/activating/deactivating object adapter in one operation... ")
     sys.stdout.flush()
     obj.transient()
-    print "ok"
+    print("ok")
 
-    print "deactivating object adapter in the server... ",
+    sys.stdout.write("deactivating object adapter in the server... ")
     sys.stdout.flush()
     obj.deactivate()
-    print "ok"
+    print("ok")
 
-    print "testing whether server is gone... ",
+    sys.stdout.write("testing whether server is gone... ")
     sys.stdout.flush()
     try:
         obj.ice_ping()
         test(False)
     except Ice.LocalException:
-        print "ok"
+        print("ok")
 
     return obj

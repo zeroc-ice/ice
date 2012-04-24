@@ -15,20 +15,20 @@ import Demo
 
 class CallbackI(Demo.Callback):
     def initiateCallback(self, proxy, current=None):
-        print "initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy)
+        print("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy))
         try:
             proxy.callback()
         except:
             traceback.print_exc()
 
     def shutdown(self, current=None):
-        print "shutting down..."
+        print("shutting down...")
         current.adapter.getCommunicator().shutdown()
 
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         adapter = self.communicator().createObjectAdapter("Callback.Server")

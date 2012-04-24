@@ -14,7 +14,7 @@ import Ice
 import Ice
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print sys.argv[0] + ': Slice directory not found.'
+    print(sys.argv[0] + ': Slice directory not found.')
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
@@ -27,13 +27,14 @@ def test(b):
 def run(args, communicator):
     myClass = AllTests.allTests(communicator, False)
 
-    print "testing server shutdown...",
+    sys.stdout.write("testing server shutdown... ")
+    sys.stdout.flush()
     myClass.shutdown()
     try:
         myClass.opVoid()
         test(False)
     except Ice.LocalException:
-        print "ok"
+        print("ok")
 
     return True
 

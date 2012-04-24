@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceStormUtil, Expect
 
 iceStormAdmin = ""
 if TestUtil.isBCC2010():
@@ -81,26 +81,26 @@ def runtest(type, **args):
     adminIceStormReference = ' --IceStormAdmin.TopicManager.Proxy="%s" --IceStormAdmin.TopicManager.Proxy2="%s"' % (
         icestorm1.proxy(), icestorm2.proxy())
 
-    print "setting up the topics...",
+    sys.stdout.write("setting up the topics... ")
     sys.stdout.flush()
     admin(adminIceStormReference, "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1")
-    print "ok"
+    print("ok")
 
     #
     # Test oneway subscribers.
     #
-    print "testing federation with oneway subscribers...",
+    sys.stdout.write("testing federation with oneway subscribers... ")
     sys.stdout.flush()
     doTest(icestorm1, icestorm2, 0)
-    print "ok"
+    print("ok")
 
     #
     # Test batch oneway subscribers.
     #
-    print "testing federation with batch subscribers...",
+    sys.stdout.write("testing federation with batch subscribers... ")
     sys.stdout.flush()
     doTest(icestorm1, icestorm2, 1)
-    print "ok"
+    print("ok")
 
     #
     # Test #2:
@@ -108,7 +108,7 @@ def runtest(type, **args):
     # Stop and restart the service and repeat the test. This ensures that
     # the database is correct.
     #
-    print "restarting services to ensure that the database content is preserved...",
+    sys.stdout.write("restarting services to ensure that the database content is preserved... ")
     sys.stdout.flush()
 
     #
@@ -119,23 +119,23 @@ def runtest(type, **args):
 
     icestorm1.start(echo=False)
     icestorm2.start(echo=False)
-    print "ok"
+    print("ok")
 
     #
     # Test oneway subscribers.
     #
-    print "retesting federation with oneway subscribers... ",
+    sys.stdout.write("retesting federation with oneway subscribers... ")
     sys.stdout.flush()
     doTest(icestorm1, icestorm2, 0)
-    print "ok"
+    print("ok")
 
     #
     # Test batch oneway subscribers.
     #
-    print "retesting federation with batch subscribers... ",
+    sys.stdout.write("retesting federation with batch subscribers... ")
     sys.stdout.flush()
     doTest(icestorm1, icestorm2, 1)
-    print "ok"
+    print("ok")
 
     #
     # Shutdown icestorm.
@@ -151,31 +151,31 @@ def runtest(type, **args):
     # Ensure they are received by the linked server.
     #
     if type != "replicated":
-        print "restarting only one IceStorm server...",
+        sys.stdout.write("restarting only one IceStorm server... ")
         sys.stdout.flush()
         proc = icestorm1.start(echo=False)
 
         #proc.expect("topic.fed1.*subscriber offline")
         #proc.expect("connection refused")
-        print "ok"
+        print("ok")
 
         #
         # Test oneway subscribers.
         #
-        print "testing that the federation link reports an error...",
+        sys.stdout.write("testing that the federation link reports an error... ")
         sys.stdout.flush()
         doTest(icestorm1, icestorm2, 0, icestorm1.reference())
 
-	# Give some time for the output to be sent.
-	time.sleep(2)
+        # Give some time for the output to be sent.
+        time.sleep(2)
 
         proc.expect("topic.fed1.*subscriber offline")
-        print "ok"
+        print("ok")
 
-        print "starting downstream icestorm server...",
+        sys.stdout.write("starting downstream icestorm server... ")
         sys.stdout.flush()
         icestorm2.start(echo=False)
-        print "ok"
+        print("ok")
 
         #
         # Need to sleep for at least the discard interval.
@@ -185,10 +185,10 @@ def runtest(type, **args):
         #
         # Test oneway subscribers.
         #
-        print "testing link is reestablished...",
+        sys.stdout.write("testing link is reestablished... ")
         sys.stdout.flush()
         doTest(icestorm1, icestorm2, 0)
-        print "ok"
+        print("ok")
 
         try:
             proc.expect("topic.fed1.*subscriber offline")
@@ -205,26 +205,27 @@ def runtest(type, **args):
     # Trash the TestIceStorm2 database. Then restart the servers and
     # verify that the link is removed.
     #
-    print "destroying the downstream IceStorm service database...",
+    sys.stdout.write("destroying the downstream IceStorm service database... ")
     sys.stdout.flush()
     icestorm2.clean()
 
-    print "ok"
+    print("ok")
 
-    print "restarting IceStorm servers...",
+    sys.stdout.write("restarting IceStorm servers... ")
     sys.stdout.flush()
     icestorm1.start(echo = False)
     icestorm2.start(echo = False)
-    print "ok"
+    print("ok")
 
-    print "checking link still exists...",
+    sys.stdout.write("checking link still exists... ")
+    sys.stdout.flush()
     line = admin(adminIceStormReference, "links TestIceStorm1")
     if not re.compile("fed1 with cost 0").search(line):
-        print line
+        print(line)
         sys.exit(1)
-    print "ok"
+    print("ok")
 
-    print "publishing some events...",
+    sys.stdout.write("publishing some events... ")
     sys.stdout.flush()
     # The publisher must be run twice because all the events can be
     # sent out in one batch to the linked subscriber which means that
@@ -232,13 +233,13 @@ def runtest(type, **args):
     # sent. Furthermore, with a replicated IceStorm both sets of
     # events must be set to the same replica.
     runPublisher(icestorm1, opt = " --count 2")
-    print "ok"
+    print("ok")
 
     # Give the unsubscription time to propagate.
     time.sleep(1)
 
     # Verify that the link has disappeared.
-    print "verifying that the link has been destroyed...",
+    sys.stdout.write("verifying that the link has been destroyed... ")
     sys.stdout.flush()
     line = admin(adminIceStormReference, "links TestIceStorm1")
     nRetry = 5
@@ -247,25 +248,26 @@ def runtest(type, **args):
         time.sleep(1) # Give more time for unsubscription to propagate.
         nRetry -= 1
     if len(line) > 0:
-        print line
+        print(line)
         sys.exit(1)
-    print "ok"
+    print("ok")
 
     #
     # Destroy the remaining topic.
     #
-    print "destroying topics...",
+    sys.stdout.write("destroying topics... ")
+    sys.stdout.flush()
     admin(adminIceStormReference, "destroy TestIceStorm1/fed1")
-    print "ok"
+    print("ok")
 
     #
     # Shutdown icestorm.
     #
-    print "shutting down icestorm services...",
+    sys.stdout.write("shutting down icestorm services... ")
     sys.stdout.flush()
     icestorm1.stop()
     icestorm2.stop()
-    print "ok"
+    print("ok")
 
 runtest("persistent")
 runtest("replicated", replicatedPublisher = False)

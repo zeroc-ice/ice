@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 router = TestUtil.getGlacier2Router()
 
@@ -40,14 +40,16 @@ def startRouter(buffered):
 
     if buffered:
         args += ' --Glacier2.Client.Buffered=1 --Glacier2.Server.Buffered=1' 
-        print "starting router in buffered mode...",
+        sys.stdout.write("starting router in buffered mode... ")
+        sys.stdout.flush()
     else:
         args += ' --Glacier2.Client.Buffered=0 --Glacier2.Server.Buffered=0'
-        print "starting router in unbuffered mode...",
+        sys.stdout.write("starting router in unbuffered mode... ")
+        sys.stdout.flush()
 
     starterProc = TestUtil.startServer(router, args, count=2)
 
-    print "ok"
+    print("ok")
     return starterProc
 
 name = os.path.join("Glacier2", "router")
@@ -76,4 +78,3 @@ starterProc.waitTestSuccess()
 
 if TestUtil.appverifier:
     TestUtil.appVerifierAfterTestEnd([router])
-

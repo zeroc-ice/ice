@@ -15,7 +15,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(toplevel, "demoscript")):
         break
 else:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 
 sys.path.append(os.path.join(toplevel))
 from demoscript import Util

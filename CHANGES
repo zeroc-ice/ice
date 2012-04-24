@@ -129,6 +129,8 @@ Java Changes
 Python Changes
 ==============
 
+- Added support for Python 3.
+
 - Fixed a bug that caused IceGrid activation of a Python server to
   hang when tracing was enabled for the server.
 

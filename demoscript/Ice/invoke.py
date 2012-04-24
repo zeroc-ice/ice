@@ -9,8 +9,7 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
 
 def runDemo(client, server):
     sys.stdout.flush()
@@ -45,7 +44,8 @@ def runDemo(client, server):
         client.expect("Got string `hello' and class: s\\.name=green, s\\.value=green")
 
 def run(clientStr, server):
-    print "testing...",
+    sys.stdout.write("testing... ")
+    sys.stdout.flush()
     client = Util.spawn(clientStr)
     client.expect('==>')
 
@@ -56,4 +56,4 @@ def run(clientStr, server):
 
     client.sendline('x')
     client.waitTestSuccess()
-    print "ok"
+    print("ok")

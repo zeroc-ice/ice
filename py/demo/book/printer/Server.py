@@ -15,7 +15,7 @@ import Demo
 
 class PrinterI(Demo.Printer):
     def printString(self, s, current=None):
-        print s
+        print(s)
 
 status = 0
 ice = None

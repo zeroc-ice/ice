@@ -16,16 +16,19 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 from demoscript.IceGrid import simple
 
 def rewrite(namein, nameout):
     fi = open(namein, "r")
     fo = open(nameout, "w")
     for l in fi:
+        if sys.version_info[0] == 3:
+            if l.find('exe="python"') != -1:
+                l = l.replace('exe="python"', 'exe="python3"')
         if l.find('option') != -1:
             fo.write('<option>-u</option>')
         fo.write(l)

@@ -18,16 +18,16 @@ class HelloI(Demo.Hello):
         self.name = name
 
     def sayHello(self, current=None):
-        print self.name + " says Hello World!"
+        print(self.name + " says Hello World!")
 
     def shutdown(self, current=None):
-        print self.name + " shutting down..."
+        print(self.name + " shutting down...")
         current.adapter.getCommunicator().shutdown()
 
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         properties = self.communicator().getProperties()

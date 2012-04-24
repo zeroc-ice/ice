@@ -9,15 +9,14 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
 
 def run(clientStr, server):
     client = Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('foo')
 
-    print "testing session creation...",
+    sys.stdout.write("testing session creation... ")
     sys.stdout.flush()
     server.expect('The session foo is now created.')
     client.sendline('c')
@@ -28,9 +27,9 @@ def run(clientStr, server):
     client.sendline('x')
     client.waitTestSuccess()
     server.expect("The session foo is now destroyed.")
-    print "ok"
+    print("ok")
 
-    print "testing session cleanup...",
+    sys.stdout.write("testing session cleanup... ")
     sys.stdout.flush()
     client = Util.spawn(clientStr)
     client.expect('==>')
@@ -40,7 +39,7 @@ def run(clientStr, server):
     client.sendline('t')
     client.waitTestSuccess()
     server.expect("The session foo is now destroyed.\n.*The session foo has timed out.", timeout=25)
-    print "ok"
+    print("ok")
 
     client = Util.spawn(clientStr)
     client.expect('==>')

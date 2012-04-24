@@ -9,11 +9,9 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
 
 def run(client, server):
-    print "testing...",
+    sys.stdout.write("testing... ")
     sys.stdout.flush()
 
     client.sendline('t')
@@ -24,7 +22,7 @@ def run(client, server):
     server.expect('initiating callback')
     client.expect('received callback')
 
-    print "ok"
+    print("ok")
 
     client.sendline('s')
     server.waitTestSuccess()

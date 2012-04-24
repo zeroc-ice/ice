@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 router = os.path.join(TestUtil.getCppBinDir(), "glacier2router")
 
@@ -33,15 +33,15 @@ args =  ' --Ice.Warn.Dispatch=0' + \
         ' --Ice.Admin.InstanceName=Glacier2' + \
         ' --Glacier2.CryptPasswords="' + os.path.join(os.getcwd(), "passwords") + '"'
 
-print "starting router...",
+sys.stdout.write("starting router... ")
+sys.stdout.flush()
 routerConfig = TestUtil.DriverConfig("server")
 routerConfig.lang = "cpp"
 starterProc = TestUtil.startServer(router, args, count=2, config=routerConfig)
-print "ok"
+print("ok")
 
 TestUtil.clientServerTest()
 
 TestUtil.clientServerTest(additionalClientOptions=" --shutdown")
 
 starterProc.waitTestSuccess()
-

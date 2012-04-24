@@ -16,24 +16,24 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 testdir = os.getcwd()
 
 client = os.path.join(testdir, "Client.php")
-print "testing php INI settings...",
+sys.stdout.write("testing php INI settings... ")
+sys.stdout.flush()
 clientProc = TestUtil.startClient(client, startReader = False, clientConfig = True, iceOptions = "--Ice.Trace.Network=1 --Ice.Warn.Connections=1")
 clientProc.startReader()
 clientProc.waitTestSuccess()
-print "ok"
-
+print("ok")
 
 client = os.path.join(testdir, "ClientWithProfile.php")
-print "testing php INI settings with profiles...",
+sys.stdout.write("testing php INI settings with profiles... ")
+sys.stdout.flush()
 clientProc = TestUtil.startClient(client, startReader = False, clientConfig = True, iceOptions = "--Ice.Trace.Network=1 --Ice.Warn.Connections=1", iceProfile="Test")
 clientProc.startReader()
 clientProc.waitTestSuccess()
-print "ok"
+print("ok")

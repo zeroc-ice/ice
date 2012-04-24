@@ -9,11 +9,9 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
 
 def run(client, server, ruby = False):
-    print "testing...",
+    sys.stdout.write("testing... ")
     sys.stdout.flush()
     client.expect('press enter')
     client.sendline('')
@@ -42,7 +40,7 @@ def run(client, server, ruby = False):
     client.expect('==> a derived message 4 u\n==> A DERIVED MESSAGE 4 U.*press enter')
     client.sendline('')
     client.expect('==> a derived message 4 u\n==> A DERIVED MESSAGE 4 U')
-    print "ok"
+    print("ok")
 
     server.waitTestSuccess()
     client.waitTestSuccess()

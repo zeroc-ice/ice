@@ -16,18 +16,18 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 import time, signal
 
-print "cleaning databases...",
+sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
 Util.cleanDbDir("db1");
 Util.cleanDbDir("db2")
 Util.cleanDbDir("db3")
-print "ok"
+print("ok")
 
 if Util.defaultHost:
     a1 = ' --IceBox.Service.IceStorm="IceStormService,34:createIceStorm --Ice.Config=config.s1 %s"' \
@@ -41,7 +41,7 @@ else:
     a2 = ''
     a3 = ''
 
-print "starting replicas...",
+sys.stdout.write("starting replicas... ")
 sys.stdout.flush()
 ib1 = Util.spawn('%s --Ice.Config=config.ib1 --Ice.PrintAdapterReady %s' % (Util.getIceBox(), a1))
 ib1.expect('.* ready')
@@ -49,13 +49,13 @@ ib2 = Util.spawn('%s --Ice.Config=config.ib2 --Ice.PrintAdapterReady %s' % (Util
 ib2.expect('.* ready')
 ib3 = Util.spawn('%s --Ice.Config=config.ib3 --Ice.PrintAdapterReady %s' % (Util.getIceBox(), a3))
 ib3.expect('.* ready')
-print "ok"
+print("ok")
 
 ib3.expect('Election: node 2: reporting for duty in group 2:[-0-9A-Fa-f]+ as coordinator' , timeout=20)
 ib2.expect('Election: node 1: reporting for duty in group 2:[-0-9A-Fa-f]+ with coordinator 2', timeout=20)
 ib1.expect('Election: node 0: reporting for duty in group 2:[-0-9A-Fa-f]+ with coordinator 2', timeout=20)
 
-print "testing pub/sub...",
+sys.stdout.write("testing pub/sub... ")
 sys.stdout.flush()
 sub = Util.spawn('./subscriber --Ice.PrintAdapterReady')
 
@@ -69,9 +69,9 @@ pub = Util.spawn('./publisher')
 
 time.sleep(3)
 sub.expect('[0-9][0-9]/[0-9][0-9].*\n[0-9][0-9]/[0-9][0-9]')
-print "ok"
+print("ok")
 
-print "shutting down...",
+sys.stdout.write("shutting down... ")
 sys.stdout.flush()
 sub.kill(signal.SIGINT)
 sub.waitTestSuccess()
@@ -88,4 +88,8 @@ admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.ib2 shutdown')
 admin.waitTestSuccess()
 admin = Util.spawn(Util.getIceBoxAdmin() + ' --Ice.Config=config.ib3 shutdown')
 admin.waitTestSuccess()
-print "ok"
+
+ib1.waitTestSuccess()
+ib2.waitTestSuccess()
+ib3.waitTestSuccess()
+print("ok")

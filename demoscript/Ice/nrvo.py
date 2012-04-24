@@ -9,11 +9,9 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
 
 def run(client, server):
-    print "testing client... ",
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client.sendline('1')
     client.expect('==> ', timeout=2000)
@@ -24,4 +22,4 @@ def run(client, server):
     client.sendline('s')
     client.expect('==> ', timeout=2000)
     client.sendline('x')
-    print "ok"
+    print("ok")

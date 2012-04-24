@@ -16,10 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
-
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 transformdb = '%s' % os.path.join(TestUtil.getCppBinDir(), "transformdb") 
 
@@ -52,10 +51,10 @@ for file in os.listdir(os.path.join(os.getcwd(), "fail")):
 
 regex2 = re.compile(r"^.*transf(ormdb|~1)(\.exe)?", re.IGNORECASE)
 
-print "testing error detection...",
+sys.stdout.write("testing error detection... ")
 sys.stdout.flush()
 if TestUtil.debug:
-    print
+    sys.stdout.write("\n")
 
 files.sort()
 for oldfile in files:
@@ -71,7 +70,7 @@ for oldfile in files:
         os.path.join(os.getcwd(), "fail", newfile) + '" -o tmp.xml --key string --value ' + value
 
     if TestUtil.debug:
-        print command
+        print(command)
 
     p = TestUtil.runCommand(command)
     (stdin, stdout, stderr) = (p.stdin, p.stdout, p.stderr)
@@ -79,36 +78,40 @@ for oldfile in files:
     lines1 = stderr.readlines()
     lines2 = open(os.path.join(os.getcwd(), "fail", oldfile.replace("_old.ice", ".err")), "r").readlines()
     if len(lines1) != len(lines2):
-        print "failed! (1)"
+        print("failed! (1)")
         sys.exit(1)
     
     i = 0
     while i < len(lines1):
-        line1 = regex2.sub("", lines1[i]).strip()
-        line2 = regex2.sub("", lines2[i]).strip()
+        if sys.version_info[0] == 2:
+            line1 = regex2.sub("", lines1[i]).strip()
+            line2 = regex2.sub("", lines2[i]).strip()
+        else:
+            line1 = regex2.sub("", lines1[i].decode("utf-8")).strip()
+            line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
-            print "failed! (2)"
-            print "line1 = " + line1
-            print "line2 = " + line2
+            print("failed! (2)")
+            print("line1 = " + line1)
+            print("line2 = " + line2)
             # sys.exit(1)
         i = i + 1
 
-print "ok"
+print("ok")
 
-print "creating test database...",
+sys.stdout.write("creating test database... ")
 sys.stdout.flush()
 
 makedb = '"%s" "%s"'% (os.path.join(os.getcwd(), "makedb"), os.getcwd())
 proc = TestUtil.spawn(makedb)
 proc.waitTestSuccess()
-print "ok"
+print("ok")
 
 testold = os.path.join(os.getcwd(), "TestOld.ice")
 testnew = os.path.join(os.getcwd(), "TestNew.ice")
 initxml = os.path.join(os.getcwd(), "init.xml")
 checkxml = os.path.join(os.getcwd(), "check.xml")
 
-print "initializing test database...",
+sys.stdout.write("initializing test database... ")
 sys.stdout.flush()
 
 command = '"' + transformdb + '" --old "' + testold + '" --new "' + testold + '" -f "' + initxml + '" "' + dbdir + \
@@ -116,9 +119,9 @@ command = '"' + transformdb + '" --old "' + testold + '" --new "' + testold + '"
 
 TestUtil.spawn(command).waitTestSuccess()
 
-print "ok"
+print("ok")
 
-print "executing default transformations...",
+sys.stdout.write("executing default transformations... ")
 sys.stdout.flush()
 
 command = '"' + transformdb + '" --old "' + testold + '" --new "' + testnew + '" --key int --value ::Test::S "' + init_dbdir + \
@@ -126,9 +129,9 @@ command = '"' + transformdb + '" --old "' + testold + '" --new "' + testnew + '"
 
 TestUtil.spawn(command).waitTestSuccess()
 
-print "ok"
+print("ok")
 
-print "validating database...",
+sys.stdout.write("validating database... ")
 sys.stdout.flush()
 
 command = '"' + transformdb + '" --old "' + testnew + '" --new "' + testnew + '" -f "' + checkxml + '" "' + check_dbdir + \
@@ -136,7 +139,7 @@ command = '"' + transformdb + '" --old "' + testnew + '" --new "' + testnew + '"
 
 TestUtil.spawn(command).waitTestSuccess()
 
-print "ok"
+print("ok")
 
 if TestUtil.appverifier:
     TestUtil.appVerifierAfterTestEnd([transformdb])

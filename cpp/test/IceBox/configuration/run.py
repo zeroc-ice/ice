@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 icebox = TestUtil.getIceBox()
 
@@ -27,4 +27,3 @@ config2 = os.path.join(os.getcwd(), "config.icebox2")
 
 TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config="%s"' % config, server = icebox)
 TestUtil.clientServerTest(additionalServerOptions= '--Ice.Config="%s"' % config2, server = icebox)
-

@@ -18,7 +18,7 @@ def testExceptions(obj, collocated):
     try:
         obj.requestFailedException()
         test(False)
-    except Ice.ObjectNotExistException, ex:
+    except Ice.ObjectNotExistException as ex:
         if not collocated:
             test(ex.id == obj.ice_getIdentity())
             test(ex.facet == obj.ice_getFacet())
@@ -29,7 +29,7 @@ def testExceptions(obj, collocated):
     try:
         obj.unknownUserException()
         test(False)
-    except Ice.UnknownUserException, ex:
+    except Ice.UnknownUserException as ex:
         test(ex.unknown == "reason")
     except:
         test(False)
@@ -37,7 +37,7 @@ def testExceptions(obj, collocated):
     try:
         obj.unknownLocalException()
         test(False)
-    except Ice.UnknownLocalException, ex:
+    except Ice.UnknownLocalException as ex:
         test(ex.unknown == "reason")
     except:
         test(False)
@@ -45,14 +45,14 @@ def testExceptions(obj, collocated):
     try:
         obj.unknownException()
         test(False)
-    except Ice.UnknownException, ex:
+    except Ice.UnknownException as ex:
         test(ex.unknown == "reason")
         pass
 
     try:
         obj.userException()
         test(False)
-    except Ice.UnknownUserException, ex:
+    except Ice.UnknownUserException as ex:
         test(ex.unknown.find("Test::TestIntfUserException") >= 0)
     except:
         test(False)
@@ -60,7 +60,7 @@ def testExceptions(obj, collocated):
     try:
         obj.localException()
         test(False)
-    except Ice.UnknownLocalException, ex:
+    except Ice.UnknownLocalException as ex:
         test(not collocated)
         test(ex.unknown.find("Ice.SocketException") >= 0)
     except SocketException:
@@ -71,7 +71,7 @@ def testExceptions(obj, collocated):
     try:
         obj.pythonException()
         test(False)
-    except Ice.UnknownException, ex:
+    except Ice.UnknownException as ex:
         test(ex.unknown.find("RuntimeError: message") >= 0)
     except:
         test(False)
@@ -79,7 +79,7 @@ def testExceptions(obj, collocated):
     try:
         obj.unknownExceptionWithServantException()
         test(False)
-    except Ice.UnknownException, ex:
+    except Ice.UnknownException as ex:
         test(ex.unknown == "reason")
     except:
         test(False)
@@ -121,26 +121,26 @@ def testExceptions(obj, collocated):
         test(False)
 
 def allTests(communicator, collocated):
-    print "testing stringToProxy...",
+    sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("asm:default -p 12010")
     test(base)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast...",
+    sys.stdout.write("testing checked cast... ")
     sys.stdout.flush()
     obj = Test.TestIntfPrx.checkedCast(base)
     test(obj)
     test(obj == base)
-    print "ok"
+    print("ok")
 
-    print "testing ice_ids...",
+    sys.stdout.write("testing ice_ids... ")
     sys.stdout.flush()
     try:
         obj = communicator.stringToProxy("category/locate:default -p 12010")
         obj.ice_ids()
         test(False)
-    except Ice.UnknownUserException, ex:
+    except Ice.UnknownUserException as ex:
         test(ex.unknown == "Test::TestIntfUserException")
     except:
         test(False)
@@ -149,13 +149,13 @@ def allTests(communicator, collocated):
         obj = communicator.stringToProxy("category/finished:default -p 12010")
         obj.ice_ids()
         test(False)
-    except Ice.UnknownUserException, ex:
+    except Ice.UnknownUserException as ex:
         test(ex.unknown == "Test::TestIntfUserException")
     except:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "testing servant locator...",
+    sys.stdout.write("testing servant locator... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("category/locate:default -p 12010")
     obj = Test.TestIntfPrx.checkedCast(base)
@@ -163,9 +163,9 @@ def allTests(communicator, collocated):
         Test.TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010"))
     except Ice.ObjectNotExistException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing default servant locator...",
+    sys.stdout.write("testing default servant locator... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("anothercat/locate:default -p 12010")
     obj = Test.TestIntfPrx.checkedCast(base)
@@ -179,23 +179,23 @@ def allTests(communicator, collocated):
         Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010"))
     except Ice.ObjectNotExistException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing locate exceptions...",
+    sys.stdout.write("testing locate exceptions... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("category/locate:default -p 12010")
     obj = Test.TestIntfPrx.checkedCast(base)
     testExceptions(obj, collocated)
-    print "ok"
+    print("ok")
 
-    print "testing finished exceptions...",
+    sys.stdout.write("testing finished exceptions... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("category/finished:default -p 12010")
     obj = Test.TestIntfPrx.checkedCast(base)
     testExceptions(obj, collocated)
-    print "ok"
+    print("ok")
 
-    print "testing servant locator removal...",
+    sys.stdout.write("testing servant locator removal... ")
     sys.stdout.flush()
     base = communicator.stringToProxy("test/activation:default -p 12010")
     activation = Test.TestActivationPrx.checkedCast(base)
@@ -205,15 +205,15 @@ def allTests(communicator, collocated):
         test(False)
     except Ice.ObjectNotExistException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing servant locator addition...",
+    sys.stdout.write("testing servant locator addition... ")
     sys.stdout.flush()
     activation.activateServantLocator(True)
     try:
         obj.ice_ping()
     except:
         test(False)
-    print "ok"
+    print("ok")
     
     return obj

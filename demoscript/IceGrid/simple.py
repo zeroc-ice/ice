@@ -9,11 +9,10 @@
 # **********************************************************************
 
 import sys, time, os
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
 
 def run(clientStr, desc = 'application'):
-    print "cleaning databases...",
+    sys.stdout.write("cleaning databases... ")
     sys.stdout.flush()
     nodeDir = os.path.join("db", "node")
     if not os.path.exists(nodeDir):
@@ -25,31 +24,31 @@ def run(clientStr, desc = 'application'):
         os.mkdir(regDir)
     else:
         Util.cleanDbDir(regDir)
-    print "ok"
+    print("ok")
 
     if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
-    print "starting icegridnode...",
+    sys.stdout.write("starting icegridnode... ")
     sys.stdout.flush()
     node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready')
     node.expect('IceGrid.Registry.Server ready')
     node.expect('IceGrid.Registry.Client ready')
     node.expect('IceGrid.Node ready')
-    print "ok"
+    print("ok")
 
-    print "deploying application...",
+    sys.stdout.write("deploying application... ")
     sys.stdout.flush()
     admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'%s.xml\'" %(desc))
     admin.expect('>>>')
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client = Util.spawn(clientStr)
     client.expect('==>')
@@ -62,15 +61,15 @@ def run(clientStr, desc = 'application'):
     client.sendline('x')
 
     client.waitTestSuccess(timeout=1)
-    print "ok"
+    print("ok")
 
-    print "deploying template...", 
+    sys.stdout.write("deploying template... ")
     sys.stdout.flush()
     admin.sendline("application update \'%s_with_template.xml\'" % (desc))
     admin.expect('>>>')
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client = Util.spawn(clientStr)
     client.expect('==>')
@@ -83,15 +82,15 @@ def run(clientStr, desc = 'application'):
     client.sendline('x')
 
     client.waitTestSuccess(timeout=1)
-    print "ok"
+    print("ok")
 
-    print "deploying replicated version...", 
+    sys.stdout.write("deploying replicated version... ")
     sys.stdout.flush()
     admin.sendline("application update \'%s_with_replication.xml\'" %(desc))
     admin.expect('>>> ')
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
 
     def testserver(which):
@@ -111,7 +110,7 @@ def run(clientStr, desc = 'application'):
     testserver(2)
     testserver(3)
 
-    print "ok"
+    print("ok")
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')

@@ -16,16 +16,16 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 from demoscript.book import map_filesystem
 
-print "cleaning databases...",
+sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
 Util.cleanDbDir("db")
-print "ok"
+print("ok")
 
 server = Util.spawn('java Server --Ice.PrintAdapterReady')
 server.expect('.* ready')

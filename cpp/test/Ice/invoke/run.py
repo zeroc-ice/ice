@@ -16,16 +16,15 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
-print "tests with Blobject server."
+print("tests with Blobject server.")
 TestUtil.clientServerTest()
-print "tests with BlobjectArray server."
+print("tests with BlobjectArray server.")
 TestUtil.clientServerTest(additionalServerOptions = "--array")
-print "tests with BlobjectAsync server."
+print("tests with BlobjectAsync server.")
 TestUtil.clientServerTest(additionalServerOptions = "--async")
-print "tests with BlobjectAsyncArray server."
+print("tests with BlobjectAsyncArray server.")
 TestUtil.clientServerTest(additionalServerOptions = "--array --async")
-

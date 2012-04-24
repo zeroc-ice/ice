@@ -17,9 +17,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceStormUtil
 
 publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
@@ -35,24 +35,24 @@ def dotest(type):
 
     icestorm.start()
 
-    print "creating topic...",
+    sys.stdout.write("creating topic... ")
     sys.stdout.flush()
     icestorm.admin("create single")
-    print "ok"
+    print("ok")
 
-    print "starting subscriber...",
+    sys.stdout.write("starting subscriber... ")
     sys.stdout.flush()
     subscriberProc = TestUtil.startServer(subscriber, icestorm.reference(), count = 5)
-    print "ok"
+    print("ok")
 
     #
     # Start the publisher. This should publish 10 events which eventually
     # causes subscriber to terminate.
     #
-    print "starting publisher...",
+    sys.stdout.write("starting publisher... ")
     sys.stdout.flush()
     publisherProc = TestUtil.startClient(publisher, icestorm.reference(), startReader = False)
-    print "ok"
+    print("ok")
     publisherProc.startReader()
 
     subscriberProc.waitTestSuccess()
@@ -61,10 +61,10 @@ def dotest(type):
     #
     # Destroy the topic.
     #
-    print "destroy topic...",
+    sys.stdout.write("destroy topic... ")
     sys.stdout.flush()
     icestorm.admin("destroy single")
-    print "ok"
+    print("ok")
 
     #
     # Shutdown icestorm.

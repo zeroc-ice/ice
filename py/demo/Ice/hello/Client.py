@@ -14,7 +14,7 @@ Ice.loadSlice('Hello.ice')
 import Demo
 
 def menu():
-    print """
+    print("""
 usage:
 t: send greeting as twoway
 o: send greeting as oneway
@@ -28,18 +28,18 @@ S: switch secure mode on/off
 s: shutdown server
 x: exit
 ?: help
-"""
+""")
 
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         twoway = Demo.HelloPrx.checkedCast(\
             self.communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
 
         oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
@@ -56,7 +56,9 @@ class Client(Ice.Application):
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
                 if c == 't':
                     twoway.sayHello(delay)
                 elif c == 'o':
@@ -65,12 +67,12 @@ class Client(Ice.Application):
                     batchOneway.sayHello(delay)
                 elif c == 'd':
                     if secure:
-                        print "secure datagrams are not supported"
+                        print("secure datagrams are not supported")
                     else:
                         datagram.sayHello(delay)
                 elif c == 'D':
                     if secure:
-                        print "secure datagrams are not supported"
+                        print("secure datagrams are not supported")
                     else:
                         batchDatagram.sayHello(delay)
                 elif c == 'f':
@@ -86,9 +88,9 @@ class Client(Ice.Application):
                     batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
 
                     if timeout == -1:
-                        print "timeout is now switched off"
+                        print("timeout is now switched off")
                     else:
-                        print "timeout is now set to 2000ms"
+                        print("timeout is now set to 2000ms")
                 elif c == 'P':
                     if delay == 0:
                         delay = 2500
@@ -96,9 +98,9 @@ class Client(Ice.Application):
                         delay = 0
 
                     if delay == 0:
-                        print "server delay is now deactivated"
+                        print("server delay is now deactivated")
                     else:
-                        print "server delay is now set to 2500ms"
+                        print("server delay is now set to 2500ms")
                 elif c == 'S':
                     secure = not secure
 
@@ -109,9 +111,9 @@ class Client(Ice.Application):
                     batchDatagram = Demo.HelloPrx.uncheckedCast(batchDatagram.ice_secure(secure))
 
                     if secure:
-                        print "secure mode is now on"
+                        print("secure mode is now on")
                     else:
-                        print "secure mode is now off"
+                        print("secure mode is now off")
                 elif c == 's':
                     twoway.shutdown()
                 elif c == 'x':
@@ -119,14 +121,14 @@ class Client(Ice.Application):
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except KeyboardInterrupt:
                 break
             except EOFError:
                 break
-            except Ice.Exception, ex:
-                print ex
+            except Ice.Exception as ex:
+                print(ex)
 
         return 0
 

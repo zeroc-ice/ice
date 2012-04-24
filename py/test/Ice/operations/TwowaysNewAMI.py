@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, math, threading
+import Ice, Test, math, sys, threading
 
 def test(b):
     if not b:
@@ -117,19 +117,33 @@ class Callback(CallbackBase):
 
     def opByteS(self, rso, bso):
         test(len(bso) == 4)
-        test(bso[0] == '\x22')
-        test(bso[1] == '\x12')
-        test(bso[2] == '\x11')
-        test(bso[3] == '\x01')
         test(len(rso) == 8)
-        test(rso[0] == '\x01')
-        test(rso[1] == '\x11')
-        test(rso[2] == '\x12')
-        test(rso[3] == '\x22')
-        test(rso[4] == '\xf1')
-        test(rso[5] == '\xf2')
-        test(rso[6] == '\xf3')
-        test(rso[7] == '\xf4')
+        if sys.version_info[0] == 2:
+            test(bso[0] == '\x22')
+            test(bso[1] == '\x12')
+            test(bso[2] == '\x11')
+            test(bso[3] == '\x01')
+            test(rso[0] == '\x01')
+            test(rso[1] == '\x11')
+            test(rso[2] == '\x12')
+            test(rso[3] == '\x22')
+            test(rso[4] == '\xf1')
+            test(rso[5] == '\xf2')
+            test(rso[6] == '\xf3')
+            test(rso[7] == '\xf4')
+        else:
+            test(bso[0] == 0x22)
+            test(bso[1] == 0x12)
+            test(bso[2] == 0x11)
+            test(bso[3] == 0x01)
+            test(rso[0] == 0x01)
+            test(rso[1] == 0x11)
+            test(rso[2] == 0x12)
+            test(rso[3] == 0x22)
+            test(rso[4] == 0xf1)
+            test(rso[5] == 0xf2)
+            test(rso[6] == 0xf3)
+            test(rso[7] == 0xf4)
         self.called()
 
     def opBoolS(self, rso, bso):
@@ -198,23 +212,36 @@ class Callback(CallbackBase):
     def opByteSS(self, rso, bso):
         test(len(bso) == 2)
         test(len(bso[0]) == 1)
-        test(bso[0][0] == '\xff')
         test(len(bso[1]) == 3)
-        test(bso[1][0] == '\x01')
-        test(bso[1][1] == '\x11')
-        test(bso[1][2] == '\x12')
         test(len(rso) == 4)
         test(len(rso[0]) == 3)
-        test(rso[0][0] == '\x01')
-        test(rso[0][1] == '\x11')
-        test(rso[0][2] == '\x12')
         test(len(rso[1]) == 1)
-        test(rso[1][0] == '\xff')
         test(len(rso[2]) == 1)
-        test(rso[2][0] == '\x0e')
         test(len(rso[3]) == 2)
-        test(rso[3][0] == '\xf2')
-        test(rso[3][1] == '\xf1')
+        if sys.version_info[0] == 2:
+            test(bso[0][0] == '\xff')
+            test(bso[1][0] == '\x01')
+            test(bso[1][1] == '\x11')
+            test(bso[1][2] == '\x12')
+            test(rso[0][0] == '\x01')
+            test(rso[0][1] == '\x11')
+            test(rso[0][2] == '\x12')
+            test(rso[1][0] == '\xff')
+            test(rso[2][0] == '\x0e')
+            test(rso[3][0] == '\xf2')
+            test(rso[3][1] == '\xf1')
+        else:
+            test(bso[0][0] == 0xff)
+            test(bso[1][0] == 0x01)
+            test(bso[1][1] == 0x11)
+            test(bso[1][2] == 0x12)
+            test(rso[0][0] == 0x01)
+            test(rso[0][1] == 0x11)
+            test(rso[0][2] == 0x12)
+            test(rso[1][0] == 0xff)
+            test(rso[2][0] == 0x0e)
+            test(rso[3][0] == 0xf2)
+            test(rso[3][1] == 0xf1)
         self.called()
 
     def opFloatDoubleSS(self, rso, fso, dso):

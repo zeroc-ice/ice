@@ -17,10 +17,13 @@ class ThroughputI(Demo.Throughput):
     def __init__(self):
         warmup = False
         
-        bytes = []
-        bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
-        bytes = ['\x00' for x in bytes]
-        self.byteSeq = ''.join(bytes)
+        if sys.version_info[0] == 2:
+            b = []
+            b[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
+            b = ['\x00' for x in b]
+            self.byteSeq = ''.join(b)
+        else:
+            self.byteSeq = bytes([0 for x in range(0, Demo.ByteSeqSize)])
 
         self.stringSeq = []
         self.stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)
@@ -105,7 +108,7 @@ class ThroughputI(Demo.Throughput):
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         adapter = self.communicator().createObjectAdapter("Throughput")

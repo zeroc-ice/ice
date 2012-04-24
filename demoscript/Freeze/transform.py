@@ -12,19 +12,21 @@ import sys, demoscript, time
 from scripts import Expect
 
 def run(createCmd, recreateCmd, readCmd, readnewCmd):
-    print "cleaning databases...",
+    sys.stdout.write("cleaning databases... ")
     sys.stdout.flush()
     demoscript.Util.cleanDbDir("db")
     demoscript.Util.cleanDbDir("dbnew")
-    print "ok"
+    print("ok")
 
-    print "creating database...",
+    sys.stdout.write("creating database... ")
+    sys.stdout.flush()
     create = demoscript.Util.spawn(createCmd)
     create.expect('7 contacts were successfully created or updated')
     create.waitTestSuccess()
-    print "ok"
+    print("ok")
 
-    print "reading database...",
+    sys.stdout.write("reading database... ")
+    sys.stdout.flush()
     read = demoscript.Util.spawn(readCmd)
     read.expect(["All contacts \(default order\)",
                  'arnold:\t{1,2}\(333\)333-3333 x1234',
@@ -43,28 +45,32 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
                  'ed:\t{1,2}\(666\)666-6666',
                  'don:\t{1,2}\(777\)777-7777'])
     read.waitTestSuccess()
-    print "ok"
+    print("ok")
 
-    print "transforming database...",
+    sys.stdout.write("transforming database... ")
+    sys.stdout.flush()
     transform = demoscript.Util.spawn('transformdb --old ContactData.ice --new NewContactData.ice -f transform.xml  db dbnew')
     transform.waitTestSuccess()
-    print "ok"
+    print("ok")
 
-    print "reading new database...",
+    sys.stdout.write("reading new database... ")
+    sys.stdout.flush()
     readnew = demoscript.Util.spawn(readnewCmd)
     readnew.expect('All contacts \(default order\)')
     readnew.expect('All contacts \(ordered by phone number\)')
     readnew.expect('DbEnv \"dbnew\": contacts: DB_SECONDARY_BAD: Secondary index inconsistent with primary')
     readnew.waitTestSuccess(1)
-    print "ok"
+    print("ok")
 
-    print "recreating database...",
+    sys.stdout.write("recreating database... ")
+    sys.stdout.flush()
     recreate = demoscript.Util.spawn(recreateCmd)
     recreate.expect('Recreated contacts database successfully!')
     recreate.waitTestSuccess()
-    print "ok"
+    print("ok")
 
-    print "rereading new database...",
+    sys.stdout.write("rereading new database... ")
+    sys.stdout.flush()
     readnew = demoscript.Util.spawn(readnewCmd)
     readnew.expect(["All contacts \(default order\)",
                     'arnold:\t{1,2}\(333\)333-3333 x1234 arnold@gmail.com',
@@ -83,4 +89,4 @@ def run(createCmd, recreateCmd, readCmd, readnewCmd):
                     'ed:\t{1,2}\(666\)666-6666 ed@gmail.com',
                     'don:\t{1,2}\(777\)777-7777 don@gmail.com',])
     readnew.waitTestSuccess()
-    print "ok"
+    print("ok")

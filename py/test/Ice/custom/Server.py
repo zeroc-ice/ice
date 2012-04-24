@@ -20,7 +20,10 @@ def test(b):
 
 class CustomI(Test.Custom):
     def opByteString1(self, b1, current=None):
-        test(isinstance(b1, str))
+        if sys.version_info[0] == 2:
+            test(isinstance(b1, str))
+        else:
+            test(isinstance(b1, bytes))
         return (b1, b1)
 
     def opByteString2(self, b1, current=None):
@@ -52,9 +55,15 @@ class CustomI(Test.Custom):
         return (s1, s1)
 
     def sendS(self, val, current=None):
-        test(isinstance(val.b1, str))
+        if sys.version_info[0] == 2:
+            test(isinstance(val.b1, str))
+        else:
+            test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
-        test(isinstance(val.b3, str))
+        if sys.version_info[0] == 2:
+            test(isinstance(val.b3, str))
+        else:
+            test(isinstance(val.b3, bytes))
         test(isinstance(val.b4, list))
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))
@@ -62,9 +71,15 @@ class CustomI(Test.Custom):
         test(isinstance(val.s4, list))
 
     def sendC(self, val, current=None):
-        test(isinstance(val.b1, str))
+        if sys.version_info[0] == 2:
+            test(isinstance(val.b1, str))
+        else:
+            test(isinstance(val.b1, bytes))
         test(isinstance(val.b2, list))
-        test(isinstance(val.b3, str))
+        if sys.version_info[0] == 2:
+            test(isinstance(val.b3, str))
+        else:
+            test(isinstance(val.b3, bytes))
         test(isinstance(val.b4, list))
         test(isinstance(val.s1, list))
         test(isinstance(val.s2, tuple))

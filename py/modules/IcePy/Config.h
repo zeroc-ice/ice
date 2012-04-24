@@ -32,12 +32,4 @@
 #endif
 #define STRCAST(s) const_cast<char*>(s)
 
-//
-// Python 2.5 compatibility.
-//
-#if PY_VERSION_HEX < 0x02050000
-    typedef int Py_ssize_t;
-#   define ICEPY_OLD_EXCEPTIONS
-#endif
-
 #endif

@@ -240,7 +240,7 @@ getDictLookup(const ContainedPtr& cont, const string& suffix = string())
         scope = package + "." + scope;
     }
 
-    return "_M_" + scope + "__dict__.has_key('" + suffix + Slice::Python::fixIdent(cont->name()) + "')";
+    return "'" + suffix + Slice::Python::fixIdent(cont->name()) + "' not in _M_" + scope + "__dict__";
 }
 
 //
@@ -383,7 +383,7 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = p->scoped();
     if(_classHistory.count(scoped) == 0)
     {
-        _out << sp << nl << "if not " << getDictLookup(p) << ':';
+        _out << sp << nl << "if " << getDictLookup(p) << ':';
         _out.inc();
         string type = getAbsolute(p, "_t_");
         _out << nl << "_M_" << type << " = IcePy.declareClass('" << scoped << "')";
@@ -415,7 +415,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define the class.
     //
-    _out << sp << nl << "if not " << getDictLookup(p) << ':';
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << '(';
@@ -472,7 +472,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(isAbstract)
         {
-            _out << nl << "if __builtin__.type(self) == _M_" << abs << ':';
+            _out << nl << "if Ice.getType(self) == _M_" << abs << ':';
             _out.inc();
             _out << nl << "raise RuntimeError('" << abs << " is an abstract class')";
             _out.dec();
@@ -1001,7 +1001,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
 
-    _out << sp << nl << "if not " << getDictLookup(p) << ':';
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << '(';
@@ -1164,7 +1164,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         }
     }
 
-    _out << sp << nl << "if not " << getDictLookup(p) << ':';
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << "(object):";
@@ -1342,7 +1342,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     // Emit the type information.
     //
     string scoped = p->scoped();
-    _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
+    _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     if(isCustom)
     {
@@ -1369,7 +1369,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     // Emit the type information.
     //
     string scoped = p->scoped();
-    _out << sp << nl << "if not " << getDictLookup(p, "_t_") << ':';
+    _out << sp << nl << "if " << getDictLookup(p, "_t_") << ':';
     _out.inc();
     _out << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineDictionary('" << scoped << "', ";
     writeMetaData(p->getMetaData());
@@ -1391,7 +1391,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     EnumeratorList::iterator q;
     int i;
 
-    _out << sp << nl << "if not " << getDictLookup(p) << ':';
+    _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
     _out << nl << "class " << name << "(object):";
@@ -1716,7 +1716,7 @@ Slice::Python::CodeVisitor::writeHash(const string& name, const TypePtr& p, int&
         return;
     }
 
-    _out << nl << "_h = 5 * _h + __builtin__.hash(" << name << ")";
+    _out << nl << "_h = 5 * _h + Ice.getHash(" << name << ")";
 }
 
 void
@@ -2208,7 +2208,7 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
     Slice::Python::MetaDataVisitor visitor;
     un->visit(&visitor, false);
 
-    out << nl << "import Ice, IcePy, __builtin__";
+    out << nl << "import Ice, IcePy";
 
     if(!all)
     {

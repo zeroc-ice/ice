@@ -15,7 +15,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
         break
 else:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 
 import Ice
 
@@ -47,7 +47,8 @@ class printI(_and._print):
         pass
 
 def testtypes():
-    print("Testing generated type names... "),
+    sys.stdout.write("Testing generated type names... ")
+    sys.stdout.flush()
     a = _and._assert._break
     b = _and._continue
     b._def = 0
@@ -74,7 +75,7 @@ def testtypes():
     i = printI()
     j = _and._lambda;
     en = _and.EnumNone._None
-    print "ok"
+    print("ok")
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
@@ -82,11 +83,12 @@ def run(args, communicator):
     adapter.add(execI(), communicator.stringToIdentity("test"))
     adapter.activate()
 
-    print("Testing operation name... "),
+    sys.stdout.write("Testing operation name... ")
+    sys.stdout.flush()
     p = _and.execPrx.uncheckedCast(
         adapter.createProxy(communicator.stringToIdentity("test")));
     p._finally();
-    print "ok"
+    print("ok")
 
     testtypes()
 

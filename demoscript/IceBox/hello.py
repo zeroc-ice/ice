@@ -9,25 +9,25 @@
 # **********************************************************************
 
 import sys, demoscript
-from scripts import Expect
+import Expect
 
 def runtests(client, server, secure):
-    print "testing twoway",
+    sys.stdout.write("testing twoway ")
     sys.stdout.flush()
     client.sendline('t')
     server.expect('Hello World!')
-    print "oneway",
+    sys.stdout.write("oneway ")
     sys.stdout.flush()
     client.sendline('o')
     server.expect('Hello World!')
     if not secure:
-        print "datagram",
+        sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('d')
         server.expect('Hello World!')
-    print "... ok"
+    print("... ok")
 
-    print "testing batch oneway",
+    sys.stdout.write("testing batch oneway ")
     sys.stdout.flush()
     client.sendline('O')
     try:
@@ -39,7 +39,7 @@ def runtests(client, server, secure):
     server.expect('Hello World!')
     server.expect('Hello World!')
     if not secure:
-        print "datagram",
+        sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('D')
         try:
@@ -50,13 +50,13 @@ def runtests(client, server, secure):
         client.sendline('f')
         server.expect('Hello World!')
         server.expect('Hello World!')
-    print "... ok"
+    print("... ok")
 
 def run(client, server):
     runtests(client, server, False)
 
     if not demoscript.Util.isMono():
-        print "repeating tests with SSL"
+        print("repeating tests with SSL")
 
         client.sendline('S')
 

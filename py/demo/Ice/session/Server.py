@@ -19,8 +19,8 @@ class HelloI(Demo.Hello):
         self._id = id
 
     def sayHello(self, c):
-        print "Hello object #" + str(self._id) + " for session `" + self._name + "' says:\n" + \
-              "Hello " + self._name + "!"
+        print("Hello object #" + str(self._id) + " for session `" + self._name + "' says:\n" + \
+              "Hello " + self._name + "!")
 
 class SessionI(Demo.Session):
     def __init__(self, name):
@@ -31,8 +31,8 @@ class SessionI(Demo.Session):
         self._nextId = 0 # The id of the next hello object. This is used for tracing purposes.
         self._objs = [] # List of per-client allocated Hello objects.
 
-        print  "The session " + self._name + " is now created."
-    
+        print("The session " + self._name + " is now created.")
+
     def createHello(self, c):
         self._lock.acquire()
         try:
@@ -63,19 +63,19 @@ class SessionI(Demo.Session):
             return self._name
         finally:
             self._lock.release()
-    
+
     def destroy(self, c):
         self._lock.acquire()
         try:
             if self._destroy:
                 raise Ice.ObjectNotExistException()
             self._destroy = True
-            print "The session " + self._name + " is now destroyed."
+            print("The session " + self._name + " is now destroyed.")
             try:
                 c.adapter.remove(c.id)
                 for p in self._objs:
                     c.adapter.remove(p.ice_getIdentity())
-            except Ice.ObjectAdapterDeactivatedException, ex:
+            except Ice.ObjectAdapterDeactivatedException as ex:
                 # This method is called on shutdown of the server, in
                 # which case this exception is expected.
                 pass
@@ -91,7 +91,7 @@ class SessionI(Demo.Session):
             return self._timestamp
         finally:
             self._lock.release()
-        
+
 class SessionProxyPair:
     def __init__(self, p, s):
         self.proxy = p
@@ -121,7 +121,7 @@ class ReapThread(threading.Thread):
                             if (time.time() - p.session.timestamp()) > self._timeout:
                                 name = p.proxy.getName()
                                 p.proxy.destroy()
-                                print "The session " + name + " has timed out."
+                                print("The session " + name + " has timed out.")
                                 self._sessions.remove(p)
                         except Ice.ObjectNotExistException:
                             self._sessions.remove(p)
@@ -161,13 +161,13 @@ class SessionFactoryI(Demo.SessionFactory):
             self._lock.release()
 
     def shutdown(self, c):
-        print "Shutting down..."
+        print("Shutting down...")
         c.adapter.getCommunicator().shutdown()
 
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         adapter = self.communicator().createObjectAdapter("SessionFactory")

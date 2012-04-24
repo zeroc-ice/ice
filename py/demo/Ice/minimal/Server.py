@@ -15,7 +15,7 @@ import Demo
 
 class HelloI(Demo.Hello):
     def sayHello(self, current=None):
-        print "Hello World!"
+        print("Hello World!")
 
 try:
     communicator = Ice.initialize(sys.argv)

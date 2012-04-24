@@ -40,7 +40,7 @@ def run(args, communicator, sync):
     try:
         Test.HelloPrx.checkedCast(communicator.stringToProxy("missing:default -p 12000 -t 10000"))
         test(False)
-    except Ice.UnknownLocalException, e:
+    except Ice.UnknownLocalException as e:
         test(e.unknown.find('ConnectionRefusedException'))
     if sync:
         hello.shutdown()
@@ -54,10 +54,10 @@ try:
     initData.properties.setProperty('Ice.Warn.Dispatch', '0')
     communicator = Ice.initialize(argv, initData)
     router = RouterI.RouterI(communicator, False)
-    print "testing async blobject...",
+    sys.stdout.write("testing async blobject... ")
     sys.stdout.flush()
     status = run(sys.argv, communicator, False)
-    print "ok"
+    print("ok")
     router.destroy()
 except:
     traceback.print_exc()
@@ -77,10 +77,10 @@ if status:
         initData.properties.setProperty('Ice.Warn.Dispatch', '0')
         communicator = Ice.initialize(sys.argv, initData)
         router = RouterI.RouterI(communicator, True)
-        print "testing sync blobject...",
+        sys.stdout.write("testing sync blobject... ")
         sys.stdout.flush()
         status = run(sys.argv, communicator, True)
-        print "ok"
+        print("ok")
         router.destroy()
     except:
         traceback.print_exc()

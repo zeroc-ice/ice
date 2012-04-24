@@ -12,7 +12,7 @@ import sys, time, signal
 from scripts import Expect
 
 def run(client, server, glacier2):
-    print "testing ",
+    sys.stdout.write("testing ")
     sys.stdout.flush()
     client.expect('user id:')
     client.sendline("foo")
@@ -21,42 +21,42 @@ def run(client, server, glacier2):
 
     client.expect("==>")
 
-    print "twoway",
+    sys.stdout.write("twoway ")
     sys.stdout.flush()
     client.sendline('t')
     server.expect('initiating callback to')
     client.expect('received callback')
     glacier2.expect('_fwd/t')
 
-    print "oneway",
+    sys.stdout.write("oneway ")
     sys.stdout.flush()
     client.sendline('o')
     server.expect('initiating callback to')
     client.expect('received callback')
     glacier2.expect('_fwd/o')
 
-    print "batch",
+    sys.stdout.write("batch ")
     sys.stdout.flush()
     client.sendline('O')
+    client.sendline('O')
+    client.sendline('f')
     try:
         server.expect('initiating callback to', timeout=1)
     except Expect.TIMEOUT:
         pass
-    client.sendline('O')
-    client.sendline('f')
     glacier2.expect('_fwd/O')
-    print "ok"
+    print("ok")
 
-    print "testing override context field...",
+    sys.stdout.write("testing override context field... ")
     sys.stdout.flush()
     client.sendline('v')
     client.sendline('t')
     glacier2.expect('_fwd/t, _ovrd/some_value')
     server.expect('initiating callback to')
     client.expect('received callback')
-    print "ok"
+    print("ok")
 
-    print "testing fake category...",
+    sys.stdout.write("testing fake category... ")
     sys.stdout.flush()
     client.sendline('v')
     client.sendline('F')
@@ -66,7 +66,7 @@ def run(client, server, glacier2):
         client.expect('received callback', timeout=1)
     except Expect.TIMEOUT:
         pass
-    print "ok"
+    print("ok")
 
     client.sendline('s')
     server.expect('shutting down...')

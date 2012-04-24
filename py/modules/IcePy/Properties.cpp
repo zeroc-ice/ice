@@ -33,9 +33,9 @@ struct PropertiesObject
 extern "C"
 #endif
 static PropertiesObject*
-propertiesNew(PyObject* /*arg*/)
+propertiesNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    PropertiesObject* self = PyObject_New(PropertiesObject, &PropertiesType);
+    PropertiesObject* self = reinterpret_cast<PropertiesObject*>(type->tp_alloc(type, 0));
     if(!self)
     {
         return 0;
@@ -138,7 +138,7 @@ static void
 propertiesDealloc(PropertiesObject* self)
 {
     delete self->properties;
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 #ifdef WIN32
@@ -275,7 +275,7 @@ propertiesGetPropertyAsInt(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 #ifdef WIN32
@@ -309,7 +309,7 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
         return 0;
     }
 
-    return PyInt_FromLong(value);
+    return PyLong_FromLong(value);
 }
 
 #ifdef WIN32
@@ -709,8 +709,7 @@ PyTypeObject PropertiesType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                              /* ob_size */
+    PyVarObject_HEAD_INIT(0, 0)
     STRCAST("IcePy.Properties"),    /* tp_name */
     sizeof(PropertiesObject),       /* tp_basicsize */
     0,                              /* tp_itemsize */
@@ -719,7 +718,7 @@ PyTypeObject PropertiesType =
     0,                              /* tp_print */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
-    0,                              /* tp_compare */
+    0,                              /* tp_reserved */
     0,                              /* tp_repr */
     0,                              /* tp_as_number */
     0,                              /* tp_as_sequence */
@@ -774,7 +773,7 @@ IcePy::initProperties(PyObject* module)
 PyObject*
 IcePy::createProperties(const Ice::PropertiesPtr& props)
 {
-    PropertiesObject* obj = propertiesNew(0);
+    PropertiesObject* obj = propertiesNew(&PropertiesType, 0, 0);
     if(obj)
     {
         obj->properties = new Ice::PropertiesPtr(props);

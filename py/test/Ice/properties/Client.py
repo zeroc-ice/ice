@@ -27,7 +27,8 @@ class Client(Ice.Application):
         test(self.appName() == properties.getProperty("Ice.ProgramName"))
 
 
-print "testing load properties from UTF-8 path... ",
+sys.stdout.write("testing load properties from UTF-8 path... ")
+sys.stdout.flush()
 id = Ice.InitializationData()
 id.properties = Ice.createProperties()
 id.properties.load("./config/中国_client.config")
@@ -35,10 +36,11 @@ test(id.properties.getProperty("Ice.Trace.Network") == "1")
 test(id.properties.getProperty("Ice.Trace.Protocol") == "1")
 test(id.properties.getProperty("Config.Path") == "./config/中国_client.config")
 test(id.properties.getProperty("Ice.ProgramName") == "PropertiesClient")
-print "ok"
-print "testing load properties from UTF-8 path using Ice::Application... ",
+print("ok")
+sys.stdout.write("testing load properties from UTF-8 path using Ice::Application... ")
+sys.stdout.flush()
 c  = Client()
 c.main(sys.argv, "./config/中国_client.config")
-print "ok"
+print("ok")
 
 sys.exit(0)

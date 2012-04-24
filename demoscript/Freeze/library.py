@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-from scripts import Expect
+import Expect
 
 def dequote(s):
     cur = 0
@@ -38,7 +38,7 @@ def mkregexp(s):
     return s
                 
 def run(client, server):
-    print "populating database... ",
+    sys.stdout.write("populating database... ")
     sys.stdout.flush()
     f = open("books", "r")
     books = []
@@ -47,16 +47,16 @@ def run(client, server):
         client.expect('added new book')
         isbn, title, author = dequote(l)
         books.append((isbn, title, author))
-    print "ok"
+    print("ok")
 
     byauthor = {}
     for b in books:
         isbn, title, author = b
-        if not byauthor.has_key(author):
+        if author not in byauthor:
             byauthor[author] = []
         byauthor[author].append(b)
 
-    print "testing isbn... ",
+    sys.stdout.write("testing isbn... ")
     sys.stdout.flush()
     for b in books:
         isbn, title, author = b
@@ -67,11 +67,11 @@ def run(client, server):
         client.expect('authors: %s' %(author))
     client.sendline('isbn 1000')
     client.expect('no book with that')
-    print "ok"
+    print("ok")
 
-    print "testing authors... ",
+    sys.stdout.write("testing authors... ")
     sys.stdout.flush()
-    for a, bl in byauthor.iteritems():
+    for a, bl in byauthor.items():
         client.sendline('authors "%s"' %(a))
         client.expect('number of books found: ([0-9]+)')
         n = int(client.match.group(1))
@@ -97,9 +97,9 @@ def run(client, server):
     client.sendline('authors foo')
     client.expect('number of books found: 0')
     client.expect('no current book')
-    print "ok"
+    print("ok")
 
-    print "testing rent/return... ",
+    sys.stdout.write("testing rent/return... ")
     sys.stdout.flush()
     isbn, title, author = books[0]
     client.sendline('isbn %s' % (isbn))
@@ -117,9 +117,9 @@ def run(client, server):
         client.expect('rented:', timeout=2)
     except Expect.TIMEOUT:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing remove... ",
+    sys.stdout.write("testing remove... ")
     sys.stdout.flush()
     isbn, title, author = books[0]
     client.sendline('isbn %s' % (isbn))
@@ -135,4 +135,4 @@ def run(client, server):
     client.sendline('exit')
     client.waitTestSuccess()
 
-    print "ok"
+    print("ok")

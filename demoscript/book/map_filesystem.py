@@ -11,7 +11,7 @@
 import sys, signal
 
 def run(client, server):
-    print "testing...",
+    sys.stdout.write("testing... ")
     sys.stdout.flush()
     client.expect('>')
     client.sendline('pwd')
@@ -133,4 +133,4 @@ def run(client, server):
 
     server.kill(signal.SIGINT)
     server.waitTestSuccess()
-    print "ok"
+    print("ok")

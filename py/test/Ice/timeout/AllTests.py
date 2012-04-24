@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test, threading
+import Ice, Test, sys, threading
 
 def test(b):
     if not b:
@@ -53,7 +53,8 @@ def allTests(communicator, collocated):
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout != None)
 
-    print "testing connect timeout... ",
+    sys.stdout.write("testing connect timeout... ")
+    sys.stdout.flush()
     #
     # Expect ConnectTimeoutException.
     #
@@ -76,9 +77,10 @@ def allTests(communicator, collocated):
         to.op()
     except Ice.ConnectTimeoutException:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "testing read timeout... ",
+    sys.stdout.write("testing read timeout... ")
+    sys.stdout.flush()
     #
     # Expect TimeoutException.
     #
@@ -97,18 +99,22 @@ def allTests(communicator, collocated):
         to.sleep(500)
     except Ice.TimeoutException:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "testing write timeout... ",
+    sys.stdout.write("testing write timeout... ")
+    sys.stdout.flush()
     #
     # Expect TimeoutException.
     #
     to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(500))
     to.holdAdapter(2000)
-    seq = []
-    seq[0:100000] = range(0, 100000) # add 100,000 entries.
-    seq = ['\x00' for x in seq] # set them all to \x00
-    seq = ''.join(seq) # make into a byte array
+    if sys.version_info[0] == 2:
+        seq = []
+        seq[0:100000] = range(0, 100000) # add 100,000 entries.
+        seq = ['\x00' for x in seq] # set them all to \x00
+        seq = ''.join(seq) # make into a byte array
+    else:
+        seq = bytes([0 for x in range(0, 100000)])
     try:
         to.sendData(seq)
         test(False)
@@ -124,9 +130,10 @@ def allTests(communicator, collocated):
         to.sendData(seq)
     except Ice.TimeoutException:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "testing AMI read timeout... ",
+    sys.stdout.write("testing AMI read timeout... ")
+    sys.stdout.flush()
     #
     # Expect TimeoutException.
     #
@@ -142,9 +149,10 @@ def allTests(communicator, collocated):
     cb = Callback()
     to.begin_sleep(500, cb.response, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "testing AMI write timeout... ",
+    sys.stdout.write("testing AMI write timeout... ")
+    sys.stdout.flush()
     #
     # Expect TimeoutException.
     #
@@ -162,9 +170,10 @@ def allTests(communicator, collocated):
     cb = Callback()
     to.begin_sendData(seq, cb.response, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "testing timeout overrides... ",
+    sys.stdout.write("testing timeout overrides... ")
+    sys.stdout.flush()
     #
     # Test Ice.Override.Timeout. This property overrides all
     # endpoint timeouts.
@@ -225,6 +234,6 @@ def allTests(communicator, collocated):
     except Ice.TimeoutException:
        pass # Expected.
     comm.destroy()
-    print "ok"
+    print("ok")
 
     return timeout

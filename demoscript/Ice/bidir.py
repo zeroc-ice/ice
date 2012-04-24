@@ -9,34 +9,34 @@
 # **********************************************************************
 
 import sys, signal
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
+import Expect
 
 def run(clientStr, server):
-    print "adding client 1... ",
+    sys.stdout.write("adding client 1... ")
     sys.stdout.flush()
     client1 = Util.spawn(clientStr)
     server.expect('adding client')
     client1.expect('received callback #1')
-    print "ok"
+    print("ok")
 
-    print "adding client 2... ",
+    sys.stdout.write("adding client 2... ")
     sys.stdout.flush()
     client2 = Util.spawn(clientStr)
     server.expect('adding client')
     client1.expect('received callback #')
     client2.expect('received callback #')
-    print "ok"
+    print("ok")
 
-    print "removing client 2...",
+    sys.stdout.write("removing client 2... ")
     sys.stdout.flush()
     client2.kill(signal.SIGINT)
     client2.waitTestSuccess(timeout=20)
     server.expect('removing client')
     client1.expect('received callback #')
-    print "ok"
+    print("ok")
 
-    print "removing client 1...",
+    sys.stdout.write("removing client 1... ")
     sys.stdout.flush()
     client1.kill(signal.SIGINT)
     client1.waitTestSuccess()
@@ -45,4 +45,4 @@ def run(clientStr, server):
     server.kill(signal.SIGINT)
     server.waitTestSuccess(timeout=30)
 
-    print "ok"
+    print("ok")

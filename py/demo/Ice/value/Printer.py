@@ -12,8 +12,8 @@ import Demo, string
 
 class PrinterI(Demo.Printer):
     def printBackwards(self, current=None):
-        print self.message[::-1]
+        print(self.message[::-1])
 
 class DerivedPrinterI(Demo.DerivedPrinter, PrinterI):
     def printUppercase(self, current=None):
-        print string.upper(self.derivedMessage)
+        print(self.derivedMessage.upper())

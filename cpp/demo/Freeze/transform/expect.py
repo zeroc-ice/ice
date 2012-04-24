@@ -16,10 +16,10 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 from demoscript.Freeze import transform
 
 transform.run('./create', './recreate', './read', './readnew')

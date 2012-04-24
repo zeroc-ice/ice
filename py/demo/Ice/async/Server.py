@@ -37,7 +37,7 @@ class WorkQueue(threading.Thread):
                     self._cond.wait(self._callbacks[0].delay / 1000.0)
 
                     if not self._done:
-                        print "Belated Hello World!"
+                        print("Belated Hello World!")
                         self._callbacks[0].cb.ice_response()
                         del self._callbacks[0]
 
@@ -75,7 +75,7 @@ class HelloI(Demo.Hello):
 
     def sayHello_async(self, cb, delay, current=None):
         if delay == 0:
-            print "Hello World!"
+            print("Hello World!")
             cb.ice_response()
         else:
             self._workQueue.add(cb, delay)
@@ -87,7 +87,7 @@ class HelloI(Demo.Hello):
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         self.callbackOnInterrupt()

@@ -13,7 +13,7 @@ import os, sys, traceback, threading
 import Ice
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print sys.argv[0] + ': Slice directory not found.'
+    print(sys.argv[0] + ': Slice directory not found.')
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' TestAMD.ice")
@@ -102,11 +102,15 @@ class MyDerivedClassI(Test.MyDerivedClass):
         cb.ice_response(p2, p1)
 
     def opByteS_async(self, cb, p1, p2, current=None):
-        # By default sequence<byte> maps to a string.
-        p3 = map(ord, p1)
-        p3.reverse()
-        r = map(ord, p1)
-        r.extend(map(ord, p2))
+        if sys.version_info[0] == 2:
+            # By default sequence<byte> maps to a string.
+            p3 = map(ord, p1)
+            p3.reverse()
+            r = map(ord, p1)
+            r.extend(map(ord, p2))
+        else:
+            p3 = bytes(reversed(p1))
+            r = p1 + p2
         cb.ice_response(r, p3)
 
     def opBoolS_async(self, cb, p1, p2, current=None):
