@@ -18,7 +18,9 @@ public class BlobjectI extends Ice.Blobject
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream in = Ice.Util.createInputStream(communicator, inParams);
+        in.startEncapsulation();
         Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+        out.startEncapsulation();
         if(current.operation.equals("opOneway"))
         {
             outParams.value = new byte[0];
@@ -29,6 +31,7 @@ public class BlobjectI extends Ice.Blobject
             String s = in.readString();
             out.writeString(s);
             out.writeString(s);
+            out.endEncapsulation();
             outParams.value = out.finished();
             return true;
         }
@@ -36,6 +39,7 @@ public class BlobjectI extends Ice.Blobject
         {
             MyException ex = new MyException();
             out.writeException(ex);
+            out.endEncapsulation();
             outParams.value = out.finished();
             return false;
         }
@@ -55,6 +59,7 @@ public class BlobjectI extends Ice.Blobject
             {
                 out.writeBool(false);
             }
+            out.endEncapsulation();
             outParams.value = out.finished();
             return true;
         }

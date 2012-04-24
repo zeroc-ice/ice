@@ -327,7 +327,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(!b1->ice_isCollocationOptimized());
     prop->setProperty(property, "");
 
-    property = propertyPrefix + ".Encoding";
+    property = propertyPrefix + ".EncodingVersion";
     test(b1->ice_getEncodingVersion() == Ice::currentEncoding);
     prop->setProperty(property, "1.0");
     b1 = communicator->propertyToProxy(propertyPrefix);
@@ -385,7 +385,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps.size() == 21);
 
     test(proxyProps["Test"] == "test -t");
-    test(proxyProps["Test.Encoding"] == "1.0");
+    test(proxyProps["Test.EncodingVersion"] == "1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
     test(proxyProps["Test.ConnectionCached"] == "1");
     test(proxyProps["Test.PreferSecure"] == "0");
@@ -393,7 +393,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
 
     test(proxyProps["Test.Locator"] == "locator -t");
-    test(proxyProps["Test.Locator.Encoding"] == Ice::encodingVersionToString(Ice::currentEncoding));
+    test(proxyProps["Test.Locator.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding));
     test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
     test(proxyProps["Test.Locator.PreferSecure"] == "1");
@@ -401,7 +401,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
 
     test(proxyProps["Test.Locator.Router"] == "router -t");
-    test(proxyProps["Test.Locator.Router.Encoding"] == Ice::encodingVersionToString(Ice::currentEncoding));
+    test(proxyProps["Test.Locator.Router.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding));
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");

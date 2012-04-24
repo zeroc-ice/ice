@@ -341,6 +341,31 @@ public class AllTests
         test(!b1.ice_isCollocationOptimized());
         prop.setProperty(property, "");
 
+        property = propertyPrefix + ".EncodingVersion";
+        test(b1.ice_getEncodingVersion().equals(Ice.Util.currentEncoding()));
+        prop.setProperty(property, "1.0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
+        test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);
+        prop.setProperty(property, "6.5");
+        try 
+        {
+            communicator.propertyToProxy(propertyPrefix);
+            test(false);
+        }
+        catch(Ice.UnsupportedEncodingException ex)
+        {
+        }
+        prop.setProperty(property, "1.2");
+        try 
+        {
+            communicator.propertyToProxy(propertyPrefix);
+            test(false);
+        }
+        catch(Ice.UnsupportedEncodingException ex)
+        {
+        }
+        prop.setProperty(property, "");
+
         out.println("ok");
 
         out.print("testing proxyToProperty... ");
@@ -352,6 +377,7 @@ public class AllTests
         b1 = b1.ice_preferSecure(false);
         b1 = b1.ice_endpointSelection(Ice.EndpointSelectionType.Ordered);
         b1 = b1.ice_locatorCacheTimeout(100);
+        b1 = b1.ice_encodingVersion(new Ice.EncodingVersion((byte)1, (byte)0));
 
         Ice.ObjectPrx router = communicator.stringToProxy("router");
         router = router.ice_collocationOptimized(false);
@@ -371,9 +397,10 @@ public class AllTests
         b1 = b1.ice_locator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
         java.util.Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
-        test(proxyProps.size() == 18);
+        test(proxyProps.size() == 21);
 
         test(proxyProps.get("Test").equals("test -t"));
+        test(proxyProps.get("Test.EncodingVersion").equals("1.0"));
         test(proxyProps.get("Test.CollocationOptimized").equals("1"));
         test(proxyProps.get("Test.ConnectionCached").equals("1"));
         test(proxyProps.get("Test.PreferSecure").equals("0"));
@@ -381,6 +408,8 @@ public class AllTests
         test(proxyProps.get("Test.LocatorCacheTimeout").equals("100"));
 
         test(proxyProps.get("Test.Locator").equals("locator -t"));
+        test(proxyProps.get("Test.Locator.EncodingVersion").equals(
+                 Ice.Util.encodingVersionToString(Ice.Util.currentEncoding())));
         test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
         test(proxyProps.get("Test.Locator.ConnectionCached").equals("0"));
         test(proxyProps.get("Test.Locator.PreferSecure").equals("1"));
@@ -388,12 +417,23 @@ public class AllTests
         test(proxyProps.get("Test.Locator.LocatorCacheTimeout").equals("300"));
 
         test(proxyProps.get("Test.Locator.Router").equals("router -t"));
+        test(proxyProps.get("Test.Locator.Router.EncodingVersion").equals(
+                 Ice.Util.encodingVersionToString(Ice.Util.currentEncoding())));
         test(proxyProps.get("Test.Locator.Router.CollocationOptimized").equals("0"));
         test(proxyProps.get("Test.Locator.Router.ConnectionCached").equals("1"));
         test(proxyProps.get("Test.Locator.Router.PreferSecure").equals("1"));
         test(proxyProps.get("Test.Locator.Router.EndpointSelection").equals("Random"));
         test(proxyProps.get("Test.Locator.Router.LocatorCacheTimeout").equals("200"));
 
+        try
+        {
+            b1.ice_encodingVersion(new Ice.EncodingVersion((byte)3, (byte)4));
+            test(false);
+        }
+        catch(Ice.UnsupportedEncodingException ex)
+        {
+        }
+        
         out.println("ok");
 
         out.print("testing ice_getCommunicator... ");
@@ -418,6 +458,9 @@ public class AllTests
         test(!base.ice_collocationOptimized(false).ice_isCollocationOptimized());
         test(base.ice_preferSecure(true).ice_isPreferSecure());
         test(!base.ice_preferSecure(false).ice_isPreferSecure());
+        test(base.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+        test(base.ice_encodingVersion(Ice.Util.Encoding_1_1).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_1));
+        test(!base.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_getEncodingVersion().equals(Ice.Util.Encoding_1_1));
         out.println("ok");
 
         out.print("testing proxy comparison... ");
@@ -510,6 +553,11 @@ public class AllTests
         test(!endpts1[0].equals(endpts2[0]));
         test(endpts1[0].equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
 
+        test(compObj1.ice_encodingVersion(Ice.Util.Encoding_1_0).equals(
+                 compObj1.ice_encodingVersion(Ice.Util.Encoding_1_0)));
+        test(!compObj1.ice_encodingVersion(Ice.Util.Encoding_1_0).equals(
+                 compObj1.ice_encodingVersion(Ice.Util.Encoding_1_1)));
+
         //
         // TODO: Ideally we should also test comparison of fixed proxies.
         //
@@ -538,6 +586,80 @@ public class AllTests
         cl = MyClassPrxHelper.checkedCast(base, c);
         java.util.Map<String, String> c2 = cl.getContext();
         test(c.equals(c2));
+        out.println("ok");
+
+        out.print("testing encoding versioning... ");
+        out.flush();
+        String ref20 = "test:default -p 12010 -e 2.0";
+        MyClassPrx cl20 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
+        try 
+        {
+            cl20.ice_collocationOptimized(false).ice_ping();
+            test(false);
+        }
+        catch(Ice.NoEndpointException ex)
+        {
+            // Server 2.0 endpoint doesn't support 1.1 version.
+        }
+
+        String ref10 = "test:default -p 12010 -e 1.0";
+        MyClassPrx cl10 = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
+        try
+        {
+            cl10.ice_collocationOptimized(false).ice_ping(); // Can't send request with 1.1 encoding on 1.0 endpoint.
+            test(false);
+        }
+        catch(Ice.NoEndpointException ex)
+        {
+            // Server 1.0 endpoint doesn't support 1.1 version.
+        }
+
+        // Server with 1.0 endpoint supports 1.0 encoding.
+        cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+
+        // Server with 1.1 endpoint supports 1.0 encoding.
+        cl.ice_collocationOptimized(false).ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+
+        try
+        {
+            // Send request with bogus 1.2 encoding.
+            Ice.EncodingVersion version = new Ice.EncodingVersion((byte)1, (byte)2);
+            Ice.OutputStream os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.endEncapsulation();
+            byte[] inEncaps = os.finished();
+            inEncaps[4] = version.major;
+            inEncaps[5] = version.minor;
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            test(false);
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+            // The server thrown an UnsupportedEncodingException
+            test(ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+        }
+
+        try
+        {
+            // Send request with bogus 2.0 encoding.
+            Ice.EncodingVersion version = new Ice.EncodingVersion((byte)2, (byte)0);
+            Ice.OutputStream os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.endEncapsulation();
+            byte[] inEncaps = os.finished();
+            inEncaps[4] = version.major;
+            inEncaps[5] = version.minor;
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            cl.ice_collocationOptimized(false).ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            test(false);
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+            // The server thrown an UnsupportedEncodingException
+            test(ex.unknown.indexOf("UnsupportedEncodingException") > 0);
+        }
+
         out.println("ok");
 
         out.print("testing opaque endpoints... ");
@@ -653,22 +775,30 @@ public class AllTests
         {
         }
 
+        // Legal TCP endpoint expressed as opaque endpoint
+        Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        String pstr = communicator.proxyToString(p1);
+        test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+
+        // 1.1 TCP endpoint encoded with 1.1 encoding.
+        Ice.ObjectPrx p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQE=");
+        test(communicator.proxyToString(p2).equals("test -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 10000"));
+        
+        // 1.0 TCP endpoint encoded with 1.1 encoding.
+        p2 = communicator.stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=");
+        test(communicator.proxyToString(p2).equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+
         if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
         {
-            // Legal TCP endpoint expressed as opaque endpoint
-            Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-            String pstr = communicator.proxyToString(p1);
-            test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
-
             // Working?
             boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
             if(!ssl)
             {
-                p1.ice_ping();
+                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
             }
 
             // Two legal TCP endpoints expressed as opaque endpoints
-            p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+            p1 = communicator.stringToProxy("test:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
             pstr = communicator.proxyToString(p1);
             test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
 
@@ -676,15 +806,15 @@ public class AllTests
             // Test that an SSL endpoint and a nonsense endpoint get
             // written back out as an opaque endpoint.
             //
-            p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            p1 = communicator.stringToProxy("test:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
             pstr = communicator.proxyToString(p1);
             if(!ssl)
             {
-                test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+                test(pstr.equals("test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
             }
             else
             {
-                test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+                test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
             }
 
             //
@@ -694,7 +824,7 @@ public class AllTests
             //
             try
             {
-                p1.ice_ping();
+                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
                 test(false);
             }
             catch(Ice.NoEndpointException ex)
@@ -712,15 +842,15 @@ public class AllTests
             // be sent over the wire and returned by the server without
             // losing the opaque endpoints.
             //
-            Ice.ObjectPrx p2 = derived.echo(p1);
+            p2 = derived.echo(p1);
             pstr = communicator.proxyToString(p2);
             if(!ssl)
             {
-                test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+                test(pstr.equals("test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch"));
             }
             else
             {
-                test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+                test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch"));
             }
 
         }

@@ -469,7 +469,7 @@ public class BasicStream
         encoding.__read(this);
         try
         {
-            _buf.b.position(_buf.b.position() + sz - 4);
+            _buf.b.position(_buf.b.position() + sz - 6);
         }
         catch(IllegalArgumentException ex)
         {
@@ -2423,7 +2423,7 @@ public class BasicStream
         java.util.TreeMap<Integer, Ice.Object> unmarshaledMap;
         int typeIdIndex;
         java.util.TreeMap<Integer, String> typeIdMap;
-        Ice.EncodingVersion encoding;
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
         ReadEncaps next;
 
         void
@@ -2448,7 +2448,7 @@ public class BasicStream
         java.util.IdentityHashMap<Ice.Object, Integer> marshaledMap;
         int typeIdIndex;
         java.util.TreeMap<String, Integer> typeIdMap;
-        Ice.EncodingVersion encoding;
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
         WriteEncaps next;
 
         void

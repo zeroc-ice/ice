@@ -1361,6 +1361,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
         else
         {
+            IceInternal.Protocol.checkSupportedEncoding(e);
             return newInstance(_reference.changeEncoding(e));
         }
     }

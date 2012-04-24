@@ -70,14 +70,16 @@ public class AllTests
         @Override
         public void completed(Ice.AsyncResult result)
         {
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(result.getProxy().end_ice_invoke(outParams, result))
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(result.getProxy().end_ice_invoke(outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps.value);
+                inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
                 s = inS.readString();
                 test(s.equals(testString));
+                inS.endEncapsulation();
                 callback.called();
             }
             else
@@ -105,20 +107,22 @@ public class AllTests
         @Override
         public void completed(Ice.AsyncResult result)
         {
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(result.getProxy().end_ice_invoke(outParams, result))
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(result.getProxy().end_ice_invoke(outEncaps, result))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps.value);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(MyException ex)
                 {
+                    inS.endEncapsulation();
                     callback.called();
                 }
                 catch(java.lang.Exception ex)
@@ -145,15 +149,17 @@ public class AllTests
         }
 
         @Override
-        public void response(boolean ok, byte[] outParams)
+        public void response(boolean ok, byte[] outEncaps)
         {
             if(ok)
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
                 s = inS.readString();
                 test(s.equals(testString));
+                inS.endEncapsulation();
                 callback.called();
             }
             else
@@ -185,7 +191,7 @@ public class AllTests
         }
 
         @Override
-        public void response(boolean ok, byte[] outParams)
+        public void response(boolean ok, byte[] outEncaps)
         {
             if(ok)
             {
@@ -193,13 +199,15 @@ public class AllTests
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(MyException ex)
                 {
+                    inS.endEncapsulation();
                     callback.called();
                 }
                 catch(java.lang.Exception ex)
@@ -242,15 +250,19 @@ public class AllTests
             }
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            outS.startEncapsulation();
             outS.writeString(testString);
-            byte[] inParams = outS.finished();
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inParams, outParams))
+            outS.endEncapsulation();
+            byte[] inEncaps = outS.finished();
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, outEncaps))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps.value);
+                inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
                 s = inS.readString();
+                inS.endEncapsulation();
                 test(s.equals(testString));
             }
             else
@@ -260,14 +272,15 @@ public class AllTests
         }
 
         {
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, outParams))
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, outEncaps))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps.value);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
@@ -279,6 +292,7 @@ public class AllTests
                 {
                     test(false);
                 }
+                inS.endEncapsulation();
             }
         }
 
@@ -289,24 +303,28 @@ public class AllTests
 
         {
             Ice.AsyncResult result = oneway.begin_ice_invoke("opOneway", Ice.OperationMode.Normal, null);
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(!oneway.end_ice_invoke(outParams, result))
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(!oneway.end_ice_invoke(outEncaps, result))
             {
                 test(false);
             }
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            outS.startEncapsulation();
             outS.writeString(testString);
-            byte[] inParams = outS.finished();
+            outS.endEncapsulation();
+            byte[] inEncaps = outS.finished();
 
             // begin_ice_invoke with no callback
-            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
-            if(cl.end_ice_invoke(outParams, result))
+            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps);
+            if(cl.end_ice_invoke(outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps.value);
+                inS.startEncapsulation();
                 String s = inS.readString();
                 test(s.equals(testString));
                 s = inS.readString();
+                inS.endEncapsulation();
                 test(s.equals(testString));
             }
             else
@@ -316,26 +334,27 @@ public class AllTests
 
             // begin_ice_invoke with Callback
             opStringI cb1 = new opStringI(communicator);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams, cb1);
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb1);
             cb1.check();
 
             // begin_ice_invoke with Callback_Object_ice_invoke
             Callback_Object_opStringI cb2 = new Callback_Object_opStringI(communicator);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams, cb2);
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb2);
             cb2.check();
         }
 
         {
             // begin_ice_invoke with no callback
             Ice.AsyncResult result = cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null);
-            Ice.ByteSeqHolder outParams = new Ice.ByteSeqHolder();
-            if(cl.end_ice_invoke(outParams, result))
+            Ice.ByteSeqHolder outEncaps = new Ice.ByteSeqHolder();
+            if(cl.end_ice_invoke(outEncaps, result))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams.value);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps.value);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
@@ -347,6 +366,7 @@ public class AllTests
                 {
                     test(false);
                 }
+                inS.endEncapsulation();
             }
 
             // begin_ice_invoke with Callback

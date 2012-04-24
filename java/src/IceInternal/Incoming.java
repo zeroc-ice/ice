@@ -57,6 +57,19 @@ final public class Incoming extends IncomingBase implements Ice.Request
         _inParamPos = -1;
             
         super.reset(instance, connection, adapter, response, compress, requestId);
+
+        //
+        // Prepare the response if necessary.
+        //
+        if(response)
+        {
+            _os.writeBlob(IceInternal.Protocol.replyHdr);
+            
+            //
+            // Add the request ID.
+            //
+            _os.writeInt(requestId);
+        }
     }
 
     public void
@@ -187,7 +200,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 // Skip the input parameters, this is required for reading
                 // the next batch request if dispatching batch requests.
                 //
-                _is.skipEncaps(); 
+                _is.skipEncaps();
                 
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
@@ -201,7 +214,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         }
         catch(java.lang.Exception ex)
         {
-            if(_locator != null && !__servantLocatorFinished())
+            if(_servant != null && _locator != null && !__servantLocatorFinished())
             {
                 return;
             }

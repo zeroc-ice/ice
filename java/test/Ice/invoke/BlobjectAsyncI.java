@@ -18,7 +18,9 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream in = Ice.Util.createInputStream(communicator, inParams);
+        in.startEncapsulation();
         Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+        out.startEncapsulation();
         if(current.operation.equals("opOneway"))
         {
             cb.ice_response(true, new byte[0]);
@@ -28,12 +30,14 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
             String s = in.readString();
             out.writeString(s);
             out.writeString(s);
+            out.endEncapsulation();
             cb.ice_response(true, out.finished());
         }
         else if(current.operation.equals("opException"))
         {
             MyException ex = new MyException();
             out.writeException(ex);
+            out.endEncapsulation();
             cb.ice_response(false, out.finished());
         }
         else if(current.operation.equals("shutdown"))
@@ -52,6 +56,7 @@ public class BlobjectAsyncI extends Ice.BlobjectAsync
             {
                 out.writeBool(false);
             }
+            out.endEncapsulation();
             cb.ice_response(true, out.finished());
         }
         else

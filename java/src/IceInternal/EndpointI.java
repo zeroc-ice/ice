@@ -19,8 +19,8 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
 
     public EndpointI()
     {
-        _protocol = Protocol.currentProtocol;
-        _encoding = Protocol.currentEncoding;
+        _protocol = (Ice.ProtocolVersion)Protocol.currentProtocol.clone();
+        _encoding = (Ice.EncodingVersion)Protocol.currentEncoding.clone();
     }
 
     public String
@@ -203,7 +203,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
 
             try
             {
-                _protocol = Ice.Util.stringToProtocolVersion(str);
+                _protocol = Ice.Util.stringToProtocolVersion(arg);
             }
             catch(Ice.VersionParseException e)
             {
@@ -221,7 +221,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
             
             try
             {
-                _encoding = Ice.Util.stringToEncodingVersion(str);
+                _encoding = Ice.Util.stringToEncodingVersion(arg);
             }
             catch(Ice.VersionParseException e)
             {

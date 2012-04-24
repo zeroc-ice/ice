@@ -139,6 +139,7 @@ final class TcpEndpointI extends EndpointI
                 default:
                 {
                     parseOption(option, argument, "tcp", str);
+                    break;
                 }
             }
         }

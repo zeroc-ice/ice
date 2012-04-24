@@ -19,10 +19,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _sent = false;
         _handler = handler;
         _encoding = handler.getReference().getEncoding();
-
-        Instance instance = _handler.getReference().getInstance();
-        //_is = new BasicStream(instance, Protocol.currentProtocolEncoding);
-        _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        _os = new BasicStream(_handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
 
         writeHeader(operation, mode, context);
     }
@@ -481,7 +478,7 @@ public final class Outgoing implements OutgoingMessageCallback
     public void 
     writeParamEncaps(byte[] encaps)
     {
-        if(encaps.length == 0)
+        if(encaps == null || encaps.length == 0)
         {
             _os.writeEmptyEncaps(_encoding);
         }
@@ -494,7 +491,7 @@ public final class Outgoing implements OutgoingMessageCallback
     public boolean 
     hasResponse()
     {
-        return !_is.isEmpty();
+        return _is != null && !_is.isEmpty();
     }
 
     public void 

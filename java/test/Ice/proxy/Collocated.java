@@ -29,6 +29,7 @@ public class Collocated extends test.Util.Application
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         return initData;
     }
 

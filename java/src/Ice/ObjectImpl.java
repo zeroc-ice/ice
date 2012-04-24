@@ -122,6 +122,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         __inS.readEmptyParams();
         __obj.ice_ping(__current);
+        __inS.__writeEmptyParams();
         return DispatchStatus.DispatchOK;
     }
 

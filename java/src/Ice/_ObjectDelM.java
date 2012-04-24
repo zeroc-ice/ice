@@ -20,8 +20,9 @@ public class _ObjectDelM implements _ObjectDel
         {
             try
             {
-                IceInternal.BasicStream __os = __og.os();
+                IceInternal.BasicStream __os = __og.startWriteParams();
                 __os.writeString(__id);
+                __og.endWriteParams();
             }
             catch(LocalException __ex)
             {
@@ -64,6 +65,7 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
         try
         {
+            __og.writeEmptyParams();
             boolean __ok = __og.invoke();
             if(__og.hasResponse())
             {
@@ -101,6 +103,7 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
         try
         {
+            __og.writeEmptyParams();
             boolean __ok = __og.invoke();
             try
             {
@@ -138,6 +141,7 @@ public class _ObjectDelM implements _ObjectDel
         IceInternal.Outgoing __og = __handler.getOutgoing("ice_id", OperationMode.Nonmutating, __context);
         try
         {
+            __og.writeEmptyParams();
             boolean __ok = __og.invoke();
             try
             {

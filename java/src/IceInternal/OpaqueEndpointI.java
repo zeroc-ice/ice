@@ -90,13 +90,14 @@ final class OpaqueEndpointI extends EndpointI
 
                     try
                     {
-                        _rawEncoding = Ice.Util.stringToEncodingVersion(str);
+                        _rawEncoding = Ice.Util.stringToEncodingVersion(argument);
                     }
                     catch(Ice.VersionParseException e)
                     {
                         throw new Ice.EndpointParseException("invalid encoding version `" + argument + 
                                                              "' in endpoint `opaque " + str + "':\n" + e.str);
                     }
+                    break;
                 }
 
                 case 'v':

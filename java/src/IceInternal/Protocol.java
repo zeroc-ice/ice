@@ -39,7 +39,7 @@ final public class Protocol
     public final static byte protocolEncodingMinor = 0;
 
     public final static byte encodingMajor = 1;
-    public final static byte encodingMinor = 0;
+    public final static byte encodingMinor = 1;
 
     //
     // The Ice protocol message types

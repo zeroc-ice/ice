@@ -6183,6 +6183,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 out << nl << "ice_exception(__ex);";
                 out << eb;
             }
+            else
+            {
+                out << nl << "__writeEmptyParams();";
+            }
             out << nl << "__response();";
             out << eb;
             out << eb;

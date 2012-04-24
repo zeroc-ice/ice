@@ -20,9 +20,11 @@ public final class UnexpectedObjectExceptionTestI extends Ice.Blobject
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+        out.startEncapsulation();
         AlsoEmpty ae = new AlsoEmpty();
         AlsoEmptyHelper.write(out, ae);
         out.writePendingObjects();
+        out.endEncapsulation();
         outParams.value = out.finished();
         return true;
     }
