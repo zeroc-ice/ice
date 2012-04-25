@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <ObjectFactory.h>
+#include <Thread.h>
 #include <Types.h>
 #include <Util.h>
 #include <Ice/LocalException.h>

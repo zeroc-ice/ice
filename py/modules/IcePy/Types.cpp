@@ -13,6 +13,7 @@
 #include <Types.h>
 #include <Current.h>
 #include <Proxy.h>
+#include <Thread.h>
 #include <Util.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/ScopedArray.h>

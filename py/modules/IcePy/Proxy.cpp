@@ -15,9 +15,10 @@
 #include <structmember.h>
 #include <Communicator.h>
 #include <Connection.h>
-#include <Util.h>
-#include <Operation.h>
 #include <Endpoint.h>
+#include <Operation.h>
+#include <Thread.h>
+#include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>

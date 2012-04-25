@@ -355,26 +355,6 @@ IcePy::PyException::getTypeName()
     return result;
 }
 
-IcePy::AllowThreads::AllowThreads()
-{
-    _state = PyEval_SaveThread();
-}
-
-IcePy::AllowThreads::~AllowThreads()
-{
-    PyEval_RestoreThread(_state);
-}
-
-IcePy::AdoptThread::AdoptThread()
-{
-    _state = PyGILState_Ensure();
-}
-
-IcePy::AdoptThread::~AdoptThread()
-{
-    PyGILState_Release(_state);
-}
-
 bool
 IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {

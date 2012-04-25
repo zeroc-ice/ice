@@ -1,24 +1,23 @@
-/* A Bison parser, made by GNU Bison 2.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
-
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
    Free Software Foundation, Inc.
-
-   This program is free software; you can redistribute it and/or modify
+   
+   This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2, or (at your option)
-   any later version.
-
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor,
-   Boston, MA 02110-1301, USA.  */
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 /* As a special exception, you may create a larger work that contains
    part or all of the Bison parser skeleton and distribute that work
@@ -29,7 +28,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -47,7 +46,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.3"
+#define YYBISON_VERSION "2.4.1"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -55,87 +54,28 @@
 /* Pure parsers.  */
 #define YYPURE 1
 
+/* Push parsers.  */
+#define YYPUSH 0
+
+/* Pull parsers.  */
+#define YYPULL 1
+
 /* Using locations.  */
 #define YYLSP_NEEDED 0
 
 /* Substitute the variable and function names.  */
-#define yyparse freeze_script_parse
-#define yylex   freeze_script_lex
-#define yyerror freeze_script_error
-#define yylval  freeze_script_lval
-#define yychar  freeze_script_char
-#define yydebug freeze_script_debug
-#define yynerrs freeze_script_nerrs
-
-
-/* Tokens.  */
-#ifndef YYTOKENTYPE
-# define YYTOKENTYPE
-   /* Put the tokens into the symbol table, so that GDB and other debuggers
-      know about them.  */
-   enum yytokentype {
-     TOK_AND = 258,
-     TOK_OR = 259,
-     TOK_NOT = 260,
-     TOK_ADD = 261,
-     TOK_SUB = 262,
-     TOK_MUL = 263,
-     TOK_DIV = 264,
-     TOK_MOD = 265,
-     TOK_LPAREN = 266,
-     TOK_RPAREN = 267,
-     TOK_LBRACKET = 268,
-     TOK_RBRACKET = 269,
-     TOK_LESS_THAN = 270,
-     TOK_GREATER_THAN = 271,
-     TOK_LESS_EQUAL = 272,
-     TOK_GREATER_EQUAL = 273,
-     TOK_EQUAL = 274,
-     TOK_NEQ = 275,
-     TOK_TRUE = 276,
-     TOK_FALSE = 277,
-     TOK_NIL = 278,
-     TOK_SCOPE_DELIMITER = 279,
-     TOK_IDENTIFIER = 280,
-     TOK_STRING_LITERAL = 281,
-     TOK_INTEGER_LITERAL = 282,
-     TOK_FLOATING_POINT_LITERAL = 283,
-     UNARY_OP = 284
-   };
-#endif
-/* Tokens.  */
-#define TOK_AND 258
-#define TOK_OR 259
-#define TOK_NOT 260
-#define TOK_ADD 261
-#define TOK_SUB 262
-#define TOK_MUL 263
-#define TOK_DIV 264
-#define TOK_MOD 265
-#define TOK_LPAREN 266
-#define TOK_RPAREN 267
-#define TOK_LBRACKET 268
-#define TOK_RBRACKET 269
-#define TOK_LESS_THAN 270
-#define TOK_GREATER_THAN 271
-#define TOK_LESS_EQUAL 272
-#define TOK_GREATER_EQUAL 273
-#define TOK_EQUAL 274
-#define TOK_NEQ 275
-#define TOK_TRUE 276
-#define TOK_FALSE 277
-#define TOK_NIL 278
-#define TOK_SCOPE_DELIMITER 279
-#define TOK_IDENTIFIER 280
-#define TOK_STRING_LITERAL 281
-#define TOK_INTEGER_LITERAL 282
-#define TOK_FLOATING_POINT_LITERAL 283
-#define UNARY_OP 284
-
-
+#define yyparse         freeze_script_parse
+#define yylex           freeze_script_lex
+#define yyerror         freeze_script_error
+#define yylval          freeze_script_lval
+#define yychar          freeze_script_char
+#define yydebug         freeze_script_debug
+#define yynerrs         freeze_script_nerrs
 
 
 /* Copy the first part of user declarations.  */
+
+/* Line 189 of yacc.c  */
 #line 1 "../FreezeScript/Grammar.y"
 
 
@@ -179,6 +119,9 @@ freeze_script_error(const char* s)
 
 
 
+/* Line 189 of yacc.c  */
+#line 124 "Grammar.tab.c"
+
 /* Enabling traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 1
@@ -197,20 +140,58 @@ freeze_script_error(const char* s)
 # define YYTOKEN_TABLE 0
 #endif
 
-#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
+
+/* Tokens.  */
+#ifndef YYTOKENTYPE
+# define YYTOKENTYPE
+   /* Put the tokens into the symbol table, so that GDB and other debuggers
+      know about them.  */
+   enum yytokentype {
+     TOK_AND = 258,
+     TOK_OR = 259,
+     TOK_NOT = 260,
+     TOK_ADD = 261,
+     TOK_SUB = 262,
+     TOK_MUL = 263,
+     TOK_DIV = 264,
+     TOK_MOD = 265,
+     TOK_LPAREN = 266,
+     TOK_RPAREN = 267,
+     TOK_LBRACKET = 268,
+     TOK_RBRACKET = 269,
+     TOK_LESS_THAN = 270,
+     TOK_GREATER_THAN = 271,
+     TOK_LESS_EQUAL = 272,
+     TOK_GREATER_EQUAL = 273,
+     TOK_EQUAL = 274,
+     TOK_NEQ = 275,
+     TOK_TRUE = 276,
+     TOK_FALSE = 277,
+     TOK_NIL = 278,
+     TOK_SCOPE_DELIMITER = 279,
+     TOK_IDENTIFIER = 280,
+     TOK_STRING_LITERAL = 281,
+     TOK_INTEGER_LITERAL = 282,
+     TOK_FLOATING_POINT_LITERAL = 283,
+     UNARY_OP = 284
+   };
 #endif
 
+
+
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef int YYSTYPE;
+# define YYSTYPE_IS_TRIVIAL 1
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
+# define YYSTYPE_IS_DECLARED 1
+#endif
 
 
 /* Copy the second part of user declarations.  */
 
 
-/* Line 216 of yacc.c.  */
-#line 214 "Grammar.tab.c"
+/* Line 264 of yacc.c  */
+#line 195 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -260,7 +241,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if defined YYENABLE_NLS && YYENABLE_NLS
+# if YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -285,14 +266,14 @@ typedef short int yytype_int16;
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static int
-YYID (int i)
+YYID (int yyi)
 #else
 static int
-YYID (i)
-    int i;
+YYID (yyi)
+    int yyi;
 #endif
 {
-  return i;
+  return yyi;
 }
 #endif
 
@@ -373,9 +354,9 @@ void free (void *); /* INFRINGES ON USER NAME SPACE */
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  yytype_int16 yyss;
-  YYSTYPE yyvs;
-  };
+  yytype_int16 yyss_alloc;
+  YYSTYPE yyvs_alloc;
+};
 
 /* The size of the maximum gap between one aligned stack and the next.  */
 # define YYSTACK_GAP_MAXIMUM (sizeof (union yyalloc) - 1)
@@ -409,12 +390,12 @@ union yyalloc
    elements in the stack, and YYPTR gives the new location of the
    stack.  Advance YYPTR to a properly aligned location for the next
    stack.  */
-# define YYSTACK_RELOCATE(Stack)					\
+# define YYSTACK_RELOCATE(Stack_alloc, Stack)				\
     do									\
       {									\
 	YYSIZE_T yynewbytes;						\
-	YYCOPY (&yyptr->Stack, Stack, yysize);				\
-	Stack = &yyptr->Stack;						\
+	YYCOPY (&yyptr->Stack_alloc, Stack, yysize);			\
+	Stack = &yyptr->Stack_alloc;					\
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
@@ -724,7 +705,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
+# if YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -835,17 +816,20 @@ yy_symbol_print (yyoutput, yytype, yyvaluep)
 #if (defined __STDC__ || defined __C99__FUNC__ \
      || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
+yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 #else
 static void
-yy_stack_print (bottom, top)
-    yytype_int16 *bottom;
-    yytype_int16 *top;
+yy_stack_print (yybottom, yytop)
+    yytype_int16 *yybottom;
+    yytype_int16 *yytop;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (; bottom <= top; ++bottom)
-    YYFPRINTF (stderr, " %d", *bottom);
+  for (; yybottom <= yytop; yybottom++)
+    {
+      int yybot = *yybottom;
+      YYFPRINTF (stderr, " %d", yybot);
+    }
   YYFPRINTF (stderr, "\n");
 }
 
@@ -879,11 +863,11 @@ yy_reduce_print (yyvsp, yyrule)
   /* The symbols being reduced.  */
   for (yyi = 0; yyi < yynrhs; yyi++)
     {
-      fprintf (stderr, "   $%d = ", yyi + 1);
+      YYFPRINTF (stderr, "   $%d = ", yyi + 1);
       yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
 		       &(yyvsp[(yyi + 1) - (yynrhs)])
 		       		       );
-      fprintf (stderr, "\n");
+      YYFPRINTF (stderr, "\n");
     }
 }
 
@@ -1163,10 +1147,8 @@ yydestruct (yymsg, yytype, yyvaluep)
 	break;
     }
 }
-
 
 /* Prevent warnings from -Wmissing-prototypes.  */
-
 #ifdef YYPARSE_PARAM
 #if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
@@ -1185,10 +1167,9 @@ int yyparse ();
 
 
 
-
-/*----------.
-| yyparse.  |
-`----------*/
+/*-------------------------.
+| yyparse or yypush_parse.  |
+`-------------------------*/
 
 #ifdef YYPARSE_PARAM
 #if (defined __STDC__ || defined __C99__FUNC__ \
@@ -1212,22 +1193,46 @@ yyparse ()
 #endif
 #endif
 {
-  /* The look-ahead symbol.  */
+/* The lookahead symbol.  */
 int yychar;
 
-/* The semantic value of the look-ahead symbol.  */
+/* The semantic value of the lookahead symbol.  */
 YYSTYPE yylval;
 
-/* Number of syntax errors so far.  */
-int yynerrs;
+    /* Number of syntax errors so far.  */
+    int yynerrs;
 
-  int yystate;
+    int yystate;
+    /* Number of tokens to shift before error messages enabled.  */
+    int yyerrstatus;
+
+    /* The stacks and their tools:
+       `yyss': related to states.
+       `yyvs': related to semantic values.
+
+       Refer to the stacks thru separate pointers, to allow yyoverflow
+       to reallocate them elsewhere.  */
+
+    /* The state stack.  */
+    yytype_int16 yyssa[YYINITDEPTH];
+    yytype_int16 *yyss;
+    yytype_int16 *yyssp;
+
+    /* The semantic value stack.  */
+    YYSTYPE yyvsa[YYINITDEPTH];
+    YYSTYPE *yyvs;
+    YYSTYPE *yyvsp;
+
+    YYSIZE_T yystacksize;
+
   int yyn;
   int yyresult;
-  /* Number of tokens to shift before error messages enabled.  */
-  int yyerrstatus;
-  /* Look-ahead token as an internal (translated) token number.  */
-  int yytoken = 0;
+  /* Lookahead token as an internal (translated) token number.  */
+  int yytoken;
+  /* The variables used to return semantic value and location from the
+     action routines.  */
+  YYSTYPE yyval;
+
 #if YYERROR_VERBOSE
   /* Buffer for error messages, and its allocated size.  */
   char yymsgbuf[128];
@@ -1235,51 +1240,28 @@ int yynerrs;
   YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
 #endif
 
-  /* Three stacks and their tools:
-     `yyss': related to states,
-     `yyvs': related to semantic values,
-     `yyls': related to locations.
-
-     Refer to the stacks thru separate pointers, to allow yyoverflow
-     to reallocate them elsewhere.  */
-
-  /* The state stack.  */
-  yytype_int16 yyssa[YYINITDEPTH];
-  yytype_int16 *yyss = yyssa;
-  yytype_int16 *yyssp;
-
-  /* The semantic value stack.  */
-  YYSTYPE yyvsa[YYINITDEPTH];
-  YYSTYPE *yyvs = yyvsa;
-  YYSTYPE *yyvsp;
-
-
-
 #define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
-
-  YYSIZE_T yystacksize = YYINITDEPTH;
-
-  /* The variables used to return semantic value and location from the
-     action routines.  */
-  YYSTYPE yyval;
-
 
   /* The number of symbols on the RHS of the reduced rule.
      Keep to zero when no symbol should be popped.  */
   int yylen = 0;
+
+  yytoken = 0;
+  yyss = yyssa;
+  yyvs = yyvsa;
+  yystacksize = YYINITDEPTH;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
   yystate = 0;
   yyerrstatus = 0;
   yynerrs = 0;
-  yychar = YYEMPTY;		/* Cause a token to be read.  */
+  yychar = YYEMPTY; /* Cause a token to be read.  */
 
   /* Initialize stack pointers.
      Waste one element of value and location stack
      so that they stay on the same level as the state stack.
      The wasted elements are never initialized.  */
-
   yyssp = yyss;
   yyvsp = yyvs;
 
@@ -1309,7 +1291,6 @@ int yynerrs;
 	YYSTYPE *yyvs1 = yyvs;
 	yytype_int16 *yyss1 = yyss;
 
-
 	/* Each stack pointer address is followed by the size of the
 	   data in use in that stack, in bytes.  This used to be a
 	   conditional around just the two extra args, but that might
@@ -1317,7 +1298,6 @@ int yynerrs;
 	yyoverflow (YY_("memory exhausted"),
 		    &yyss1, yysize * sizeof (*yyssp),
 		    &yyvs1, yysize * sizeof (*yyvsp),
-
 		    &yystacksize);
 
 	yyss = yyss1;
@@ -1340,9 +1320,8 @@ int yynerrs;
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
 	  goto yyexhaustedlab;
-	YYSTACK_RELOCATE (yyss);
-	YYSTACK_RELOCATE (yyvs);
-
+	YYSTACK_RELOCATE (yyss_alloc, yyss);
+	YYSTACK_RELOCATE (yyvs_alloc, yyvs);
 #  undef YYSTACK_RELOCATE
 	if (yyss1 != yyssa)
 	  YYSTACK_FREE (yyss1);
@@ -1353,7 +1332,6 @@ int yynerrs;
       yyssp = yyss + yysize - 1;
       yyvsp = yyvs + yysize - 1;
 
-
       YYDPRINTF ((stderr, "Stack size increased to %lu\n",
 		  (unsigned long int) yystacksize));
 
@@ -1363,6 +1341,9 @@ int yynerrs;
 
   YYDPRINTF ((stderr, "Entering state %d\n", yystate));
 
+  if (yystate == YYFINAL)
+    YYACCEPT;
+
   goto yybackup;
 
 /*-----------.
@@ -1371,16 +1352,16 @@ int yynerrs;
 yybackup:
 
   /* Do appropriate processing given the current state.  Read a
-     look-ahead token if we need one and don't already have one.  */
+     lookahead token if we need one and don't already have one.  */
 
-  /* First try to decide what to do without reference to look-ahead token.  */
+  /* First try to decide what to do without reference to lookahead token.  */
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
 
-  /* Not known => get a look-ahead token if don't already have one.  */
+  /* Not known => get a lookahead token if don't already have one.  */
 
-  /* YYCHAR is either YYEMPTY or YYEOF or a valid look-ahead symbol.  */
+  /* YYCHAR is either YYEMPTY or YYEOF or a valid lookahead symbol.  */
   if (yychar == YYEMPTY)
     {
       YYDPRINTF ((stderr, "Reading a token: "));
@@ -1412,20 +1393,16 @@ yybackup:
       goto yyreduce;
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
-  /* Shift the look-ahead token.  */
+  /* Shift the lookahead token.  */
   YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
 
-  /* Discard the shifted token unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
+  /* Discard the shifted token.  */
+  yychar = YYEMPTY;
 
   yystate = yyn;
   *++yyvsp = yylval;
@@ -1465,6 +1442,8 @@ yyreduce:
   switch (yyn)
     {
         case 2:
+
+/* Line 1455 of yacc.c  */
 #line 85 "../FreezeScript/Grammar.y"
     {
     parseResult = (yyvsp[(1) - (1)]);
@@ -1472,6 +1451,8 @@ yyreduce:
     break;
 
   case 3:
+
+/* Line 1455 of yacc.c  */
 #line 94 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
@@ -1479,6 +1460,8 @@ yyreduce:
     break;
 
   case 4:
+
+/* Line 1455 of yacc.c  */
 #line 103 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpLess, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1486,6 +1469,8 @@ yyreduce:
     break;
 
   case 5:
+
+/* Line 1455 of yacc.c  */
 #line 107 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpGreater, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1493,6 +1478,8 @@ yyreduce:
     break;
 
   case 6:
+
+/* Line 1455 of yacc.c  */
 #line 111 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpLessEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1500,6 +1487,8 @@ yyreduce:
     break;
 
   case 7:
+
+/* Line 1455 of yacc.c  */
 #line 115 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpGrEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1507,6 +1496,8 @@ yyreduce:
     break;
 
   case 8:
+
+/* Line 1455 of yacc.c  */
 #line 119 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1514,6 +1505,8 @@ yyreduce:
     break;
 
   case 9:
+
+/* Line 1455 of yacc.c  */
 #line 123 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpNotEq, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1521,6 +1514,8 @@ yyreduce:
     break;
 
   case 10:
+
+/* Line 1455 of yacc.c  */
 #line 127 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpOr, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1528,6 +1523,8 @@ yyreduce:
     break;
 
   case 11:
+
+/* Line 1455 of yacc.c  */
 #line 131 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpAnd, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1535,6 +1532,8 @@ yyreduce:
     break;
 
   case 12:
+
+/* Line 1455 of yacc.c  */
 #line 135 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpMul, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1542,6 +1541,8 @@ yyreduce:
     break;
 
   case 13:
+
+/* Line 1455 of yacc.c  */
 #line 139 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpDiv, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1549,6 +1550,8 @@ yyreduce:
     break;
 
   case 14:
+
+/* Line 1455 of yacc.c  */
 #line 143 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpMod, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1556,6 +1559,8 @@ yyreduce:
     break;
 
   case 15:
+
+/* Line 1455 of yacc.c  */
 #line 147 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpAdd, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1563,6 +1568,8 @@ yyreduce:
     break;
 
   case 16:
+
+/* Line 1455 of yacc.c  */
 #line 151 "../FreezeScript/Grammar.y"
     {
     (yyval) = new BinaryNode(BinOpSub, parseDataFactory, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
@@ -1570,6 +1577,8 @@ yyreduce:
     break;
 
   case 17:
+
+/* Line 1455 of yacc.c  */
 #line 155 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
@@ -1577,6 +1586,8 @@ yyreduce:
     break;
 
   case 18:
+
+/* Line 1455 of yacc.c  */
 #line 164 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
@@ -1584,6 +1595,8 @@ yyreduce:
     break;
 
   case 19:
+
+/* Line 1455 of yacc.c  */
 #line 168 "../FreezeScript/Grammar.y"
     {
     (yyval) = new UnaryNode(UnaryOpNeg, parseDataFactory, (yyvsp[(2) - (2)]));
@@ -1591,6 +1604,8 @@ yyreduce:
     break;
 
   case 20:
+
+/* Line 1455 of yacc.c  */
 #line 172 "../FreezeScript/Grammar.y"
     {
     (yyval) = new UnaryNode(UnaryOpNot, parseDataFactory, (yyvsp[(2) - (2)]));
@@ -1598,6 +1613,8 @@ yyreduce:
     break;
 
   case 21:
+
+/* Line 1455 of yacc.c  */
 #line 176 "../FreezeScript/Grammar.y"
     {
     IntegerTokPtr intVal = IntegerTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1607,6 +1624,8 @@ yyreduce:
     break;
 
   case 22:
+
+/* Line 1455 of yacc.c  */
 #line 182 "../FreezeScript/Grammar.y"
     {
     FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1616,6 +1635,8 @@ yyreduce:
     break;
 
   case 23:
+
+/* Line 1455 of yacc.c  */
 #line 188 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1625,6 +1646,8 @@ yyreduce:
     break;
 
   case 24:
+
+/* Line 1455 of yacc.c  */
 #line 194 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createBoolean(true, true));
@@ -1632,6 +1655,8 @@ yyreduce:
     break;
 
   case 25:
+
+/* Line 1455 of yacc.c  */
 #line 198 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createBoolean(false, true));
@@ -1639,6 +1664,8 @@ yyreduce:
     break;
 
   case 26:
+
+/* Line 1455 of yacc.c  */
 #line 202 "../FreezeScript/Grammar.y"
     {
     (yyval) = new DataNode(parseDataFactory->createNil(true));
@@ -1646,6 +1673,8 @@ yyreduce:
     break;
 
   case 27:
+
+/* Line 1455 of yacc.c  */
 #line 206 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
@@ -1653,6 +1682,8 @@ yyreduce:
     break;
 
   case 28:
+
+/* Line 1455 of yacc.c  */
 #line 210 "../FreezeScript/Grammar.y"
     {
     EntityNodePtr entity = EntityNodePtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -1665,6 +1696,8 @@ yyreduce:
     break;
 
   case 29:
+
+/* Line 1455 of yacc.c  */
 #line 219 "../FreezeScript/Grammar.y"
     {
     (yyval) = (yyvsp[(1) - (1)]);
@@ -1672,6 +1705,8 @@ yyreduce:
     break;
 
   case 30:
+
+/* Line 1455 of yacc.c  */
 #line 223 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1681,6 +1716,8 @@ yyreduce:
     break;
 
   case 31:
+
+/* Line 1455 of yacc.c  */
 #line 234 "../FreezeScript/Grammar.y"
     {
     EntityNodePtr entity = EntityNodePtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -1691,6 +1728,8 @@ yyreduce:
     break;
 
   case 32:
+
+/* Line 1455 of yacc.c  */
 #line 241 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -1703,6 +1742,8 @@ yyreduce:
     break;
 
   case 33:
+
+/* Line 1455 of yacc.c  */
 #line 250 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1712,6 +1753,8 @@ yyreduce:
     break;
 
   case 34:
+
+/* Line 1455 of yacc.c  */
 #line 261 "../FreezeScript/Grammar.y"
     {
     StringTokPtr func = StringTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -1723,6 +1766,8 @@ yyreduce:
     break;
 
   case 35:
+
+/* Line 1455 of yacc.c  */
 #line 274 "../FreezeScript/Grammar.y"
     {
     NodeListTokPtr l = NodeListTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -1733,6 +1778,8 @@ yyreduce:
     break;
 
   case 36:
+
+/* Line 1455 of yacc.c  */
 #line 281 "../FreezeScript/Grammar.y"
     {
     NodeListTokPtr result = new NodeListTok;
@@ -1742,6 +1789,8 @@ yyreduce:
     break;
 
   case 37:
+
+/* Line 1455 of yacc.c  */
 #line 287 "../FreezeScript/Grammar.y"
     {
     (yyval) = new NodeListTok;
@@ -1749,6 +1798,8 @@ yyreduce:
     break;
 
   case 38:
+
+/* Line 1455 of yacc.c  */
 #line 296 "../FreezeScript/Grammar.y"
     {
     StringTokPtr stringVal = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -1761,6 +1812,8 @@ yyreduce:
     break;
 
   case 39:
+
+/* Line 1455 of yacc.c  */
 #line 305 "../FreezeScript/Grammar.y"
     {
     StringTokPtr idVal = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -1772,8 +1825,9 @@ yyreduce:
     break;
 
 
-/* Line 1267 of yacc.c.  */
-#line 1777 "Grammar.tab.c"
+
+/* Line 1455 of yacc.c  */
+#line 1831 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1783,7 +1837,6 @@ yyreduce:
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
-
 
   /* Now `shift' the result of the reduction.  Determine what state
      that goes to, based on the state we popped back to and the rule
@@ -1849,7 +1902,7 @@ yyerrlab:
 
   if (yyerrstatus == 3)
     {
-      /* If just tried and failed to reuse look-ahead token after an
+      /* If just tried and failed to reuse lookahead token after an
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
@@ -1866,7 +1919,7 @@ yyerrlab:
 	}
     }
 
-  /* Else will try to reuse look-ahead token after shifting the error
+  /* Else will try to reuse lookahead token after shifting the error
      token.  */
   goto yyerrlab1;
 
@@ -1923,9 +1976,6 @@ yyerrlab1:
       YY_STACK_PRINT (yyss, yyssp);
     }
 
-  if (yyn == YYFINAL)
-    YYACCEPT;
-
   *++yyvsp = yylval;
 
 
@@ -1950,7 +2000,7 @@ yyabortlab:
   yyresult = 1;
   goto yyreturn;
 
-#ifndef yyoverflow
+#if !defined(yyoverflow) || YYERROR_VERBOSE
 /*-------------------------------------------------.
 | yyexhaustedlab -- memory exhaustion comes here.  |
 `-------------------------------------------------*/
@@ -1961,7 +2011,7 @@ yyexhaustedlab:
 #endif
 
 yyreturn:
-  if (yychar != YYEOF && yychar != YYEMPTY)
+  if (yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
   /* Do not reclaim the symbols of the rule which action triggered
@@ -1987,6 +2037,8 @@ yyreturn:
 }
 
 
+
+/* Line 1675 of yacc.c  */
 #line 314 "../FreezeScript/Grammar.y"
 
 

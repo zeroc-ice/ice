@@ -10,19 +10,39 @@
 #ifdef _WIN32
 #   include <IceUtil/Config.h>
 #endif
-#include <ThreadNotification.h>
+#include <Thread.h>
 
 using namespace std;
 using namespace IcePy;
 
-IcePy::ThreadNotificationWrapper::ThreadNotificationWrapper(PyObject* threadNotification) :
+IcePy::AllowThreads::AllowThreads()
+{
+    _state = PyEval_SaveThread();
+}
+
+IcePy::AllowThreads::~AllowThreads()
+{
+    PyEval_RestoreThread(_state);
+}
+
+IcePy::AdoptThread::AdoptThread()
+{
+    _state = PyGILState_Ensure();
+}
+
+IcePy::AdoptThread::~AdoptThread()
+{
+    PyGILState_Release(_state);
+}
+
+IcePy::ThreadHook::ThreadHook(PyObject* threadNotification) :
     _threadNotification(threadNotification)
 {
     Py_INCREF(threadNotification);
 }
 
 void
-IcePy::ThreadNotificationWrapper::start()
+IcePy::ThreadHook::start()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -34,7 +54,7 @@ IcePy::ThreadNotificationWrapper::start()
 }
 
 void
-IcePy::ThreadNotificationWrapper::stop()
+IcePy::ThreadHook::stop()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -46,7 +66,7 @@ IcePy::ThreadNotificationWrapper::stop()
 }
 
 PyObject*
-IcePy::ThreadNotificationWrapper::getObject()
+IcePy::ThreadHook::getObject()
 {
     return _threadNotification.get();
 }

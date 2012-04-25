@@ -30,7 +30,7 @@ OBJS		= Communicator.o \
 		  Properties.o \
 		  Proxy.o \
 		  Slice.o \
-		  ThreadNotification.o \
+		  Thread.o \
 		  Types.o \
 		  Util.o
 

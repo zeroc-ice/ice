@@ -29,7 +29,7 @@ OBJS		= Communicator.obj \
 		  Properties.obj \
 		  Proxy.obj \
 		  Slice.obj \
-		  ThreadNotification.obj \
+		  Thread.obj \
 		  Types.obj \
 		  Util.obj
 

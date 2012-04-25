@@ -17,6 +17,7 @@
 #include <ObjectAdapter.h>
 #include <Operation.h>
 #include <Proxy.h>
+#include <Thread.h>
 #include <Util.h>
 #include <Ice/ConnectionAsync.h>
 

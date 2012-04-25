@@ -392,7 +392,7 @@ def run(tests, root = False):
                     print("SSL is not supported with the Compact Framework")
                     sys.exit(1)
                 if silverlight:
-                    print "SSL is not supported with Silverlight"
+                    print("SSL is not supported with Silverlight")
                     sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
@@ -1241,7 +1241,7 @@ def collocatedTest(additionalOptions = ""):
         print("** skipping cross test")
         return
     if silverlight:
-        print "** skipping collocated test"
+        print("** skipping collocated test")
         return
     testdir = os.getcwd()
 
@@ -1638,7 +1638,7 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             if args.find("silverlight") != -1 and "nosilverlight" in config:
-                print "%s*** test not supported with Silverlight%s" % (prefix, suffix)
+                print("%s*** test not supported with Silverlight%s" % (prefix, suffix))
                 continue
 
             if args.find("compact") == -1 and "compact" in config:
@@ -1646,7 +1646,7 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             if args.find("silverlight") == -1 and "silverlight" in config:
-                print "%s*** test requires Silverlight%s" % (prefix, suffix)
+                print("%s*** test requires Silverlight%s" % (prefix, suffix))
                 continue
 
             if isVista() and "novista" in config:
