@@ -140,12 +140,6 @@
     <Compile Include="IceCsharpConfigurationDialog.Designer.cs">
       <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="IceSilverlightConfigurationDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="IceSilverlightConfigurationDialog.designer.cs">
-      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="IncludePathView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -207,9 +201,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="IceCsharpConfigurationDialog.resx">
       <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="IceSilverlightConfigurationDialog.resx">
-      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IncludePathView.resx">
       <DependentUpon>IncludePathView.cs</DependentUpon>

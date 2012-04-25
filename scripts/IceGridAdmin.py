@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -95,7 +95,8 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         else:
             cleanDbDir(dataDir)
 
-        print "starting icegrid " + name + "...",
+        sys.stdout.write("starting icegrid " + name + "... ")
+        sys.stdout.flush()
         cmd = command + ' ' + TestUtil.getQtSqlOptions('IceGrid') + \
               r' --Ice.ProgramName=' + name + \
               r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + '" ' + \
@@ -108,7 +109,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         driverConfig.lang = "cpp"
         proc = TestUtil.startServer(iceGrid, cmd, driverConfig, count = 4)
         procs.append(proc)
-        print "ok"
+        print("ok")
 
         i = i + 1
     return procs
@@ -117,14 +118,16 @@ def shutdownIceGridRegistry(procs):
 
     i = nreplicas
     while i > 0:
-        print "shutting down icegrid replica-" + str(i) + "...",
+        sys.stdout.write("shutting down icegrid replica-" + str(i) + "... ")
+        sys.stdout.flush()
         iceGridAdmin("registry shutdown replica-" + str(i))
-        print "ok"
+        print("ok")
         i = i - 1
 
-    print "shutting down icegrid registry...",
+    sys.stdout.write("shutting down icegrid registry... ")
+    sys.stdout.flush()
     iceGridAdmin("registry shutdown")
-    print "ok"
+    print("ok")
 
     for p in procs:
         p.waitTestSuccess()
@@ -166,7 +169,8 @@ def startIceGridNode(testdir):
     overrideOptions = '" ' + iceGridNodePropertiesOverride()
     overrideOptions += ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
 
-    print "starting icegrid node...",
+    sys.stdout.write("starting icegrid node... ")
+    sys.stdout.flush()
     command = r' --nowarn ' + nodeOptions + getDefaultLocatorProperty() + \
               r' --IceGrid.Node.Data="' + dataDir + '"' \
               r' --IceGrid.Node.Name=localnode' + \
@@ -176,7 +180,7 @@ def startIceGridNode(testdir):
     driverConfig.lang = "cpp"
     proc = TestUtil.startServer(iceGrid, command, driverConfig, adapter='node')
         
-    print "ok"
+    print("ok")
 
     return proc
 
@@ -202,7 +206,7 @@ def iceGridAdmin(cmd, ignoreFailure = False):
         TestUtil.appVerifierAfterTestEnd([TestUtil.getIceGridAdmin()])
 
     if not ignoreFailure and status:
-        print proc.buf
+        print(proc.buf)
         sys.exit(1)
     return proc.buf
     
@@ -218,7 +222,7 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     testdir = os.getcwd()
     if not TestUtil.isWin32() and os.getuid() == 0:
         print
-        print "*** can't run test as root ***"
+        print("*** can't run test as root ***")
         print
         return
 
@@ -240,26 +244,30 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     iceGridNodeProc = startIceGridNode(testdir)
     
     if application != "":
-        print "adding application...",
+        sys.stdout.write("adding application... ")
+        sys.stdout.flush()
         iceGridAdmin("application add -n '" + os.path.join(testdir, application) + "' " + \
                      "test.dir='" + testdir + "' ice.bindir='" + TestUtil.getCppBinDir() + "' " + applicationOptions)
-        print "ok"
+        print("ok")
 
-    print "starting client...",
+    sys.stdout.write("starting client... ")
+    sys.stdout.flush()
     clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"), startReader = False)
-    print "ok"
+    print("ok")
     clientProc.startReader()
 
     clientProc.waitTestSuccess()
 
     if application != "":
-        print "remove application...",
+        sys.stdout.write("remove application... ")
+        sys.stdout.flush()
         iceGridAdmin("application remove Test")
-        print "ok"
+        print("ok")
 
-    print "shutting down icegrid node...",
+    sys.stdout.write("shutting down icegrid node... ")
+    sys.stdout.flush()
     iceGridAdmin("node shutdown localnode")
-    print "ok"
+    print("ok")
     shutdownIceGridRegistry(registryProcs)
     iceGridNodeProc.waitTestSuccess()
 
@@ -288,13 +296,15 @@ def iceGridClientServerTest(additionalClientOptions, additionalServerOptions):
     
     registryProcs = startIceGridRegistry(testdir, True)
 
-    print "starting server...",
+    sys.stdout.write("starting server... ")
+    sys.stdout.flush()
     serverProc= TestUtil.startServer(server, serverOptions, TestUtil.DriverConfig("server"))
-    print "ok"
+    print("ok")
 
-    print "starting client...",
+    sys.stdout.write("starting client... ")
+    sys.stdout.flush()
     clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"))
-    print "ok"
+    print("ok")
 
     clientProc.waitTestSuccess()
     serverProc.waitTestSuccess()

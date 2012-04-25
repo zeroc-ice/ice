@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -63,7 +63,7 @@ namespace IceSSL
             }
         }
 
-        public bool startAccept(AsyncCallback callback, object state)
+        public bool startAccept(IceInternal.AsyncCallback callback, object state)
         {
             //
             // The plug-in may not be fully initialized.
@@ -77,7 +77,13 @@ namespace IceSSL
 
             try
             {
-                _result = _fd.BeginAccept(callback, state);
+                _result = _fd.BeginAccept(delegate(IAsyncResult result)
+                                          {
+                                              if(!result.CompletedSynchronously)
+                                              {
+                                                  callback(result.AsyncState);
+                                              }
+                                          }, state);
                 return _result.CompletedSynchronously;
             }
             catch(SocketException ex)
@@ -155,7 +161,7 @@ namespace IceSSL
 
             try
             {
-                _addr = IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
+                _addr = (IPEndPoint)IceInternal.Network.getAddressForServer(host, port, _instance.protocolSupport());
                 _fd = IceInternal.Network.createSocket(false, _addr.AddressFamily);
                 IceInternal.Network.setBlock(_fd, false);
                 IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);

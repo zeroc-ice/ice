@@ -1,32 +1,35 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test
+import Ice, Test, sys
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    print "testing stringToProxy... ",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
     ref = "initial:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast... ",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     initial = Test.InitialPrx.checkedCast(base)
     test(initial)
     test(initial == base)
-    print "ok"
+    print("ok")
 
-    print "getting proxies for class hierarchy... ",
+    sys.stdout.write("getting proxies for class hierarchy... ")
+    sys.stdout.flush()
     ca = initial.caop()
     cb = initial.cbop()
     cc = initial.ccop()
@@ -37,9 +40,10 @@ def allTests(communicator):
     test(cb != cc)
     test(cb != cd)
     test(cc != cd)
-    print "ok"
+    print("ok")
 
-    print "getting proxies for interface hierarchy... ",
+    sys.stdout.write("getting proxies for interface hierarchy... ")
+    sys.stdout.flush()
     ia = initial.iaop()
     ib1 = initial.ib1op()
     ib2 = initial.ib2op()
@@ -49,9 +53,10 @@ def allTests(communicator):
     test(ia != ic)
     test(ib1 != ic)
     test(ib2 != ic)
-    print "ok"
+    print("ok")
 
-    print "invoking proxy operations on class hierarchy... ",
+    sys.stdout.write("invoking proxy operations on class hierarchy... ")
+    sys.stdout.flush()
     cao = ca.caop(ca)
     test(cao == ca)
     cao = ca.caop(cb)
@@ -94,9 +99,10 @@ def allTests(communicator):
     test(cbo == cc)
     cco = cc.ccop(cc)
     test(cco == cc)
-    print "ok"
+    print("ok")
 
-    print "ditto, but for interface hierarchy... ",
+    sys.stdout.write("ditto, but for interface hierarchy... ")
+    sys.stdout.flush()
     iao = ia.iaop(ia)
     test(iao == ia)
     iao = ia.iaop(ib1)
@@ -173,9 +179,10 @@ def allTests(communicator):
     ico = ic.icop(ic)
     test(ico == ic)
 
-    print "ok"
+    print("ok")
 
-    print "ditto, but for class implementing interfaces... ",
+    sys.stdout.write("ditto, but for class implementing interfaces... ")
+    sys.stdout.flush()
     cao = cd.caop(cd)
     test(cao == cd)
     cbo = cd.cbop(cd)
@@ -204,6 +211,6 @@ def allTests(communicator):
     ib2o = cd.cdop(cd)
     test(ib2o == cd)
 
-    print "ok"
+    print("ok")
 
     return initial

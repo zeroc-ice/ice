@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -453,7 +453,6 @@ namespace IceUtilInternal
             return 0; // Not quoted
         }
 
-#if COMPACT
         private class OrdinalStringComparerImpl : System.Collections.Generic.IComparer<string>
         {
             public int Compare(string l, string r)
@@ -463,15 +462,5 @@ namespace IceUtilInternal
         }
         public static System.Collections.Generic.IComparer<string> OrdinalStringComparer =
             new OrdinalStringComparerImpl();
-#else
-        private class OrdinalStringComparerImpl : System.Collections.IComparer
-        {
-            public int Compare(object l, object r)
-            {
-                return string.CompareOrdinal((string)l, (string)r);
-            }
-        }
-        public static System.Collections.IComparer OrdinalStringComparer = new OrdinalStringComparerImpl();
-#endif
     }
 }

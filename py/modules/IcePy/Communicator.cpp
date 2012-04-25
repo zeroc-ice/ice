@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -63,9 +63,10 @@ struct CommunicatorObject
 extern "C"
 #endif
 static CommunicatorObject*
-communicatorNew(PyObject* /*arg*/)
+communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 {
-    CommunicatorObject* self = PyObject_New(CommunicatorObject, &CommunicatorType);
+    assert(type && type->tp_alloc);
+    CommunicatorObject* self = reinterpret_cast<CommunicatorObject*>(type->tp_alloc(type, 0));
     if(!self)
     {
         return 0;
@@ -286,7 +287,7 @@ communicatorDealloc(CommunicatorObject* self)
     delete self->communicator;
     delete self->shutdownMonitor;
     delete self->shutdownThread;
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 #ifdef WIN32
@@ -1441,8 +1442,7 @@ PyTypeObject CommunicatorType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                               /* ob_size */
+    PyVarObject_HEAD_INIT(0, 0)
     STRCAST("IcePy.Communicator"),   /* tp_name */
     sizeof(CommunicatorObject),      /* tp_basicsize */
     0,                               /* tp_itemsize */
@@ -1451,7 +1451,7 @@ PyTypeObject CommunicatorType =
     0,                               /* tp_print */
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
-    0,                               /* tp_compare */
+    0,                               /* tp_reserved */
     0,                               /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
@@ -1523,7 +1523,7 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
         return p->second;
     }
 
-    CommunicatorObject* obj = communicatorNew(0);
+    CommunicatorObject* obj = communicatorNew(&CommunicatorType, 0, 0);
     if(obj)
     {
         obj->communicator = new Ice::CommunicatorPtr(communicator);

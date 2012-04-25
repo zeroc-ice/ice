@@ -1,7 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ice.compact.client", "Ice\compact\Ice.compact.client.csproj", "{95E6B539-E515-4BD4-BDB0-35D7C49C897D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "Ice\compact\hello\client.csproj", "{95E6B539-E515-4BD4-BDB0-35D7C49C897D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "hello", "hello", "{853FE674-7861-4714-A941-FF365EF4DF2A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bidir", "bidir", "{2E7BE181-7EE0-4A89-92F8-724F9FDC3DDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "Ice\compact\bidir\server.csproj", "{05B11482-32A1-4212-A7F8-2A135FADD164}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +21,18 @@ Global
 		{95E6B539-E515-4BD4-BDB0-35D7C49C897D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95E6B539-E515-4BD4-BDB0-35D7C49C897D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{95E6B539-E515-4BD4-BDB0-35D7C49C897D}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05B11482-32A1-4212-A7F8-2A135FADD164}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{95E6B539-E515-4BD4-BDB0-35D7C49C897D} = {853FE674-7861-4714-A941-FF365EF4DF2A}
+		{05B11482-32A1-4212-A7F8-2A135FADD164} = {2E7BE181-7EE0-4A89-92F8-724F9FDC3DDD}
 	EndGlobalSection
 EndGlobal

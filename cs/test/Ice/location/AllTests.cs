@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,18 +10,26 @@
 using System;
 using Test;
 using System.Collections.Generic;
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
 
-public class AllTests
+public class AllTests : TestCommon.TestApp
 {
-    private static void test(bool b)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+        return initData;
     }
-    
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static void allTests(Ice.Communicator communicator)
+#endif
     {
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
                                         communicator.stringToProxy("ServerManager :default -p 12010"));
@@ -31,17 +39,17 @@ public class AllTests
         TestLocatorRegistryPrx registry = TestLocatorRegistryPrxHelper.checkedCast(locator.getRegistry());
         test(registry != null);
         
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Write("testing stringToProxy... ");
+        Flush();
         Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base3 = communicator.stringToProxy("test");
         Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
         Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
         Ice.ObjectPrx base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing ice_locator and ice_getLocator... ");
+        Write("testing ice_locator and ice_getLocator... ");
         test(Ice.Util.proxyIdentityCompare(@base.ice_getLocator(), communicator.getDefaultLocator()) == 0);
         Ice.LocatorPrx anotherLocator = 
             Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("anotherLocator"));
@@ -71,15 +79,15 @@ public class AllTests
         communicator.setDefaultRouter(null);
         @base = communicator.stringToProxy("test @ TestAdapter");
         test(@base.ice_getRouter() == null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("starting server... ");
-        Console.Out.Flush();
+        Write("starting server... ");
+        Flush();
         manager.startServer();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
@@ -92,10 +100,10 @@ public class AllTests
         test(obj5 != null);
         TestIntfPrx obj6 = TestIntfPrxHelper.checkedCast(base6);
         test(obj6 != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing id@AdapterId indirect proxy... ");
-        Console.Out.Flush();
+        Write("testing id@AdapterId indirect proxy... ");
+        Flush();
         obj.shutdown();
         manager.startServer();
         try
@@ -106,10 +114,10 @@ public class AllTests
         {
             test(false);
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing id@ReplicaGroupId indirect proxy... ");
-        Console.Out.Flush();
+        Write("testing id@ReplicaGroupId indirect proxy... ");
+        Flush();
         obj.shutdown();
         manager.startServer();
         try
@@ -120,10 +128,10 @@ public class AllTests
         {
             test(false);
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing identity indirect proxy... ");
-        Console.Out.Flush();
+        Write("testing identity indirect proxy... ");
+        Flush();
         obj.shutdown();
         manager.startServer();
         try
@@ -191,10 +199,10 @@ public class AllTests
         {
             test(false);
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing proxy with unknown identity... ");
-        Console.Out.Flush();
+        Write("testing proxy with unknown identity... ");
+        Flush();
         try
         {
             @base = communicator.stringToProxy("unknown/unknown");
@@ -206,10 +214,10 @@ public class AllTests
             test(ex.kindOfObject.Equals("object"));
             test(ex.id.Equals("unknown/unknown"));
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing proxy with unknown adapter... ");
-        Console.Out.Flush();
+        Write("testing proxy with unknown adapter... ");
+        Flush();
         try
         {
             @base = communicator.stringToProxy("test @ TestAdapterUnknown");
@@ -221,10 +229,10 @@ public class AllTests
             test(ex.kindOfObject.Equals("object adapter"));
             test(ex.id.Equals("TestAdapterUnknown"));
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing locator cache timeout... ");
-        Console.Out.Flush();
+        Write("testing locator cache timeout... ");
+        Flush();
         
         int count = locator.getRequestCount();
         communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
@@ -258,10 +266,10 @@ public class AllTests
 
         test(communicator.stringToProxy("test").ice_locatorCacheTimeout(99).ice_getLocatorCacheTimeout() == 99);
 
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing proxy from server... ");
-        Console.Out.Flush();
+        Write("testing proxy from server... ");
+        Flush();
         obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("test@TestAdapter"));
         HelloPrx hello = obj.getHello();
         test(hello.ice_getAdapterId().Equals("TestAdapter"));
@@ -269,10 +277,10 @@ public class AllTests
         hello = obj.getReplicatedHello();
         test(hello.ice_getAdapterId().Equals("ReplicatedAdapter"));
         hello.sayHello();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing locator request queuing... ");
-        Console.Out.Flush();
+        Write("testing locator request queuing... ");
+        Flush();
         hello = (HelloPrx)obj.getReplicatedHello().ice_locatorCacheTimeout(0).ice_connectionCached(false);
         count = locator.getRequestCount();
         hello.ice_ping();
@@ -299,7 +307,7 @@ public class AllTests
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 999);
         if(locator.getRequestCount() > count + 800)
         {
-            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+            Write("queuing = " + (locator.getRequestCount() - count));
         }
         count = locator.getRequestCount();
         hello = (HelloPrx)hello.ice_adapterId("unknown");
@@ -326,12 +334,12 @@ public class AllTests
         test(locator.getRequestCount() > count && locator.getRequestCount() < count + 1999);
         if(locator.getRequestCount() > count + 800)
         {
-            Console.Out.Write("queuing = " + (locator.getRequestCount() - count));
+            Write("queuing = " + (locator.getRequestCount() - count));
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing adapter locator cache... ");
-        Console.Out.Flush();
+        Write("testing adapter locator cache... ");
+        Flush();
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -379,10 +387,10 @@ public class AllTests
         {
             test(false);
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing well-known object locator cache... ");
-        Console.Out.Flush();
+        Write("testing well-known object locator cache... ");
+        Flush();
         registry.addObject(communicator.stringToProxy("test3@TestUnknown"));
         try
         {
@@ -467,10 +475,10 @@ public class AllTests
         catch(Ice.NoEndpointException)
         {
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing locator cache background updates... ");
-        Console.Out.Flush();
+        Write("testing locator cache background updates... ");
+        Flush();
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
@@ -524,18 +532,18 @@ public class AllTests
             }
             ic.destroy();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing proxy from server after shutdown... ");
-        Console.Out.Flush();
+        Write("testing proxy from server after shutdown... ");
+        Flush();
         hello = obj.getReplicatedHello();
         obj.shutdown();
         manager.startServer();
         hello.sayHello();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing object migration... ");
-        Console.Out.Flush();
+        Write("testing object migration... ");
+        Flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
         hello.sayHello();
@@ -543,15 +551,15 @@ public class AllTests
         hello.sayHello();
         obj.migrateHello();
         hello.sayHello();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("shutdown server... ");
-        Console.Out.Flush();
+        Write("shutdown server... ");
+        Flush();
         obj.shutdown();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing whether server is gone... ");
-        Console.Out.Flush();
+        Write("testing whether server is gone... ");
+        Flush();
         try
         {
             obj2.ice_ping();
@@ -576,10 +584,11 @@ public class AllTests
         catch(Ice.LocalException)
         {
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing indirect proxies to collocated objects... ");
-        Console.Out.Flush();
+#if !SILVERLIGHT
+        Write("testing indirect proxies to collocated objects... ");
+        Flush();
 
         //
         // Set up test for calling a collocated object through an
@@ -606,11 +615,14 @@ public class AllTests
         {
         }
         adapter.deactivate();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("shutdown server manager... ");
-        Console.Out.Flush();
+        Write("shutdown server manager... ");
+        Flush();
         manager.shutdown();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
+#else
+        manager.shutdown();
+#endif
     }
 }

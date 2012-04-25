@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,7 @@
 namespace IceUtilInternal
 {
 
-using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Diagnostics;
 
@@ -24,7 +24,7 @@ public class OutputBase
         indent_ = 0;
         indentSize_ = 4;
         useTab_ = true;
-        indentSave_ = new Stack();
+        indentSave_ = new Stack<int>();
         separator_ = true;
     }
     
@@ -36,7 +36,7 @@ public class OutputBase
         indent_ = 0;
         indentSize_ = 4;
         useTab_ = true;
-        indentSave_ = new Stack();
+        indentSave_ = new Stack<int>();
         separator_ = true;
     }
     
@@ -48,7 +48,7 @@ public class OutputBase
         indent_ = 0;
         indentSize_ = 4;
         useTab_ = true;
-        indentSave_ = new Stack();
+        indentSave_ = new Stack<int>();
         separator_ = true;
     }
 
@@ -185,7 +185,7 @@ public class OutputBase
     protected internal int pos_;
     protected internal int indent_;
     protected internal int indentSize_;
-    protected internal Stack indentSave_;
+    protected internal Stack<int> indentSave_;
     protected internal bool useTab_;
     protected internal bool separator_;
 }

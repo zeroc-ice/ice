@@ -1,20 +1,21 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, threading
+import Ice, Test, sys, threading
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator, collocated):
-    print "testing proxy endpoint information...",
+    sys.stdout.write("testing proxy endpoint information... ")
+    sys.stdout.flush()
 
     p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" + \
                                     "udp -h udphost -p 10001 --interface eth0 --ttl 5:" + \
@@ -49,11 +50,12 @@ def allTests(communicator, collocated):
     opaqueEndpoint = endps[2].getInfo()
     test(isinstance(opaqueEndpoint, Ice.OpaqueEndpointInfo))
 
-    print "ok"
+    print("ok")
 
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
 
-    print "test object adapter endpoint information...",
+    sys.stdout.write("test object adapter endpoint information... ")
+    sys.stdout.flush()
 
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -t 15000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
@@ -94,12 +96,13 @@ def allTests(communicator, collocated):
 
     adapter.destroy()
 
-    print "ok"
+    print("ok")
 
     base = communicator.stringToProxy("test:default -p 12010:udp -p 12010")
     testIntf = Test.TestIntfPrx.checkedCast(base)
 
-    print "test connection endpoint information...",
+    sys.stdout.write("test connection endpoint information... ")
+    sys.stdout.flush()
 
     ipinfo = base.ice_getConnection().getEndpoint().getInfo()
     test(ipinfo.port == 12010)
@@ -116,9 +119,10 @@ def allTests(communicator, collocated):
     test(udp.port == 12010)
     test(udp.host == defaultHost)
 
-    print "ok"
+    print("ok")
 
-    print "testing connection information...",
+    sys.stdout.write("testing connection information... ")
+    sys.stdout.flush()
 
     info = base.ice_getConnection().getInfo()
     test(not info.incoming)
@@ -135,7 +139,7 @@ def allTests(communicator, collocated):
     test(ctx["remotePort"] == str(info.localPort))
     test(ctx["localPort"] == str(info.remotePort))
 
-    print "ok"
+    print("ok")
 
     testIntf.shutdown()
 

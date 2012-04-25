@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ class TestI(Test.TestIntf):
         current.adapter.getCommunicator().shutdown()
 
     def abort(self, current=None):
-        print "aborting..."
+        sys.stdout.write("aborting...")
         os._exit(0)
 
     def idempotentAbort(self, current=None):
@@ -35,18 +35,18 @@ def run(args, communicator):
     port = 0
     for arg in args[1:]:
         if arg[0] == '-':
-            print >> sys.stderr, args[0] + ": unknown option `" + arg + "'"
+            sys.stderr.write(args[0] + ": unknown option `" + arg + "'\n")
             usage(args[0])
             return False
         if port > 0:
-            print >> sys.stderr, args[0] + ": only one port can be specified"
+            sys.stderr.write(args[0] + ": only one port can be specified\n")
             usage(args[0])
             return False
 
         port = int(arg)
 
     if port <= 0:
-        print >> sys.stderr, args[0] + ": no port specified"
+        sys.stderr.write(args[0] + ": no port specified\n")
         usage(args[0])
         return False
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -17,9 +17,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceStormUtil
 
 publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
@@ -53,33 +53,34 @@ def runtest(type, **args):
 
     icestorm.start()
 
-    print "setting up topics...",
+    sys.stdout.write("setting up topics... ")
     sys.stdout.flush()
     icestorm.admin("create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5")
-    print "ok"
+    print("ok")
 
     #
     # Test oneway subscribers.
     #
-    print "testing oneway subscribers...",
+    sys.stdout.write("testing oneway subscribers... ")
     sys.stdout.flush()
     doTest(icestorm, 0)
-    print "ok"
+    print("ok")
 
     #
     # Test batch oneway subscribers.
     #
-    print "testing batch subscribers...",
+    sys.stdout.write("testing batch subscribers... ")
     sys.stdout.flush()
     doTest(icestorm, 1)
-    print "ok"
+    print("ok")
 
     #
     # Destroy the topics.
     #
-    print "destroying topics...",
+    sys.stdout.write("destroying topics... ")
+    sys.stdout.flush()
     icestorm.admin("destroy fed1 fed2 fed3")
-    print "ok"
+    print("ok")
 
     #
     # Shutdown icestorm.

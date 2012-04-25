@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1021,7 +1021,7 @@ public class TwowaysNewAMI
             callback.called();
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         public void opSerialSmallCSharpNullI(Ice.AsyncResult result)
         {
             try
@@ -2162,7 +2162,7 @@ public class TwowaysNewAMI
             cb.check();
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
 

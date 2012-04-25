@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,28 +16,37 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 
 server = Util.spawn('Server.py --Ice.PrintAdapterReady')
 server.expect('.* ready')
 client = Util.spawn('Client.py')
 client.expect('.*==>')
 
-print "testing with conversion...",
+sys.stdout.write("testing with conversion... ")
 sys.stdout.flush()
 client.sendline('u')
-server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
-client.expect('Received: "Bonne journ\\\\303\\\\251e"')
-print "ok"
+if sys.version_info[0] == 2:
+    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\351e"')
+    client.expect('Received: "Bonne journ\\\\303\\\\251e"')
+else:
+    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\o351e"')
+    client.expect('Received: "Bonne journ\\\\o303\\\\o251e"')
+print("ok")
 
-print "testing without conversion...",
+sys.stdout.write("testing without conversion... ")
+sys.stdout.flush()
 client.sendline('t')
-server.expect('Received \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
-client.expect('Received: "Bonne journ\\\\351e"')
-print "ok"
+if sys.version_info[0] == 2:
+    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\303\\\\251e"')
+    client.expect('Received: "Bonne journ\\\\351e"')
+else:
+    server.expect('Received \\(UTF-8\\): "Bonne journ\\\\o303\\\\o251e"')
+    client.expect('Received: "Bonne journ\\\\o351e"')
+print("ok")
 
 client.sendline('s')
 server.waitTestSuccess()

@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, threading
+import Ice, Test, sys, threading
 
 def test(b):
     if not b:
@@ -49,54 +49,62 @@ class CallbackFail(CallbackBase):
         self.called()
 
 def allTests(communicator):
-    print "testing stringToProxy...",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
     ref = "retry:default -p 12010"
     base1 = communicator.stringToProxy(ref)
     test(base1)
     base2 = communicator.stringToProxy(ref)
     test(base2)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast...",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     retry1 = Test.RetryPrx.checkedCast(base1)
     test(retry1)
     test(retry1 == base1)
     retry2 = Test.RetryPrx.checkedCast(base2)
     test(retry2)
     test(retry2 == base2)
-    print "ok"
+    print("ok")
 
-    print "calling regular operation with first proxy...",
+    sys.stdout.write("calling regular operation with first proxy... ")
+    sys.stdout.flush()
     retry1.op(False)
-    print "ok"
+    print("ok")
 
-    print "calling operation to kill connection with second proxy...",
+    sys.stdout.write("calling operation to kill connection with second proxy... ")
+    sys.stdout.flush()
     try:
         retry2.op(True)
         test(False)
     except Ice.ConnectionLostException:
-        print "ok"
+        print("ok")
 
-    print "calling regular operation with first proxy again...",
+    sys.stdout.write("calling regular operation with first proxy again... ")
+    sys.stdout.flush()
     retry1.op(False)
-    print "ok"
+    print("ok")
 
     cb1 = CallbackSuccess()
     cb2 = CallbackFail()
 
-    print "calling regular AMI operation with first proxy...",
+    sys.stdout.write("calling regular AMI operation with first proxy... ")
+    sys.stdout.flush()
     retry1.begin_op(False, cb1.response, cb1.exception)
     cb1.check()
-    print "ok"
+    print("ok")
 
-    print "calling AMI operation to kill connection with second proxy...",
+    sys.stdout.write("calling AMI operation to kill connection with second proxy... ")
+    sys.stdout.flush()
     retry2.begin_op(True, cb2.response, cb2.exception)
     cb2.check()
-    print "ok"
+    print("ok")
 
-    print "calling regular AMI operation with first proxy again...",
+    sys.stdout.write("calling regular AMI operation with first proxy again... ")
+    sys.stdout.flush()
     retry1.begin_op(False, cb1.response, cb1.exception)
     cb1.check()
-    print "ok"
+    print("ok")
 
     return retry1

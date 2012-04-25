@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test
+import Ice, Test, sys
 
 def test(b):
     if not b:
@@ -63,11 +63,15 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (p2, p1)
 
     def opByteS(self, p1, p2, current=None):
-        # By default sequence<byte> maps to a string.
-        p3 = map(ord, p1)
-        p3.reverse()
-        r = map(ord, p1)
-        r.extend(map(ord, p2))
+        if sys.version_info[0] == 2:
+            # By default sequence<byte> maps to a string.
+            p3 = map(ord, p1)
+            p3.reverse()
+            r = map(ord, p1)
+            r.extend(map(ord, p2))
+        else:
+            p3 = bytes(reversed(p1))
+            r = p1 + p2
         return (r, p3)
 
     def opBoolS(self, p1, p2, current=None):

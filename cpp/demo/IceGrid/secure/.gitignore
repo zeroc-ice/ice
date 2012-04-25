@@ -7,4 +7,6 @@ Hello.cpp
 Hello.h
 db/registry/*
 db/node/*
+db/master/*
+db/slave/*
 certs/*

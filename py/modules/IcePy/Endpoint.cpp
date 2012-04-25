@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +32,7 @@ struct EndpointObject
 extern "C"
 #endif
 static EndpointObject*
-endpointNew(PyObject* /*arg*/)
+endpointNew(PyTypeObject* /*type*/, PyObject* /*args*/, PyObject* /*kwds*/)
 {
     PyErr_Format(PyExc_RuntimeError, STRCAST("An endpoint cannot be created directly"));
     return 0;
@@ -45,27 +45,63 @@ static void
 endpointDealloc(EndpointObject* self)
 {
     delete self->endpoint;
-    PyObject_Del(self);
+    Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
 #ifdef WIN32
 extern "C"
 #endif
-static int
-endpointCompare(EndpointObject* p1, EndpointObject* p2)
+static PyObject*
+endpointCompare(EndpointObject* p1, PyObject* other, int op)
 {
-    if(*p1->endpoint < *p2->endpoint)
+    bool result;
+
+    if(PyObject_TypeCheck(other, &EndpointType))
     {
-        return -1;
-    }
-    else if(*p1->endpoint == *p2->endpoint)
-    {
-        return 0;
+        EndpointObject* p2 = reinterpret_cast<EndpointObject*>(other);
+
+        switch(op)
+        {
+        case Py_EQ:
+            result = *p1->endpoint == *p2->endpoint;
+            break;
+        case Py_NE:
+            result = *p1->endpoint != *p2->endpoint;
+            break;
+        case Py_LE:
+            result = *p1->endpoint <= *p2->endpoint;
+            break;
+        case Py_GE:
+            result = *p1->endpoint >= *p2->endpoint;
+            break;
+        case Py_LT:
+            result = *p1->endpoint < *p2->endpoint;
+            break;
+        case Py_GT:
+            result = *p1->endpoint > *p2->endpoint;
+            break;
+        }
     }
     else
     {
-        return 1;
+        if(op == Py_EQ)
+        {
+            result = false;
+        }
+        else if(op == Py_NE)
+        {
+            result = true;
+        }
+        else
+        {
+            PyErr_Format(PyExc_TypeError, "can't compare %s to %s", Py_TYPE(p1)->tp_name, Py_TYPE(other)->tp_name);
+            return 0;
+        }
     }
+
+    PyObject* r = result ? getTrue() : getFalse();
+    Py_INCREF(r);
+    return r;
 }
 
 #ifdef WIN32
@@ -131,18 +167,17 @@ PyTypeObject EndpointType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(0)
-    0,                               /* ob_size */
+    PyVarObject_HEAD_INIT(0, 0)
     STRCAST("IcePy.Endpoint"),       /* tp_name */
     sizeof(EndpointObject),          /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
-    (destructor)endpointDealloc,     /* tp_dealloc */
+    reinterpret_cast<destructor>(endpointDealloc), /* tp_dealloc */
     0,                               /* tp_print */
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
-    (cmpfunc)endpointCompare,        /* tp_compare */
-    (reprfunc)endpointRepr,          /* tp_repr */
+    0,                               /* tp_reserved */
+    reinterpret_cast<reprfunc>(endpointRepr), /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
     0,                               /* tp_as_mapping */
@@ -152,11 +187,18 @@ PyTypeObject EndpointType =
     0,                               /* tp_getattro */
     0,                               /* tp_setattro */
     0,                               /* tp_as_buffer */
-    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE, /* tp_flags */
+#if PY_VERSION_HEX >= 0x03000000
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_BASETYPE,             /* tp_flags */
+#else
+    Py_TPFLAGS_DEFAULT |
+    Py_TPFLAGS_BASETYPE |
+    Py_TPFLAGS_HAVE_RICHCOMPARE,     /* tp_flags */
+#endif
     0,                               /* tp_doc */
     0,                               /* tp_traverse */
     0,                               /* tp_clear */
-    0,                               /* tp_richcompare */
+    reinterpret_cast<richcmpfunc>(endpointCompare), /* tp_richcompare */
     0,                               /* tp_weaklistoffset */
     0,                               /* tp_iter */
     0,                               /* tp_iternext */
@@ -170,7 +212,7 @@ PyTypeObject EndpointType =
     0,                               /* tp_dictoffset */
     0,                               /* tp_init */
     0,                               /* tp_alloc */
-    (newfunc)endpointNew,            /* tp_new */
+    reinterpret_cast<newfunc>(endpointNew), /* tp_new */
     0,                               /* tp_free */
     0,                               /* tp_is_gc */
 };
@@ -204,7 +246,7 @@ IcePy::getEndpoint(PyObject* obj)
 PyObject*
 IcePy::createEndpoint(const Ice::EndpointPtr& endpoint)
 {
-    EndpointObject* obj = PyObject_New(EndpointObject, &EndpointType);
+    EndpointObject* obj = reinterpret_cast<EndpointObject*>(EndpointType.tp_alloc(&EndpointType, 0));
     if(!obj)
     {
         return 0;

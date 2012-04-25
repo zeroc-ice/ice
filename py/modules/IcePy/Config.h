@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,13 +31,5 @@
 #   error "STRCAST already defined!"
 #endif
 #define STRCAST(s) const_cast<char*>(s)
-
-//
-// Python 2.5 compatibility.
-//
-#if PY_VERSION_HEX < 0x02050000
-    typedef int Py_ssize_t;
-#   define ICEPY_OLD_EXCEPTIONS
-#endif
 
 #endif

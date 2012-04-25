@@ -1,6 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -98,12 +98,6 @@ namespace Ice.VisualStudio
             _dialog.needSave();
         }
 
-        private bool parseSlice2slOptions()
-        {
-            Options opts = null;
-            return Util.parseSlice2slOptions(txtExtraOptions.Text, true, ref opts);
-        }
-
         private bool parseSlice2csOptions()
         {
             Options opts = null;
@@ -126,14 +120,7 @@ namespace Ice.VisualStudio
             }
             else if(Util.isCSharpProject(_project))
             {
-                if(Util.isSilverlightProject(_project))
-                {
-                    return parseSlice2slOptions();
-                }
-                else
-                {
-                    return parseSlice2csOptions();
-                }
+                return parseSlice2csOptions();
             }
             return true;
         }

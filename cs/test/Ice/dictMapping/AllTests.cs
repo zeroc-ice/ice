@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,33 +9,56 @@
 
 using System;
 
-public class AllTests
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
+
+public class AllTests : TestCommon.TestApp
 {
+#if SILVERLIGHT
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+#endif
     {
-        Console.Out.Flush();
+#if SILVERLIGHT
+        bool collocated = false;
+#endif
+        Flush();
         string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 
-        Console.Out.Write("testing twoway operations... ");
-        Console.Out.Flush();
+        Write("testing twoway operations... ");
+        Flush();
         Twoways.twoways(communicator, cl);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
         if(!collocated)
         {
-            Console.Out.Write("testing twoway operations with AMI... ");
-            Console.Out.Flush();
+            Write("testing twoway operations with AMI... ");
+            Flush();
             TwowaysAMI.twowaysAMI(communicator, cl);
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Out.Write("testing twoway operations with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("testing twoway operations with new AMI mapping... ");
+            Flush();
             TwowaysNewAMI.twowaysAMI(communicator, cl);
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
         }
-
+#if SILVERLIGHT
+        cl.shutdown();
+#else
         return cl;
+#endif
     }
 }

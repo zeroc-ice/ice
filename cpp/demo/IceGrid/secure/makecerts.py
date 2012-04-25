@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -18,18 +18,18 @@ def runIceca(args):
 
 def createCertificate(filename, cn):
 
-    print "======= Creating " + filename + " certificate ======="
+    print("======= Creating " + filename + " certificate =======")
 
     runIceca('request --no-password --overwrite "%s" "%s"' % (filename, cn))
     runIceca("sign --in %s_req.pem --out %s_cert.pem" % (filename, filename))
     os.remove("%s_req.pem" % filename)
 
-    print
-    print
+    print("")
+    print("")
 
 cwd = os.getcwd()
 if not os.path.exists("certs") or os.path.basename(cwd) != "secure":
-    print "You must run this script from the secure demo directory"
+    print("You must run this script from the secure demo directory")
     sys.exit(1)
 
 os.environ["ICE_CA_HOME"] = os.path.abspath("certs")
@@ -39,10 +39,10 @@ os.chdir("certs")
 #
 # First, create the certificate authority.
 #
-print "======= Creating Certificate Authority ======="
+print("======= Creating Certificate Authority =======")
 runIceca("init --overwrite --no-password")
-print
-print
+print("")
+print("")
 
 createCertificate("master", "Master")
 createCertificate("slave", "Slave")
@@ -50,7 +50,7 @@ createCertificate("node", "Node")
 createCertificate("glacier2", "Glacier2")
 createCertificate("server", "Server")
 
-print "======= Creating Java Key Store ======="
+print("======= Creating Java Key Store =======")
 
 try:
     os.remove("certs.jks")

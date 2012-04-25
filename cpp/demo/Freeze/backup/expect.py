@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import sys, os
+import sys, os, shutil, signal, time
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -16,12 +16,10 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
-import shutil
-import signal, time
+from demoscript import Util
 
 def cleandb():
     shutil.rmtree("db.save", True)
@@ -30,23 +28,23 @@ def cleandb():
     for filename in [ os.path.join("db", f) for f in os.listdir("db") if f.startswith("__db") ]:
         os.remove(filename)
 
-print "cleaning databases...",
+sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
 cleandb()
 for d in os.listdir('.'):
     if d.startswith('hotbackup'):
         shutil.rmtree(d)
-print "ok"
+print("ok")
 
 client = Util.spawn('./client')
 
-print "populating map...",
+sys.stdout.write("populating map... ")
 sys.stdout.flush()
 client.expect('Updating map', timeout=60)
 time.sleep(3) # Let the client do some work for a bit.
-print "ok"
+print("ok")
 
-print "performing full backup...",
+sys.stdout.write("performing full backup... ")
 sys.stdout.flush()
 if Util.isWin32():
     backup = Util.spawn('./backup.bat full')
@@ -54,14 +52,14 @@ else:
     backup = Util.spawn('./backup full')
 backup.expect('hot backup started', timeout=30)
 backup.waitTestSuccess(timeout=30)
-print "ok"
+print("ok")
 
-print "sleeping 5s...",
+sys.stdout.write("sleeping 5s... ")
 sys.stdout.flush()
 time.sleep(5)
-print "ok"
+print("ok")
 
-print "performing incremental backup...",
+sys.stdout.write("performing incremental backup... ")
 sys.stdout.flush()
 if Util.isWin32():
     backup = Util.spawn('./backup.bat incremental')
@@ -69,25 +67,25 @@ else:
     backup = Util.spawn('./backup incremental')
 backup.expect('hot backup started', timeout=30)
 backup.waitTestSuccess(timeout=30)
-print "ok"
+print("ok")
 
-print "sleeping 30s...",
+sys.stdout.write("sleeping 30s... ")
 sys.stdout.flush()
 time.sleep(30)
-print "ok"
+print("ok")
 
 assert os.path.isdir('hotbackup')
 
-print "killing client with SIGTERM...",
+sys.stdout.write("killing client with SIGTERM... ")
 sys.stdout.flush()
 client.kill(signal.SIGTERM)
 client.waitTestSuccess(-signal.SIGTERM)
-print "ok"
+print("ok")
 
-print "Client output: ",
-print "%s " % (client.before)
+sys.stdout.write("Client output: ")
+print("%s" % (client.before))
 
-print "restarting client...",
+sys.stdout.write("restarting client... ")
 sys.stdout.flush()
 cleandb()
 # Annoying. shutil.copytree cannot be used since db already exists
@@ -107,17 +105,17 @@ sys.stdout.flush()
 client = Util.spawn('./client')
 client.expect('(.*)Updating map', timeout=60)
 assert client.match.group(1).find('Creating new map') == -1
-print "ok"
+print("ok")
 
-print "sleeping 5s...",
+sys.stdout.write("sleeping 5s... ")
 sys.stdout.flush()
 time.sleep(5)
-print "ok"
+print("ok")
 
-print "killing client with SIGTERM...",
+sys.stdout.write("killing client with SIGTERM... ")
 client.kill(signal.SIGTERM)
 client.waitTestSuccess(-signal.SIGTERM)
-print "ok"
+print("ok")
 
-print "Restarted client output:",
-print "%s " % (client.before)
+sys.stdout.write("Restarted client output: ")
+print("%s" % (client.before))

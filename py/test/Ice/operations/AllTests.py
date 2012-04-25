@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, Twoways, TwowaysAMI, TwowaysNewAMI, Oneways, OnewaysAMI, OnewaysNewAMI, BatchOneways
+import Ice, Test, Twoways, TwowaysAMI, TwowaysNewAMI, Oneways, OnewaysAMI, OnewaysNewAMI, BatchOneways, sys
 
 def test(b):
     if not b:
@@ -19,36 +19,43 @@ def allTests(communicator, collocated):
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
 
-    print "testing twoway operations...",
+    sys.stdout.write("testing twoway operations... ")
+    sys.stdout.flush()
     Twoways.twoways(communicator, cl)
     Twoways.twoways(communicator, derived)
     derived.opDerived()
-    print "ok"
+    print("ok")
 
-    print "testing oneway operations...",
+    sys.stdout.write("testing oneway operations... ")
+    sys.stdout.flush()
     Oneways.oneways(communicator, cl)
-    print "ok"
+    print("ok")
 
     if not collocated:
-        print "testing twoway operations with AMI...",
+        sys.stdout.write("testing twoway operations with AMI... ")
+        sys.stdout.flush()
         TwowaysAMI.twowaysAMI(communicator, cl)
-        print "ok"
+        print("ok")
 
-        print "testing twoway operations with new AMI mapping...",
+        sys.stdout.write("testing twoway operations with new AMI mapping... ")
+        sys.stdout.flush()
         TwowaysNewAMI.twowaysNewAMI(communicator, cl)
-        print "ok"
+        print("ok")
 
-        print "testing oneway operations with AMI...",
+        sys.stdout.write("testing oneway operations with AMI... ")
+        sys.stdout.flush()
         OnewaysAMI.onewaysAMI(communicator, cl)
-        print "ok"
+        print("ok")
 
-        print "testing oneway operations with new AMI mapping...",
+        sys.stdout.write("testing oneway operations with new AMI mapping... ")
+        sys.stdout.flush()
         OnewaysNewAMI.onewaysNewAMI(communicator, cl)
-        print "ok"
+        print("ok")
 
-        print "testing batch oneway operations... ",
+        sys.stdout.write("testing batch oneway operations...  ")
+        sys.stdout.flush()
         BatchOneways.batchOneways(cl)
         BatchOneways.batchOneways(derived)
-        print "ok"
+        print("ok")
 
     return cl

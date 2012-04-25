@@ -2,7 +2,7 @@
 
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -150,20 +150,20 @@ class Replicated(IceStormUtil):
 
     def start(self, echo = True, **args):
         if echo:
-            print "starting icestorm replicas...",
+            sys.stdout.write("starting icestorm replicas... ")
             sys.stdout.flush()
         # Start replicas.
         for replica in range(0, 3):
             if echo:
-                print replica,
+                sys.stdout.write(str(replica) + " ")
                 sys.stdout.flush()
             self.startReplica(replica, echo=False, **args)
         if echo:
-            print "ok"
+            print("ok")
 
     def startReplica(self, replica, echo = True, additionalOptions = ""):
         if echo:
-            print "starting icestorm replica %d..." % replica,
+            sys.stdout.write("starting icestorm replica %d..." % replica + " ")
             sys.stdout.flush()
 
         proc = TestUtil.startServer(self.iceBox,
@@ -176,7 +176,7 @@ class Replicated(IceStormUtil):
                                     echo = False)
         self.procs[replica] = proc
         if echo:
-            print "ok"
+            print("ok")
 
     def stop(self):
         for replica in range(0, 3):
@@ -239,9 +239,9 @@ class NonReplicated(IceStormUtil):
     def start(self, echo = True, additionalOptions = ""):
         if echo:
             if self.transient:
-                print "starting transient icestorm service...",
+                sys.stdout.write("starting transient icestorm service... ")
             else:
-                print "starting icestorm service...",
+                sys.stdout.write("starting icestorm service... ")
             sys.stdout.flush()
 
         self.proc = TestUtil.startServer(self.iceBox,
@@ -251,7 +251,7 @@ class NonReplicated(IceStormUtil):
                                          additionalOptions, adapter = "IceStorm",
                                          echo = False)
         if echo:
-            print "ok"
+            print("ok")
         return self.proc
 
     def stop(self):

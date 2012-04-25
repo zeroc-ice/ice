@@ -1,12 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
+#if !SILVERLIGHT
 namespace IceInternal
 {
     using System;
@@ -41,7 +42,7 @@ namespace IceInternal
             //
             try
             {
-                List<IPEndPoint> addrs = Network.getAddresses(host, port, _instance.protocolSupport(), false);
+                List<EndPoint> addrs = Network.getAddresses(host, port, _instance.protocolSupport(), false);
                 if(addrs.Count > 0)
                 {
                     callback.connectors(endpoint.connectors(addrs));
@@ -203,3 +204,4 @@ namespace IceInternal
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 }
+#endif

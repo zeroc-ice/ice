@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,9 +12,11 @@ top_srcdir	= ../../..
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe servertie.exe serveramdtie.exe
 
 C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs BatchOneways.cs \
+	          ../../TestCommon/TestApp.cs \
 		  Oneways.cs OnewaysAMI.cs OnewaysNewAMI.cs
 S_SRCS		= MyDerivedClassI.cs Server.cs
 COL_SRCS	= AllTests.cs Collocated.cs MyDerivedClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs \
+		  ../../TestCommon/TestApp.cs \
 		  BatchOneways.cs Oneways.cs \
 		  OnewaysAMI.cs OnewaysNewAMI.cs
 SAMD_SRCS	= MyDerivedClassAMDI.cs Server.cs

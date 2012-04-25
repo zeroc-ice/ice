@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ import os, sys, traceback, threading, Ice
 
 slice_dir = Ice.getSliceDir()
 if not slice_dir:
-    print sys.argv[0] + ': Slice directory not found.'
+    print(sys.argv[0] + ': Slice directory not found.')
     sys.exit(1)
 
 Ice.loadSlice("'-I" + slice_dir + "' Callback.ice")
@@ -29,7 +29,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
     def destroy(self):
         self._cond.acquire()
 
-        print "destroying callback sender"
+        print("destroying callback sender")
         self._destroy = True
 
         try:
@@ -42,7 +42,7 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
     def addClient(self, ident, current=None):
         self._cond.acquire()
 
-        print "adding client `" + self._communicator.identityToString(ident) + "'"
+        print("adding client `" + self._communicator.identityToString(ident) + "'")
 
         client = Demo.CallbackReceiverPrx.uncheckedCast(current.con.createProxy(ident))
         self._clients.append(client)
@@ -65,12 +65,12 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
 
             if len(clients) > 0:
                 num = num + 1
-                
+
                 for p in clients:
                     try:
                         p.callback(num)
                     except:
-                        print "removing client `" + self._communicator.identityToString(p.ice_getIdentity()) + "':"
+                        print("removing client `" + self._communicator.identityToString(p.ice_getIdentity()) + "':")
                         traceback.print_exc()
 
                         self._cond.acquire()
@@ -79,11 +79,10 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
                         finally:
                             self._cond.release()
 
-                        
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         adapter = self.communicator().createObjectAdapter("Callback.Server")

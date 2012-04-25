@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,11 +9,10 @@
 # **********************************************************************
 
 import sys, time, signal
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
 
 def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
-    print "testing pub%s/sub%s..." % (pubargs, subargs),
+    sys.stdout.write("testing pub%s/sub%s... " % (pubargs, subargs))
     sys.stdout.flush()
     sub = Util.spawn('%s --Ice.PrintAdapterReady %s' %(subCmd, subargs))
     sub.expect('.* ready')
@@ -34,13 +33,13 @@ def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
 
     if sub.hasInterruptSupport():
         icestorm.expect('unsubscribe:')
-    print "ok"
+    print("ok")
 
 def run(subCmd, pubCmd):
-    print "cleaning databases...",
+    sys.stdout.write("cleaning databases... ")
     sys.stdout.flush()
     Util.cleanDbDir("db")
-    print "ok"
+    print("ok")
 
     if Util.defaultHost:
         args = ' --IceBox.Service.IceStorm="IceStormService,34:createIceStorm --Ice.Config=config.service %s"' % Util.defaultHost

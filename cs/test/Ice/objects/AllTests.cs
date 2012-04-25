@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,60 +8,129 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 using Test;
 
-public class AllTests
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
+
+public class AllTests : TestCommon.TestApp
 {
-    private static void test(bool b)
+    private class MyObjectFactory : Ice.ObjectFactory
     {
-        if(!b)
+        public Ice.Object create(string type)
         {
-            throw new Exception();
+            if (type.Equals("::Test::B"))
+            {
+                return new BI();
+            }
+            else if (type.Equals("::Test::C"))
+            {
+                return new CI();
+            }
+            else if (type.Equals("::Test::D"))
+            {
+                return new DI();
+            }
+            else if (type.Equals("::Test::E"))
+            {
+                return new EI();
+            }
+            else if (type.Equals("::Test::F"))
+            {
+                return new FI();
+            }
+            else if (type.Equals("::Test::I"))
+            {
+                return new II();
+            }
+            else if (type.Equals("::Test::J"))
+            {
+                return new JI();
+            }
+            else if (type.Equals("::Test::H"))
+            {
+                return new HI();
+            }
+            Debug.Assert(false); // Should never be reached
+            return null;
+        }
+
+        public void
+        destroy()
+        {
+            // Nothing to do
         }
     }
-    
-    public static InitialPrx allTests(Ice.Communicator communicator, bool collocated)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "objects,version=1.0.0.0");
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static InitialPrx allTests(Ice.Communicator communicator, bool collocated)
+#endif
+    {
+#if SILVERLIGHT
+        bool collocated = false;
+#endif
+        Ice.ObjectFactory factory = new MyObjectFactory();
+        communicator.addObjectFactory(factory, "::Test::B");
+        communicator.addObjectFactory(factory, "::Test::C");
+        communicator.addObjectFactory(factory, "::Test::D");
+        communicator.addObjectFactory(factory, "::Test::E");
+        communicator.addObjectFactory(factory, "::Test::F");
+        communicator.addObjectFactory(factory, "::Test::I");
+        communicator.addObjectFactory(factory, "::Test::J");
+        communicator.addObjectFactory(factory, "::Test::H");
+
+        Write("testing stringToProxy... ");
+        Flush();
         String @ref = "initial:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting B1... ");
-        Console.Out.Flush();
+        Write("getting B1... ");
+        Flush();
         B b1 = initial.getB1();
         test(b1 != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting B2... ");
-        Console.Out.Flush();
+        Write("getting B2... ");
+        Flush();
         B b2 = initial.getB2();
         test(b2 != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting C... ");
-        Console.Out.Flush();
+        Write("getting C... ");
+        Flush();
         C c = initial.getC();
         test(c != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting D... ");
-        Console.Out.Flush();
+        Write("getting D... ");
+        Flush();
         D d = initial.getD();
         test(d != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("checking consistency... ");
-        Console.Out.Flush();
+        Write("checking consistency... ");
+        Flush();
         test(b1 != b2);
         //test(b1 != c);
         //test(b1 != d);
@@ -88,10 +157,10 @@ public class AllTests
         // sufficient.
         test(b2.theA == b2);
         test(d.theC == null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting B1, B2, C, and D all at once... ");
-        Console.Out.Flush();
+        Write("getting B1, B2, C, and D all at once... ");
+        Flush();
         B b1out;
         B b2out;
         C cout;
@@ -101,10 +170,10 @@ public class AllTests
         test(b2out != null);
         test(cout != null);
         test(dout != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("checking consistency... ");
-        Console.Out.Flush();
+        Write("checking consistency... ");
+        Flush();
         test(b1out != b2out);
         test(b1out.theA == b2out);
         test(b1out.theB == b1out);
@@ -127,10 +196,10 @@ public class AllTests
             test(dout.theB.theC.preMarshalInvoked);
             test(dout.theB.theC.postUnmarshalInvoked());
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing protected members... ");
-        Console.Out.Flush();
+        Write("testing protected members... ");
+        Flush();
         E e = initial.getE();
         test(e.checkValues());
         System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
@@ -143,29 +212,29 @@ public class AllTests
         test(f.e2.checkValues());
         test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
         test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("getting I, J and H... ");
-        Console.Out.Flush();
+        Write("getting I, J and H... ");
+        Flush();
         I i = initial.getI();
         test(i != null);
         I j = initial.getJ();
         test(j != null && ((J)j) != null);
         I h = initial.getH();
         test(h != null && ((H)h) != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("setting I... ");
-        Console.Out.Flush();
+        Write("setting I... ");
+        Flush();
         initial.setI(i);
         initial.setI(j);
         initial.setI(h);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
         if(!collocated)
         {
-            Console.Out.Write("testing UnexpectedObjectException...");
-            Console.Out.Flush();
+            Write("testing UnexpectedObjectException...");
+            Flush();
             @ref = "uoet:default -p 12010";
             @base = communicator.stringToProxy(@ref);
             test(@base != null);
@@ -183,12 +252,15 @@ public class AllTests
             }
             catch(System.Exception ex)
             {
-                Console.Out.WriteLine(ex);
+                WriteLine(ex.ToString());
                 test(false);
             }
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
         }
-
+#if SILVERLIGHT
+        initial.shutdown();
+#else
         return initial;
+#endif
     }
 }

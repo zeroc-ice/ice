@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -42,6 +42,24 @@ prefix			= C:\Ice-$(VERSION)
 #COMPACT			= yes
 
 #
+# Enable support for Silverlight.This setting disables the following
+# features:
+#
+# - Protocol compression
+# - Ice.Application and Glacier2.Application classes
+# - Dynamic loading of Slice-generated class and exception factories
+# - IceSSL
+# - ICE_CONFIG environment variable
+# - Dynamic loading of Slice checksums
+# - Thread priorities
+# - Ice.StdOut and Ice.StdErr
+# - Ice.PrintProcessId
+# - Ice.LogFile
+# - Load properties for Windows registry
+#
+#SILVERLIGHT		= yes
+
+#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
@@ -52,7 +70,7 @@ DEBUG			= yes
 # Define OPTIMIZE as yes if you want to build with optimization.
 #
 
-OPTIMIZE		= yes
+#OPTIMIZE		= yes
 
 #
 # Define FRAMEWORK as 3.5 to force a .NET 3.5 build with Visual Studio 2010.
@@ -126,15 +144,26 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(FRAMEWORKDIR)\v2.0.50727\System.Data.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll"  
 MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Reference Assemblies\Microsoft\Framework\v3.0\System.Runtime.Serialization.dll"
 !elseif "$(COMPACT)" == "yes"
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
-NETCF_HOME		= $(PROGRAMFILES) (x86)\Microsoft.NET\SDK\CompactFramework\v3.5\WindowsCE
-!else
 NETCF_HOME		= $(PROGRAMFILES)\Microsoft.NET\SDK\CompactFramework\v3.5\WindowsCE
-!endif
 NETCF_REFS		= "/r:$(NETCF_HOME)\mscorlib.dll" \
 			  "/r:$(NETCF_HOME)\System.dll" \
 			  "/r:$(NETCF_HOME)\System.Runtime.Serialization.dll"
 MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
+!elseif "$(SILVERLIGHT)" == "yes"
+!if "$(SILVERLIGHT_VERSION)" == ""
+SILVERLIGHT_VERSION	= 5.0.61118.0
+!endif
+SILVERLIGHT_HOME	= $(PROGRAMFILES)\Microsoft Silverlight\$(SILVERLIGHT_VERSION)
+
+SILVERLIGHT_REFS		= "/r:$(SILVERLIGHT_HOME)\mscorlib.dll" \
+					"/r:$(SILVERLIGHT_HOME)\System.Core.dll" \
+					"/r:$(SILVERLIGHT_HOME)\system.dll" \
+					"/r:$(SILVERLIGHT_HOME)\System.Windows.dll" \
+					"/r:$(SILVERLIGHT_HOME)\System.Net.dll" \
+					"/r:$(SILVERLIGHT_HOME)\System.Windows.Browser.dll"
+MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:SILVERLIGHT $(SILVERLIGHT_REFS)
+bindir			= $(top_srcdir)\bin\sl
+install_bindir		= $(prefix)\bin\sl
 !endif
 
 !if "$(ice_src_dist)" != ""

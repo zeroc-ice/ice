@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,20 +11,29 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
-    
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
+
+public class AllTests : TestCommon.TestApp
+{    
+#if SILVERLIGHT
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static GPrx allTests(Ice.Communicator communicator)
+#endif
     {
         
-        Console.Write("testing Ice.Admin.Facets property... ");
+        Write("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
@@ -43,9 +52,10 @@ public class AllTests
         // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.Length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing facet registration exceptions... ");
+#if !SILVERLIGHT
+        Write("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
@@ -68,9 +78,9 @@ public class AllTests
         catch(Ice.NotRegisteredException)
         {
         }
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing removeAllFacets... ");
+        Write("testing removeAllFacets... ");
         Ice.Object obj1 = new EmptyI();
         Ice.Object obj2 = new EmptyI();
         adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
@@ -97,19 +107,19 @@ public class AllTests
         test(fm["f1"] == obj1);
         test(fm["f2"] == obj2);
         test(fm[""] == obj3);
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
         adapter.deactivate();
-        
-        Console.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+#endif
+        Write("testing stringToProxy... ");
+        Flush();
         string @ref = "d:default -p 12010";
         Ice.ObjectPrx db = communicator.stringToProxy(@ref);
         test(db != null);
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing unchecked cast... ");
-        Console.Out.Flush();
+        Write("testing unchecked cast... ");
+        Flush();
         Ice.ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
         test(prx.ice_getFacet().Length == 0);
         prx = Ice.ObjectPrxHelper.uncheckedCast(db, "facetABCD");
@@ -126,10 +136,10 @@ public class AllTests
         test(df2.ice_getFacet() == "facetABCD");
         DPrx df3 = Test.DPrxHelper.uncheckedCast(df, "");
         test(df3.ice_getFacet().Length == 0);
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         prx = Ice.ObjectPrxHelper.checkedCast(db);
         test(prx.ice_getFacet().Length == 0);
         prx = Ice.ObjectPrxHelper.checkedCast(db, "facetABCD");
@@ -146,10 +156,10 @@ public class AllTests
         test(df2.ice_getFacet() == "facetABCD");
         df3 = Test.DPrxHelper.checkedCast(df, "");
         test(df3.ice_getFacet().Length == 0);
-        Console.WriteLine("ok");
-        
-        Console.Write("testing non-facets A, B, C, and D... ");
-        Console.Out.Flush();
+        WriteLine("ok");
+
+        Write("testing non-facets A, B, C, and D... ");
+        Flush();
         d = DPrxHelper.checkedCast(db);
         test(d != null);
         test(d.Equals(db));
@@ -157,41 +167,45 @@ public class AllTests
         test(d.callB().Equals("B"));
         test(d.callC().Equals("C"));
         test(d.callD().Equals("D"));
-        Console.WriteLine("ok");
-        
-        Console.Write("testing facets A, B, C, and D... ");
-        Console.Out.Flush();
+        WriteLine("ok");
+     
+        Write("testing facets A, B, C, and D... ");
+        Flush();
         df = DPrxHelper.checkedCast(d, "facetABCD");
         test(df != null);
         test(df.callA().Equals("A"));
         test(df.callB().Equals("B"));
         test(df.callC().Equals("C"));
         test(df.callD().Equals("D"));
-        Console.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Write("testing facets E and F... ");
-        Console.Out.Flush();
+        Write("testing facets E and F... ");
+        Flush();
         FPrx ff = FPrxHelper.checkedCast(d, "facetEF");
         test(ff != null);
         test(ff.callE().Equals("E"));
         test(ff.callF().Equals("F"));
-        Console.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Write("testing facet G... ");
-        Console.Out.Flush();
+        Write("testing facet G... ");
+        Flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
         test(gf.callG().Equals("G"));
-        Console.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Write("testing whether casting preserves the facet... ");
-        Console.Out.Flush();
+        Write("testing whether casting preserves the facet... ");
+        Flush();
         HPrx hf = HPrxHelper.checkedCast(gf);
         test(hf != null);
         test(hf.callG().Equals("G"));
         test(hf.callH().Equals("H"));
-        Console.WriteLine("ok");
+        WriteLine("ok");
         
+#if SILVERLIGHT
+        gf.shutdown();
+#else
         return gf;
+#endif
     }
 }

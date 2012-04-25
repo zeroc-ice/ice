@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,26 +9,25 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
+import Expect
 
 def runtests(client, server, secure):
-    print "testing twoway",
+    sys.stdout.write("testing twoway ")
     sys.stdout.flush()
     client.sendline('t')
     server.expect('Hello World!')
-    print "oneway",
+    sys.stdout.write("oneway ")
     sys.stdout.flush()
     client.sendline('o')
     server.expect('Hello World!')
     if not secure:
-        print "datagram",
+        sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('d')
         server.expect('Hello World!')
-    print "... ok"
+    print("... ok")
 
-    print "testing batch oneway",
+    sys.stdout.write("testing batch oneway ")
     sys.stdout.flush()
     client.sendline('O')
     try:
@@ -40,7 +39,7 @@ def runtests(client, server, secure):
     server.expect('Hello World!')
     server.expect('Hello World!')
     if not secure:
-        print "datagram",
+        sys.stdout.write("datagram ")
         sys.stdout.flush()
         client.sendline('D')
         try:
@@ -51,9 +50,9 @@ def runtests(client, server, secure):
         client.sendline('f')
         server.expect('Hello World!')
         server.expect('Hello World!')
-    print "... ok"
+    print("... ok")
 
-    print "testing timeout...", 
+    sys.stdout.write("testing timeout... ")
     sys.stdout.flush()
     client.sendline('T')
     client.sendline('P')
@@ -67,12 +66,12 @@ def runtests(client, server, secure):
     client.sendline('t')
     server.expect('Hello World!')
     client.sendline('T')
-    print "ok"
+    print("ok")
 
 def run(client, server):
     runtests(client, server, False)
 
-    print "repeating tests with SSL"
+    print("repeating tests with SSL")
 
     client.sendline('S')
 

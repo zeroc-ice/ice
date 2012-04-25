@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -24,11 +24,11 @@ from scripts import *
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options]"
-    print
-    print "Options:"
-    print "-h    Show this message."
-    print "-f    Force an update to the C# files."
+    print("Usage: " + sys.argv[0] + " [options]")
+    print("")
+    print("Options:")
+    print("-h    Show this message.")
+    print("-f    Force an update to the C# files.")
 
 #
 # Check arguments
@@ -41,8 +41,8 @@ for x in sys.argv[1:]:
     elif x == "-f":
         force = 1
     elif x.startswith("-"):
-        print sys.argv[0] + ": unknown option `" + x + "'"
-        print
+        print(sys.argv[0] + ": unknown option `" + x + "'")
+        print("")
         usage()
         sys.exit(1)
     else:
@@ -71,9 +71,9 @@ for x in certs:
         cert = os.path.join(cppcerts, x)
         os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + x + \
                   ".pfx -passout pass:password")
-        print "Created " + x + ".pfx"
+        print("Created " + x + ".pfx")
 
 #
 # Done.
 #
-print "Done."
+print("Done.")

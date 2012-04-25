@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,8 +9,8 @@
 # **********************************************************************
 
 import sys, signal
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
+import Expect
 
 def runClient(clientCmd, server1, server2):
     client = Util.spawn(clientCmd)
@@ -25,7 +25,7 @@ def runClient(clientCmd, server1, server2):
         try:
             server2.expect('Hello World!', 1)
             received = True
-        except Expect.TIMEOUT, e:
+        except Expect.TIMEOUT as e:
             ex = e
             pass
 
@@ -56,20 +56,20 @@ def runDemo(clientCmd, serverCmd):
     server2.waitTestSuccess()
 
 def run(clientCmd, serverCmd):
-    print "testing multicast discovery (Ipv4)...",
+    sys.stdout.write("testing multicast discovery (IPv4)... ")
     sys.stdout.flush()
     if serverCmd.startswith("java"):
         runDemo(clientCmd, "java -Djava.net.preferIPv4Stack=true Server")
     else:
         runDemo(clientCmd, serverCmd)
-    print "ok"
+    print("ok")
 
     if Util.getMapping() == "java" and Util.isWin32():
-        print "skipping testing multicast discovery (IPv6) under windows...",
+        sys.stdout.write("skipping testing multicast discovery (IPv6) under Windows...")
     else:
-        print "testing multicast discovery (IPv6)...",
+        sys.stdout.write("testing multicast discovery (IPv6)... ")
         sys.stdout.flush()
         serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="udp -h \\"ff01::1:1\\" -p 10000"'
         clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:udp -h \\"ff01::1:1\\" -p 10000"'
         runDemo(clientCmd, serverCmd)
-    print "ok"
+    print("ok")

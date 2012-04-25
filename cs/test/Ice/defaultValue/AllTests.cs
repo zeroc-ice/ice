@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,21 +9,29 @@
 
 using System;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
 
-    public static void
-    allTests()
+public class AllTests : TestCommon.TestApp
+{
+#if SILVERLIGHT
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static void allTests()
+#endif
     {
-        Console.Out.Write("testing default values... ");
-        Console.Out.Flush();
+        Write("testing default values... ");
+        Flush();
 
         {
             Test.Struct1 v = new Test.Struct1();
@@ -279,6 +287,6 @@ public class AllTests
             test(v.zeroDotD == 0);
         }
 
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
     }
 }

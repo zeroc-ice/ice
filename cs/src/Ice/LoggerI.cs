@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ namespace Ice
 #if COMPACT
     using System.IO;
 #endif
-	
+
     public abstract class LoggerI : Logger
     {
         public LoggerI(string prefix)
@@ -155,6 +155,27 @@ namespace Ice
         private string _file = "";
         private bool _console = false;
         private TextWriter _writer;
+    }
+#elif SILVERLIGHT
+    public sealed class TraceLoggerI : LoggerI
+    {
+        public TraceLoggerI(string prefix, bool console)
+            : base(prefix)
+        {
+            _console = console;
+        }
+
+        public override Logger cloneWithPrefix(string prefix)
+        {
+            return new TraceLoggerI(prefix, _console);
+        }
+
+        protected override void write(string message)
+        {
+            System.Console.Error.WriteLine(message);
+        }
+
+        private bool _console = false;
     }
 #else
     public sealed class TraceLoggerI : LoggerI

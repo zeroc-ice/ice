@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,11 +9,10 @@
 # **********************************************************************
 
 import sys
-from demoscript import *
-from scripts import Expect
+import Expect
 
 def run(client, server):
-    print "testing client... ",
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client.sendline('i')
     server.expect('Hello World!')
@@ -25,9 +24,9 @@ def run(client, server):
     client.sendline('i')
     server.expect('Hello World!')
     server.expect('Hello World!')
-    print "ok"
+    print("ok")
 
-    print "testing shutdown... ",
+    sys.stdout.write("testing shutdown... ")
     sys.stdout.flush()
     client.sendline('d')
     client.sendline('s')
@@ -36,4 +35,4 @@ def run(client, server):
     client.expect('RequestCanceledException')
     client.sendline('x')
     client.waitTestSuccess()
-    print "ok"
+    print("ok")

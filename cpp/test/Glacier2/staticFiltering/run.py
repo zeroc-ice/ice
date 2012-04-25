@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 hostname = socket.gethostname()
 fqdn = socket.getfqdn()
@@ -224,13 +224,13 @@ if not limitedTests:
             ])
 
 if len(testcases) == 0:
-    print "WARNING: You are running this test with SSL disabled and the network "
-    print "         configuration for this host does not permit the other tests "
-    print "         to run correctly."
+    print("WARNING: You are running this test with SSL disabled and the network ")
+    print("         configuration for this host does not permit the other tests ")
+    print("         to run correctly.")
     sys.exit(0)
 elif len(testcases) < 6:
-    print "WARNING: The network configuration for this host does not permit all "
-    print "         tests to run correctly, some tests have been disabled."
+    print("WARNING: The network configuration for this host does not permit all ")
+    print("         tests to run correctly, some tests have been disabled.")
 
 def pingProgress():
     sys.stdout.write('.')
@@ -244,7 +244,7 @@ for testcase in testcases:
     # use command line arguments to pass the test cases in, but a
     # configuration file is easier.
     #
-    attackcfg = file(os.path.join(os.getcwd(), 'attack.cfg'), 'w')
+    attackcfg = open(os.path.join(os.getcwd(), 'attack.cfg'), 'w')
     accepts=0
     rejects=0
     sys.stdout.write(description)
@@ -285,7 +285,7 @@ for testcase in testcases:
           ' --Ice.Admin.InstanceName=Glacier2' + \
           ' --Glacier2.CryptPasswords="'  + os.path.join(os.getcwd(), "passwords") + '"'
 
-    routerConfig = file(os.path.join(os.getcwd(), "router.cfg"), "w")
+    routerConfig = open(os.path.join(os.getcwd(), "router.cfg"), "w")
 
     routerConfig.write("Ice.Default.Locator=locator:tcp -h %s -p 12010\n" % hostname)
     routerConfig.write("Glacier2.Client.Trace.Reject=0\n")
@@ -327,7 +327,7 @@ for testcase in testcases:
     pingProgress()
 
     if TestUtil.protocol != "ssl":
-        serverConfig = file(os.path.join(os.getcwd(), "server.cfg"), "w")
+        serverConfig = open(os.path.join(os.getcwd(), "server.cfg"), "w")
         serverOptions = ' --Ice.Config="' + os.path.join(os.getcwd(), "server.cfg") + '" ' 
         serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010\n")
         serverConfig.close()

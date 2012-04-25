@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,7 +15,7 @@ import Demo
 
 class HelloI(Demo.Hello):
     def sayHello(self, current=None):
-        print "Hello World!"
+        print("Hello World!")
 
 try:
     communicator = Ice.initialize(sys.argv)

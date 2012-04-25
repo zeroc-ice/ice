@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -274,7 +274,8 @@ def allTests(communicator):
     obj = communicator.stringToProxy("Test:default -p 12010")
     t = Test.TestIntfPrx.checkedCast(obj)
 
-    print "base as Object... ",
+    sys.stdout.write("base as Object... ")
+    sys.stdout.flush()
     o = None
     try:
         o = t.SBaseAsObject()
@@ -286,29 +287,33 @@ def allTests(communicator):
     test(isinstance(sb, Test.SBase))
     test(sb)
     test(sb.sb == "SBase.sb")
-    print "ok"
+    print("ok")
 
-    print "base as Object (AMI)... ",
+    sys.stdout.write("base as Object (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_SBaseAsObject(cb.response_SBaseAsObject, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "base as base... ",
+    sys.stdout.write("base as base... ")
+    sys.stdout.flush()
     try:
         sb = t.SBaseAsSBase()
         test(sb.sb == "SBase.sb")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "base as base (AMI)... ",
+    sys.stdout.write("base as base (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_SBaseAsSBase(cb.response_SBaseAsSBase, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "base with known derived as base... ",
+    sys.stdout.write("base with known derived as base... ")
+    sys.stdout.flush()
     try:
         sb = t.SBSKnownDerivedAsSBase()
         test(sb.sb == "SBSKnownDerived.sb")
@@ -318,43 +323,49 @@ def allTests(communicator):
     test(isinstance(sbskd, Test.SBSKnownDerived))
     test(sbskd)
     test(sbskd.sbskd == "SBSKnownDerived.sbskd")
-    print "ok"
+    print("ok")
 
-    print "base with known derived as base (AMI)... ",
+    sys.stdout.write("base with known derived as base (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_SBSKnownDerivedAsSBase(cb.response_SBSKnownDerivedAsSBase, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "base with known derived as known derived... ",
+    sys.stdout.write("base with known derived as known derived... ")
+    sys.stdout.flush()
     try:
         sbskd = t.SBSKnownDerivedAsSBSKnownDerived()
         test(sbskd.sbskd == "SBSKnownDerived.sbskd")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "base with known derived as known derived (AMI)... ",
+    sys.stdout.write("base with known derived as known derived (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_SBSKnownDerivedAsSBSKnownDerived(cb.response_SBSKnownDerivedAsSBSKnownDerived, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "base with unknown derived as base... ",
+    sys.stdout.write("base with unknown derived as base... ")
+    sys.stdout.flush()
     try:
         sb = t.SBSUnknownDerivedAsSBase()
         test(sb.sb == "SBSUnknownDerived.sb")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "base with unknown derived as base (AMI)... ",
+    sys.stdout.write("base with unknown derived as base (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_SBSUnknownDerivedAsSBase(cb.response_SBSUnknownDerivedAsSBase, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "unknown with Object as Object... ",
+    sys.stdout.write("unknown with Object as Object... ")
+    sys.stdout.flush()
     try:
         o = t.SUnknownAsObject()
         test(False)
@@ -362,9 +373,10 @@ def allTests(communicator):
         pass
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "unknown with Object as Object (AMI)... ",
+    sys.stdout.write("unknown with Object as Object (AMI)... ")
+    sys.stdout.flush()
     try:
         cb = Callback()
         t.begin_SUnknownAsObject(cb.response_SUnknownAsObject, cb.exception_SUnknownAsObject)
@@ -373,9 +385,10 @@ def allTests(communicator):
         pass
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "one-element cycle... ",
+    sys.stdout.write("one-element cycle... ")
+    sys.stdout.flush()
     try:
         b = t.oneElementCycle()
         test(b)
@@ -384,15 +397,17 @@ def allTests(communicator):
         test(b.pb == b)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "one-element cycle (AMI)... ",
+    sys.stdout.write("one-element cycle (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_oneElementCycle(cb.response_oneElementCycle, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "two-element cycle... ",
+    sys.stdout.write("two-element cycle... ")
+    sys.stdout.flush()
     try:
         b1 = t.twoElementCycle()
         test(b1)
@@ -406,15 +421,17 @@ def allTests(communicator):
         test(b2.pb == b1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "two-element cycle (AMI)... ",
+    sys.stdout.write("two-element cycle (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_twoElementCycle(cb.response_twoElementCycle, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "known derived pointer slicing as base... ",
+    sys.stdout.write("known derived pointer slicing as base... ")
+    sys.stdout.flush()
     try:
         b1 = t.D1AsB()
         test(b1)
@@ -436,15 +453,17 @@ def allTests(communicator):
         test(b2.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "known derived pointer slicing as base (AMI)... ",
+    sys.stdout.write("known derived pointer slicing as base (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_D1AsB(cb.response_D1AsB, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "known derived pointer slicing as derived... ",
+    sys.stdout.write("known derived pointer slicing as derived... ")
+    sys.stdout.flush()
     try:
         d1 = t.D1AsD1()
         test(d1)
@@ -460,15 +479,17 @@ def allTests(communicator):
         test(b2.pb == d1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "known derived pointer slicing as derived (AMI)... ",
+    sys.stdout.write("known derived pointer slicing as derived (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_D1AsD1(cb.response_D1AsD1, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "unknown derived pointer slicing as base... ",
+    sys.stdout.write("unknown derived pointer slicing as base... ")
+    sys.stdout.flush()
     try:
         b2 = t.D2AsB()
         test(b2)
@@ -488,15 +509,17 @@ def allTests(communicator):
         test(d1.pd1 == b2)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "unknown derived pointer slicing as base (AMI)... ",
+    sys.stdout.write("unknown derived pointer slicing as base (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_D2AsB(cb.response_D2AsB, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing with known first... ",
+    sys.stdout.write("param ptr slicing with known first... ")
+    sys.stdout.flush()
     try:
         b1, b2 = t.paramTest1()
 
@@ -515,15 +538,17 @@ def allTests(communicator):
         test(b2.pb == b1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing with known first (AMI)... ",
+    sys.stdout.write("param ptr slicing with known first (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_paramTest1(cb.response_paramTest1, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing with unknown first... ",
+    sys.stdout.write("param ptr slicing with unknown first... ")
+    sys.stdout.flush()
     try:
         b2, b1 = t.paramTest2()
 
@@ -544,37 +569,42 @@ def allTests(communicator):
         import traceback
         traceback.print_exc()
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity with known first... ",
+    sys.stdout.write("return value identity with known first... ")
+    sys.stdout.flush()
     try:
         r, p1, p2 = t.returnTest1()
         test(r == p1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity with known first (AMI)... ",
+    sys.stdout.write("return value identity with known first (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_returnTest1(cb.response_returnTest1, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "return value identity with unknown first... ",
+    sys.stdout.write("return value identity with unknown first... ")
+    sys.stdout.flush()
     try:
         r, p1, p2 = t.returnTest2()
         test(r == p1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity with unknown first (AMI)... ",
+    sys.stdout.write("return value identity with unknown first (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_returnTest2(cb.response_returnTest2, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "return value identity for input params known first... ",
+    sys.stdout.write("return value identity for input params known first... ")
+    sys.stdout.flush()
     try:
         d1 = Test.D1()
         d1.sb = "D1.sb"
@@ -611,9 +641,10 @@ def allTests(communicator):
         test(b2 != d3)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity for input params known first (AMI)... ",
+    sys.stdout.write("return value identity for input params known first (AMI)... ")
+    sys.stdout.flush()
     try:
         d1 = Test.D1()
         d1.sb = "D1.sb"
@@ -653,9 +684,10 @@ def allTests(communicator):
         test(b2 != d3)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity for input params unknown first... ",
+    sys.stdout.write("return value identity for input params unknown first... ")
+    sys.stdout.flush()
     try:
         d1 = Test.D1()
         d1.sb = "D1.sb"
@@ -692,9 +724,10 @@ def allTests(communicator):
         test(b2 != d3)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "return value identity for input params unknown first (AMI)... ",
+    sys.stdout.write("return value identity for input params unknown first (AMI)... ")
+    sys.stdout.flush()
     try:
         d1 = Test.D1()
         d1.sb = "D1.sb"
@@ -734,9 +767,10 @@ def allTests(communicator):
         test(b2 != d3)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "remainder unmarshaling (3 instances)... ",
+    sys.stdout.write("remainder unmarshaling (3 instances)... ")
+    sys.stdout.flush()
     try:
         ret, p1, p2 = t.paramTest3()
 
@@ -756,15 +790,17 @@ def allTests(communicator):
         test(ret.ice_id() == "::Test::D1")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "remainder unmarshaling (3 instances) (AMI)... ",
+    sys.stdout.write("remainder unmarshaling (3 instances) (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_paramTest3(cb.response_paramTest3, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "remainder unmarshaling (4 instances)... ",
+    sys.stdout.write("remainder unmarshaling (4 instances)... ")
+    sys.stdout.flush()
     try:
         ret, b = t.paramTest4()
 
@@ -779,15 +815,17 @@ def allTests(communicator):
         test(ret.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "remainder unmarshaling (4 instances) (AMI)... ",
+    sys.stdout.write("remainder unmarshaling (4 instances) (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_paramTest4(cb.response_paramTest4, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing, instance marshaled in unknown derived as base... ",
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base... ")
+    sys.stdout.flush()
     try:
         b1 = Test.B()
         b1.sb = "B.sb(1)"
@@ -811,9 +849,10 @@ def allTests(communicator):
         test(r.pb == r)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing, instance marshaled in unknown derived as base (AMI)... ",
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ")
+    sys.stdout.flush()
     try:
         b1 = Test.B()
         b1.sb = "B.sb(1)"
@@ -840,9 +879,10 @@ def allTests(communicator):
         test(r.pb == r)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing, instance marshaled in unknown derived as derived... ",
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived... ")
+    sys.stdout.flush()
     try:
         d11 = Test.D1()
         d11.sb = "D1.sb(1)"
@@ -869,9 +909,10 @@ def allTests(communicator):
         test(r.pb == r)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ",
+    sys.stdout.write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ")
+    sys.stdout.flush()
     try:
         d11 = Test.D1()
         d11.sb = "D1.sb(1)"
@@ -902,9 +943,10 @@ def allTests(communicator):
         test(r.pb == r)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "sequence slicing... ",
+    sys.stdout.write("sequence slicing... ")
+    sys.stdout.flush()
     try:
         ss = Test.SS()
         ss1b = Test.B()
@@ -977,9 +1019,10 @@ def allTests(communicator):
         test(ss2d3.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "sequence slicing (AMI)... ",
+    sys.stdout.write("sequence slicing (AMI)... ")
+    sys.stdout.flush()
     try:
         ss = Test.SS()
         ss1b = Test.B()
@@ -1055,9 +1098,10 @@ def allTests(communicator):
         test(ss2d3.ice_id() == "::Test::B")
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "dictionary slicing... ",
+    sys.stdout.write("dictionary slicing... ")
+    sys.stdout.flush()
     try:
         bin = {}
         for i in range(0, 10):
@@ -1098,9 +1142,10 @@ def allTests(communicator):
             test(d1.pd1 == d1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "dictionary slicing (AMI)... ",
+    sys.stdout.write("dictionary slicing (AMI)... ")
+    sys.stdout.flush()
     try:
         bin = {}
         for i in range(0, 10):
@@ -1145,13 +1190,14 @@ def allTests(communicator):
             test(d1.pd1 == d1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "base exception thrown as base exception... ",
+    sys.stdout.write("base exception thrown as base exception... ")
+    sys.stdout.flush()
     try:
         t.throwBaseAsBase()
         test(False)
-    except Test.BaseException, e:
+    except Test.BaseException as e:
         test(e.ice_name() == "Test::BaseException")
         test(e.sbe == "sbe")
         test(e.pb)
@@ -1159,19 +1205,21 @@ def allTests(communicator):
         test(e.pb.pb == e.pb)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "base exception thrown as base exception (AMI)... ",
+    sys.stdout.write("base exception thrown as base exception (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_throwBaseAsBase(cb.response, cb.exception_throwBaseAsBase)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "derived exception thrown as base exception... ",
+    sys.stdout.write("derived exception thrown as base exception... ")
+    sys.stdout.flush()
     try:
         t.throwDerivedAsBase()
         test(False)
-    except Test.DerivedException, e:
+    except Test.DerivedException as e:
         test(e.ice_name() == "Test::DerivedException")
         test(e.sbe == "sbe")
         test(e.pb)
@@ -1185,19 +1233,21 @@ def allTests(communicator):
         test(e.pd1.pd1 == e.pd1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "derived exception thrown as base exception (AMI)... ",
+    sys.stdout.write("derived exception thrown as base exception (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_throwDerivedAsBase(cb.response, cb.exception_throwDerivedAsBase)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "derived exception thrown as derived exception... ",
+    sys.stdout.write("derived exception thrown as derived exception... ")
+    sys.stdout.flush()
     try:
         t.throwDerivedAsDerived()
         test(False)
-    except Test.DerivedException, e:
+    except Test.DerivedException as e:
         test(e.ice_name() == "Test::DerivedException")
         test(e.sbe == "sbe")
         test(e.pb)
@@ -1211,19 +1261,21 @@ def allTests(communicator):
         test(e.pd1.pd1 == e.pd1)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "derived exception thrown as derived exception (AMI)... ",
+    sys.stdout.write("derived exception thrown as derived exception (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_throwDerivedAsDerived(cb.response, cb.exception_throwDerivedAsDerived)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "unknown derived exception thrown as base exception... ",
+    sys.stdout.write("unknown derived exception thrown as base exception... ")
+    sys.stdout.flush()
     try:
         t.throwUnknownDerivedAsBase()
         test(False)
-    except Test.BaseException, e:
+    except Test.BaseException as e:
         test(e.ice_name() == "Test::BaseException")
         test(e.sbe == "sbe")
         test(e.pb)
@@ -1231,26 +1283,29 @@ def allTests(communicator):
         test(e.pb.pb == e.pb)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "unknown derived exception thrown as base exception (AMI)... ",
+    sys.stdout.write("unknown derived exception thrown as base exception (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_throwUnknownDerivedAsBase(cb.response, cb.exception_throwUnknownDerivedAsBase)
     cb.check()
-    print "ok"
+    print("ok")
 
-    print "forward-declared class... ",
+    sys.stdout.write("forward-declared class... ")
+    sys.stdout.flush()
     try:
         f = t.useForward()
         test(f)
     except Ice.Exception:
         test(False)
-    print "ok"
+    print("ok")
 
-    print "forward-declared class (AMI)... ",
+    sys.stdout.write("forward-declared class (AMI)... ")
+    sys.stdout.flush()
     cb = Callback()
     t.begin_useForward(cb.response_useForward, cb.exception)
     cb.check()
-    print "ok"
+    print("ok")
 
     return t

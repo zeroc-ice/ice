@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import sys, os
+import sys, os, signal
 
 path = [ ".", "..", "../..", "../../..", "../../../.." ]
 head = os.path.dirname(sys.argv[0])
@@ -16,27 +16,26 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
-import signal
+from demoscript import Util
 
-print "cleaning databases...",
+sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
 Util.cleanDbDir("db/master")
 Util.cleanDbDir("db/node1")
 Util.cleanDbDir("db/node2")
 Util.cleanDbDir("db/replica1")
 Util.cleanDbDir("db/replica2")
-print "ok"
+print("ok")
 
 if Util.defaultHost:
     args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
 else:
     args = ''
 
-print "starting icegridnodes...",
+sys.stdout.write("starting icegridnodes... ")
 sys.stdout.flush()
 master = Util.spawn(Util.getIceGridRegistry() + ' --Ice.Config=config.master --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut=')
 master.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready')
@@ -48,15 +47,15 @@ node1 = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.node1 --Ice.Pri
 node1.expect('IceGrid.Node ready')
 node2 = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.node2 --Ice.PrintAdapterReady --Ice.StdErr= --Ice.StdOut= %s' % (args))
 node2.expect('IceGrid.Node ready')
-print "ok"
+print("ok")
 
-print "deploying application...",
+sys.stdout.write("deploying application... ")
 sys.stdout.flush()
 admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.client')
 admin.expect('>>>')
 admin.sendline("application add \'application.xml\'")
 admin.expect('>>>')
-print "ok"
+print("ok")
 
 def runtest():
     client = Util.spawn('./client')
@@ -71,12 +70,12 @@ def runtest():
 
     client.waitTestSuccess(timeout=1)
 
-print "testing client...", 
+sys.stdout.write("testing client... ")
 sys.stdout.flush()
 runtest()
-print "ok"
+print("ok")
 
-print "testing replication...", 
+sys.stdout.write("testing replication... ")
 sys.stdout.flush()
 admin.sendline('registry shutdown Replica1')
 admin.expect('>>>')
@@ -86,9 +85,9 @@ admin.sendline('registry shutdown Replica2')
 admin.expect('>>>')
 replica2.waitTestSuccess()
 runtest()
-print "ok"
+print("ok")
 
-print "completing shutdown...", 
+sys.stdout.write("completing shutdown... ")
 sys.stdout.flush()
 admin.sendline('node shutdown node1')
 admin.expect('>>>')
@@ -104,4 +103,4 @@ master.waitTestSuccess()
 
 admin.sendline('exit')
 admin.waitTestSuccess(timeout=120)
-print "ok"
+print("ok")

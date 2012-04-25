@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceGridAdmin
 
 def icepatch2Calc(datadir, dirname):
     icePatch2Calc = ""
@@ -43,7 +43,8 @@ files = [
 ]
 
 
-print "creating IcePatch2 data directory...",
+sys.stdout.write("creating IcePatch2 data directory... ")
+sys.stdout.flush()
 if not os.path.exists(datadir):
     os.mkdir(datadir)
 else:
@@ -59,7 +60,7 @@ for [file, content] in files:
 
 icepatch2Calc(datadir, "original")
 icepatch2Calc(datadir, "updated")
-print "ok"
+print("ok")
 
 IceGridAdmin.iceGridTest("application.xml")
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -13,7 +13,7 @@ Ice.loadSlice('Callback.ice')
 import Demo
 
 def menu():
-    print """
+    print("""
 usage:
 t: send callback as twoway
 o: send callback as oneway
@@ -25,31 +25,35 @@ s: shutdown server
 r: restart the session
 x: exit
 ?: help
-"""
+""")
 
 class CallbackReceiverI(Demo.CallbackReceiver):
     def callback(self, current=None):
-        print "received callback"
+        print("received callback")
 
 class Client(Glacier2.Application):
     def createSession(self):
         session = None
         while True:
-            print "This demo accepts any user-id / password combination."
-            id = raw_input("user id: ")
-            pw = raw_input("password: ")
+            print("This demo accepts any user-id / password combination.")
+            sys.stdout.write("user id: ")
+            sys.stdout.flush()
+            id = sys.stdin.readline().strip()
+            sys.stdout.write("password: ")
+            sys.stdout.flush()
+            pw = sys.stdin.readline().strip()
             try:
                 session = self.router().createSession(id, pw)
                 break
-            except Glacier2.PermissionDeniedException, ex:
-                print "permission denied:\n" + ex.reason
-            except Glacier2.CannotCreateSessionException, ex:
-                print "cannot create session:\n" + ex.reason
+            except Glacier2.PermissionDeniedException as ex:
+                print("permission denied:\n" + ex.reason)
+            except Glacier2.CannotCreateSessionException as ex:
+                print("cannot create session:\n" + ex.reason)
         return session
 
     def runWithSession(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         callbackReceiverIdent = self.createCallbackIdentity("callbackReceiver")
@@ -79,7 +83,9 @@ class Client(Glacier2.Application):
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
                 if c == 't':
                     context = {}
                     context["_fwd"] = "t"
@@ -103,10 +109,10 @@ class Client(Glacier2.Application):
                 elif c == 'v':
                     if len(override) == 0:
                         override = "some_value"
-                        print "override context field is now `" + override + "'"
+                        print("override context field is now `" + override + "'")
                     else:
                         override = ''
-                        print "override context field is empty"
+                        print("override context field is empty")
                 elif c == 'F':
                     fake = not fake
 
@@ -125,7 +131,7 @@ class Client(Glacier2.Application):
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except KeyboardInterrupt:
                 break

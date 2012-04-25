@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceStormUtil
 
 publisher = os.path.join(os.getcwd(), "publisher")
 subscriber = os.path.join(os.getcwd(), "subscriber")
@@ -77,23 +77,23 @@ icestorm = IceStormUtil.init(TestUtil.toplevel, os.getcwd(), "replicated", repli
                              ' --IceStorm.Election.ResponseTimeout=2')
 icestorm.start()
 
-print "testing topic creation across replicas...",
+sys.stdout.write("testing topic creation across replicas... ")
 sys.stdout.flush()
 icestorm.admin("create single")
 
 for replica in range(0, 3):
     icestorm.adminForReplica(replica, "create single", "error: topic `single' exists")
-print "ok"
+print("ok")
 
-print "testing topic destruction across replicas...",
+sys.stdout.write("testing topic destruction across replicas... ")
 sys.stdout.flush()
 icestorm.admin("destroy single")
 
 for replica in range(0, 3):
     icestorm.adminForReplica(replica, "destroy single", "error: couldn't find topic `single'")
-print "ok"
+print("ok")
 
-print "testing topic creation without replica...",
+sys.stdout.write("testing topic creation without replica... ")
 sys.stdout.flush()
 
 icestorm.stopReplica(0)
@@ -107,11 +107,11 @@ icestorm.adminForReplica(0, "create single", "ConnectionRefused")
 icestorm.startReplica(0, echo=False)
 
 icestorm.adminForReplica(0, "create single", "error: topic `single' exists")
-print "ok"
+print("ok")
 
 icestorm.admin("destroy single")
 
-print "testing topic creation without master...",
+sys.stdout.write("testing topic creation without master... ")
 sys.stdout.flush()
 icestorm.stopReplica(2)
 
@@ -125,11 +125,11 @@ icestorm.adminForReplica(2, "create single", "ConnectionRefused")
 icestorm.startReplica(2, echo=False)
 
 icestorm.adminForReplica(2, "create single", "error: topic `single' exists")
-print "ok"
+print("ok")
 
 # All replicas are running
 
-print "testing topic destruction without replica...",
+sys.stdout.write("testing topic destruction without replica... ")
 sys.stdout.flush()
 icestorm.stopReplica(0)
 
@@ -143,9 +143,9 @@ icestorm.adminForReplica(0, "destroy single", "ConnectionRefused")
 icestorm.startReplica(0, echo=False)
 
 icestorm.adminForReplica(0, "destroy single", "error: couldn't find topic `single'")
-print "ok"
+print("ok")
 
-print "testing topic destruction without master...",
+sys.stdout.write("testing topic destruction without master... ")
 sys.stdout.flush()
 
 icestorm.admin("create single")
@@ -161,29 +161,29 @@ icestorm.adminForReplica(2, "destroy single", "ConnectionRefused")
 icestorm.startReplica(2, echo=False)
 
 icestorm.adminForReplica(2, "destroy single", "error: couldn't find topic `single'")
-print "ok"
+print("ok")
 
 # Now test subscription/unsubscription on all replicas.
 
 icestorm.admin("create single")
 
-print "testing subscription across replicas...",
+sys.stdout.write("testing subscription across replicas... ")
 sys.stdout.flush()
 runsub2()
 
 for replica in range(0, 3):
     runsub2(replica, "IceStorm::AlreadySubscribed")
-print "ok"
+print("ok")
 
-print "testing unsubscription across replicas...",
+sys.stdout.write("testing unsubscription across replicas... ")
 sys.stdout.flush()
 rununsub2()
 
 for replica in range(0, 3):
     rununsub2(replica)
-print "ok"
+print("ok")
 
-print "testing subscription without master...",
+sys.stdout.write("testing subscription without master... ")
 sys.stdout.flush()
 icestorm.stopReplica(2)
 
@@ -197,9 +197,9 @@ runsub2(2, "ConnectionRefused")
 icestorm.startReplica(2, echo=False)
 
 runsub2(2, "IceStorm::AlreadySubscribed")
-print "ok"
+print("ok")
 
-print "testing unsubscription without master...",
+sys.stdout.write("testing unsubscription without master... ")
 sys.stdout.flush()
 icestorm.stopReplica(2)
 
@@ -213,9 +213,9 @@ rununsub2(2, "ConnectionRefused")
 icestorm.startReplica(2, echo=False)
 
 rununsub2(2)
-print "ok"
+print("ok")
 
-print "testing subscription without replica...",
+sys.stdout.write("testing subscription without replica... ")
 sys.stdout.flush()
 icestorm.stopReplica(0)
 
@@ -229,9 +229,9 @@ runsub2(0, "ConnectionRefused")
 icestorm.startReplica(0, echo=False)
 
 runsub2(0, "IceStorm::AlreadySubscribed")
-print "ok"
+print("ok")
 
-print "testing unsubscription without replica...",
+sys.stdout.write("testing unsubscription without replica... ")
 sys.stdout.flush()
 icestorm.stopReplica(0)
 
@@ -245,48 +245,48 @@ rununsub2(0, "ConnectionRefused")
 icestorm.startReplica(0, echo=False)
 
 rununsub2(0)
-print "ok"
+print("ok")
 
 # All replicas are running
 
-print "running twoway subscription test...",
+sys.stdout.write("running twoway subscription test... ")
 sys.stdout.flush()
 runtest("twoway", icestorm.reference())
-print "ok"
+print("ok")
 
-print "running ordered subscription test...",
+sys.stdout.write("running ordered subscription test... ")
 sys.stdout.flush()
 runtest("ordered", icestorm.reference())
-print "ok"
+print("ok")
 
 icestorm.stopReplica(2)
 
-print "running twoway, ordered subscription test without master...",
+sys.stdout.write("running twoway, ordered subscription test without master... ")
 sys.stdout.flush()
 runtest("twoway", icestorm.reference())
 runtest("ordered", icestorm.reference())
-print "ok"
+print("ok")
 
 icestorm.startReplica(2, echo = False)
 icestorm.stopReplica(0)
 
-print "running twoway, ordered subscription test without replica...",
+sys.stdout.write("running twoway, ordered subscription test without replica... ")
 sys.stdout.flush()
 runtest("twoway", icestorm.reference())
 runtest("ordered", icestorm.reference())
-print "ok"
+print("ok")
 
 icestorm.startReplica(0, echo = False)
 
-print "running cycle publishing test...",
+sys.stdout.write("running cycle publishing test... ")
 sys.stdout.flush()
 runtest("twoway", icestorm.reference(), pubopt=" --cycle")
-print "ok"
+print("ok")
 
-print "stopping replicas...",
+sys.stdout.write("stopping replicas... ")
 sys.stdout.flush()
 icestorm.stop()
-print "ok"
+print("ok")
 
 if TestUtil.appverifier:
     TestUtil.appVerifierAfterTestEnd(targets, cwd = os.getcwd())

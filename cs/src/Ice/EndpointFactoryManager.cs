@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,7 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text.RegularExpressions;
 
@@ -19,7 +19,7 @@ namespace IceInternal
         internal EndpointFactoryManager(Instance instance)
         {
             instance_ = instance;
-            _factories = new ArrayList();
+            _factories = new List<EndpointFactory>();
         }
         
         public void add(EndpointFactory factory)
@@ -162,7 +162,7 @@ namespace IceInternal
         }
         
         private readonly Instance instance_;
-        private readonly ArrayList _factories;
+        private readonly List<EndpointFactory> _factories;
     }
 
 }

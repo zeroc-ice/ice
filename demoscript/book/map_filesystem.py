@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,7 +11,7 @@
 import sys, signal
 
 def run(client, server):
-    print "testing...",
+    sys.stdout.write("testing... ")
     sys.stdout.flush()
     client.expect('>')
     client.sendline('pwd')
@@ -133,4 +133,4 @@ def run(client, server):
 
     server.kill(signal.SIGINT)
     server.waitTestSuccess()
-    print "ok"
+    print("ok")

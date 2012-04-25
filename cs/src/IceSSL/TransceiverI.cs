@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -126,7 +126,7 @@ namespace IceSSL
             return false; // Caller will use async read.
         }
 
-        public bool startRead(IceInternal.Buffer buf, AsyncCallback callback, object state)
+        public bool startRead(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state)
         {
             Debug.Assert(_fd != null);
 
@@ -138,7 +138,8 @@ namespace IceSSL
 
             try
             {
-                _readResult = _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSize, callback, state);
+                _readCallback = callback;
+                _readResult = _stream.BeginRead(buf.b.rawBytes(), buf.b.position(), packetSize, readCompleted, state);
                 return _readResult.CompletedSynchronously;
             }
             catch(IOException ex)
@@ -232,7 +233,8 @@ namespace IceSSL
             }
         }
 
-        public bool startWrite(IceInternal.Buffer buf, AsyncCallback callback, object state, out bool completed)
+        public bool startWrite(IceInternal.Buffer buf, IceInternal.AsyncCallback callback, object state, 
+                               out bool completed)
         {
             Debug.Assert(_fd != null);
             
@@ -263,7 +265,8 @@ namespace IceSSL
 
             try
             {
-                _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, callback, state);
+                _writeCallback = callback;
+                _writeResult = _stream.BeginWrite(buf.b.rawBytes(), buf.b.position(), packetSize, writeCompleted, state);
                 completed = packetSize == buf.b.remaining();
                 return _writeResult.CompletedSynchronously;
             }
@@ -434,10 +437,10 @@ namespace IceSSL
         {
             Debug.Assert(_fd != null && _stream != null);
             IceSSL.NativeConnectionInfo info = new IceSSL.NativeConnectionInfo();
-            IPEndPoint localEndpoint = IceInternal.Network.getLocalAddress(_fd);
+            IPEndPoint localEndpoint = (IPEndPoint)IceInternal.Network.getLocalAddress(_fd);
             info.localAddress = localEndpoint.Address.ToString();
             info.localPort = localEndpoint.Port;
-            IPEndPoint remoteEndpoint = IceInternal.Network.getRemoteAddress(_fd);
+            IPEndPoint remoteEndpoint = (IPEndPoint)IceInternal.Network.getRemoteAddress(_fd);
             if(remoteEndpoint != null)
             {
                 info.remoteAddress = remoteEndpoint.Address.ToString();
@@ -468,7 +471,7 @@ namespace IceSSL
             return info;
         }
 
-        private bool beginAuthenticate(AsyncCallback callback, object state)
+        private bool beginAuthenticate(IceInternal.AsyncCallback callback, object state)
         {
             NetworkStream ns = new NetworkStream(_fd, true);
             _stream = new SslStream(ns, false, new RemoteCertificateValidationCallback(validationCallback), null);
@@ -483,7 +486,13 @@ namespace IceSSL
                     _writeResult = _stream.BeginAuthenticateAsClient(_host, _instance.certs(),
                                                                      _instance.protocols(),
                                                                      _instance.checkCRL() > 0,
-                                                                     callback, state);
+                                                                     delegate(IAsyncResult result)
+                                                                     {
+                                                                         if(!result.CompletedSynchronously)
+                                                                         {
+                                                                             callback(result.AsyncState);
+                                                                         }
+                                                                     }, state);
                 }
                 else
                 {
@@ -500,7 +509,14 @@ namespace IceSSL
                     }
 
                     _writeResult = _stream.BeginAuthenticateAsServer(cert, _verifyPeer > 1, _instance.protocols(),
-                                                                     _instance.checkCRL() > 0, callback, state);
+                                                                     _instance.checkCRL() > 0, 
+                                                                     delegate(IAsyncResult result)
+                                                                     {
+                                                                         if(!result.CompletedSynchronously)
+                                                                         {
+                                                                             callback(result.AsyncState);
+                                                                         }
+                                                                     }, state);
                 }
             }
             catch(IOException ex)
@@ -738,6 +754,22 @@ namespace IceSSL
             return true;
         }
 
+        internal void readCompleted(IAsyncResult result)
+        {
+            if(!result.CompletedSynchronously)
+            {
+                _readCallback(result.AsyncState);
+            }
+        }
+
+        internal void writeCompleted(IAsyncResult result)
+        {
+            if(!result.CompletedSynchronously)
+            {
+                _writeCallback(result.AsyncState);
+            }
+        }
+
         private Instance _instance;
         private Socket _fd;
         private string _host;
@@ -754,6 +786,8 @@ namespace IceSSL
         private int _state;
         private IAsyncResult _writeResult;
         private IAsyncResult _readResult;
+        private IceInternal.AsyncCallback _readCallback;
+        private IceInternal.AsyncCallback _writeCallback;
         private X509Certificate2[] _chain;
 
         private const int StateNeedConnect = 0;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,6 +18,7 @@ public abstract class EventHandler
     // Called to start a new asynchronous read or write operation.
     //
     abstract public bool startAsync(int op, AsyncCallback cb, ref bool completedSynchronously);
+
     abstract public bool finishAsync(int op);
 
     //

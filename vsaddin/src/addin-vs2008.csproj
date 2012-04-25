@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{DB79C06D-CC17-4B29-B4BE-EAE5C8FED3E5}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -107,12 +107,6 @@
     <Compile Include="IceCsharpConfigurationDialog.Designer.cs">
       <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="IceSilverlightConfigurationDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="IceSilverlightConfigurationDialog.designer.cs">
-      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="IncludePathView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -174,9 +168,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="IceCsharpConfigurationDialog.resx">
       <DependentUpon>IceCsharpConfigurationDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="IceSilverlightConfigurationDialog.resx">
-      <DependentUpon>IceSilverlightConfigurationDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="IncludePathView.resx">
       <DependentUpon>IncludePathView.cs</DependentUpon>

@@ -1,12 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
+#if !SILVERLIGHT
 using System.Net.Sockets;
 
 namespace Ice
@@ -120,8 +121,8 @@ namespace Ice
             // 
             try
             {
-                _host = IceInternal.Network.getAddress(System.Net.Dns.GetHostName(), _port, 
-                                                       IceInternal.Network.EnableBoth).Address;
+                _host = ((System.Net.IPEndPoint)IceInternal.Network.getAddress(System.Net.Dns.GetHostName(), _port, 
+                                                       IceInternal.Network.EnableBoth)).Address;
                 _socket = new UdpClient();
                 _socket.Connect(_host, _port);
             }
@@ -225,3 +226,4 @@ namespace Ice
     }
 
 }
+#endif

@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -38,7 +38,7 @@ namespace IceUtilInternal
             State state = State.Normal;
 
             string arg = "";
-            ArrayList vec = new ArrayList();
+            List<string> vec = new List<string>();
             
             for(int i = 0; i < l.Length; ++i)
             {
@@ -400,7 +400,7 @@ namespace IceUtilInternal
                 }
             }
             
-            return (string[])vec.ToArray(typeof(string));
+            return (string[])vec.ToArray();
         }
     }
 }

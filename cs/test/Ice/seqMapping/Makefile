@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,9 +11,10 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe
 
-C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs
+C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs ../../TestCommon/TestApp.cs
 S_SRCS		= MyClassI.cs Server.cs Custom.cs
-COL_SRCS	= AllTests.cs Collocated.cs MyClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs
+COL_SRCS	= AllTests.cs Collocated.cs MyClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs \
+		  ../../TestCommon/TestApp.cs
 SAMD_SRCS	= MyClassAMDI.cs ServerAMD.cs Custom.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -28,7 +28,8 @@ if os.path.isdir(os.path.join(toplevel, "cpp")):
 else:
     sourcedist = False
 
-from scripts import Expect
+sys.path.append(os.path.join(path[0], "scripts"))
+import Expect
 
 keepGoing = False
 iceHome = None
@@ -47,19 +48,18 @@ host = "127.0.0.1"
 #
 debug = False
 
-
 origenv = {}
 def dumpenv():
-    print "the following environment variables have been set:"
+    print("the following environment variables have been set:")
     for k, v in origenv.iteritems():
         added = os.environ[k][:len(os.environ[k])-len(v)]
-	if len(v) > 0:
-	    if isWin32():
-		print "%s=%s%%%s%%" % (k, added, k)
-	    else:
-		print "%s=%s$%s" % (k, added, k)
-	else:
-		print "%s=%s" % (k, added)
+        if len(v) > 0:
+            if isWin32():
+                print("%s=%s%%%s%%" % (k, added, k))
+            else:
+                print("%s=%s$%s" % (k, added, k))
+        else:
+                print("%s=%s" % (k, added))
 
 def addenv(var, val):
     global origenv
@@ -73,10 +73,10 @@ def addenv(var, val):
 def configurePaths():
 
     if iceHome:
-        print "[ using Ice installation from " + iceHome,
+        sys.stdout.write("[ using Ice installation from " + iceHome + " ")
         if x64:
-            print "(64bit)",
-        print "]"
+            sys.stdout.write("(64bit) ")
+        sys.stdout.write("]\n")
 
     #
     # If Ice is installed from RPMs, just set the CLASSPATH for Java.
@@ -107,7 +107,7 @@ def configurePaths():
     # 64-bits binaries are located in a subdirectory with binary
     # distributions.
     addenv("PATH", binDir)
-    if iceHome and x64: 
+    if iceHome and x64:
         if isWin32():
             binDir = os.path.join(binDir, "x64")
         elif isSolaris():
@@ -138,7 +138,7 @@ def configurePaths():
         addenv("CLASSPATH", os.path.join(javaDir, "lib"))
     addenv("CLASSPATH", os.path.join("classes"))
 
-    # 
+    #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if isWin32():
@@ -291,50 +291,49 @@ def runDemos(start, args, demos, num = 0, script = False, root = False):
             prefix = ""
             suffix = ""
 
-        print
+        sys.stdout.write("\n")
         if(num > 0):
-            print "[" + str(num) + "]",
-        print "%s*** running demo %d/%d in %s%s" % (prefix, index, total, dir, suffix)
-        print "%s*** configuration:" % prefix,
+            sys.stdout.write("[" + str(num) + "] ")
+        print("%s*** running demo %d/%d in %s%s" % (prefix, index, total, dir, suffix))
+        sys.stdout.write("%s*** configuration: " % prefix)
         if len(args.strip()) == 0:
-            print "Default",
+            sys.stdout.write("Default ")
         else:
-            print args.strip(),
-        print suffix
+            sys.stdout.write(args.strip() + " ")
+        print(suffix)
 
         if script:
-            print "echo \"*** demo started: `date`\""
-            print "cd %s" % dir
+            print("echo \"*** demo started: `date`\"")
+            print("cd %s" % dir)
         else:
-            print "*** demo started:", time.strftime("%x %X")
+            print("*** demo started: " + time.strftime("%x %X"))
             sys.stdout.flush()
             os.chdir(dir)
 
         if script:
-            print "if ! python %s %s; then" % (os.path.join(dir, "expect.py"), args)
-            print "  echo 'demo in %s failed'" % os.path.abspath(dir)
+            print("if ! %s %s %s; then" % (sys.executable, os.path.join(dir, "expect.py"), args))
+            print("  echo 'demo in %s failed'" % os.path.abspath(dir))
             if not keepGoing:
-                print "  exit 1"
-            print "fi"
+                print("  exit 1")
+            print("fi")
         else:
-            status = os.system('python "' + os.path.join(dir, "expect.py") + '" ' + args)
+            status = os.system(sys.executable + ' "' + os.path.join(dir, "expect.py") + '" ' + args)
 
             if status:
                 if(num > 0):
-                    print "[" + str(num) + "]",
+                    sys.stdout.write("[" + str(num) + "] ")
                 message = "demo in " + dir + " failed with exit status", status,
-                print message
+                print(message)
                 if keepGoing == False:
-                    print "exiting"
+                    print("exiting")
                     sys.exit(status)
                 else:
-                    print " ** Error logged and will be displayed again when suite is completed **"
+                    print(" ** Error logged and will be displayed again when suite is completed **")
                     demoErrors.append(message)
-
 
 def run(demos, protobufDemos = [], root = False):
     def usage():
-        print """usage: %s
+        print("""usage: %s
         --start=index           Start running the demos at the given demo."
         --loop                  Run the demos in a loop."
         --filter=<regex>        Run all the demos that match the given regex."
@@ -352,10 +351,10 @@ def run(demos, protobufDemos = [], root = False):
         --script                Generate a script to run the demos.
         --service-dir=<path>    Directory to locate services for C++Builder/VC6.
         --env                   Dump the environment."
-        --noenv                 Do not automatically modify environment.""" % (sys.argv[0])
+        --noenv                 Do not automatically modify environment.""" % (sys.argv[0]))
         sys.exit(2)
 
-    global keepGoing 
+    global keepGoing
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
@@ -425,9 +424,9 @@ def run(demos, protobufDemos = [], root = False):
         runDemos(start, arg, demos, script = script, root = root)
 
     if len(demoErrors) > 0:
-        print "The following errors occurred:"
+        print("The following errors occurred:")
         for x in demoErrors:
-            print x
+            print(x)
 
 def guessBuildModeForDir(cwd):
     import glob
@@ -450,7 +449,7 @@ def guessBuildMode():
     if not iceHome and sourcedist:
         m = guessBuildModeForDir(os.path.join(toplevel, "cpp", "bin"))
     else:
-	m = guessBuildModeForDir(".")
+        m = guessBuildModeForDir(".")
     if m is None:
         raise RuntimeError("cannot guess debug or release mode")
     return m
@@ -459,10 +458,10 @@ def isDebugBuild():
     global buildmode
     # Guess the mode, if not set on the command line.
     if not isWin32():
-	return False
+        return False
     if buildmode is None:
-	buildmode = guessBuildMode()
-	print "(guessed build mode %s)" % buildmode
+        buildmode = guessBuildMode()
+        print("(guessed build mode %s)" % buildmode)
     return buildmode == "debug"
 
 def getIceVersion():
@@ -486,7 +485,7 @@ def getIceBox(mapping = "cpp"):
         if isNoServices():
             return os.path.join(getServiceDir(), "icebox.exe")
         if isWin32() and isDebugBuild():
-	    return "iceboxd"
+            return "iceboxd"
         return "icebox"
     elif mapping == "cs":
         if isMono(): # Mono cannot locate icebox in the PATH.
@@ -533,7 +532,6 @@ def spawn(command, cwd = None, mapping = None):
     for arg in tokens[1:len(tokens)]:
         args += " " + arg
 
-
     if defaultHost:
         command = '%s %s' % (command, defaultHost)
         args = '%s %s' % (args, defaultHost)
@@ -553,7 +551,7 @@ def spawn(command, cwd = None, mapping = None):
         else:
             command = "./" + command
     elif mapping == "py":
-        command = "python -u " + command
+        command = sys.executable + " -u " + command
     elif mapping == "vb":
         command = "./" + command
     elif mapping == "java":
@@ -572,7 +570,7 @@ def spawn(command, cwd = None, mapping = None):
     if isWin32(): # Under Win32 ./ does not work.
         command = command.replace("./", "")
     if debug:
-        print '(%s)' % (command)
+        print('(%s)' % (command))
     return Expect.Expect(command, logfile = tracefile, desc = desc, mapping = mapping, cwd = cwd)
 
 def cleanDbDir(path):
@@ -608,12 +606,12 @@ def addLdPath(libpath):
 
 def processCmdLine():
     def usage():
-	print "usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>"
-	sys.exit(2)
+        print("usage: " + sys.argv[0] + " --x64 --preferIPv4 --env --noenv --fast --trace=output --debug --host host --mode=[debug|release] --ice-home=<dir> --service-dir=<dir>")
+        sys.exit(2)
     try:
-	opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir="])
+        opts, args = getopt.getopt(sys.argv[1:], "", ["env", "noenv", "x64", "preferIPv4", "fast", "trace=", "debug", "host=", "mode=", "ice-home=", "--servicedir="])
     except getopt.GetoptError:
-	usage()
+        usage()
 
     global fast
     global defaultHost
@@ -635,38 +633,38 @@ def processCmdLine():
     noenv = False
 
     for o, a in opts:
-	if o == "--debug":
-	    debug = True
-	if o == "--trace":
-	    if a == "stdout":
-		tracefile = sys.stdout
-	    else:
-		tracefile = open(a, "w")
-	if o == "--host":
-	    host = a
-	if o == "--env":
-	    env = True
-	if o == "--noenv":
-	    noenv = True
-	if o == "--fast":
-	    fast = True
-	if o == "--x64":
-	    x64 = True
-	if o == "--preferIPv4":
-	    preferIPv4 = True
+        if o == "--debug":
+            debug = True
+        if o == "--trace":
+            if a == "stdout":
+                tracefile = sys.stdout
+            else:
+                tracefile = open(a, "w")
+        if o == "--host":
+            host = a
+        if o == "--env":
+            env = True
+        if o == "--noenv":
+            noenv = True
+        if o == "--fast":
+            fast = True
+        if o == "--x64":
+            x64 = True
+        if o == "--preferIPv4":
+            preferIPv4 = True
         if o == "--ice-home":
             iceHome = a
         if o == "--service-dir":
             serviceDir = a
-	if o == "--mode":
-	    buildmode = a
-	    if buildmode != 'debug' and buildmode != 'release':
-		usage()
+        if o == "--mode":
+            buildmode = a
+            if buildmode != 'debug' and buildmode != 'release':
+                usage()
 
     if host != "":
-	defaultHost = " --Ice.Default.Host=%s" % (host)
+        defaultHost = " --Ice.Default.Host=%s" % (host)
     else:
-	defaultHost = None
+        defaultHost = None
 
     if not iceHome and os.environ.get("USE_BIN_DIST", "no") == "yes" or os.environ.get("ICE_HOME", "") != "":
         if os.environ.get("ICE_HOME", "") != "":
@@ -683,7 +681,7 @@ def processCmdLine():
         dumpenv()
 
     if iceHome and isWin32() and not buildmode:
-        print "Error: please define --mode=debug or --mode=release"
+        print("Error: please define --mode=debug or --mode=release")
         sys.exit(1)
 
 import inspect

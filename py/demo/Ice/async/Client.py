@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -19,30 +19,30 @@ class Callback:
 
     def exception(self, ex):
         if isinstance(ex, Demo.RequestCanceledException):
-            print "Demo.RequestCanceledException"
+            print("Demo.RequestCanceledException")
         else:
-            print "sayHello AMI call failed:"
-            print ex
+            print("sayHello AMI call failed:")
+            print(ex)
 
 def menu():
-    print """
+    print("""
 usage:
 i: send immediate greeting
 d: send delayed greeting
 s: shutdown server
 x: exit
 ?: help
-"""
+""")
 
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         hello = Demo.HelloPrx.checkedCast(self.communicator().propertyToProxy('Hello.Proxy'))
         if not hello:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
 
         menu()
@@ -50,7 +50,9 @@ class Client(Ice.Application):
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
                 if c == 'i':
                     hello.sayHello(0)
                 elif c == 'd':
@@ -63,14 +65,14 @@ class Client(Ice.Application):
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except EOFError:
                 break
             except KeyboardInterrupt:
                 break
-            except Ice.Exception, ex:
-                print ex
+            except Ice.Exception as ex:
+                print(ex)
 
         return 0
 

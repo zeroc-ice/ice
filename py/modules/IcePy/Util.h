@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,8 +36,13 @@ namespace IcePy
 //
 inline PyObject* getFalse()
 {
+#if PY_VERSION_HEX >= 0x03000000
+    PyLongObject* i = &_Py_FalseStruct;
+    return reinterpret_cast<PyObject*>(i);
+#else
     PyIntObject* i = &_Py_ZeroStruct;
     return reinterpret_cast<PyObject*>(i);
+#endif
 }
 
 //
@@ -45,19 +50,46 @@ inline PyObject* getFalse()
 //
 inline PyObject* getTrue()
 {
+#if PY_VERSION_HEX >= 0x03000000
+    PyLongObject* i = &_Py_TrueStruct;
+    return reinterpret_cast<PyObject*>(i);
+#else
     PyIntObject* i = &_Py_TrueStruct;
     return reinterpret_cast<PyObject*>(i);
+#endif
 }
 
+//
+// Create a string object.
+//
 inline PyObject* createString(const std::string& str)
 {
+#if PY_VERSION_HEX >= 0x03000000
+    //
+    // PyUnicode_FromStringAndSize interprets the argument as UTF-8.
+    //
+    return PyUnicode_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
+#else
     return PyString_FromStringAndSize(str.c_str(), static_cast<Py_ssize_t>(str.size()));
+#endif
 }
 
 //
 // Obtain a string from a string object; None is also legal.
 //
 std::string getString(PyObject*);
+
+//
+// Verify that the object is a string; None is NOT legal.
+//
+inline bool checkString(PyObject* p)
+{
+#if PY_VERSION_HEX >= 0x03000000
+    return PyUnicode_Check(p) ? true : false;
+#else
+    return PyString_Check(p) ? true : false;
+#endif
+}
 
 //
 // Validate and retrieve a string argument; None is also legal.

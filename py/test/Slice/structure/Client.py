@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,7 +15,7 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.join(toplevel, "python", "Ice.py")):
         break
 else:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 
 import Ice
 
@@ -27,7 +27,8 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def allTests(communicator):
-    print("testing equals() for Slice structures..."),
+    sys.stdout.write("testing equals() for Slice structures... ")
+    sys.stdout.flush()
 
     #
     # Define some default values.
@@ -210,7 +211,7 @@ def allTests(communicator):
     v2.prx = None
     test(v1 != v2)
 
-    print "ok"
+    print("ok")
 
 def run(args, communicator):
     allTests(communicator)

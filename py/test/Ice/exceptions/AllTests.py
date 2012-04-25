@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -60,7 +60,7 @@ class AMI_Thrower_throwAasAI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.A, ex:
+        except Test.A as ex:
             test(ex.aMem == 1)
         except:
             test(False)
@@ -77,7 +77,7 @@ class AMI_Thrower_throwAasAObjectNotExistI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Ice.ObjectNotExistException, ex:
+        except Ice.ObjectNotExistException as ex:
             id = self._communicator.stringToIdentity("does not exist")
             test(ex.id == id)
         except:
@@ -91,7 +91,7 @@ class AMI_Thrower_throwAasAFacetNotExistI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Ice.FacetNotExistException, ex:
+        except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
         except:
             test(False)
@@ -104,9 +104,9 @@ class AMI_Thrower_throwAorDasAorDI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.A, ex:
+        except Test.A as ex:
             test(ex.aMem == 1)
-        except Test.D, ex:
+        except Test.D as ex:
             test(ex.dMem == -1)
         except:
             test(False)
@@ -119,7 +119,7 @@ class AMI_Thrower_throwBasAI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.B, ex:
+        except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
         except:
@@ -133,7 +133,7 @@ class AMI_Thrower_throwCasAI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -148,7 +148,7 @@ class AMI_Thrower_throwBasBI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.B, ex:
+        except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
         except:
@@ -162,7 +162,7 @@ class AMI_Thrower_throwCasBI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -177,7 +177,7 @@ class AMI_Thrower_throwCasCI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -192,7 +192,7 @@ class AMI_Thrower_throwModAI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Test.Mod.A, ex:
+        except Test.Mod.A as ex:
             test(ex.aMem == 1)
             test(ex.a2Mem == 2)
         except Ice.OperationNotExistException:
@@ -276,7 +276,7 @@ class AMI_WrongOperation_noSuchOperationI(CallbackBase):
     def ice_exception(self, ex):
         try:
             raise ex
-        except Ice.OperationNotExistException, ex:
+        except Ice.OperationNotExistException as ex:
             test(ex.operation == "noSuchOperation")
         except:
             test(False)
@@ -298,9 +298,9 @@ class Callback(CallbackBase):
     def exception_AorDasAorD(self, ex):
         try:
             raise ex
-        except Test.A, ex:
+        except Test.A as ex:
             test(ex.aMem == 1)
-        except Test.D, ex:
+        except Test.D as ex:
             test(ex.dMem == -1)
         except:
             test(False)
@@ -309,7 +309,7 @@ class Callback(CallbackBase):
     def exception_BasB(self, ex):
         try:
             raise ex
-        except Test.B, ex:
+        except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
         except:
@@ -319,7 +319,7 @@ class Callback(CallbackBase):
     def exception_CasC(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -330,7 +330,7 @@ class Callback(CallbackBase):
     def exception_ModA(self, ex):
         try:
             raise ex
-        except Test.Mod.A, ex:
+        except Test.Mod.A as ex:
             test(ex.aMem == 1)
             test(ex.a2Mem == 2)
         except Ice.OperationNotExistException:
@@ -345,7 +345,7 @@ class Callback(CallbackBase):
     def exception_BasA(self, ex):
         try:
             raise ex
-        except Test.B, ex:
+        except Test.B as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
         except:
@@ -355,7 +355,7 @@ class Callback(CallbackBase):
     def exception_CasA(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -366,7 +366,7 @@ class Callback(CallbackBase):
     def exception_CasB(self, ex):
         try:
             raise ex
-        except Test.C, ex:
+        except Test.C as ex:
             test(ex.aMem == 1)
             test(ex.bMem == 2)
             test(ex.cMem == 3)
@@ -404,7 +404,7 @@ class Callback(CallbackBase):
     def exception_AasAObjectNotExist(self, ex):
         try:
             raise ex
-        except Ice.ObjectNotExistException, ex:
+        except Ice.ObjectNotExistException as ex:
             id = self._communicator.stringToIdentity("does not exist")
             test(ex.id == id)
         except:
@@ -414,7 +414,7 @@ class Callback(CallbackBase):
     def exception_AasAFacetNotExist(self, ex):
         try:
             raise ex
-        except Ice.FacetNotExistException, ex:
+        except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
         except:
             test(False)
@@ -423,7 +423,7 @@ class Callback(CallbackBase):
     def exception_noSuchOperation(self, ex):
         try:
             raise ex
-        except Ice.OperationNotExistException, ex:
+        except Ice.OperationNotExistException as ex:
             test(ex.operation == "noSuchOperation")
         except:
             test(False)
@@ -432,7 +432,7 @@ class Callback(CallbackBase):
     def exception_LocalException(self, ex):
         try:
             raise ex
-        except Ice.UnknownLocalException, ex:
+        except Ice.UnknownLocalException as ex:
             pass
         except:
             test(False)
@@ -441,14 +441,15 @@ class Callback(CallbackBase):
     def exception_NonIceException(self, ex):
         try:
             raise ex
-        except Ice.UnknownException, ex:
+        except Ice.UnknownException as ex:
             pass
         except:
             test(False)
         self.called()
 
 def allTests(communicator):
-    print "testing servant registration exceptions...",
+    sys.stdout.write("testing servant registration exceptions... ")
+    sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
@@ -467,9 +468,10 @@ def allTests(communicator):
         pass
 
     adapter.deactivate()
-    print "ok"
+    print("ok")
 
-    print "testing servant locator registrations exceptions...",
+    sys.stdout.write("testing servant locator registrations exceptions... ")
+    sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter2")
     loc = ServantLocatorI()
@@ -481,9 +483,10 @@ def allTests(communicator):
         pass
 
     adapter.deactivate()
-    print "ok"
+    print("ok")
 
-    print "testing object factory registration exception...",
+    sys.stdout.write("testing object factory registration exception... ")
+    sys.stdout.flush()
     of = ObjectFactoryI()
     communicator.addObjectFactory(of, "x")
     try:
@@ -491,74 +494,77 @@ def allTests(communicator):
         test(false)
     except Ice.AlreadyRegisteredException:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing stringToProxy...",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
     ref = "thrower:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast...",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     thrower = Test.ThrowerPrx.checkedCast(base)
     test(thrower)
     test(thrower == base)
-    print "ok"
+    print("ok")
 
-    print "catching exact types...",
+    sys.stdout.write("catching exact types... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwAasA(1)
         test(False)
-    except Test.A, ex:
+    except Test.A as ex:
         test(ex.aMem == 1)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwAorDasAorD(1)
         test(False)
-    except Test.A, ex:
+    except Test.A as ex:
         test(ex.aMem == 1)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwAorDasAorD(-1)
         test(False)
-    except Test.D, ex:
+    except Test.D as ex:
         test(ex.dMem == -1)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwBasB(1, 2)
         test(False)
-    except Test.B, ex:
+    except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwCasC(1, 2, 3)
         test(False)
-    except Test.C, ex:
+    except Test.C as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwModA(1, 2)
         test(False)
-    except Test.Mod.A, ex:
+    except Test.Mod.A as ex:
         test(ex.aMem == 1)
         test(ex.a2Mem == 2)
     except Ice.OperationNotExistException:
@@ -567,36 +573,37 @@ def allTests(communicator):
         #
         pass
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching base types...",
+    sys.stdout.write("catching base types... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwBasB(1, 2)
         test(False)
-    except Test.A, ex:
+    except Test.A as ex:
         test(ex.aMem == 1)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwCasC(1, 2, 3)
         test(False)
-    except Test.B, ex:
+    except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwModA(1, 2)
         test(False)
-    except Test.A, ex:
+    except Test.A as ex:
         test(ex.aMem == 1)
     except Ice.OperationNotExistException:
         #
@@ -604,49 +611,51 @@ def allTests(communicator):
         #
         pass
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching derived types...",
+    sys.stdout.write("catching derived types... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwBasA(1, 2)
         test(False)
-    except Test.B, ex:
+    except Test.B as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwCasA(1, 2, 3)
         test(False)
-    except Test.C, ex:
+    except Test.C as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
         thrower.throwCasB(1, 2, 3)
         test(False)
-    except Test.C, ex:
+    except Test.C as ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
     if thrower.supportsUndeclaredExceptions():
-        print "catching unknown user exception...",
+        sys.stdout.write("catching unknown user exception... ")
+        sys.stdout.flush()
 
         try:
             thrower.throwUndeclaredA(1)
@@ -654,7 +663,7 @@ def allTests(communicator):
         except Ice.UnknownUserException:
             pass
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             test(False)
 
         try:
@@ -663,7 +672,7 @@ def allTests(communicator):
         except Ice.UnknownUserException:
             pass
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             test(False)
 
         try:
@@ -672,12 +681,13 @@ def allTests(communicator):
         except Ice.UnknownUserException:
             pass
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             test(False)
 
-        print "ok"
+        print("ok")
 
-    print "catching object not exist exception...",
+    sys.stdout.write("catching object not exist exception... ")
+    sys.stdout.flush()
 
     id = communicator.stringToIdentity("does not exist")
     try:
@@ -685,44 +695,47 @@ def allTests(communicator):
         thrower2.throwAasA(1)
 #        thrower2.ice_ping()
         test(False)
-    except Ice.ObjectNotExistException, ex:
+    except Ice.ObjectNotExistException as ex:
         test(ex.id == id)
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching facet not exist exception...",
+    sys.stdout.write("catching facet not exist exception... ")
+    sys.stdout.flush()
 
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
         try:
             thrower2.ice_ping()
             test(False)
-        except Ice.FacetNotExistException, ex:
+        except Ice.FacetNotExistException as ex:
             test(ex.facet == "no such facet")
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching operation not exist exception...",
+    sys.stdout.write("catching operation not exist exception... ")
+    sys.stdout.flush()
 
     try:
         thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower)
         thrower2.noSuchOperation()
         test(False)
-    except Ice.OperationNotExistException, ex:
+    except Ice.OperationNotExistException as ex:
         test(ex.operation == "noSuchOperation")
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown local exception...",
+    sys.stdout.write("catching unknown local exception... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwLocalException()
@@ -730,12 +743,13 @@ def allTests(communicator):
     except Ice.UnknownLocalException:
         pass
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown non-Ice exception...",
+    sys.stdout.write("catching unknown non-Ice exception... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwNonIceException()
@@ -743,17 +757,18 @@ def allTests(communicator):
     except Ice.UnknownException:
         pass
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "testing asynchronous exceptions...",
+    sys.stdout.write("testing asynchronous exceptions... ")
+    sys.stdout.flush()
 
     try:
         thrower.throwAfterResponse()
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
     try:
@@ -761,12 +776,13 @@ def allTests(communicator):
     except Test.A:
         pass
     except:
-        print sys.exc_info()
+        print(sys.exc_info())
         test(False)
 
-    print "ok"
+    print("ok")
 
-    print "catching exact types with AMI...",
+    sys.stdout.write("catching exact types with AMI... ")
+    sys.stdout.flush()
 
     cb = AMI_Thrower_throwAasAI()
     thrower.throwAasA_async(cb, 1)
@@ -798,9 +814,10 @@ def allTests(communicator):
     thrower.throwModA_async(cb, 1, 2)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching derived types...",
+    sys.stdout.write("catching derived types... ")
+    sys.stdout.flush()
 
     cb = AMI_Thrower_throwBasAI()
     thrower.throwBasA_async(cb, 1, 2)
@@ -814,10 +831,11 @@ def allTests(communicator):
     thrower.throwCasB_async(cb, 1, 2, 3)
     cb.check()
 
-    print "ok"
+    print("ok")
 
     if thrower.supportsUndeclaredExceptions():
-        print "catching unknown user exception with AMI...",
+        sys.stdout.write("catching unknown user exception with AMI... ")
+        sys.stdout.flush()
 
         cb = AMI_Thrower_throwUndeclaredAI()
         thrower.throwUndeclaredA_async(cb, 1)
@@ -831,9 +849,10 @@ def allTests(communicator):
         thrower.throwUndeclaredC_async(cb, 1, 2, 3)
         cb.check()
 
-        print "ok"
+        print("ok")
 
-    print "catching object not exist exception with AMI...",
+    sys.stdout.write("catching object not exist exception with AMI... ")
+    sys.stdout.flush()
 
     id = communicator.stringToIdentity("does not exist")
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
@@ -841,43 +860,48 @@ def allTests(communicator):
     thrower2.throwAasA_async(cb, 1)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching facet not exist exception with AMI...",
+    sys.stdout.write("catching facet not exist exception with AMI... ")
+    sys.stdout.flush()
 
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
     cb = AMI_Thrower_throwAasAFacetNotExistI()
     thrower2.throwAasA_async(cb, 1)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching operation not exist exception with AMI...",
+    sys.stdout.write("catching operation not exist exception with AMI... ")
+    sys.stdout.flush()
 
     cb = AMI_WrongOperation_noSuchOperationI()
     thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
     thrower4.noSuchOperation_async(cb)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown local exception with AMI...",
+    sys.stdout.write("catching unknown local exception with AMI... ")
+    sys.stdout.flush()
 
     cb = AMI_Thrower_throwLocalExceptionI()
     thrower.throwLocalException_async(cb)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown non-Ice exception with AMI...",
+    sys.stdout.write("catching unknown non-Ice exception with AMI... ")
+    sys.stdout.flush()
 
     cb = AMI_Thrower_throwNonIceExceptionI()
     thrower.throwNonIceException_async(cb)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching exact types with new AMI mapping...",
+    sys.stdout.write("catching exact types with new AMI mapping... ")
+    sys.stdout.flush()
 
     cb = Callback()
     thrower.begin_throwAasA(1, cb.response, cb.exception_AasA)
@@ -903,9 +927,10 @@ def allTests(communicator):
     thrower.begin_throwModA(1, 2, cb.response, cb.exception_ModA)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching derived types with new AMI mapping...",
+    sys.stdout.write("catching derived types with new AMI mapping... ")
+    sys.stdout.flush()
 
     cb = Callback()
     thrower.begin_throwBasA(1, 2, cb.response, cb.exception_BasA)
@@ -919,10 +944,11 @@ def allTests(communicator):
     thrower.begin_throwCasB(1, 2, 3, cb.response, cb.exception_CasB)
     cb.check()
 
-    print "ok"
+    print("ok")
 
     if thrower.supportsUndeclaredExceptions():
-        print "catching unknown user exception with new AMI mapping...",
+        sys.stdout.write("catching unknown user exception with new AMI mapping... ")
+        sys.stdout.flush()
 
         cb = Callback()
         thrower.begin_throwUndeclaredA(1, cb.response, cb.exception_UndeclaredA)
@@ -936,9 +962,10 @@ def allTests(communicator):
         thrower.begin_throwUndeclaredC(1, 2, 3, cb.response, cb.exception_UndeclaredC)
         cb.check()
 
-        print "ok"
+        print("ok")
 
-    print "catching object not exist exception with new AMI mapping...",
+    sys.stdout.write("catching object not exist exception with new AMI mapping... ")
+    sys.stdout.flush()
 
     id = communicator.stringToIdentity("does not exist")
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
@@ -946,40 +973,44 @@ def allTests(communicator):
     thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAObjectNotExist)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching facet not exist exception with new AMI mapping...",
+    sys.stdout.write("catching facet not exist exception with new AMI mapping... ")
+    sys.stdout.flush()
 
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
     cb = Callback()
     thrower2.begin_throwAasA(1, cb.response, cb.exception_AasAFacetNotExist)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching operation not exist exception with new AMI mapping...",
+    sys.stdout.write("catching operation not exist exception with new AMI mapping... ")
+    sys.stdout.flush()
 
     cb = Callback()
     thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
     thrower4.begin_noSuchOperation(cb.response, cb.exception_noSuchOperation)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown local exception with new AMI mapping...",
+    sys.stdout.write("catching unknown local exception with new AMI mapping... ")
+    sys.stdout.flush()
 
     cb = Callback()
     thrower.begin_throwLocalException(cb.response, cb.exception_LocalException)
     cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "catching unknown non-Ice exception with new AMI mapping...",
+    sys.stdout.write("catching unknown non-Ice exception with new AMI mapping... ")
+    sys.stdout.flush()
 
     cb = Callback()
     thrower.begin_throwNonIceException(cb.response, cb.exception_NonIceException)
     cb.check()
 
-    print "ok"
+    print("ok")
 
     return thrower

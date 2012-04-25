@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test
+import Ice, Test, sys
 
 def test(b):
     if not b:
@@ -15,7 +15,8 @@ def test(b):
 
 def allTests():
 
-    print "testing default values...",
+    sys.stdout.write("testing default values... ")
+    sys.stdout.flush()
 
     v = Test.Struct1()
     test(not v.boolFalse)
@@ -147,4 +148,4 @@ def allTests():
     test(v.zeroD == 0)
     test(v.zeroDotD == 0)
 
-    print "ok"
+    print("ok")

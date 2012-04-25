@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,11 +9,11 @@
 # **********************************************************************
 
 import sys, os
-from demoscript import *
-from scripts import Expect
+from demoscript import Util
+import Expect
 
 def run(clientCmd):
-    print "cleaning databases...",
+    sys.stdout.write("cleaning databases... ")
     sys.stdout.flush()
     nodeDir = os.path.join("db", "node")
     if not os.path.exists(nodeDir):
@@ -25,28 +25,28 @@ def run(clientCmd):
         os.mkdir(regDir)
     else:
         Util.cleanDbDir(regDir)
-    print "ok"
+    print("ok")
 
     if Util.defaultHost:
         args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
     else:
         args = ''
 
-    print "starting icegridnode...",
+    sys.stdout.write("starting icegridnode... ")
     sys.stdout.flush()
     node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
     node.expect('IceGrid.Registry.Internal ready\nIceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
-    print "ok"
+    print("ok")
 
-    print "deploying application...",
+    sys.stdout.write("deploying application... ")
     sys.stdout.flush()
     admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
     admin.expect('>>>')
     admin.sendline("application add \'application-single.xml\'")
     admin.expect('>>>')
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client1 = Util.spawn(clientCmd)
     client1.expect('user id:')
@@ -77,15 +77,15 @@ def run(clientCmd):
     node.expect('detected termination of server')
     client2.sendline('x')
     client2.waitTestSuccess(timeout=1)
-    print "ok"
+    print("ok")
 
-    print "deploying multiple...", 
+    sys.stdout.write("deploying multiple... ")
     sys.stdout.flush()
     admin.sendline("application update \'application-multiple.xml\'")
     admin.expect('>>>')
-    print "ok"
+    print("ok")
 
-    print "testing client...", 
+    sys.stdout.write("testing client... ")
     sys.stdout.flush()
     client1 = Util.spawn(clientCmd)
     client1.expect('user id:')
@@ -135,7 +135,7 @@ def run(clientCmd):
     client3.sendline('x')
     client3.waitTestSuccess(timeout=1)
 
-    print "ok"
+    print("ok")
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')

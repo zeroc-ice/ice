@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,28 +16,29 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 num = 12
 base = 12340
 
 serverProc = []
 for i in range(0, num):
-    print "starting server #%d..." % (i + 1),
+    sys.stdout.write("starting server #%d... " % (i + 1))
+    sys.stdout.flush()
     serverProc.append(TestUtil.startServer("test.Ice.faultTolerance.Server", " %d" % (base + i)))
-    print "ok"
+    print("ok")
 
 ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
-print "starting client...",
+sys.stdout.write("starting client... ")
+sys.stdout.flush()
 clientProc = TestUtil.startClient("test.Ice.faultTolerance.Client", ports, startReader=False)
-print "ok"
+print("ok")
 clientProc.startReader()
 
 clientProc.waitTestSuccess()
 for p in serverProc:
     p.waitTestSuccess()
-

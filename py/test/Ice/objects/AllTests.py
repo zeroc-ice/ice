@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, TestI
+import Ice, Test, TestI, sys
 
 #
 # Ice for Python behaves differently than Ice for C++, because
@@ -54,39 +54,46 @@ def allTests(communicator, collocated):
     communicator.addObjectFactory(factory, '::Test::J')
     communicator.addObjectFactory(factory, '::Test::H')
 
-    print "testing stringToProxy...",
+    sys.stdout.write("testing stringToProxy... ")
+    sys.stdout.flush()
     ref = "initial:default -p 12010"
     base = communicator.stringToProxy(ref)
     test(base)
-    print "ok"
+    print("ok")
 
-    print "testing checked cast...",
+    sys.stdout.write("testing checked cast... ")
+    sys.stdout.flush()
     initial = Test.InitialPrx.checkedCast(base)
     test(initial)
     test(initial == base)
-    print "ok"
+    print("ok")
 
-    print "getting B1...",
+    sys.stdout.write("getting B1... ")
+    sys.stdout.flush()
     b1 = initial.getB1()
     test(b1)
-    print "ok"
+    print("ok")
     
-    print "getting B2...",
+    sys.stdout.write("getting B2... ")
+    sys.stdout.flush()
     b2 = initial.getB2()
     test(b2)
-    print "ok"
+    print("ok")
     
-    print "getting C...",
+    sys.stdout.write("getting C... ")
+    sys.stdout.flush()
     c = initial.getC()
     test(c)
-    print "ok"
+    print("ok")
     
-    print "getting D...",
+    sys.stdout.write("getting D... ")
+    sys.stdout.flush()
     d = initial.getD()
     test(d)
-    print "ok"
+    print("ok")
 
-    print "testing protected members...",
+    sys.stdout.write("testing protected members... ")
+    sys.stdout.flush()
     e = initial.getE()
     test(e.checkValues())
     test(e._i == 1)
@@ -95,24 +102,27 @@ def allTests(communicator, collocated):
     test(f.checkValues())
     test(f.e2.checkValues())
     test(f._e1.checkValues())
-    print "ok"
+    print("ok")
     
-    print "getting I, J, H...",
+    sys.stdout.write("getting I, J, H... ")
+    sys.stdout.flush()
     i = initial.getI()
     test(i)
     j = initial.getJ()
     test(isinstance(j, Test.J))
     h = initial.getH()
     test(isinstance(h, Test.H))
-    print "ok"
+    print("ok")
 
-    print "setting I...",
+    sys.stdout.write("setting I... ")
+    sys.stdout.flush()
     initial.setI(TestI.II())
     initial.setI(TestI.JI())
     initial.setI(TestI.HI())
-    print "ok"
+    print("ok")
     
-    print "checking consistency...",
+    sys.stdout.write("checking consistency... ")
+    sys.stdout.flush()
     test(b1 != b2)
     test(b1 != c)
     test(b1 != d)
@@ -135,17 +145,19 @@ def allTests(communicator, collocated):
     # More tests possible for b2 and d, but I think this is already sufficient.
     test(b2.theA == b2)
     test(d.theC == None)
-    print "ok"
+    print("ok")
 
-    print "getting B1, B2, C, and D all at once...",
+    sys.stdout.write("getting B1, B2, C, and D all at once... ")
+    sys.stdout.flush()
     b1, b2, c, d = initial.getAll()
     test(b1)
     test(b2)
     test(c)
     test(d)
-    print "ok"
+    print("ok")
     
-    print "checking consistency...",
+    sys.stdout.write("checking consistency... ")
+    sys.stdout.flush()
     test(b1 != b2)
     test(b1 != c)
     test(b1 != d)
@@ -170,10 +182,11 @@ def allTests(communicator, collocated):
     test(d.theB.postUnmarshalInvoked())
     test(d.theB.theC.preMarshalInvoked)
     test(d.theB.theC.postUnmarshalInvoked())
-    print "ok"
+    print("ok")
 
     if not collocated:
-        print "testing UnexpectedObjectException...",
+        sys.stdout.write("testing UnexpectedObjectException... ")
+        sys.stdout.flush()
         ref = "uoet:default -p 12010"
         base = communicator.stringToProxy(ref)
         test(base)
@@ -182,15 +195,15 @@ def allTests(communicator, collocated):
         try:
             uoet.op()
             test(False)
-        except Ice.UnexpectedObjectException, ex:
+        except Ice.UnexpectedObjectException as ex:
             test(ex.type == "::Test::AlsoEmpty")
             test(ex.expectedType == "::Test::Empty")
-        except Ice.Exception, ex:
-            print ex
+        except Ice.Exception as ex:
+            print(ex)
             test(False)
         except:
-            print sys.exc_info()
+            print(sys.exc_info())
             test(False)
-        print "ok"
+        print("ok")
 
     return initial

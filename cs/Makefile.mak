@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,7 +11,11 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= src test demo
+SUBDIRS		= src
+
+!if "$(SILVERLIGHT)" != "yes"
+SUBDIRS		= $(SUBDIRS) test demo
+!endif
 
 install:: install-common
 	@if not exist "$(install_bindir)" \

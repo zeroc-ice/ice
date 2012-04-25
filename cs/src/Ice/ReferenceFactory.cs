@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -353,11 +353,11 @@ namespace IceInternal
                 return create(ident, facet, mode, secure, null, null, propertyPrefix);
             }
 
-            ArrayList endpoints = new ArrayList();
+            List<EndpointI> endpoints = new List<EndpointI>();
 
             if(s[beg] == ':')
             {
-                ArrayList unknownEndpoints = new ArrayList();
+                List<string> unknownEndpoints = new List<string>();
                 end = beg;
 
                 while(end < s.Length && s[end] == ':')
@@ -440,7 +440,7 @@ namespace IceInternal
                     instance_.initializationData().logger.warning(msg.ToString());
                 }
 
-                EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
+                EndpointI[] ep = endpoints.ToArray();
                 return create(ident, facet, mode, secure, ep, null, propertyPrefix);
             }
             else if(s[beg] == '@')
@@ -629,13 +629,17 @@ namespace IceInternal
                 // set.
                 //
                 WeakReference w = new WeakReference(@ref);
-                WeakReference val = (WeakReference)_references[w];
-                if(val != null)
+                object v;
+                if(_references.TryGetValue(w, out v))
                 {
-                    Reference r = (Reference)val.Target;
-                    if(r != null && r.Equals(@ref))
+                    WeakReference val = (WeakReference)v;
+                    if(val != null)
                     {
-                        return r;
+                        Reference r = (Reference)val.Target;
+                        if(r != null && r.Equals(@ref))
+                        {
+                            return r;
+                        }
                     }
                 }
                 _references[w] = w;
@@ -668,7 +672,7 @@ namespace IceInternal
                 }
             }
 
-            ArrayList unknownProps = new ArrayList();
+            List<string> unknownProps = new List<string>();
             Dictionary<string, string> props
                 = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
             foreach(String prop in props.Keys)
@@ -820,7 +824,7 @@ namespace IceInternal
         private Ice.Communicator _communicator;
         private Ice.RouterPrx _defaultRouter;
         private Ice.LocatorPrx _defaultLocator;
-        private Hashtable _references = new Hashtable();
+        private Dictionary<Object, Object> _references = new Dictionary<Object, Object>();
     }
 
 }

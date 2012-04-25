@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -113,17 +113,22 @@ sequence<Ice::StringSeq> StringSList;
 ["clr:generic:Stack"]
 sequence<Ice::StringSeq> StringSStack;
 
-#if COMPACT
+#ifndef SILVERLIGHT
+#  if COMPACT
 ["clr:generic:SortedList"]
 dictionary<string, string> SortedStringStringD;
-#else
+#  else
 ["clr:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;
+#  endif
 #endif
+
 ["clr:collection"]
 dictionary<string, int> StringIntDCollection;
 
+#ifndef SILVERLIGHT
 ["clr:serializable:Serialize.Small"] sequence<byte> SerialSmall;
+#endif
 
 class MyClass
 {
@@ -141,7 +146,7 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
-#ifndef COMPACT
+#if !defined(COMPACT) && !defined(SILVERLIGHT)
     SerialSmall ss;
 #endif
 };

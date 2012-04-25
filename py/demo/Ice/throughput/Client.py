@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ Ice.loadSlice('Throughput.ice')
 import Demo
 
 def menu():
-    print """
+    print("""
 usage:
 
 toggle type of data to send:
@@ -33,24 +33,27 @@ other commands:
 s: shutdown server
 x: exit
 ?: help
-"""
+""")
 
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         throughput = Demo.ThroughputPrx.checkedCast(self.communicator().propertyToProxy('Throughput.Proxy'))
         if not throughput:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
         throughputOneway = Demo.ThroughputPrx.uncheckedCast(throughput.ice_oneway())
 
-        bytes = []
-        bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
-        bytes = ['\x00' for x in bytes]
-        byteSeq = ''.join(bytes)
+        if sys.version_info[0] == 2:
+            b = []
+            b[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
+            b = ['\x00' for x in b]
+            byteSeq = ''.join(b)
+        else:
+            byteSeq = bytes([0 for x in range(0, Demo.ByteSeqSize)])
 
         stringSeq = []
         stringSeq[0:Demo.StringSeqSize] = range(0, Demo.StringSeqSize)
@@ -86,7 +89,7 @@ class Client(Ice.Application):
             emptyStructs = [ Demo.StringDouble() ]
             emptyFixed = [ Demo.Fixed() ]
 
-            print "warming up the server...",
+            print("warming up the server...",)
             sys.stdout.flush()
             for i in range(0, 10000):
                 throughput.sendByteSeq(emptyBytes)
@@ -106,7 +109,7 @@ class Client(Ice.Application):
 
             throughput.endWarmup()
 
-            print "ok"
+            print("ok")
         else:
             throughput.ice_ping() # Initial ping to setup the connection.
 
@@ -118,46 +121,48 @@ class Client(Ice.Application):
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
 
                 repetitions = 100
 
                 if c == '1' or c == '2' or c == '3' or c == '4':
                     currentType = c
                     if c == '1':
-                        print "using byte sequences"
+                        print("using byte sequences")
                         seqSize = Demo.ByteSeqSize
                     elif c == '2':
-                        print "using string sequences"
+                        print("using string sequences")
                         seqSize = Demo.StringSeqSize
                     elif c == '3':
-                        print "using variable-length struct sequences"
+                        print("using variable-length struct sequences")
                         seqSize = Demo.StringDoubleSeqSize
                     elif c == '4':
-                        print "using fixed-length struct sequences"
+                        print("using fixed-length struct sequences")
                         seqSize = Demo.FixedSeqSize
                 elif c == 't' or c == 'o' or c == 'r' or c == 'e':
                     if c == 't' or c == 'o':
-                        print "sending",
+                        sys.stdout.write("sending ")
                     elif c == 'r':
-                        print "receiving",
+                        sys.stdout.write("receiving ")
                     elif c == 'e':
-                        print "sending and receiving",
+                        sys.stdout.write("sending and receiving ")
 
-                    print repetitions,
+                    sys.stdout.write(str(repetitions) + " ")
                     if currentType == '1':
-                        print "byte",
+                        sys.stdout.write("byte ")
                     elif currentType == '2':
-                        print "string",
+                        sys.stdout.write("string ")
                     elif currentType == '3':
-                        print "variable-length struct",
+                        sys.stdout.write("variable-length struct ")
                     elif currentType == '4':
-                        print "fixed-length struct",
-                    
+                        sys.stdout.write("fixed-length struct ")
+
                     if c == 'o':
-                        print "sequences of size %d as oneway..." % seqSize
+                        print("sequences of size %d as oneway..." % seqSize)
                     else:
-                        print "sequences of size %d..." % seqSize
+                        print("sequences of size %d..." % seqSize)
 
                     tsec = time.time()
 
@@ -201,8 +206,8 @@ class Client(Ice.Application):
 
                     tsec = time.time() - tsec
                     tmsec = tsec * 1000.0
-                    print "time for %d sequences: %.3fms" % (repetitions, tmsec)
-                    print "time per sequence: %.3fms" % (tmsec / repetitions)
+                    print("time for %d sequences: %.3fms" % (repetitions, tmsec))
+                    print("time per sequence: %.3fms" % (tmsec / repetitions))
                     wireSize = 0
                     if currentType == '1':
                         wireSize = 1
@@ -216,7 +221,7 @@ class Client(Ice.Application):
                     mbit = repetitions * seqSize * wireSize * 8.0 / tsec / 1000000.0
                     if c == 'e':
                         mbit = mbit * 2
-                    print "throughput: %.3fMbps" % mbit
+                    print("throughput: %.3fMbps" % mbit)
                 elif c == 's':
                     throughput.shutdown()
                 elif c == 'x':
@@ -224,7 +229,7 @@ class Client(Ice.Application):
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except EOFError:
                 break

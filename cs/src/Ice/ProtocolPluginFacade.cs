@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,11 +17,12 @@ namespace IceInternal
         //
         Ice.Communicator getCommunicator();
 
+#if !SILVERLIGHT
         //
         // Get the endpoint host resolver.
         //
         IceInternal.EndpointHostResolver getEndpointHostResolver();
-
+#endif
         //
         // Get the protocol support.
         //
@@ -71,6 +72,7 @@ namespace IceInternal
             return _communicator;
         }
 
+#if !SILVERLIGHT
         //
         // Get the endpoint host resolver.
         //
@@ -78,6 +80,7 @@ namespace IceInternal
         {
             return _instance.endpointHostResolver();
         }
+#endif
 
         //
         // Get the protocol support.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ def decodeString(str):
 class GreatI(Demo.Greet):
     def exchangeGreeting(self, msg, current=None):
        
-        print "Received (UTF-8): \"" + decodeString(msg) + "\""
+        print("Received (UTF-8): \"" + decodeString(msg) + "\"")
         return "Bonne journ\303\251e"
 
     def shutdown(self, current=None):
@@ -35,7 +35,7 @@ class GreatI(Demo.Greet):
 class Server(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         adapter = self.communicator().createObjectAdapter("Greet")

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -506,6 +506,7 @@ namespace IceInternal
             return new ProtocolPluginFacadeI(communicator);
         }
 
+#if !SILVERLIGHT
         public static System.Threading.ThreadPriority stringToThreadPriority(string s)
         {
             if(String.IsNullOrEmpty(s))
@@ -538,5 +539,16 @@ namespace IceInternal
             }
             return ThreadPriority.Normal;
         }
+#endif
     }
 }
+
+#if SILVERLIGHT
+namespace System
+{
+    public interface ICloneable
+    {
+        Object Clone();
+    }
+}
+#endif

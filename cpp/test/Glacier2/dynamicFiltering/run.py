@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,9 +16,9 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 server = os.path.join(os.getcwd(), "server")
 client = os.path.join(os.getcwd(), "client")
@@ -30,9 +30,10 @@ if TestUtil.appverifier:
     TestUtil.setAppVerifierSettings(targets)
 
 
-print "starting server...",
+sys.stdout.write("starting server... ")
+sys.stdout.flush()
 serverProc = TestUtil.startServer(server, count=3)
-print "ok"
+print("ok")
 
 args = r' --Glacier2.Client.Endpoints="default -p 12347"' + \
         r' --Ice.Admin.Endpoints="tcp -p 12348"' + \
@@ -42,15 +43,15 @@ args = r' --Glacier2.Client.Endpoints="default -p 12347"' + \
         r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"' + \
         r' --Ice.Default.Locator="locator:default -p 12012"'
 
-print "starting router...",
+sys.stdout.write("starting router... ")
+sys.stdout.flush()
 starterProc = TestUtil.startServer(router, args, count=2) 
-print "ok"
+print("ok")
 
-
-
-print "starting client...",
+sys.stdout.write("starting client... ")
+sys.stdout.flush()
 proc = TestUtil.startClient(client, startReader = False)
-print "ok"
+print("ok")
 proc.startReader()
 proc.waitTestSuccess()
 

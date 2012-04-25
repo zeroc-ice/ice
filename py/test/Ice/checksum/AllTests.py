@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -24,10 +24,11 @@ def allTests(communicator):
     #
     # Verify that no checksums are present for local types.
     #
-    print "testing checksums... ",
+    sys.stdout.write("testing checksums... ")
+    sys.stdout.flush()
     test(len(Ice.sliceChecksums) > 0)
     for i in Ice.sliceChecksums:
-        test(string.find(i, "Local") == -1)
+        test(i.find("Local") == -1)
 
     #
     # Get server's Slice checksums.
@@ -46,13 +47,13 @@ def allTests(communicator):
         if m:
             n = int(i[m.start():])
 
-        test(Ice.sliceChecksums.has_key(i))
+        test(i in Ice.sliceChecksums)
 
         if n <= 1:
             test(Ice.sliceChecksums[i] == d[i])
         else:
             test(Ice.sliceChecksums[i] != d[i])
 
-    print "ok"
+    print("ok")
 
     return checksum

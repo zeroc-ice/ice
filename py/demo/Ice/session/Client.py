@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -30,7 +30,7 @@ class SessionRefreshThread(threading.Thread):
                 if not self._terminated:
                     try:
                         self._session.refresh()
-                    except Ice.LocalException, ex:
+                    except Ice.LocalException as ex:
                         self._logger.warning("SessionRefreshThread: " + str(ex))
                         self._terminated = True
         finally:
@@ -47,18 +47,20 @@ class SessionRefreshThread(threading.Thread):
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         while True:
-            name = raw_input("Please enter your name ==> ").strip()
+            sys.stdout.write("Please enter your name ==> ")
+            sys.stdout.flush()
+            name = sys.stdin.readline().strip()
             if len(name) != 0:
                 break
 
         base = self.communicator().propertyToProxy('SessionFactory.Proxy')
         factory = Demo.SessionFactoryPrx.checkedCast(base)
         if not factory:
-            print args[0] + ": invalid proxy"
+            print(args[0] + ": invalid proxy")
             return 1
 
         session = factory.create(name)
@@ -74,7 +76,9 @@ class Client(Ice.Application):
             shutdown = False
             while True:
                 try:
-                    c = raw_input("==> ")
+                    sys.stdout.write("==> ")
+                    sys.stdout.flush()
+                    c = sys.stdin.readline().strip()
                     s = str(c)
                     if s.isdigit():
                         index = int(s)
@@ -82,11 +86,11 @@ class Client(Ice.Application):
                             hello = hellos[index]
                             hello.sayHello()
                         else:
-                            print "Index is too high. " + str(len(hellos)) + " hello objects exist so far.\n" +\
-                                  "Use `c' to create a new hello object."
+                            print("Index is too high. " + str(len(hellos)) + " hello objects exist so far.\n" +\
+                                  "Use `c' to create a new hello object.")
                     elif c == 'c':
                         hellos.append(session.createHello())
-                        print "Created hello object",len(hellos) - 1
+                        print("Created hello object",len(hellos) - 1)
                     elif c == 's':
                         destroy = False
                         shutdown = True
@@ -99,7 +103,7 @@ class Client(Ice.Application):
                     elif c == '?':
                         self.menu()
                     else:
-                        print "unknown command `" + c + "'"
+                        print("unknown command `" + c + "'")
                         self.menu()
                 except EOFError:
                     break
@@ -131,7 +135,7 @@ class Client(Ice.Application):
         return 0
 
     def menu(self):
-        print """
+        print("""
 usage:
 c:     create a new per-client hello object
 0-9:   send a greeting to a hello object
@@ -139,7 +143,7 @@ s:     shutdown the server and exit
 x:     exit
 t:     exit without destroying the session
 ?:     help
-"""
+""")
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

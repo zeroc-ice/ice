@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, threading, random
+import Ice, Test, sys, threading, random
 
 def test(b):
     if not b:
@@ -300,7 +300,8 @@ def allTests(communicator):
 
     testController = Test.TestIntfControllerPrx.uncheckedCast(obj)
 
-    print "testing begin/end invocation...",
+    sys.stdout.write("testing begin/end invocation... ")
+    sys.stdout.flush()
     ctx = {}
 
     result = p.begin_ice_isA("::Test::TestIntf")
@@ -346,9 +347,10 @@ def allTests(communicator):
     except Test.TestIntfException:
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing response callback...",
+    sys.stdout.write("testing response callback... ")
+    sys.stdout.flush()
 
     ctx = {}
     cb = ResponseCallback()
@@ -419,9 +421,10 @@ def allTests(communicator):
     p.begin_opWithUE(lambda: cbWC.op(cookie), lambda ex: cbWC.opWithUE(ex, cookie), _ctx=ctx)
     cbWC.check()
 
-    print "ok"
+    print("ok")
 
-    print "testing local exceptions...",
+    sys.stdout.write("testing local exceptions... ")
+    sys.stdout.flush()
 
     indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
 
@@ -454,9 +457,10 @@ def allTests(communicator):
     except Ice.CommunicatorDestroyedException:
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing local exceptions with response callback...",
+    sys.stdout.write("testing local exceptions with response callback... ")
+    sys.stdout.flush()
 
     i = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     cb = ExceptionCallback()
@@ -488,9 +492,10 @@ def allTests(communicator):
     i.begin_op(lambda: cbWC.response(cookie), lambda ex: cbWC.ex(ex, cookie))
     cbWC.check()
 
-    print "ok"
+    print("ok")
 
-    print "testing exception callback...",
+    sys.stdout.write("testing exception callback... ")
+    sys.stdout.flush()
 
     cb = ExceptionCallback()
     cookie = 5
@@ -509,9 +514,10 @@ def allTests(communicator):
     p.begin_opWithUE(lambda: cbWC.nullResponse(cookie), lambda ex: cbWC.opWithUE(ex, cookie))
     cbWC.check()
 
-    print "ok"
+    print("ok")
 
-    print "testing sent callback...",
+    sys.stdout.write("testing sent callback... ")
+    sys.stdout.flush()
 
     cb = SentCallback()
     cookie = 5
@@ -546,26 +552,29 @@ def allTests(communicator):
     cbWC.check()
 
     cbs = []
-    bytes = []
-    bytes[0:1024] = range(0, 1024)
-    bytes = [chr(random.randint(0, 255)) for x in bytes] # Make sure the request doesn't compress too well.
-    seq = ''.join(bytes)
+    if sys.version_info[0] == 2:
+        b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+        seq = ''.join(b)
+    else:
+        b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+        seq = bytes(b)
     testController.holdAdapter()
     try:
         cb = SentCallback()
         while(p.begin_opWithPayload(seq, None, cb.ex, cb.sent).sentSynchronously()):
             cbs.append(cb)
             cb = SentCallback()
-    except ex:
+    except Exception as ex:
         testController.resumeAdapter()
         raise ex
     testController.resumeAdapter()
     for r in cbs:
         r.check()
 
-    print "ok"
+    print("ok")
 
-    print "testing illegal arguments...",
+    sys.stdout.write("testing illegal arguments... ")
+    sys.stdout.flush()
 
     result = p.begin_op()
     p.end_op(result)
@@ -582,9 +591,10 @@ def allTests(communicator):
     except RuntimeError:
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing unexpected exceptions from callback...",
+    sys.stdout.write("testing unexpected exceptions from callback... ")
+    sys.stdout.flush()
 
     q = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     throwTypes = [ LocalException, UserException, OtherException ]
@@ -617,9 +627,10 @@ def allTests(communicator):
         q.begin_op(None, lambda ex: cb.exWC(ex, cookie))
         cb.check()
 
-    print "ok"
+    print("ok")
 
-    print "testing batch requests with proxy...",
+    sys.stdout.write("testing batch requests with proxy... ")
+    sys.stdout.flush()
 
     cookie = 5
 
@@ -675,9 +686,10 @@ def allTests(communicator):
     cb.check()
     test(p.opBatchCount() == 0)
 
-    print "ok"
+    print("ok")
 
-    print "testing batch requests with connection...",
+    sys.stdout.write("testing batch requests with connection... ")
+    sys.stdout.flush()
 
     cookie = 5
 
@@ -735,9 +747,10 @@ def allTests(communicator):
     cb.check()
     test(p.opBatchCount() == 0)
 
-    print "ok"
+    print("ok")
 
-    print "testing batch requests with communicator...",
+    sys.stdout.write("testing batch requests with communicator... ")
+    sys.stdout.flush()
 
     #
     # 1 connection.
@@ -825,9 +838,10 @@ def allTests(communicator):
     test(r.isCompleted())
     test(p.opBatchCount() == 0)
 
-    print "ok"
+    print("ok")
 
-    print "testing AsyncResult operations...",
+    sys.stdout.write("testing AsyncResult operations... ")
+    sys.stdout.flush()
 
     indirect = Test.TestIntfPrx.uncheckedCast(p.ice_adapterId("dummy"))
     r = indirect.begin_op()
@@ -843,10 +857,12 @@ def allTests(communicator):
     r2 = None
     try:
         r1 = p.begin_op()
-        bytes = []
-        bytes[0:1024] = range(0, 1024)
-        bytes = [chr(random.randint(0, 255)) for x in bytes] # Make sure the request doesn't compress too well.
-        seq = ''.join(bytes)
+        if sys.version_info[0] == 2:
+            b = [chr(random.randint(0, 255)) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            seq = ''.join(b)
+        else:
+            b = [random.randint(0, 255) for x in range(0, 1024)] # Make sure the request doesn't compress too well.
+            seq = bytes(b)
         while(True):
             r2 = p.begin_opWithPayload(seq)
             if not r2.sentSynchronously():
@@ -859,7 +875,7 @@ def allTests(communicator):
              (not r1.sentSynchronously() and not r1.isCompleted()));
 
         test(not r2.sentSynchronously() and not r2.isCompleted());
-    except ex:
+    except Exception as ex:
         testController.resumeAdapter()
         raise ex
     testController.resumeAdapter()
@@ -933,6 +949,6 @@ def allTests(communicator):
     test(r.getProxy() == None) # Expected
     communicator.end_flushBatchRequests(r)
 
-    print "ok"
+    print("ok")
 
     p.shutdown()

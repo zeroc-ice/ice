@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,14 +16,14 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
-sys.path.append(path[0])
-from scripts import *
+    raise RuntimeError("can't find toplevel directory!")
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil, IceGridAdmin
 
 if not TestUtil.isWin32() and os.getuid() == 0:
-    print
-    print "*** can't run test as root ***"
-    print
+    sys.stdout.write("\n")
+    sys.stdout.write("*** can't run test as root ***\n")
+    sys.stdout.write("\n")
     sys.exit(0)
 
 testdir = os.getcwd();
@@ -37,7 +37,7 @@ if TestUtil.appverifier:
 registryProcs = IceGridAdmin.startIceGridRegistry(testdir)
 nodeProc = IceGridAdmin.startIceGridNode(testdir)
 
-print "starting glacier2...",
+sys.stdout.write("starting glacier2... ")
 sys.stdout.flush()
 
 args = ' --Glacier2.SessionTimeout=5' + \
@@ -50,9 +50,9 @@ args = ' --Glacier2.SessionTimeout=5' + \
        ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
        ' --IceSSL.VerifyPeer=1'
 routerProc = TestUtil.startServer(router, args, count=2)
-print "ok"
+print("ok")
 
-print "testing login with username/password...",
+sys.stdout.write("testing login with username/password... ")
 sys.stdout.flush()
 
 # Direct registry connection with username/password
@@ -77,11 +77,11 @@ admin.sendline("server list")
 admin.expect('>>> ')
 admin.sendline('exit')
 admin.waitTestSuccess(timeout=120)
-print "ok"
+print("ok")
 
 if TestUtil.protocol == "ssl":
 
-    print "testing login with ssl...",
+    sys.stdout.write("testing login with ssl... ")
     sys.stdout.flush()
 
     # Direct registry connection with SSL
@@ -103,9 +103,9 @@ if TestUtil.protocol == "ssl":
     admin.sendline('exit')
     admin.waitTestSuccess(timeout=120)
 
-    print "ok"
+    print("ok")
 
-print "testing commands...",
+sys.stdout.write("testing commands... ")
 sys.stdout.flush()
 icegridadmin = TestUtil.getIceGridAdmin()
 args = ' --Ice.Default.Locator="IceGrid/Locator:default -p 12010"' + \
@@ -195,9 +195,9 @@ admin.expect('node is up')
 admin.expect('>>> ')
 admin.sendline('exit')
 admin.waitTestSuccess(timeout=120)
-print "ok"
+print("ok")
 
-# print "testing icegridadmin...",
+# sys.stdout.write("testing icegridadmin... ")
 # sys.stdout.flush()
 
 # admin = Util.spawn('icegridadmin --Ice.Config=config.admin --Ice.Default.Router="DemoGlacier2/router:ssl -p 4064"')
@@ -224,7 +224,7 @@ print "ok"
 # admin.sendline('exit')
 # admin.waitTestSuccess(timeout=120)
 
-# print "ok"
+# print("ok")
 
 # print "completing shutdown...", 
 # sys.stdout.flush()
@@ -243,11 +243,11 @@ print "ok"
 # admin.sendline('exit')
 # admin.waitTestSuccess(timeout=120)
 
-print "stopping glacier2...",
+sys.stdout.write("stopping glacier2... ")
 sys.stdout.flush()
 routerProc.kill(signal.SIGINT)
 routerProc.waitTestSuccess()
-print "ok"
+print("ok")
 
 IceGridAdmin.iceGridAdmin("node shutdown localnode")
 IceGridAdmin.shutdownIceGridRegistry(registryProcs)
@@ -255,4 +255,3 @@ nodeProc.waitTestSuccess()
 
 if TestUtil.appverifier:
     TestUtil.appVerifierAfterTestEnd(targets)
-

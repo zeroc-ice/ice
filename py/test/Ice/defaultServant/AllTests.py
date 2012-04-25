@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, MyObjectI
+import Ice, Test, MyObjectI, sys
 
 def test(b):
     if not b:
@@ -24,7 +24,8 @@ def allTests(communicator):
     oa.addDefaultServant(servant, "foo")
 
     # Start test
-    print "testing single category... ",
+    sys.stdout.write("testing single category... ")
+    sys.stdout.flush()
 
     r = oa.findDefaultServant("foo")
     test(r == servant)
@@ -103,9 +104,10 @@ def allTests(communicator):
         # Expected
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing default category... ",
+    sys.stdout.write("testing default category... ")
+    sys.stdout.flush()
 
     oa.addDefaultServant(servant, "")
 
@@ -121,4 +123,4 @@ def allTests(communicator):
         prx.ice_ping()
         test(prx.getName() == names[idx])
 
-    print "ok"
+    print("ok")

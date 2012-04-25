@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,16 +12,20 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class Callback
     {
         internal Callback()
@@ -78,7 +82,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -89,11 +93,11 @@ public class AllTests
             }
             catch(A ex)
             {
-                AllTests.test(ex.aMem == 1);
+                test(ex.aMem == 1);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -119,7 +123,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -131,11 +135,11 @@ public class AllTests
             catch(Ice.ObjectNotExistException ex)
             {
                 Ice.Identity id = communicator.stringToIdentity("does not exist");
-                AllTests.test(ex.id.Equals(id));
+                test(ex.id.Equals(id));
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -153,7 +157,7 @@ public class AllTests
     {
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -164,11 +168,11 @@ public class AllTests
             }
             catch(Ice.FacetNotExistException ex)
             {
-                AllTests.test(ex.facet.Equals("no such facet"));
+                test(ex.facet.Equals("no such facet"));
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -193,7 +197,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -204,15 +208,15 @@ public class AllTests
             }
             catch(A ex)
             {
-                AllTests.test(ex.aMem == 1);
+                test(ex.aMem == 1);
             }
             catch(D ex)
             {
-                AllTests.test(ex.dMem == - 1);
+                test(ex.dMem == - 1);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -237,7 +241,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -248,12 +252,12 @@ public class AllTests
             }
             catch(B ex)
             {
-                AllTests.test(ex.aMem == 1);
-                AllTests.test(ex.bMem == 2);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -278,7 +282,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -289,13 +293,13 @@ public class AllTests
             }
             catch(C ex)
             {
-                AllTests.test(ex.aMem == 1);
-                AllTests.test(ex.bMem == 2);
-                AllTests.test(ex.cMem == 3);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -320,7 +324,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -331,12 +335,12 @@ public class AllTests
             }
             catch(B ex)
             {
-                AllTests.test(ex.aMem == 1);
-                AllTests.test(ex.bMem == 2);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -361,7 +365,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -372,13 +376,13 @@ public class AllTests
             }
             catch(C ex)
             {
-                AllTests.test(ex.aMem == 1);
-                AllTests.test(ex.bMem == 2);
-                AllTests.test(ex.cMem == 3);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -403,7 +407,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -414,13 +418,13 @@ public class AllTests
             }
             catch(C ex)
             {
-                AllTests.test(ex.aMem == 1);
-                AllTests.test(ex.bMem == 2);
-                AllTests.test(ex.cMem == 3);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -445,7 +449,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -459,7 +463,7 @@ public class AllTests
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -484,7 +488,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -498,7 +502,7 @@ public class AllTests
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -523,7 +527,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -537,7 +541,7 @@ public class AllTests
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -562,7 +566,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -576,7 +580,7 @@ public class AllTests
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -601,7 +605,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -615,7 +619,7 @@ public class AllTests
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -640,7 +644,7 @@ public class AllTests
         }
         public override void ice_response()
         {
-            AllTests.test(false);
+            test(false);
         }
 
         public override void ice_exception(Ice.Exception exc)
@@ -651,11 +655,11 @@ public class AllTests
             }
             catch(Ice.OperationNotExistException ex)
             {
-                AllTests.test(ex.operation.Equals("noSuchOperation"));
+                test(ex.operation.Equals("noSuchOperation"));
             }
             catch(Exception)
             {
-                AllTests.test(false);
+                test(false);
             }
             callback.called();
         }
@@ -949,10 +953,30 @@ public class AllTests
         private Ice.Communicator _communicator;
     }
 
-    public static ThrowerPrx allTests(Ice.Communicator communicator, bool collocated)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        WriteLine("setting Ice.FactoryAssemblies");
+        initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static ThrowerPrx allTests(Ice.Communicator communicator, bool collocated)
+#endif
+    {
+#if SILVERLIGHT
+        bool collocated = false;
+        WriteLine("Ice.FactoryAssemblies: " + communicator.getProperties().getProperty("Ice.FactoryAssemblies"));
+#endif
+
+#if !SILVERLIGHT
         {
-            Console.Write("testing object adapter registration exceptions... ");
+            Write("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
             try
             {
@@ -991,11 +1015,11 @@ public class AllTests
                 // Expected
             }
             first.deactivate();
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
 
         {
-            Console.Write("testing servant registration exceptions... ");
+            Write("testing servant registration exceptions... ");
             communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
@@ -1019,11 +1043,11 @@ public class AllTests
             {
             }
             adapter.deactivate();
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
 
         {
-            Console.Write("testing servant locator registration exceptions... ");
+            Write("testing servant locator registration exceptions... ");
             communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
             Ice.ServantLocator loc = new ServantLocatorI();
@@ -1038,11 +1062,11 @@ public class AllTests
             }
 
             adapter.deactivate();
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
-
+#endif
         {
-            Console.Write("testing object factory registration exception... ");
+            Write("testing object factory registration exception... ");
             Ice.ObjectFactory of = new ObjectFactoryI();
             communicator.addObjectFactory(of, "::x");
             try
@@ -1053,25 +1077,25 @@ public class AllTests
             catch(Ice.AlreadyRegisteredException)
             {
             }
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
 
-        Console.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Write("testing stringToProxy... ");
+        Flush();
         String @ref = "thrower:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         ThrowerPrx thrower = ThrowerPrxHelper.checkedCast(@base);
         test(thrower != null);
         test(thrower.Equals(@base));
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching exact types... ");
-        Console.Out.Flush();
+        Write("catching exact types... ");
+        Flush();
 
         try
         {
@@ -1146,10 +1170,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching base types... ");
-        Console.Out.Flush();
+        Write("catching base types... ");
+        Flush();
 
         try
         {
@@ -1180,10 +1204,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching derived types... ");
-        Console.Out.Flush();
+        Write("catching derived types... ");
+        Flush();
 
         try
         {
@@ -1232,12 +1256,12 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
         if(thrower.supportsUndeclaredExceptions())
         {
-            Console.Write("catching unknown user exception... ");
-            Console.Out.Flush();
+            Write("catching unknown user exception... ");
+            Flush();
 
             try
             {
@@ -1278,11 +1302,11 @@ public class AllTests
                 test(false);
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
 
-        Console.Write("catching object not exist exception... ");
-        Console.Out.Flush();
+        Write("catching object not exist exception... ");
+        Flush();
 
         {
             Ice.Identity id = communicator.stringToIdentity("does not exist");
@@ -1302,10 +1326,10 @@ public class AllTests
             }
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching facet not exist exception... ");
-        Console.Out.Flush();
+        Write("catching facet not exist exception... ");
+        Flush();
 
         try
         {
@@ -1325,10 +1349,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching operation not exist exception... ");
-        Console.Out.Flush();
+        Write("catching operation not exist exception... ");
+        Flush();
 
         try
         {
@@ -1345,10 +1369,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching unknown local exception... ");
-        Console.Out.Flush();
+        Write("catching unknown local exception... ");
+        Flush();
 
         try
         {
@@ -1363,10 +1387,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("catching unknown non-Ice exception... ");
-        Console.Out.Flush();
+        Write("catching unknown non-Ice exception... ");
+        Flush();
 
         try
         {
@@ -1381,10 +1405,10 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Write("testing asynchronous exceptions... ");
-        Console.Out.Flush();
+        Write("testing asynchronous exceptions... ");
+        Flush();
 
         try
         {
@@ -1408,12 +1432,12 @@ public class AllTests
             test(false);
         }
 
-        Console.WriteLine("ok");
+        WriteLine("ok");
 
         if(!collocated)
         {
-            Console.Write("catching exact types with AMI... ");
-            Console.Out.Flush();
+            Write("catching exact types with AMI... ");
+            Flush();
 
             {
                 AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
@@ -1445,10 +1469,10 @@ public class AllTests
                 cb.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching derived types... ");
-            Console.Out.Flush();
+            Write("catching derived types... ");
+            Flush();
 
             {
                 AMI_Thrower_throwBasAI cb = new AMI_Thrower_throwBasAI();
@@ -1468,12 +1492,12 @@ public class AllTests
                 cb.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
             if(thrower.supportsUndeclaredExceptions())
             {
-                Console.Write("catching unknown user exception with AMI... ");
-                Console.Out.Flush();
+                Write("catching unknown user exception with AMI... ");
+                Flush();
 
                 {
                     AMI_Thrower_throwUndeclaredAI cb = new AMI_Thrower_throwUndeclaredAI();
@@ -1493,11 +1517,11 @@ public class AllTests
                     cb.check();
                 }
 
-                Console.WriteLine("ok");
+                WriteLine("ok");
             }
 
-            Console.Write("catching object not exist exception with AMI... ");
-            Console.Out.Flush();
+            Write("catching object not exist exception with AMI... ");
+            Flush();
 
             {
                 Ice.Identity id = communicator.stringToIdentity("does not exist");
@@ -1507,10 +1531,10 @@ public class AllTests
                 cb.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching facet not exist exception with AMI... ");
-            Console.Out.Flush();
+            Write("catching facet not exist exception with AMI... ");
+            Flush();
 
             try
             {
@@ -1526,10 +1550,10 @@ public class AllTests
                 test(false);
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching operation not exist exception with AMI... ");
-            Console.Out.Flush();
+            Write("catching operation not exist exception with AMI... ");
+            Flush();
 
             {
                 AMI_WrongOperation_noSuchOperationI cb = new AMI_WrongOperation_noSuchOperationI();
@@ -1538,10 +1562,10 @@ public class AllTests
                 cb.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching unknown local exception with AMI... ");
-            Console.Out.Flush();
+            Write("catching unknown local exception with AMI... ");
+            Flush();
 
             {
                 AMI_Thrower_throwLocalExceptionI cb = new AMI_Thrower_throwLocalExceptionI();
@@ -1549,19 +1573,19 @@ public class AllTests
                 cb.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching unknown non-Ice exception with AMI... ");
-            Console.Out.Flush();
+            Write("catching unknown non-Ice exception with AMI... ");
+            Flush();
 
             AMI_Thrower_throwNonIceExceptionI cb2 = new AMI_Thrower_throwNonIceExceptionI();
             thrower.throwNonIceException_async(cb2);
             cb2.check();
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching exact types with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching exact types with new AMI mapping... ");
+            Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
@@ -1593,10 +1617,10 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching derived types with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching derived types with new AMI mapping... ");
+            Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
@@ -1616,12 +1640,12 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
             if(thrower.supportsUndeclaredExceptions())
             {
-                Console.Write("catching unknown user exception with new AMI mapping... ");
-                Console.Out.Flush();
+                Write("catching unknown user exception with new AMI mapping... ");
+                Flush();
 
                 {
                     AsyncCallback cb3 = new AsyncCallback();
@@ -1641,11 +1665,11 @@ public class AllTests
                     cb3.check();
                 }
 
-                Console.WriteLine("ok");
+                WriteLine("ok");
             }
 
-            Console.Write("catching object not exist exception with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching object not exist exception with new AMI mapping... ");
+            Flush();
 
             {
                 Ice.Identity id = communicator.stringToIdentity("does not exist");
@@ -1655,10 +1679,10 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching facet not exist exception with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching facet not exist exception with new AMI mapping... ");
+            Flush();
 
             {
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
@@ -1667,10 +1691,10 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching operation not exist exception with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching operation not exist exception with new AMI mapping... ");
+            Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
@@ -1679,10 +1703,10 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching unknown local exception with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching unknown local exception with new AMI mapping... ");
+            Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
@@ -1690,10 +1714,10 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Write("catching unknown non-Ice exception with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("catching unknown non-Ice exception with new AMI mapping... ");
+            Flush();
 
             {
                 AsyncCallback cb3 = new AsyncCallback();
@@ -1701,9 +1725,12 @@ public class AllTests
                 cb3.check();
             }
 
-            Console.WriteLine("ok");
+            WriteLine("ok");
         }
-
+#if SILVERLIGHT
+        thrower.shutdown();
+#else
         return thrower;
+#endif
     }
 }

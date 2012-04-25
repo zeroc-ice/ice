@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 # **********************************************************************
 
 import sys
-from scripts import Expect
+import Expect
 
 def dequote(s):
     cur = 0
@@ -38,7 +38,7 @@ def mkregexp(s):
     return s
                 
 def run(client, server):
-    print "populating database... ",
+    sys.stdout.write("populating database... ")
     sys.stdout.flush()
     f = open("contacts", "r")
     for l in f:
@@ -52,9 +52,9 @@ def run(client, server):
             client.expect('\n', timeout=1)
     except Expect.TIMEOUT:
         pass
-    print "ok"
+    print("ok")
 
-    print "testing...",
+    sys.stdout.write("testing... ")
     sys.stdout.flush()
     client.sendline('find "Doe, John"')
     client.expect('number of contacts found: 3')
@@ -95,4 +95,4 @@ def run(client, server):
     client.sendline('exit')
     client.waitTestSuccess()
 
-    print "ok"
+    print("ok")

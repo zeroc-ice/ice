@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,18 +15,18 @@ import Demo
 
 
 def menu():
-    print """
+    print("""
 usage:
 t: send greeting as twoway
 s: shutdown server
 x: exit
 ?: help
-"""
+""")
 
 class Client(Ice.Application):
     def run(self, args):
         if len(args) > 1:
-            print self.appName() + ": too many arguments"
+            print(self.appName() + ": too many arguments")
             return 1
 
         hello = None
@@ -37,7 +37,7 @@ class Client(Ice.Application):
             hello = Demo.HelloPrx.checkedCast(query.findObjectByType("::Demo::Hello"))
 
         if not hello:
-            print self.appName() + ": couldn't find a `::Demo::Hello' object."
+            print(self.appName() + ": couldn't find a `::Demo::Hello' object.")
             return 1
 
         menu()
@@ -45,7 +45,9 @@ class Client(Ice.Application):
         c = None
         while c != 'x':
             try:
-                c = raw_input("==> ")
+                sys.stdout.write("==> ")
+                sys.stdout.flush()
+                c = sys.stdin.readline().strip()
                 if c == 't':
                     hello.sayHello()
                 elif c == 's':
@@ -55,7 +57,7 @@ class Client(Ice.Application):
                 elif c == '?':
                     menu()
                 else:
-                    print "unknown command `" + c + "'"
+                    print("unknown command `" + c + "'")
                     menu()
             except EOFError:
                 break

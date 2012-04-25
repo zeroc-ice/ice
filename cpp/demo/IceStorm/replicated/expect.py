@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,10 +16,10 @@ if len(head) > 0:
     path = [os.path.join(head, p) for p in path]
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "demoscript")) ]
 if len(path) == 0:
-    raise "can't find toplevel directory!"
+    raise RuntimeError("can't find toplevel directory!")
 sys.path.append(path[0])
 
-from demoscript import *
+from demoscript import Util
 import time, signal
 
 desc = 'application.xml'
@@ -37,32 +37,32 @@ if Util.isNoServices() or Util.isDebugBuild():
     fi.close()
     fo.close()
 
-print "cleaning databases...",
+sys.stdout.write("cleaning databases... ")
 sys.stdout.flush()
 Util.cleanDbDir("db/node")
 Util.cleanDbDir("db/registry")
-print "ok"
+print("ok")
 
 if Util.defaultHost:
     args = ' --IceGrid.Node.PropertiesOverride="Ice.Default.Host=127.0.0.1"'
 else:
     args = ''
 
-print "starting icegridnode...",
+sys.stdout.write("starting icegridnode... ")
 sys.stdout.flush()
 node = Util.spawn(Util.getIceGridNode() + ' --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
 node.expect('IceGrid.Registry.Server ready\nIceGrid.Registry.Client ready\nIceGrid.Node ready')
-print "ok"
+print("ok")
 
-print "deploying application...",
+sys.stdout.write("deploying application... ")
 sys.stdout.flush()
 admin = Util.spawn(Util.getIceGridAdmin() + ' --Ice.Config=config.grid')
 admin.expect('>>>')
 admin.sendline("application add \'%s\'" %(desc))
 admin.expect('>>>')
-print "ok"
+print("ok")
 
-print "testing pub/sub...",
+sys.stdout.write("testing pub/sub... ")
 sys.stdout.flush()
 sub = Util.spawn('./subscriber --Ice.PrintAdapterReady')
 
@@ -80,7 +80,7 @@ pub = Util.spawn('./publisher')
 
 time.sleep(3)
 sub.expect('[0-9][0-9]/[0-9][0-9].*\n[0-9][0-9]/[0-9][0-9]')
-print "ok"
+print("ok")
 
 sub.kill(signal.SIGINT)
 sub.waitTestSuccess()

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -94,7 +94,7 @@ class Server(Ice.Application):
         # Create an object adapter
         #
         adapter = self.communicator().createObjectAdapterWithEndpoints(
-                                        "SimpleFileSystem", "default -h localhost -p 10000")
+            "SimpleFileSystem", "default -h localhost -p 10000")
 
         # Create the root directory (with name "/" and no parent)
         #
@@ -107,8 +107,8 @@ class Server(Ice.Application):
         text = [ "This file system contains a collection of poetry." ]
         try:
             file.write(text)
-        except Filesystem.GenericError, e:
-            print e.reason
+        except Filesystem.GenericError as e:
+            print(e.reason)
         file.activate(adapter)
 
         # Create a directory called "Coleridge" in the root directory
@@ -126,8 +126,8 @@ class Server(Ice.Application):
                  "Down to a sunless sea." ]
         try:
             file.write(text)
-        except Filesystem.GenericError, e:
-            print e.reason
+        except Filesystem.GenericError as e:
+            print(e.reason)
         file.activate(adapter)
 
         # All objects are created, allow client requests now
@@ -139,7 +139,7 @@ class Server(Ice.Application):
         self.communicator().waitForShutdown()
 
         if self.interrupted():
-            print self.appName() + ": terminating"
+            print(self.appName() + ": terminating")
 
         return 0
 

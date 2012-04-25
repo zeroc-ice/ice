@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,6 +22,7 @@ namespace IceInternal
             _instance = instance;
 
             _thread = new HelperThread(this);
+#if !SILVERLIGHT
             if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
             {
                 ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
@@ -32,7 +33,9 @@ namespace IceInternal
             {
                 _thread.Start(ThreadPriority.Normal);
             }
-
+#else
+            _thread.Start();
+#endif
         }
 
         public void queue(ThreadPoolWorkItem callback)
@@ -143,12 +146,18 @@ namespace IceInternal
                 _thread.Join();
             }
 
+#if !SILVERLIGHT
             public void Start(ThreadPriority priority)
+#else
+            public void Start()
+#endif
             {
                 _thread = new Thread(new ThreadStart(Run));
                 _thread.IsBackground = true;
                 _thread.Name = _name;
+#if !SILVERLIGHT
                 _thread.Priority = priority;
+#endif
                 _thread.Start();
             }
 

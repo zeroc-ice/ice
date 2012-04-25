@@ -1,13 +1,13 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, random, threading
+import Ice, Test, sys, random, threading
 
 def test(b):
     if not b:
@@ -61,7 +61,8 @@ def allTests(communicator):
     ref = "communicator:default -p 12010"
     com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
 
-    print "testing binding with single endpoint...",
+    sys.stdout.write("testing binding with single endpoint... ")
+    sys.stdout.flush()
 
     adapter = com.createObjectAdapter("Adapter", "default")
 
@@ -84,9 +85,10 @@ def allTests(communicator):
     except Ice.ConnectionRefusedException:
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing binding with multiple endpoints...",
+    sys.stdout.write("testing binding with multiple endpoints... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter11", "default"))
@@ -167,9 +169,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing binding with multiple endpoints and AMI...",
+    sys.stdout.write("testing binding with multiple endpoints and AMI... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("AdapterAMI11", "default"))
@@ -250,9 +253,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing random endpoint selection...",
+    sys.stdout.write("testing random endpoint selection... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter21", "default"))
@@ -283,9 +287,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing ordered endpoint selection...",
+    sys.stdout.write("testing ordered endpoint selection... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter31", "default"))
@@ -350,9 +355,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing per request binding with single endpoint...",
+    sys.stdout.write("testing per request binding with single endpoint... ")
+    sys.stdout.flush()
 
     adapter = com.createObjectAdapter("Adapter41", "default")
 
@@ -373,9 +379,10 @@ def allTests(communicator):
     except Ice.ConnectionRefusedException:
         pass
 
-    print "ok"
+    print("ok")
 
-    print "testing per request binding with multiple endpoints...",
+    sys.stdout.write("testing per request binding with multiple endpoints... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter51", "default"))
@@ -406,9 +413,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing per request binding with multiple endpoints and AMI...",
+    sys.stdout.write("testing per request binding with multiple endpoints and AMI... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("AdapterAMI51", "default"))
@@ -439,9 +447,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing per request binding and ordered endpoint selection...",
+    sys.stdout.write("testing per request binding and ordered endpoint selection... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter61", "default"))
@@ -506,9 +515,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing per request binding and ordered endpoint selection and AMI...",
+    sys.stdout.write("testing per request binding and ordered endpoint selection and AMI... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("AdapterAMI61", "default"))
@@ -573,9 +583,10 @@ def allTests(communicator):
 
     deactivate(com, adapters)
 
-    print "ok"
+    print("ok")
 
-    print "testing endpoint mode filtering...",
+    sys.stdout.write("testing endpoint mode filtering... ")
+    sys.stdout.flush()
 
     adapters = []
     adapters.append(com.createObjectAdapter("Adapter71", "default"))
@@ -591,10 +602,11 @@ def allTests(communicator):
     except Ice.TwowayOnlyException:
         pass
 
-    print "ok"
+    print("ok")
 
     if(len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0):
-        print "testing unsecure vs. secure endpoints...",
+        sys.stdout.write("testing unsecure vs. secure endpoints... ")
+        sys.stdout.flush()
 
         adapters = []
         adapters.append(com.createObjectAdapter("Adapter81", "ssl"))
@@ -634,6 +646,6 @@ def allTests(communicator):
 
         deactivate(com, adapters)
 
-        print "ok"
+        print("ok")
 
     com.shutdown()

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -62,12 +62,12 @@ class BlobjectCall(object):
         if len(self._curr.facet) > 0:
             proxy = self._proxy.ice_facet(self._curr.facet)
 
-        if self._curr.ctx.has_key("_fwd") and self._curr.ctx["_fwd"] == "o":
+        if "_fwd" in self._curr.ctx and self._curr.ctx["_fwd"] == "o":
             proxy = proxy.ice_oneway()
             try:
                 ok, out = proxy.ice_invoke(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
                 self._amdCallback.ice_response(ok, out)
-            except Ice.Exception, e:
+            except Ice.Exception as e:
                 self._amdCallback.ice_exception(e)
         else:
             cb = AsyncCallback(self._amdCallback)
@@ -113,12 +113,12 @@ class BlobjectI(Ice.Blobject):
             proxy = proxy.ice_facet(curr.facet)
 
         try:
-            if curr.ctx.has_key("_fwd") and curr.ctx["_fwd"] == "o":
+            if "_fwd" in curr.ctx and curr.ctx["_fwd"] == "o":
                 proxy = proxy.ice_oneway()
                 return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
             else:
                 return proxy.ice_invoke(curr.operation, curr.mode, inParams, curr.ctx)
-        except Ice.Exception, e:
+        except Ice.Exception as e:
             raise
 
     def add(self, proxy):
