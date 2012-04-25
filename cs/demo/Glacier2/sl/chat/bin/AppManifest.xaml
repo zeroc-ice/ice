@@ -1,8 +1,0 @@
-﻿<Deployment xmlns="http://schemas.microsoft.com/client/2007/deployment" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" EntryPointAssembly="chat" EntryPointType="chat.App" RuntimeVersion="5.0.61118.0">
-  <Deployment.Parts>
-    <AssemblyPart x:Name="chat" Source="chat.dll" />
-    <AssemblyPart x:Name="Glacier2" Source="Glacier2.dll" />
-    <AssemblyPart x:Name="Ice" Source="Ice.dll" />
-    <AssemblyPart x:Name="System.Windows.Controls.Navigation" Source="System.Windows.Controls.Navigation.dll" />
-  </Deployment.Parts>
-</Deployment>
