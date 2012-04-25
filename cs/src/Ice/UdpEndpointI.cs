@@ -614,11 +614,16 @@ namespace IceInternal
             return connectors(Network.getAddresses(_host, _port, instance_.protocolSupport()));
         }
 
+
         public override void connectors_async(EndpointI_connectors callback)
         {
+#if SILVERLIGHT
+            callback.connectors(connectors());
+#else
             instance_.endpointHostResolver().resolve(_host, _port, this, callback);
+#endif
         }
-
+	
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available. In case an acceptor is created, this operation
@@ -674,10 +679,10 @@ namespace IceInternal
             return udpEndpointI._host.Equals(_host) && udpEndpointI._port == _port;
         }
 
-        public override List<Connector> connectors(List<IPEndPoint> addresses)
+        public override List<Connector> connectors(List<EndPoint> addresses)
         {
             List<Connector> connectors = new List<Connector>();
-            foreach(IPEndPoint addr in addresses)
+            foreach(EndPoint addr in addresses)
             {
                 connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, _protocolMajor,
                                                 _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));

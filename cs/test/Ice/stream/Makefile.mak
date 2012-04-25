@@ -11,7 +11,7 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe Serializable.dll
 
-C_SRCS		= Client.cs
+C_SRCS		= Client.cs AllTests.cs ..\..\TestCommon\TestApp.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 

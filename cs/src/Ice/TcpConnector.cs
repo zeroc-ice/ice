@@ -28,8 +28,13 @@ namespace IceInternal
 
             try
             {
+
+#if SILVERLIGHT
+                Socket fd = Network.createSocket(false, AddressFamily.InterNetwork);
+#else
                 Socket fd = Network.createSocket(false, _addr.AddressFamily);
                 Network.setBlock(fd, false);
+#endif
 #if !COMPACT
                 Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
 #endif
@@ -58,12 +63,16 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, IPEndPoint addr, int timeout, string connectionId)
+        internal TcpConnector(Instance instance, EndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            _addr = addr;
+#if SILVERLIGHT
+            _addr = (DnsEndPoint)addr;
+#else
+            _addr = (IPEndPoint)addr;
+#endif
             _timeout = timeout;
             _connectionId = connectionId;
 
@@ -100,7 +109,7 @@ namespace IceInternal
                 return false;
             }
 
-            return Network.compareAddress(_addr, p._addr) == 0;
+            return _addr.Equals(p._addr);
         }
 
         public override string ToString()
@@ -116,7 +125,11 @@ namespace IceInternal
         private Instance _instance;
         private TraceLevels _traceLevels;
         private Ice.Logger _logger;
+#if SILVERLIGHT
+        private DnsEndPoint _addr;
+#else
         private IPEndPoint _addr;
+#endif
         private int _timeout;
         private string _connectionId;
         private int _hashCode;

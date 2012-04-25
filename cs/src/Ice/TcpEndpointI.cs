@@ -391,10 +391,16 @@ namespace IceInternal
             return connectors(Network.getAddresses(_host, _port, _instance.protocolSupport()));
         }
 
+
         public override void connectors_async(EndpointI_connectors callback)
         {
+#if SILVERLIGHT
+            callback.connectors(connectors());
+#else
             _instance.endpointHostResolver().resolve(_host, _port, this, callback);
+#endif
         }
+
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors
@@ -405,9 +411,13 @@ namespace IceInternal
         //
         public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
         {
+#if SILVERLIGHT
+            throw new Ice.FeatureNotSupportedException("server endpoint not supported for `" + ToString() + "'");
+#else
             TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
             endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
             return p;
+#endif
         }
 
         //
@@ -449,10 +459,10 @@ namespace IceInternal
             return tcpEndpointI._host.Equals(_host) && tcpEndpointI._port == _port;
         }
 
-        public override List<Connector> connectors(List<IPEndPoint> addresses)
+        public override List<Connector> connectors(List<EndPoint> addresses)
         {
             List<Connector> connectors = new List<Connector>();
-            foreach(IPEndPoint addr in addresses)
+            foreach(EndPoint addr in addresses)
             {
                 connectors.Add(new TcpConnector(_instance, addr, _timeout, _connectionId));
             }

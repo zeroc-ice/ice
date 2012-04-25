@@ -2547,7 +2547,7 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
     private class AMI_MyClass_opSerialSmallCSharpNull : Test.AMI_MyClass_opSerialSmallCSharp
     {
         public AMI_MyClass_opSerialSmallCSharpNull()
@@ -3715,7 +3715,7 @@ public class TwowaysAMI
             cb.check();
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
 

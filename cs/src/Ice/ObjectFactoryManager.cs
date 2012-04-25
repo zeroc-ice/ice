@@ -10,7 +10,7 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
 
     public sealed class ObjectFactoryManager
     {
@@ -18,8 +18,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                object o = _factoryMap[id];
-                if(o != null)
+		if(_factoryMap.ContainsKey(id))
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                     ex.id = id;
@@ -35,8 +34,7 @@ namespace IceInternal
             object o = null;
             lock(this)
             {
-                o = _factoryMap[id];
-                if(o == null)
+                if(!_factoryMap.ContainsKey(id))
                 {
                     Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
                     ex.id = id;
@@ -52,7 +50,9 @@ namespace IceInternal
         {
             lock(this)
             {
-                return (Ice.ObjectFactory)_factoryMap[id];
+                Ice.ObjectFactory factory = null;
+                _factoryMap.TryGetValue(id, out factory);
+                return factory;
             }
         }
         
@@ -61,17 +61,17 @@ namespace IceInternal
         //
         internal ObjectFactoryManager()
         {
-            _factoryMap = new Hashtable();
+            _factoryMap = new Dictionary<string, Ice.ObjectFactory>();
         }
         
         internal void destroy()
         {
-            Hashtable oldMap = null;
+            Dictionary<string, Ice.ObjectFactory> oldMap = null;
 
             lock(this)
             {
                 oldMap = _factoryMap;
-                _factoryMap = new Hashtable();
+                _factoryMap = new Dictionary<string, Ice.ObjectFactory>();
             }
 
             foreach(Ice.ObjectFactory factory in oldMap.Values)
@@ -80,7 +80,7 @@ namespace IceInternal
             }
         }
         
-        private Hashtable _factoryMap;
+        private Dictionary<string, Ice.ObjectFactory> _factoryMap;
     }
 
 }

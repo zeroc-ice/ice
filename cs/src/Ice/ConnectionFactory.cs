@@ -1462,7 +1462,7 @@ namespace IceInternal
         //
         // Operations from EventHandler.
         //
-        public override bool startAsync(int unused, AsyncCallback callback, ref bool completedSynchronously)
+        public override bool startAsync(int operation, AsyncCallback callback, ref bool completedSynchronously)
         {
             if(_state >= StateClosed)
             {
@@ -1483,7 +1483,7 @@ namespace IceInternal
                 }
                 finally
                 {
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
                     System.Environment.FailFast(s);
 #endif
                 }
@@ -1510,7 +1510,7 @@ namespace IceInternal
                     }
                     finally
                     {
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
                         System.Environment.FailFast(s);
 #endif
                     }
@@ -1582,7 +1582,7 @@ namespace IceInternal
                             }
                             finally
                             {
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
                                 System.Environment.FailFast(s);
 #endif
                             }

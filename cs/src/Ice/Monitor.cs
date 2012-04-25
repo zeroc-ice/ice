@@ -75,39 +75,45 @@ namespace IceUtilInternal
             }
 
             LockerEvent e = acquireEvent();
-            _waitQueue.Enqueue(e);
-
-            //
-            // Preserve the lock count until we reaquire the lock.
-            //
-            int lockCount = _lockCount;
-            _lockCount = 0;
-
-            //
-            // Fully release the lock.
-            //
-            for(int i = 0; i < lockCount; ++i)
+            try
             {
-                _mutex.ReleaseMutex();
+                _waitQueue.Enqueue(e);
+
+                //
+                // Preserve the lock count until we reaquire the lock.
+                //
+                int lockCount = _lockCount;
+                _lockCount = 0;
+
+                //
+                // Fully release the lock.
+                //
+                for(int i = 0; i < lockCount; ++i)
+                {
+                    _mutex.ReleaseMutex();
+                }
+
+                //
+                // Wait for the event to be set.
+                //
+                e.ev.WaitOne();
+
+                //
+                // Reacquire the lock the same number of times.
+                //
+                for(int i = 0; i < lockCount; ++i)
+                {
+                    _mutex.WaitOne();
+                }
+
+                _lockCount = lockCount;
+
+                Debug.Assert(e.notified);
             }
-
-            //
-            // Wait for the event to be set.
-            //
-            e.ev.WaitOne();
-
-            //
-            // Reacquire the lock the same number of times.
-            //
-            for(int i = 0; i < lockCount; ++i)
+            finally
             {
-                _mutex.WaitOne();
+                releaseEvent(e);
             }
-
-            _lockCount = lockCount;
-
-            Debug.Assert(e.notified);
-            releaseEvent(e);
         }
 
         public bool TimedWait(int timeout)
@@ -118,46 +124,43 @@ namespace IceUtilInternal
             }
 
             LockerEvent e = acquireEvent();
-            _waitQueue.Enqueue(e);
-
-            //
-            // Preserve the lock count until we reaquire the lock.
-            //
-            int lockCount = _lockCount;
-            _lockCount = 0;
-
-            //
-            // Fully release the lock.
-            //
-            for(int i = 0; i < lockCount; ++i)
+            try
             {
-                _mutex.ReleaseMutex();
+                _waitQueue.Enqueue(e);
+
+                //
+                // Preserve the lock count until we reaquire the lock.
+                //
+                int lockCount = _lockCount;
+                _lockCount = 0;
+
+                //
+                // Fully release the lock.
+                //
+                for(int i = 0; i < lockCount; ++i)
+                {
+                    _mutex.ReleaseMutex();
+                }
+
+                //
+                // Wait for the event to be set or the timeout to expire.
+                //
+                e.ev.WaitOne(timeout, false);
+
+                //
+                // Reacquire the lock the same number of times.
+                //
+                for(int i = 0; i < lockCount; ++i)
+                {
+                    _mutex.WaitOne();
+                }
+
+                _lockCount = lockCount;
+                return e.notified;
             }
-
-            //
-            // Wait for the event to be set or the timeout to expire.
-            //
-            e.ev.WaitOne(timeout, false);
-
-            //
-            // Reacquire the lock the same number of times.
-            //
-            for(int i = 0; i < lockCount; ++i)
-            {
-                _mutex.WaitOne();
-            }
-
-            _lockCount = lockCount;
-
-            if(e.notified)
+            finally
             {
                 releaseEvent(e);
-                return true;
-            }
-            else
-            {
-                e.timedOut = true;
-                return false;
             }
         }
 
@@ -171,16 +174,8 @@ namespace IceUtilInternal
                     // Set the first event in the wait queue.
                     //
                     LockerEvent h = _waitQueue.Dequeue();
-                    if(!h.timedOut)
-                    {
-                        h.notified = true;
-                        h.ev.Set();
-                        break;
-                    }
-                    else
-                    {
-                        releaseEvent(h);
-                    }
+                    h.notified = true;
+                    h.ev.Set();
                 }
             }
         }
@@ -194,21 +189,14 @@ namespace IceUtilInternal
                 //
                 foreach(LockerEvent h in _waitQueue)
                 {
-                    if(!h.timedOut)
-                    {
-                        h.notified = true;
-                        h.ev.Set();
-                    }
-                    else
-                    {
-                        releaseEvent(h);
-                    }
+                    h.notified = true;
+                    h.ev.Set();
                 }
                 _waitQueue.Clear();
             }
         }
 
-        private LockerEvent acquireEvent() 
+        private LockerEvent acquireEvent()
         {
             if(_eventPool == null)
             {
@@ -233,7 +221,6 @@ namespace IceUtilInternal
         internal class LockerEvent
         {
             internal System.Threading.EventWaitHandle ev;
-            internal bool timedOut;
             internal bool notified;
             internal LockerEvent next;
 
@@ -246,7 +233,6 @@ namespace IceUtilInternal
             internal void Reset()
             {
                 ev.Reset();
-                timedOut = false;
                 notified = false;
             }
         }

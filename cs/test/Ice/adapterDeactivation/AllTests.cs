@@ -10,35 +10,46 @@
 using System;
 using Test;
 
-public class AllTests
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
+
+public class AllTests : TestCommon.TestApp
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
-        }
-    }
-    
+
+#if SILVERLIGHT
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static TestIntfPrx allTests(Ice.Communicator communicator)
+#endif
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Write("testing stringToProxy... ");
+        Flush();
         string @ref = "test:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        Console.Out.WriteLine("ok");
-        
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        WriteLine("ok");
+
+        Write("testing checked cast... ");
+        Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
         test(obj != null);
         test(obj.Equals(@base));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
+#if !SILVERLIGHT
         {
-            Console.Out.Write("creating/destroying/recreating object adapter... ");
-            Console.Out.Flush();
+            Write("creating/destroying/recreating object adapter... ");
+            Flush();
             Ice.ObjectAdapter adapter =
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
             try
@@ -46,7 +57,7 @@ public class AllTests
                 communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
                 test(false);
             }
-            catch(Ice.AlreadyRegisteredException)
+            catch (Ice.AlreadyRegisteredException)
             {
             }
             adapter.destroy();
@@ -58,29 +69,31 @@ public class AllTests
             adapter.destroy();
             Console.Out.WriteLine("ok");
         }
-        
-        Console.Out.Write("creating/activating/deactivating object adapter in one operation... ");
-        Console.Out.Flush();
+#endif
+        Write("creating/activating/deactivating object adapter in one operation... ");
+        Flush();
         obj.transient();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("deactivating object adapter in the server... ");
-        Console.Out.Flush();
+        Write("deactivating object adapter in the server... ");
+        Flush();
         obj.deactivate();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing whether server is gone... ");
-        Console.Out.Flush();
+        Write("testing whether server is gone... ");
+        Flush();
         try
         {
             obj.ice_ping();
-            throw new System.ApplicationException();
+            test(false);
         }
         catch(Ice.LocalException)
         {
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
         }
-        
+
+#if !SILVERLIGHT
         return obj;
+#endif
     }
 }

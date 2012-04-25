@@ -449,12 +449,12 @@ namespace IceSSL
             return sslEndpointI._host.Equals(_host) && sslEndpointI._port == _port;
         }
 
-        public override List<IceInternal.Connector> connectors(List<IPEndPoint> addresses)
+        public override List<IceInternal.Connector> connectors(List<EndPoint> addresses)
         {
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
-            foreach(IPEndPoint addr in addresses)
+            foreach(EndPoint addr in addresses)
             {
-                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, _connectionId));
+                connectors.Add(new ConnectorI(_instance, _host, (IPEndPoint)addr, _timeout, _connectionId));
             }
             return connectors;
         }

@@ -12,16 +12,12 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class Callback
     {
         internal Callback()
@@ -327,24 +323,37 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "exceptions,version=1.0.0.0");
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
+#endif
+    {
+        Write("testing stringToProxy... ");
+        Flush();
         String @ref = "Test:default -p 12010 -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("base... ");
-        Console.Out.Flush();
+        Write("base... ");
+        Flush();
         {
             try
             {
@@ -361,19 +370,19 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("base (AMI)... ");
-        Console.Out.Flush();
+        Write("base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_baseAsBase().whenCompleted(cb.response, cb.exception_baseAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown derived... ");
-        Console.Out.Flush();
+        Write("slicing of unknown derived... ");
+        Flush();
         {
             try
             {
@@ -390,19 +399,19 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown derived (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of unknown derived (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownDerivedAsBase().whenCompleted(cb.response, cb.exception_unknownDerivedAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known derived as base... ");
-        Console.Out.Flush();
+        Write("non-slicing of known derived as base... ");
+        Flush();
         {
             try
             {
@@ -420,19 +429,19 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known derived as base (AMI)... ");
-        Console.Out.Flush();
+        Write("non-slicing of known derived as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownDerivedAsBase().whenCompleted(cb.response, cb.exception_knownDerivedAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known derived as derived... ");
-        Console.Out.Flush();
+        Write("non-slicing of known derived as derived... ");
+        Flush();
         {
             try
             {
@@ -450,20 +459,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known derived as derived (AMI)... ");
-        Console.Out.Flush();
+        Write("non-slicing of known derived as derived (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownDerivedAsKnownDerived().whenCompleted(
                         cb.response, cb.exception_knownDerivedAsKnownDerived);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown intermediate as base... ");
-        Console.Out.Flush();
+        Write("slicing of unknown intermediate as base... ");
+        Flush();
         {
             try
             {
@@ -480,20 +489,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown intermediate as base (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of unknown intermediate as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownIntermediateAsBase().whenCompleted(
                         cb.response, cb.exception_unknownIntermediateAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of known intermediate as base... ");
-        Console.Out.Flush();
+        Write("slicing of known intermediate as base... ");
+        Flush();
         {
             try
             {
@@ -511,20 +520,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of known intermediate as base (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of known intermediate as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownIntermediateAsBase().whenCompleted(
                         cb.response, cb.exception_knownIntermediateAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of known most derived as base... ");
-        Console.Out.Flush();
+        Write("slicing of known most derived as base... ");
+        Flush();
         {
             try
             {
@@ -543,20 +552,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of known most derived as base (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of known most derived as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownMostDerivedAsBase().whenCompleted(
                         cb.response, cb.exception_knownMostDerivedAsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known intermediate as intermediate... ");
-        Console.Out.Flush();
+        Write("non-slicing of known intermediate as intermediate... ");
+        Flush();
         {
             try
             {
@@ -574,20 +583,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known intermediate as intermediate (AMI)... ");
-        Console.Out.Flush();
+        Write("non-slicing of known intermediate as intermediate (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownIntermediateAsKnownIntermediate().whenCompleted(
                         cb.response, cb.exception_knownIntermediateAsKnownIntermediate);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known most derived as intermediate... ");
-        Console.Out.Flush();
+        Write("non-slicing of known most derived as intermediate... ");
+        Flush();
         {
             try
             {
@@ -606,20 +615,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known most derived as intermediate (AMI)... ");
-        Console.Out.Flush();
+        Write("non-slicing of known most derived as intermediate (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownMostDerivedAsKnownIntermediate().whenCompleted(
                         cb.response, cb.exception_knownMostDerivedAsKnownIntermediate);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known most derived as most derived... ");
-        Console.Out.Flush();
+        Write("non-slicing of known most derived as most derived... ");
+        Flush();
         {
             try
             {
@@ -638,20 +647,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("non-slicing of known most derived as most derived (AMI)... ");
-        Console.Out.Flush();
+        Write("non-slicing of known most derived as most derived (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_knownMostDerivedAsKnownMostDerived().whenCompleted(
                         cb.response, cb.exception_knownMostDerivedAsKnownMostDerived);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, known intermediate as base... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, known intermediate as base... ");
+        Flush();
         {
             try
             {
@@ -669,20 +678,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownMostDerived1AsBase().whenCompleted(
                         cb.response, cb.exception_unknownMostDerived1AsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, known intermediate as intermediate... ");
+        Flush();
         {
             try
             {
@@ -700,20 +709,20 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownMostDerived1AsKnownIntermediate().whenCompleted(
                         cb.response, cb.exception_unknownMostDerived1AsKnownIntermediate);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
+        Flush();
         {
             try
             {
@@ -730,18 +739,21 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
-        Console.Out.Flush();
+        Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
+        Flush();
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownMostDerived2AsBase().whenCompleted(
                         cb.response, cb.exception_unknownMostDerived2AsBase);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
-
+        WriteLine("ok");
+#if SILVERLIGHT
+        testPrx.shutdown();
+#else
         return testPrx;
+#endif
     }
 }

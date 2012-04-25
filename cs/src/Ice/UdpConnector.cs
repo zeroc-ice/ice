@@ -29,12 +29,16 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal UdpConnector(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl,
+        internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl,
                               byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
                               string connectionId)
         {
             instance_ = instance;
-            _addr = addr;
+#if SILVERLIGHT
+            _addr = (DnsEndPoint)addr;
+#else
+            _addr = (IPEndPoint)addr;
+#endif
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
             _protocolMajor = protocolMajor;
@@ -102,7 +106,7 @@ namespace IceInternal
                 return false;
             }
 
-            return Network.compareAddress(_addr, p._addr) == 0;
+            return _addr.Equals(p._addr);
         }
 
         public override string ToString()
@@ -116,7 +120,11 @@ namespace IceInternal
         }
 
         private Instance instance_;
+#if SILVERLIGHT
+        private DnsEndPoint _addr;
+#else
         private IPEndPoint _addr;
+#endif
         private string _mcastInterface;
         private int _mcastTtl;
         private byte _protocolMajor;

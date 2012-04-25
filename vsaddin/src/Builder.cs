@@ -735,41 +735,20 @@ namespace Ice.VisualStudio
             {                
                 if(Util.isCSharpProject(project))
                 {
-                    bool development = Util.developmentMode(project);
-                    if(Util.isSilverlightProject(project))
+                    bool development = Util.developmentMode(project);                        
+                    if(components.Count == 0)
                     {
-                        string iceSlHome = Environment.GetEnvironmentVariable("ICE_SL_HOME");
-                        if(String.IsNullOrEmpty(iceSlHome))
-                        {
-                            MessageBox.Show("ICE_SL_HOME environment variable not set.\n" +
-                                "ICE_SL_HOME environment variable must be set to point to " +
-                                "Ice Silverlight installation path.",
-                                "Ice Visual Studio Add-in", MessageBoxButtons.OK,
-                                MessageBoxIcon.Error,
-                                MessageBoxDefaultButton.Button1,
-                                (MessageBoxOptions)0);
-                            return;
-                        }
-                        
-                        Util.addDotNetReference(project, "IceSL", Util.getIceSlHome(), development);
+                        components = 
+                            new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
                     }
-                    else
+                    if(!components.Contains("Ice"))
                     {
-                        
-                        if(components.Count == 0)
-                        {
-                            components = 
-                                new ComponentList(Util.getProjectProperty(project, Util.PropertyIceComponents));
-                        }
-                        if(!components.Contains("Ice"))
-                        {
-                            components.Add("Ice");
-                        }
-                        string iceHome = Util.getIceHome();
-                        foreach(string component in components)
-                        {
-                            Util.addDotNetReference(project, component, iceHome, development);
-                        }
+                        components.Add("Ice");
+                    }
+                    string iceHome = Util.getIceHome();
+                    foreach(string component in components)
+                    {
+                        Util.addDotNetReference(project, component, iceHome, development);
                     }
                 }
                 else if(Util.isVBProject(project))
@@ -811,14 +790,7 @@ namespace Ice.VisualStudio
             }
             else if(Util.isCSharpProject(project))
             {
-                if(Util.isSilverlightProject(project))
-                {
-                    Util.removeDotNetReference(project, "IceSL");
-                }
-                else
-                {
-                    Util.removeDotNetReference(project, "Ice");
-                }
+                Util.removeDotNetReference(project, "Ice");
             }
 
             Util.setProjectProperty(project, Util.PropertyIceComponents, components.ToString());
@@ -1606,11 +1578,6 @@ namespace Ice.VisualStudio
             if(Util.isCSharpProject(project))
             {
                 compiler = Util.slice2cs;
-                if(Util.isSilverlightProject(project))
-                {
-                    compiler = Util.slice2sl;
-                    iceHome = Util.getIceSlHome();
-                }
             }
             return Path.Combine(Path.Combine(iceHome, "bin"), compiler);
         }
@@ -1618,10 +1585,6 @@ namespace Ice.VisualStudio
         public static string getSliceCompilerVersion(Project project, string sliceCompiler)
         {
             string iceHome = Util.getIceHome();
-            if(Util.isSilverlightProject(project))
-            {
-                iceHome = Util.getIceSlHome();
-            }
             sliceCompiler = Path.Combine(iceHome, Path.Combine("bin", sliceCompiler));
 
             System.Diagnostics.Process process = new System.Diagnostics.Process();
@@ -1666,20 +1629,6 @@ namespace Ice.VisualStudio
             process.BeginOutputReadLine();
             string version = process.StandardError.ReadToEnd();
             process.WaitForExit();
-
-            if(String.IsNullOrEmpty(version))
-            {
-                //
-                // Some old version of slice compilers print version 
-                // to StdOut instead of StdErr
-                //
-                version = reader.data();
-                if(String.IsNullOrEmpty(version))
-                {
-                    return "";
-                }
-            }
-
             return version.Trim();
         }
 
@@ -1714,15 +1663,7 @@ namespace Ice.VisualStudio
                     args += "--add-header=" + Util.quote(preCompiledHeader) + " ";
                 }
             }
-
-            if(Util.isSilverlightProject(project))
-            {
-                args += "-I\"" + Util.getIceSlHome() + "\\slice\" ";
-            }
-            else
-            {
-                args += "-I\"" + Util.getIceHome() + "\\slice\" ";
-            }
+            args += "-I\"" + Util.getIceHome() + "\\slice\" ";
 
             foreach(string i in includes)
             {
@@ -2575,30 +2516,7 @@ namespace Ice.VisualStudio
 
             process.WaitForExit();
 
-            //
-            // slice2sl <= 0.3 doesn't print all errors to standard error, we check the slice2sl
-            // version to know if we need to parse standard output for errors.
-            //
-            bool standardError = true;
-            if(Util.isSilverlightProject(project))
-            {
-                string version = getSliceCompilerVersion(project, Util.slice2sl);
-                List<String> tokens = new List<string>(version.Split(new char[]{'.'}, 
-                                                                     StringSplitOptions.RemoveEmptyEntries));
-                                                                     
-                int mayor = Int32.Parse(tokens[0], CultureInfo.InvariantCulture);
-                int minor = Int32.Parse(tokens[1], CultureInfo.InvariantCulture);
-                if(mayor == 0 && minor <= 3)
-                {
-                    standardError = false;
-                }
-            }
-
             bool hasErrors = parseErrors(project, sliceCompiler, file, stderr);
-            if(!standardError)
-            {
-                hasErrors = hasErrors || parseErrors(project, sliceCompiler, file, reader.data());
-            }
             process.Close();
             if(hasErrors)
             {

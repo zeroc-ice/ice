@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 
@@ -38,7 +38,7 @@ namespace IceUtilInternal
             State state = State.Normal;
 
             string arg = "";
-            ArrayList vec = new ArrayList();
+            List<string> vec = new List<string>();
             
             for(int i = 0; i < l.Length; ++i)
             {
@@ -400,7 +400,7 @@ namespace IceUtilInternal
                 }
             }
             
-            return (string[])vec.ToArray(typeof(string));
+            return (string[])vec.ToArray();
         }
     }
 }

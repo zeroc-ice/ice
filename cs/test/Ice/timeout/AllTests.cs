@@ -11,16 +11,12 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class CallbackBase
     {
         internal CallbackBase()
@@ -96,7 +92,28 @@ public class AllTests
         private CallbackBase callback = new CallbackBase();
     }
 
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        //
+        // For this test, we want to disable retries.
+        //
+        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static Test.TimeoutPrx allTests(Ice.Communicator communicator)
+#endif
     {
         string sref = "timeout:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -105,8 +122,8 @@ public class AllTests
         Test.TimeoutPrx timeout = Test.TimeoutPrxHelper.checkedCast(obj);
         test(timeout != null);
 
-        Console.Out.Write("testing connect timeout... ");
-        Console.Out.Flush();
+        Write("testing connect timeout... ");
+        Flush();
         {
             //
             // Expect ConnectTimeoutException.
@@ -141,10 +158,10 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing read timeout... ");
-        Console.Out.Flush();
+        Write("testing read timeout... ");
+        Flush();
         {
             //
             // Expect TimeoutException.
@@ -175,10 +192,10 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing write timeout... ");
-        Console.Out.Flush();
+        Write("testing write timeout... ");
+        Flush();
         {
             //
             // Expect TimeoutException.
@@ -213,10 +230,10 @@ public class AllTests
                 test(false);
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing AMI read timeout... ");
-        Console.Out.Flush();
+        Write("testing AMI read timeout... ");
+        Flush();
         {
             //
             // Expect TimeoutException.
@@ -236,10 +253,10 @@ public class AllTests
             to.begin_sleep(500).whenCompleted(cb.response, cb.exception);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing AMI write timeout... ");
-        Console.Out.Flush();
+        Write("testing AMI write timeout... ");
+        Flush();
         {
             //
             // Expect TimeoutException.
@@ -263,10 +280,10 @@ public class AllTests
             to.begin_sendData(seq).whenCompleted(cb.response, cb.exception);
             cb.check();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing close timeout... ");
-        Console.Out.Flush();
+        Write("testing close timeout... ");
+        Flush();
         {
             Test.TimeoutPrx to = Test.TimeoutPrxHelper.checkedCast(obj.ice_timeout(250));
             Ice.Connection connection = to.ice_getConnection();
@@ -292,10 +309,10 @@ public class AllTests
             }
             timeout.op(); // Ensure adapter is active.
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing timeout overrides... ");
-        Console.Out.Flush();
+        Write("testing timeout overrides... ");
+        Flush();
         {
             //
             // Test Ice.Override.Timeout. This property overrides all
@@ -392,13 +409,16 @@ public class AllTests
             Ice.Communicator comm = Ice.Util.initialize(initData);
             comm.stringToProxy(sref).ice_getConnection();
             timeout.holdAdapter(750);
-            Stopwatch stopwatch = new Stopwatch();
-            long now = stopwatch.ElapsedMilliseconds;
+            timeout.holdAdapter(750);
+            long begin = System.DateTime.Now.Ticks;
             comm.destroy();
-            test(stopwatch.ElapsedMilliseconds - now < 500);
+            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 500);
         }
-        Console.Out.WriteLine("ok");
-
+        WriteLine("ok");
+#if SILVERLIGHT
+        timeout.shutdown();
+#else
         return timeout;
+#endif
     }
 }

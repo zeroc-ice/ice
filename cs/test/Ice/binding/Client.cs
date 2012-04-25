@@ -41,7 +41,7 @@ public class Client
         }
         catch(System.Exception ex)
         {
-            System.Console.Error.WriteLine(ex);
+            System.Console.Error.WriteLine(ex.ToString());
             status = 1;
         }
 

@@ -12,7 +12,8 @@ top_srcdir	= ..\..\..
 TARGETS		= client.exe
 
 C_SRCS		= Client.cs \
-		  AllTests.cs
+		  AllTests.cs \
+		  ..\..\TestCommon\TestApp.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 

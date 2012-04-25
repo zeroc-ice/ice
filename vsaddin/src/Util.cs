@@ -294,7 +294,6 @@ namespace Ice.VisualStudio
 
         public const string slice2cs = "slice2cs.exe";
         public const string slice2cpp = "slice2cpp.exe";
-        public const string slice2sl = "slice2sl.exe";
 
         //
         // Property names used to persist project configuration.
@@ -315,7 +314,8 @@ namespace Ice.VisualStudio
 
         private static readonly string[] silverlightNames =
         {
-            "IceSL"
+            "Glacier2", "Ice", "IceGrid", "IcePatch2", 
+            "IceStorm"
         };
 
         public static string[] getSilverlightNames()
@@ -354,15 +354,6 @@ namespace Ice.VisualStudio
         public static string[] getDotNetNames()
         {
             return (string[])dotNetNames.Clone();
-        }
-
-        public static string getIceSlHome()
-        {
-            //
-            // For Silverlight projects Ice Home is always set to the value of ICE_SL_HOME
-            // environment variable.
-            //
-            return Environment.ExpandEnvironmentVariables("%ICE_SL_HOME%");
         }
 
         public static string getIceHome()
@@ -472,6 +463,10 @@ namespace Ice.VisualStudio
             if(isVBSmartDeviceProject(project) || isCSharpSmartDeviceProject(project))
             {
                 binDir = _csCompactFrameworkBinDirs;
+            }
+            else if(isSilverlightProject(project))
+            {
+                binDir = _slBinDirs;
             }
             else
             {
@@ -630,6 +625,7 @@ namespace Ice.VisualStudio
 
         private static readonly string _csBinDirs = "\\bin\\";
         private static readonly string _csCompactFrameworkBinDirs = "\\bin\\cf\\";
+        private static readonly string _slBinDirs = "\\bin\\sl\\";
 
         public static bool addDotNetReference(Project project, string component, string iceHome, bool development)
         {
@@ -643,6 +639,10 @@ namespace Ice.VisualStudio
             {
                 csBinDir = _csCompactFrameworkBinDirs;
             }
+            else if (isSilverlightProject(project))
+            {
+                csBinDir = _slBinDirs;
+            }
             else
             {
                 csBinDir = _csBinDirs;
@@ -650,7 +650,7 @@ namespace Ice.VisualStudio
 
 
             string reference = iceHome + csBinDir + component + ".dll";
-            if (File.Exists(reference))
+            if(File.Exists(reference))
             {
                 VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
                 try
@@ -2153,6 +2153,10 @@ namespace Ice.VisualStudio
             {
                 componentNames = getDotNetCompactNames();
             }
+            else if (Util.isSilverlightProject(project))
+            {
+                componentNames = getSilverlightNames();
+            }
             else
             {
                 componentNames = getDotNetNames();
@@ -2568,12 +2572,6 @@ namespace Ice.VisualStudio
                 string binDir = getCsBinDir(project);
                 ComponentList components = Util.getIceDotNetComponents(project);
 
-                if(isSilverlightProject(project))
-                {
-                    iceHome = getIceSlHome();
-                    components = Util.getIceSilverlightComponents(project);
-                }
-
                 foreach(string component in components)
                 {
                     if (String.IsNullOrEmpty(component))
@@ -2830,46 +2828,6 @@ namespace Ice.VisualStudio
             catch(System.Xml.XmlException)
             {
                 return false; // There was an error parsing the XML
-            }
-        }
-
-        public static bool parseSlice2slOptions(string args, bool showWarning, ref Options opts)
-        {
-            try
-            {
-                opts = null;
-
-                if(String.IsNullOrEmpty(args))
-                {
-                    return true; //No options to parse
-                }
-
-                opts = new Options();
-                opts.addOpt("h", "help");
-                opts.addOpt("v", "version");
-                opts.addOpt("D", "", Options.ArgType.NeedArg, "", Options.RepeatType.Repeat);
-                opts.addOpt("U", "", Options.ArgType.NeedArg, "", Options.RepeatType.Repeat);
-                opts.addOpt("I", "", Options.ArgType.NeedArg, "", Options.RepeatType.Repeat);
-                opts.addOpt("E");
-                opts.addOpt("", "output-dir", Options.ArgType.NeedArg);
-                opts.addOpt("", "depend");
-                opts.addOpt("d", "debug");
-                opts.addOpt("", "ice");
-                opts.addOpt("", "case-sensitive");
-
-                opts.parse(Options.split(args));
-
-                checkInvalidOptions(opts);
-                
-                return true;
-            }
-            catch(BadOptionException ex)
-            {
-                if(showWarning)
-                {
-                    showExtraOptionsWarning(ex);
-                }
-                return false;
             }
         }
 

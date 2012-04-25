@@ -169,16 +169,8 @@ namespace Ice.VisualStudio
 
                         if(Util.isCSharpProject(project))
                         {
-                            if(Util.isSilverlightProject(project))
-                            {
-                                IceSilverlightConfigurationDialog dialog = new IceSilverlightConfigurationDialog(project);
-                                dialog.ShowDialog();
-                            }
-                            else
-                            {
                                 IceCsharpConfigurationDialog dialog = new IceCsharpConfigurationDialog(project);
                                 dialog.ShowDialog();
-                            }
                         }
                         else if(Util.isVBProject(project))
                         {

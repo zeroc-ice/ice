@@ -22,7 +22,7 @@ internal class Acceptor : IceInternal.Acceptor
         _acceptor.listen();
     }
 
-    public bool startAccept(AsyncCallback callback, object state)
+    public bool startAccept(IceInternal.AsyncCallback callback, object state)
     {
         return _acceptor.startAccept(callback, state);
     }

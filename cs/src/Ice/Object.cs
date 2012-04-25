@@ -62,7 +62,7 @@ namespace Ice
     /// <summary>
     /// the base interface for servants.
     /// </summary>
-    public interface Object : System.ICloneable
+    public interface Object :    System.ICloneable
     {
         /// <summary>
         /// This method is deprecated. Use GetHashCode instead.

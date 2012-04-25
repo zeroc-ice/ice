@@ -11,9 +11,9 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe collocated.exe serveramd.exe Serializable.dll
 
-C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs
+C_SRCS		= AllTests.cs Client.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= MyClassI.cs Server.cs Custom.cs
-COL_SRCS	= AllTests.cs Collocated.cs MyClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs
+COL_SRCS	= AllTests.cs Collocated.cs MyClassI.cs Twoways.cs TwowaysAMI.cs TwowaysNewAMI.cs Custom.cs ..\..\TestCommon\TestApp.cs
 SAMD_SRCS	= MyClassAMDI.cs ServerAMD.cs Custom.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs

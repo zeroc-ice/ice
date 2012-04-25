@@ -17,11 +17,12 @@ namespace IceInternal
         //
         Ice.Communicator getCommunicator();
 
+#if !SILVERLIGHT
         //
         // Get the endpoint host resolver.
         //
         IceInternal.EndpointHostResolver getEndpointHostResolver();
-
+#endif
         //
         // Get the protocol support.
         //
@@ -71,6 +72,7 @@ namespace IceInternal
             return _communicator;
         }
 
+#if !SILVERLIGHT
         //
         // Get the endpoint host resolver.
         //
@@ -78,6 +80,7 @@ namespace IceInternal
         {
             return _instance.endpointHostResolver();
         }
+#endif
 
         //
         // Get the protocol support.

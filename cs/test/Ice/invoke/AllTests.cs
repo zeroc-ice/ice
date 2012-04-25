@@ -11,7 +11,11 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
+
+public class AllTests : TestCommon.TestApp
 {
     private static string testString = "This is a test string";
 
@@ -20,14 +24,6 @@ public class AllTests
         public string getString()
         {
             return testString;
-        }
-    }
-
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
         }
     }
 
@@ -190,15 +186,27 @@ public class AllTests
 
         private CallbackBase callback = new CallbackBase();
     }
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "invoke,version=1.0.0.0");
+        return initData;
+    }
 
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static Test.MyClassPrx allTests(Ice.Communicator communicator)
+#endif
     {
         Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
 
-        Console.Out.Write("testing ice_invoke... ");
-        Console.Out.Flush();
+        Write("testing ice_invoke... ");
+        Flush();
 
         {
             byte[] inParams, outParams;
@@ -248,10 +256,10 @@ public class AllTests
             }
         }
 
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing asynchronous ice_invoke... ");
-        Console.Out.Flush();
+        Write("testing asynchronous ice_invoke... ");
+        Flush();
 
         {
             byte[] inParams, outParams;
@@ -336,8 +344,12 @@ public class AllTests
             cb.check();
         }
 
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
+#if SILVERLIGHT
+        cl.shutdown();
+#else
         return cl;
+#endif
     }
 }

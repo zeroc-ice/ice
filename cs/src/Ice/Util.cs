@@ -506,6 +506,7 @@ namespace IceInternal
             return new ProtocolPluginFacadeI(communicator);
         }
 
+#if !SILVERLIGHT
         public static System.Threading.ThreadPriority stringToThreadPriority(string s)
         {
             if(String.IsNullOrEmpty(s))
@@ -538,5 +539,16 @@ namespace IceInternal
             }
             return ThreadPriority.Normal;
         }
+#endif
     }
 }
+
+#if SILVERLIGHT
+namespace System
+{
+    public interface ICloneable
+    {
+        Object Clone();
+    }
+}
+#endif

@@ -119,7 +119,7 @@ namespace IceInternal
         //
         public abstract bool equivalent(EndpointI endpoint);
 
-        public virtual List<Connector> connectors(List<IPEndPoint> addresses)
+        public virtual List<Connector> connectors(List<EndPoint> addresses)
         {
             Debug.Assert(false);
             return null;

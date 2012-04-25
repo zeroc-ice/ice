@@ -1021,7 +1021,7 @@ public class TwowaysNewAMI
             callback.called();
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         public void opSerialSmallCSharpNullI(Ice.AsyncResult result)
         {
             try
@@ -2162,7 +2162,7 @@ public class TwowaysNewAMI
             cb.check();
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
 

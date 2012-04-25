@@ -1,0 +1,81 @@
+Build instructions
+------------------
+
+Ice for Silverlight has been built and tested with:
+
+- Microsoft Visual Studio 2010 SP1 and Silverlight 5.0
+
+
+Unpack the archive. The .NET sources will be contained in the
+Ice-@ver@\cs subdirectory.
+
+You will need the Slice to C# translator and supporting executables
+and libraries from Ice for C++. You can download a binary distribution
+from the ZeroC web site, or you can build Ice for C++ yourself.
+
+Binary distributions for the supported platforms are available at
+
+  http://www.zeroc.com/download.html
+
+Follow these steps to build the source:
+
+1) If you have not built Ice for C++ in the "cpp" subdirectory, set
+   ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
+
+   > set ICE_HOME=C:\Ice-@ver@
+
+2) Change to the "cs" subdirectory of the Ice source distribution:
+
+   > cd Ice-@ver@\cs
+
+3) Open config\Make.rules.mak.cs and review the comments that describe
+   the settings you can modify. For example, you may wish to enable
+   optimization.
+   
+   You must define SILVERLIGHT=yes to build the Silverlight Ice
+   assembly.
+
+4) Run nmake:
+
+   > nmake /f Makefile.mak
+
+To build the tests and demos you must use the Visual Studio solutions 
+located in test\testsl.sln and demo\demosl.sln. Note that the projects 
+require the Ice Visual Studio Add-In. The add-in is installed automatically 
+when you use the Ice installer, or you can install the add-in manually by
+following the instructions in ..\vsaddin\INSTALL.txt.
+
+Installation
+------------
+
+Simply run "nmake /f Makefile.mak install". This will install Ice for
+.NET in the directory specified by the "prefix" variable in
+config\Make.rules.mak.cs. The Ice Silverlight assemblies will be
+located in <prefix>\bin\sl
+
+Running the tests
+-----------------
+
+Silverlight has no server side support, you must use a server from
+another language mapping:
+
+To run a test, open a command window and change to the test
+directory. At the command prompt, execute:
+
+  > server
+
+Open test\testsl.sln in Visual Studio and start the corresponding
+test, using the "Debug > Start new instance" command. In the test
+application, click "Run"
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+
+Running the demos
+-----------------
+
+To run the demos, open demo\demosl.sln Solution and follow the
+instructions in the REAME.txt files of each demo.
+

@@ -11,9 +11,10 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe
 
-C_SRCS		= AllTests.cs Client.cs
+C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs
 S_SRCS		= CAI.cs CBI.cs CCI.cs CDI.cs IAI.cs IB1I.cs IB2I.cs ICI.cs InitialI.cs Server.cs
-COL_SRCS	= AllTests.cs CAI.cs CBI.cs CCI.cs CDI.cs Collocated.cs IAI.cs IB1I.cs IB2I.cs ICI.cs InitialI.cs
+COL_SRCS	= AllTests.cs CAI.cs CBI.cs CCI.cs CDI.cs Collocated.cs IAI.cs IB1I.cs IB2I.cs ICI.cs InitialI.cs \
+		  ../../TestCommon/TestApp.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 

@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hello", "hello\hello.csproj", "{07F11600-BFCA-42DE-BF09-BF964E0A9D94}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hello.Web", "hello.Web\hello.Web.csproj", "{581234FD-B61C-428C-A214-966E7E6DF42F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07F11600-BFCA-42DE-BF09-BF964E0A9D94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07F11600-BFCA-42DE-BF09-BF964E0A9D94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07F11600-BFCA-42DE-BF09-BF964E0A9D94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07F11600-BFCA-42DE-BF09-BF964E0A9D94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{581234FD-B61C-428C-A214-966E7E6DF42F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581234FD-B61C-428C-A214-966E7E6DF42F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581234FD-B61C-428C-A214-966E7E6DF42F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581234FD-B61C-428C-A214-966E7E6DF42F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

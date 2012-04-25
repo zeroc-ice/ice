@@ -11,9 +11,9 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe serveramd.exe collocated.exe
 
-C_SRCS		= Client.cs AllTests.cs
+C_SRCS		= Client.cs AllTests.cs ..\..\TestCommon\TestApp.cs
 S_SRCS		= Server.cs CookieI.cs ServantLocatorI.cs TestI.cs TestActivationI.cs
-COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs TestActivationI.cs
+COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs TestActivationI.cs ..\..\TestCommon\TestApp.cs
 SAMD_SRCS	= Server.cs CookieI.cs ServantLocatorI.cs TestAMDI.cs TestActivationI.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs

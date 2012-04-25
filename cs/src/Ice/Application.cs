@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+#if !SILVERLIGHT
+
 namespace Ice
 {
     using System;
@@ -1008,3 +1010,4 @@ namespace Ice
     
     delegate bool CtrlCEventHandler(int sig);
 }
+#endif

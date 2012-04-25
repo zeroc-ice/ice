@@ -10,34 +10,44 @@
 using System;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
+
+public class AllTests : TestCommon.TestApp
+{   
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "inheritance,version=1.0.0.0");
+        return initData;
     }
-    
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static InitialPrx allTests(Ice.Communicator communicator)
+#endif
+
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Write("testing stringToProxy... ");
+        Flush();
         string ref_Renamed = "initial:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
         test(@base != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting proxies for class hierarchy... ");
-        Console.Out.Flush();
+        Write("getting proxies for class hierarchy... ");
+        Flush();
         Test.MA.CAPrx ca = initial.caop();
         Test.MB.CBPrx cb = initial.cbop();
         Test.MA.CCPrx cc = initial.ccop();
@@ -48,10 +58,10 @@ public class AllTests
         test(cb != cc);
         test(cb != cd);
         test(cc != cd);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("getting proxies for interface hierarchy... ");
-        Console.Out.Flush();
+        Write("getting proxies for interface hierarchy... ");
+        Flush();
         Test.MA.IAPrx ia = initial.iaop();
         Test.MB.IB1Prx ib1 = initial.ib1op();
         Test.MB.IB2Prx ib2 = initial.ib2op();
@@ -61,10 +71,10 @@ public class AllTests
         test(ia != ic);
         test(ib1 != ic);
         test(ib2 != ic);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("invoking proxy operations on class hierarchy... ");
-        Console.Out.Flush();
+        Write("invoking proxy operations on class hierarchy... ");
+        Flush();
         Test.MA.CAPrx cao;
         Test.MB.CBPrx cbo;
         Test.MA.CCPrx cco;
@@ -111,10 +121,10 @@ public class AllTests
         test(cbo.Equals(cc));
         cco = cc.ccop(cc);
         test(cco.Equals(cc));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("ditto, but for interface hierarchy... ");
-        Console.Out.Flush();
+        Write("ditto, but for interface hierarchy... ");
+        Flush();
         Test.MA.IAPrx iao;
         Test.MB.IB1Prx ib1o;
         Test.MB.IB2Prx ib2o;
@@ -195,10 +205,10 @@ public class AllTests
         test(ib2o.Equals(ic));
         ico = ic.icop(ic);
         test(ico.Equals(ic));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("ditto, but for class implementing interfaces... ");
-        Console.Out.Flush();
+        Write("ditto, but for class implementing interfaces... ");
+        Flush();
         
         cao = cd.caop(cd);
         test(cao.Equals(cd));
@@ -227,8 +237,12 @@ public class AllTests
         test(ib1o.Equals(cd));
         ib2o = cd.cdop(cd);
         test(ib2o.Equals(cd));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
+#if SILVERLIGHT
+        initial.shutdown();
+#else
         return initial;
+#endif
     }
 }

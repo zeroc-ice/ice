@@ -18,6 +18,7 @@ public abstract class EventHandler
     // Called to start a new asynchronous read or write operation.
     //
     abstract public bool startAsync(int op, AsyncCallback cb, ref bool completedSynchronously);
+
     abstract public bool finishAsync(int op);
 
     //

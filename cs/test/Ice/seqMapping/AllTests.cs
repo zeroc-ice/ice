@@ -9,33 +9,56 @@
 
 using System;
 
-public class AllTests
+#if SILVERLIGHT
+using System.Windows.Controls;
+#endif
+
+public class AllTests : TestCommon.TestApp
 {
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        Console.Out.Flush();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.FactoryAssemblies", "seqMapping,version=1.0.0.0");
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+#endif
+    {
+#if SILVERLIGHT
+        bool collocated = false;
+#endif
+        Flush();
         string rf = "test:default -p 12010";
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 
-        Console.Out.Write("testing twoway operations... ");
-        Console.Out.Flush();
+        Write("testing twoway operations... ");
+        Flush();
         Twoways.twoways(communicator, cl);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
         if(!collocated)
         {
-            Console.Out.Write("testing twoway operations with AMI... ");
-            Console.Out.Flush();
+            Write("testing twoway operations with AMI... ");
+            Flush();
             TwowaysAMI.twowaysAMI(communicator, cl);
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
 
-            Console.Out.Write("testing twoway operations with new AMI mapping... ");
-            Console.Out.Flush();
+            Write("testing twoway operations with new AMI mapping... ");
+            Flush();
             TwowaysNewAMI.twowaysAMI(communicator, cl);
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
         }
-
+#if SILVERLIGHT
+        cl.shutdown();
+#else
         return cl;
+#endif
     }
 }

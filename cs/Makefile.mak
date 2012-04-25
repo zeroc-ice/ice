@@ -11,7 +11,11 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.cs
 
-SUBDIRS		= src test demo
+SUBDIRS		= src
+
+!if "$(SILVERLIGHT)" != "yes"
+SUBDIRS		= $(SUBDIRS) test demo
+!endif
 
 install:: install-common
 	@if not exist "$(install_bindir)" \

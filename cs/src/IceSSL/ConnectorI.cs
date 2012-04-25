@@ -118,7 +118,7 @@ namespace IceSSL
                 return false;
             }
 
-            return IceInternal.Network.compareAddress(_addr, p._addr) == 0;
+            return _addr.Equals(p._addr);
         }
 
         public override string ToString()

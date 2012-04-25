@@ -11,11 +11,11 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe collocated.exe
 
-C_SRCS		= AllTests.cs BI.cs CI.cs DI.cs EI.cs FI.cs II.cs JI.cs HI.cs Client.cs
+C_SRCS		= AllTests.cs BI.cs CI.cs DI.cs EI.cs FI.cs II.cs JI.cs HI.cs Client.cs ../../TestCommon/TestApp.cs
 S_SRCS		= InitialI.cs BI.cs CI.cs DI.cs EI.cs FI.cs II.cs JI.cs HI.cs Server.cs \
 		  UnexpectedObjectExceptionTestI.cs
 COL_SRCS	= AllTests.cs BI.cs CI.cs DI.cs EI.cs FI.cs II.cs JI.cs HI.cs Collocated.cs InitialI.cs \
-		  UnexpectedObjectExceptionTestI.cs
+		  UnexpectedObjectExceptionTestI.cs ../../TestCommon/TestApp.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 

@@ -10,16 +10,20 @@
 using System;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class Condition
     {
         public Condition(bool value)
@@ -109,20 +113,25 @@ public class AllTests
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
+#if SILVERLIGHT
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static void allTests(Ice.Communicator communicator)
+#endif
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Write("testing stringToProxy... ");
+        Flush();
         String @ref = "hold:default -p 12010";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         String refSerialized = "hold:default -p 12011";
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         HoldPrx hold = HoldPrxHelper.checkedCast(@base);
         HoldPrx holdOneway = HoldPrxHelper.uncheckedCast(@base.ice_oneway());
         test(hold != null);
@@ -131,10 +140,10 @@ public class AllTests
         HoldPrx holdSerializedOneway = HoldPrxHelper.uncheckedCast(baseSerialized.ice_oneway());
         test(holdSerialized != null);
         test(holdSerialized.Equals(baseSerialized));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("changing state between active and hold rapidly... ");
-        Console.Out.Flush();
+        Write("changing state between active and hold rapidly... ");
+        Flush();
         for(int i = 0; i < 100; ++i)
         {
             hold.putOnHold(0);
@@ -151,10 +160,10 @@ public class AllTests
         {
             holdSerializedOneway.putOnHold(0);
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing without serialize mode... ");
-        Console.Out.Flush();
+        Write("testing without serialize mode... ");
+        Flush();
         System.Random rand = new System.Random();
         {
             Condition cond = new Condition(true);
@@ -185,10 +194,10 @@ public class AllTests
                 cb = null;
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing with serialize mode... ");
-        Console.Out.Flush();
+        Write("testing with serialize mode... ");
+        Flush();
         {
             Condition cond = new Condition(true);
             int value = 0;
@@ -221,10 +230,10 @@ public class AllTests
                 }
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing waitForHold... ");
-        Console.Out.Flush();
+        Write("testing waitForHold... ");
+        Flush();
         {
             hold.waitForHold();
             hold.waitForHold();
@@ -241,12 +250,12 @@ public class AllTests
             hold.putOnHold(-1);
             hold.ice_ping();            
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("changing state to hold and shutting down server... ");
-        Console.Out.Flush();
+        Write("changing state to hold and shutting down server... ");
+        Flush();
         hold.shutdown();
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
     }
 }
         

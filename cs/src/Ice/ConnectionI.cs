@@ -1045,7 +1045,7 @@ namespace Ice
         //
         // Operations from EventHandler
         //
-        public override bool startAsync(int operation, System.AsyncCallback cb, ref bool completedSynchronously)
+        public override bool startAsync(int operation, IceInternal.AsyncCallback cb, ref bool completedSynchronously)
         {
             if(_state >= StateClosed)
             {

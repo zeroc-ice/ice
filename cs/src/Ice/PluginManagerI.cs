@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#if !SILVERLIGHT
 namespace Ice
 {
     using System;
@@ -518,3 +519,4 @@ namespace Ice
         private static bool _sslWarnOnce = false;
     }
 }
+#endif

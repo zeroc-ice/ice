@@ -35,6 +35,7 @@ sqlUser = None
 sqlPassword = None
 serviceDir = None
 compact = False
+silverlight = False
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -324,6 +325,7 @@ def run(tests, root = False):
           --sql-passwd=<passwd>   Set SQL password.
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
+          --silverlight           Ice for .NET uses Silverlight.
         """)
         sys.exit(2)
 
@@ -333,7 +335,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
                                     "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=",
-                                    "appverifier", "compact"])
+                                    "appverifier", "compact", "silverlight"])
     except getopt.GetoptError:
         usage()
 
@@ -348,6 +350,7 @@ def run(tests, root = False):
     script = False
     noipv6 = False
     compact = "--compact" in opts
+    silverlight = "--silverlight" in opts
 
     filters = []
     for o, a in opts:
@@ -388,10 +391,13 @@ def run(tests, root = False):
                 if compact:
                     print("SSL is not supported with the Compact Framework")
                     sys.exit(1)
+                if silverlight:
+                    print "SSL is not supported with Silverlight"
+                    sys.exit(1)
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
-                  "--sql-passwd", "--service-dir", "--appverifier", "--compact"):
+                  "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -449,7 +455,7 @@ def run(tests, root = False):
                 expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests if not (test == "Ice/background" and (lang == "cs" or c == "cs"))])
 
                 # Add ssl & compress for the operations test.
-                if (compact or mono) and c == "cs": # Don't add the ssl tests.
+                if (compact or mono or silverlight) and c == "cs": # Don't add the ssl tests.
                     continue
                 a = "--cross=%s --protocol=ssl --compress" % c
                 expanded.append([("%s/test/Ice/operations" % lang, a, [])])
@@ -777,6 +783,7 @@ class DriverConfig:
         global sqlPassword
         global serviceDir
         global compact
+        global silverlight
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -796,6 +803,7 @@ class DriverConfig:
         self.sqlPassword = sqlPassword
         self.serviceDir = serviceDir
         self.compact = compact
+        self.silverlight = silverlight
 
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -883,13 +891,21 @@ def getCommandLineProperties(exe, config):
     output.close()
     return properties
 
-def getCommandLine(exe, config):
+def getCommandLine(exe, config, options = ""):
 
     output = getStringIO()
+
     if config.mono and config.lang == "cs":
         output.write("mono --debug '%s.exe' " % exe)
     elif config.lang == "rb" and config.type == "client":
         output.write("ruby '" + exe + "' ")
+    elif config.silverlight and config.lang == "cs" and config.type == "client":
+        xap = "%s.xap" % os.path.basename(os.getcwd())
+        if (os.environ.has_key("PROCESSOR_ARCHITECTURE") and os.environ["PROCESSOR_ARCHITECTURE"] == "AMD64") or \
+           (os.environ.has_key("PROCESSOR_ARCHITEW6432") and os.environ["PROCESSOR_ARCHITEW6432"] == ""):	
+            output.write("%s (x86)\Microsoft Silverlight\sllauncher.exe /emulate:%s" % ( os.environ["PROGRAMFILES"], xap))
+        else:
+            output.write("%s\Microsoft Silverlight\sllauncher.exe /emulate:%s" % ( os.environ["PROGRAMFILES"], xapPath))
     elif config.lang == "java" or config.lang == "javae":
         output.write("%s -ea " % javaCmd)
         if isSolaris() and config.x64:
@@ -912,7 +928,17 @@ def getCommandLine(exe, config):
         else:
             output.write(exe + " ")
 
-    output.write(getCommandLineProperties(exe, config))
+    if (config.silverlight and config.type == "client"):
+        properties = getCommandLineProperties(exe, config) + ' ' + options
+        props = ""
+        for p in properties.split(' '):
+            if props != "":
+                props = props + ";"
+            props = props + p.strip().replace("--", "")
+        output.write("/origin:http://localhost?%s" % props)
+    else:
+        output.write(getCommandLineProperties(exe, config) + ' ' + options)
+
     commandline = output.getvalue()
     output.close()
 
@@ -1030,6 +1056,7 @@ def spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
         sys.stdout.write("(%s) " % cmd)
     if printenv:
         dumpenv(env, lang)
+
     return Expect.Expect(cmd, startReader=startReader, env=env, logfile=tracefile, cwd=cwd)
 
 def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None):
@@ -1188,7 +1215,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         serverCfg = DriverConfig("server")
         if lang in ["rb", "php"]:
             serverCfg.lang = "cpp"
-        server = getCommandLine(server, serverCfg) + " " + additionalServerOptions
+        server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print("ok")
 
@@ -1197,7 +1224,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         else:
             sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
         sys.stdout.flush()
-        client = getCommandLine(client, clientCfg) + " " + additionalClientOptions
+        client = getCommandLine(client, clientCfg, additionalClientOptions)
         clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
         print("ok")
         clientProc.startReader()
@@ -1213,6 +1240,9 @@ def collocatedTest(additionalOptions = ""):
     if len(cross) > 1 or cross[0] != lang:
         print("** skipping cross test")
         return
+    if silverlight:
+        print "** skipping collocated test"
+        return
     testdir = os.getcwd()
 
     collocated = getDefaultCollocatedFile()
@@ -1227,7 +1257,7 @@ def collocatedTest(additionalOptions = ""):
 
     sys.stdout.write("starting collocated... ")
     sys.stdout.flush()
-    collocated = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions
+    collocated = getCommandLine(collocated, DriverConfig("colloc"), additionalOptions)
     collocatedProc = spawnClient(collocated, env = env, startReader = False, lang=lang)
     print("ok")
     collocatedProc.startReader()
@@ -1248,7 +1278,7 @@ def startClient(exe, args = "", config=None, env=None, echo = True, startReader 
         config = DriverConfig("client")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
-    cmd = getCommandLine(exe, config) + ' ' + args
+    cmd = getCommandLine(exe, config, args)
     if config.lang == "php":
         phpSetup(clientConfig, iceOptions, iceProfile)
     return spawnClient(cmd, env = env, echo = echo, startReader = startReader, lang=config.lang)
@@ -1258,7 +1288,7 @@ def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1
         config = DriverConfig("server")
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
-    cmd = getCommandLine(exe, config) + ' ' + args
+    cmd = getCommandLine(exe, config, args)
     return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang)
 
 def startColloc(exe, args, config=None, env=None):
@@ -1267,7 +1297,7 @@ def startColloc(exe, args, config=None, env=None):
         config = DriverConfig("colloc")
     if env is None:
         env = getTestEnv(lang, testdir)
-    cmd = getCommandLine(exe, config) + ' ' + args
+    cmd = getCommandLine(exe, config, args)
     return spawnClient(cmd, env = env, lang=config.lang)
 
 def simpleTest(exe = None, options = ""):
@@ -1285,7 +1315,7 @@ def simpleTest(exe = None, options = ""):
     sys.stdout.flush()
     command  = exe + ' ' + options
     if lang != "cpp":
-      command = getCommandLine(exe, config) + ' ' + options
+      command = getCommandLine(exe, config, options)
     client = spawnClient(command, startReader = False, lang = lang)
     print("ok")
     client.startReader()
@@ -1424,6 +1454,7 @@ def processCmdLine():
           --sql-passwd=<passwd>   Set SQL password.
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
+          --silverlight           Ice for .NET uses Silverlight.
         """)
         sys.exit(2)
 
@@ -1431,7 +1462,7 @@ def processCmdLine():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
-                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact"])
+                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact", "silverlight"])
     except getopt.GetoptError:
         usage()
 
@@ -1529,6 +1560,9 @@ def processCmdLine():
         elif o == "--compact":
             global compact
             compact = True
+        elif o == "--silverlight":
+            global silverlight
+            silverlight = True
 
     if len(args) > 0:
         usage()
@@ -1603,8 +1637,16 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test not supported with Compact Framework%s" % (prefix, suffix))
                 continue
 
+            if args.find("silverlight") != -1 and "nosilverlight" in config:
+                print "%s*** test not supported with Silverlight%s" % (prefix, suffix)
+                continue
+
             if args.find("compact") == -1 and "compact" in config:
                 print("%s*** test requires Compact Framework%s" % (prefix, suffix))
+                continue
+
+            if args.find("silverlight") == -1 and "silverlight" in config:
+                print "%s*** test requires Silverlight%s" % (prefix, suffix)
                 continue
 
             if isVista() and "novista" in config:

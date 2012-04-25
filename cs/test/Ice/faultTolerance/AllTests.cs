@@ -10,18 +10,23 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Generic;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class CallbackBase
     {
         public CallbackBase()
@@ -126,10 +131,32 @@ public class AllTests
         private CallbackBase callback = new CallbackBase();
     }
     
-    public static void allTests(Ice.Communicator communicator, System.Collections.ArrayList ports)
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
     {
-        Console.Out.Write("testing stringToProxy... ");
-        Console.Out.Flush();
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        return initData;
+    }
+    override
+    public void run(Ice.Communicator communicator)
+#else
+    public static void allTests(Ice.Communicator communicator, List<int> ports)
+#endif
+    {
+#if SILVERLIGHT
+        List<int> ports = new List<int>();
+        {
+            int basePort = 12340;
+            for (int i = 0; i < 12; i++)
+            {
+                ports.Add(basePort + i);
+            }
+        }
+#endif
+        Write("testing stringToProxy... ");
+        Flush();
         string refString = "test";
         for(int i = 0; i < ports.Count; i++)
         {
@@ -137,22 +164,22 @@ public class AllTests
         }
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
-        Console.Out.Write("testing checked cast... ");
-        Console.Out.Flush();
+        Write("testing checked cast... ");
+        Flush();
         TestIntfPrx obj = TestIntfPrxHelper.checkedCast(basePrx);
         test(obj != null);
         test(obj.Equals(basePrx));
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
         
         if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
         {
-            Console.Out.WriteLine();
-            Console.Out.WriteLine("This test aborts a number of server processes.");
-            Console.Out.WriteLine("Test output may be interspersed with \"killed\" message from the shell.");
-            Console.Out.WriteLine("These messages are expected and do NOT indicate a test failure.");
-            Console.Out.WriteLine();
+            WriteLine("");
+            WriteLine("This test aborts a number of server processes.");
+            WriteLine("Test output may be interspersed with \"killed\" message from the shell.");
+            WriteLine("These messages are expected and do NOT indicate a test failure.");
+            WriteLine("");
         }
 
         int oldPid = 0;
@@ -167,23 +194,23 @@ public class AllTests
 
             if(!ami)
             {
-                Console.Out.Write("testing server #" + i + "... ");
-                Console.Out.Flush();
+                Write("testing server #" + i + "... ");
+                Flush();
                 int pid = obj.pid();
                 test(pid != oldPid);
-                Console.Out.WriteLine("ok");
+                WriteLine("ok");
                 oldPid = pid;
             }
             else
             {
-                Console.Out.Write("testing server #" + i + " with AMI... ");
-                Console.Out.Flush();
+                Write("testing server #" + i + " with AMI... ");
+                Flush();
                 Callback cb = new Callback();
                 obj.begin_pid().whenCompleted(cb.opPidI, cb.exception);
                 cb.check();
                 int pid = cb.pid();
                 test(pid != oldPid);
-                Console.Out.WriteLine("ok");
+                WriteLine("ok");
                 oldPid = pid;
             }
             
@@ -191,26 +218,26 @@ public class AllTests
             {
                 if(!ami)
                 {
-                    Console.Out.Write("shutting down server #" + i + "... ");
-                    Console.Out.Flush();
+                    Write("shutting down server #" + i + "... ");
+                    Flush();
                     obj.shutdown();
-                    Console.Out.WriteLine("ok");
+                    WriteLine("ok");
                 }
                 else
                 {
-                    Console.Out.Write("shutting down server #" + i + " with AMI... ");
+                    Write("shutting down server #" + i + " with AMI... ");
                     Callback cb = new Callback();
                     obj.begin_shutdown().whenCompleted(cb.opShutdownI, cb.exception);
                     cb.check();
-                    Console.Out.WriteLine("ok");
+                    WriteLine("ok");
                 }
             }
             else if(j == 1 || i + 1 > ports.Count)
             {
                 if(!ami)
                 {
-                    Console.Out.Write("aborting server #" + i + "... ");
-                    Console.Out.Flush();
+                    Write("aborting server #" + i + "... ");
+                    Flush();
                     try
                     {
                         obj.abort();
@@ -218,33 +245,33 @@ public class AllTests
                     }
                     catch(Ice.ConnectionLostException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                     catch(Ice.ConnectFailedException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                     catch(Ice.SocketException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                 }
                 else
                 {
-                    Console.Out.Write("aborting server #" + i + " with AMI... ");
-                    Console.Out.Flush();
+                    Write("aborting server #" + i + " with AMI... ");
+                    Flush();
                     Callback cb = new Callback();
                     obj.begin_abort().whenCompleted(cb.response, cb.exceptAbortI);
                     cb.check();
-                    Console.Out.WriteLine("ok");
+                    WriteLine("ok");
                 }
             }
             else if(j == 2 || j == 3)
             {
                 if(!ami)
                 {
-                    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
-                    Console.Out.Flush();
+                    Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent call... ");
+                    Flush();
                     try
                     {
                         obj.idempotentAbort();
@@ -252,25 +279,25 @@ public class AllTests
                     }
                     catch(Ice.ConnectionLostException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                     catch(Ice.ConnectFailedException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                     catch(Ice.SocketException)
                     {
-                        Console.Out.WriteLine("ok");
+                        WriteLine("ok");
                     }
                 }
                 else
                 {
-                    Console.Out.Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
-                    Console.Out.Flush();
+                    Write("aborting server #" + i + " and #" + (i + 1) + " with idempotent AMI call... ");
+                    Flush();
                     Callback cb = new Callback();
                     obj.begin_idempotentAbort().whenCompleted(cb.response, cb.exceptAbortI);
                     cb.check();
-                    Console.Out.WriteLine("ok");
+                    WriteLine("ok");
                 }
                 ++i;
             }
@@ -280,8 +307,8 @@ public class AllTests
             }
         }
         
-        Console.Out.Write("testing whether all servers are gone... ");
-        Console.Out.Flush();
+        Write("testing whether all servers are gone... ");
+        Flush();
         try
         {
             obj.ice_ping();
@@ -289,7 +316,7 @@ public class AllTests
         }
         catch(Ice.LocalException)
         {
-            Console.Out.WriteLine("ok");
+            WriteLine("ok");
         }
     }
 }

@@ -14,16 +14,20 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests
-{
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+#if SILVERLIGHT
+using System.Net;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
+#endif
 
+public class AllTests : TestCommon.TestApp
+{
     private class Callback
     {
         internal Callback()
@@ -95,7 +99,21 @@ public class AllTests
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
 
+#if SILVERLIGHT
+    public override Ice.InitializationData initData()
+    {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+        initData.dispatcher = new Dispatcher().dispatch;
+        return initData;
+    }
+
+    override
+    public void run(Ice.Communicator communicator)
+#else
     public static void allTests(Ice.Communicator communicator)
+#endif
     {
         string sref = "test:default -p 12010";
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -109,8 +127,8 @@ public class AllTests
 
         Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
 
-        Console.Out.Write("testing dispatcher... ");
-        Console.Out.Flush();
+        Write("testing dispatcher... ");
+        Flush();
         {
             p.op();
 
@@ -134,7 +152,7 @@ public class AllTests
             testController.resumeAdapter();
             r.waitForCompleted();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
         p.shutdown();
     }

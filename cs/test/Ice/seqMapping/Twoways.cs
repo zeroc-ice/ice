@@ -1413,7 +1413,7 @@ class Twoways
             }
         }
 
-#if !COMPACT
+#if !COMPACT && !SILVERLIGHT
         {
             Serialize.Small i = null;
             Serialize.Small o;

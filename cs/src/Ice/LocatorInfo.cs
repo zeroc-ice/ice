@@ -825,8 +825,8 @@ namespace IceInternal
     {
         internal LocatorManager(Ice.Properties properties)
         {
-            _table = new Hashtable();
-            _locatorTables = new Hashtable();
+            _table = new Dictionary<Ice.LocatorPrx, LocatorInfo>();
+            _locatorTables = new Dictionary<Ice.Identity, LocatorTable>();
             _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
         
@@ -865,16 +865,16 @@ namespace IceInternal
             
             lock(this)
             {
-                LocatorInfo info = (LocatorInfo)_table[locator];
-                if(info == null)
+                LocatorInfo info = null;
+                if(!_table.TryGetValue(locator, out info))
                 {
                     //
                     // Rely on locator identity for the adapter table. We want to
                     // have only one table per locator (not one per locator
                     // proxy).
                     //
-                    LocatorTable table = (LocatorTable)_locatorTables[locator.ice_getIdentity()];
-                    if(table == null)
+                    LocatorTable table = null;
+                    if(!_locatorTables.TryGetValue(locator.ice_getIdentity(), out table))
                     {
                         table = new LocatorTable();
                         _locatorTables[locator.ice_getIdentity()] = table;
@@ -888,8 +888,8 @@ namespace IceInternal
             }
         }
         
-        private Hashtable _table;
-        private Hashtable _locatorTables;
+        private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
+        private Dictionary<Ice.Identity, LocatorTable> _locatorTables;
         private readonly bool _background;
     }
 
@@ -897,8 +897,8 @@ namespace IceInternal
     {
         internal LocatorTable()
         {
-            _adapterEndpointsTable = new Hashtable();
-            _objectTable = new Hashtable();
+            _adapterEndpointsTable = new Dictionary<string, EndpointTableEntry>();
+            _objectTable = new Dictionary<Ice.Identity, ReferenceTableEntry>();
         }
         
         internal void clear()
@@ -920,11 +920,12 @@ namespace IceInternal
 
             lock(this)
             {
-                EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable[adapter];
-                if(entry != null)
+                EndpointTableEntry entry = null;
+                if(_adapterEndpointsTable.TryGetValue(adapter, out entry))
                 {
                     cached = checkTTL(entry.time, ttl);
                     return entry.endpoints;
+
                 }
                 cached = false;
                 return null;
@@ -944,9 +945,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                EndpointTableEntry entry = (EndpointTableEntry)_adapterEndpointsTable[adapter];
-                _adapterEndpointsTable.Remove(adapter);
-                return entry != null ? entry.endpoints : null;
+                EndpointTableEntry entry = null;
+                if(_adapterEndpointsTable.TryGetValue(adapter, out entry))
+                {
+                    _adapterEndpointsTable.Remove(adapter);
+                    return entry.endpoints;
+                }
+                return null;
             }
         }
         
@@ -960,8 +965,8 @@ namespace IceInternal
 
             lock(this)
             {
-                ReferenceTableEntry entry = (ReferenceTableEntry)_objectTable[id];
-                if(entry != null)
+                ReferenceTableEntry entry = null;
+                if(_objectTable.TryGetValue(id, out entry))
                 {
                     cached = checkTTL(entry.time, ttl);
                     return entry.reference;
@@ -983,9 +988,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                ReferenceTableEntry entry = (ReferenceTableEntry)_objectTable[id];
-                _objectTable.Remove(id);
-                return entry != null ? entry.reference : null;
+                ReferenceTableEntry entry = null;
+                if(_objectTable.TryGetValue(id, out entry))
+                {
+                    _objectTable.Remove(id);
+                    return entry.reference;
+                }
+                return null;
             }
         }
         
@@ -1026,8 +1035,8 @@ namespace IceInternal
             public Reference reference;
         }
 
-        private Hashtable _adapterEndpointsTable;
-        private Hashtable _objectTable;
+        private Dictionary<string, EndpointTableEntry> _adapterEndpointsTable;
+        private Dictionary<Ice.Identity, ReferenceTableEntry> _objectTable;
     }
 
 }
