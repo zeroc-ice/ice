@@ -19,7 +19,7 @@
 #include <Operation.h>
 #include <Properties.h>
 #include <Proxy.h>
-#include <ThreadNotification.h>
+#include <Thread.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/CommunicatorAsync.h>
@@ -162,7 +162,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
         if(threadHook.get() && threadHook.get() != Py_None)
         {
-            data.threadHook = new ThreadNotificationWrapper(threadHook.get());
+            data.threadHook = new ThreadHook(threadHook.get());
         }
     }
 

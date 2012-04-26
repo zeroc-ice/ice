@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Logger.h>
+#include <Thread.h>
 #include <Ice/Initialize.h>
 
 using namespace std;

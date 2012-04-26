@@ -457,7 +457,15 @@ public final class PropertiesI implements Properties
     {
         if(defaults != null)
         {
-            _properties = new java.util.HashMap<String, PropertyValue>(((PropertiesI)defaults)._properties);
+            //
+            // NOTE: we can't just do a shallow copy of the map as the map values
+            // would otherwise be shared between the two PropertiesI object.
+            //
+            //_properties = new java.util.HashMap<String, PropertyValue>(((PropertiesI)defaults)._properties);
+            for(java.util.Map.Entry<String, PropertyValue> p : (((PropertiesI)defaults)._properties).entrySet())
+            {
+                _properties.put(p.getKey(), new PropertyValue(p.getValue()));
+            }
         }
 
         boolean loadConfigFiles = false;

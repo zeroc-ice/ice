@@ -14,6 +14,7 @@
 #include <Communicator.h>
 #include <Current.h>
 #include <Proxy.h>
+#include <Thread.h>
 #include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>

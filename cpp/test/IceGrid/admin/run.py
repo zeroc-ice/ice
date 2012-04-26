@@ -226,7 +226,7 @@ print("ok")
 
 # print("ok")
 
-# print "completing shutdown...", 
+# sys.stdout.write("completing shutdown... ")
 # sys.stdout.flush()
 
 # admin = Util.spawn('icegridadmin --Ice.Config=config.admin')

@@ -16,6 +16,7 @@
 #include <Endpoint.h>
 #include <Operation.h>
 #include <Proxy.h>
+#include <Thread.h>
 #include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
