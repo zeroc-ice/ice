@@ -360,7 +360,16 @@ namespace Ice
         
         internal PropertiesI(PropertiesI p)
         {
-            _properties = new Dictionary<string, PropertyValue>(p._properties);
+            //
+            // NOTE: we can't just do a shallow copy of the map as the map values
+            // would otherwise be shared between the two PropertiesI object.
+            //
+            //_properties = new Dictionary<string, PropertyValue>(p._properties);
+            _properties = new Dictionary<string, PropertyValue>();
+            foreach(KeyValuePair<string, PropertyValue> entry in p._properties)
+            {
+                _properties[entry.Key] = new PropertyValue(entry.Value);
+            }
         }
 
         internal PropertiesI()
