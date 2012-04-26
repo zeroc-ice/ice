@@ -101,19 +101,20 @@ namespace IceInternal
 #endif
         }
 
-        public BasicStream(Instance instance)
+        public BasicStream(Instance instance, Ice.EncodingVersion encoding)
         {
-            initialize(instance, false);
+            initialize(instance, encoding, false);
         }
 
-        public BasicStream(Instance instance, bool unlimited)
+        public BasicStream(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
         {
-            initialize(instance, unlimited);
+            initialize(instance, encoding, unlimited);
         }
 
-        private void initialize(Instance instance, bool unlimited)
+        private void initialize(Instance instance, Ice.EncodingVersion encoding, bool unlimited)
         {
             instance_ = instance;
+            _encoding = encoding;
             _buf = new Buffer(instance_.messageSizeMax());
             _closure = null;
             _unlimited = unlimited;
@@ -271,6 +272,26 @@ namespace IceInternal
 
         public void startWriteEncaps()
         {
+            //
+            // If no encoding version is specified, use the current write
+            // encapsulation encoding version if there's a current write
+            // encapsulation, otherwise, use the stream encoding version.
+            //
+
+            if(_writeEncapsStack != null)
+            {
+                startWriteEncaps(_writeEncapsStack.encoding);
+            }
+            else
+            {
+                startWriteEncaps(_encoding);
+            }
+        }
+
+        public void startWriteEncaps(Ice.EncodingVersion encoding)
+        {            
+            Protocol.checkSupportedEncoding(encoding);
+
             {
                 WriteEncaps curr = _writeEncapsCache;
                 if(curr != null)
@@ -285,11 +306,11 @@ namespace IceInternal
                 curr.next = _writeEncapsStack;
                 _writeEncapsStack = curr;
             }
-
+            _writeEncapsStack.encoding = encoding;
             _writeEncapsStack.start = _buf.b.position();
+
             writeInt(0); // Placeholder for the encapsulation length.
-            writeByte(Protocol.encodingMajor);
-            writeByte(Protocol.encodingMinor);
+            _writeEncapsStack.encoding.write__(this);
         }
 
         public void endWriteEncaps()
@@ -315,8 +336,34 @@ namespace IceInternal
 
             endWriteEncaps();
         }
+        
+        public void
+        writeEmptyEncaps(Ice.EncodingVersion encoding)
+        {
+            Protocol.checkSupportedEncoding(encoding);
+            writeInt(6); // Size
+            encoding.write__(this);
+        }
+        
+        public void 
+        writeEncaps(byte[] v)
+        {
+            if(v.Length < 6)
+            {
+                throw new Ice.EncapsulationException();
+            }
+            expand(v.Length);
+            _buf.b.put(v);
+        }
 
-        public void startReadEncaps()
+        public Ice.EncodingVersion 
+        getWriteEncoding()
+        {
+            return _writeEncapsStack != null ? _writeEncapsStack.encoding : _encoding;
+        }
+
+        public Ice.EncodingVersion
+        startReadEncaps()
         {
             {
                 ReadEncaps curr = _readEncapsCache;
@@ -355,19 +402,10 @@ namespace IceInternal
             }
             _readEncapsStack.sz = sz;
 
-            byte eMajor = readByte();
-            byte eMinor = readByte();
-            if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
-            {
-                Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-                e.badMajor = eMajor < 0 ? eMajor + 256 : eMajor;
-                e.badMinor = eMinor < 0 ? eMinor + 256 : eMinor;
-                e.major = Protocol.encodingMajor;
-                e.minor = Protocol.encodingMinor;
-                throw e;
-            }
-            // _readEncapsStack.encodingMajor = eMajor; // Currently unused
-            // _readEncapsStack.encodingMinor = eMinor; // Currently unused
+            _readEncapsStack.encoding.read__(this);
+            Protocol.checkSupportedEncoding(_readEncapsStack.encoding); // Make sure the encoding is supported.
+
+            return _readEncapsStack.encoding;
         }
 
         public void endReadEncaps()
@@ -403,7 +441,7 @@ namespace IceInternal
             _readEncapsCache.reset();
         }
 
-        public void skipEmptyEncaps()
+        public Ice.EncodingVersion skipEmptyEncaps()
         {
             int sz = readInt();
             if(sz != 6)
@@ -411,14 +449,9 @@ namespace IceInternal
                 throw new Ice.EncapsulationException();
             }
 
-            try
-            {
-                _buf.b.position(_buf.b.position() + 2);
-            }
-            catch(ArgumentOutOfRangeException ex)
-            {
-                throw new Ice.UnmarshalOutOfBoundsException(ex);
-            }
+            Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+            encoding.read__(this);
+            return encoding;
         }
 
         public void endReadEncapsChecked()
@@ -431,27 +464,66 @@ namespace IceInternal
             endReadEncaps();
         }
 
-        public int getReadEncapsSize()
-        {
-            Debug.Assert(_readEncapsStack != null);
-            return _readEncapsStack.sz - 6;
-        }
-
-        public void skipEncaps()
+        public byte[] 
+        readEncaps(out Ice.EncodingVersion encoding)
         {
             int sz = readInt();
             if(sz < 6)
             {
                 throw new Ice.UnmarshalOutOfBoundsException();
             }
+            
+            if(sz - 4 > _buf.b.remaining())
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+            
+            encoding = new Ice.EncodingVersion();
+            encoding.read__(this);
+            _buf.b.position(_buf.b.position() - 6);
+            
+            byte[] v = new byte[sz];
             try
             {
-                _buf.b.position(_buf.b.position() + sz - 4);
+                _buf.b.get(v);
+                return v;
+            }
+            catch(InvalidOperationException ex)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException(ex);
+            }
+        }
+        
+        public Ice.EncodingVersion 
+        getReadEncoding() 
+        {
+            return _readEncapsStack != null ? _readEncapsStack.encoding : _encoding;
+        }
+        
+        public int getReadEncapsSize()
+        {
+            Debug.Assert(_readEncapsStack != null);
+            return _readEncapsStack.sz - 6;
+        }
+
+        public Ice.EncodingVersion skipEncaps()
+        {
+            int sz = readInt();
+            if(sz < 6)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+            Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+            encoding.read__(this);
+            try
+            {
+                _buf.b.position(_buf.b.position() + sz - 6);
             }
             catch(ArgumentOutOfRangeException ex)
             {
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
+            return encoding;
         }
 
         public void startWriteSlice()
@@ -2625,7 +2697,7 @@ namespace IceInternal
                 return false;
             }
 
-            cstream = new BasicStream(instance_);
+            cstream = new BasicStream(instance_, _encoding);
             cstream.resize(headerSize + 4 + compressedLen, false);
             cstream.pos(0);
 
@@ -2679,7 +2751,7 @@ namespace IceInternal
                 ex.reason = getBZ2Error(rc);
                 throw ex;
             }
-            BasicStream ucStream = new BasicStream(instance_);
+            BasicStream ucStream = new BasicStream(instance_, _encoding);
             ucStream.resize(uncompressedSize, false);
             ucStream.pos(0);
             ucStream._buf.b.put(_buf.b.rawBytes(0, headerSize));
@@ -2868,6 +2940,7 @@ namespace IceInternal
         }
 
         private Instance instance_;
+        private Ice.EncodingVersion _encoding;
         private Buffer _buf;
         private object _closure;
         private byte[] _stringBytes; // Reusable array for reading strings.
@@ -2884,6 +2957,7 @@ namespace IceInternal
             internal Dictionary<int, Ice.Object> unmarshaledMap;
             internal int typeIdIndex;
             internal Dictionary<int, string> typeIdMap;
+            internal Ice.EncodingVersion encoding = new Ice.EncodingVersion();
             internal ReadEncaps next;
 
             internal void reset()
@@ -2907,6 +2981,7 @@ namespace IceInternal
             internal Dictionary<Ice.Object, int> marshaledMap;
             internal int typeIdIndex;
             internal Dictionary<string, int> typeIdMap;
+            internal Ice.EncodingVersion encoding = new Ice.EncodingVersion();
             internal WriteEncaps next;
 
             internal void reset()

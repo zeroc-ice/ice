@@ -167,7 +167,6 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-
     public Reference
     changeCompress(boolean newCompress)
     {

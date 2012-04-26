@@ -123,6 +123,11 @@ namespace IceInternal
             defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 
             defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+
+            val = properties.getPropertyWithDefault("Ice.Default.EncodingVersion", 
+                                                    Ice.Util.encodingVersionToString(Ice.Util.currentEncoding));
+            defaultEncoding = Ice.Util.stringToEncodingVersion(val);
+            Protocol.checkSupportedEncoding(defaultEncoding);        
         }
         
         public string defaultHost;
@@ -131,6 +136,7 @@ namespace IceInternal
         public Ice.EndpointSelectionType defaultEndpointSelection;
         public int defaultLocatorCacheTimeout;
         public bool defaultPreferSecure;
+        public Ice.EncodingVersion defaultEncoding;
         
         public bool overrideTimeout;
         public int overrideTimeoutValue;

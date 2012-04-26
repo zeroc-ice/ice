@@ -186,7 +186,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     // If this was an asynchronous dispatch, we're done here.
                     //
                     return;
-
                 }        
                 
                 if(_locator != null && !__servantLocatorFinished())

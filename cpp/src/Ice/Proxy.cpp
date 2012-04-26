@@ -373,21 +373,21 @@ IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& __result)
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
                                   OperationMode mode,
-                                  const vector<Byte>& inParams,
-                                  vector<Byte>& outParams,
+                                  const vector<Byte>& inEncaps,
+                                  vector<Byte>& outEncaps,
                                   const Context* context)
 {
     pair<const Byte*, const Byte*> inPair;
-    if(inParams.size() == 0)
+    if(inEncaps.empty())
     {
         inPair.first = inPair.second = 0;
     }
     else
     {
-        inPair.first = &inParams[0];
-        inPair.second = inPair.first + inParams.size();
+        inPair.first = &inEncaps[0];
+        inPair.second = inPair.first + inEncaps.size();
     }
-    return ice_invoke(operation, mode, inPair, outParams, context);
+    return ice_invoke(operation, mode, inPair, outEncaps, context);
 }
 
 
@@ -395,7 +395,7 @@ bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
-                                        const vector<Byte>& inParams)
+                                        const vector<Byte>& inEncaps)
 {
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
@@ -411,7 +411,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception);
     }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
+    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, del);
     return result->sentSynchronously();
 }
 
@@ -419,7 +419,7 @@ bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
-                                        const vector<Byte>& inParams,
+                                        const vector<Byte>& inEncaps,
                                         const Context& context)
 {
     Callback_Object_ice_invokePtr del;
@@ -436,33 +436,33 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
                                             &AMI_Object_ice_invoke::__response,
                                             &AMI_Object_ice_invoke::__exception);
     }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
+    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, context, del);
     return result->sentSynchronously();
 }
 
 AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
                                         OperationMode mode,
-                                        const vector<Byte>& inParams,
+                                        const vector<Byte>& inEncaps,
                                         const Context* ctx, 
                                         const ::IceInternal::CallbackBasePtr& del,
                                         const ::Ice::LocalObjectPtr& cookie)
 {
     pair<const Byte*, const Byte*> inPair;
-    if(inParams.size() == 0)
+    if(inEncaps.empty())
     {
         inPair.first = inPair.second = 0;
     }
     else
     {
-        inPair.first = &inParams[0];
-        inPair.second = inPair.first + inParams.size();
+        inPair.first = &inEncaps[0];
+        inPair.second = inPair.first + inEncaps.size();
     }
     return begin_ice_invoke(operation, mode, inPair, ctx, del, cookie);
 }
 
 bool
-IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outParams, const AsyncResultPtr& __result)
+IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outEncaps, const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_invoke_name);
     bool ok = __result->__wait();
@@ -471,7 +471,7 @@ IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outParams, const AsyncResult
         const Byte* v;
         Int sz;
         __result->__readParamEncaps(v, sz);
-        vector<Byte>(v, v + sz).swap(outParams);
+        vector<Byte>(v, v + sz).swap(outEncaps);
     }
     return ok;
 }
@@ -479,8 +479,8 @@ IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outParams, const AsyncResult
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
                                   OperationMode mode,
-                                  const pair<const Byte*, const Byte*>& inParams,
-                                  vector<Byte>& outParams,
+                                  const pair<const Byte*, const Byte*>& inEncaps,
+                                  vector<Byte>& outEncaps,
                                   const Context* context)
 {
     int __cnt = 0;
@@ -490,7 +490,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
         try
         {
             __del = __getDelegate(false);
-            return __del->ice_invoke(operation, mode, inParams, outParams, context);
+            return __del->ice_invoke(operation, mode, inEncaps, outEncaps, context);
         }
         catch(const LocalExceptionWrapper& __ex)
         {
@@ -515,7 +515,7 @@ bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inParams)
+                                        const pair<const Byte*, const Byte*>& inEncaps)
 {
     Callback_Object_ice_invokePtr del;
     if(dynamic_cast< ::Ice::AMISentCallback*>(cb.get()))
@@ -531,7 +531,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, del);
+    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, del);
     return result->sentSynchronously();
 }
 
@@ -539,7 +539,7 @@ bool
 IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb,
                                         const string& operation,
                                         OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inParams,
+                                        const pair<const Byte*, const Byte*>& inEncaps,
                                         const Context& context)
 {
     Callback_Object_ice_invokePtr del;
@@ -556,14 +556,14 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Array_Object_ice_invokePtr& cb
                                             &AMI_Array_Object_ice_invoke::__response,
                                             &AMI_Array_Object_ice_invoke::__exception);
     }
-    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inParams, context, del);
+    ::Ice::AsyncResultPtr result = begin_ice_invoke(operation, mode, inEncaps, context, del);
     return result->sentSynchronously();
 }
 
 AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
                                         OperationMode mode,
-                                        const pair<const Byte*, const Byte*>& inParams,
+                                        const pair<const Byte*, const Byte*>& inEncaps,
                                         const Context* ctx, 
                                         const ::IceInternal::CallbackBasePtr& del,
                                         const ::Ice::LocalObjectPtr& cookie)
@@ -572,7 +572,7 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
     try
     {
         __result->__prepare(operation, mode, ctx);
-        __result->__writeParamEncaps(inParams.first, static_cast<Int>(inParams.second - inParams.first));
+        __result->__writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
         __result->__send(true);
     }
     catch(const LocalException& __ex)
@@ -583,15 +583,15 @@ IceProxy::Ice::Object::begin_ice_invoke(const string& operation,
 }
 
 bool
-IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outParams, const AsyncResultPtr& __result)
+IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outEncaps, const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_invoke_name);
     bool ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
         Int sz;
-        __result->__readParamEncaps(outParams.first, sz);
-        outParams.second = outParams.first + sz;
+        __result->__readParamEncaps(outEncaps.first, sz);
+        outEncaps.second = outEncaps.first + sz;
     }
     return ok;
 }
@@ -1590,14 +1590,14 @@ IceDelegateM::Ice::Object::ice_id(const Context* context)
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
                                       OperationMode mode,
-                                      const pair<const Byte*, const Byte*>& inParams,
-                                      vector<Byte>& outParams,
+                                      const pair<const Byte*, const Byte*>& inEncaps,
+                                      vector<Byte>& outEncaps,
                                       const Context* context)
 {
     Outgoing __og(__handler.get(), operation, mode, context);
     try
     {
-        __og.writeParamEncaps(inParams.first, static_cast<Int>(inParams.second - inParams.first));
+        __og.writeParamEncaps(inEncaps.first, static_cast<Int>(inEncaps.second - inEncaps.first));
     }
     catch(const ::Ice::LocalException& __ex)
     {
@@ -1611,7 +1611,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
             const Byte* v;
             Int sz;
             __og.readParamEncaps(v, sz);
-            vector<Byte>(v, v + sz).swap(outParams);
+            vector<Byte>(v, v + sz).swap(outEncaps);
         }
         catch(const ::Ice::LocalException& __ex)
         {
@@ -1933,7 +1933,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string&,
                                       OperationMode,
-                                      const pair<const Byte*, const Byte*>& inParams,
+                                      const pair<const Byte*, const Byte*>& inEncaps,
                                       vector<Byte>&,
                                       const Context*)
 {

@@ -88,14 +88,16 @@ public class AllTests : TestCommon.TestApp
                 cmp = cookie.getString();
             }
 
-            byte[] outParams;
-            if(result.getProxy().end_ice_invoke(out outParams, result))
+            byte[] outEncaps;
+            if(result.getProxy().end_ice_invoke(out outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(cmp));
                 s = inS.readString();
                 test(s.Equals(cmp));
+                inS.endEncapsulation();
                 callback.called();
             }
             else
@@ -104,15 +106,17 @@ public class AllTests : TestCommon.TestApp
             }
         }
 
-        public void opStringNC(bool ok, byte[] outParams)
+        public void opStringNC(bool ok, byte[] outEncaps)
         {
             if(ok)
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
                 s = inS.readString();
                 test(s.Equals(testString));
+                inS.endEncapsulation();
                 callback.called();
             }
             else
@@ -129,20 +133,22 @@ public class AllTests : TestCommon.TestApp
                 test(cookie.getString().Equals(testString));
             }
 
-            byte[] outParams;
-            if(result.getProxy().end_ice_invoke(out outParams, result))
+            byte[] outEncaps;
+            if(result.getProxy().end_ice_invoke(out outEncaps, result))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(Test.MyException)
                 {
+                    inS.endEncapsulation();
                     callback.called();
                 }
                 catch(System.Exception)
@@ -152,7 +158,7 @@ public class AllTests : TestCommon.TestApp
             }
         }
 
-        public void opExceptionNC(bool ok, byte[] outParams)
+        public void opExceptionNC(bool ok, byte[] outEncaps)
         {
             if(ok)
             {
@@ -160,13 +166,15 @@ public class AllTests : TestCommon.TestApp
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(_communicator, outEncaps);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(Test.MyException)
                 {
+                    inS.endEncapsulation();
                     callback.called();
                 }
                 catch(System.Exception)
@@ -209,22 +217,26 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            byte[] inParams, outParams;
-            if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outParams))
+            byte[] inEncaps, outEncaps;
+            if(!oneway.ice_invoke("opOneway", Ice.OperationMode.Normal, null, out outEncaps))
             {
                 test(false);
             }
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            outS.startEncapsulation();
             outS.writeString(testString);
-            inParams = outS.finished();
+            outS.endEncapsulation();
+            inEncaps = outS.finished();
 
-            if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inParams, out outParams))
+            if(cl.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, out outEncaps))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
                 s = inS.readString();
+                inS.endEncapsulation();
                 test(s.Equals(testString));
             }
             else
@@ -234,20 +246,22 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            byte[] outParams;
-            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outParams))
+            byte[] outEncaps;
+            if(cl.ice_invoke("opException", Ice.OperationMode.Normal, null, out outEncaps))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(Test.MyException)
                 {
+                    inS.endEncapsulation();
                 }
                 catch(System.Exception)
                 {
@@ -262,25 +276,29 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         {
-            byte[] inParams, outParams;
+            byte[] inEncaps, outEncaps;
             Ice.AsyncResult result = oneway.begin_ice_invoke("opOneway", Ice.OperationMode.Normal, null);
-            if(!oneway.end_ice_invoke(out outParams, result))
+            if(!oneway.end_ice_invoke(out outEncaps, result))
             {
                 test(false);
             }
 
             Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+            outS.startEncapsulation();
             outS.writeString(testString);
-            inParams = outS.finished();
+            outS.endEncapsulation();
+            inEncaps = outS.finished();
 
             // begin_ice_invoke with no callback
-            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams);
-            if(cl.end_ice_invoke(out outParams, result))
+            result = cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps);
+            if(cl.end_ice_invoke(out outEncaps, result))
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                inS.startEncapsulation();
                 string s = inS.readString();
                 test(s.Equals(testString));
                 s = inS.readString();
+                inS.endEncapsulation();
                 test(s.Equals(testString));
             }
             else
@@ -290,37 +308,39 @@ public class AllTests : TestCommon.TestApp
 
             // begin_ice_invoke with Callback
             Callback cb = new Callback(communicator, false);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams, cb.opString, null);
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb.opString, null);
             cb.check();
 
             // begin_ice_invoke with Callback with cookie
             cb = new Callback(communicator, true);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams, cb.opString, new Cookie());
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, cb.opString, new Cookie());
             cb.check();
 
             // begin_ice_invoke with Callback_Object_ice_invoke
             cb = new Callback(communicator, true);
-            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inParams).whenCompleted(cb.opStringNC, null);
+            cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps).whenCompleted(cb.opStringNC, null);
             cb.check();
         }
 
         {
             // begin_ice_invoke with no callback
             Ice.AsyncResult result = cl.begin_ice_invoke("opException", Ice.OperationMode.Normal, null);
-            byte[] outParams;
-            if(cl.end_ice_invoke(out outParams, result))
+            byte[] outEncaps;
+            if(cl.end_ice_invoke(out outEncaps, result))
             {
                 test(false);
             }
             else
             {
-                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outParams);
+                Ice.InputStream inS = Ice.Util.createInputStream(communicator, outEncaps);
+                inS.startEncapsulation();
                 try
                 {
                     inS.throwException();
                 }
                 catch(Test.MyException)
                 {
+                    inS.endEncapsulation();
                 }
                 catch(System.Exception)
                 {

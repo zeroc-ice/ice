@@ -190,7 +190,6 @@ public final class TraceUtil
         {
             s.write("\nrequest #" + i + ':');
             printRequestHeader(s, str);
-            str.skipEncaps();
         }
     }
 
@@ -343,6 +342,13 @@ public final class TraceUtil
                 {
                     out.write(", ");
                 }
+            }
+            
+            Ice.EncodingVersion v = stream.skipEncaps();
+            if(!v.equals(Ice.Util.Encoding_1_0))
+            {
+                out.write("\nencoding = ");
+                out.write(Ice.Util.encodingVersionToString(v));
             }
         }
         catch(java.io.IOException ex)

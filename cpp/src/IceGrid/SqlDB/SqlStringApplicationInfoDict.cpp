@@ -104,7 +104,7 @@ SqlStringApplicationInfoDict::put(const DatabaseConnectionPtr& connection,
                                   const ApplicationInfo& info)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-    IceInternal::BasicStream stream(instance.get());
+    IceInternal::BasicStream stream(instance.get(), connection->getEncoding());
     stream.startWriteEncaps();
     info.descriptor.__write(&stream);
     stream.writePendingObjects();
@@ -251,7 +251,7 @@ SqlStringApplicationInfoDict::find(const DatabaseConnectionPtr& connection,
         QByteArray bytes = query.value(7).toByteArray();
 
         IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-        IceInternal::BasicStream stream(instance.get());
+        IceInternal::BasicStream stream(instance.get(), connection->getEncoding());
         stream.b.resize(bytes.size());
         ::memcpy(&stream.b[0], bytes.data(), bytes.size());
         stream.i = stream.b.begin();
@@ -297,7 +297,7 @@ SqlStringApplicationInfoDict::getMap(const DatabaseConnectionPtr& connection,
         QByteArray bytes = query.value(7).toByteArray();
 
         IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-        IceInternal::BasicStream stream(instance.get());
+        IceInternal::BasicStream stream(instance.get(), connection->getEncoding());
         stream.b.resize(bytes.size());
         ::memcpy(&stream.b[0], bytes.data(), bytes.size());
         stream.i = stream.b.begin();

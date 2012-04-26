@@ -75,7 +75,7 @@ enum ProtocolSupport
 // Forward declaration
 class BasicStream;
 
-void stringToMajorMinor(const ::std::string&, Ice::Byte&, Ice::Byte&);
+ICE_API void stringToMajorMinor(const ::std::string&, Ice::Byte&, Ice::Byte&);
 
 template<typename T> std::string
 versionToString(const T& v)
@@ -99,23 +99,25 @@ isSupported(const T& version, const T& supported)
     return version.major == supported.major && version.minor <= supported.minor;
 }
 
-void throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&, const Ice::ProtocolVersion&);
-void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, const Ice::EncodingVersion&);
+ICE_API void throwUnsupportedProtocolException(const char*, int, const Ice::ProtocolVersion&, 
+                                               const Ice::ProtocolVersion&);
+ICE_API void throwUnsupportedEncodingException(const char*, int, const Ice::EncodingVersion&, 
+                                               const Ice::EncodingVersion&);
 
 }
 
 namespace Ice
 {
 
-extern const ProtocolVersion Protocol_1_0;
+ICE_API extern const ProtocolVersion Protocol_1_0;
 
-extern const EncodingVersion Encoding_1_0;
-extern const EncodingVersion Encoding_1_1;
+ICE_API extern const EncodingVersion Encoding_1_0;
+ICE_API extern const EncodingVersion Encoding_1_1;
 
-extern const ProtocolVersion currentProtocol;
-extern const EncodingVersion currentProtocolEncoding;
+ICE_API extern const ProtocolVersion currentProtocol;
+ICE_API extern const EncodingVersion currentProtocolEncoding;
 
-extern const EncodingVersion currentEncoding;
+ICE_API extern const EncodingVersion currentEncoding;
 
 inline ::std::string 
 protocolVersionToString(const Ice::ProtocolVersion& v)

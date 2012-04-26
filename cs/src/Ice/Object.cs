@@ -226,16 +226,15 @@ namespace Ice
             return s.Equals(ids__[0]);
         }
         
-        public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__,
-            Current __current)
+        public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            IceInternal.BasicStream is__ = inS__.istr();
-            is__.startReadEncaps();
+            IceInternal.BasicStream is__ = inS__.startReadParams();
             string __id = is__.readString();
-            is__.endReadEncaps();
+            inS__.endReadParams();
             bool __ret = __obj.ice_isA(__id, __current);
-            IceInternal.BasicStream os__ = inS__.ostr();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__();
             os__.writeBool(__ret);
+            inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
         
@@ -256,11 +255,11 @@ namespace Ice
             // Nothing to do.
         }
         
-        public static DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__,
-            Current __current)
+        public static DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            inS__.istr().skipEmptyEncaps();
+            inS__.readEmptyParams();
             __obj.ice_ping(__current);
+            inS__.writeEmptyParams__();
             return DispatchStatus.DispatchOK;
         }
         
@@ -283,13 +282,13 @@ namespace Ice
             return ids__;
         }
         
-        public static DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__,
-            Current __current)
+        public static DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            inS__.istr().skipEmptyEncaps();
+            inS__.readEmptyParams();
             string[] ret__ = __obj.ice_ids(__current);
-            IceInternal.BasicStream os__ = inS__.ostr();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__();
             os__.writeStringSeq(ret__);
+            inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
         
@@ -312,13 +311,13 @@ namespace Ice
             return ids__[0];
         }
         
-        public static DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__,
-            Current __current)
+        public static DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
-            inS__.istr().skipEmptyEncaps();
+            inS__.readEmptyParams();
             string __ret = __obj.ice_id(__current);
-            IceInternal.BasicStream os__ = inS__.ostr();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__();
             os__.writeString(__ret);
+            inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
         
@@ -558,20 +557,12 @@ namespace Ice
         /// Ice run-time exception, it must throw it directly.</returns>
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
         
-        public override DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
         {
-            byte[] inParams;
-            byte[] outParams;
-            IceInternal.BasicStream is__ = inc.istr();
-            is__.startReadEncaps();
-            int sz = is__.getReadEncapsSize();
-            inParams = is__.readBlob(sz);
-            is__.endReadEncaps();
-            bool ok = ice_invoke(inParams, out outParams, current);
-            if(outParams != null)
-            {
-                inc.ostr().writeBlob(outParams);
-            }
+            byte[] inEncaps = inS__.readParamEncaps();
+            byte[] outEncaps;
+            bool ok = ice_invoke(inEncaps, out outEncaps, current);
+            inS__.writeParamEncaps__(outEncaps, ok);
             if(ok)
             {
                 return DispatchStatus.DispatchOK;
@@ -585,20 +576,15 @@ namespace Ice
 
     public abstract class BlobjectAsync : Ice.ObjectImpl
     {
-        public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
+        public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
         
-        public override DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
         {
-            byte[] inParams;
-            IceInternal.BasicStream is__ = inc.istr();
-            is__.startReadEncaps();
-            int sz = is__.getReadEncapsSize();
-            inParams = is__.readBlob(sz);
-            is__.endReadEncaps();
-            AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(inc);
+            byte[] inEncaps = inS__.readParamEncaps();
+            AMD_Object_ice_invoke cb = new _AMD_Object_ice_invoke(inS__);
             try
             {
-                ice_invoke_async(cb, inParams, current);
+                ice_invoke_async(cb, inEncaps, current);
             }
             catch(System.Exception ex)
             {

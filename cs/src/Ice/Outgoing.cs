@@ -28,10 +28,8 @@ namespace IceInternal
             _state = StateUnsent;
             _sent = false;
             _handler = handler;
-
-            Instance instance = _handler.getReference().getInstance();
-            _is = new BasicStream(instance);
-            _os = new BasicStream(instance);
+            _encoding = handler.getReference().getEncoding();
+            _os = new BasicStream(_handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
 
             writeHeader(operation, mode, context);
         }
@@ -46,13 +44,17 @@ namespace IceInternal
             _exception = null;
             _sent = false;
             _handler = handler;
+            _encoding = handler.getReference().getEncoding();
 
             writeHeader(operation, mode, context);
         }
 
         public void reclaim()
         {
-            _is.reset();
+            if(_is != null)
+            {
+                _is.reset();
+            }
             _os.reset();
         }
 
@@ -60,8 +62,6 @@ namespace IceInternal
         public bool invoke()
         {
             Debug.Assert(_state == StateUnsent);
-
-            _os.endWriteEncaps();
 
             switch(_handler.getReference().getMode())
             {
@@ -281,6 +281,11 @@ namespace IceInternal
 
                 Debug.Assert(_state <= StateInProgress);
 
+                if(_is == null)
+                {
+                    _is = new IceInternal.BasicStream(_handler.getReference().getInstance(), 
+                                                      Ice.Util.currentProtocolEncoding);
+                }
                 _is.swap(istr);
                 byte replyStatus = _is.readByte();
 
@@ -429,14 +434,63 @@ namespace IceInternal
             }
         }
 
-        public BasicStream istr()
-        {
-            return _is;
-        }
-
         public BasicStream ostr()
         {
             return _os;
+        }
+
+        public BasicStream startReadParams()
+        {
+            _is.startReadEncaps();
+            return _is;
+        }
+
+        public void endReadParams()
+        {
+            _is.endReadEncaps();
+        }
+
+        public void readEmptyParams()
+        {
+            _is.skipEmptyEncaps();
+        }
+
+        public byte[] readParamEncaps()
+        {
+            return _is.readEncaps(out _encoding);
+        }
+
+        public BasicStream startWriteParams()
+        {
+            _os.startWriteEncaps(_encoding);
+            return _os;
+        }
+
+        public void endWriteParams()
+        {
+            _os.endWriteEncaps();
+        }
+
+        public void writeEmptyParams()
+        {
+            _os.writeEmptyEncaps(_encoding);
+        }
+
+        public void writeParamEncaps(byte[] encaps)
+        {
+            if(encaps == null || encaps.Length == 0)
+            {
+                _os.writeEmptyEncaps(_encoding);
+            }
+            else
+            {
+                _os.writeEncaps(encaps);
+            }
+        }
+
+        public bool hasResponse()
+        {
+            return _is != null && !_is.isEmpty();
         }
 
         public void throwUserException()
@@ -519,13 +573,6 @@ namespace IceInternal
                         implicitContext.write(prxContext, _os);
                     }
                 }
-
-                //
-                // Input and output parameters are always sent in an
-                // encapsulation, which makes it possible to forward requests as
-                // blobs.
-                //
-                _os.startWriteEncaps();
             }
             catch(Ice.LocalException ex)
             {
@@ -539,6 +586,7 @@ namespace IceInternal
         internal bool _sent;
 
         private Ice.LocalException _exception;
+        private Ice.EncodingVersion _encoding;
 
         private const int StateUnsent = 0;
         private const int StateInProgress = 1;
@@ -559,14 +607,14 @@ namespace IceInternal
         {
             _connection = connection;
             _sent = false;
-            _os = new BasicStream(instance);
+            _os = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
         }
 
         public BatchOutgoing(RequestHandler handler)
         {
             _handler = handler;
             _sent = false;
-            _os = new BasicStream(handler.getReference().getInstance());
+            _os = new BasicStream(handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
         }
 
         public void invoke()
@@ -644,5 +692,4 @@ namespace IceInternal
 
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }
-
 }

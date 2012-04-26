@@ -50,6 +50,8 @@ namespace IceInternal
                 return null;
             }
             
+            DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
+
             //
             // Create new reference
             //
@@ -60,6 +62,7 @@ namespace IceInternal
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
                 connection.endpoint().secure(),
+                defaultsAndOverrides.defaultEncoding,
                 connection);
             return updateCache(r);
         }
@@ -650,6 +653,7 @@ namespace IceInternal
         static private readonly string[] _suffixes =
         {
             "EndpointSelection",
+            "EncodingVersion",
             "ConnectionCached",
             "PreferSecure",
             "LocatorCacheTimeout",
@@ -725,6 +729,7 @@ namespace IceInternal
             bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
+            Ice.EncodingVersion encoding = defaultsAndOverrides.defaultEncoding;
             Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
@@ -777,6 +782,14 @@ namespace IceInternal
                 property = propertyPrefix + ".PreferSecure";
                 preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
 
+                property = propertyPrefix + ".EncodingVersion";
+                string encodingStr = properties.getProperty(property);
+                if(encodingStr.Length > 0)
+                {
+                    encoding = Ice.Util.stringToEncodingVersion(encodingStr);
+                    Protocol.checkSupportedEncoding(encoding);
+                }
+
                 property = propertyPrefix + ".EndpointSelection";
                 if(properties.getProperty(property).Length > 0)
                 {
@@ -809,6 +822,7 @@ namespace IceInternal
                                                      facet,
                                                      mode,
                                                      secure,
+                                                     encoding,
                                                      endpoints,
                                                      adapterId,
                                                      locatorInfo,

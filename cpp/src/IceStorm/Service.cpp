@@ -547,6 +547,7 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Send.Timeout",
         "Discard.Interval",
         "SQL.DatabaseType",
+        "SQL.EncodingVersion",
         "SQL.HostName",
         "SQL.Port",
         "SQL.DatabaseName",

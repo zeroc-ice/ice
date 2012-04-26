@@ -98,7 +98,7 @@ namespace IceInternal
             inc.adopt(this);
         }
 
-        protected void response__(bool ok)
+        protected void response__()
         {
             try
             {
@@ -111,22 +111,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
-                
-                    int save = os_.pos();
-                    os_.pos(Protocol.headerSize + 4); // Reply status position.
-                
-                    if(ok)
-                    {
-                        os_.writeByte(ReplyStatus.replyOK);
-                    }
-                    else
-                    {
-                        os_.writeByte(ReplyStatus.replyUserException);
-                    }
-                
-                    os_.pos(save);
-
                     connection_.sendResponse(os_, compress_);
                 }
                 else
@@ -225,9 +209,9 @@ namespace Ice
         /// <param name="ok">True indicates that the operation
         /// completed successfully; false indicates that the
         /// operation raised a user exception.</param>
-        /// <param name="outParams">The encoded out-parameters for the operation or,
+        /// <param name="outEncaps">The encoded out-parameters for the operation or,
         /// if ok is false, the encoded user exception.</param>
-        void ice_response(bool ok, byte[] outParams);
+        void ice_response(bool ok, byte[] outEncaps);
     }
 
     sealed class _AMD_Object_ice_invoke : IceInternal.IncomingAsync, AMD_Object_ice_invoke
@@ -237,18 +221,18 @@ namespace Ice
         {
         }
         
-        public void ice_response(bool ok, byte[] outParams)
+        public void ice_response(bool ok, byte[] outEncaps)
         {
             try
             {
-                getOs__().writeBlob(outParams);
+                writeParamEncaps__(outEncaps, ok);
             }
             catch(Ice.LocalException ex)
             {
                 exception__(ex);
                 return;
             }
-            response__(ok);
+            response__();
         }
     }
 }

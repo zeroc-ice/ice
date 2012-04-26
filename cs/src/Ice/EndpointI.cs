@@ -20,8 +20,20 @@ namespace IceInternal
         void exception(Ice.LocalException ex);
     }
 
-    public abstract class EndpointI : Ice.Endpoint, System.IComparable
+    public abstract class EndpointI : Ice.Endpoint, System.IComparable<EndpointI>
     {    
+        public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding)
+        {
+            protocol_ = protocol;
+            encoding_ = encoding;
+        }
+
+        public EndpointI()
+        {
+            protocol_ = Ice.Util.currentProtocol;
+            encoding_ = Ice.Util.currentEncoding;
+        }
+
         public override string ToString()
         {
             return ice_toString_();
@@ -29,7 +41,61 @@ namespace IceInternal
 
         public abstract string ice_toString_();
         public abstract Ice.EndpointInfo getInfo();
-        public abstract int CompareTo(object obj);
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is EndpointI))
+            {
+                return false;
+            }
+            return CompareTo((EndpointI)obj) == 0;
+        }
+
+        public override int GetHashCode()
+        {
+            return 5 * protocol_.GetHashCode() + encoding_.GetHashCode();
+        }
+
+        public virtual int CompareTo(EndpointI p)
+        {
+            if(protocol_.major < p.protocol_.major)
+            {
+                return -1;
+            }
+            else if(p.protocol_.major < protocol_.major)
+            {
+                return 1;
+            }
+
+            if(protocol_.minor < p.protocol_.minor)
+            {
+                return -1;
+            }
+            else if(p.protocol_.minor < protocol_.minor)
+            {
+                return 1;
+            }
+
+            if(encoding_.major < p.encoding_.major)
+            {
+                return -1;
+            }
+            else if(p.encoding_.major < encoding_.major)
+            {
+                return 1;
+            }
+
+            if(encoding_.minor < p.encoding_.minor)
+            {
+                return -1;
+            }
+            else if(p.encoding_.minor < encoding_.minor)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
 
         //
         // Marshal the endpoint.
@@ -83,6 +149,22 @@ namespace IceInternal
         public abstract bool secure();
 
         //
+        // Return the protocol supported by the endpoint.
+        //
+        public Ice.ProtocolVersion protocol()
+        {
+            return protocol_;
+        }
+        
+        //
+        // Return the encoding supported by the endpoint.
+        //
+        public Ice.EncodingVersion encoding()
+        {
+            return encoding_;
+        }
+
+        //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a
         // transceiver is created, this operation also returns a new
@@ -124,6 +206,54 @@ namespace IceInternal
             Debug.Assert(false);
             return null;
         }
+
+        protected void
+        parseOption(string option, string arg, string desc, string str)
+        {
+            if(option.Equals("-v"))
+            {
+                if(arg == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `" +
+                                                         desc + " "+ str + "'");
+                }
+
+                try
+                {
+                    protocol_ = Ice.Util.stringToProtocolVersion(arg);
+                }
+                catch(Ice.VersionParseException e)
+                {
+                    throw new Ice.EndpointParseException("invalid protocol version `" + arg + "' in endpoint `" +
+                                                         desc + " "+ str + "':\n" + e.str);
+                }
+            }            
+            else if(option.Equals("-e"))
+            {
+                if(arg == null)
+                {
+                    throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `" +
+                                                         desc + " " + str + "'");
+                }
+            
+                try
+                {
+                    encoding_ = Ice.Util.stringToEncodingVersion(arg);
+                }
+                catch(Ice.VersionParseException e)
+                {
+                    throw new Ice.EndpointParseException("invalid encoding version `" + arg + "' in endpoint `" +
+                                                         desc + " "+ str + "':\n" + e.str);
+                }
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("unknown option `" + option + "' in `" + desc + " " + str + "'");
+            }
+        }
+
+        protected Ice.ProtocolVersion protocol_;
+        protected Ice.EncodingVersion encoding_;
     }
 
 }

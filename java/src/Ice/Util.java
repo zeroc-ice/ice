@@ -528,7 +528,7 @@ public final class Util
     /**
      * Converts a string to a protocol version.
      *
-     * @param s The string to convert.
+     * @param version The string to convert.
      *
      * @return The converted protocol version.
      **/
@@ -541,7 +541,7 @@ public final class Util
     /**
      * Converts a string to an encoding version.
      *
-     * @param s The string to convert.
+     * @param version The string to convert.
      *
      * @return The converted object identity.
      **/
@@ -616,12 +616,12 @@ public final class Util
         }
         catch(NumberFormatException ex)
         {
-            throw new Ice.EndpointParseException("invalid version value `" + str + "'");
+            throw new Ice.VersionParseException("invalid version value `" + str + "'");
         }
         
         if(majVersion < 1 || majVersion > 255)
         {
-            throw new Ice.EndpointParseException("range error in version `" + str + "'");
+            throw new Ice.VersionParseException("range error in version `" + str + "'");
         }
 
         return (byte)majVersion;
@@ -644,12 +644,12 @@ public final class Util
         }
         catch(NumberFormatException ex)
         {
-            throw new Ice.EndpointParseException("invalid version value `" + str + "'");
+            throw new Ice.VersionParseException("invalid version value `" + str + "'");
         }
         
         if(minVersion < 0 || minVersion > 255)
         {
-            throw new Ice.EndpointParseException("range error in version `" + str + "'");
+            throw new Ice.VersionParseException("range error in version `" + str + "'");
         }
 
         return (byte)minVersion;

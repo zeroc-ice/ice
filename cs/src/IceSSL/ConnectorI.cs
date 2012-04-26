@@ -76,39 +76,49 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, IPEndPoint addr, int timeout, string connectionId)
+        internal ConnectorI(Instance instance, string host, EndPoint addr, int timeout, Ice.ProtocolVersion protocol, 
+                            Ice.EncodingVersion encoding, string connectionId)
         {
             _instance = instance;
             _host = host;
             _logger = instance.communicator().getLogger();
-            _addr = addr;
+            _addr = (IPEndPoint)addr;
             _timeout = timeout;
+            _protocol = protocol;
+            _encoding = encoding;
             _connectionId = connectionId;
 
             _hashCode = _addr.GetHashCode();
             _hashCode = 5 * _hashCode + _timeout;
+            _hashCode = 5 * _hashCode + _protocol.GetHashCode();
+            _hashCode = 5 * _hashCode + _encoding.GetHashCode();
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            ConnectorI p = null;
-
-            try
-            {
-                p = (ConnectorI)obj;
-            }
-            catch(System.InvalidCastException)
+            if(!(obj is ConnectorI))
             {
                 return false;
             }
 
-            if(this == p)
+            if(this == obj)
             {
                 return true;
             }
 
+            ConnectorI p = (ConnectorI)obj;
             if(_timeout != p._timeout)
+            {
+                return false;
+            }
+
+            if(!_protocol.Equals(p._protocol))
+            {
+                return false;
+            }
+
+            if(!_encoding.Equals(p._encoding))
             {
                 return false;
             }
@@ -136,6 +146,8 @@ namespace IceSSL
         private string _host;
         private IPEndPoint _addr;
         private int _timeout;
+        private Ice.ProtocolVersion _protocol;
+        private Ice.EncodingVersion _encoding;
         private string _connectionId;
         private int _hashCode;
     }

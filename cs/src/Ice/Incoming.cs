@@ -23,7 +23,10 @@ namespace IceInternal
             instance_ = instance;
             response_ = response;
             compress_ = compress;
-            os_ = new BasicStream(instance);
+            if(response_)
+            {
+                os_ = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
+            }
             connection_ = connection;
 
             current_ = new Ice.Current();
@@ -88,6 +91,64 @@ namespace IceInternal
             inc.connection_ = null;
         }
 
+        public BasicStream startWriteParams__()
+        {
+            if(response_)
+            {
+                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
+                os_.writeByte((byte)0);
+                os_.startWriteEncaps(current_.encoding);
+            }
+            
+            //
+            // We still return the stream even if no response is expected. The
+            // servant code might still write some out parameters if for
+            // example a method with out parameters somehow and erroneously
+            // invoked as oneway (or if the invocation is invoked on a 
+            // blobject and the blobject erroneously writes a response).
+            //
+            return os_;
+        }
+        
+        public void endWriteParams__(bool ok)
+        {
+            if(response_)
+            {
+                int save = os_.pos();
+                os_.pos(Protocol.headerSize + 4); // Reply status position.
+                os_.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+                os_.pos(save);
+                os_.endWriteEncaps();
+            }
+        }
+        
+        public void writeEmptyParams__()
+        {
+            if(response_)
+            {
+                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
+                os_.writeByte(ReplyStatus.replyOK);
+                os_.writeEmptyEncaps(current_.encoding);
+            }
+        }
+        
+        public void writeParamEncaps__(byte[] v, bool ok)
+        {
+            if(response_)
+            {
+                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
+                os_.writeByte(ok ? ReplyStatus.replyOK : ReplyStatus.replyUserException);
+                if(v == null || v.Length == 0)
+                {
+                    os_.writeEmptyEncaps(current_.encoding);
+                }
+                else
+                {
+                    os_.writeEncaps(v);
+                }
+            }
+        }
+        
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
@@ -111,9 +172,9 @@ namespace IceInternal
 
             compress_ = compress;
 
-            if(os_ == null)
+            if(response_ && os_ == null)
             {
-                os_ = new BasicStream(instance);
+                os_ = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
             }
 
             connection_ = connection;
@@ -181,7 +242,6 @@ namespace IceInternal
                 //
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUserException);
                     os_.startWriteEncaps();
@@ -236,7 +296,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     if(ex is Ice.ObjectNotExistException)
                     {
@@ -288,7 +347,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.unknown);
@@ -309,7 +367,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.unknown);
@@ -330,7 +387,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.unknown);
@@ -351,7 +407,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
@@ -372,7 +427,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.ice_name() + "\n" + ex.StackTrace);
@@ -393,7 +447,6 @@ namespace IceInternal
 
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.ToString());
@@ -430,7 +483,18 @@ namespace IceInternal
                         bool response, byte compress, int requestId)
              : base(instance, connection, adapter, response, compress, requestId)
         {
-            _is = new BasicStream(instance);
+            //
+            // Prepare the response if necessary.
+            //
+            if(response)
+            {
+                os_.writeBlob(IceInternal.Protocol.replyHdr);
+                
+                //
+                // Add the request ID.
+                //
+                os_.writeInt(requestId);
+            }
         }
 
         //
@@ -457,28 +521,34 @@ namespace IceInternal
             _cb = null;
             _inParamPos = -1;
 
-            if(_is == null)
-            {
-                _is = new BasicStream(instance);
-            }
-
             base.reset(instance, connection, adapter, response, compress, requestId);
+
+            //
+            // Prepare the response if necessary.
+            //
+            if(response)
+            {
+                os_.writeBlob(IceInternal.Protocol.replyHdr);
+                
+                //
+                // Add the request ID.
+                //
+                os_.writeInt(requestId);
+            }
         }
 
         public override void reclaim()
         {
             _cb = null;
             _inParamPos = -1;
-            if(_is != null)
-            {
-                _is.reset();
-            }
 
             base.reclaim();
         }
 
-        public void invoke(ServantManager servantManager)
+        public void invoke(ServantManager servantManager, BasicStream stream)
         {
+            _is = stream;
+
             //
             // Read the current.
             //
@@ -512,16 +582,6 @@ namespace IceInternal
                 current_.ctx[first] = second;
             }
 
-            if(response_)
-            {
-                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
-                os_.writeByte(ReplyStatus.replyOK);
-                os_.startWriteEncaps();
-            }
-
-            byte replyStatus = ReplyStatus.replyOK;
-            Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
-
             //
             // Don't put the code above into the try block below. Exceptions
             // in the code above are considered fatal, and must propagate to
@@ -547,11 +607,27 @@ namespace IceInternal
                         }
                         catch(Ice.UserException ex)
                         {
-                            os_.writeUserException(ex);
-                            replyStatus = ReplyStatus.replyUserException;
+                            Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
+                            
+                            if(response_)
+                            {
+                                os_.writeByte(ReplyStatus.replyUserException);
+                                os_.startWriteEncaps(encoding);
+                                os_.writeUserException(ex);
+                                os_.endWriteEncaps();
+                                connection_.sendResponse(os_, compress_);
+                            }
+                            else
+                            {
+                                connection_.sendNoResponse();
+                            }
+
+                            connection_ = null;
+                            return;
                         }
                         catch(System.Exception ex)
                         {
+                            _is.skipEncaps(); // Required for batch requests.
                             handleException__(ex);
                             return;
                         }
@@ -559,45 +635,47 @@ namespace IceInternal
                 }
             }
 
-            if(servant_ != null)
+            try
             {
-                try
+                if(servant_ != null)
                 {
-                    Debug.Assert(replyStatus == ReplyStatus.replyOK);
-                    dispatchStatus = servant_.dispatch__(this, current_);
-                    if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                    //
+                    // DispatchAsync is a "pseudo dispatch status", used internally only
+                    // to indicate async dispatch.
+                    //
+                    if(servant_.dispatch__(this, current_) == Ice.DispatchStatus.DispatchAsync)
                     {
-                        replyStatus = ReplyStatus.replyUserException;
+                        //
+                        // If this was an asynchronous dispatch, we're done here.
+                        //
+                        return;
                     }
 
-                    if(dispatchStatus != Ice.DispatchStatus.DispatchAsync)
-                    {
-                        if(locator_ != null && !servantLocatorFinished__())
-                        {
-                            return;
-                        }
-                    }
-                }
-                catch(System.Exception ex)
-                {
                     if(locator_ != null && !servantLocatorFinished__())
                     {
                         return;
                     }
-                    handleException__(ex);
-                    return;
-                }
-            }
-            else if(replyStatus == ReplyStatus.replyOK)
-            {
-                if(servantManager != null && servantManager.hasServant(current_.id))
-                {
-                    replyStatus = ReplyStatus.replyFacetNotExist;
                 }
                 else
                 {
-                    replyStatus = ReplyStatus.replyObjectNotExist;
+                    if(servantManager != null && servantManager.hasServant(current_.id))
+                    {
+                        throw new Ice.FacetNotExistException(current_.id, current_.facet, current_.operation);
+                    }
+                    else
+                    {
+                        throw new Ice.ObjectNotExistException(current_.id, current_.facet, current_.operation);
+                    }
                 }
+            }
+            catch(System.Exception ex)
+            {
+                if(servant_ != null && locator_ != null && !servantLocatorFinished__())
+                {
+                    return;
+                }
+                handleException__(ex);
+                return;
             }
 
             //
@@ -606,57 +684,10 @@ namespace IceInternal
             // the caller of this operation.
             //
 
-            //
-            // Async dispatch
-            //
-            if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
-            {
-                //
-                // If this was an asynchronous dispatch, we're done
-                // here.
-                //
-                return;
-            }
-
             Debug.Assert(connection_ != null);
 
             if(response_)
             {
-                os_.endWriteEncaps();
-
-                if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
-                {
-                    Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
-                                 replyStatus == ReplyStatus.replyFacetNotExist);
-
-                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
-                    os_.writeByte(replyStatus);
-
-                    current_.id.write__(os_);
-
-                    //
-                    // For compatibility with the old FacetPath.
-                    //
-                    if(current_.facet == null || current_.facet.Length == 0)
-                    {
-                        os_.writeStringSeq(null);
-                    }
-                    else
-                    {
-                        string[] facetPath2 = { current_.facet };
-                        os_.writeStringSeq(facetPath2);
-                    }
-
-                    os_.writeString(current_.operation);
-                }
-                else
-                {
-                    int save = os_.pos();
-                    os_.pos(Protocol.headerSize + 4); // Reply status position.
-                    os_.writeByte(replyStatus);
-                    os_.pos(save);
-                }
-
                 connection_.sendResponse(os_, compress_);
             }
             else
@@ -665,16 +696,6 @@ namespace IceInternal
             }
 
             connection_ = null;
-        }
-
-        public BasicStream istr()
-        {
-            return _is;
-        }
-
-        public BasicStream ostr()
-        {
-            return os_;
         }
 
         public void push(Ice.DispatchInterceptorAsyncCallback cb)
@@ -710,13 +731,9 @@ namespace IceInternal
                 // Let's rewind _is and clean-up os_
                 //
                 _is.pos(_inParamPos);
-
                 if(response_)
                 {
-                    os_.endWriteEncaps();
                     os_.resize(Protocol.headerSize + 4, false);
-                    os_.writeByte(ReplyStatus.replyOK);
-                    os_.startWriteEncaps();
                 }
             }
         }
@@ -734,6 +751,31 @@ namespace IceInternal
                 _cb.deactivate__(this);
                 _cb = null;
             }
+        }
+
+        public BasicStream startReadParams()
+        {
+            //
+            // Remember the encoding used by the input parameters, we'll
+            // encode the response parameters with the same encoding.
+            //
+            current_.encoding = _is.startReadEncaps();
+            return _is;
+        }
+    
+        public void endReadParams()
+        {
+            _is.endReadEncaps();
+        }
+
+        public void readEmptyParams()
+        {
+            current_.encoding = _is.skipEmptyEncaps();
+        }
+
+        public byte[] readParamEncaps()
+        {
+            return _is.readEncaps(out current_.encoding);
         }
 
         internal void setActive(IncomingAsync cb)

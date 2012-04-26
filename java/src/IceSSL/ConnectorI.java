@@ -102,22 +102,17 @@ final class ConnectorI implements IceInternal.Connector
     public boolean
     equals(java.lang.Object obj)
     {
-        ConnectorI p = null;
-
-        try
-        {
-            p = (ConnectorI)obj;
-        }
-        catch(ClassCastException ex)
+        if(!(obj instanceof ConnectorI))
         {
             return false;
         }
 
-        if(this == p)
+        if(this == obj)
         {
             return true;
         }
 
+        ConnectorI p = (ConnectorI)obj;
         if(_timeout != p._timeout)
         {
             return false;

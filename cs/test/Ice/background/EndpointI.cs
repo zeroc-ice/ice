@@ -257,12 +257,7 @@ internal class EndpointI : IceInternal.EndpointI
     //
     // Compare endpoints for sorting purposes
     //
-    public override bool Equals(object obj)
-    {
-        return CompareTo(obj) == 0;
-    }
-
-    public override int CompareTo(object obj)
+    public override int CompareTo(IceInternal.EndpointI obj)
     {
         EndpointI p = null;
 
@@ -274,8 +269,7 @@ internal class EndpointI : IceInternal.EndpointI
         {
             try
             {
-                IceInternal.EndpointI e = (IceInternal.EndpointI)obj;
-                return type() < e.type() ? -1 : 1;
+                return type() < obj.type() ? -1 : 1;
             }
             catch(System.InvalidCastException)
             {

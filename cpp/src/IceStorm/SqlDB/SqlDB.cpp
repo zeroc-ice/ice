@@ -92,8 +92,10 @@ SqlDatabaseCache::SqlDatabaseCache(const Ice::CommunicatorPtr& communicator,
                                    int port,
                                    const string& username,
                                    const string& password,
-                                   const string& tablePrefix) :
-    SqlDB::DatabaseCache(communicator, databaseType, databaseName, hostname, port, username, password, false)
+                                   const string& tablePrefix,
+                                   const string& encoding) :
+    SqlDB::DatabaseCache(communicator, databaseType, databaseName, hostname, port, username, password, false,
+                         Ice::stringToEncodingVersion(encoding))
 {
     IceDB::DatabaseConnectionPtr connection = getConnection();
     IceDB::TransactionHolder txn(connection);
@@ -189,7 +191,8 @@ SqlDBPlugin::getDatabaseCache(const string& name)
                                                              properties->getPropertyAsInt(name + ".SQL.Port"),
                                                              properties->getProperty(name + ".SQL.UserName"),
                                                              properties->getProperty(name + ".SQL.Password"),
-                                                             tablePrefix);
+                                                             tablePrefix,
+                                                             properties->getProperty(name + ".SQL.EncodingVersion"));
     
     SqlDB::ThreadHookPtr threadHook = 
         SqlDB::ThreadHookPtr::dynamicCast(IceInternal::getInstance(_communicator)->initializationData().threadHook);

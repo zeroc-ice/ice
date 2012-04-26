@@ -68,22 +68,17 @@ final class UdpConnector implements Connector
     public boolean
     equals(java.lang.Object obj)
     {
-        UdpConnector p = null;
-
-        try
-        {
-            p = (UdpConnector)obj;
-        }
-        catch(ClassCastException ex)
+        if(!(obj instanceof UdpConnector))
         {
             return false;
         }
 
-        if(this == p)
+        if(this == obj)
         {
             return true;
         }
 
+        UdpConnector p = (UdpConnector)obj;
         if(!_connectionId.equals(p._connectionId))
         {
             return false;

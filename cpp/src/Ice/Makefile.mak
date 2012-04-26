@@ -106,7 +106,8 @@ OBJS		= Acceptor.obj \
 		  Transceiver.obj \
 		  UdpConnector.obj \
 		  UdpEndpointI.obj \
-		  UdpTransceiver.obj
+		  UdpTransceiver.obj \
+		  Version.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 

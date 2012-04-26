@@ -30,8 +30,7 @@ namespace IceInternal
         // Only for use by TcpEndpoint
         //
         internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl,
-                              byte protocolMajor, byte protocolMinor, byte encodingMajor, byte encodingMinor,
-                              string connectionId)
+                              Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, string connectionId)
         {
             instance_ = instance;
 #if SILVERLIGHT
@@ -41,57 +40,42 @@ namespace IceInternal
 #endif
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
-            _protocolMajor = protocolMajor;
-            _protocolMinor = protocolMinor;
-            _encodingMajor = encodingMajor;
-            _encodingMinor = encodingMinor;
+            _protocol = protocol;
+            _encoding = encoding;
             _connectionId = connectionId;
 
             _hashCode = _addr.GetHashCode();
             _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
+            _hashCode = 5 * _hashCode + _protocol.GetHashCode();
+            _hashCode = 5 * _hashCode + _encoding.GetHashCode();
             _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
         }
 
         public override bool Equals(object obj)
         {
-            UdpConnector p = null;
-
-            try
-            {
-                p = (UdpConnector)obj;
-            }
-            catch(InvalidCastException)
+            if(!(obj is UdpConnector))
             {
                 return false;
             }
 
-            if(this == p)
+            if(this == obj)
             {
                 return true;
             }
 
+            UdpConnector p = (UdpConnector)obj;
             if(!_connectionId.Equals(p._connectionId))
             {
                 return false;
             }
 
-            if(_protocolMajor != p._protocolMajor)
+            if(!_protocol.Equals(p._protocol))
             {
                 return false;
             }
 
-            if(_protocolMinor != p._protocolMinor)
-            {
-                return false;
-            }
-
-            if(_encodingMajor != p._encodingMajor)
-            {
-                return false;
-            }
-
-            if(_encodingMinor != p._encodingMinor)
+            if(!_encoding.Equals(p._encoding))
             {
                 return false;
             }
@@ -127,10 +111,8 @@ namespace IceInternal
 #endif
         private string _mcastInterface;
         private int _mcastTtl;
-        private byte _protocolMajor;
-        private byte _protocolMinor;
-        private byte _encodingMajor;
-        private byte _encodingMinor;
+        private Ice.ProtocolVersion _protocol;
+        private Ice.EncodingVersion _encoding;
         private string _connectionId;
         private int _hashCode;
     }

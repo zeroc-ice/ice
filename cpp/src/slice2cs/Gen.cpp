@@ -370,8 +370,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 //
                 // Unmarshal 'in' parameters.
                 //
-                _out << nl << "IceInternal.BasicStream is__ = inS__.istr();";
-                _out << nl << "is__.startReadEncaps();";
+                _out << nl << "IceInternal.BasicStream is__ = inS__.startReadParams();";
                 for(q = inParams.begin(); q != inParams.end(); ++q)
                 {
                     string param = fixId(q->second);
@@ -401,22 +400,17 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 {
                     _out << nl << "is__.readPendingObjects();";
                 }
-                _out << nl << "is__.endReadEncaps();";
+                _out << nl << "inS__.endReadParams();";
             }
             else
             {
-                _out << nl << "inS__.istr().skipEmptyEncaps();";
+                _out << nl << "inS__.readEmptyParams();";
             }
 
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string typeS = typeToString(q->first);
                 _out << nl << typeS << ' ' << fixId(q->second) << ";";
-            }
-
-            if(!outParams.empty() || ret || !throws.empty())
-            {
-                _out << nl << "IceInternal.BasicStream os__ = inS__.ostr();";
             }
 
             //
@@ -461,17 +455,26 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             //
             // Marshal 'out' parameters and return value.
             //
-            for(q = outParams.begin(); q != outParams.end(); ++q)
+            if(!outParams.empty() || ret)
             {
-                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, true, "");
+                _out << nl << "IceInternal.BasicStream os__ = inS__.startWriteParams__();";
+                for(q = outParams.begin(); q != outParams.end(); ++q)
+                {
+                    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, true, "");
+                }
+                if(ret)
+                {
+                    writeMarshalUnmarshalCode(_out, ret, "ret__", true, false, true, "");
+                }
+                if(op->returnsClasses())
+                {
+                    _out << nl << "os__.writePendingObjects();";
+                }
+                _out << nl << "inS__.endWriteParams__(true);";
             }
-            if(ret)
+            else
             {
-                writeMarshalUnmarshalCode(_out, ret, "ret__", true, false, true, "");
-            }
-            if(op->returnsClasses())
-            {
-                _out << nl << "os__.writePendingObjects();";
+                _out << nl << "inS__.writeEmptyParams__();";
             }
             _out << nl << "return Ice.DispatchStatus.DispatchOK;";
 
@@ -487,7 +490,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                     string exS = fixId((*t)->scoped());
                     _out << nl << "catch(" << exS << " ex__)";
                     _out << sb;
-                    _out << nl << "os__.writeUserException(ex__);";
+                    _out << nl << "inS__.startWriteParams__().writeUserException(ex__);";
+                    _out << nl << "inS__.endWriteParams__(false);";
                     _out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     _out << eb;
                 }
@@ -515,8 +519,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 //
                 // Unmarshal 'in' parameters.
                 //
-                _out << nl << "IceInternal.BasicStream is__ = inS__.istr();";
-                _out << nl << "is__.startReadEncaps();";
+                _out << nl << "IceInternal.BasicStream is__ = inS__.startReadParams();";
                 for(q = inParams.begin(); q != inParams.end(); ++q)
                 {
                     string param = fixId(q->second);
@@ -546,11 +549,11 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 {
                     _out << nl << "is__.readPendingObjects();";
                 }
-                _out << nl << "is__.endReadEncaps();";
+                _out << nl << "inS__.endReadParams();";
             }
             else
             {
-                _out << nl << "inS__.istr().skipEmptyEncaps();";
+                _out << nl << "inS__.readEmptyParams();";
             }
 
             //
@@ -1285,7 +1288,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             _out << value << "F";
         }
-        else if(ep = EnumPtr::dynamicCast(type))
+        else if((ep = EnumPtr::dynamicCast(type)))
         {
             string enumName = fixId(ep->scoped());
             string::size_type colon = value.rfind(':');
@@ -4501,8 +4504,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << nl << retS << " ret__;";
                 }
-                _out << nl << "IceInternal.BasicStream is__ = outAsync__.istr__;";
-                _out << nl << "is__.startReadEncaps();";
+                _out << nl << "IceInternal.BasicStream is__ = outAsync__.startReadParams__();";
                 for(q = outParams.begin(); q != outParams.end(); ++q)
                 {
                     string param = fixId(q->second);
@@ -4540,7 +4542,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << nl << "is__.readPendingObjects();";
                 }
-                _out << nl << "is__.endReadEncaps();";
+                _out << nl << "outAsync__.endReadParams__();";
                 for(q = outParams.begin(); q != outParams.end(); ++q)
                 {
                     string param = fixId(q->second);
@@ -4564,6 +4566,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << nl << "return ret__;";
                 }
+            }
+            else
+            {
+                _out << nl << "outAsync__.readEmptyParams__();";
             }
         }
         else
@@ -4602,17 +4608,24 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "result__.prepare__(" << flatName << ", "
              << sliceModeToIceMode(op->sendMode()) << ", ctx__, explicitContext__);";
-        _out << nl << "IceInternal.BasicStream os__ = result__.ostr__;";
-        for(q = inParams.begin(); q != inParams.end(); ++q)
+        if(!inParams.empty())
         {
-            string typeS = typeToString(q->first);
-            writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false, "", true);
+            _out << nl << "IceInternal.BasicStream os__ = result__.startWriteParams__();";
+            for(q = inParams.begin(); q != inParams.end(); ++q)
+            {
+                string typeS = typeToString(q->first);
+                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false, "", true);
+            }
+            if(op->sendsClasses())
+            {
+                _out << nl << "os__.writePendingObjects();";
+            }
+            _out << nl << "result__.endWriteParams__();";
         }
-        if(op->sendsClasses())
+        else
         {
-            _out << nl << "os__.writePendingObjects();";
+            _out << nl << "result__.writeEmptyParams__();";
         }
-        _out << nl << "os__.endWriteEncaps();";
         _out << nl << "result__.send__(true);";
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
@@ -5477,7 +5490,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "try";
             _out << sb;
-            _out << nl << "IceInternal.BasicStream os__ = og__.ostr();";
+            _out << nl << "IceInternal.BasicStream os__ = og__.startWriteParams();";
             for(q = inParams.begin(); q != inParams.end(); ++q)
             {
                 writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false);
@@ -5486,16 +5499,21 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << "os__.writePendingObjects();";
             }
+            _out << nl << "og__.endWriteParams();";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";
             _out << sb;
             _out << nl << "og__.abort(ex__);";
             _out << eb;
         }
+        else
+        {
+            _out << nl << "og__.writeEmptyParams();";
+        }
         _out << nl << "bool ok__ = og__.invoke();";
         if(!op->returnsData())
         {
-            _out << nl << "if(!og__.istr().isEmpty())";
+            _out << nl << "if(og__.hasResponse())";
             _out << sb;
         }
         _out << nl << "try";
@@ -5524,8 +5542,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
         if(ret || !outParams.empty())
         {
-            _out << nl << "IceInternal.BasicStream is__ = og__.istr();";
-            _out << nl << "is__.startReadEncaps();";
+            _out << nl << "IceInternal.BasicStream is__ = og__.startReadParams();";
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string param = fixId(q->second);
@@ -5596,11 +5613,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
             }
-            _out << nl << "is__.endReadEncaps();";
+            _out << nl << "og__.endReadParams();";
         }
         else
         {
-            _out << nl << "og__.istr().skipEmptyEncaps();";
+            _out << nl << "og__.readEmptyParams();";
         }
 
         if(ret)
@@ -6105,7 +6122,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         {
             _out << nl << "try";
             _out << sb;
-            _out << nl << "IceInternal.BasicStream os__ = this.getOs__();";
+            _out << nl << "IceInternal.BasicStream os__ = startWriteParams__();";
             for(q = outParams.begin(); q != outParams.end(); ++q)
             {
                 string typeS = typeToString(q->first);
@@ -6120,13 +6137,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             {
                 _out << nl << "os__.writePendingObjects();";
             }
+            _out << nl << "endWriteParams__(true);";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";
             _out << sb;
             _out << nl << "ice_exception(ex__);";
             _out << eb;
         }
-        _out << nl << "response__(true);";
+        else
+        {
+            _out << nl << "writeEmptyParams__();";
+        }
+        _out << nl << "response__();";
         _out << eb;
         _out << eb;
 
@@ -6146,8 +6168,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 _out << sb;
                 _out << nl << "if(validateResponse__(false))";
                 _out << sb;
-                _out << nl << "getOs__().writeUserException(ex__);";
-                _out << nl << "response__(false);";
+                _out << nl << "startWriteParams__().writeUserException(ex__);";
+                _out << nl << "endWriteParams__(false);";
+                _out << nl << "response__();";
                 _out << eb;
                 _out << eb;
             }

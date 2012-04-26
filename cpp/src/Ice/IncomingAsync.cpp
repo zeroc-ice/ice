@@ -295,13 +295,20 @@ IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
 }
 
 void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& outParams)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& outEncaps)
 {
     if(__validateResponse(ok))
     {
         try
         {
-            __writeParamEncaps(&outParams[0], outParams.size(), ok);
+            if(outEncaps.empty())
+            {
+                __writeParamEncaps(0, 0, ok);
+            }
+            else
+            {
+                __writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+            }
         }
         catch(const LocalException& ex)
         {
@@ -313,13 +320,13 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
 }
 
 void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outEncaps)
 {
     if(__validateResponse(ok))
     {
         try
         {
-            __writeParamEncaps(outParams.first, static_cast<Int>(outParams.second - outParams.first), ok);
+            __writeParamEncaps(outEncaps.first, static_cast<Int>(outEncaps.second - outEncaps.first), ok);
         }
         catch(const LocalException& ex)
         {

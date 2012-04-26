@@ -197,7 +197,6 @@ namespace IceInternal
             {
                 s.Write("\nrequest #" + i + ':');
                 printRequestHeader(s, str);
-                str.skipEncaps();
             }
         }
 
@@ -348,6 +347,13 @@ namespace IceInternal
                     {
                         s.Write(", ");
                     }
+                }
+
+                Ice.EncodingVersion v = str.skipEncaps();
+                if(!v.Equals(Ice.Util.Encoding_1_0))
+                {
+                    s.Write("\nencoding = ");
+                    s.Write(Ice.Util.encodingVersionToString(v));
                 }
             }
             catch(System.IO.IOException)

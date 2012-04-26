@@ -469,15 +469,6 @@ namespace IceInternal
             }
         }
 
-        public IceInternal.BasicStream istr__
-        {
-            get
-            {
-                Debug.Assert(is_ != null); // Can only be called if response received.
-                return is_;
-            }
-        }
-
         public bool wait__()
         {
             monitor_.Lock();
@@ -613,7 +604,7 @@ namespace IceInternal
             operation_ = op;
             // Lazy initialized when response is received.
             //is_ = new IceInternal.BasicStream(instance);
-            os_ = new IceInternal.BasicStream(instance);
+            os_ = new IceInternal.BasicStream(instance, Ice.Util.currentProtocolEncoding);
             state_ = 0;
             sentSynchronously_ = false;
             exception_ = null;
@@ -765,6 +756,7 @@ namespace IceInternal
                  cookie)
         {
             proxy_ = (Ice.ObjectPrxHelperBase)prx;
+            _encoding = proxy_.reference__().getEncoding();
         }
 
         public void prepare__(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
@@ -836,8 +828,6 @@ namespace IceInternal
                     implicitContext.write(prxContext, os_);
                 }
             }
-
-            os_.startWriteEncaps();
         }
 
         public override Ice.ObjectPrx getProxy()
@@ -980,7 +970,7 @@ namespace IceInternal
                     }
 
                     Debug.Assert(is_ == null);
-                    is_ = new IceInternal.BasicStream(instance_);
+                    is_ = new IceInternal.BasicStream(instance_, Ice.Util.currentProtocolEncoding);
                     is_.swap(istr);
                     replyStatus = is_.readByte();
 
@@ -1161,6 +1151,55 @@ namespace IceInternal
             return sentSynchronously_;
         }
 
+        public IceInternal.BasicStream startReadParams__()
+        {
+            is_.startReadEncaps();
+            return is_;
+        }
+
+        public void endReadParams__()
+        {
+            is_.endReadEncaps();
+        }
+
+        public void readEmptyParams__()
+        {
+            is_.skipEmptyEncaps();
+        }
+
+        public byte[] readParamEncaps__()
+        {
+            return is_.readEncaps(out _encoding);
+        }
+
+        public BasicStream startWriteParams__()
+        {
+            os_.startWriteEncaps(_encoding);
+            return os_;
+        }
+
+        public void endWriteParams__()
+        {
+            os_.endWriteEncaps();
+        }
+
+        public void writeEmptyParams__()
+        {
+            os_.writeEmptyEncaps(_encoding);
+        }
+
+        public void writeParamEncaps__(byte[] encaps)
+        {
+            if(encaps == null || encaps.Length == 0)
+            {
+                os_.writeEmptyEncaps(_encoding);
+            }
+            else
+            {
+                os_.writeEncaps(encaps);
+            }
+        }
+
         private int handleException(LocalExceptionWrapper ex)
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
@@ -1258,6 +1297,7 @@ namespace IceInternal
         private Ice.ConnectionI _timerTaskConnection;
 
         private Ice.ObjectDel_ _delegate;
+        private Ice.EncodingVersion _encoding;
         private int _cnt;
         private Ice.OperationMode _mode;
 

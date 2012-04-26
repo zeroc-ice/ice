@@ -14,6 +14,8 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 
+#include <Ice/Version.h>
+
 #include <map>
 
 #ifndef ICE_DB_API
@@ -63,6 +65,8 @@ protected:
 class ICE_DB_API DatabaseConnection : virtual public IceUtil::Shared
 {
 public:
+
+    virtual Ice::EncodingVersion getEncoding() const = 0;
 
     virtual void beginTransaction() = 0;
     virtual void commitTransaction() = 0;

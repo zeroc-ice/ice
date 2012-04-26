@@ -42,9 +42,9 @@ namespace Ice
     /// Delegate for a successful <code>ice_invoke</code> invocation.
     /// <param name="ret__">True if the invocation succeeded, or false if the invocation
     /// raised a user exception.</param>
-    /// <param name="outParams">The encoded out-parameters or user exception.</param>
+    /// <param name="outEncaps">The encoded out-parameters or user exception.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outParams);
+    public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outEncaps);
 
     /// <summary>
     /// Callback object for Blobject AMI invocations.
@@ -57,14 +57,14 @@ namespace Ice
          /// </summary>
          /// <param name="ok">Indicates the result of the invocation. If true, the operation
          /// completed succesfully; if false, the operation raised a user exception.</param>
-         /// <param name="outParams">Contains the encoded out-parameters of the operation (if any) if ok
+         /// <param name="outEncaps">Contains the encoded out-parameters of the operation (if any) if ok
          /// is true; otherwise, if ok is false, contains the
          /// encoded user exception raised by the operation.</param>
-        public abstract void ice_response(bool ok, byte[] outParams);
+        public abstract void ice_response(bool ok, byte[] outEncaps);
 
-        public void response__(bool ok, byte[] outParams)
+        public void response__(bool ok, byte[] outEncaps)
         {
-            ice_response(ok, outParams);
+            ice_response(ok, outEncaps);
         }
     }
 
@@ -314,31 +314,31 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+        /// <param name="outEncaps">The encoded out-paramaters and return value
         /// for the operation. The return value follows any out-parameters.</param>
         /// <returns>If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
+        /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
-        bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams);
+        bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps);
 
         /// <summary>
         /// Invokes an operation dynamically.
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+        /// <param name="outEncaps">The encoded out-paramaters and return value
         /// for the operation. The return value follows any out-parameters.</param>
         /// <param name="context__">The context dictionary for the invocation.</param>
         /// <returns>If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
+        /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
-        bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+        bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                         Dictionary<string, string> context__);
 
         /// <summary>
@@ -347,11 +347,11 @@ namespace Ice
         /// <param name="cb">The callback object to notify when the operation completes.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <returns> If the operation was invoked synchronously (because there
         /// was no need to queue the request), the return value is true;
         /// otherwise, if the invocation was queued, the return value is false.</returns>
-        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
+        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps);
 
         /// <summary>
         /// Invokes an operation dynamically and asynchronously.
@@ -359,12 +359,12 @@ namespace Ice
         /// <param name="cb">The callback object to notify when the operation completes.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns> If the operation was invoked synchronously (because there
         /// was no need to queue the request), the return value is true;
         /// otherwise, if the invocation was queued, the return value is false.</returns>
-        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
+        bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps,
                               Dictionary<string, string> context);
 
         /// <summary>
@@ -372,21 +372,21 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
-                                                                    byte[] inParams);
+                                                                    byte[] inEncaps);
 
         /// <summary>
         /// Invokes an operation dynamically.
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context__">The context dictionary for the invocation.</param>
         /// <returns>An asynchronous result object.</returns>
         AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
-                                                                    byte[] inParams,
+                                                                    byte[] inEncaps,
                                                                     Dictionary<string, string> context__);
 
         /// <summary>
@@ -394,11 +394,11 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
         /// <param name="cookie__">Application-specific data to be stored in the result.</param>
         /// <returns>An asynchronous result object.</returns>
-        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams, AsyncCallback cb__,
+        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inEncaps, AsyncCallback cb__,
                                      object cookie__);
 
         /// <summary>
@@ -406,25 +406,25 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context__">The context dictionary for the invocation.</param>
         /// <param name="cb__">A callback to be invoked when the invocation completes.</param>
         /// <param name="cookie__">Application-specific data to be stored in the result.</param>
         /// <returns>An asynchronous result object.</returns>
-        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams,
+        AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inEncaps,
                                      Dictionary<string, string> context__, AsyncCallback cb__, object cookie__);
 
         /// <summary>
         /// Completes a dynamic invocation.
         /// </summary>
-        /// <param name="outParams">The encoded out parameters or user exception.</param>
+        /// <param name="outEncaps">The encoded out parameters or user exception.</param>
         /// <param name="r__">The asynchronous result object returned by <code>begin_ice_invoke</code>.</param>
         /// <returns>If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
+        /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
-        bool end_ice_invoke(out byte[] outParams, AsyncResult r__);
+        bool end_ice_invoke(out byte[] outEncaps, AsyncResult r__);
 
         /// <summary>
         /// Returns the identity embedded in this proxy.
@@ -546,6 +546,18 @@ namespace Ice
         /// endpoints.</param>
         /// <returns>The new proxy with the specified selection policy.</returns>
         ObjectPrx ice_secure(bool b);
+
+        /// <summary>
+        /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
+        /// parameters.
+        /// </summary>
+        /// <param name="e">The encoding version to use to marshal requests parameters.</param>
+        /// <returns>The new proxy with the specified encoding version.</returns>
+        ObjectPrx ice_encodingVersion(Ice.EncodingVersion e);
+
+        /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
+        /// <returns>The encoding version.</returns>
+        Ice.EncodingVersion ice_getEncodingVersion();
 
         /// <summary>
         /// Returns whether this proxy prefers secure endpoints.
@@ -869,10 +881,9 @@ namespace Ice
                 }
             }
             bool ret__;
-            IceInternal.BasicStream is__ = outAsync__.istr__;
-            is__.startReadEncaps();
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
             ret__ = is__.readBool();
-            is__.endReadEncaps();
+            outAsync__.endReadParams__();
             return ret__;
         }
 
@@ -893,9 +904,9 @@ namespace Ice
             try
             {
                 result__.prepare__(__ice_isA_name, OperationMode.Nonmutating, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.ostr__;
+                IceInternal.BasicStream os__ = result__.startWriteParams__();
                 os__.writeString(id);
-                os__.endWriteEncaps();
+                result__.endWriteParams__();
                 result__.send__(true);
             }
             catch(Ice.LocalException ex__)
@@ -1014,8 +1025,7 @@ namespace Ice
             try
             {
                 result__.prepare__(__ice_ping_name, OperationMode.Nonmutating, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.ostr__;
-                os__.endWriteEncaps();
+                result__.writeEmptyParams__();
                 result__.send__(true);
             }
             catch(Ice.LocalException ex__)
@@ -1119,10 +1129,9 @@ namespace Ice
                 }
             }
             string[] ret__;
-            IceInternal.BasicStream is__ = outAsync__.istr__;
-            is__.startReadEncaps();
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
             ret__ = is__.readStringSeq();
-            is__.endReadEncaps();
+            outAsync__.endReadParams__();
             return ret__;
         }
 
@@ -1143,8 +1152,7 @@ namespace Ice
             try
             {
                 result__.prepare__(__ice_ids_name, OperationMode.Nonmutating, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.ostr__;
-                os__.endWriteEncaps();
+                result__.writeEmptyParams__();
                 result__.send__(true);
             }
             catch(Ice.LocalException ex__)
@@ -1259,10 +1267,9 @@ namespace Ice
                 }
             }
             string ret__;
-            IceInternal.BasicStream is__ = outAsync__.istr__;
-            is__.startReadEncaps();
+            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
             ret__ = is__.readString();
-            is__.endReadEncaps();
+            outAsync__.endReadParams__();
             return ret__;
         }
 
@@ -1283,8 +1290,7 @@ namespace Ice
             try
             {
                 result__.prepare__(__ice_id_name, OperationMode.Nonmutating, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.ostr__;
-                os__.endWriteEncaps();
+                result__.writeEmptyParams__();
                 result__.send__(true);
             }
             catch(Ice.LocalException ex__)
@@ -1320,17 +1326,17 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+        /// <param name="outEncaps">The encoded out-paramaters and return value
         /// for the operation. The return value follows any out-parameters.</param>
         /// <returns>If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
+        /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
-        public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams)
+        public bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps)
         {
-            return ice_invoke(operation, mode, inParams, out outParams, null, false);
+            return ice_invoke(operation, mode, inEncaps, out outEncaps, null, false);
         }
 
         /// <summary>
@@ -1338,22 +1344,22 @@ namespace Ice
         /// </summary>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
-        /// <param name="outParams">The encoded out-paramaters and return value
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
+        /// <param name="outEncaps">The encoded out-paramaters and return value
         /// for the operation. The return value follows any out-parameters.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns>If the operation completed successfully, the return value
         /// is true. If the operation raises a user exception,
-        /// the return value is false; in this case, outParams
+        /// the return value is false; in this case, outEncaps
         /// contains the encoded user exception. If the operation raises a run-time exception,
         /// it throws it directly.</returns>
-        public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+        public bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                                Dictionary<string, string> context)
         {
-            return ice_invoke(operation, mode, inParams, out outParams, context, true);
+            return ice_invoke(operation, mode, inEncaps, out outEncaps, context, true);
         }
 
-        private bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+        private bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                                 Dictionary<string, string> context,  bool explicitContext)
         {
             if(explicitContext && context == null)
@@ -1368,7 +1374,7 @@ namespace Ice
                 try
                 {
                     del__ = getDelegate__(false);
-                    return del__.ice_invoke(operation, mode, inParams, out outParams, context);
+                    return del__.ice_invoke(operation, mode, inEncaps, out outEncaps, context);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
@@ -1394,13 +1400,13 @@ namespace Ice
         /// <param name="cb">The callback object to notify when the operation completes.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <returns> If the operation was invoked synchronously (because there
         /// was no need to queue the request), the return value is true;
         /// otherwise, if the invocation was queued, the return value is false.</returns>
-        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
+        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps)
         {
-            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inParams);
+            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inEncaps);
             result.whenCompleted(cb.response__, cb.exception__);
             if(cb is Ice.AMISentCallback)
             {
@@ -1415,15 +1421,15 @@ namespace Ice
         /// <param name="cb">The callback object to notify when the operation completes.</param>
         /// <param name="operation">The name of the operation to invoke.</param>
         /// <param name="mode">The operation mode (normal or idempotent).</param>
-        /// <param name="inParams">The encoded in-parameters for the operation.</param>
+        /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context">The context dictionary for the invocation.</param>
         /// <returns> If the operation was invoked synchronously (because there
         /// was no need to queue the request), the return value is true;
         /// otherwise, if the invocation was queued, the return value is false.</returns>
-        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
+        public bool ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inEncaps,
                                      Dictionary<string, string> context)
         {
-            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inParams, context);
+            AsyncResult<Callback_Object_ice_invoke> result = begin_ice_invoke(operation, mode, inEncaps, context);
             result.whenCompleted(cb.response__, cb.exception__);
             if(cb is Ice.AMISentCallback)
             {
@@ -1434,56 +1440,52 @@ namespace Ice
 
         public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
                                                                            OperationMode mode,
-                                                                           byte[] inParams)
+                                                                           byte[] inEncaps)
         {
-            return begin_ice_invoke(operation, mode, inParams, null, false, null, null);
+            return begin_ice_invoke(operation, mode, inEncaps, null, false, null, null);
         }
 
         public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
                                                                            OperationMode mode, 
-                                                                           byte[] inParams,
+                                                                           byte[] inEncaps,
                                                                            Dictionary<string, string> context__)
         {
-            return begin_ice_invoke(operation, mode, inParams, context__, true, null, null);
+            return begin_ice_invoke(operation, mode, inEncaps, context__, true, null, null);
         }
 
-        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams, AsyncCallback cb__,
+        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inEncaps, AsyncCallback cb__,
                                             object cookie__)
         {
-            return begin_ice_invoke(operation, mode, inParams, null, false, cb__, cookie__);
+            return begin_ice_invoke(operation, mode, inEncaps, null, false, cb__, cookie__);
         }
 
-        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inParams,
+        public AsyncResult begin_ice_invoke(string operation, OperationMode mode, byte[] inEncaps,
                                             Dictionary<string, string> context__, AsyncCallback cb__, object cookie__)
         {
-            return begin_ice_invoke(operation, mode, inParams, null, false, cb__, cookie__);
+            return begin_ice_invoke(operation, mode, inEncaps, null, false, cb__, cookie__);
         }
 
         private const string __ice_invoke_name = "ice_invoke";
 
-        public bool end_ice_invoke(out byte[] outParams, AsyncResult r__)
+        public bool end_ice_invoke(out byte[] outEncaps, AsyncResult r__)
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_invoke_name);
             bool ok = outAsync__.wait__();
             if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
             {
-                IceInternal.BasicStream is__ = outAsync__.istr__;
-                is__.startReadEncaps();
-                int sz = is__.getReadEncapsSize();
-                outParams = is__.readBlob(sz);
-                is__.endReadEncaps();
+                outEncaps = outAsync__.readParamEncaps__();
             }
             else
             {
-                outParams = null; // Satisfy compiler
+                outEncaps = null; // Satisfy compiler
             }
             return ok;
         }
 
         private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
                                                                          OperationMode mode,
-                                                                         byte[] inParams,
+                                                                         byte[] inEncaps,
                                                                          Dictionary<string, string> context__,
                                                                          bool explicitContext__,
                                                                          Ice.AsyncCallback cb__, 
@@ -1500,9 +1502,7 @@ namespace Ice
             try
             {
                 result__.prepare__(operation, mode, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.ostr__;
-                os__.writeBlob(inParams);
-                os__.endWriteEncaps();
+                result__.writeParamEncaps__(inEncaps);
                 result__.send__(true);
             }
             catch(Ice.LocalException ex__)
@@ -1516,11 +1516,11 @@ namespace Ice
                                             Callback_Object_ice_invoke cb__,
                                             Ice.ExceptionCallback excb__)
         {
-            byte[] outParams;
+            byte[] outEncaps;
             bool ret__;
             try
             {
-                ret__ = end_ice_invoke(out outParams, r__);
+                ret__ = end_ice_invoke(out outEncaps, r__);
             }
             catch(Ice.Exception ex__)
             {
@@ -1532,7 +1532,7 @@ namespace Ice
             }
             if(cb__ != null)
             {
-                cb__(ret__, outParams);
+                cb__(ret__, outEncaps);
             }
         }
 
@@ -1788,6 +1788,32 @@ namespace Ice
             {
                 return newInstance(_reference.changeSecure(b));
             }
+        }
+
+        /// <summary>
+        /// Creates a new proxy that is identical to this proxy, except for the encoding used to marshal
+        /// parameters.
+        /// </summary>
+        /// <param name="e">The encoding version to use to marshal requests parameters.</param>
+        /// <returns>The new proxy with the specified encoding version.</returns>
+        public ObjectPrx ice_encodingVersion(Ice.EncodingVersion e)
+        {
+            if(e.Equals(_reference.getEncoding()))
+            {
+                return this;
+            }
+            else
+            {
+                IceInternal.Protocol.checkSupportedEncoding(e);
+                return newInstance(_reference.changeEncoding(e));
+            }
+        }
+
+        /// <summary>Returns the encoding version used to marshal requests parameters.</summary>
+        /// <returns>The encoding version.</returns>
+        public Ice.EncodingVersion ice_getEncodingVersion()
+        {
+            return _reference.getEncoding();
         }
 
         /// <summary>
@@ -2437,8 +2463,7 @@ namespace Ice
                         throw new Ice.UnknownUserException(ex.ice_name(), ex);
                     }
                 }
-                IceInternal.BasicStream is__ = outAsync.istr__;
-                is__.skipEmptyEncaps();
+                outAsync.readEmptyParams__();
             }
         }
 
@@ -2671,7 +2696,7 @@ namespace Ice
         void ice_ping(Dictionary<string, string> context);
         string[] ice_ids(Dictionary<string, string> context);
         string ice_id(Dictionary<string, string> context);
-        bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+        bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                         Dictionary<string, string> context);
 
         void ice_flushBatchRequests();
@@ -2844,8 +2869,8 @@ namespace Ice
             }
         }
 
-        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams,
-                                       out byte[] outParams, Dictionary<string, string> context)
+        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps,
+                                       out byte[] outEncaps, Dictionary<string, string> context)
         {
             throw new CollocationOptimizationException();
         }
@@ -2950,8 +2975,9 @@ namespace Ice
             {
                 try
                 {
-                    IceInternal.BasicStream os__ = og__.ostr();
+                    IceInternal.BasicStream os__ = og__.startWriteParams();
                     os__.writeString(id__);
+                    og__.endWriteParams();
                 }
                 catch(LocalException ex__)
                 {
@@ -2971,10 +2997,9 @@ namespace Ice
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    IceInternal.BasicStream is__ = og__.istr();
-                    is__.startReadEncaps();
+                    IceInternal.BasicStream is__ = og__.startReadParams();
                     bool ret__ = is__.readBool();
-                    is__.endReadEncaps();
+                    og__.endReadParams();
                     return ret__;
                 }
                 catch(LocalException ex__)
@@ -2993,8 +3018,9 @@ namespace Ice
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_ping", OperationMode.Nonmutating, context__);
             try
             {
+                og__.writeEmptyParams();
                 bool ok__ = og__.invoke();
-                if(!og__.istr().isEmpty())
+                if(og__.hasResponse())
                 {
                     try
                     {
@@ -3009,7 +3035,7 @@ namespace Ice
                                 throw new UnknownUserException(ex.ice_name(), ex);
                             }
                         }
-                        og__.istr().skipEmptyEncaps();
+                        og__.readEmptyParams();
                     }
                     catch(LocalException ex__)
                     {
@@ -3028,6 +3054,7 @@ namespace Ice
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_ids", OperationMode.Nonmutating, context__);
             try
             {
+                og__.writeEmptyParams();
                 bool ok__ = og__.invoke();
                 try
                 {
@@ -3042,10 +3069,9 @@ namespace Ice
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    IceInternal.BasicStream is__ = og__.istr();
-                    is__.startReadEncaps();
+                    IceInternal.BasicStream is__ = og__.startReadParams();
                     string[] ret__ = is__.readStringSeq();
-                    is__.endReadEncaps();
+                    og__.endReadParams();
                     return ret__;
                 }
                 catch(LocalException ex__)
@@ -3064,6 +3090,7 @@ namespace Ice
             IceInternal.Outgoing og__ = handler__.getOutgoing("ice_id", OperationMode.Nonmutating, context__);
             try
             {
+                og__.writeEmptyParams();
                 bool ok__ = og__.invoke();
                 try
                 {
@@ -3078,10 +3105,9 @@ namespace Ice
                             throw new UnknownUserException(ex.ice_name(), ex);
                         }
                     }
-                    IceInternal.BasicStream is__ = og__.istr();
-                    is__.startReadEncaps();
+                    IceInternal.BasicStream is__ = og__.startReadParams();
                     string ret__ = is__.readString();
-                    is__.endReadEncaps();
+                    og__.endReadParams();
                     return ret__;
                 }
                 catch(LocalException ex__)
@@ -3095,7 +3121,7 @@ namespace Ice
             }
         }
 
-        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
+        public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inEncaps, out byte[] outEncaps,
                                        Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = handler__.getOutgoing(operation, mode, context__);
@@ -3103,24 +3129,19 @@ namespace Ice
             {
                 try
                 {
-                    IceInternal.BasicStream os__ = og__.ostr();
-                    os__.writeBlob(inParams);
+                    og__.writeParamEncaps(inEncaps);
                 }
                 catch(LocalException ex__)
                 {
                     og__.abort(ex__);
                 }
                 bool ok = og__.invoke();
-                outParams = null;
+                outEncaps = null;
                 if(handler__.getReference().getMode() == IceInternal.Reference.Mode.ModeTwoway)
                 {
                     try
                     {
-                        IceInternal.BasicStream is__ = og__.istr();
-                        is__.startReadEncaps();
-                        int sz = is__.getReadEncapsSize();
-                        outParams = is__.readBlob(sz);
-                        is__.endReadEncaps();
+                        outEncaps = og__.readParamEncaps();
                     }
                     catch(LocalException ex__)
                     {

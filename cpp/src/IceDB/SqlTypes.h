@@ -76,7 +76,9 @@ class DatabaseConnection : public IceDB::DatabaseConnection
 {
 public:
 
-    DatabaseConnection(const QSqlDatabase&, const QString&);
+    DatabaseConnection(const QSqlDatabase&, const QString&, const Ice::EncodingVersion&);
+
+    virtual Ice::EncodingVersion getEncoding() const;
 
     virtual void beginTransaction();
     virtual void commitTransaction();
@@ -96,6 +98,7 @@ private:
 
     const QSqlDatabase _connection;
     const QString _connectionName;
+    const Ice::EncodingVersion _encoding;
 };
 typedef IceUtil::Handle<DatabaseConnection> DatabaseConnectionPtr;
 
@@ -116,7 +119,7 @@ public:
 protected:
 
     DatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const std::string&, int,
-                  const std::string&, const std::string&, bool);
+                  const std::string&, const std::string&, bool, const Ice::EncodingVersion&);
     virtual ~DatabaseCache();
                   
     typedef std::map<IceUtil::ThreadControl::ID, DatabaseConnectionPtr> ThreadDatabaseMap;
@@ -127,6 +130,7 @@ protected:
 private:
     
     IceUtilInternal::FileLockPtr _fileLock;
+    const Ice::EncodingVersion _encoding;
 };
 
 typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;

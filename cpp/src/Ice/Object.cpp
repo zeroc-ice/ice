@@ -392,7 +392,14 @@ Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
     inEncaps.second = inEncaps.first + sz;
     vector<Byte> outEncaps;
     bool ok = ice_invoke(inEncaps, outEncaps, current);
-    in.__writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+    if(outEncaps.empty())
+    {
+        in.__writeParamEncaps(0, 0, ok);
+    }
+    else
+    {
+        in.__writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+    }
     if(ok)
     {
         return DispatchOK;

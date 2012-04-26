@@ -114,10 +114,17 @@ SqlDB::throwDatabaseException(const char* file, int line, const QSqlError& err)
     }
 }
 
-DatabaseConnection::DatabaseConnection(const QSqlDatabase& c, const QString& cn) :
+DatabaseConnection::DatabaseConnection(const QSqlDatabase& c, const QString& cn, const Ice::EncodingVersion& encoding) :
     _connection(c),
-    _connectionName(cn)
+    _connectionName(cn),
+    _encoding(encoding)
 {
+}
+
+Ice::EncodingVersion
+DatabaseConnection::getEncoding() const
+{
+    return _encoding;
 }
 
 void
@@ -167,10 +174,9 @@ DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator,
                              int port,
                              const string& user,
                              const string& password,
-                             bool requiresBlob)
+                             bool requiresBlob,
+                             const Ice::EncodingVersion& encoding) : _encoding(encoding)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    
     //
     // File lock to prevent multiple process open the same db env.
     //
@@ -311,7 +317,7 @@ DatabaseCache::getConnection()
         }
     }
 
-    DatabaseConnectionPtr db = new DatabaseConnection(connection, connectionName);
+    DatabaseConnectionPtr db = new DatabaseConnection(connection, connectionName, _encoding);
     _cache[IceUtil::ThreadControl().id()] = db;
     return db;
 }

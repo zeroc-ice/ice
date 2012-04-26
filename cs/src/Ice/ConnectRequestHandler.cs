@@ -21,7 +21,7 @@ namespace IceInternal
         {
             internal Request(BasicStream os)
             {
-                this.os = new BasicStream(os.instance());
+                this.os = new BasicStream(os.instance(), Ice.Util.currentProtocolEncoding);
                 this.os.swap(os);
             }
 
@@ -131,7 +131,8 @@ namespace IceInternal
                     _batchRequestInProgress = false;
                     _m.NotifyAll();
 
-                    BasicStream dummy = new BasicStream(_reference.getInstance(), _batchAutoFlush);
+                    BasicStream dummy = new BasicStream(_reference.getInstance(), Ice.Util.currentProtocolEncoding, 
+                                                        _batchAutoFlush);
                     _batchStream.swap(dummy);
                     _batchRequestsSize = Protocol.requestBatchHdr.Length;
 
@@ -368,7 +369,7 @@ namespace IceInternal
             _flushing = false;
             _batchRequestInProgress = false;
             _batchRequestsSize = Protocol.requestBatchHdr.Length;
-            _batchStream = new BasicStream(@ref.getInstance(), _batchAutoFlush);
+            _batchStream = new BasicStream(@ref.getInstance(), Ice.Util.currentProtocolEncoding, _batchAutoFlush);
             _updateRequestHandler = false;
         }
 
@@ -450,7 +451,7 @@ namespace IceInternal
                     }
                     else
                     {
-                        BasicStream os = new BasicStream(request.os.instance());
+                        BasicStream os = new BasicStream(request.os.instance(), Ice.Util.currentProtocolEncoding);
                         _connection.prepareBatchRequest(os);
                         try
                         {

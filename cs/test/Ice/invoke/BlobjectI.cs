@@ -14,7 +14,9 @@ public class BlobjectI : Ice.Blobject
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
+        inS.startEncapsulation();
         Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+        outS.startEncapsulation();
         if(current.operation.Equals("opOneway"))
         {
             outParams = new byte[0];
@@ -25,6 +27,7 @@ public class BlobjectI : Ice.Blobject
             string s = inS.readString();
             outS.writeString(s);
             outS.writeString(s);
+            outS.endEncapsulation();
             outParams = outS.finished();
             return true;
         }
@@ -32,6 +35,7 @@ public class BlobjectI : Ice.Blobject
         {
             Test.MyException ex = new Test.MyException();
             outS.writeException(ex);
+            outS.endEncapsulation();
             outParams = outS.finished();
             return false;
         }
@@ -52,6 +56,7 @@ public class BlobjectI : Ice.Blobject
             {
                 outS.writeBool(false);
             }
+            outS.endEncapsulation();
             outParams = outS.finished();
             return true;
         }
@@ -73,7 +78,9 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.InputStream inS = Ice.Util.createInputStream(communicator, inParams);
+        inS.startEncapsulation();
         Ice.OutputStream outS = Ice.Util.createOutputStream(communicator);
+        outS.startEncapsulation();
         if(current.operation.Equals("opOneway"))
         {
             cb.ice_response(true, new byte[0]);
@@ -83,12 +90,14 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
             string s = inS.readString();
             outS.writeString(s);
             outS.writeString(s);
+            outS.endEncapsulation();
             cb.ice_response(true, outS.finished());
         }
         else if(current.operation.Equals("opException"))
         {
             Test.MyException ex = new Test.MyException();
             outS.writeException(ex);
+            outS.endEncapsulation();
             cb.ice_response(false, outS.finished());
         }
         else if(current.operation.Equals("shutdown"))
@@ -107,6 +116,7 @@ public class BlobjectAsyncI : Ice.BlobjectAsync
             {
                 outS.writeBool(false);
             }
+            outS.endEncapsulation();
             cb.ice_response(true, outS.finished());
         }
         else

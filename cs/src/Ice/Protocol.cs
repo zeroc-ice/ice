@@ -37,8 +37,11 @@ namespace IceInternal
         //
         internal const byte protocolMajor = 1;
         internal const byte protocolMinor = 0;
+        internal const byte protocolEncodingMajor = 1;
+        internal const byte protocolEncodingMinor = 0;
+
         internal const byte encodingMajor = 1;
-        internal const byte encodingMinor = 0;
+        internal const byte encodingMinor = 1;
         
         //
         // The Ice protocol message types
@@ -54,7 +57,7 @@ namespace IceInternal
             IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
             IceInternal.Protocol.magic[3],
             IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
+            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
             IceInternal.Protocol.requestMsg,
             (byte)0, // Compression status.
             (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
@@ -66,7 +69,7 @@ namespace IceInternal
             IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2],
             IceInternal.Protocol.magic[3],
             IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
+            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
             IceInternal.Protocol.requestBatchMsg,
             (byte)0, // Compression status.
             (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
@@ -78,11 +81,50 @@ namespace IceInternal
             IceInternal.Protocol.magic[0], IceInternal.Protocol.magic[1], IceInternal.Protocol.magic[2], 
             IceInternal.Protocol.magic[3],
             IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor,
-            IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor,
+            IceInternal.Protocol.protocolEncodingMajor, IceInternal.Protocol.protocolEncodingMinor,
             IceInternal.Protocol.replyMsg,
             (byte)0, // Compression status.
             (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
         };
+
+        internal static void
+        checkSupportedProtocol(Ice.ProtocolVersion v)
+        {
+            if(v.major != protocolMajor || v.minor > protocolMinor)
+            {
+                throw new Ice.UnsupportedProtocolException("", v, Ice.Util.currentProtocol);
+            }
+        }
+
+        internal static void
+        checkSupportedProtocolEncoding(Ice.EncodingVersion v)
+        {
+            if(v.major != protocolEncodingMajor || v.minor > protocolEncodingMinor)
+            {
+                throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentProtocolEncoding);
+            }
+        }
+
+        internal static void
+        checkSupportedEncoding(Ice.EncodingVersion v)
+        {
+            if(v.major != encodingMajor || v.minor > encodingMinor)
+            {
+                throw new Ice.UnsupportedEncodingException("", v, Ice.Util.currentEncoding);
+            }
+        }
+
+        internal static bool
+        isSupported(Ice.ProtocolVersion version, Ice.ProtocolVersion supported)
+        {
+            return version.major == supported.major && version.minor <= supported.minor;
+        }
+
+        internal static bool
+        isSupported(Ice.EncodingVersion version, Ice.EncodingVersion supported)
+        {
+            return version.major == supported.major && version.minor <= supported.minor;
+        }
         
         private Protocol()
         {

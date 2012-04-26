@@ -643,7 +643,8 @@ namespace Ice
                         //
                         // Reset the batch stream.
                         //
-                        _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+                        _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding,
+                                                                   _batchAutoFlush);
                         _batchRequestNum = 0;
                         _batchRequestCompress = false;
                         _batchMarker = 0;
@@ -704,7 +705,7 @@ namespace Ice
             _m.Lock();
             try
             {
-                _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
                 _batchRequestNum = 0;
                 _batchRequestCompress = false;
                 _batchMarker = 0;
@@ -812,7 +813,7 @@ namespace Ice
                 //
                 // Reset the batch stream.
                 //
-                _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
                 _batchRequestNum = 0;
                 _batchRequestCompress = false;
                 _batchMarker = 0;
@@ -874,7 +875,7 @@ namespace Ice
                 //
                 // Reset the batch stream.
                 //
-                _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
+                _batchStream = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding, _batchAutoFlush);
                 _batchRequestNum = 0;
                 _batchRequestCompress = false;
                 _batchMarker = 0;
@@ -1164,31 +1165,12 @@ namespace Ice
                                 throw ex;
                             }
 
-                            byte pMajor = _readStream.readByte();
-                            byte pMinor = _readStream.readByte();
-                            if(pMajor != IceInternal.Protocol.protocolMajor ||
-                               pMinor > IceInternal.Protocol.protocolMinor)
-                            {
-                                Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-                                e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-                                e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-                                e.major = IceInternal.Protocol.protocolMajor;
-                                e.minor = IceInternal.Protocol.protocolMinor;
-                                throw e;
-                            }
-
-                            byte eMajor = _readStream.readByte();
-                            byte eMinor = _readStream.readByte();
-                            if(eMajor != IceInternal.Protocol.encodingMajor ||
-                               eMinor > IceInternal.Protocol.encodingMinor)
-                            {
-                                Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-                                e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-                                e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-                                e.major = IceInternal.Protocol.encodingMajor;
-                                e.minor = IceInternal.Protocol.encodingMinor;
-                                throw e;
-                            }
+                            ProtocolVersion pv  = new ProtocolVersion();
+                            pv.read__(_readStream);
+                            IceInternal.Protocol.checkSupportedProtocol(pv);
+                            EncodingVersion ev = new EncodingVersion();
+                            ev.read__(_readStream);
+                            IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
 
                             _readStream.readByte(); // messageType
                             _readStream.readByte(); // compress
@@ -1260,7 +1242,8 @@ namespace Ice
 
                         if((current.operation & IceInternal.SocketOperation.Read) != 0)
                         {
-                            parseMessage(new IceInternal.BasicStream(_instance), ref info);
+                            parseMessage(new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding),
+                                         ref info);
                         }
                     }
 
@@ -1740,14 +1723,14 @@ namespace Ice
             _acmAbsoluteTimeoutMillis = 0;
             _nextRequestId = 1;
             _batchAutoFlush = initData.properties.getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0;
-            _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
+            _batchStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding, _batchAutoFlush);
             _batchStreamInUse = false;
             _batchRequestNum = 0;
             _batchRequestCompress = false;
             _batchMarker = 0;
-            _readStream = new IceInternal.BasicStream(instance);
+            _readStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
             _readHeader = false;
-            _writeStream = new IceInternal.BasicStream(instance);
+            _writeStream = new IceInternal.BasicStream(instance, Util.currentProtocolEncoding);
             _dispatchCount = 0;
             _state = StateNotInitialized;
 
@@ -2028,12 +2011,10 @@ namespace Ice
                 // Before we shut down, we send a close connection
                 // message.
                 //
-                IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+                IceInternal.BasicStream os = new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding);
                 os.writeBlob(IceInternal.Protocol.magic);
-                os.writeByte(IceInternal.Protocol.protocolMajor);
-                os.writeByte(IceInternal.Protocol.protocolMinor);
-                os.writeByte(IceInternal.Protocol.encodingMajor);
-                os.writeByte(IceInternal.Protocol.encodingMinor);
+                Ice.Util.currentProtocol.write__(os);
+                Ice.Util.currentProtocolEncoding.write__(os);
                 os.writeByte(IceInternal.Protocol.closeConnectionMsg);
                 os.writeByte(_compressionSupported ? (byte)1 : (byte)0);
                 os.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2087,10 +2068,8 @@ namespace Ice
                     if(_writeStream.size() == 0)
                     {
                         _writeStream.writeBlob(IceInternal.Protocol.magic);
-                        _writeStream.writeByte(IceInternal.Protocol.protocolMajor);
-                        _writeStream.writeByte(IceInternal.Protocol.protocolMinor);
-                        _writeStream.writeByte(IceInternal.Protocol.encodingMajor);
-                        _writeStream.writeByte(IceInternal.Protocol.encodingMinor);
+                        Ice.Util.currentProtocol.write__(_writeStream);
+                        Ice.Util.currentProtocolEncoding.write__(_writeStream);
                         _writeStream.writeByte(IceInternal.Protocol.validateConnectionMsg);
                         _writeStream.writeByte((byte)0); // Compression status (always zero for validate connection).
                         _writeStream.writeInt(IceInternal.Protocol.headerSize); // Message size.
@@ -2130,28 +2109,14 @@ namespace Ice
                         ex.badMagic = m;
                         throw ex;
                     }
-                    byte pMajor = _readStream.readByte();
-                    byte pMinor = _readStream.readByte();
-                    if(pMajor != IceInternal.Protocol.protocolMajor)
-                    {
-                        UnsupportedProtocolException e = new UnsupportedProtocolException();
-                        e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-                        e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-                        e.major = IceInternal.Protocol.protocolMajor;
-                        e.minor = IceInternal.Protocol.protocolMinor;
-                        throw e;
-                    }
-                    byte eMajor = _readStream.readByte();
-                    byte eMinor = _readStream.readByte();
-                    if(eMajor != IceInternal.Protocol.encodingMajor)
-                    {
-                        UnsupportedEncodingException e = new UnsupportedEncodingException();
-                        e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-                        e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-                        e.major = IceInternal.Protocol.encodingMajor;
-                        e.minor = IceInternal.Protocol.encodingMinor;
-                        throw e;
-                    }
+
+                    ProtocolVersion pv  = new ProtocolVersion();
+                    pv.read__(_readStream);
+                    IceInternal.Protocol.checkSupportedProtocol(pv);
+                    EncodingVersion ev = new EncodingVersion();
+                    ev.read__(_readStream);
+                    IceInternal.Protocol.checkSupportedProtocolEncoding(ev);
+
                     byte messageType = _readStream.readByte();
                     if(messageType != IceInternal.Protocol.validateConnectionMsg)
                     {
@@ -2548,37 +2513,19 @@ namespace Ice
                     //
                     bool response = !_endpoint.datagram() && requestId != 0;
                     inc = getIncoming(adapter, response, compress, requestId);
-                    IceInternal.BasicStream ins = inc.istr();
-                    stream.swap(ins);
-                    IceInternal.BasicStream os = inc.ostr();
 
                     //
-                    // Prepare the response if necessary.
+                    // Dispatch the invocation.
                     //
-                    if(response)
-                    {
-                        Debug.Assert(invokeNum == 1); // No further invocations if a response is expected.
-                        os.writeBlob(IceInternal.Protocol.replyHdr);
+                    inc.invoke(servantManager, stream);
 
-                        //
-                        // Add the request ID.
-                        //
-                        os.writeInt(requestId);
-                    }
-
-                    inc.invoke(servantManager);
-
-                    //
-                    // If there are more invocations, we need the stream back.
-                    //
-                    if(--invokeNum > 0)
-                    {
-                        stream.swap(ins);
-                    }
+                    --invokeNum;
 
                     reclaimIncoming(inc);
                     inc = null;
                 }
+
+                stream.clear();
             }
             catch(LocalException ex)
             {
@@ -2785,7 +2732,8 @@ namespace Ice
             {
                 if(_adopt)
                 {
-                    IceInternal.BasicStream stream = new IceInternal.BasicStream(this.stream.instance());
+                    IceInternal.BasicStream stream = new IceInternal.BasicStream(this.stream.instance(), 
+                                                                                 Util.currentProtocolEncoding);
                     stream.swap(this.stream);
                     this.stream = stream;
                     _adopt = false;

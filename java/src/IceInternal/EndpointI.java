@@ -80,11 +80,17 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     public abstract boolean secure();
 
+    //
+    // Return the protocol supported by the endpoint.
+    //
     public Ice.ProtocolVersion protocol()
     {
         return _protocol;
     }
 
+    //
+    // Return the encoding supported by the endpoint.
+    //
     public Ice.EncodingVersion encoding()
     {
         return _encoding;

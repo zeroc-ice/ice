@@ -118,7 +118,7 @@ namespace IceInternal
                             // and ask the factory to read the endpoint data from that stream to create
                             // the actual endpoint.
                             //
-                            BasicStream bs = new BasicStream(instance_, true);
+                            BasicStream bs = new BasicStream(instance_, Ice.Util.currentProtocolEncoding, true);
                             ue.streamWrite(bs);
                             Buffer buf = bs.getBuffer();
                             buf.b.position(0);

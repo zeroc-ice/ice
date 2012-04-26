@@ -15,9 +15,11 @@ public sealed class UnexpectedObjectExceptionTestI : Ice.Blobject
     {
         Ice.Communicator communicator = current.adapter.getCommunicator();
         Ice.OutputStream @out = Ice.Util.createOutputStream(communicator);
+        @out.startEncapsulation();
         AlsoEmpty ae = new AlsoEmpty();
         Test.AlsoEmptyHelper.write(@out, ae);
         @out.writePendingObjects();
+        @out.endEncapsulation();
         outParams = @out.finished();
         return true;
     }

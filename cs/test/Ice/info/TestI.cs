@@ -34,10 +34,10 @@ public class TestI : TestIntfDisp_
         if(ipinfo is Ice.UDPEndpointInfo)
         {
             Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)ipinfo;
-            ctx["protocolMajor"] = udp.protocolMajor.ToString();
-            ctx["protocolMinor"] = udp.protocolMinor.ToString();
-            ctx["encodingMajor"] = udp.encodingMajor.ToString();
-            ctx["encodingMinor"] = udp.encodingMinor.ToString();
+            ctx["protocolMajor"] = udp.protocol.major.ToString();
+            ctx["protocolMinor"] = udp.protocol.minor.ToString();
+            ctx["encodingMajor"] = udp.encoding.major.ToString();
+            ctx["encodingMinor"] = udp.encoding.minor.ToString();
             ctx["mcastInterface"] = udp.mcastInterface;
             ctx["mcastTtl"] = udp.mcastTtl.ToString();
         }

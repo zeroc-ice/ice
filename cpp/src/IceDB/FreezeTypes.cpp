@@ -112,6 +112,12 @@ DatabaseConnection::DatabaseConnection(const Freeze::ConnectionPtr& connection) 
 {
 }
 
+Ice::EncodingVersion
+DatabaseConnection::getEncoding() const
+{
+    return _connection->getEncoding();
+}
+
 void 
 DatabaseConnection::beginTransaction()
 {

@@ -63,6 +63,8 @@ public:
 
     DatabaseConnection(const Freeze::ConnectionPtr&);
 
+    virtual Ice::EncodingVersion getEncoding() const;
+
     virtual void beginTransaction();
     virtual void commitTransaction();
     virtual void rollbackTransaction();

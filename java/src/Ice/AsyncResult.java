@@ -22,8 +22,6 @@ public class AsyncResult
         _communicator = communicator;
         _instance = instance;
         _operation = op;
-        // Lazy initialized when response is received.
-        //_is = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding);
         _os = new IceInternal.BasicStream(instance, IceInternal.Protocol.currentProtocolEncoding, false, false);
         _state = 0;
         _sentSynchronously = false;

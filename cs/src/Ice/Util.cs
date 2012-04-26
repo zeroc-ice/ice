@@ -9,6 +9,8 @@
 
 using System;
 using System.Threading;
+using System.Text;
+using System.Globalization;
 
 namespace Ice
 {
@@ -485,6 +487,111 @@ namespace Ice
         {
             return 30402; // AABBCC, with AA=major, BB=minor, CC=patch
         }
+
+        /// <summary>
+        /// Converts a string to a protocol version.
+        /// </summary>
+        /// <param name="version">The string to convert.</param>
+        /// <returns>The converted protocol version.</returns>
+        static public Ice.ProtocolVersion
+        stringToProtocolVersion(String version)
+        {
+            byte major, minor;
+            stringToMajorMinor(version, out major, out minor);
+            return new Ice.ProtocolVersion(major, minor);
+        }
+        
+        /// <summary>
+        /// Converts a string to an encoding version.
+        /// </summary>
+        /// <param name="version">The string to convert.</param>
+        /// <returns>The converted object identity.</returns>
+        static public Ice.EncodingVersion
+        stringToEncodingVersion(String version)
+        {
+            byte major, minor;
+            stringToMajorMinor(version, out major, out minor);
+            return new Ice.EncodingVersion(major, minor);
+        }
+
+        /// <summary>
+        /// Converts a protocol version to a string.
+        /// </summary>
+        /// <param name="v">The protocol version to convert.</param>
+        /// <returns>The converted string.</returns>
+        static public String 
+        protocolVersionToString(Ice.ProtocolVersion v)
+        {
+            return majorMinorToString(v.major, v.minor);
+        }
+
+        /// <summary>
+        /// Converts an encoding version to a string.
+        /// </summary>
+        /// <param name="v">The encoding version to convert.</param>
+        /// <returns>The converted string.</returns>
+        static public String 
+        encodingVersionToString(Ice.EncodingVersion v)
+        {
+            return majorMinorToString(v.major, v.minor);
+        }
+        
+        static private void 
+        stringToMajorMinor(string str, out byte major, out byte minor)
+        {
+            int pos = str.IndexOf((System.Char) '.');
+            if(pos == -1)
+            {
+                throw new Ice.VersionParseException("malformed version value `" + str + "'");
+            }
+                    
+            string majStr = str.Substring(0, (pos) - (0));
+            string minStr = str.Substring(pos + 1, (str.Length) - (pos + 1));
+            int majVersion;
+            int minVersion;
+            try
+            {
+                majVersion = System.Int32.Parse(majStr, CultureInfo.InvariantCulture);
+                minVersion = System.Int32.Parse(minStr, CultureInfo.InvariantCulture);
+            }
+            catch(System.FormatException)
+            {
+                throw new Ice.VersionParseException("invalid version value `" + str + "'");
+            }
+
+            if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+            {
+                throw new Ice.VersionParseException("range error in version `" + str + "'");
+            }
+
+            major = (byte)majVersion;
+            minor = (byte)minVersion;
+        }
+
+        static private String 
+        majorMinorToString(byte major, byte minor)
+        {
+            StringBuilder str = new StringBuilder();
+            str.Append(major < 0 ? (int)major + 255 : (int)major);
+            str.Append(".");
+            str.Append(minor < 0 ? (int)minor + 255 : (int)minor);
+            return str.ToString();
+        }
+
+        public static readonly Ice.ProtocolVersion currentProtocol = 
+            new Ice.ProtocolVersion(IceInternal.Protocol.protocolMajor, IceInternal.Protocol.protocolMinor);
+
+        public static readonly Ice.EncodingVersion currentProtocolEncoding = 
+            new Ice.EncodingVersion(IceInternal.Protocol.protocolEncodingMajor, 
+                                    IceInternal.Protocol.protocolEncodingMinor);
+
+        public static readonly Ice.EncodingVersion currentEncoding = 
+            new Ice.EncodingVersion(IceInternal.Protocol.encodingMajor, IceInternal.Protocol.encodingMinor);
+
+        public static readonly Ice.ProtocolVersion Protocol_1_0 = new Ice.ProtocolVersion(1, 0);
+
+        public static readonly Ice.EncodingVersion Encoding_1_0 = new Ice.EncodingVersion(1, 0);
+        public static readonly Ice.EncodingVersion Encoding_1_1 = new Ice.EncodingVersion(1, 1);
 
         private static object _processLoggerMutex = new object();
         private static Logger _processLogger = null;

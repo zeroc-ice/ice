@@ -91,22 +91,17 @@ final class TcpConnector implements Connector
     public boolean
     equals(java.lang.Object obj)
     {
-        TcpConnector p = null;
-
-        try
-        {
-            p = (TcpConnector)obj;
-        }
-        catch(ClassCastException ex)
+        if(!(obj instanceof TcpConnector))
         {
             return false;
         }
 
-        if(this == p)
+        if(this == obj)
         {
             return true;
         }
 
+        TcpConnector p = (TcpConnector)obj;
         if(_timeout != p._timeout)
         {
             return false;

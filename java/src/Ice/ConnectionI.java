@@ -2337,7 +2337,6 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 in.invoke(servantManager, stream);
 
-                
                 --invokeNum;
 
                 reclaimIncoming(in);
