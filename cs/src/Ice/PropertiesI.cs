@@ -385,7 +385,16 @@ namespace Ice
             }
             else
             {
-                _properties = ((PropertiesI)defaults)._properties;
+                //
+                // NOTE: we can't just do a shallow copy of the map as the map values
+                // would otherwise be shared between the two PropertiesI object.
+                //
+                //_properties = ((PropertiesI)defaults)._properties;
+                _properties = new Dictionary<string, PropertyValue>();
+                foreach(KeyValuePair<string, PropertyValue> entry in ((PropertiesI)defaults)._properties)
+                {
+                    _properties[entry.Key] = new PropertyValue(entry.Value);
+                }
             }
             
             PropertyValue pv;
