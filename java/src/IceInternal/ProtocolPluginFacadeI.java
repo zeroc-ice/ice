@@ -45,6 +45,16 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     {
         return _instance.protocolSupport();
     }    
+
+    //
+    // Get the default encoding to be used in endpoints.
+    //
+    public Ice.EncodingVersion
+    getDefaultEncoding()
+    {
+        return _instance.defaultsAndOverrides().defaultEncoding;
+    }
+
     //
     // Get the default hostname to be used in endpoints.
     //

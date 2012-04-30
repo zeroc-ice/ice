@@ -36,6 +36,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
+    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding),
     _instance(instance),
     _port(0),
     _timeout(-1),

@@ -33,7 +33,8 @@ namespace IceInternal
             calcHashValue();
         }
         
-        public UdpEndpointI(Instance instance, string str, bool oaEndpoint)
+        public UdpEndpointI(Instance instance, string str, bool oaEndpoint) :
+            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding)
         {
             instance_ = instance;
             _host = null;

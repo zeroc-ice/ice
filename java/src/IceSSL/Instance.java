@@ -647,6 +647,12 @@ class Instance
         return _facade.getProtocolSupport();
     }
 
+    Ice.EncodingVersion
+    defaultEncoding()
+    {
+        return _facade.getDefaultEncoding();
+    }
+
     String
     defaultHost()
     {

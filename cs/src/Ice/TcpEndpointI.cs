@@ -29,7 +29,8 @@ namespace IceInternal
             calcHashValue();
         }
 
-        public TcpEndpointI(Instance instance, string str, bool oaEndpoint)
+        public TcpEndpointI(Instance instance, string str, bool oaEndpoint) :
+            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding)
         {
             _instance = instance;
             _host = null;

@@ -256,8 +256,8 @@ class Upcall : virtual public IceUtil::Shared
 public:
 
     virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&) = 0;
-    virtual void response(PyObject*) = 0;
-    virtual void exception(PyException&) = 0;
+    virtual void response(PyObject*, const Ice::EncodingVersion&) = 0;
+    virtual void exception(PyException&, const Ice::EncodingVersion&) = 0;
 };
 typedef IceUtil::Handle<Upcall> UpcallPtr;
 
@@ -272,8 +272,8 @@ public:
     TypedUpcall(const OperationPtr&, const Ice::AMD_Object_ice_invokePtr&, const Ice::CommunicatorPtr&);
 
     virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
-    virtual void response(PyObject*);
-    virtual void exception(PyException&);
+    virtual void response(PyObject*, const Ice::EncodingVersion&);
+    virtual void exception(PyException&, const Ice::EncodingVersion&);
 
 private:
 
@@ -295,8 +295,8 @@ public:
     BlobjectUpcall(bool, const Ice::AMD_Object_ice_invokePtr&);
 
     virtual void dispatch(PyObject*, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
-    virtual void response(PyObject*);
-    virtual void exception(PyException&);
+    virtual void response(PyObject*, const Ice::EncodingVersion&);
+    virtual void exception(PyException&, const Ice::EncodingVersion&);
 
 private:
 
@@ -354,6 +354,7 @@ struct AMDCallbackObject
 {
     PyObject_HEAD
     UpcallPtr* upcall;
+    Ice::EncodingVersion encoding;
 };
 
 struct AsyncResultObject
@@ -673,7 +674,7 @@ amdCallbackIceResponse(AMDCallbackObject* self, PyObject* args)
     try
     {
         assert(self->upcall);
-        (*self->upcall)->response(args);
+        (*self->upcall)->response(args, self->encoding);
     }
     catch(...)
     {
@@ -703,7 +704,7 @@ amdCallbackIceException(AMDCallbackObject* self, PyObject* args)
     {
         assert(self->upcall);
         PyException pye(ex); // No traceback information available.
-        (*self->upcall)->exception(pye);
+        (*self->upcall)->exception(pye, self->encoding);
     }
     catch(...)
     {
@@ -1399,7 +1400,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             // Marshal the in parameters.
             //
             Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
-
+            os->startEncapsulation(_prx->ice_getEncodingVersion());
             ObjectMap objectMap;
             int i = 0;
             for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
@@ -1431,7 +1432,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             {
                 os->writePendingObjects();
             }
-
+            os->endEncapsulation();
             os->finished(bytes);
         }
         catch(const AbortMarshaling&)
@@ -1459,6 +1460,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
     if(results.get() && numResults > 0)
     {
         Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+        is->startEncapsulation();
         for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
         {
             void* closure = reinterpret_cast<void*>(i);
@@ -1474,6 +1476,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         {
             is->readPendingObjects();
         }
+        is->endEncapsulation();
     }
 
     return results.release();
@@ -1485,6 +1488,7 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
     int traceSlicing = -1;
 
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+    is->startEncapsulation();
 
     bool usesClasses;
     is->read(usesClasses);
@@ -3057,6 +3061,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
         Ice::InputStreamPtr is = Ice::createInputStream(_communicator, inBytes);
         try
         {
+            is->startEncapsulation();
             Py_ssize_t i = start;
             for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
             {
@@ -3067,6 +3072,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
             {
                 is->readPendingObjects();
             }
+            is->endEncapsulation();
         }
         catch(const AbortMarshaling&)
         {
@@ -3095,6 +3101,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
             throwPythonException();
         }
         obj->upcall = new UpcallPtr(this);
+        obj->encoding = current.encoding;
         if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
         {
             Py_DECREF(obj);
@@ -3126,18 +3133,18 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
     if(PyErr_Occurred())
     {
         PyException ex; // Retrieve it before another Python API call clears it.
-        exception(ex);
+        exception(ex, current.encoding);
         return;
     }
 
     if(!_op->amd)
     {
-        response(result.get());
+        response(result.get(), current.encoding);
     }
 }
 
 void
-IcePy::TypedUpcall::response(PyObject* args)
+IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encoding)
 {
     if(_finished)
     {
@@ -3173,6 +3180,7 @@ IcePy::TypedUpcall::response(PyObject* args)
                 }
             }
 
+            os->startEncapsulation(encoding);
             ObjectMap objectMap;
 
             for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
@@ -3229,6 +3237,8 @@ IcePy::TypedUpcall::response(PyObject* args)
                 os->writePendingObjects();
             }
 
+            os->endEncapsulation();
+
             Ice::ByteSeq bytes;
             os->finished(bytes);
             pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),
@@ -3255,7 +3265,7 @@ IcePy::TypedUpcall::response(PyObject* args)
 }
 
 void
-IcePy::TypedUpcall::exception(PyException& ex)
+IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encoding)
 {
     if(_finished)
     {
@@ -3298,7 +3308,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
                 else
                 {
                     Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
-
+                    os->startEncapsulation(encoding);
                     os->write(info->usesClasses);
 
                     ObjectMap objectMap;
@@ -3308,7 +3318,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
                     {
                         os->writePendingObjects();
                     }
-
+                    os->endEncapsulation();
                     Ice::ByteSeq bytes;
                     os->finished(bytes);
                     pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),
@@ -3457,6 +3467,7 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
             throwPythonException();
         }
         obj->upcall = new UpcallPtr(this);
+        obj->encoding = current.encoding;
         if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
         {
             Py_DECREF(obj);
@@ -3488,18 +3499,18 @@ IcePy::BlobjectUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, 
     if(PyErr_Occurred())
     {
         PyException ex; // Retrieve it before another Python API call clears it.
-        exception(ex);
+        exception(ex, current.encoding);
         return;
     }
 
     if(!_amd)
     {
-        response(result.get());
+        response(result.get(), current.encoding);
     }
 }
 
 void
-IcePy::BlobjectUpcall::response(PyObject* args)
+IcePy::BlobjectUpcall::response(PyObject* args, const Ice::EncodingVersion&)
 {
     if(_finished)
     {
@@ -3572,7 +3583,7 @@ IcePy::BlobjectUpcall::response(PyObject* args)
 }
 
 void
-IcePy::BlobjectUpcall::exception(PyException& ex)
+IcePy::BlobjectUpcall::exception(PyException& ex, const Ice::EncodingVersion&)
 {
     if(_finished)
     {

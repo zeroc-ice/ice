@@ -29,6 +29,11 @@ namespace IceInternal
         int getProtocolSupport();
 
         //
+        // Get the default encoding to be used in endpoints.
+        //
+        Ice.EncodingVersion getDefaultEncoding();
+
+        //
         // Get the default hostname to be used in endpoints.
         //
         string getDefaultHost();
@@ -88,6 +93,14 @@ namespace IceInternal
         public int getProtocolSupport()
         {
             return _instance.protocolSupport();
+        }
+
+        //
+        // Get the default hostname to be used in endpoints.
+        //
+        public Ice.EncodingVersion getDefaultEncoding()
+        {
+            return _instance.defaultsAndOverrides().defaultEncoding;
         }
 
         //

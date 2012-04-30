@@ -38,6 +38,12 @@ IceInternal::ProtocolPluginFacade::getDefaultHost() const
     return _instance->defaultsAndOverrides()->defaultHost;
 }
 
+Ice::EncodingVersion
+IceInternal::ProtocolPluginFacade::getDefaultEncoding() const
+{
+    return _instance->defaultsAndOverrides()->defaultEncoding;
+}
+
 int
 IceInternal::ProtocolPluginFacade::getNetworkTraceLevel() const
 {

@@ -29,7 +29,8 @@ namespace IceSSL
             calcHashValue();
         }
 
-        internal EndpointI(Instance instance, string str, bool oaEndpoint)
+        internal EndpointI(Instance instance, string str, bool oaEndpoint) : 
+            base(Ice.Util.currentProtocol, instance.defaultEncoding())
         {
             _instance = instance;
             _host = null;

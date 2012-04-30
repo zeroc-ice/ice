@@ -58,6 +58,13 @@ if _dlopenflags >= 0:
 ObjectPrx = IcePy.ObjectPrx
 stringVersion = IcePy.stringVersion
 intVersion = IcePy.intVersion
+currentProtocol = IcePy.currentProtocol
+currentProtocolEncoding = IcePy.currentProtocolEncoding
+currentEncoding = IcePy.currentEncoding
+stringToProtocolVersion = IcePy.stringToProtocolVersion
+protocolVersionToString = IcePy.protocolVersionToString
+stringToEncodingVersion = IcePy.stringToEncodingVersion
+encodingVersionToString = IcePy.encodingVersionToString
 generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
@@ -310,6 +317,7 @@ import Ice_Properties_ice
 import Ice_Router_ice
 import Ice_ServantLocator_ice
 import Ice_Connection_ice
+import Ice_Version_ice
 
 #
 # Replace EndpointInfo with our implementation.
@@ -1381,3 +1389,8 @@ def getType(o):
 #
 def getHash(o):
     return hash(o)
+
+Protocol_1_0 = ProtocolVersion(1, 0)
+Encoding_1_0 = EncodingVersion(1, 0)
+Encoding_1_1 = EncodingVersion(1, 1)
+

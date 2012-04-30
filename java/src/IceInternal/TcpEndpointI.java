@@ -28,6 +28,7 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
+        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding);
         _instance = instance;
         _host = null;
         _port = 0;
@@ -171,6 +172,7 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(BasicStream s)
     {
+        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion());
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
@@ -179,7 +181,9 @@ final class TcpEndpointI extends EndpointI
         _compress = s.readBool();
         if(!s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
         {
+            _protocol = new Ice.ProtocolVersion();
             _protocol.__read(s);
+            _encoding = new Ice.EncodingVersion();
             _encoding.__read(s);
         }
         else

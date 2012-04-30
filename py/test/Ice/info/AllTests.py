@@ -17,14 +17,16 @@ def allTests(communicator, collocated):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
-    p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" + \
+    p1 = communicator.stringToProxy("test -t:default -v 1.4 -e 1.3 -h tcphost -p 10000 -t 1200 -z:" + \
                                     "udp -h udphost -p 10001 --interface eth0 --ttl 5:" + \
-                                    "opaque -t 100 -v ABCD")
+                                    "opaque -e 1.8 -t 100 -v ABCD")
 
     endps = p1.ice_getEndpoints()
 
     ipEndpoint = endps[0].getInfo()
     test(isinstance(ipEndpoint, Ice.IPEndpointInfo))
+    test(ipEndpoint.protocol == Ice.ProtocolVersion(1, 4))
+    test(ipEndpoint.encoding == Ice.EncodingVersion(1, 3))
     test(ipEndpoint.host == "tcphost")
     test(ipEndpoint.port == 10000)
     test(ipEndpoint.timeout == 1200)
@@ -37,6 +39,8 @@ def allTests(communicator, collocated):
 
     udpEndpoint = endps[1].getInfo()
     test(isinstance(udpEndpoint, Ice.UDPEndpointInfo))
+    test(udpEndpoint.protocol == Ice.currentProtocol())
+    test(udpEndpoint.encoding == Ice.currentEncoding())
     test(udpEndpoint.host == "udphost")
     test(udpEndpoint.port == 10001)
     test(udpEndpoint.mcastInterface == "eth0")
@@ -49,6 +53,7 @@ def allTests(communicator, collocated):
 
     opaqueEndpoint = endps[2].getInfo()
     test(isinstance(opaqueEndpoint, Ice.OpaqueEndpointInfo))
+    test(opaqueEndpoint.rawEncoding == Ice.EncodingVersion(1, 8))
 
     print("ok")
 

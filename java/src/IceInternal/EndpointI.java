@@ -19,8 +19,8 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
 
     public EndpointI()
     {
-        _protocol = (Ice.ProtocolVersion)Protocol.currentProtocol.clone();
-        _encoding = (Ice.EncodingVersion)Protocol.currentEncoding.clone();
+        _protocol = (Ice.ProtocolVersion)Protocol.currentProtocol;
+        _encoding = (Ice.EncodingVersion)Protocol.currentEncoding;
     }
 
     public String

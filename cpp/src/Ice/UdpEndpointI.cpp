@@ -38,6 +38,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
+    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding),
     _instance(instance),
     _port(0),
     _mcastTtl(-1),

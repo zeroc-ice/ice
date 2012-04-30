@@ -47,6 +47,11 @@ public:
     std::string getDefaultHost() const;
 
     //
+    // Get the default encoding to be used in endpoints.
+    //
+    Ice::EncodingVersion getDefaultEncoding() const;
+
+    //
     // Get the network trace level and category name.
     //
     int getNetworkTraceLevel() const;

@@ -28,6 +28,7 @@ final class EndpointI extends IceInternal.EndpointI
     public
     EndpointI(Instance instance, String str, boolean oaEndpoint)
     {
+        super(IceInternal.Protocol.currentProtocol, instance.defaultEncoding());
         _instance = instance;
         _host = null;
         _port = 0;
@@ -170,6 +171,7 @@ final class EndpointI extends IceInternal.EndpointI
     public
     EndpointI(Instance instance, IceInternal.BasicStream s)
     {
+        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion());
         _instance = instance;
         s.startReadEncaps();
         _host = s.readString();

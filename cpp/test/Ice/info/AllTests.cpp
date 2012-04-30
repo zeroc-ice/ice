@@ -20,14 +20,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing proxy endpoint information... " << flush;
     {
-        Ice::ObjectPrx p1 = communicator->stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:"
+        Ice::ObjectPrx p1 = communicator->stringToProxy("test -t:default -v 1.4 -e 1.3 -h tcphost -p 10000 -t 1200 -z:"
                                                         "udp -h udphost -p 10001 --interface eth0 --ttl 5:"
-                                                        "opaque -t 100 -v ABCD");
+                                                        "opaque -e 1.8 -t 100 -v ABCD");
 
         Ice::EndpointSeq endps = p1->ice_getEndpoints();
 
         Ice::IPEndpointInfoPtr ipEndpoint = Ice::IPEndpointInfoPtr::dynamicCast(endps[0]->getInfo());
         test(ipEndpoint);
+        Ice::ProtocolVersion pv;
+        pv.major = 1;
+        pv.minor = 4;
+        test(ipEndpoint->protocol == pv);
+        Ice::EncodingVersion ev;
+        ev.major = 1;
+        ev.minor = 3;
+        test(ipEndpoint->encoding == ev);
         test(ipEndpoint->host == "tcphost");
         test(ipEndpoint->port == 10000);
         test(ipEndpoint->timeout == 1200);
@@ -40,6 +48,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         Ice::UDPEndpointInfoPtr udpEndpoint = Ice::UDPEndpointInfoPtr::dynamicCast(endps[1]->getInfo());
         test(udpEndpoint);
+        test(udpEndpoint->protocol == Ice::currentProtocol);
+        test(udpEndpoint->encoding == Ice::currentEncoding);
         test(udpEndpoint->host == "udphost");
         test(udpEndpoint->port == 10001);
         test(udpEndpoint->mcastInterface == "eth0");
@@ -52,6 +62,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         Ice::OpaqueEndpointInfoPtr opaqueEndpoint = Ice::OpaqueEndpointInfoPtr::dynamicCast(endps[2]->getInfo());
         test(opaqueEndpoint);
+        Ice::EncodingVersion rev;
+        rev.major = 1;
+        rev.minor = 8;
+        test(opaqueEndpoint->rawEncoding == rev);
     }
     cout << "ok" << endl;
 

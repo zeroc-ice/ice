@@ -233,12 +233,32 @@ bool setIdentity(PyObject*, const Ice::Identity&);
 //
 bool getIdentity(PyObject*, Ice::Identity&);
 
+//
+// Create a Python instance of Ice.ProtocolVersion.
+//
+PyObject* createProtocolVersion(const Ice::ProtocolVersion&);
+
+//
+// Create a Python instance of Ice.EncodingVersion.
+//
+PyObject* createEncodingVersion(const Ice::EncodingVersion&);
+
+//
+// Extracts the members of an encoding version
+//
+bool getEncodingVersion(PyObject*, Ice::EncodingVersion&);
+
 }
 
 extern "C" PyObject* IcePy_stringVersion(PyObject*);
 extern "C" PyObject* IcePy_intVersion(PyObject*);
-extern "C" PyObject* IcePy_identityToString(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_stringToIdentity(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_currentProtocol(PyObject*);
+extern "C" PyObject* IcePy_currentProtocolEncoding(PyObject*);
+extern "C" PyObject* IcePy_currentEncoding(PyObject*);
+extern "C" PyObject* IcePy_protocolVersionToString(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringToProtocolVersion(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_encodingVersionToString(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringToEncodingVersion(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_generateUUID(PyObject*);
 
 #endif

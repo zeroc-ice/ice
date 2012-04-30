@@ -305,6 +305,11 @@ namespace IceSSL
             return _facade.getProtocolSupport();
         }
 
+        internal Ice.EncodingVersion defaultEncoding()
+        {
+            return _facade.getDefaultEncoding();
+        }
+
         internal string defaultHost()
         {
             return _facade.getDefaultHost();

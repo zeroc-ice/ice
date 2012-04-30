@@ -40,6 +40,7 @@ public:
     IceInternal::EndpointHostResolverPtr endpointHostResolver() const;
     IceInternal::ProtocolSupport protocolSupport() const;
     std::string defaultHost() const;
+    Ice::EncodingVersion defaultEncoding() const;
     int networkTraceLevel() const;
     std::string networkTraceCategory() const;
     int securityTraceLevel() const;

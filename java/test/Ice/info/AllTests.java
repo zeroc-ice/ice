@@ -31,14 +31,17 @@ public class AllTests
         out.print("testing proxy endpoint information... ");
         out.flush();
         {
-            Ice.ObjectPrx p1 = communicator.stringToProxy("test -t:default -h tcphost -p 10000 -t 1200 -z:" +
-                                                          "udp -h udphost -p 10001 --interface eth0 --ttl 5:" +
-                                                          "opaque -t 100 -v ABCD");
-
+            Ice.ObjectPrx p1 = communicator.stringToProxy(
+                "test -t:default -v 1.4 -e 1.3 -h tcphost -p 10000 -t 1200 -z:" +
+                "udp -h udphost -p 10001 --interface eth0 --ttl 5:" +
+                "opaque -e 1.8 -t 100 -v ABCD");
+            
             Ice.Endpoint[] endps = p1.ice_getEndpoints();
 
 
             Ice.IPEndpointInfo ipEndpoint = (Ice.IPEndpointInfo)endps[0].getInfo();
+            test(ipEndpoint.protocol.equals(new Ice.ProtocolVersion((byte)1, (byte)4)));
+            test(ipEndpoint.encoding.equals(new Ice.EncodingVersion((byte)1, (byte)3)));
             test(ipEndpoint.host.equals("tcphost"));
             test(ipEndpoint.port == 10000);
             test(ipEndpoint.timeout == 1200);
@@ -51,6 +54,8 @@ public class AllTests
                  ipEndpoint.type() == IceSSL.EndpointType.value && ipEndpoint instanceof IceSSL.EndpointInfo);
         
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endps[1].getInfo();
+            test(udpEndpoint.protocol.equals(Ice.Util.currentProtocol()));
+            test(udpEndpoint.encoding.equals(Ice.Util.currentEncoding()));
             test(udpEndpoint.host.equals("udphost"));
             test(udpEndpoint.port == 10001);
             test(udpEndpoint.mcastInterface.equals("eth0"));
@@ -62,6 +67,7 @@ public class AllTests
             test(udpEndpoint.type() == Ice.UDPEndpointType.value);
         
             Ice.OpaqueEndpointInfo opaqueEndpoint = (Ice.OpaqueEndpointInfo)endps[2].getInfo();
+            test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion((byte)1, (byte)8)));
         }
         out.println("ok");
 

@@ -800,6 +800,12 @@ IceSSL::Instance::defaultHost() const
     return _facade->getDefaultHost();
 }
 
+Ice::EncodingVersion
+IceSSL::Instance::defaultEncoding() const
+{
+    return _facade->getDefaultEncoding();
+}
+
 int
 IceSSL::Instance::networkTraceLevel() const
 {

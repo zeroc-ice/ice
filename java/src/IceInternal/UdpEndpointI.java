@@ -30,6 +30,7 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
+        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding);
         _instance = instance;
         _host = null;
         _port = 0;
@@ -187,6 +188,7 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(BasicStream s)
     {
+        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion());
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();

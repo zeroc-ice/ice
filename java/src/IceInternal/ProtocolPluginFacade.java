@@ -28,6 +28,11 @@ public interface ProtocolPluginFacade
     int getProtocolSupport();
 
     //
+    // Get the default encoding to be used in endpoints.
+    //
+    Ice.EncodingVersion getDefaultEncoding();
+
+    //
     // Get the default hostname to be used in endpoints.
     //
     String getDefaultHost();

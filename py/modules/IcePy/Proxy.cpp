@@ -1014,6 +1014,62 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
     return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
 }
 
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceGetEncodingVersion(ProxyObject* self)
+{
+    PyObject* cls = lookupType("Ice.EncodingVersion");
+    assert(cls);
+
+    assert(self->proxy);
+
+    PyObject* version;
+    try
+    {
+        version = IcePy::createEncodingVersion((*self->proxy)->ice_getEncodingVersion());
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(version);
+    return version;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceEncodingVersion(ProxyObject* self, PyObject* args)
+{
+    Ice::EncodingVersion val;
+    if(!getEncodingVersion(args, val))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_encodingVersion requires an encoding version"));
+        return 0;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_encodingVersion(val);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    return createProxy(newProxy, *self->communicator, reinterpret_cast<PyObject*>(Py_TYPE(self)));
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -2198,6 +2254,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_isSecure() -> bool")) },
     { STRCAST("ice_secure"), reinterpret_cast<PyCFunction>(proxyIceSecure), METH_VARARGS,
         PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_getEncodingVersion"), reinterpret_cast<PyCFunction>(proxyIceGetEncodingVersion), METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_getEncodingVersion() -> Ice.EncodingVersion")) },
+    { STRCAST("ice_encodingVersion"), reinterpret_cast<PyCFunction>(proxyIceEncodingVersion), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_endpointSelection(Ice.EncodingVersion) -> Ice.ObjectPrx")) },
     { STRCAST("ice_isPreferSecure"), reinterpret_cast<PyCFunction>(proxyIceIsPreferSecure), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_isPreferSecure() -> bool")) },
     { STRCAST("ice_preferSecure"), reinterpret_cast<PyCFunction>(proxyIcePreferSecure), METH_VARARGS,

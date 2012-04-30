@@ -123,6 +123,24 @@ endpointInfoSecure(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
+endpointInfoGetProtocol(EndpointInfoObject* self)
+{
+    return createProtocolVersion((*self->endpointInfo)->protocol);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+endpointInfoGetEncoding(EndpointInfoObject* self)
+{
+    return createEncodingVersion((*self->endpointInfo)->encoding);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 endpointInfoGetTimeout(EndpointInfoObject* self)
 {
     return PyLong_FromLong((*self->endpointInfo)->timeout);
@@ -165,50 +183,6 @@ ipEndpointInfoGetPort(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpEndpointInfoGetProtocolMajor(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->protocolMajor);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-udpEndpointInfoGetProtocolMinor(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->protocolMinor);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-udpEndpointInfoGetEncodingMajor(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->encodingMajor);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-udpEndpointInfoGetEncodingMinor(EndpointInfoObject* self)
-{
-    Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
-    assert(info);
-    return PyLong_FromLong(info->encodingMinor);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 udpEndpointInfoGetMcastInterface(EndpointInfoObject* self)
 {
     Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(*self->endpointInfo);
@@ -244,6 +218,17 @@ opaqueEndpointInfoGetRawBytes(EndpointInfoObject* self)
 #endif
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+opaqueEndpointInfoGetRawEncoding(EndpointInfoObject* self)
+{
+    Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(*self->endpointInfo);
+    assert(info);
+    return IcePy::createEncodingVersion(info->rawEncoding);
+}
+
 static PyMethodDef EndpointInfoMethods[] =
 {
     { STRCAST("type"), reinterpret_cast<PyCFunction>(endpointInfoType), METH_NOARGS,
@@ -257,6 +242,10 @@ static PyMethodDef EndpointInfoMethods[] =
 
 static PyGetSetDef EndpointInfoGetters[] =
 {
+    { STRCAST("protocol"), reinterpret_cast<getter>(endpointInfoGetProtocol), 0,
+        PyDoc_STR(STRCAST("protocol version supported by the endpoint")), 0 },
+    { STRCAST("encoding"), reinterpret_cast<getter>(endpointInfoGetEncoding), 0,
+        PyDoc_STR(STRCAST("encoding version supported by the endpoint")), 0 },
     { STRCAST("timeout"), reinterpret_cast<getter>(endpointInfoGetTimeout), 0,
         PyDoc_STR(STRCAST("timeout in milliseconds")), 0 },
     { STRCAST("compress"), reinterpret_cast<getter>(endpointInfoGetCompress), 0,
@@ -275,14 +264,6 @@ static PyGetSetDef IPEndpointInfoGetters[] =
 
 static PyGetSetDef UDPEndpointInfoGetters[] =
 {
-    { STRCAST("protocolMajor"), reinterpret_cast<getter>(udpEndpointInfoGetProtocolMajor), 0,
-        PyDoc_STR(STRCAST("protocol major version")), 0 },
-    { STRCAST("protocolMinor"), reinterpret_cast<getter>(udpEndpointInfoGetProtocolMinor), 0,
-        PyDoc_STR(STRCAST("protocol minor version")), 0 },
-    { STRCAST("encodingMajor"), reinterpret_cast<getter>(udpEndpointInfoGetEncodingMajor), 0,
-        PyDoc_STR(STRCAST("encoding major version")), 0 },
-    { STRCAST("encodingMinor"), reinterpret_cast<getter>(udpEndpointInfoGetEncodingMinor), 0,
-        PyDoc_STR(STRCAST("encoding minor version")), 0 },
     { STRCAST("mcastInterface"), reinterpret_cast<getter>(udpEndpointInfoGetMcastInterface), 0,
         PyDoc_STR(STRCAST("multicast interface")), 0 },
     { STRCAST("mcastTtl"), reinterpret_cast<getter>(udpEndpointInfoGetMcastTtl), 0,
@@ -294,6 +275,8 @@ static PyGetSetDef OpaqueEndpointInfoGetters[] =
 {
     { STRCAST("rawBytes"), reinterpret_cast<getter>(opaqueEndpointInfoGetRawBytes), 0,
         PyDoc_STR(STRCAST("raw encoding")), 0 },
+    { STRCAST("rawEncoding"), reinterpret_cast<getter>(opaqueEndpointInfoGetRawEncoding), 0,
+        PyDoc_STR(STRCAST("raw encoding version")), 0 },
     { 0, 0 } /* sentinel */
 };
 

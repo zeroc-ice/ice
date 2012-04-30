@@ -35,6 +35,7 @@ struct CurrentObject
     PyObject* mode;
     PyObject* ctx;
     PyObject* requestId;
+    PyObject* encoding;
 };
 
 //
@@ -48,6 +49,7 @@ const Py_ssize_t CURRENT_OPERATION  = 4;
 const Py_ssize_t CURRENT_MODE       = 5;
 const Py_ssize_t CURRENT_CTX        = 6;
 const Py_ssize_t CURRENT_REQUEST_ID = 7;
+const Py_ssize_t CURRENT_ENCODING   = 8;
 
 }
 
@@ -72,6 +74,7 @@ currentNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->mode = 0;
     self->ctx = 0;
     self->requestId = 0;
+    self->encoding = 0;
 
     return self;
 }
@@ -90,6 +93,7 @@ currentDealloc(CurrentObject* self)
     Py_XDECREF(self->mode);
     Py_XDECREF(self->ctx);
     Py_XDECREF(self->requestId);
+    Py_XDECREF(self->encoding);
     delete self->current;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
@@ -223,6 +227,17 @@ currentGetter(CurrentObject* self, void* closure)
         result = self->requestId;
         break;
     }
+    case CURRENT_ENCODING:
+    {
+        if(!self->encoding)
+        {
+            self->encoding = IcePy::createEncodingVersion(self->current->encoding);
+            assert(self->encoding);
+        }
+        Py_INCREF(self->encoding);
+        result = self->encoding;
+        break;
+    }
     }
 
     return result;
@@ -246,6 +261,8 @@ static PyGetSetDef CurrentGetSetters[] =
       reinterpret_cast<void*>(CURRENT_CTX) },
     { STRCAST("requestId"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("requestId"),
       reinterpret_cast<void*>(CURRENT_REQUEST_ID) },
+    { STRCAST("encoding"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("encoding"),
+      reinterpret_cast<void*>(CURRENT_ENCODING) },
     { 0 }  /* Sentinel */
 };
 
