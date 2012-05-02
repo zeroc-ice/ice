@@ -564,7 +564,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 catch(const UserException& ex)
                 {
                     Ice::EncodingVersion encoding = _is->skipEncaps(); // Required for batch requests.
-                    
+
                     if(_response)
                     {
                         _os.write(replyUserException);

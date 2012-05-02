@@ -658,6 +658,12 @@ namespace IceInternal
                 }
                 else
                 {
+                    //
+                    // Skip the input parameters, this is required for reading
+                    // the next batch request if dispatching batch requests.
+                    //
+                    _is.skipEncaps(); 
+
                     if(servantManager != null && servantManager.hasServant(current_.id))
                     {
                         throw new Ice.FacetNotExistException(current_.id, current_.facet, current_.operation);

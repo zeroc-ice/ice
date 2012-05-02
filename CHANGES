@@ -27,6 +27,11 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Fixed a bug where batched requests could cause invalid
+  Ice::UnmarshalOutOfBoundsException exceptions if a request from the
+  batch failed because no servants could be found to dispatch the
+  request.
+
 - Improved server disable to prevent the IceGrid locator from
   returning endpoints of disabled servers. See the Ice manual for more
   information.

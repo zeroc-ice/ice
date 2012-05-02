@@ -60,3 +60,44 @@ def batchOneways(p):
             test(False)
 
     batch.ice_getConnection().flushBatchRequests()
+
+    batch2 = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
+
+    batch.ice_ping()
+    batch2.ice_ping()
+    batch.ice_flushBatchRequests()
+    batch.ice_getConnection().close(False)
+    batch.ice_ping()
+    batch2.ice_ping()
+
+    batch.ice_getConnection()
+    batch2.ice_getConnection()
+
+    batch.ice_ping()
+    batch.ice_getConnection().close(False)
+    try:
+        batch.ice_ping()
+        test(False)
+    except Ice.CloseConnectionException:
+        pass
+
+    try:
+        batch2.ice_ping()
+        test(False)
+    except Ice.CloseConnectionException:
+        pass
+
+    batch.ice_ping()
+    batch2.ice_ping()
+
+    identity = Ice.Identity()
+    identity.name = "invalid";
+    batch3 = batch.ice_identity(identity)
+    batch3.ice_ping()
+    batch3.ice_flushBatchRequests()
+    
+    # Make sure that a bogus batch request doesn't cause troubles to other ones.
+    batch3.ice_ping()
+    batch.ice_ping()
+    batch.ice_flushBatchRequests()
+    batch.ice_ping()
