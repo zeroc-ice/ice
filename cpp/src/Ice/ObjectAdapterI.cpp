@@ -1439,6 +1439,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "AdapterId",
         "Endpoints",
         "Locator",
+        "Locator.EncodingVersion",
         "Locator.EndpointSelection",
         "Locator.ConnectionCached",
         "Locator.PreferSecure",
@@ -1448,6 +1449,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "Router.EncodingVersion",
         "Router.EndpointSelection",
         "Router.ConnectionCached",
         "Router.PreferSecure",
@@ -1503,7 +1505,6 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
             }
         }
 
-
         if(!valid && addUnknown)
         {
             unknownProps.push_back(p->first);
@@ -1512,4 +1513,3 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 
     return noProps;
 }
-

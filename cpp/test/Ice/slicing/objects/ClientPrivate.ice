@@ -20,4 +20,25 @@ class D3 extends B
     B pd3;
 };
 
+["preserve-slice"]
+class PCUnknown extends PBase
+{
+    string pu;
+};
+
+class PCDerived extends Preserved
+{
+    PBaseSeq pbs;
+};
+
+class PCDerived2 extends PCDerived
+{
+    int pcd2;
+};
+
+class PCDerived3 extends PCDerived2
+{
+    Object pcd3;
+};
+
 };

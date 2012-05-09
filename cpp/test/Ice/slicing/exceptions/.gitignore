@@ -4,6 +4,8 @@
 client
 server
 serveramd
+ClientPrivate.cpp
+ClientPrivate.h
 Test.cpp
 TestAMD.cpp
 ServerPrivate.cpp

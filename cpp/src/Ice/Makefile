@@ -92,6 +92,7 @@ OBJS		= Acceptor.o \
 		  Service.o \
 		  SliceChecksumDict.o \
 		  SliceChecksums.o \
+		  SlicedData.o \
 		  Stats.o \
 		  StreamI.o \
 		  Stream.o \

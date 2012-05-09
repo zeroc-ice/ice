@@ -9,7 +9,7 @@
 
 #include <TestAMDI.h>
 #include <Ice/Ice.h>
-#include <sstream>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -54,6 +54,16 @@ TestI::SBSKnownDerivedAsSBSKnownDerived_async(const AMD_TestIntf_SBSKnownDerived
 
 void
 TestI::SBSUnknownDerivedAsSBase_async(const AMD_TestIntf_SBSUnknownDerivedAsSBasePtr& cb, const ::Ice::Current&)
+{
+    SBSUnknownDerivedPtr sbsud = new SBSUnknownDerived;
+    sbsud->sb = "SBSUnknownDerived.sb";
+    sbsud->sbsud = "SBSUnknownDerived.sbsud";
+    cb->ice_response(sbsud);
+}
+
+void
+TestI::SBSUnknownDerivedAsSBaseCompact_async(const AMD_TestIntf_SBSUnknownDerivedAsSBaseCompactPtr& cb,
+                                             const ::Ice::Current&)
 {
     SBSUnknownDerivedPtr sbsud = new SBSUnknownDerived;
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -292,6 +302,124 @@ TestI::dictionaryTest_async(const AMD_TestIntf_dictionaryTestPtr& cb, const BDic
 }
 
 void
+TestI::exchangePBase_async(const AMD_TestIntf_exchangePBasePtr& cb, const PBasePtr& pb, const ::Ice::Current&)
+{
+    cb->ice_response(pb);
+}
+
+void
+TestI::PBSUnknownAsPreserved_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedPtr& cb, const Ice::Current&)
+{
+    PSUnknownPtr r = new PSUnknown;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->psu = "unknown";
+    cb->ice_response(r);
+}
+
+void
+TestI::checkPBSUnknown_async(const Test::AMD_TestIntf_checkPBSUnknownPtr& cb, const Test::PreservedPtr& p,
+                                   const Ice::Current& current)
+{
+    PSUnknownPtr pu = PSUnknownPtr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->psu == "unknown");
+    }
+    cb->ice_response();
+}
+
+void
+TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr& cb,
+                                            const Ice::Current&)
+{
+    PSUnknownPtr r = new PSUnknown;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->psu = "unknown";
+    r->graph = new PNode;
+    r->graph->next = new PNode;
+    r->graph->next->next = new PNode;
+    r->graph->next->next->next = r->graph;
+    cb->ice_response(r);
+    r->graph->next->next->next = 0; // Break the cycle.
+}
+
+void
+TestI::checkPBSUnknownWithGraph_async(const Test::AMD_TestIntf_checkPBSUnknownWithGraphPtr& cb,
+                                      const Test::PreservedPtr& p, const Ice::Current& current)
+{
+    PSUnknownPtr pu = PSUnknownPtr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->psu == "unknown");
+        test(pu->graph != pu->graph->next);
+        test(pu->graph->next != pu->graph->next->next);
+        test(pu->graph->next->next->next == pu->graph);
+        pu->graph->next->next->next = 0;          // Break the cycle.
+    }
+    cb->ice_response();
+}
+
+void
+TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr& cb,
+                                             const Ice::Current&)
+{
+    PSUnknown2Ptr r = new PSUnknown2;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->pb = r;
+    cb->ice_response(r);
+    r->pb = 0; // Break the cycle.
+}
+
+void
+TestI::checkPBSUnknown2WithGraph_async(const Test::AMD_TestIntf_checkPBSUnknown2WithGraphPtr& cb,
+                                       const Test::PreservedPtr& p, const Ice::Current& current)
+{
+    PSUnknown2Ptr pu = PSUnknown2Ptr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->pb == pu);
+        pu->pb = 0; // Break the cycle.
+    }
+    cb->ice_response();
+}
+
+void
+TestI::exchangePNode_async(const AMD_TestIntf_exchangePNodePtr& cb, const PNodePtr& pn, const ::Ice::Current&)
+{
+    cb->ice_response(pn);
+}
+
+void
 TestI::throwBaseAsBase_async(const AMD_TestIntf_throwBaseAsBasePtr& cb, const ::Ice::Current&)
 {
     BaseException be;
@@ -351,6 +479,18 @@ TestI::throwUnknownDerivedAsBase_async(const AMD_TestIntf_throwUnknownDerivedAsB
     ude.sude = "sude";
     ude.pd2 = d2;
     cb->ice_exception(ude);
+}
+
+void
+TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
+{
+    PSUnknownException ue;
+    ue.p = new PSUnknown2;
+    ue.p->pi = 5;
+    ue.p->ps = "preserved";
+    ue.p->pb = ue.p;
+    cb->ice_exception(ue);
+    ue.p->pb = 0; // Break the cycle.
 }
 
 void

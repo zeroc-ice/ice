@@ -15,6 +15,7 @@
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/Endpoint.h>
+#include <Ice/Format.h>
 
 namespace IceInternal
 {
@@ -32,6 +33,7 @@ public:
     int defaultLocatorCacheTimeout;
     bool defaultPreferSecure;
     Ice::EncodingVersion defaultEncoding;
+    Ice::FormatType defaultFormat;
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;

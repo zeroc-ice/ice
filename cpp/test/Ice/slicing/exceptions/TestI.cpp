@@ -140,6 +140,40 @@ TestI::unknownMostDerived2AsBase(const ::Ice::Current&)
 }
 
 void
+TestI::unknownMostDerived2AsBaseCompact(const ::Ice::Current&)
+{
+    UnknownMostDerived2 umd2;
+    umd2.b = "UnknownMostDerived2.b";
+    umd2.ui = "UnknownMostDerived2.ui";
+    umd2.umd2 = "UnknownMostDerived2.umd2";
+    throw umd2;
+}
+
+void
+TestI::relayKnownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
+{
+    r->knownPreservedAsBase();
+}
+
+void
+TestI::relayKnownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
+{
+    r->knownPreservedAsKnownPreserved();
+}
+
+void
+TestI::relayUnknownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
+{
+    r->unknownPreservedAsBase();
+}
+
+void
+TestI::relayUnknownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
+{
+    r->unknownPreservedAsKnownPreserved();
+}
+
+void
 TestI::shutdown(const ::Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

@@ -182,6 +182,23 @@ class UserException(Exception):
     '''The base class for all user-defined exceptions.'''
     pass
 
+class SlicedData(object):
+    #
+    # Members:
+    #
+    # slices - tuple of SliceInfo
+    #
+    pass
+
+class SliceInfo(object):
+    #
+    # Members:
+    #
+    # typeId - string
+    # bytes - string
+    # objects - tuple of Ice.Object
+    pass
+
 def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
 
@@ -277,6 +294,15 @@ def updateModules():
 def createTempClass():
     class __temp: pass
     return __temp
+
+class FormatType(object):
+    def __init__(self, val):
+        assert(val >= 0 and val < 3)
+        self.value = val
+
+FormatType.DefaultFormat = FormatType(0)
+FormatType.CompactFormat = FormatType(1)
+FormatType.SlicedFormat = FormatType(2)
 
 #
 # Forward declarations.
@@ -1284,16 +1310,16 @@ signal, or False otherwise.'''
 #
 # Define Ice::Object and Ice::ObjectPrx.
 #
-IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), False, None, (), ())
+IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), False, False, None, (), ())
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 Object._ice_type = IcePy._t_Object
 
-Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (((), IcePy._t_string),), (), IcePy._t_bool, ())
-Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), None, ())
-Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), _t_StringSeq, ())
-Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), IcePy._t_string, ())
+Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (((), IcePy._t_string),), (), IcePy._t_bool, ())
+Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), None, ())
+Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), _t_StringSeq, ())
+Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), IcePy._t_string, ())
 
-IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, None, (), ())
+IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, False, None, (), ())
 
 #
 # Annotate some exceptions.
@@ -1393,4 +1419,3 @@ def getHash(o):
 Protocol_1_0 = ProtocolVersion(1, 0)
 Encoding_1_0 = EncodingVersion(1, 0)
 Encoding_1_1 = EncodingVersion(1, 1)
-

@@ -69,6 +69,16 @@ SLICE_API enum NodeType
     Real
 };
 
+//
+// Format preference for classes and exceptions.
+//
+SLICE_API enum FormatType
+{
+    DefaultFormat,    // No preference was specified.
+    CompactFormat,    // Minimal format.
+    SlicedFormat      // Full format.
+};
+
 class GrammarBase;
 class SyntaxTreeBase;
 class Type;
@@ -354,6 +364,8 @@ public:
     void setMetaData(const std::list<std::string>&);
     void addMetaData(const std::string&); // TODO: remove this method once "cs:" and "vb:" are hard errors.
 
+    static FormatType parseFormatMetaData(const std::list<std::string>&);
+
     enum ContainedType
     {
         ContainedTypeSequence,
@@ -580,6 +592,7 @@ public:
     bool returnsClasses() const;
     bool returnsData() const;
     int attributes() const;
+    FormatType format() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 

@@ -62,10 +62,10 @@ public:
     }
 
     virtual void
-    read(const Ice::InputStreamPtr& in, bool rid)
+    read(const Ice::InputStreamPtr& in)
     {
         obj = new Test::MyClass;
-        obj->__read(in, rid);
+        obj->__read(in);
         called = true;
     }
 

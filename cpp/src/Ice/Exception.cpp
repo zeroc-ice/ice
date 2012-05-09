@@ -11,6 +11,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Plugin.h>
+#include <Ice/SlicedData.h>
 #include <IceUtil/StringUtil.h>
 #include <iomanip>
 
@@ -54,6 +55,11 @@ bool
 Ice::UserException::__usesClasses() const
 {
     return false;
+}
+
+void
+Ice::UserException::__usesClasses(bool)
+{
 }
 
 Ice::LocalException::LocalException(const char* file, int line) :

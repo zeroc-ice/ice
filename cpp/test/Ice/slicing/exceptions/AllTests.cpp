@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Test.h>
+#include <ClientPrivate.h>
 
 using namespace std;
 using namespace Test;
@@ -51,7 +51,6 @@ private:
 
     bool _called;
 };
-
 
 class Callback : public CallbackBase, public IceUtil::Shared
 {
@@ -322,8 +321,46 @@ public:
         called();
     }
 };
-
 typedef IceUtil::Handle<Callback> CallbackPtr;
+
+class RelayI : public Relay
+{
+    virtual void knownPreservedAsBase(const ::Ice::Current&)
+    {
+        KnownPreserved ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        throw ex;
+    }
+
+    virtual void knownPreservedAsKnownPreserved(const ::Ice::Current&)
+    {
+        KnownPreserved ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        throw ex;
+    }
+
+    virtual void unknownPreservedAsBase(const ::Ice::Current&)
+    {
+        Preserved2 ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.p1 = new PreservedClass("bc", "pc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+
+    virtual void unknownPreservedAsKnownPreserved(const ::Ice::Current&)
+    {
+        Preserved2 ex;
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.p1 = new PreservedClass("bc", "pc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+};
 
 TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
@@ -715,6 +752,133 @@ allTests(const Ice::CommunicatorPtr& communicator)
             newCallback_TestIntf_unknownMostDerived2AsBase(cb, &Callback::response, 
                                                          &Callback::exception_unknownMostDerived2AsBase));
         cb->check();
+    }
+    cout << "ok" << endl;
+
+    cout << "unknown most derived in compact format... " << flush;
+    {
+        try
+        {
+            test->unknownMostDerived2AsBaseCompact();
+            test(false);
+        }
+        catch(const Base&)
+        {
+            //
+            // For the 1.0 encoding, the unknown exception is sliced to Base.
+            //
+            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+        }
+        catch(const Ice::MarshalException&)
+        {
+            //
+            // A MarshalException is raised for the compact format because the
+            // most-derived type is unknown and the exception cannot be sliced.
+            //
+            test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+    }
+    cout << "ok" << endl;
+
+    cout << "preserved exceptions... " << flush;
+    {
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", "default");
+        RelayPrx relay = RelayPrx::uncheckedCast(adapter->addWithUUID(new RelayI));
+        adapter->activate();
+
+        try
+        {
+            test->relayKnownPreservedAsBase(relay);
+            test(false);
+        }
+        catch(const KnownPreserved& ex)
+        {
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+        try
+        {
+            test->relayKnownPreservedAsKnownPreserved(relay);
+            test(false);
+        }
+        catch(const KnownPreserved& ex)
+        {
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+        try
+        {
+            test->relayUnknownPreservedAsBase(relay);
+            test(false);
+        }
+        catch(const Preserved2& ex)
+        {
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+            test(ex.p1->ice_id() == PreservedClass::ice_staticId());
+            PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
+            test(pc->bc == "bc");
+            test(pc->pc == "pc");
+            test(ex.p2 == ex.p1);
+        }
+        catch(const KnownPreserved& ex)
+        {
+            //
+            // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+            //
+            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+        try
+        {
+            test->relayUnknownPreservedAsKnownPreserved(relay);
+            test(false);
+        }
+        catch(const Preserved2& ex)
+        {
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+            test(ex.p1->ice_id() == PreservedClass::ice_staticId());
+            PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
+            test(pc->bc == "bc");
+            test(pc->pc == "pc");
+            test(ex.p2 == ex.p1);
+        }
+        catch(const KnownPreserved& ex)
+        {
+            //
+            // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+            //
+            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+            test(ex.b == "base");
+            test(ex.kp == "preserved");
+        }
+        catch(...)
+        {
+            test(false);
+        }
+
+        adapter->destroy();
     }
     cout << "ok" << endl;
 

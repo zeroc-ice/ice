@@ -20,16 +20,84 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
+#include <Ice/UserExceptionFactory.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace
+{
+
+//
+// This class implements the internal interface UserExceptionFactory and delegates to
+// the user-supplied instance of UserExceptionReaderFactory.
+//
+class UserExceptionFactoryI : public IceInternal::UserExceptionFactory
+{
+public:
+
+    UserExceptionFactoryI(const Ice::UserExceptionReaderFactoryPtr& factory) :
+        _factory(factory)
+    {
+    }
+
+    virtual void createAndThrow(const string& id)
+    {
+        _factory->createAndThrow(id);
+    }
+
+private:
+
+    const Ice::UserExceptionReaderFactoryPtr _factory;
+};
+
+}
+
+//
+// UserExceptionReader
+//
+Ice::UserExceptionReader::UserExceptionReader(const Ice::CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
+}
+
+Ice::UserExceptionReader::~UserExceptionReader() throw()
+{
+}
+
+void
+Ice::UserExceptionReader::__write(BasicStream*) const
+{
+    assert(false);
+}
+
+void
+Ice::UserExceptionReader::__read(BasicStream* is)
+{
+    InputStreamI* stream = reinterpret_cast<InputStreamI*>(is->closure());
+    assert(stream);
+    read(stream);
+}
+
+bool
+Ice::UserExceptionReader::__usesClasses() const
+{
+    return usesClasses();
+}
+
+void
+Ice::UserExceptionReader::__usesClasses(bool b)
+{
+    usesClasses(b);
+}
+
 //
 // InputStreamI
 //
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
-    _communicator(communicator)
+    _communicator(communicator),
+    _closure(0)
 {
     Instance* instance = getInstance(communicator).get();
     _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
@@ -39,7 +107,8 @@ Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const 
 }
 
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
-    _communicator(communicator)
+    _communicator(communicator),
+    _closure(0)
 {
     Instance* instance = getInstance(communicator).get();
     _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
@@ -296,14 +365,6 @@ Ice::InputStreamI::readObject(const ReadObjectCallbackPtr& cb)
     _is->read(patchObject, cb.get());
 }
 
-string
-Ice::InputStreamI::readTypeId()
-{
-    string id;
-    _is->readTypeId(id);
-    return id;
-}
-
 void
 Ice::InputStreamI::read(bool& v)
 {
@@ -413,9 +474,40 @@ Ice::InputStreamI::throwException()
 }
 
 void
+Ice::InputStreamI::throwException(const UserExceptionReaderFactoryPtr& factory)
+{
+    UserExceptionFactoryPtr del = new UserExceptionFactoryI(factory);
+    _is->throwException(del);
+}
+
+void
+Ice::InputStreamI::startObject()
+{
+    _is->startReadObject();
+}
+
+SlicedDataPtr
+Ice::InputStreamI::endObject(bool preserve)
+{
+    return _is->endReadObject(preserve);
+}
+
+void
+Ice::InputStreamI::startException()
+{
+    _is->startReadException();
+}
+
+SlicedDataPtr
+Ice::InputStreamI::endException(bool preserve)
+{
+    return _is->endReadException(preserve);
+}
+
+string
 Ice::InputStreamI::startSlice()
 {
-    _is->startReadSlice();
+    return _is->startReadSlice();
 }
 
 void
@@ -459,6 +551,18 @@ Ice::InputStreamI::rewind()
 {
     _is->clear();
     _is->i = _is->b.begin();
+}
+
+void
+Ice::InputStreamI::closure(void* p)
+{
+    _closure = p;
+}
+
+void*
+Ice::InputStreamI::closure() const
+{
+    return _closure;
 }
 
 //
@@ -516,12 +620,6 @@ Ice::OutputStreamI::writeSize(Int sz)
     }
 
     _os->writeSize(sz);
-}
-
-void
-Ice::OutputStreamI::writeTypeId(const string& id)
-{
-    _os->writeTypeId(id);
 }
 
 void
@@ -634,9 +732,39 @@ Ice::OutputStreamI::write(const Double* begin, const Double* end)
 }
 
 void
-Ice::OutputStreamI::startSlice()
+Ice::OutputStreamI::format(FormatType format)
 {
-    _os->startWriteSlice();
+    _os->format(format);
+}
+
+void
+Ice::OutputStreamI::startObject(const SlicedDataPtr& slicedData)
+{
+    _os->startWriteObject(slicedData);
+}
+
+void
+Ice::OutputStreamI::endObject()
+{
+    _os->endWriteObject();
+}
+
+void
+Ice::OutputStreamI::startException(const SlicedDataPtr& slicedData)
+{
+    _os->startWriteException(slicedData);
+}
+
+void
+Ice::OutputStreamI::endException()
+{
+    _os->endWriteException();
+}
+
+void
+Ice::OutputStreamI::startSlice(const string& typeId, bool lastSlice)
+{
+    _os->startWriteSlice(typeId, lastSlice);
 }
 
 void
@@ -914,11 +1042,11 @@ Ice::ObjectReader::__write(BasicStream*) const
 }
 
 void
-Ice::ObjectReader::__read(BasicStream* is, bool rid)
+Ice::ObjectReader::__read(BasicStream* is)
 {
     InputStreamI* stream = reinterpret_cast<InputStreamI*>(is->closure());
     assert(stream);
-    read(stream, rid);
+    read(stream);
 }
 
 void
@@ -928,7 +1056,7 @@ Ice::ObjectReader::__write(const Ice::OutputStreamPtr&) const
 }
 
 void
-Ice::ObjectReader::__read(const Ice::InputStreamPtr&, bool)
+Ice::ObjectReader::__read(const Ice::InputStreamPtr&)
 {
     assert(false);
 }
@@ -989,7 +1117,7 @@ Ice::UserExceptionWriter::__write(BasicStream* os) const
 }
 
 void
-Ice::UserExceptionWriter::__read(BasicStream*, bool)
+Ice::UserExceptionWriter::__read(BasicStream*)
 {
     assert(false);
 }

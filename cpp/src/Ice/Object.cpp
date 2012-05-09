@@ -14,6 +14,7 @@
 #include <Ice/Direct.h>
 #include <Ice/LocalException.h>
 #include <Ice/Stream.h>
+#include <Ice/SlicedData.h>
 
 using namespace std;
 using namespace Ice;
@@ -239,66 +240,6 @@ DispatchStatus
 Ice::Object::__collocDispatch(IceInternal::Direct& request)
 {
     return request.run(this);
-}
-
-void
-Ice::Object::__write(BasicStream* __os) const
-{
-    __os->writeTypeId(ice_staticId());
-    __os->startWriteSlice();
-    __os->writeSize(0); // For compatibility with the old AFM.
-    __os->endWriteSlice();
-}
-
-void
-Ice::Object::__read(BasicStream* __is, bool __rid)
-{
-    if(__rid)
-    {
-        string myId;
-        __is->readTypeId(myId);
-    }
-
-    __is->startReadSlice();
-
-    // For compatibility with the old AFM.
-    Int sz;
-    __is->readSize(sz);
-    if(sz != 0)
-    {
-        throw Ice::MarshalException(__FILE__, __LINE__);
-    }
-
-    __is->endReadSlice();
-}
-
-void
-Ice::Object::__write(const OutputStreamPtr& __outS) const
-{
-    __outS->writeTypeId(ice_staticId());
-    __outS->startSlice();
-    __outS->writeSize(0); // For compatibility with the old AFM.
-    __outS->endSlice();
-}
-
-void
-Ice::Object::__read(const InputStreamPtr& __inS, bool __rid)
-{
-    if(__rid)
-    {
-        __inS->readTypeId();
-    }
-
-    __inS->startSlice();
-
-    // For compatibility with the old AFM.
-    Int sz = __inS->readSize();
-    if(sz != 0)
-    {
-        throw Ice::MarshalException(__FILE__, __LINE__);
-    }
-
-    __inS->endSlice();
 }
 
 void

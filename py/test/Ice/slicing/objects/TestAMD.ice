@@ -68,7 +68,8 @@ exception DerivedException extends BaseException
 
 class Forward;          /* Forward-declared class defined in another compilation unit */
 
-["amd"] interface TestIntf
+["amd", "format:sliced"]
+interface TestIntf
 {
     Object SBaseAsObject();
     SBase SBaseAsSBase();

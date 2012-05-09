@@ -33,6 +33,14 @@ public:
     virtual void unknownMostDerived1AsKnownIntermediate(const ::Ice::Current&);
     virtual void unknownMostDerived2AsBase(const ::Ice::Current&);
 
+    virtual void unknownMostDerived2AsBaseCompact(const ::Ice::Current&);
+
+    virtual void relayKnownPreservedAsBase(const ::Test::RelayPrx&, const ::Ice::Current&);
+    virtual void relayKnownPreservedAsKnownPreserved(const ::Test::RelayPrx&, const ::Ice::Current&);
+
+    virtual void relayUnknownPreservedAsBase(const ::Test::RelayPrx&, const ::Ice::Current&);
+    virtual void relayUnknownPreservedAsKnownPreserved(const ::Test::RelayPrx&, const ::Ice::Current&);
+
     virtual void shutdown(const ::Ice::Current&);
 };
 

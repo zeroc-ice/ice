@@ -144,6 +144,73 @@ TestI::unknownMostDerived2AsBase_async(const AMD_TestIntf_unknownMostDerived2AsB
 }
 
 void
+TestI::unknownMostDerived2AsBaseCompact_async(const AMD_TestIntf_unknownMostDerived2AsBaseCompactPtr& cb,
+                                              const ::Ice::Current&)
+{
+    UnknownMostDerived2 umd2;
+    umd2.b = "UnknownMostDerived2.b";
+    umd2.ui = "UnknownMostDerived2.ui";
+    umd2.umd2 = "UnknownMostDerived2.umd2";
+    cb->ice_exception(umd2);
+}
+
+void
+TestI::relayKnownPreservedAsBase_async(const AMD_TestIntf_relayKnownPreservedAsBasePtr& cb, const RelayPrx& r,
+                                       const ::Ice::Current&)
+{
+    try
+    {
+        r->knownPreservedAsBase();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
+TestI::relayKnownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayKnownPreservedAsKnownPreservedPtr& cb,
+                                                 const RelayPrx& r, const ::Ice::Current&)
+{
+    try
+    {
+        r->knownPreservedAsKnownPreserved();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
+TestI::relayUnknownPreservedAsBase_async(const AMD_TestIntf_relayUnknownPreservedAsBasePtr& cb, const RelayPrx& r,
+                                         const ::Ice::Current&)
+{
+    try
+    {
+        r->unknownPreservedAsBase();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
+TestI::relayUnknownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayUnknownPreservedAsKnownPreservedPtr& cb,
+                                                   const RelayPrx& r, const ::Ice::Current&)
+{
+    try
+    {
+        r->unknownPreservedAsKnownPreserved();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
+}
+
+void
 TestI::shutdown_async(const AMD_TestIntf_shutdownPtr& cb, const ::Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

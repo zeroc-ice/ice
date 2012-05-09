@@ -9,7 +9,7 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
-#include <sstream>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -53,6 +53,15 @@ TestI::SBSKnownDerivedAsSBSKnownDerived(const ::Ice::Current&)
 
 SBasePtr
 TestI::SBSUnknownDerivedAsSBase(const ::Ice::Current&)
+{
+    SBSUnknownDerivedPtr sbsud = new SBSUnknownDerived;
+    sbsud->sb = "SBSUnknownDerived.sb";
+    sbsud->sbsud = "SBSUnknownDerived.sbsud";
+    return sbsud;
+}
+
+SBasePtr
+TestI::SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&)
 {
     SBSUnknownDerivedPtr sbsud = new SBSUnknownDerived;
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -267,6 +276,120 @@ TestI::dictionaryTest(const BDict& bin, BDict& bout, const ::Ice::Current&)
     return r;
 }
 
+Test::PBasePtr
+TestI::exchangePBase(const Test::PBasePtr& pb, const Ice::Current&)
+{
+    return pb;
+}
+
+Test::PreservedPtr
+TestI::PBSUnknownAsPreserved(const Ice::Current&)
+{
+    PSUnknownPtr r = new PSUnknown;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->psu = "unknown";
+    r->graph = 0;
+    return r;
+}
+
+void
+TestI::checkPBSUnknown(const Test::PreservedPtr& p, const Ice::Current& current)
+{
+    PSUnknownPtr pu = PSUnknownPtr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->psu == "unknown");
+        test(!pu->graph);
+    }
+}
+
+void
+TestI::PBSUnknownAsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknownAsPreservedWithGraphPtr& cb,
+                                            const Ice::Current&)
+{
+    PSUnknownPtr r = new PSUnknown;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->psu = "unknown";
+    r->graph = new PNode;
+    r->graph->next = new PNode;
+    r->graph->next->next = new PNode;
+    r->graph->next->next->next = r->graph;
+    cb->ice_response(r);
+    r->graph->next->next->next = 0; // Break the cycle.
+}
+
+void
+TestI::checkPBSUnknownWithGraph(const Test::PreservedPtr& p, const Ice::Current& current)
+{
+    PSUnknownPtr pu = PSUnknownPtr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->psu == "unknown");
+        test(pu->graph != pu->graph->next);
+        test(pu->graph->next != pu->graph->next->next);
+        test(pu->graph->next->next->next == pu->graph);
+        pu->graph->next->next->next = 0;          // Break the cycle.
+    }
+}
+
+void
+TestI::PBSUnknown2AsPreservedWithGraph_async(const Test::AMD_TestIntf_PBSUnknown2AsPreservedWithGraphPtr& cb,
+                                             const Ice::Current&)
+{
+    PSUnknown2Ptr r = new PSUnknown2;
+    r->pi = 5;
+    r->ps = "preserved";
+    r->pb = r;
+    cb->ice_response(r);
+    r->pb = 0; // Break the cycle.
+}
+
+void
+TestI::checkPBSUnknown2WithGraph(const Test::PreservedPtr& p, const Ice::Current& current)
+{
+    PSUnknown2Ptr pu = PSUnknown2Ptr::dynamicCast(p);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!pu);
+        test(p->pi == 5);
+        test(p->ps == "preserved");
+    }
+    else
+    {
+        test(pu);
+        test(pu->pi == 5);
+        test(pu->ps == "preserved");
+        test(pu->pb == pu);
+        pu->pb = 0;          // Break the cycle.
+    }
+}
+
+Test::PNodePtr
+TestI::exchangePNode(const Test::PNodePtr& pn, const Ice::Current&)
+{
+    return pn;
+}
+
 void
 TestI::throwBaseAsBase(const ::Ice::Current&)
 {
@@ -327,6 +450,18 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
     ude.sude = "sude";
     ude.pd2 = d2;
     throw ude;
+}
+
+void
+TestI::throwPreservedException_async(const AMD_TestIntf_throwPreservedExceptionPtr& cb, const ::Ice::Current&)
+{
+    PSUnknownException ue;
+    ue.p = new PSUnknown2;
+    ue.p->pi = 5;
+    ue.p->ps = "preserved";
+    ue.p->pb = ue.p;
+    cb->ice_exception(ue);
+    ue.p->pb = 0; // Break the cycle.
 }
 
 void

@@ -107,8 +107,6 @@ class Client(Ice.Application):
 
         print('\n'\
               "Now we install a factory for the derived class, and try again.\n"\
-              "Because we receive the derived object as a base object, we\n"\
-              "we need to do a dynamic_cast<> to get from the base to the derived object.\n"\
               "[press enter]")
         sys.stdin.readline()
 

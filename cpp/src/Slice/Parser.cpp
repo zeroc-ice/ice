@@ -42,8 +42,6 @@ enum { Supports, Mandatory, Required, Never };
 
 }
 
-
-
 namespace Slice
 {
 
@@ -425,6 +423,42 @@ void
 Slice::Contained::addMetaData(const string& s)
 {
     _metaData.push_back(s);
+}
+
+FormatType
+Slice::Contained::parseFormatMetaData(const list<string>& metaData)
+{
+    FormatType result = DefaultFormat;
+
+    string tag;
+    string prefix = "format:";
+    for(list<string>::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+    {
+        if(p->find(prefix) == 0)
+        {
+            tag = *p;
+            break;
+        }
+    }
+
+    if(!tag.empty())
+    {
+        tag = tag.substr(prefix.size());
+        if(tag == "compact")
+        {
+            result = CompactFormat;
+        }
+        else if(tag == "sliced")
+        {
+            result = SlicedFormat;
+        }
+        else if(tag != "default") // TODO: Allow "default" to be specified as a format value?
+        {
+            // TODO: How to handle invalid format?
+        }
+    }
+
+    return result;
 }
 
 bool
@@ -2658,7 +2692,7 @@ Slice::ClassDecl::usesClasses() const
 size_t
 Slice::ClassDecl::minWireSize() const
 {
-    return 4; // At least four bytes for an instance, if the instance is marshaled as an index.
+    return 1; // At least four bytes for an instance, if the instance is marshaled as an index.
 }
 
 bool
@@ -4980,6 +5014,18 @@ Slice::Operation::attributes() const
     }
 }
 
+FormatType
+Slice::Operation::format() const
+{
+    FormatType format = parseFormatMetaData(getMetaData());
+    if(format == DefaultFormat)
+    {
+        ContainedPtr cont = ContainedPtr::dynamicCast(container());
+        assert(cont);
+        format = parseFormatMetaData(cont->getMetaData());
+    }
+    return format;
+}
 
 string
 Slice::Operation::kindOf() const

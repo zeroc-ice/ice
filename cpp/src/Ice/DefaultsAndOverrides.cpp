@@ -99,4 +99,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getPropertyWithDefault("Ice.Default.EncodingVersion", encodingVersionToString(currentEncoding));
     defaultEncoding = stringToEncodingVersion(value);
     checkSupportedEncoding(defaultEncoding);
+
+    bool slicedFormat = properties->getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
+    const_cast<FormatType&>(defaultFormat) = slicedFormat ? SlicedFormat : CompactFormat;
 }

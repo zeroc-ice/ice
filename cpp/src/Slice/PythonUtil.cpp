@@ -796,7 +796,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    _out << ", " << (isAbstract ? "True" : "False") << ", ";
+    _out << ", " << (isAbstract ? "True" : "False") << ", " << (p->hasMetaData("preserve-slice") ? "True" : "False")
+         << ", ";
     if(!base)
     {
         _out << "None";
@@ -890,10 +891,24 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             ParamDeclList params = (*s)->parameters();
             ParamDeclList::iterator t;
             int count;
+            string format;
+            switch((*s)->format())
+            {
+            case DefaultFormat:
+                format = "None";
+                break;
+            case CompactFormat:
+                format = "Ice.FormatType.CompactFormat";
+                break;
+            case SlicedFormat:
+                format = "Ice.FormatType.SlicedFormat";
+                break;
+            }
 
             _out << nl << name << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', "
                  << getOperationMode((*s)->mode()) << ", " << getOperationMode((*s)->sendMode()) << ", "
-                 << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", ";
+                 << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", "
+                 << format << ", ";
             writeMetaData((*s)->getMetaData());
             _out << ", (";
             for(t = params.begin(), count = 0; t != params.end(); ++t)
@@ -1091,7 +1106,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string type = getAbsolute(p, "_t_");
     _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    _out << ", ";
+    _out << ", " << (p->hasMetaData("preserve-slice") ? "True" : "False") << ", ";
     if(!base)
     {
         _out << "None";

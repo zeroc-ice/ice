@@ -12,6 +12,7 @@
 
 #include <IceUtil/Exception.h>
 #include <Ice/Config.h>
+#include <Ice/Format.h>
 #include <Ice/Handle.h>
 
 namespace IceInternal
@@ -37,7 +38,7 @@ typedef IceUtil::Exception Exception;
 
 class ICE_API LocalException : public IceUtil::Exception
 {
-public:    
+public:
 
     LocalException(const char*, int);
     virtual ~LocalException() throw();
@@ -46,19 +47,19 @@ public:
     virtual void ice_throw() const = 0;
 };
 
-
 class ICE_API UserException : public IceUtil::Exception
 {
-public:    
+public:
 
     virtual std::string ice_name() const = 0;
     virtual Exception* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
     virtual void __write(::IceInternal::BasicStream*) const = 0;
-    virtual void __read(::IceInternal::BasicStream*, bool) = 0;
+    virtual void __read(::IceInternal::BasicStream*) = 0;
 
     virtual bool __usesClasses() const;
+    virtual void __usesClasses(bool);
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;
@@ -75,7 +76,6 @@ public:
 };
 
 typedef ::IceInternal::Handle<SystemException> SystemExceptionPtr;
-
 
 #if defined(__SUNPRO_CC)
 //

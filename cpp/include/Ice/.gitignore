@@ -36,3 +36,4 @@ ServantLocator.h
 SliceChecksumDict.h
 StatsF.h
 Stats.h
+Version.h

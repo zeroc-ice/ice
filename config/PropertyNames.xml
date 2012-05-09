@@ -321,6 +321,7 @@ generated from the section label.
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />
         <property name="Default.Router" class="proxy" />
+        <property name="Default.SlicedFormat" />
         <property name="IPv4" />
         <property name="IPv6" />
         <property name="EventLog.Source" />

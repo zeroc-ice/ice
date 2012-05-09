@@ -80,17 +80,23 @@ public:
 
     virtual ObjectPrx readProxy();
     virtual void readObject(const ReadObjectCallbackPtr&);
-    virtual std::string readTypeId();
 
     virtual void throwException();
+    virtual void throwException(const UserExceptionReaderFactoryPtr&);
 
-    virtual void startSlice();
+    virtual void startObject();
+    virtual SlicedDataPtr endObject(bool);
+
+    virtual void startException();
+    virtual SlicedDataPtr endException(bool);
+
+    virtual std::string startSlice();
     virtual void endSlice();
     virtual void skipSlice();
 
     virtual Ice::EncodingVersion startEncapsulation();
-    virtual Ice::EncodingVersion skipEncapsulation();
     virtual void endEncapsulation();
+    virtual Ice::EncodingVersion skipEncapsulation();
 
     virtual void readPendingObjects();
 
@@ -114,11 +120,15 @@ public:
     virtual void read(std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&);
     virtual void read(std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&);
 
+    virtual void closure(void*);
+    virtual void* closure() const;
+
 private:
 
     const CommunicatorPtr _communicator;
     IceInternal::BasicStream* _is;
     std::vector< ReadObjectCallbackPtr > _callbacks;
+    void* _closure;
 };
 
 //
@@ -176,8 +186,6 @@ public:
         
     virtual void writeSize(Int);
 
-    virtual void writeTypeId(const std::string&);
-    
     virtual void write(bool);
     virtual void write(Byte);
     virtual void write(Short);
@@ -198,7 +206,15 @@ public:
     virtual void write(const Float*, const Float*);
     virtual void write(const Double*, const Double*);
 
-    virtual void startSlice();
+    virtual void format(FormatType);
+
+    virtual void startObject(const SlicedDataPtr&);
+    virtual void endObject();
+
+    virtual void startException(const SlicedDataPtr&);
+    virtual void endException();
+
+    virtual void startSlice(const std::string&, bool);
     virtual void endSlice();
 
     virtual void startEncapsulation(const Ice::EncodingVersion&);

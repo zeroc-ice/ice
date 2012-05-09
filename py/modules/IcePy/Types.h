@@ -35,6 +35,34 @@ class AbortMarshaling
 
 typedef std::map<PyObject*, Ice::ObjectPtr> ObjectMap;
 
+class ObjectReader;
+typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+
+//
+// This class keeps track of Python objects (instances of Slice classes
+// and exceptions) that have preserved slices.
+//
+class SlicedDataUtil
+{
+public:
+
+    SlicedDataUtil();
+    ~SlicedDataUtil();
+
+    void add(const ObjectReaderPtr&);
+
+    void update();
+
+    static void setMember(PyObject*, const Ice::SlicedDataPtr&);
+    static Ice::SlicedDataPtr getMember(PyObject*, ObjectMap*);
+
+private:
+
+    std::set<ObjectReaderPtr> _readers;
+    static PyObject* _slicedDataType;
+    static PyObject* _sliceInfoType;
+};
+
 struct PrintObjectHistory
 {
     int index;
@@ -336,6 +364,7 @@ public:
 
     std::string id;
     bool isAbstract;
+    bool preserve;
     ClassInfoPtr base;
     ClassInfoList interfaces;
     DataMemberList members;
@@ -383,6 +412,7 @@ public:
     void printMembers(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
+    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     bool usesClasses;
@@ -396,7 +426,7 @@ class ObjectWriter : public Ice::ObjectWriter
 {
 public:
 
-    ObjectWriter(const ClassInfoPtr&, PyObject*, ObjectMap*);
+    ObjectWriter(PyObject*, ObjectMap*);
     ~ObjectWriter();
 
     virtual void ice_preMarshal();
@@ -405,9 +435,9 @@ public:
 
 private:
 
-    ClassInfoPtr _info;
     PyObject* _object;
     ObjectMap* _map;
+    ClassInfoPtr _info;
 };
 
 //
@@ -422,18 +452,20 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void read(const Ice::InputStreamPtr&, bool);
+    virtual void read(const Ice::InputStreamPtr&);
 
     virtual ClassInfoPtr getInfo() const;
 
     PyObject* getObject() const; // Borrowed reference.
 
+    Ice::SlicedDataPtr getSlicedData() const;
+
 private:
 
     PyObject* _object;
     ClassInfoPtr _info;
+    Ice::SlicedDataPtr _slicedData;
 };
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
 //
 // ExceptionWriter wraps a Python user exception for marshaling.
@@ -442,7 +474,7 @@ class ExceptionWriter : public Ice::UserExceptionWriter
 {
 public:
 
-    ExceptionWriter(const Ice::CommunicatorPtr&, const PyObjectHandle&);
+    ExceptionWriter(const Ice::CommunicatorPtr&, const PyObjectHandle&, const ExceptionInfoPtr& = 0);
     ~ExceptionWriter() throw();
 
     virtual void write(const Ice::OutputStreamPtr&) const;
@@ -456,6 +488,37 @@ private:
 
     PyObjectHandle _ex;
     ExceptionInfoPtr _info;
+    ObjectMap _objects;
+    bool _usesClasses;
+};
+
+//
+// ExceptionReader creates a Python user exception and unmarshals it.
+//
+class ExceptionReader : public Ice::UserExceptionReader
+{
+public:
+
+    ExceptionReader(const Ice::CommunicatorPtr&, const ExceptionInfoPtr&);
+    ~ExceptionReader() throw();
+
+    virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
+    virtual void usesClasses(bool);
+
+    virtual std::string ice_name() const;
+    virtual Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    PyObject* getException() const; // Borrowed reference.
+
+    Ice::SlicedDataPtr getSlicedData() const;
+
+private:
+
+    ExceptionInfoPtr _info;
+    PyObjectHandle _ex;
+    Ice::SlicedDataPtr _slicedData;
 };
 
 ClassInfoPtr lookupClassInfo(const std::string&);

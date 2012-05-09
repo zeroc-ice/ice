@@ -18,6 +18,7 @@
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Current.h>
 #include <Ice/StreamF.h>
+#include <Ice/Format.h>
 
 namespace IceInternal
 {
@@ -98,16 +99,20 @@ public:
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
     virtual DispatchStatus __collocDispatch(IceInternal::Direct&);
 
-    virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*, bool);
+    virtual void __write(IceInternal::BasicStream*) const {}
+    virtual void __writeImpl(IceInternal::BasicStream*) const {}
+    virtual void __read(IceInternal::BasicStream*) {}
+    virtual void __readImpl(IceInternal::BasicStream*) {}
 
-    virtual void __write(const OutputStreamPtr&) const;
-    virtual void __read(const InputStreamPtr&, bool);
+    virtual void __write(const OutputStreamPtr&) const {}
+    virtual void __read(const InputStreamPtr&) {}
 
+    //
     // Virtual methods to support garbage collection of Slice class instances. These
     // methods are overriden by Slice classes which can have cycles.
+    //
     virtual void __addObject(IceInternal::GCCountMap&) {}
-    virtual bool __usesClasses() { return false; }
+    virtual bool __usesGC() { return false; }
     void __decRefUnsafe()
     {
         --_ref;
@@ -125,8 +130,11 @@ class ICE_API Blobject : virtual public Object
 {
 public:
 
+    //
     // Returns true if ok, false if user exception.
+    //
     virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
+
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
@@ -134,8 +142,11 @@ class ICE_API BlobjectArray : virtual public Object
 {
 public:
 
+    //
     // Returns true if ok, false if user exception.
+    //
     virtual bool ice_invoke(const std::pair<const Byte*, const Byte*>&, std::vector<Byte>&, const Current&) = 0;
+
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
@@ -144,6 +155,7 @@ class ICE_API BlobjectAsync : virtual public Object
 public:
 
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
+
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
@@ -153,6 +165,7 @@ public:
 
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;
+
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 

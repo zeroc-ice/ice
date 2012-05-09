@@ -15,19 +15,12 @@
 #include <Ice/Object.h>
 #include <Ice/Exception.h>
 #include <Ice/Proxy.h>
+#include <Ice/SlicedDataF.h>
 #include <IceUtil/Shared.h>
 
 namespace Ice
 {
-    
-//
-// COMPILERFIX: VC++ 6 compiler bug doesn't allow using templates for
-// the Stream API.
-//
-// see: http://support.microsoft.com/kb/240866
-//      http://support.microsoft.com/kb/241569
-//
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
+
 enum StreamTraitType
 {
     StreamTraitTypeBuiltin,
@@ -70,7 +63,7 @@ struct StreamTrait< ::std::vector<T> >
 // StreamTrait specialization for std::vector<bool>. Sequences of bool
 // are handled specifically because C++ optimizations for vector<bool>
 // prevent us from reading vector of bools the same way as other
-// sequences (see StreamReader<StreamTraitTypeSequenceBool>::read 
+// sequences (see StreamReader<StreamTraitTypeSequenceBool>::read
 // implementation below)
 //
 // COMPILERFIX: BCC2010 doesn't allow use of full specialization over
@@ -78,7 +71,7 @@ struct StreamTrait< ::std::vector<T> >
 //
 #ifndef __BCPLUSPLUS__
 template<>
-struct StreamTrait< ::std::vector<bool> > 
+struct StreamTrait< ::std::vector<bool> >
 {
     static const StreamTraitType type = StreamTraitTypeSequenceBool;
     static const int minWireSize = 1;
@@ -218,8 +211,6 @@ struct StreamReader
     }
 };
 
-#endif
-
 class ICE_API ReadObjectCallback : public ::IceUtil::Shared
 {
 public:
@@ -252,6 +243,40 @@ private:
 
     ::IceInternal::Handle<T>& _v;
 };
+
+class ICE_API UserExceptionReader : public UserException
+{
+public:
+
+    UserExceptionReader(const CommunicatorPtr&);
+    ~UserExceptionReader() throw();
+
+    virtual void read(const InputStreamPtr&) const = 0;
+    virtual bool usesClasses() const = 0;
+    virtual void usesClasses(bool) = 0;
+
+    virtual ::std::string ice_name() const = 0;
+    virtual Exception* ice_clone() const = 0;
+    virtual void ice_throw() const = 0;
+
+    virtual void __write(IceInternal::BasicStream*) const;
+    virtual void __read(IceInternal::BasicStream*);
+
+    virtual bool __usesClasses() const;
+    virtual void __usesClasses(bool);
+
+protected:
+
+    const CommunicatorPtr _communicator;
+};
+
+class ICE_API UserExceptionReaderFactory : public IceUtil::Shared
+{
+public:
+
+    virtual void createAndThrow(const std::string&) const = 0;
+};
+typedef ::IceUtil::Handle<UserExceptionReaderFactory> UserExceptionReaderFactoryPtr;
 
 class ICE_API InputStream : public ::IceUtil::Shared
 {
@@ -292,7 +317,7 @@ public:
     ICE_DEPRECATED_API virtual ::std::vector<Double> readDoubleSeq() = 0;
     ICE_DEPRECATED_API virtual ::std::vector< ::std::string> readStringSeq(bool = true) = 0;
     ICE_DEPRECATED_API virtual ::std::vector< ::std::wstring> readWstringSeq() = 0;
-    
+
     ICE_DEPRECATED_API virtual bool* readBoolSeq(::std::pair<const bool*, const bool*>&) = 0;
     ICE_DEPRECATED_API virtual void readByteSeq(::std::pair<const Byte*, const Byte*>&) = 0;
     ICE_DEPRECATED_API virtual Short* readShortSeq(::std::pair<const Short*, const Short*>&) = 0;
@@ -306,10 +331,17 @@ public:
 
     virtual ObjectPrx readProxy() = 0;
     virtual void readObject(const ReadObjectCallbackPtr&) = 0;
-    virtual ::std::string readTypeId() = 0;
-    virtual void throwException() = 0;
 
-    virtual void startSlice() = 0;
+    virtual void throwException() = 0;
+    virtual void throwException(const UserExceptionReaderFactoryPtr&) = 0;
+
+    virtual void startObject() = 0;
+    virtual SlicedDataPtr endObject(bool) = 0;
+
+    virtual void startException() = 0;
+    virtual SlicedDataPtr endException(bool) = 0;
+
+    virtual std::string startSlice() = 0;
     virtual void endSlice() = 0;
     virtual void skipSlice() = 0;
 
@@ -320,7 +352,7 @@ public:
     virtual void readPendingObjects() = 0;
 
     virtual void rewind() = 0;
-    
+
     virtual void read(bool&) = 0;
     virtual void read(Byte&) = 0;
     virtual void read(Short&) = 0;
@@ -331,7 +363,7 @@ public:
     virtual void read(::std::string&, bool = true) = 0;
     virtual void read(::std::vector< ::std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void read(::std::wstring&) = 0;
-    
+
     virtual void read(::std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
     virtual void read(::std::pair<const Byte*, const Byte*>&) = 0;
     virtual void read(::std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&) = 0;
@@ -339,7 +371,7 @@ public:
     virtual void read(::std::pair<const Long*, const Long*>&, ::IceUtil::ScopedArray<Long>&) = 0;
     virtual void read(::std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&) = 0;
     virtual void read(::std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&) = 0;
-    
+
     template<typename T> inline void
     read(::IceInternal::ProxyHandle<T>& v)
     {
@@ -362,21 +394,14 @@ public:
         readObject(cb);
     }
 
-//
-// COMPILERFIX: VC++ 6 compiler bugs doesn't allow using templates for
-// the Stream API.
-//
-// see: http://support.microsoft.com/kb/240866
-//      http://support.microsoft.com/kb/241569
-//
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
     template<typename T> inline void
     read(T& v)
     {
         StreamReader< StreamTrait<T>::type>::read(this, v);
     }
-#endif
 
+    virtual void closure(void*) = 0;
+    virtual void* closure() const = 0;
 };
 
 class ICE_API OutputStream : public ::IceUtil::Shared
@@ -393,9 +418,9 @@ public:
     ICE_DEPRECATED_API virtual void writeFloat(Float) = 0;
     ICE_DEPRECATED_API virtual void writeDouble(Double) = 0;
     ICE_DEPRECATED_API virtual void writeString(const ::std::string&, bool = true) = 0;
-    ICE_DEPRECATED_API virtual void writeWstring(const ::std::wstring&)= 0;    
-    
-    ICE_DEPRECATED_API virtual void writeBoolSeq(const ::std::vector<bool>&) = 0;    
+    ICE_DEPRECATED_API virtual void writeWstring(const ::std::wstring&)= 0;
+
+    ICE_DEPRECATED_API virtual void writeBoolSeq(const ::std::vector<bool>&) = 0;
     ICE_DEPRECATED_API virtual void writeByteSeq(const ::std::vector<Byte>&) = 0;
     ICE_DEPRECATED_API virtual void writeShortSeq(const ::std::vector<Short>&) = 0;
     ICE_DEPRECATED_API virtual void writeIntSeq(const ::std::vector<Int>&) = 0;
@@ -407,7 +432,7 @@ public:
 
     ICE_DEPRECATED_API virtual void writeBoolSeq(const bool*, const bool*) = 0;
     ICE_DEPRECATED_API virtual void writeByteSeq(const Byte*, const Byte*) = 0;
-    ICE_DEPRECATED_API virtual void writeShortSeq(const Short*, const Short*) = 0;    
+    ICE_DEPRECATED_API virtual void writeShortSeq(const Short*, const Short*) = 0;
     ICE_DEPRECATED_API virtual void writeIntSeq(const Int*, const Int*) = 0;
     ICE_DEPRECATED_API virtual void writeLongSeq(const Long*, const Long*) = 0;
     ICE_DEPRECATED_API virtual void writeFloatSeq(const Float*, const Float*) = 0;
@@ -416,10 +441,17 @@ public:
     virtual void writeSize(Int) = 0;
     virtual void writeProxy(const ObjectPrx&) = 0;
     virtual void writeObject(const ObjectPtr&) = 0;
-    virtual void writeTypeId(const ::std::string&) = 0;
     virtual void writeException(const UserException&) = 0;
 
-    virtual void startSlice() = 0;
+    virtual void format(FormatType) = 0;
+
+    virtual void startObject(const SlicedDataPtr&) = 0;
+    virtual void endObject() = 0;
+
+    virtual void startException(const SlicedDataPtr&) = 0;
+    virtual void endException() = 0;
+
+    virtual void startSlice(const ::std::string&, bool) = 0;
     virtual void endSlice() = 0;
 
     virtual void startEncapsulation(const Ice::EncodingVersion&) = 0;
@@ -431,7 +463,7 @@ public:
     virtual void finished(::std::vector<Byte>&) = 0;
 
     virtual void reset(bool) = 0;
-    
+
     virtual void write(bool) = 0;
     virtual void write(Byte) = 0;
     virtual void write(Short) = 0;
@@ -450,8 +482,8 @@ public:
     virtual void write(const Int*, const Int*) = 0;
     virtual void write(const Long*, const Long*) = 0;
     virtual void write(const Float*, const Float*) = 0;
-    virtual void write(const Double*, const Double*) = 0;    
-    
+    virtual void write(const Double*, const Double*) = 0;
+
     template<typename T> inline void
     write(const ::IceInternal::ProxyHandle<T>& v)
     {
@@ -464,34 +496,13 @@ public:
         writeObject(v);
     }
 
-
-//
-// COMPILERFIX: VC++ 6 compiler bugs doesn't allow using templates for
-// the Stream API.
-//
-// see: http://support.microsoft.com/kb/240866
-//      http://support.microsoft.com/kb/241569
-//
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
     template<typename T> inline void
     write(const T& v)
     {
         StreamWriter<StreamTrait<T>::type>::write(this, v);
-    }    
-#endif
-
-protected:
-    
+    }
 };
 
-//
-// COMPILERFIX: VC++ 6 compiler bugs doesn't allow using templates for
-// the Stream API.
-//
-// see: http://support.microsoft.com/kb/240866
-//      http://support.microsoft.com/kb/241569
-//
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
 template<> // StreamWriter specialization for structs
 struct StreamWriter<StreamTraitTypeStruct>
 {
@@ -561,7 +572,6 @@ struct StreamReader<StreamTraitTypeByteEnum>
         v = static_cast<T>(val);
     }
 };
-
 
 template<> // StreamWriter specialization for short enums
 struct StreamWriter<StreamTraitTypeShortEnum>
@@ -732,21 +742,19 @@ struct StreamWriter<StreamTraitTypeUserException>
     }
 };
 
-#endif
-
 class ICE_API ObjectReader : public Object
 {
 public:
 
-    virtual void read(const InputStreamPtr&, bool) = 0;
+    virtual void read(const InputStreamPtr&) = 0;
 
 private:
 
     virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool = true);
+    virtual void __read(::IceInternal::BasicStream*);
 
     virtual void __write(const OutputStreamPtr&) const;
-    virtual void __read(const InputStreamPtr&, bool);
+    virtual void __read(const InputStreamPtr&);
 };
 typedef ::IceInternal::Handle<ObjectReader> ObjectReaderPtr;
 
@@ -766,7 +774,6 @@ private:
 };
 typedef ::IceInternal::Handle<ObjectWriter> ObjectWriterPtr;
 
-
 class ICE_API UserExceptionWriter : public UserException
 {
 public:
@@ -782,7 +789,7 @@ public:
     virtual void ice_throw() const = 0;
 
     virtual void __write(IceInternal::BasicStream*) const;
-    virtual void __read(IceInternal::BasicStream*, bool);
+    virtual void __read(IceInternal::BasicStream*);
 
     virtual bool __usesClasses() const;
 

@@ -18,6 +18,7 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
+#include <Ice/SlicedData.h>
 
 using namespace std;
 using namespace IcePy;
@@ -162,6 +163,31 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
+static bool
+getUsesClasses(PyObject* ex, bool dflt)
+{
+    if(PyObject_HasAttrString(ex, STRCAST("_ice_usesClasses")))
+    {
+        PyObjectHandle m = PyObject_GetAttrString(ex, STRCAST("_ice_usesClasses"));
+        assert(m.get());
+        int isTrue = PyObject_IsTrue(m.get());
+        assert(isTrue >= 0);
+        return isTrue ? true : false;
+    }
+
+    return dflt;
+}
+
+static void
+setUsesClasses(PyObject* ex, bool v)
+{
+    if(PyObject_SetAttrString(ex, STRCAST("_ice_usesClasses"), v ? getTrue() : getFalse()) < 0)
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+}
+
 //
 // addClassInfo()
 //
@@ -229,6 +255,240 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
     //
 //    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
+}
+
+//
+// SlicedDataUtil implementation
+//
+PyObject* IcePy::SlicedDataUtil::_slicedDataType = 0;
+PyObject* IcePy::SlicedDataUtil::_sliceInfoType = 0;
+
+IcePy::SlicedDataUtil::SlicedDataUtil()
+{
+}
+
+IcePy::SlicedDataUtil::~SlicedDataUtil()
+{
+    //
+    // Make sure we break any cycles among the objects in preserved slices.
+    //
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        (*p)->getSlicedData()->clearObjects();
+    }
+}
+
+void
+IcePy::SlicedDataUtil::add(const ObjectReaderPtr& reader)
+{
+    assert(reader->getSlicedData());
+    _readers.insert(reader);
+}
+
+void
+IcePy::SlicedDataUtil::update()
+{
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        setMember((*p)->getObject(), (*p)->getSlicedData());
+    }
+}
+
+void
+IcePy::SlicedDataUtil::setMember(PyObject* obj, const Ice::SlicedDataPtr& slicedData)
+{
+    //
+    // Create a Python equivalent of the SlicedData object.
+    //
+
+    assert(slicedData);
+
+    if(!_slicedDataType)
+    {
+        _slicedDataType = lookupType("Ice.SlicedData");
+        assert(_slicedDataType);
+    }
+    if(!_sliceInfoType)
+    {
+        _sliceInfoType = lookupType("Ice.SliceInfo");
+        assert(_sliceInfoType);
+    }
+
+    IcePy::PyObjectHandle args = PyTuple_New(0);
+    if(!args.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    PyObjectHandle sd = PyEval_CallObject(_slicedDataType, args.get());
+    if(!sd.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    PyObjectHandle slices = PyTuple_New(slicedData->slices.size());
+    if(!slices.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    if(PyObject_SetAttrString(sd.get(), STRCAST("slices"), slices.get()) < 0)
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    //
+    // Translate each SliceInfo object into its Python equivalent.
+    //
+    int i = 0;
+    for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    {
+        PyObjectHandle slice = PyEval_CallObject(_sliceInfoType, args.get());
+        if(!slice.get())
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        PyTuple_SET_ITEM(slices.get(), i++, slice.get());
+        Py_INCREF(slice.get()); // PyTuple_SET_ITEM steals a reference.
+
+        //
+        // typeId
+        //
+        PyObjectHandle typeId = createString((*p)->typeId);
+        if(!typeId.get() || PyObject_SetAttrString(slice.get(), STRCAST("typeId"), typeId.get()) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        //
+        // bytes
+        //
+        PyObjectHandle bytes =
+            PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+        if(!bytes.get() || PyObject_SetAttrString(slice.get(), STRCAST("bytes"), bytes.get()) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        //
+        // objects
+        //
+        PyObjectHandle objects = PyTuple_New((*p)->objects.size());
+        if(!objects.get() || PyObject_SetAttrString(slice.get(), STRCAST("objects"), objects.get()) < 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        int j = 0;
+        for(vector<Ice::ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        {
+            //
+            // Each element in the objects list is an instance of ObjectReader that wraps a Python object.
+            //
+            assert(*q);
+            ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
+            assert(r);
+            PyObject* obj = r->getObject();
+            assert(obj != Py_None); // Should be non-nil.
+            PyTuple_SET_ITEM(objects.get(), j++, obj);
+            Py_INCREF(obj); // PyTuple_SET_ITEM steals a reference.
+        }
+    }
+
+    if(PyObject_SetAttrString(obj, STRCAST("_ice_slicedData"), sd.get()) < 0)
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+}
+
+//
+// Instances of preserved class and exception types may have a data member
+// named _ice_slicedData which is an instance of the Python class Ice.SlicedData.
+//
+Ice::SlicedDataPtr
+IcePy::SlicedDataUtil::getMember(PyObject* obj, ObjectMap* objectMap)
+{
+    Ice::SlicedDataPtr slicedData;
+
+    if(PyObject_HasAttrString(obj, STRCAST("_ice_slicedData")))
+    {
+        PyObjectHandle sd = PyObject_GetAttrString(obj, STRCAST("_ice_slicedData"));
+        assert(sd.get());
+
+        if(sd.get() != Py_None)
+        {
+            //
+            // The "slices" member is a tuple of Ice.SliceInfo objects.
+            //
+            PyObjectHandle sl = PyObject_GetAttrString(sd.get(), STRCAST("slices"));
+            assert(sl.get());
+            assert(PyTuple_Check(sl.get()));
+
+            Ice::SliceInfoSeq slices;
+
+            Py_ssize_t sz = PyTuple_GET_SIZE(sl.get());
+            for(Py_ssize_t i = 0; i < sz; ++i)
+            {
+                PyObjectHandle s = PyTuple_GET_ITEM(sl.get(), i);
+                Py_INCREF(s.get());
+
+                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+
+                PyObjectHandle typeId = PyObject_GetAttrString(s.get(), STRCAST("typeId"));
+                assert(typeId.get());
+                assert(PyString_Check(typeId.get()));
+                info->typeId = getString(typeId.get());
+
+                PyObjectHandle bytes = PyObject_GetAttrString(s.get(), STRCAST("bytes"));
+                assert(bytes.get());
+                assert(PyString_Check(bytes.get()));
+                const char* str = PyString_AS_STRING(bytes.get());
+                Py_ssize_t strsz = PyString_GET_SIZE(bytes.get());
+                vector<Ice::Byte> vtmp(str, str + strsz);
+                info->bytes.swap(vtmp);
+
+                PyObjectHandle objects = PyObject_GetAttrString(s.get(), STRCAST("objects"));
+                assert(objects.get());
+                assert(PyTuple_Check(objects.get()));
+                Py_ssize_t osz = PyTuple_GET_SIZE(objects.get());
+                for(Py_ssize_t j = 0; j < osz; ++j)
+                {
+                    PyObject* o = PyTuple_GET_ITEM(objects.get(), j);
+
+                    Ice::ObjectPtr writer;
+
+                    ObjectMap::iterator i = objectMap->find(o);
+                    if(i == objectMap->end())
+                    {
+                        writer = new ObjectWriter(o, objectMap);
+                        objectMap->insert(ObjectMap::value_type(o, writer));
+                    }
+                    else
+                    {
+                        writer = i->second;
+                    }
+
+                    info->objects.push_back(writer);
+                }
+
+                slices.push_back(info);
+            }
+
+            slicedData = new Ice::SlicedData(slices);
+        }
+    }
+
+    return slicedData;
 }
 
 //
@@ -1988,15 +2248,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(p, STRCAST("_ice_type"));
-        if(!iceType.get())
-        {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
-        }
-        ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
-        assert(info);
-        writer = new ObjectWriter(info, p, objectMap);
+        writer = new ObjectWriter(p, objectMap);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }
     else
@@ -2202,10 +2454,19 @@ IcePy::ProxyInfo::destroy()
 //
 // ObjectWriter implementation.
 //
-IcePy::ObjectWriter::ObjectWriter(const ClassInfoPtr& info, PyObject* object, ObjectMap* objectMap) :
-    _info(info), _object(object), _map(objectMap)
+IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap) :
+    _object(object), _map(objectMap)
 {
     Py_INCREF(_object);
+
+    PyObjectHandle iceType = PyObject_GetAttrString(object, STRCAST("_ice_type"));
+    if(!iceType.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    _info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
+    assert(_info);
 }
 
 IcePy::ObjectWriter::~ObjectWriter()
@@ -2230,12 +2491,22 @@ IcePy::ObjectWriter::ice_preMarshal()
 void
 IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 {
+    Ice::SlicedDataPtr slicedData;
+
+    if(_info->preserve)
+    {
+        //
+        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
+        //
+        slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map));
+    }
+
+    os->startObject(slicedData);
+
     ClassInfoPtr info = _info;
     while(info)
     {
-        os->writeTypeId(info->id);
-
-        os->startSlice();
+        os->startSlice(info->id, !info->base);
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
@@ -2263,13 +2534,7 @@ IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         info = info->base;
     }
 
-    //
-    // Marshal the Ice::Object slice.
-    //
-    os->writeTypeId(Ice::Object::ice_staticId());
-    os->startSlice();
-    os->writeSize(0); // For compatibility with the old AFM.
-    os->endSlice();
+    os->endObject();
 }
 
 //
@@ -2301,8 +2566,10 @@ IcePy::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePy::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
+IcePy::ObjectReader::read(const Ice::InputStreamPtr& is)
 {
+    is->startObject();
+
     //
     // Unmarshal the slices of a user-defined class.
     //
@@ -2311,11 +2578,6 @@ IcePy::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
         ClassInfoPtr info = _info;
         while(info)
         {
-            if(rid)
-            {
-                is->readTypeId();
-            }
-
             is->startSlice();
             for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
             {
@@ -2324,28 +2586,18 @@ IcePy::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
             }
             is->endSlice();
 
-            rid = true;
-
             info = info->base;
         }
     }
 
-    //
-    // Unmarshal the Ice::Object slice.
-    //
-    if(rid)
-    {
-        is->readTypeId();
-    }
+    _slicedData = is->endObject(_info->preserve);
 
-    is->startSlice();
-    // For compatibility with the old AFM.
-    Ice::Int sz = is->readSize();
-    if(sz != 0)
+    if(_slicedData)
     {
-        throw Ice::MarshalException(__FILE__, __LINE__);
+        SlicedDataUtil* util = reinterpret_cast<SlicedDataUtil*>(is->closure());
+        assert(util);
+        util->add(this);
     }
-    is->endSlice();
 }
 
 ClassInfoPtr
@@ -2358,6 +2610,12 @@ PyObject*
 IcePy::ObjectReader::getObject() const
 {
     return _object;
+}
+
+Ice::SlicedDataPtr
+IcePy::ObjectReader::getSlicedData() const
+{
+    return _slicedData;
 }
 
 //
@@ -2436,12 +2694,22 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         throw AbortMarshaling();
     }
 
+    Ice::SlicedDataPtr slicedData;
+
+    if(preserve)
+    {
+        //
+        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
+        //
+        slicedData = SlicedDataUtil::getMember(p, objectMap);
+    }
+
+    os->startException(slicedData);
+
     ExceptionInfoPtr info = this;
     while(info)
     {
-        os->write(info->id);
-
-        os->startSlice();
+        os->startSlice(info->id, !info->base);
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
@@ -2468,6 +2736,8 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
 
         info = info->base;
     }
+
+    os->endException();
 }
 
 PyObject*
@@ -2475,13 +2745,11 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 {
     PyObjectHandle p = createExceptionInstance(pythonType.get());
 
-    //
-    // NOTE: The type id for the first slice has already been read.
-    //
     ExceptionInfoPtr info = this;
     while(info)
     {
         is->startSlice();
+
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
@@ -2490,11 +2758,6 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         is->endSlice();
 
         info = info->base;
-        if(info)
-        {
-            string id;
-            is->read(id); // Read the ID of the next slice.
-        }
     }
 
     return p.release();
@@ -2546,13 +2809,19 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
 //
 // ExceptionWriter implementation.
 //
-IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator, const PyObjectHandle& ex) :
-    Ice::UserExceptionWriter(communicator), _ex(ex)
+IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator, const PyObjectHandle& ex,
+                                        const ExceptionInfoPtr& info) :
+    Ice::UserExceptionWriter(communicator), _ex(ex), _info(info)
 {
-    PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("_ice_type"));
-    assert(iceType.get());
-    _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
-    assert(_info);
+    if(!info)
+    {
+        PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("_ice_type"));
+        assert(iceType.get());
+        _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
+        assert(_info);
+    }
+
+    _usesClasses = getUsesClasses(_ex.get(), _info->usesClasses);
 }
 
 IcePy::ExceptionWriter::~ExceptionWriter() throw()
@@ -2567,14 +2836,13 @@ IcePy::ExceptionWriter::write(const Ice::OutputStreamPtr& os) const
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    ObjectMap objectMap;
-    _info->marshal(_ex.get(), os, &objectMap);
+    _info->marshal(_ex.get(), os, const_cast<ObjectMap*>(&_objects));
 }
 
 bool
 IcePy::ExceptionWriter::usesClasses() const
 {
-    return _info->usesClasses;
+    return _usesClasses;
 }
 
 string
@@ -2593,6 +2861,79 @@ void
 IcePy::ExceptionWriter::ice_throw() const
 {
     throw *this;
+}
+
+//
+// ExceptionReader implementation.
+//
+IcePy::ExceptionReader::ExceptionReader(const Ice::CommunicatorPtr& communicator, const ExceptionInfoPtr& info) :
+    Ice::UserExceptionReader(communicator), _info(info)
+{
+}
+
+IcePy::ExceptionReader::~ExceptionReader() throw()
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    _ex = 0;
+}
+
+void
+IcePy::ExceptionReader::read(const Ice::InputStreamPtr& is) const
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    is->startException();
+
+    const_cast<PyObjectHandle&>(_ex) = _info->unmarshal(is);
+
+    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+}
+
+bool
+IcePy::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
+void
+IcePy::ExceptionReader::usesClasses(bool b)
+{
+    if(_info->preserve)
+    {
+        setUsesClasses(_ex.get(), b);
+    }
+}
+
+string
+IcePy::ExceptionReader::ice_name() const
+{
+    return _info->id;
+}
+
+Ice::Exception*
+IcePy::ExceptionReader::ice_clone() const
+{
+    assert(false);
+    return 0;
+}
+
+void
+IcePy::ExceptionReader::ice_throw() const
+{
+    throw *this;
+}
+
+PyObject*
+IcePy::ExceptionReader::getException() const
+{
+    return _ex.get();
+}
+
+Ice::SlicedDataPtr
+IcePy::ExceptionReader::getSlicedData() const
+{
+    return _slicedData;
 }
 
 //
@@ -3109,10 +3450,12 @@ IcePy_defineClass(PyObject*, PyObject* args)
     PyObject* type;
     PyObject* meta;
     int isAbstract;
+    int preserve;
     PyObject* base;
     PyObject* interfaces;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOOiOOO"), &id, &type, &meta, &isAbstract, &base, &interfaces, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOOiiOOO"), &id, &type, &meta, &isAbstract, &preserve, &base, &interfaces,
+                         &members))
     {
         return 0;
     }
@@ -3137,6 +3480,7 @@ IcePy_defineClass(PyObject*, PyObject* args)
     }
 
     info->isAbstract = isAbstract ? true : false;
+    info->preserve = preserve ? true : false;
 
     if(base != Py_None)
     {
@@ -3172,9 +3516,10 @@ IcePy_defineException(PyObject*, PyObject* args)
     char* id;
     PyObject* type;
     PyObject* meta;
+    int preserve;
     PyObject* base;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOOOO"), &id, &type, &meta, &base, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOOiOO"), &id, &type, &meta, &preserve, &base, &members))
     {
         return 0;
     }
@@ -3189,6 +3534,8 @@ IcePy_defineException(PyObject*, PyObject* args)
 
     ExceptionInfoPtr info = new ExceptionInfo;
     info->id = id;
+
+    info->preserve = preserve ? true : false;
 
     if(base != Py_None)
     {

@@ -483,6 +483,25 @@ Slice::operationModeToString(Operation::Mode mode)
     return "???"; 
 }
 
+string
+Slice::formatTypeToString(FormatType type)
+{
+    switch(type)
+    {
+    case DefaultFormat:
+        return "::Ice::DefaultFormat";
+    case CompactFormat:
+        return "::Ice::CompactFormat";
+    case SlicedFormat:
+        return "::Ice::SlicedFormat";
+
+    default:
+        assert(false);
+    }
+
+    return "???";
+}
+
 //
 // If the passed name is a keyword, return the name with a "_cxx_" prefix;
 // otherwise, return the name unchanged.
@@ -634,8 +653,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
         }
         else
         {
-            out << nl << stream << deref << "read("
-                << scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam << ");";
+            out << nl << stream << deref << "read(" << scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam
+                << ");";
         }
 
         return;

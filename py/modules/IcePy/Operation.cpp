@@ -57,7 +57,7 @@ class Operation : public IceUtil::Shared
 {
 public:
 
-    Operation(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
+    Operation(const char*, PyObject*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
     void deprecate(const string&);
 
@@ -65,6 +65,7 @@ public:
     Ice::OperationMode mode;
     Ice::OperationMode sendMode;
     bool amd;
+    Ice::FormatType format;
     Ice::StringSeq metaData;
     ParamInfoList inParams;
     ParamInfoList outParams;
@@ -370,6 +371,29 @@ struct AsyncResultObject
 extern PyTypeObject OperationType;
 extern PyTypeObject AMDCallbackType;
 
+class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+{
+public:
+
+    UserExceptionReaderFactoryI(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
+    virtual void createAndThrow(const string& id) const
+    {
+        ExceptionInfoPtr info = lookupExceptionInfo(id);
+        if(info)
+        {
+            throw ExceptionReader(_communicator, info);
+        }
+    }
+
+private:
+
+    const Ice::CommunicatorPtr _communicator;
+};
+
 }
 
 namespace
@@ -505,19 +529,21 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* mode;
     PyObject* sendMode;
     int amd;
+    PyObject* format;
     PyObject* meta;
     PyObject* inParams;
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
-    if(!PyArg_ParseTuple(args, STRCAST("sO!O!iO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
-                         &PyTuple_Type, &meta, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams, &returnType,
-                         &PyTuple_Type, &exceptions))
+    if(!PyArg_ParseTuple(args, STRCAST("sO!O!iOO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
+                         &format, &PyTuple_Type, &meta, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams,
+                         &returnType, &PyTuple_Type, &exceptions))
     {
         return -1;
     }
 
-    OperationPtr op = new Operation(name, mode, sendMode, amd, meta, inParams, outParams, returnType, exceptions);
+    OperationPtr op = new Operation(name, mode, sendMode, amd, format, meta, inParams, outParams, returnType,
+                                    exceptions);
     self->op = new OperationPtr(op);
 
     return 0;
@@ -985,7 +1011,7 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 //
 // Operation implementation.
 //
-IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFlag, PyObject* meta,
+IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFlag, PyObject* fmt, PyObject* meta,
                             PyObject* in, PyObject* out, PyObject* ret, PyObject* ex)
 {
     name = n;
@@ -1015,6 +1041,20 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     else
     {
         dispatchName = fixIdent(name);
+    }
+
+    //
+    // format
+    //
+    if(fmt == Py_None)
+    {
+        format = Ice::DefaultFormat;
+    }
+    else
+    {
+        PyObjectHandle formatValue = PyObject_GetAttrString(fmt, STRCAST("value"));
+        format = (Ice::FormatType)static_cast<int>(PyLong_AsLong(formatValue.get()));
+        assert(!PyErr_Occurred());
     }
 
     //
@@ -1401,6 +1441,12 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             //
             Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
             os->startEncapsulation(_prx->ice_getEncodingVersion());
+
+            if(_op->sendsClasses && _op->format != Ice::DefaultFormat)
+            {
+                os->format(_op->format);
+            }
+
             ObjectMap objectMap;
             int i = 0;
             for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
@@ -1460,7 +1506,17 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
     if(results.get() && numResults > 0)
     {
         Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+
+        //
+        // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+        // This is necessary to support object unmarshaling (see ObjectReader).
+        //
+        SlicedDataUtil util;
+        assert(!is->closure());
+        is->closure(&util);
+
         is->startEncapsulation();
+
         for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
         {
             void* closure = reinterpret_cast<void*>(i);
@@ -1476,6 +1532,9 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         {
             is->readPendingObjects();
         }
+
+        util.update();
+
         is->endEncapsulation();
     }
 
@@ -1485,76 +1544,48 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 PyObject*
 IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    int traceSlicing = -1;
-
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator, bytes);
+
+    //
+    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // This is necessary to support object unmarshaling (see ObjectReader).
+    //
+    SlicedDataUtil util;
+    assert(!is->closure());
+    is->closure(&util);
+
     is->startEncapsulation();
 
-    bool usesClasses;
-    is->read(usesClasses);
-
-    string id;
-    is->read(id);
-    const string origId = id;
-
-    while(!id.empty())
+    try
     {
-        ExceptionInfoPtr info = lookupExceptionInfo(id);
-        if(info)
+        Ice::UserExceptionReaderFactoryPtr factory = new UserExceptionReaderFactoryI(_communicator);
+        is->throwException(factory);
+    }
+    catch(const ExceptionReader& r)
+    {
+        PyObject* ex = r.getException();
+
+        if(validateException(ex))
         {
-            PyObjectHandle ex = info->unmarshal(is);
-            if(info->usesClasses)
+            util.update();
+
+            Ice::SlicedDataPtr slicedData = r.getSlicedData();
+            if(slicedData)
             {
-                is->readPendingObjects();
+                SlicedDataUtil::setMember(ex, slicedData);
             }
 
-            if(validateException(ex.get()))
-            {
-                return ex.release();
-            }
-            else
-            {
-                PyException pye(ex.get()); // No traceback information available.
-                pye.raise();
-            }
+            Py_INCREF(ex);
+            return ex;
         }
         else
         {
-            if(traceSlicing == -1)
-            {
-                traceSlicing = _communicator->getProperties()->getPropertyAsInt("Ice.Trace.Slicing") > 0;
-            }
-
-            if(traceSlicing > 0)
-            {
-                _communicator->getLogger()->trace("Slicing", "unknown exception type `" + id + "'");
-            }
-
-            is->skipSlice(); // Slice off what we don't understand.
-
-            try
-            {
-                is->read(id); // Read type id for next slice.
-            }
-            catch(Ice::UnmarshalOutOfBoundsException& ex)
-            {
-                //
-                // When readString raises this exception it means we've seen the last slice,
-                // so we set the reason member to a more helpful message.
-                //
-                ex.reason = "unknown exception type `" + origId + "'";
-                throw;
-            }
+            PyException pye(ex); // No traceback information available.
+            pye.raise();
         }
     }
 
-    //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have a factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
-    //
-    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
+    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
 }
 
 bool
@@ -2106,7 +2137,8 @@ IcePy::OldAsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
     try
     {
         checkTwowayOnly(_prx);
-        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),static_cast<const Ice::Byte*>(0));
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(static_cast<const Ice::Byte*>(0),
+                                                         static_cast<const Ice::Byte*>(0));
         if(!params.empty())
         {
             pparams.first = &params[0];
@@ -3181,6 +3213,12 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
             }
 
             os->startEncapsulation(encoding);
+
+            if(_op->returnsClasses && _op->format != Ice::DefaultFormat)
+            {
+                os->format(_op->format);
+            }
+
             ObjectMap objectMap;
 
             for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
@@ -3309,16 +3347,17 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
                 {
                     Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
                     os->startEncapsulation(encoding);
-                    os->write(info->usesClasses);
 
-                    ObjectMap objectMap;
-                    info->marshal(ex.ex.get(), os, &objectMap);
-
-                    if(info->usesClasses)
+                    if(_op->format != Ice::DefaultFormat)
                     {
-                        os->writePendingObjects();
+                        os->format(_op->format);
                     }
+
+                    ExceptionWriter writer(_communicator, ex.ex, info);
+                    os->writeException(writer);
+
                     os->endEncapsulation();
+
                     Ice::ByteSeq bytes;
                     os->finished(bytes);
                     pair<const Ice::Byte*, const Ice::Byte*> ob(static_cast<const Ice::Byte*>(0),

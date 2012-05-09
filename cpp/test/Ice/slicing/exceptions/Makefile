@@ -17,6 +17,7 @@ TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
 COBJS		= Test.o \
 		  Client.o \
+		  ClientPrivate.o \
 		  AllTests.o
 
 SOBJS		= Test.o \
@@ -33,7 +34,7 @@ SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
 		  $(SAMDOBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice TestAMD.ice ServerPrivate.ice ServerPrivateAMD.ice
+SLICE_SRCS	= Test.ice TestAMD.ice ClientPrivate.ice ServerPrivate.ice ServerPrivateAMD.ice
 
 include $(top_srcdir)/config/Make.rules
 

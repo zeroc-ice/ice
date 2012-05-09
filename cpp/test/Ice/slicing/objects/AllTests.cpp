@@ -10,7 +10,6 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <ClientPrivate.h>
-#include <sstream>
 
 using namespace std;
 using namespace Test;
@@ -95,6 +94,19 @@ public:
     response_SBSUnknownDerivedAsSBase(const SBasePtr& sb)
     {
         test(sb->sb == "SBSUnknownDerived.sb");
+        called();
+    }
+
+    void
+    response_SBSUnknownDerivedAsSBaseCompact(const SBasePtr& sb)
+    {
+        test(false);
+    }
+
+    void
+    exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
+    {
+        test(exc.ice_name() == "Ice::MarshalException");
         called();
     }
 
@@ -355,11 +367,76 @@ public:
         called();
     }
 
+    void
+    response_preserved1(const PBasePtr& r)
+    {
+        PDerivedPtr pd = PDerivedPtr::dynamicCast(r);
+        test(pd);
+        test(pd->pi == 3);
+        test(pd->ps == "preserved");
+        test(pd->pb == pd);
+        called();
+    }
+
+    void
+    response_preserved2(const PBasePtr& r)
+    {
+        PCUnknownPtr p2 = PCUnknownPtr::dynamicCast(r);
+        test(!p2);
+        test(r->pi == 3);
+        called();
+    }
+
+    void
+    response_preserved3(const PBasePtr& r)
+    {
+        //
+        // Encoding 1.0
+        //
+        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        test(!p2);
+        test(r->pi == 3);
+        called();
+    }
+
+    void
+    response_preserved4(const PBasePtr& r)
+    {
+        //
+        // Encoding > 1.0
+        //
+        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        test(p2);
+        test(p2->pi == 3);
+        test(p2->pbs[0] == p2);
+        called();
+    }
+
+    void
+    response_preserved5(const PBasePtr& r)
+    {
+        PCDerived3Ptr p3 = PCDerived3Ptr::dynamicCast(r);
+        test(p3);
+        test(p3->pi == 3);
+        for(int i = 0; i < 300; ++i)
+        {
+            PCDerived2Ptr p2 = PCDerived2Ptr::dynamicCast(p3->pbs[i]);
+            test(p2->pi == i);
+            test(p2->pbs.size() == 1);
+            test(!p2->pbs[0]);
+            test(p2->pcd2 == i);
+        }
+        test(p3->pcd2 == p3->pi);
+        test(p3->pcd3 == p3->pbs[10]);
+        called();
+    }
+
     void 
     response()
     {
         test(false);
     }
+
     void 
     exception(const ::Ice::Exception&)
     {
@@ -371,8 +448,81 @@ public:
     BDict rbdict;
     BDict obdict;
 };
-
 typedef IceUtil::Handle<Callback> CallbackPtr;
+
+class PNodeI : virtual public PNode
+{
+public:
+
+    PNodeI()
+    {
+        ++counter;
+    }
+
+    virtual ~PNodeI()
+    {
+        --counter;
+    }
+
+    static int counter;
+};
+
+int PNodeI::counter = 0;
+
+class NodeFactoryI : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr create(const string& id)
+    {
+        if(id == PNode::ice_staticId())
+        {
+            return new PNodeI;
+        }
+        return 0;
+    }
+
+    virtual void destroy()
+    {
+    }
+};
+
+class PreservedI : virtual public Preserved
+{
+public:
+
+    PreservedI()
+    {
+        ++counter;
+    }
+
+    virtual ~PreservedI()
+    {
+        --counter;
+    }
+
+    static int counter;
+};
+
+int PreservedI::counter = 0;
+
+class PreservedFactoryI : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr create(const string& id)
+    {
+        if(id == Preserved::ice_staticId())
+        {
+            return new PreservedI;
+        }
+        return 0;
+    }
+
+    virtual void destroy()
+    {
+    }
+};
 
 void
 testUOO(const TestIntfPrx& test)
@@ -515,6 +665,42 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
+
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            try
+            {
+                //
+                // This test succeeds for the 1.0 encoding.
+                //
+                sb = test->SBSUnknownDerivedAsSBaseCompact();
+                test(sb->sb == "SBSUnknownDerived.sb");
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
+        else
+        {
+            try
+            {
+                //
+                // This test fails when using the compact format because the instance cannot
+                // be sliced to a known type.
+                //
+                sb = test->SBSUnknownDerivedAsSBaseCompact();
+                test(false);
+            }
+            catch(const Ice::MarshalException&)
+            {
+                // Expected.
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
     }
     cout << "ok" << endl;
 
@@ -524,6 +710,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test->begin_SBSUnknownDerivedAsSBase(
             newCallback_TestIntf_SBSUnknownDerivedAsSBase(
                 cb, &Callback::response_SBSUnknownDerivedAsSBase, &Callback::exception));
+        cb->check();
+    }
+    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    {
+        //
+        // This test succeeds for the 1.0 encoding.
+        //
+        CallbackPtr cb = new Callback;
+        test->begin_SBSUnknownDerivedAsSBaseCompact(
+            newCallback_TestIntf_SBSUnknownDerivedAsSBaseCompact(
+                cb, &Callback::response_SBSUnknownDerivedAsSBase, &Callback::exception));
+        cb->check();
+    }
+    else
+    {
+        //
+        // This test fails when using the compact format because the instance cannot
+        // be sliced to a known type.
+        //
+        CallbackPtr cb = new Callback;
+        test->begin_SBSUnknownDerivedAsSBaseCompact(
+            newCallback_TestIntf_SBSUnknownDerivedAsSBaseCompact(
+                cb, &Callback::response_SBSUnknownDerivedAsSBaseCompact,
+                &Callback::exception_SBSUnknownDerivedAsSBaseCompact));
         cb->check();
     }
     cout << "ok" << endl;
@@ -1694,6 +1904,345 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test->begin_useForward(
             newCallback_TestIntf_useForward(cb, &Callback::response_useForward, &Callback::exception));
         cb->check();
+    }
+    cout << "ok" << endl;
+
+    cout << "preserved classes... " << flush;
+    {
+        //
+        // Server knows the most-derived class PDerived.
+        //
+        PDerivedPtr pd = new PDerived;
+        pd->pi = 3;
+        pd->ps = "preserved";
+        pd->ps = "preserved";
+        pd->pb = pd;
+
+        PBasePtr r = test->exchangePBase(pd);
+        PDerivedPtr p2 = PDerivedPtr::dynamicCast(r);
+        test(p2);
+        test(p2->pi == 3);
+        test(p2->ps == "preserved");
+        test(p2->pb == p2);
+    }
+
+    {
+        //
+        // Server only knows the base (non-preserved) type, so the object is sliced.
+        //
+        PCUnknownPtr pu = new PCUnknown;
+        pu->pi = 3;
+        pu->pu = "preserved";
+
+        PBasePtr r = test->exchangePBase(pu);
+        PCUnknownPtr p2 = PCUnknownPtr::dynamicCast(r);
+        test(!p2);
+        test(r->pi == 3);
+    }
+
+    {
+        //
+        // Server only knows the intermediate type Preserved. The object will be sliced to
+        // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+        //
+        PCDerivedPtr pcd = new PCDerived;
+        pcd->pi = 3;
+        pcd->pbs.push_back(pcd);
+
+        PBasePtr r = test->exchangePBase(pcd);
+        PCDerivedPtr p2 = PCDerivedPtr::dynamicCast(r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!p2);
+            test(r->pi == 3);
+        }
+        else
+        {
+            test(p2);
+            test(p2->pi == 3);
+            test(p2->pbs[0] == p2);
+        }
+    }
+
+    {
+        //
+        // Send an object that will have multiple preserved slices in the server.
+        // The object will be sliced to Preserved for the 1.0 encoding.
+        //
+        PCDerived3Ptr pcd = new PCDerived3;
+        pcd->pi = 3;
+        //
+        // Sending more than 254 objects exercises the encoding for object ids.
+        //
+        int i;
+        for(i = 0; i < 300; ++i)
+        {
+            PCDerived2Ptr p2 = new PCDerived2;
+            p2->pi = i;
+            p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
+            p2->pcd2 = i;
+            pcd->pbs.push_back(p2);
+        }
+        pcd->pcd2 = pcd->pi;
+        pcd->pcd3 = pcd->pbs[10];
+
+        PBasePtr r = test->exchangePBase(pcd);
+        PCDerived3Ptr p3 = PCDerived3Ptr::dynamicCast(r);
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!p3);
+            test(PreservedPtr::dynamicCast(r));
+            test(r->pi == 3);
+        }
+        else
+        {
+            test(p3);
+            test(p3->pi == 3);
+            for(i = 0; i < 300; ++i)
+            {
+                PCDerived2Ptr p2 = PCDerived2Ptr::dynamicCast(p3->pbs[i]);
+                test(p2->pi == i);
+                test(p2->pbs.size() == 1);
+                test(!p2->pbs[0]);
+                test(p2->pcd2 == i);
+            }
+            test(p3->pcd2 == p3->pi);
+            test(p3->pcd3 == p3->pbs[10]);
+        }
+    }
+
+    {
+        //
+        // Obtain an object with preserved slices and send it back to the server.
+        // The preserved slices should be excluded for the 1.0 encoding, otherwise
+        // they should be included.
+        //
+        PreservedPtr p = test->PBSUnknownAsPreserved();
+        test->checkPBSUnknown(p);
+        if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
+        {
+            test->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
+        }
+    }
+
+    cout << "ok" << endl;
+
+    cout << "preserved classes (AMI)... " << flush;
+    {
+        //
+        // Server knows the most-derived class PDerived.
+        //
+        PDerivedPtr pd = new PDerived;
+        pd->pi = 3;
+        pd->ps = "preserved";
+        pd->ps = "preserved";
+        pd->pb = pd;
+
+        CallbackPtr cb = new Callback;
+        test->begin_exchangePBase(
+            pd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved1, &Callback::exception));
+        cb->check();
+    }
+
+    {
+        //
+        // Server only knows the base (non-preserved) type, so the object is sliced.
+        //
+        PCUnknownPtr pu = new PCUnknown;
+        pu->pi = 3;
+        pu->pu = "preserved";
+
+        CallbackPtr cb = new Callback;
+        test->begin_exchangePBase(
+            pu, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved2, &Callback::exception));
+        cb->check();
+    }
+
+    {
+        //
+        // Server only knows the intermediate type Preserved. The object will be sliced to
+        // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+        //
+        PCDerivedPtr pcd = new PCDerived;
+        pcd->pi = 3;
+        pcd->pbs.push_back(pcd);
+
+        CallbackPtr cb = new Callback;
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test->begin_exchangePBase(
+                pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved3, &Callback::exception));
+        }
+        else
+        {
+            test->begin_exchangePBase(
+                pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved4, &Callback::exception));
+        }
+        cb->check();
+    }
+
+    {
+        //
+        // Send an object that will have multiple preserved slices in the server.
+        // The object will be sliced to Preserved for the 1.0 encoding.
+        //
+        PCDerived3Ptr pcd = new PCDerived3;
+        pcd->pi = 3;
+        //
+        // Sending more than 254 objects exercises the encoding for object ids.
+        //
+        int i;
+        for(i = 0; i < 300; ++i)
+        {
+            PCDerived2Ptr p2 = new PCDerived2;
+            p2->pi = i;
+            p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
+            p2->pcd2 = i;
+            pcd->pbs.push_back(p2);
+        }
+        pcd->pcd2 = pcd->pi;
+        pcd->pcd3 = pcd->pbs[10];
+
+        CallbackPtr cb = new Callback;
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test->begin_exchangePBase(
+                pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved3, &Callback::exception));
+        }
+        else
+        {
+            test->begin_exchangePBase(
+                pcd, newCallback_TestIntf_exchangePBase(cb, &Callback::response_preserved5, &Callback::exception));
+        }
+        cb->check();
+    }
+    cout << "ok" << endl;
+
+    cout << "garbage collection for preserved classes... " << flush;
+    {
+        //
+        // Register a factory in order to substitute our own subclass of PNode. This provides
+        // an easy way to determine how many unmarshaled instances currently exist.
+        //
+        communicator->addObjectFactory(new NodeFactoryI, PNode::ice_staticId());
+
+        //
+        // Relay a graph through the server. This test uses a preserved class
+        // with a class member, so the preserved class already supports GC.
+        //
+        {
+            PNodePtr c = new PNode;
+            c->next = new PNode;
+            c->next->next = new PNode;
+            c->next->next->next = c;
+
+            test(PNodeI::counter == 0);
+            PNodePtr n = test->exchangePNode(c);
+
+            c->next->next->next = 0; // Break the cycle.
+
+            test(PNodeI::counter == 3);
+            Ice::collectGarbage();          // No effect.
+            test(PNodeI::counter == 3);
+            n = 0;                          // Release reference.
+            Ice::collectGarbage();
+            test(PNodeI::counter == 0);
+        }
+
+        //
+        // Obtain a preserved object from the server where the most-derived
+        // type is unknown. The preserved slice refers to a graph of PNode
+        // objects.
+        //
+        {
+            test(PNodeI::counter == 0);
+            PreservedPtr p = test->PBSUnknownAsPreservedWithGraph();
+            test->checkPBSUnknownWithGraph(p);
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                //
+                // Although the unknown slice is ignored, the PNode instances are still
+                // unmarshaled and their graph is not destroyed until we collect garbage.
+                //
+                test(PNodeI::counter == 3);
+                Ice::collectGarbage();
+                test(PNodeI::counter == 0);
+            }
+            else
+            {
+                test(PNodeI::counter == 3);
+                Ice::collectGarbage();          // No effect.
+                test(PNodeI::counter == 3);
+                p = 0;                          // Release reference.
+                Ice::collectGarbage();
+                test(PNodeI::counter == 0);
+            }
+        }
+
+        //
+        // Register a factory in order to substitute our own subclass of Preserved. This provides
+        // an easy way to determine how many unmarshaled instances currently exist.
+        //
+        communicator->addObjectFactory(new PreservedFactoryI, Preserved::ice_staticId());
+
+        //
+        // Obtain a preserved object from the server where the most-derived
+        // type is unknown. A data member in the preserved slice refers to the
+        // outer object, so the chain of references looks like this:
+        //
+        // outer->slicedData->outer
+        //
+        {
+            test(PreservedI::counter == 0);
+            PreservedPtr p = test->PBSUnknown2AsPreservedWithGraph();
+            test->checkPBSUnknown2WithGraph(p);
+            test(PreservedI::counter == 1);
+            Ice::collectGarbage();          // No effect.
+            test(PreservedI::counter == 1);
+            p = 0;                          // Release reference.
+            Ice::collectGarbage();
+            test(PreservedI::counter == 0);
+        }
+
+        //
+        // Throw a preserved exception where the most-derived type is unknown.
+        // The preserved exception slice contains a class data member. This
+        // object is also preserved, and its most-derived type is also unknown.
+        // The preserved slice of the object contains a class data member that
+        // refers to itself.
+        //
+        // The chain of references looks like this:
+        //
+        // ex->slicedData->obj->slicedData->obj
+        //
+        try
+        {
+            test(PreservedI::counter == 0);
+
+            try
+            {
+                test->throwPreservedException();
+            }
+            catch(const PreservedException&)
+            {
+                if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
+                {
+                    test(PreservedI::counter == 1);
+                    Ice::collectGarbage();          // No effect.
+                    test(PreservedI::counter == 1);
+                }
+            }
+
+            //
+            // Exception has gone out of scope.
+            //
+            Ice::collectGarbage();
+            test(PreservedI::counter == 0);
+        }
+        catch(const Ice::Exception&)
+        {
+            test(false);
+        }
     }
     cout << "ok" << endl;
 

@@ -36,6 +36,7 @@ ServantLocator.cpp
 SliceChecksumDict.cpp
 StatsF.cpp
 Stats.cpp
+Version.cpp
 BuiltinSequences.h
 CommunicatorF.h
 Communicator.h

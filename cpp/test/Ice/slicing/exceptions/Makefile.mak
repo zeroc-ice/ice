@@ -17,6 +17,7 @@ TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
 COBJS		= Test.obj \
 		  Client.obj \
+		  ClientPrivate.obj \
 		  AllTests.obj
 
 SOBJS		= Test.obj \
@@ -63,6 +64,7 @@ $(SERVERAMD): $(SAMDOBJS)
 clean::
 	del /q Test.cpp Test.h
 	del /q TestAMD.cpp TestAMD.h
+	del /q ClientPrivate.cpp ClientPrivate.h
 	del /q ServerPrivate.cpp ServerPrivate.h
 	del /q ServerPrivateAMD.cpp ServerPrivateAMD.h
 

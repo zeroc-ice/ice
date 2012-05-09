@@ -68,7 +68,37 @@ exception DerivedException extends BaseException
 
 class Forward;          /* Forward-declared class defined in another compilation unit */
 
-["ami"] interface TestIntf
+class PBase
+{
+    int pi;
+};
+
+sequence<PBase> PBaseSeq;
+
+["preserve-slice"]
+class Preserved extends PBase
+{
+    string ps;
+};
+
+class PDerived extends Preserved
+{
+    PBase pb;
+};
+
+["preserve-slice"]
+class PNode
+{
+    PNode next;
+};
+
+["preserve-slice"]
+exception PreservedException
+{
+};
+
+["ami", "format:sliced"]
+interface TestIntf
 {
     Object SBaseAsObject();
     SBase SBaseAsSBase();
@@ -76,6 +106,8 @@ class Forward;          /* Forward-declared class defined in another compilation
     SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
 
     SBase SBSUnknownDerivedAsSBase();
+
+    ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
 
@@ -98,10 +130,24 @@ class Forward;          /* Forward-declared class defined in another compilation
 
     BDict dictionaryTest(BDict bin, out BDict bout);
 
+    PBase exchangePBase(PBase pb);
+
+    Preserved PBSUnknownAsPreserved();
+    void checkPBSUnknown(Preserved p);
+
+    ["amd"] Preserved PBSUnknownAsPreservedWithGraph();
+    void checkPBSUnknownWithGraph(Preserved p);
+
+    ["amd"] Preserved PBSUnknown2AsPreservedWithGraph();
+    void checkPBSUnknown2WithGraph(Preserved p);
+
+    PNode exchangePNode(PNode pn);
+
     void throwBaseAsBase() throws BaseException;
     void throwDerivedAsBase() throws BaseException;
     void throwDerivedAsDerived() throws DerivedException;
     void throwUnknownDerivedAsBase() throws BaseException;
+    ["amd"] void throwPreservedException() throws PreservedException;
 
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 

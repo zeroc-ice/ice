@@ -61,7 +61,7 @@ public:
 
     ObjectReader(const DataFactoryPtr&, const Slice::TypePtr&);
 
-    virtual void read(const Ice::InputStreamPtr&, bool);
+    virtual void read(const Ice::InputStreamPtr&);
 
     ObjectDataPtr getValue() const;
 
@@ -86,6 +86,8 @@ FreezeScript::ObjectWriter::ObjectWriter(const ObjectDataPtr& value) :
 void
 FreezeScript::ObjectWriter::write(const Ice::OutputStreamPtr& out) const
 {
+    out->startObject(0);
+
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(_value->_type);
     Slice::ClassDefPtr type;
     if(decl)
@@ -94,8 +96,14 @@ FreezeScript::ObjectWriter::write(const Ice::OutputStreamPtr& out) const
     }
     while(type)
     {
-        out->writeTypeId(type->scoped());
-        out->startSlice();
+        Slice::ClassDefPtr base;
+        Slice::ClassList bases = type->bases();
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            base = bases.front();
+        }
+
+        out->startSlice(type->scoped(), !base);
         Slice::DataMemberList members = type->dataMembers();
         for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
         {
@@ -105,24 +113,10 @@ FreezeScript::ObjectWriter::write(const Ice::OutputStreamPtr& out) const
         }
         out->endSlice();
 
-        Slice::ClassList bases = type->bases();
-        if(!bases.empty() && !bases.front()->isInterface())
-        {
-            type = bases.front();
-        }
-        else
-        {
-            type = 0;
-        }
+        type = base;
     }
 
-    //
-    // Ice::Object slice
-    //
-    out->writeTypeId(Ice::Object::ice_staticId());
-    out->startSlice();
-    out->writeSize(0); // For compatibility with the old AFM.
-    out->endSlice();
+    out->endObject();
 }
 
 //
@@ -134,7 +128,7 @@ FreezeScript::ObjectReader::ObjectReader(const DataFactoryPtr& factory, const Sl
 }
 
 void
-FreezeScript::ObjectReader::read(const Ice::InputStreamPtr& in, bool rid)
+FreezeScript::ObjectReader::read(const Ice::InputStreamPtr& in)
 {
     const_cast<ObjectDataPtr&>(_value) = new ObjectData(_factory, _type, true);
     Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(_type);
@@ -143,15 +137,20 @@ FreezeScript::ObjectReader::read(const Ice::InputStreamPtr& in, bool rid)
     {
         type = decl->definition();
     }
+
+    in->startObject();
+
     while(type)
     {
-        if(rid)
+        Slice::ClassDefPtr base;
+        Slice::ClassList bases = type->bases();
+        if(!bases.empty() && !bases.front()->isInterface())
         {
-            string id = in->readTypeId();
-            assert(id == type->scoped());
+            base = bases.front();
         }
 
         in->startSlice();
+
         Slice::DataMemberList members = type->dataMembers();
         for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
         {
@@ -159,40 +158,13 @@ FreezeScript::ObjectReader::read(const Ice::InputStreamPtr& in, bool rid)
             assert(q != _value->_members.end());
             q->second->unmarshal(in);
         }
+
         in->endSlice();
 
-        Slice::ClassList bases = type->bases();
-        if(!bases.empty() && !bases.front()->isInterface())
-        {
-            type = bases.front();
-        }
-        else
-        {
-            type = 0;
-        }
-
-        rid = true;
+        type = base;
     }
 
-    //
-    // Ice::Object slice
-    //
-    if(rid)
-    {
-        string id = in->readTypeId();
-        if(id != Ice::Object::ice_staticId())
-        {
-            throw Ice::MarshalException(__FILE__, __LINE__);
-        }
-    }
-    in->startSlice();
-    // For compatibility with the old AFM.
-    Ice::Int sz = in->readSize();
-    if(sz != 0)
-    {
-        throw Ice::MarshalException(__FILE__, __LINE__);
-    }
-    in->endSlice();
+    in->endObject(false);
 }
 
 FreezeScript::ObjectDataPtr
