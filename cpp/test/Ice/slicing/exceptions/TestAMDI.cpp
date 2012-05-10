@@ -9,6 +9,7 @@
 
 #include <TestAMDI.h>
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -161,6 +162,7 @@ TestI::relayKnownPreservedAsBase_async(const AMD_TestIntf_relayKnownPreservedAsB
     try
     {
         r->knownPreservedAsBase();
+        test(false);
     }
     catch(const Ice::Exception& ex)
     {
@@ -175,6 +177,7 @@ TestI::relayKnownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayKnownPr
     try
     {
         r->knownPreservedAsKnownPreserved();
+        test(false);
     }
     catch(const Ice::Exception& ex)
     {
@@ -189,6 +192,7 @@ TestI::relayUnknownPreservedAsBase_async(const AMD_TestIntf_relayUnknownPreserve
     try
     {
         r->unknownPreservedAsBase();
+        test(false);
     }
     catch(const Ice::Exception& ex)
     {
@@ -203,6 +207,7 @@ TestI::relayUnknownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayUnkno
     try
     {
         r->unknownPreservedAsKnownPreserved();
+        test(false);
     }
     catch(const Ice::Exception& ex)
     {

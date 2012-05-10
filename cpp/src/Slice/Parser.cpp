@@ -3433,6 +3433,20 @@ Slice::ClassDef::hasDefaultValues() const
     return false;
 }
 
+bool
+Slice::ClassDef::inheritsMetaData(const string& meta) const
+{
+    for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+    {
+        if((*p)->hasMetaData(meta) || (*p)->inheritsMetaData(meta))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Contained::ContainedType
 Slice::ClassDef::containedType() const
 {
@@ -3857,6 +3871,17 @@ Slice::Exception::hasDefaultValues() const
         {
             return true;
         }
+    }
+
+    return false;
+}
+
+bool
+Slice::Exception::inheritsMetaData(const string& meta) const
+{
+    if(_base && (_base->hasMetaData(meta) || _base->inheritsMetaData(meta)))
+    {
+        return true;
     }
 
     return false;

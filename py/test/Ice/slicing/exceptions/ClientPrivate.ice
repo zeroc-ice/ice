@@ -14,31 +14,19 @@
 module Test
 {
 
-class D3 extends B
+class PreservedClass extends BaseClass
 {
-    string sd3;
-    B pd3;
+    string pc;
 };
 
-["preserve-slice"]
-class PCUnknown extends PBase
+exception Preserved1 extends KnownPreserved
 {
-    string pu;
+    BaseClass p1;
 };
 
-class PCDerived extends PDerived
+exception Preserved2 extends Preserved1
 {
-    PBaseSeq pbs;
-};
-
-class PCDerived2 extends PCDerived
-{
-    int pcd2;
-};
-
-class PCDerived3 extends PCDerived2
-{
-    Object pcd3;
+    BaseClass p2;
 };
 
 };

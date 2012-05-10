@@ -665,41 +665,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-
-        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    }
+    if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+    {
+        try
         {
-            try
-            {
-                //
-                // This test succeeds for the 1.0 encoding.
-                //
-                sb = test->SBSUnknownDerivedAsSBaseCompact();
-                test(sb->sb == "SBSUnknownDerived.sb");
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            //
+            // This test succeeds for the 1.0 encoding.
+            //
+            SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
+            test(sb->sb == "SBSUnknownDerived.sb");
         }
-        else
+        catch(...)
         {
-            try
-            {
-                //
-                // This test fails when using the compact format because the instance cannot
-                // be sliced to a known type.
-                //
-                sb = test->SBSUnknownDerivedAsSBaseCompact();
-                test(false);
-            }
-            catch(const Ice::MarshalException&)
-            {
-                // Expected.
-            }
-            catch(...)
-            {
-                test(false);
-            }
+            test(false);
+        }
+    }
+    else
+    {
+        try
+        {
+            //
+            // This test fails when using the compact format because the instance cannot
+            // be sliced to a known type.
+            //
+            SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
+            test(false);
+        }
+        catch(const Ice::MarshalException&)
+        {
+            // Expected.
+        }
+        catch(...)
+        {
+            test(false);
         }
     }
     cout << "ok" << endl;
@@ -1915,7 +1914,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         PDerivedPtr pd = new PDerived;
         pd->pi = 3;
         pd->ps = "preserved";
-        pd->ps = "preserved";
         pd->pb = pd;
 
         PBasePtr r = test->exchangePBase(pd);
@@ -2225,6 +2223,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             catch(const PreservedException&)
             {
+                //
+                // The class instance is only retained when the encoding is > 1.0.
+                //
                 if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
                 {
                     test(PreservedI::counter == 1);

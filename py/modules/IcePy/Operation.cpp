@@ -3091,19 +3091,33 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
     if(!_op->inParams.empty())
     {
         Ice::InputStreamPtr is = Ice::createInputStream(_communicator, inBytes);
+
+        //
+        // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+        // This is necessary to support object unmarshaling (see ObjectReader).
+        //
+        SlicedDataUtil util;
+        assert(!is->closure());
+        is->closure(&util);
+
         try
         {
             is->startEncapsulation();
+
             Py_ssize_t i = start;
             for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
             {
                 void* closure = reinterpret_cast<void*>(i);
                 (*p)->type->unmarshal(is, *p, args.get(), closure, &(*p)->metaData);
             }
+
             if(_op->sendsClasses)
             {
                 is->readPendingObjects();
             }
+
+            util.update();
+
             is->endEncapsulation();
         }
         catch(const AbortMarshaling&)

@@ -796,8 +796,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    _out << ", " << (isAbstract ? "True" : "False") << ", " << (p->hasMetaData("preserve-slice") ? "True" : "False")
-         << ", ";
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
+    _out << ", " << (isAbstract ? "True" : "False") << ", " << (preserved ? "True" : "False") << ", ";
     if(!base)
     {
         _out << "None";
@@ -1106,7 +1106,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string type = getAbsolute(p, "_t_");
     _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
     writeMetaData(p->getMetaData());
-    _out << ", " << (p->hasMetaData("preserve-slice") ? "True" : "False") << ", ";
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
+    _out << ", " << (preserved ? "True" : "False") << ", ";
     if(!base)
     {
         _out << "None";

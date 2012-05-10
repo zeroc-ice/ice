@@ -42,4 +42,22 @@ exception UnknownDerivedException extends BaseException
     D2 pd2;
 };
 
+["preserve-slice"]
+class PSUnknown extends Preserved
+{
+    string psu;
+    PNode graph;
+};
+
+["preserve-slice"]
+class PSUnknown2 extends Preserved
+{
+    PBase pb;
+};
+
+exception PSUnknownException extends PreservedException
+{
+    PSUnknown2 p;
+};
+
 };

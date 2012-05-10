@@ -14,6 +14,10 @@ import Ice
 Ice.loadSlice('-I. --all ServerPrivate.ice Forward.ice')
 import Test
 
+def test(b):
+    if not b:
+        raise RuntimeError('test assertion failed')
+
 class TestI(Test.TestIntf):
     def SBaseAsObject(self, current=None):
         sb = Test.SBase()
@@ -38,6 +42,12 @@ class TestI(Test.TestIntf):
         return sbskd
 
     def SBSUnknownDerivedAsSBase(self, current=None):
+        sbsud = Test.SBSUnknownDerived()
+        sbsud.sb = "SBSUnknownDerived.sb"
+        sbsud.sbsud = "SBSUnknownDerived.sbsud"
+        return sbsud
+
+    def SBSUnknownDerivedAsSBaseCompact(self, current=None):
         sbsud = Test.SBSUnknownDerived()
         sbsud.sb = "SBSUnknownDerived.sb"
         sbsud.sbsud = "SBSUnknownDerived.sbsud"
@@ -173,7 +183,7 @@ class TestI(Test.TestIntf):
         return p1
 
     def sequenceTest(self, p1, p2, current=None):
-        ss = Test.SS()
+        ss = Test.SS3()
         ss.c1 = p1
         ss.c2 = p2
         return ss
@@ -203,6 +213,79 @@ class TestI(Test.TestIntf):
             r[i * 20] = d1
 
         return (r, bout)
+
+    def exchangePBase(self, pb, current=None):
+        return pb
+
+    def PBSUnknownAsPreserved(self, current=None):
+        r = Test.PSUnknown()
+        r.pi = 5
+        r.ps = "preserved"
+        r.psu = "unknown"
+        r.graph = None
+        return r
+
+    def checkPBSUnknown(self, p, current=None):
+        if current.encoding == Ice.Encoding_1_0:
+            test(not isinstance(p, Test.PSUnknown))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+        else:
+            test(isinstance(p, Test.PSUnknown))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+            test(p.psu == "unknown")
+            test(not p.graph)
+
+    def PBSUnknownAsPreservedWithGraph_async(self, cb, current=None):
+        r = Test.PSUnknown()
+        r.pi = 5
+        r.ps = "preserved"
+        r.psu = "unknown"
+        r.graph = Test.PNode()
+        r.graph.next = Test.PNode()
+        r.graph.next.next = Test.PNode()
+        r.graph.next.next.next = r.graph
+        cb.ice_response(r)
+        r.graph.next.next.next = None   # Break the cycle.
+
+    def checkPBSUnknownWithGraph(self, p, current=None):
+        if current.encoding == Ice.Encoding_1_0:
+            test(not isinstance(p, Test.PSUnknown))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+        else:
+            test(isinstance(p, Test.PSUnknown))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+            test(p.psu == "unknown")
+            test(p.graph != p.graph.next)
+            test(p.graph.next != p.graph.next.next)
+            test(p.graph.next.next.next == p.graph)
+            p.graph.next.next.next = None   # Break the cycle.
+
+    def PBSUnknown2AsPreservedWithGraph_async(self, cb, current=None):
+        r = Test.PSUnknown2()
+        r.pi = 5
+        r.ps = "preserved"
+        r.pb = r
+        cb.ice_response(r)
+        r.pb = None         # Break the cycle.
+
+    def checkPBSUnknown2WithGraph(self, p, current=None):
+        if current.encoding == Ice.Encoding_1_0:
+            test(not isinstance(p, Test.PSUnknown2))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+        else:
+            test(isinstance(p, Test.PSUnknown2))
+            test(p.pi == 5)
+            test(p.ps == "preserved")
+            test(p.pb == p)
+            p.pb = None        # Break the cycle.
+
+    def exchangePNode(self, pn, current=None):
+        return pn
 
     def throwBaseAsBase(self, current=None):
         be = Test.BaseException()
@@ -253,6 +336,15 @@ class TestI(Test.TestIntf):
         ude.sude = "sude"
         ude.pd2 = d2
         raise ude
+
+    def throwPreservedException_async(self, cb, current=None):
+        ue = Test.PSUnknownException()
+        ue.p = Test.PSUnknown2()
+        ue.p.pi = 5
+        ue.p.ps = "preserved"
+        ue.p.pb = ue.p
+        cb.ice_exception(ue)
+        ue.p.pb = None      # Break the cycle.
 
     def useForward(self, current=None):
         f = Test.Forward()

@@ -635,8 +635,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ExceptionPtr base = p->base();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    bool preserved = p->hasMetaData("preserve-slice");
-    bool basePreserved = base ? base->hasMetaData("preserve-slice") : false;
+    bool basePreserved = p->inheritsMetaData("preserve-slice");
+    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
     bool hasDefaultValues = p->hasDefaultValues();
     DataMemberList::const_iterator q;
 
@@ -881,8 +881,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     if(!p->isLocal())
     {
         ExceptionPtr base = p->base();
-        bool preserved = p->hasMetaData("preserve-slice");
-        bool basePreserved = base ? base->hasMetaData("preserve-slice") : false;
+        bool basePreserved = p->inheritsMetaData("preserve-slice");
+        bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
         H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
         H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
@@ -3827,8 +3827,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
-    bool preserved = p->hasMetaData("preserve-slice");
-    bool basePreserved = base ? base->hasMetaData("preserve-slice") : false;
+    bool basePreserved = p->inheritsMetaData("preserve-slice");
+    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
     H << sp << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
@@ -4165,8 +4165,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         base = bases.front();
     }
-    bool preserved = p->hasMetaData("preserve-slice");
-    bool basePreserved = base ? base->hasMetaData("preserve-slice") : false;
+    bool basePreserved = p->inheritsMetaData("preserve-slice");
+    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
     if(!p->isLocal())
     {
@@ -5018,8 +5018,8 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
     //
     bool canBeCyclic = p->canBeCyclic();
     bool override = canBeCyclic && (!base || !base->canBeCyclic());
-    bool preserved = p->hasMetaData("preserve-slice");
-    bool basePreserved = base ? base->hasMetaData("preserve-slice") : false;
+    bool basePreserved = p->inheritsMetaData("preserve-slice");
+    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
     //
     // We also override __addObject and __usesGC if this is the initial preserved

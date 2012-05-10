@@ -102,6 +102,41 @@ class TestI(Test.TestIntf):
         umd2.umd2 = "UnknownMostDerived2.umd2"
         cb.ice_exception(umd2)
 
+    def unknownMostDerived2AsBaseCompact_async(self, cb, current=None):
+        umd2 = Test.UnknownMostDerived2()
+        umd2.b = "UnknownMostDerived2.b"
+        umd2.ui = "UnknownMostDerived2.ui"
+        umd2.umd2 = "UnknownMostDerived2.umd2"
+        cb.ice_exception(umd2)
+
+    def relayKnownPreservedAsBase_async(self, cb, r, current=None):
+        try:
+            r.knownPreservedAsBase()
+            test(False)
+        except Ice.Exception as ex:
+            cb.ice_exception(ex)
+
+    def relayKnownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+        try:
+            r.knownPreservedAsKnownPreserved()
+            test(False)
+        except Ice.Exception as ex:
+            cb.ice_exception(ex)
+
+    def relayUnknownPreservedAsBase_async(self, cb, r, current=None):
+        try:
+            r.unknownPreservedAsBase()
+            test(False)
+        except Ice.Exception as ex:
+            cb.ice_exception(ex)
+
+    def relayUnknownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+        try:
+            r.unknownPreservedAsKnownPreserved()
+            test(False)
+        except Ice.Exception as ex:
+            cb.ice_exception(ex)
+
 def run(args, communicator):
     properties = communicator.getProperties()
     properties.setProperty("Ice.Warn.Dispatch", "0")

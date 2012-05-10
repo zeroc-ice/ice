@@ -100,6 +100,25 @@ class TestI(Test.TestIntf):
         umd2.umd2 = "UnknownMostDerived2.umd2"
         raise umd2
 
+    def unknownMostDerived2AsBaseCompact(self, current=None):
+        umd2 = Test.UnknownMostDerived2()
+        umd2.b = "UnknownMostDerived2.b"
+        umd2.ui = "UnknownMostDerived2.ui"
+        umd2.umd2 = "UnknownMostDerived2.umd2"
+        raise umd2
+
+    def relayKnownPreservedAsBase(self, r, current=None):
+        r.knownPreservedAsBase()
+
+    def relayKnownPreservedAsKnownPreserved(self, r, current=None):
+        r.knownPreservedAsKnownPreserved()
+
+    def relayUnknownPreservedAsBase(self, r, current=None):
+        r.unknownPreservedAsBase()
+
+    def relayUnknownPreservedAsKnownPreserved(self, r, current=None):
+        r.unknownPreservedAsKnownPreserved()
+
 def run(args, communicator):
     properties = communicator.getProperties()
     properties.setProperty("Ice.Warn.Dispatch", "0")

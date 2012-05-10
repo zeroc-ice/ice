@@ -10,7 +10,7 @@
 
 import Ice, threading, sys
 
-Ice.loadSlice('Test.ice')
+Ice.loadSlice('-I. --all ClientPrivate.ice')
 import Test
 
 def test(b):
@@ -182,6 +182,35 @@ class Callback(CallbackBase):
         except:
             test(False)
         self.called()
+
+class RelayI(Test.Relay):
+    def knownPreservedAsBase(self, current=None):
+        ex = Test.KnownPreserved()
+        ex.b = "base"
+        ex.kp = "preserved"
+        raise ex
+
+    def knownPreservedAsKnownPreserved(self, current=None):
+        ex = Test.KnownPreserved()
+        ex.b = "base"
+        ex.kp = "preserved"
+        raise ex
+
+    def unknownPreservedAsBase(self, current=None):
+        ex = Test.Preserved2()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.p1 = Test.PreservedClass("bc", "pc")
+        ex.p2 = ex.p1
+        raise ex
+
+    def unknownPreservedAsKnownPreserved(self, current=None):
+        ex = Test.Preserved2()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.p1 = Test.PreservedClass("bc", "pc")
+        ex.p2 = ex.p1
+        raise ex
 
 def allTests(communicator):
     obj = communicator.stringToProxy("Test:default -p 12010")
@@ -444,6 +473,97 @@ def allTests(communicator):
     cb = Callback()
     t.begin_unknownMostDerived2AsBase(cb.response, cb.exception_unknownMostDerived2AsBase)
     cb.check()
+    print("ok")
+
+    sys.stdout.write("unknown most derived in compact format... ")
+    sys.stdout.flush()
+    try:
+        t.unknownMostDerived2AsBaseCompact()
+        test(False)
+    except Test.Base:
+        #
+        # For the 1.0 encoding, the unknown exception is sliced to Base.
+        #
+        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
+    except Ice.MarshalException:
+        #
+        # A MarshalException is raised for the compact format because the
+        # most-derived type is unknown and the exception cannot be sliced.
+        #
+        test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
+    except:
+        test(False)
+    print("ok")
+
+    sys.stdout.write("preserved exceptions... ")
+    sys.stdout.flush()
+    adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default")
+    relay = Test.RelayPrx.uncheckedCast(adapter.addWithUUID(RelayI()))
+    adapter.activate()
+
+    try:
+        t.relayKnownPreservedAsBase(relay)
+        test(False)
+    except Test.KnownPreserved as ex:
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+    except:
+        test(False)
+
+    try:
+        t.relayKnownPreservedAsKnownPreserved(relay)
+        test(False)
+    except Test.KnownPreserved as ex:
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+    except:
+        test(False)
+
+    try:
+        t.relayUnknownPreservedAsBase(relay)
+        test(False)
+    except Test.Preserved2 as ex:
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+        test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
+        pc = ex.p1
+        test(isinstance(pc, Test.PreservedClass))
+        test(pc.bc == "bc")
+        test(pc.pc == "pc")
+        test(ex.p2 == ex.p1)
+    except Test.KnownPreserved as ex:
+        #
+        # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+        #
+        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+    except:
+        test(False)
+
+    try:
+        t.relayUnknownPreservedAsKnownPreserved(relay)
+        test(False)
+    except Test.Preserved2 as ex:
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+        test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
+        pc = ex.p1
+        test(isinstance(pc, Test.PreservedClass))
+        test(pc.bc == "bc")
+        test(pc.pc == "pc")
+        test(ex.p2 == ex.p1)
+    except Test.KnownPreserved as ex:
+        #
+        # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+        #
+        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
+        test(ex.b == "base")
+        test(ex.kp == "preserved")
+    except:
+        test(False)
+
+    adapter.destroy()
     print("ok")
 
     return t

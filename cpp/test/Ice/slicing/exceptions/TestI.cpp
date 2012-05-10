@@ -9,6 +9,7 @@
 
 #include <TestI.h>
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -153,24 +154,28 @@ void
 TestI::relayKnownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
 {
     r->knownPreservedAsBase();
+    test(false);
 }
 
 void
 TestI::relayKnownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
 {
     r->knownPreservedAsKnownPreserved();
+    test(false);
 }
 
 void
 TestI::relayUnknownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
 {
     r->unknownPreservedAsBase();
+    test(false);
 }
 
 void
 TestI::relayUnknownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Current&)
 {
     r->unknownPreservedAsKnownPreserved();
+    test(false);
 }
 
 void
