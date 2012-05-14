@@ -2200,6 +2200,63 @@ public class AllTests
             }
         }
         out.println("ok");
+        
+        out.print("testing close connection with sending queue... ");
+        out.flush();
+        {
+            byte[] seq = new byte[1024 * 10];
+            new java.util.Random().nextBytes(seq); // Make sure the request doesn't compress too well.
+
+            //
+            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+            // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+            // the connection gracefully in between.
+            // 
+            int maxQueue = 2;
+            boolean done = false;
+            while(!done && maxQueue < 50)
+            {
+                done = true;
+                p.ice_ping();
+                java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<Ice.AsyncResult>();
+                for(int i = 0; i < maxQueue; ++i)
+                {
+                    results.add(p.begin_opWithPayload(seq));
+                }
+                if(!p.begin_close(false).isSent())
+                {
+                    for(int i = 0; i < maxQueue; i++)
+                    {
+                        Ice.AsyncResult r = p.begin_opWithPayload(seq);
+                        results.add(r);
+                        if(r.isSent())
+                        {
+                            done = false;
+                            maxQueue *= 2;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    maxQueue *= 2;
+                    done = false;
+                }
+                for(Ice.AsyncResult q : results)
+                {
+                    q.waitForCompleted();
+                    try
+                    {
+                        q.throwLocalException();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        test(false);
+                    }
+                }
+            }
+        }
+        out.println("ok");
 
         p.shutdown();
     }

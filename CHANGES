@@ -27,6 +27,9 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Fixed a bug where under certain circumstances, Ice could assert when
+  a connection was being closed.
+
 - Improved server disable to prevent the IceGrid locator from
   returning endpoints of disabled servers. See the Ice manual for more
   information.

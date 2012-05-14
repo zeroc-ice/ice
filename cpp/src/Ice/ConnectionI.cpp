@@ -1348,14 +1348,18 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 assert(_state <= StateClosing);
 
-                if(current.operation & SocketOperationWrite)
-                {
-                    sendNextMessage(sentCBs);
-                }
-
+                //
+                // We parse messages first, if we receive a close
+                // connection message we won't send more messages.
+                // 
                 if(current.operation & SocketOperationRead)
                 {
                     parseMessage(current.stream, invokeNum, requestId, compress, servantManager, adapter, outAsync);
+                }
+
+                if(current.operation & SocketOperationWrite)
+                {
+                    sendNextMessage(sentCBs);
                 }
                 
                 //
@@ -1586,33 +1590,34 @@ Ice::ConnectionI::finish()
 
     if(!_sendStreams.empty())
     {
-        assert(!_writeStream.b.empty());
-
-        //
-        // Return the stream to the outgoing call. This is important for 
-        // retriable AMI calls which are not marshalled again.
-        //
-        OutgoingMessage* message = &_sendStreams.front();
-        _writeStream.swap(*message->stream);
-
-#ifdef ICE_USE_IOCP
-        //
-        // The current message might be sent but not yet removed from _sendStreams. If
-        // the response has been received in the meantime, we remove the message from 
-        // _sendStreams to not call finished on a message which is already done.
-        //
-        if(message->requestId > 0 &&
-           (message->out && _requests.find(message->requestId) == _requests.end() ||
-            message->outAsync && _asyncRequests.find(message->requestId) == _asyncRequests.end()))
+        if(!_writeStream.b.empty())
         {
-            if(message->sent(this, true))
+            //
+            // Return the stream to the outgoing call. This is important for 
+            // retriable AMI calls which are not marshalled again.
+            //
+            OutgoingMessage* message = &_sendStreams.front();
+            _writeStream.swap(*message->stream);
+            
+#ifdef ICE_USE_IOCP
+            //
+            // The current message might be sent but not yet removed from _sendStreams. If
+            // the response has been received in the meantime, we remove the message from 
+            // _sendStreams to not call finished on a message which is already done.
+            //
+            if(message->requestId > 0 &&
+               (message->out && _requests.find(message->requestId) == _requests.end() ||
+                message->outAsync && _asyncRequests.find(message->requestId) == _asyncRequests.end()))
             {
-                assert(message->outAsync);
-                message->outAsync->__sent();
+                if(message->sent(this, true))
+                {
+                    assert(message->outAsync);
+                    message->outAsync->__sent();
+                }
+                _sendStreams.pop_front();
             }
-            _sendStreams.pop_front();
-        }
 #endif
+        }
 
         for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
         {
@@ -2280,6 +2285,14 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
             // If there's nothing left to send, we're done.
             //
             if(_sendStreams.empty())
+            {
+                break;
+            }
+
+            //
+            // If we are in the closed state, don't continue sending.
+            // 
+            if(_state >= StateClosed)
             {
                 break;
             }

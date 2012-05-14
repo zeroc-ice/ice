@@ -69,6 +69,12 @@ TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
 }
 
 void
+TestIntfI::close(bool force, const Ice::Current& current)
+{
+    current.con->close(force);
+}
+
+void
 TestIntfI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();

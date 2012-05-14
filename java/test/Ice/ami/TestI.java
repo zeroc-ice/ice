@@ -73,6 +73,12 @@ public class TestI extends _TestIntfDisp
     }
 
     public void
+    close(boolean force, Ice.Current current)
+    {
+        current.con.close(force);
+    }
+
+    public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

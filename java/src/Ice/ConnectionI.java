@@ -1058,16 +1058,20 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     assert(_state <= StateClosing);
                     
-                    if((current.operation & IceInternal.SocketOperation.Write) != 0)
-                    {
-                        sentCBs = sendNextMessage();
-                    }
-                    
+                    //
+                    // We parse messages first, if we receive a close
+                    // connection message we won't send more messages.
+                    // 
                     if((current.operation & IceInternal.SocketOperation.Read) != 0)
                     {
                         info = parseMessage(current.stream); // Optimization: use the thread's stream.
                     }
 
+                    if((current.operation & IceInternal.SocketOperation.Write) != 0)
+                    {
+                        sentCBs = sendNextMessage();
+                    }
+                    
                     //
                     // We increment the dispatch count to prevent the
                     // communicator destruction during the callback.
@@ -1316,12 +1320,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         
         if(!_sendStreams.isEmpty())
         {
-            //
-            // Return the stream to the outgoing call. This is important for 
-            // retriable AMI calls which are not marshalled again.
-            //
-            OutgoingMessage message = _sendStreams.getFirst();
-            _writeStream.swap(message.stream);
+            if(!_writeStream.isEmpty())
+            {
+                //
+                // Return the stream to the outgoing call. This is important for 
+                // retriable AMI calls which are not marshalled again.
+                //
+                OutgoingMessage message = _sendStreams.getFirst();
+                _writeStream.swap(message.stream);
+            }
         
             //
             // NOTE: for twoway requests which are not sent, finished can be called twice: the 
@@ -1996,6 +2003,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 // If there's nothing left to send, we're done.
                 //
                 if(_sendStreams.isEmpty())
+                {
+                    break;
+                }
+
+                //
+                // If we are in the closed state, don't continue sending.
+                // 
+                if(_state >= StateClosed)
                 {
                     break;
                 }
