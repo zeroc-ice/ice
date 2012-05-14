@@ -1554,6 +1554,63 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        Write("testing close connection with sending queue... ");
+        Flush();
+        {
+            byte[] seq = new byte[1024 * 10];
+            (new System.Random()).NextBytes(seq); // Make sure the request doesn't compress too well.
+
+            //
+            // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+            // The goal is to make sure that none of the opWithPayload fail even if the server closes 
+            // the connection gracefully in between.
+            // 
+            int maxQueue = 2;
+            bool done = false;
+            while(!done && maxQueue < 50)
+            { 
+                done = true;
+                p.ice_ping();
+                List<Ice.AsyncResult> results = new List<Ice.AsyncResult>();
+                for(int i = 0; i < maxQueue; ++i)
+                {
+                    results.Add(p.begin_opWithPayload(seq));
+                }
+                if(!p.begin_close(false).isSent())
+                {
+                    for(int i = 0; i < maxQueue; i++)
+                    {
+                        Ice.AsyncResult r = p.begin_opWithPayload(seq);
+                        results.Add(r);
+                        if(r.isSent())
+                        {
+                            done = false;
+                            maxQueue *= 2;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    maxQueue *= 2;
+                    done = false;
+                }
+                foreach(Ice.AsyncResult q in results)
+                {
+                    q.waitForCompleted();
+                    try
+                    {
+                        q.throwLocalException();
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        test(false);
+                    }
+                }
+            }
+        }
+        WriteLine("ok");
+
         p.shutdown();
     }
 }

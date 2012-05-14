@@ -28,6 +28,7 @@ public:
     virtual void opBatch(const Ice::Current&);
     virtual Ice::Int opBatchCount(const Ice::Current&);
     virtual bool waitForBatch(Ice::Int, const Ice::Current&);
+    virtual void close(bool, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

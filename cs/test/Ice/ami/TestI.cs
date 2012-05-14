@@ -88,6 +88,12 @@ public class TestI : TestIntfDisp_
     }
 
     override public void
+    close(bool force, Ice.Current current)
+    {
+        current.con.close(force);
+    }
+
+    override public void
     shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

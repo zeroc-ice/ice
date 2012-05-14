@@ -30,6 +30,7 @@ interface TestIntf
     void opBatch();
     int opBatchCount();
     bool waitForBatch(int count);
+    void close(bool force);
     void shutdown();
 };
 

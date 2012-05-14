@@ -1235,15 +1235,19 @@ namespace Ice
                     {
                         Debug.Assert(_state <= StateClosing);
 
-                        if((current.operation & IceInternal.SocketOperation.Write) != 0)
-                        {
-                            sentCBs = sendNextMessage();
-                        }
-
+                        //
+                        // We parse messages first, if we receive a close
+                        // connection message we won't send more messages.
+                        // 
                         if((current.operation & IceInternal.SocketOperation.Read) != 0)
                         {
                             parseMessage(new IceInternal.BasicStream(_instance, Util.currentProtocolEncoding),
                                          ref info);
+                        }
+
+                        if((current.operation & IceInternal.SocketOperation.Write) != 0)
+                        {
+                            sentCBs = sendNextMessage();
                         }
                     }
 
@@ -1505,30 +1509,31 @@ namespace Ice
 
             if(_sendStreams.Count > 0)
             {
-                Debug.Assert(!_writeStream.isEmpty());
-
-                //
-                // Return the stream to the outgoing call. This is important for
-                // retriable AMI calls which are not marshalled again.
-                //
-                OutgoingMessage message = _sendStreams.Peek();
-                _writeStream.swap(message.stream);
-
-                //
-                // The current message might be sent but not yet removed from _sendStreams. If
-                // the response has been received in the meantime, we remove the message from
-                // _sendStreams to not call finished on a message which is already done.
-                //
-                if(message.requestId > 0 &&
-                   (message.@out != null && !_requests.ContainsKey(message.requestId) ||
-                    message.outAsync != null && !_asyncRequests.ContainsKey(message.requestId)))
+                if(!_writeStream.isEmpty())
                 {
-                    if(message.sent(this, true))
+                    //
+                    // Return the stream to the outgoing call. This is important for
+                    // retriable AMI calls which are not marshalled again.
+                    //
+                    OutgoingMessage message = _sendStreams.Peek();
+                    _writeStream.swap(message.stream);
+                    
+                    //
+                    // The current message might be sent but not yet removed from _sendStreams. If
+                    // the response has been received in the meantime, we remove the message from
+                    // _sendStreams to not call finished on a message which is already done.
+                    //
+                    if(message.requestId > 0 &&
+                       (message.@out != null && !_requests.ContainsKey(message.requestId) ||
+                        message.outAsync != null && !_asyncRequests.ContainsKey(message.requestId)))
                     {
-                        Debug.Assert(message.outAsync != null);
-                        message.outAsync.sent__(message.sentCallback);
+                        if(message.sent(this, true))
+                        {
+                            Debug.Assert(message.outAsync != null);
+                            message.outAsync.sent__(message.sentCallback);
+                        }
+                        _sendStreams.Dequeue();
                     }
-                    _sendStreams.Dequeue();
                 }
 
                 foreach(OutgoingMessage m in _sendStreams)
@@ -2177,6 +2182,14 @@ namespace Ice
                         break;
                     }
 
+                    //
+                    // If we are in the closed state, don't continue sending.
+                    // 
+                    if(_state >= StateClosed)
+                    {
+                        break;
+                    }
+                
                     //
                     // Otherwise, prepare the next message stream for writing.
                     //
