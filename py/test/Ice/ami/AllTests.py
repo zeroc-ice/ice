@@ -951,4 +951,47 @@ def allTests(communicator):
 
     print("ok")
 
+    sys.stdout.write("testing close connection with sending queue... ")
+    sys.stdout.flush()
+
+    if sys.version_info[0] == 2:
+        b = [chr(random.randint(0, 255)) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+        seq = ''.join(b)
+    else:
+        b = [random.randint(0, 255) for x in range(0, 10*1024)] # Make sure the request doesn't compress too well.
+        seq = bytes(b)
+
+    #
+    # Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+    # The goal is to make sure that none of the opWithPayload fail even if the server closes
+    # the connection gracefully in between.
+    #
+    maxQueue = 2
+    done = False
+    while not done and maxQueue < 50:
+        done = True
+        p.ice_ping()
+        results = []
+        for i in range(0, maxQueue):
+            results.append(p.begin_opWithPayload(seq))
+        if not p.begin_close(False).isSent():
+            for i in range(0, maxQueue):
+                r = p.begin_opWithPayload(seq)
+                results.append(r)
+                if r.isSent():
+                    done = False
+                    maxQueue = maxQueue * 2
+                    break
+        else:
+            maxQueue = maxQueue * 2
+            done = False
+        for r in results:
+            r.waitForCompleted()
+            try:
+                r.throwLocalException()
+            except Ice.LocalException:
+                test(False)
+
+    print("ok")
+
     p.shutdown()

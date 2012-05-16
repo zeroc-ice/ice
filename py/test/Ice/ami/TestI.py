@@ -52,6 +52,9 @@ class TestIntfI(Test.TestIntf):
         finally:
             self._cond.release()
 
+    def close(self, force, current=None):
+        current.con.close(force)
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
