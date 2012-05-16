@@ -270,6 +270,26 @@ def allTests(communicator)
     #test(!b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "")
 
+    property = propertyPrefix + ".EncodingVersion"
+    test(b1.ice_getEncodingVersion() == Ice::currentEncoding())
+    prop.setProperty(property, "1.0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
+    test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0)
+    prop.setProperty(property, "6.5")
+    begin
+        communicator.propertyToProxy(propertyPrefix)
+        test(false)
+    rescue Ice::UnsupportedEncodingException
+    end
+
+    prop.setProperty(property, "1.2")
+    begin
+        communicator.propertyToProxy(propertyPrefix)
+        test(false)
+    rescue Ice::UnsupportedEncodingException
+    end
+    prop.setProperty(property, "")
+
     puts "ok"
 
     print "testing proxyToProperty... "
@@ -281,6 +301,7 @@ def allTests(communicator)
     b1 = b1.ice_preferSecure(false)
     b1 = b1.ice_endpointSelection(Ice::EndpointSelectionType::Ordered)
     b1 = b1.ice_locatorCacheTimeout(100)
+    b1 = b1.ice_encodingVersion(Ice::EncodingVersion.new(1, 0))
 
     router = communicator.stringToProxy("router")
     #router = router.ice_collocationOptimized(false)
@@ -300,10 +321,11 @@ def allTests(communicator)
     b1 = b1.ice_locator(Ice::LocatorPrx::uncheckedCast(locator))
 
     proxyProps = communicator.proxyToProperty(b1, "Test")
-    test(proxyProps.length() == 18)
+    test(proxyProps.length() == 21)
 
     test(proxyProps["Test"] == "test -t")
     #test(proxyProps["Test.CollocationOptimized"] == "1")
+    test(proxyProps["Test.EncodingVersion"] == "1.0")
     test(proxyProps["Test.ConnectionCached"] == "1")
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
@@ -311,6 +333,7 @@ def allTests(communicator)
 
     test(proxyProps["Test.Locator"] == "locator -t")
     #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
+    test(proxyProps["Test.Locator.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding()))
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
@@ -318,10 +341,17 @@ def allTests(communicator)
 
     test(proxyProps["Test.Locator.Router"] == "router -t")
     #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
+    test(proxyProps["Test.Locator.Router.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding()))
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
+
+    begin
+        b1.ice_encodingVersion(Ice::EncodingVersion.new(3, 4))
+        test(false)
+    rescue Ice::UnsupportedEncodingException
+    end
 
     puts "ok"
 
@@ -332,143 +362,147 @@ def allTests(communicator)
 
     print "testing proxy methods... "
     STDOUT.flush
-    test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) == "other");
-    test(base.ice_facet("facet").ice_getFacet() == "facet");
-    test(base.ice_adapterId("id").ice_getAdapterId() == "id");
-    test(base.ice_twoway().ice_isTwoway());
-    test(base.ice_oneway().ice_isOneway());
-    test(base.ice_batchOneway().ice_isBatchOneway());
-    test(base.ice_datagram().ice_isDatagram());
-    test(base.ice_batchDatagram().ice_isBatchDatagram());
-    test(base.ice_secure(true).ice_isSecure());
-    test(!base.ice_secure(false).ice_isSecure());
+    test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) == "other")
+    test(base.ice_facet("facet").ice_getFacet() == "facet")
+    test(base.ice_adapterId("id").ice_getAdapterId() == "id")
+    test(base.ice_twoway().ice_isTwoway())
+    test(base.ice_oneway().ice_isOneway())
+    test(base.ice_batchOneway().ice_isBatchOneway())
+    test(base.ice_datagram().ice_isDatagram())
+    test(base.ice_batchDatagram().ice_isBatchDatagram())
+    test(base.ice_secure(true).ice_isSecure())
+    test(!base.ice_secure(false).ice_isSecure())
     test(base.ice_preferSecure(true).ice_isPreferSecure())
     test(!base.ice_preferSecure(false).ice_isPreferSecure())
+    test(base.ice_encodingVersion(Ice::Encoding_1_0).ice_getEncodingVersion() == Ice::Encoding_1_0)
+    test(base.ice_encodingVersion(Ice::Encoding_1_1).ice_getEncodingVersion() == Ice::Encoding_1_1)
+    test(base.ice_encodingVersion(Ice::Encoding_1_0).ice_getEncodingVersion() != Ice::Encoding_1_1)
     puts "ok"
 
-    print "testing proxy comparison... ",
+    print "testing proxy comparison... "
+    STDOUT.flush
 
-    test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"));
-    test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"));
-    #test(communicator.stringToProxy("foo") < communicator.stringToProxy("foo2"));
-    #test(!(communicator.stringToProxy("foo2") < communicator.stringToProxy("foo")));
+    test(communicator.stringToProxy("foo") == communicator.stringToProxy("foo"))
+    test(communicator.stringToProxy("foo") != communicator.stringToProxy("foo2"))
+    #test(communicator.stringToProxy("foo") < communicator.stringToProxy("foo2"))
+    #test(!(communicator.stringToProxy("foo2") < communicator.stringToProxy("foo")))
 
-    compObj = communicator.stringToProxy("foo");
+    compObj = communicator.stringToProxy("foo")
 
-    test(compObj.ice_facet("facet") == compObj.ice_facet("facet"));
-    test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"));
-    #test(compObj.ice_facet("facet") < compObj.ice_facet("facet1"));
-    #test(!(compObj.ice_facet("facet") < compObj.ice_facet("facet")));
+    test(compObj.ice_facet("facet") == compObj.ice_facet("facet"))
+    test(compObj.ice_facet("facet") != compObj.ice_facet("facet1"))
+    #test(compObj.ice_facet("facet") < compObj.ice_facet("facet1"))
+    #test(!(compObj.ice_facet("facet") < compObj.ice_facet("facet")))
 
-    test(compObj.ice_oneway() == compObj.ice_oneway());
-    test(compObj.ice_oneway() != compObj.ice_twoway());
-    #test(compObj.ice_twoway() < compObj.ice_oneway());
-    #test(!(compObj.ice_oneway() < compObj.ice_twoway()));
+    test(compObj.ice_oneway() == compObj.ice_oneway())
+    test(compObj.ice_oneway() != compObj.ice_twoway())
+    #test(compObj.ice_twoway() < compObj.ice_oneway())
+    #test(!(compObj.ice_oneway() < compObj.ice_twoway()))
 
-    test(compObj.ice_secure(true) == compObj.ice_secure(true));
-    test(compObj.ice_secure(false) != compObj.ice_secure(true));
-    #test(compObj.ice_secure(false) < compObj.ice_secure(true));
-    #test(!(compObj.ice_secure(true) < compObj.ice_secure(false)));
+    test(compObj.ice_secure(true) == compObj.ice_secure(true))
+    test(compObj.ice_secure(false) != compObj.ice_secure(true))
+    #test(compObj.ice_secure(false) < compObj.ice_secure(true))
+    #test(!(compObj.ice_secure(true) < compObj.ice_secure(false)))
 
-    #test(compObj.ice_collocationOptimized(true) == compObj.ice_collocationOptimized(true));
-    #test(compObj.ice_collocationOptimized(false) != compObj.ice_collocationOptimized(true));
-    #test(compObj.ice_collocationOptimized(false) < compObj.ice_collocationOptimized(true));
-    #test(!(compObj.ice_collocationOptimized(true) < compObj.ice_collocationOptimized(false)));
+    #test(compObj.ice_collocationOptimized(true) == compObj.ice_collocationOptimized(true))
+    #test(compObj.ice_collocationOptimized(false) != compObj.ice_collocationOptimized(true))
+    #test(compObj.ice_collocationOptimized(false) < compObj.ice_collocationOptimized(true))
+    #test(!(compObj.ice_collocationOptimized(true) < compObj.ice_collocationOptimized(false)))
 
-    test(compObj.ice_connectionCached(true) == compObj.ice_connectionCached(true));
-    test(compObj.ice_connectionCached(false) != compObj.ice_connectionCached(true));
-    #test(compObj.ice_connectionCached(false) < compObj.ice_connectionCached(true));
-    #test(!(compObj.ice_connectionCached(true) < compObj.ice_connectionCached(false)));
+    test(compObj.ice_connectionCached(true) == compObj.ice_connectionCached(true))
+    test(compObj.ice_connectionCached(false) != compObj.ice_connectionCached(true))
+    #test(compObj.ice_connectionCached(false) < compObj.ice_connectionCached(true))
+    #test(!(compObj.ice_connectionCached(true) < compObj.ice_connectionCached(false)))
 
     test(compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random) == \
-         compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random));
+         compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random))
     test(compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random) != \
-         compObj.ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+         compObj.ice_endpointSelection(Ice::EndpointSelectionType::Ordered))
     #test(compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random) < \
-    #     compObj.ice_endpointSelection(Ice::EndpointSelectionType::Ordered));
+    #     compObj.ice_endpointSelection(Ice::EndpointSelectionType::Ordered))
     #test(!(compObj.ice_endpointSelection(Ice::EndpointSelectionType::Ordered) < \
-    #     compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random)));
+    #     compObj.ice_endpointSelection(Ice::EndpointSelectionType::Random)))
 
-    test(compObj.ice_connectionId("id2") == compObj.ice_connectionId("id2"));
-    test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"));
-    test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1");
-    test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2");
-    #test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"));
-    #test(!(compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")));
+    test(compObj.ice_connectionId("id2") == compObj.ice_connectionId("id2"))
+    test(compObj.ice_connectionId("id1") != compObj.ice_connectionId("id2"))
+    test(compObj.ice_connectionId("id1").ice_getConnectionId() == "id1")
+    test(compObj.ice_connectionId("id2").ice_getConnectionId() == "id2")
+    #test(compObj.ice_connectionId("id1") < compObj.ice_connectionId("id2"))
+    #test(!(compObj.ice_connectionId("id2") < compObj.ice_connectionId("id1")))
 
-    test(compObj.ice_compress(true) == compObj.ice_compress(true));
-    test(compObj.ice_compress(false) != compObj.ice_compress(true));
-    #test(compObj.ice_compress(false) < compObj.ice_compress(true));
-    #test(!(compObj.ice_compress(true) < compObj.ice_compress(false)));
+    test(compObj.ice_compress(true) == compObj.ice_compress(true))
+    test(compObj.ice_compress(false) != compObj.ice_compress(true))
+    #test(compObj.ice_compress(false) < compObj.ice_compress(true))
+    #test(!(compObj.ice_compress(true) < compObj.ice_compress(false)))
 
-    test(compObj.ice_timeout(20) == compObj.ice_timeout(20));
-    test(compObj.ice_timeout(10) != compObj.ice_timeout(20));
-    #test(compObj.ice_timeout(10) < compObj.ice_timeout(20));
-    #test(!(compObj.ice_timeout(20) < compObj.ice_timeout(10)));
+    test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
+    test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
+    #test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
+    #test(!(compObj.ice_timeout(20) < compObj.ice_timeout(10)))
 
-    loc1 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
-    loc2 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
-    test(compObj.ice_locator(nil) == compObj.ice_locator(nil));
-    test(compObj.ice_locator(loc1) == compObj.ice_locator(loc1));
-    test(compObj.ice_locator(loc1) != compObj.ice_locator(nil));
-    test(compObj.ice_locator(nil) != compObj.ice_locator(loc2));
-    test(compObj.ice_locator(loc1) != compObj.ice_locator(loc2));
-    #test(compObj.ice_locator(nil) < compObj.ice_locator(loc1));
-    #test(!(compObj.ice_locator(loc1) < compObj.ice_locator(nil)));
-    #test(compObj.ice_locator(loc1) < compObj.ice_locator(loc2));
-    #test(!(compObj.ice_locator(loc2) < compObj.ice_locator(loc1)));
+    loc1 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"))
+    loc2 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"))
+    test(compObj.ice_locator(nil) == compObj.ice_locator(nil))
+    test(compObj.ice_locator(loc1) == compObj.ice_locator(loc1))
+    test(compObj.ice_locator(loc1) != compObj.ice_locator(nil))
+    test(compObj.ice_locator(nil) != compObj.ice_locator(loc2))
+    test(compObj.ice_locator(loc1) != compObj.ice_locator(loc2))
+    #test(compObj.ice_locator(nil) < compObj.ice_locator(loc1))
+    #test(!(compObj.ice_locator(loc1) < compObj.ice_locator(nil)))
+    #test(compObj.ice_locator(loc1) < compObj.ice_locator(loc2))
+    #test(!(compObj.ice_locator(loc2) < compObj.ice_locator(loc1)))
     
-    rtr1 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"));
-    rtr2 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"));
-    test(compObj.ice_router(nil) == compObj.ice_router(nil));
-    test(compObj.ice_router(rtr1) == compObj.ice_router(rtr1));
-    test(compObj.ice_router(rtr1) != compObj.ice_router(nil));
-    test(compObj.ice_router(nil) != compObj.ice_router(rtr2));
-    test(compObj.ice_router(rtr1) != compObj.ice_router(rtr2));
-    #test(compObj.ice_router(nil) < compObj.ice_router(rtr1));
-    #test(!(compObj.ice_router(rtr1) < compObj.ice_router(nil)));
-    #test(compObj.ice_router(rtr1) < compObj.ice_router(rtr2));
-    #test(!(compObj.ice_router(rtr2) < compObj.ice_router(rtr1)));
+    rtr1 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"))
+    rtr2 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"))
+    test(compObj.ice_router(nil) == compObj.ice_router(nil))
+    test(compObj.ice_router(rtr1) == compObj.ice_router(rtr1))
+    test(compObj.ice_router(rtr1) != compObj.ice_router(nil))
+    test(compObj.ice_router(nil) != compObj.ice_router(rtr2))
+    test(compObj.ice_router(rtr1) != compObj.ice_router(rtr2))
+    #test(compObj.ice_router(nil) < compObj.ice_router(rtr1))
+    #test(!(compObj.ice_router(rtr1) < compObj.ice_router(nil)))
+    #test(compObj.ice_router(rtr1) < compObj.ice_router(rtr2))
+    #test(!(compObj.ice_router(rtr2) < compObj.ice_router(rtr1)))
 
     ctx1 = { }
-    ctx1["ctx1"] = "v1";
+    ctx1["ctx1"] = "v1"
     ctx2 = { }
-    ctx2["ctx2"] = "v2";
-    test(compObj.ice_context({ }) == compObj.ice_context({ }));
-    test(compObj.ice_context(ctx1) == compObj.ice_context(ctx1));
-    test(compObj.ice_context(ctx1) != compObj.ice_context({ }));
-    test(compObj.ice_context({ }) != compObj.ice_context(ctx2));
-    test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2));
-    #test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2));
-    #test(!(compObj.ice_context(ctx2) < compObj.ice_context(ctx1)));
+    ctx2["ctx2"] = "v2"
+    test(compObj.ice_context({ }) == compObj.ice_context({ }))
+    test(compObj.ice_context(ctx1) == compObj.ice_context(ctx1))
+    test(compObj.ice_context(ctx1) != compObj.ice_context({ }))
+    test(compObj.ice_context({ }) != compObj.ice_context(ctx2))
+    test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2))
+    #test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2))
+    #test(!(compObj.ice_context(ctx2) < compObj.ice_context(ctx1)))
     
-    test(compObj.ice_preferSecure(true) == compObj.ice_preferSecure(true));
-    test(compObj.ice_preferSecure(true) != compObj.ice_preferSecure(false));
-    #test(compObj.ice_preferSecure(false) < compObj.ice_preferSecure(true));
-    #test(!(compObj.ice_preferSecure(true) < compObj.ice_preferSecure(false)));
+    test(compObj.ice_preferSecure(true) == compObj.ice_preferSecure(true))
+    test(compObj.ice_preferSecure(true) != compObj.ice_preferSecure(false))
+    #test(compObj.ice_preferSecure(false) < compObj.ice_preferSecure(true))
+    #test(!(compObj.ice_preferSecure(true) < compObj.ice_preferSecure(false)))
     
-    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000");
-    compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001");
-    test(compObj1 != compObj2);
-    #test(compObj1 < compObj2);
-    #test(!(compObj2 < compObj1));
+    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
+    compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
+    test(compObj1 != compObj2)
+    #test(compObj1 < compObj2)
+    #test(!(compObj2 < compObj1))
 
-    compObj1 = communicator.stringToProxy("foo@MyAdapter1");
-    compObj2 = communicator.stringToProxy("foo@MyAdapter2");
-    test(compObj1 != compObj2);
-    #test(compObj1 < compObj2);
-    #test(!(compObj2 < compObj1));
+    compObj1 = communicator.stringToProxy("foo@MyAdapter1")
+    compObj2 = communicator.stringToProxy("foo@MyAdapter2")
+    test(compObj1 != compObj2)
+    #test(compObj1 < compObj2)
+    #test(!(compObj2 < compObj1))
 
-    test(compObj1.ice_locatorCacheTimeout(20) == compObj1.ice_locatorCacheTimeout(20));
-    test(compObj1.ice_locatorCacheTimeout(10) != compObj1.ice_locatorCacheTimeout(20));
-    #test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20));
-    #test(!(compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)));
+    test(compObj1.ice_locatorCacheTimeout(20) == compObj1.ice_locatorCacheTimeout(20))
+    test(compObj1.ice_locatorCacheTimeout(10) != compObj1.ice_locatorCacheTimeout(20))
+    #test(compObj1.ice_locatorCacheTimeout(10) < compObj1.ice_locatorCacheTimeout(20))
+    #test(!(compObj1.ice_locatorCacheTimeout(20) < compObj1.ice_locatorCacheTimeout(10)))
 
-    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000");
-    compObj2 = communicator.stringToProxy("foo@MyAdapter1");
-    test(compObj1 != compObj2);
-    #test(compObj1 < compObj2);
-    #test(!(compObj2 < compObj1));
+    compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 1000")
+    compObj2 = communicator.stringToProxy("foo@MyAdapter1")
+    test(compObj1 != compObj2)
+    #test(compObj1 < compObj2)
+    #test(!(compObj2 < compObj1))
 
     endpts1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()
     endpts2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001").ice_getEndpoints()
@@ -476,6 +510,11 @@ def allTests(communicator)
     #test(endpts1 < endpts2)
     #test(!(endpts2 < endpts1))
     test(endpts1 == communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints())
+
+    test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) == compObj1.ice_encodingVersion(Ice::Encoding_1_0))
+    test(compObj1.ice_encodingVersion(Ice::Encoding_1_0) != compObj1.ice_encodingVersion(Ice::Encoding_1_1))
+    #test(compObj.ice_encodingVersion(Ice::Encoding_1_0) < compObj.ice_encodingVersion(Ice::Encoding_1_1))
+    #test(! (compObj.ice_encodingVersion(Ice::Encoding_1_1) < compObj.ice_encodingVersion(Ice::Encoding_1_0)))
 
     #
     # TODO: Ideally we should also test comparison of fixed proxies.
@@ -528,135 +567,145 @@ def allTests(communicator)
 
     begin
         # Invalid -x option
-        p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Missing -t and -v
-        p = communicator.stringToProxy("id:opaque");
-        test(false);
+        p = communicator.stringToProxy("id:opaque")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Repeated -t
-        p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Repeated -v
-        p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Missing -t
-        p = communicator.stringToProxy("id:opaque -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Missing -v
-        p = communicator.stringToProxy("id:opaque -t 1");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 1")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Missing arg for -t
-        p = communicator.stringToProxy("id:opaque -t -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Missing arg for -v
-        p = communicator.stringToProxy("id:opaque -t 1 -v");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 1 -v")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Not a number for -t
-        p = communicator.stringToProxy("id:opaque -t x -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t x -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # < 0 for -t
-        p = communicator.stringToProxy("id:opaque -t -1 -v abc");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t -1 -v abc")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     begin
         # Invalid char for -v
-        p = communicator.stringToProxy("id:opaque -t 99 -v x?c");
-        test(false);
+        p = communicator.stringToProxy("id:opaque -t 99 -v x?c")
+        test(false)
     rescue Ice::EndpointParseException
     end
 
     # Legal TCP endpoint expressed as opaque endpoint
-    p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-    pstr = communicator.proxyToString(p1);
-    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    p1 = communicator.stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
+    pstr = communicator.proxyToString(p1)
+    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
+
+    # 1.1 TCP endpoint encoded with 1.1 encoding.
+    p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQE=")
+    test(communicator.proxyToString(p2) == "test -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 10000")
+
+    # 1.0 TCP endpoint encoded with 1.1 encoding.
+    p2 = communicator.stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=")
+    test(communicator.proxyToString(p2) == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
     
     # Working?
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
-        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+        ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"
         if !ssl
-            p1.ice_ping();
+            p1.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()
         end
 
-      # Two legal TCP endpoints expressed as opaque endpoints
-      p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
-      pstr = communicator.proxyToString(p1);
-      test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        # Two legal TCP endpoints expressed as opaque endpoints
+        p1 = communicator.stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
+        pstr = communicator.proxyToString(p1)
+        test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
-      #
-      # Test that an SSL endpoint and a nonsense endpoint get written
-      # back out as an opaque endpoint.
-      #
-      p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-      pstr = communicator.proxyToString(p1);
-      if !ssl
-          test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-      else
-          test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
-      end
+        #
+        # Test that an SSL endpoint and a nonsense endpoint get written
+        # back out as an opaque endpoint.
+        #
+        p1 = communicator.stringToProxy("test:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+        pstr = communicator.proxyToString(p1)
+        if !ssl
+            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+        else
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch")
+        end
 
-      #
-      # Try to invoke on the SSL endpoint to verify that we get a
-      # NoEndpointException (or ConnectionRefusedException when
-      # running with SSL).
-      #
-      begin
-          p1.ice_ping();
-          test(false);
-      rescue Ice::NoEndpointException
-      rescue Ice::ConnectionRefusedException
-      end
+        #
+        # Try to invoke on the SSL endpoint to verify that we get a
+        # NoEndpointException (or ConnectionRefusedException when
+        # running with SSL).
+        #
+        begin
+            p1.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()
+            test(false)
+        rescue Ice::NoEndpointException
+            test(!ssl)
+        rescue Ice::ConnectionRefusedException
+            test(ssl)
+        end
 
-      #
-      # Test that the proxy with an SSL endpoint and a nonsense
-      # endpoint (which the server doesn't understand either) can be
-      # sent over the wire and returned by the server without losing
-      # the opaque endpoints.
-      #
-      p2 = derived.echo(p1);
-      pstr = communicator.proxyToString(p2);
-      if !ssl
-          test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
-      else
-          test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
-      end
+        #
+        # Test that the proxy with an SSL endpoint and a nonsense
+        # endpoint (which the server doesn't understand either) can be
+        # sent over the wire and returned by the server without losing
+        # the opaque endpoints.
+        #
+        p2 = derived.echo(p1)
+        pstr = communicator.proxyToString(p2)
+        if !ssl
+            test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+        else
+            test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch")
+        end
     end
     puts "ok"
 

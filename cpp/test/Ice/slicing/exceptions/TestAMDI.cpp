@@ -156,6 +156,27 @@ TestI::unknownMostDerived2AsBaseCompact_async(const AMD_TestIntf_unknownMostDeri
 }
 
 void
+TestI::knownPreservedAsBase_async(const AMD_TestIntf_knownPreservedAsBasePtr& cb, const ::Ice::Current&)
+{
+    KnownPreservedDerived ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    cb->ice_exception(ex);
+}
+
+void
+TestI::knownPreservedAsKnownPreserved_async(const AMD_TestIntf_knownPreservedAsKnownPreservedPtr& cb,
+                                            const ::Ice::Current&)
+{
+    KnownPreservedDerived ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    cb->ice_exception(ex);
+}
+
+void
 TestI::relayKnownPreservedAsBase_async(const AMD_TestIntf_relayKnownPreservedAsBasePtr& cb, const RelayPrx& r,
                                        const ::Ice::Current&)
 {
@@ -183,6 +204,31 @@ TestI::relayKnownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayKnownPr
     {
         cb->ice_exception(ex);
     }
+}
+
+void
+TestI::unknownPreservedAsBase_async(const AMD_TestIntf_unknownPreservedAsBasePtr& cb, const ::Ice::Current&)
+{
+    SPreserved2 ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p2 = ex.p1;
+    cb->ice_exception(ex);
+}
+
+void
+TestI::unknownPreservedAsKnownPreserved_async(const AMD_TestIntf_unknownPreservedAsKnownPreservedPtr& cb,
+                                              const ::Ice::Current&)
+{
+    SPreserved2 ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p2 = ex.p1;
+    cb->ice_exception(ex);
 }
 
 void

@@ -327,17 +327,19 @@ class RelayI : public Relay
 {
     virtual void knownPreservedAsBase(const ::Ice::Current&)
     {
-        KnownPreserved ex;
+        KnownPreservedDerived ex;
         ex.b = "base";
         ex.kp = "preserved";
+        ex.kpd = "derived";
         throw ex;
     }
 
     virtual void knownPreservedAsKnownPreserved(const ::Ice::Current&)
     {
-        KnownPreserved ex;
+        KnownPreservedDerived ex;
         ex.b = "base";
         ex.kp = "preserved";
+        ex.kpd = "derived";
         throw ex;
     }
 
@@ -346,6 +348,7 @@ class RelayI : public Relay
         Preserved2 ex;
         ex.b = "base";
         ex.kp = "preserved";
+        ex.kpd = "derived";
         ex.p1 = new PreservedClass("bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
@@ -356,6 +359,7 @@ class RelayI : public Relay
         Preserved2 ex;
         ex.b = "base";
         ex.kp = "preserved";
+        ex.kpd = "derived";
         ex.p1 = new PreservedClass("bc", "pc");
         ex.p2 = ex.p1;
         throw ex;
@@ -795,10 +799,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test->relayKnownPreservedAsBase(relay);
             test(false);
         }
-        catch(const KnownPreserved& ex)
+        catch(const KnownPreservedDerived& ex)
         {
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
         }
         catch(...)
         {
@@ -810,10 +815,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test->relayKnownPreservedAsKnownPreserved(relay);
             test(false);
         }
-        catch(const KnownPreserved& ex)
+        catch(const KnownPreservedDerived& ex)
         {
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
         }
         catch(...)
         {
@@ -829,13 +835,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
             test(ex.p1->ice_id() == PreservedClass::ice_staticId());
             PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
             test(pc->bc == "bc");
             test(pc->pc == "pc");
             test(ex.p2 == ex.p1);
         }
-        catch(const KnownPreserved& ex)
+        catch(const KnownPreservedDerived& ex)
         {
             //
             // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
@@ -843,6 +850,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
         }
         catch(...)
         {
@@ -858,13 +866,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
             test(ex.p1->ice_id() == PreservedClass::ice_staticId());
             PreservedClassPtr pc = PreservedClassPtr::dynamicCast(ex.p1);
             test(pc->bc == "bc");
             test(pc->pc == "pc");
             test(ex.p2 == ex.p1);
         }
-        catch(const KnownPreserved& ex)
+        catch(const KnownPreservedDerived& ex)
         {
             //
             // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
@@ -872,6 +881,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
             test(ex.b == "base");
             test(ex.kp == "preserved");
+            test(ex.kpd == "derived");
         }
         catch(...)
         {

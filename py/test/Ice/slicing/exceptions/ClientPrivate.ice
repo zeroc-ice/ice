@@ -19,7 +19,7 @@ class PreservedClass extends BaseClass
     string pc;
 };
 
-exception Preserved1 extends KnownPreserved
+exception Preserved1 extends KnownPreservedDerived
 {
     BaseClass p1;
 };

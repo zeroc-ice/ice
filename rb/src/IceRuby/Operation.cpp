@@ -43,7 +43,7 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+    OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
     virtual VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE);
     virtual void deprecate(const string&);
@@ -54,6 +54,7 @@ private:
     Ice::OperationMode _mode;
     Ice::OperationMode _sendMode;
     bool _amd;
+    Ice::FormatType _format;
     ParamInfoList _inParams;
     ParamInfoList _outParams;
     ParamInfoPtr _returnType;
@@ -63,13 +64,36 @@ private:
     bool _returnsClasses;
     string _deprecateMessage;
 
-    void prepareRequest(const Ice::CommunicatorPtr&, VALUE, bool, vector<Ice::Byte>&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, bool, vector<Ice::Byte>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
     void checkTwowayOnly(const Ice::ObjectPrx&) const;
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
+
+class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+{
+public:
+
+    UserExceptionReaderFactoryI(const Ice::CommunicatorPtr& communicator) :
+        _communicator(communicator)
+    {
+    }
+
+    virtual void createAndThrow(const string& id) const
+    {
+        ExceptionInfoPtr info = lookupExceptionInfo(id);
+        if(info)
+        {
+            throw ExceptionReader(_communicator, info);
+        }
+    }
+
+private:
+
+    const Ice::CommunicatorPtr _communicator;
+};
 
 }
 
@@ -82,12 +106,13 @@ IceRuby_Operation_free(OperationPtr* p)
 
 extern "C"
 VALUE
-IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams,
+IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE format, VALUE inParams,
                         VALUE outParams, VALUE returnType, VALUE exceptions)
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
+        OperationIPtr op = new OperationI(name, mode, sendMode, amd, format, inParams, outParams, returnType,
+                                          exceptions);
         return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -145,8 +170,8 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 //
 // OperationI implementation.
 //
-IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams, VALUE outParams,
-                                VALUE returnType, VALUE exceptions)
+IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE format, VALUE inParams,
+                                VALUE outParams, VALUE returnType, VALUE exceptions)
 {
     _name = getString(name);
     _amd = amd == Qtrue;
@@ -172,6 +197,20 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     volatile VALUE sendModeValue = callRuby(rb_funcall, sendMode, rb_intern("to_i"), 0);
     assert(TYPE(sendModeValue) == T_FIXNUM);
     _sendMode = static_cast<Ice::OperationMode>(FIX2LONG(sendModeValue));
+
+    //
+    // format
+    //
+    if(format == Qnil)
+    {
+        _format = Ice::DefaultFormat;
+    }
+    else
+    {
+        volatile VALUE formatValue = callRuby(rb_funcall, format, rb_intern("to_i"), 0);
+        assert(TYPE(formatValue) == T_FIXNUM);
+        _format = static_cast<Ice::FormatType>(FIX2LONG(formatValue));
+    }
 
     long i;
 
@@ -236,7 +275,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     // Marshal the input parameters to a byte sequence.
     //
     Ice::ByteSeq params;
-    prepareRequest(communicator, args, false, params);
+    prepareRequest(proxy, args, false, params);
 
     if(!_deprecateMessage.empty())
     {
@@ -316,8 +355,7 @@ IceRuby::OperationI::deprecate(const string& msg)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VALUE args, bool async,
-                                    vector<Ice::Byte>& bytes)
+IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, bool async, vector<Ice::Byte>& bytes)
 {
     //
     // Validate the number of arguments.
@@ -335,7 +373,13 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
         //
         // Marshal the in parameters.
         //
-        Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
+        Ice::OutputStreamPtr os = Ice::createOutputStream(proxy->ice_getCommunicator());
+        os->startEncapsulation(proxy->ice_getEncodingVersion());
+
+        if(_sendsClasses && _format != Ice::DefaultFormat)
+        {
+            os->format(_format);
+        }
 
         ObjectMap objectMap;
         long i = 0;
@@ -364,6 +408,7 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
             os->writePendingObjects();
         }
 
+        os->endEncapsulation();
         os->finished(bytes);
     }
 }
@@ -382,6 +427,17 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
     //
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
+
+    //
+    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // This is necessary to support object unmarshaling (see ObjectReader).
+    //
+    SlicedDataUtil util;
+    assert(!is->closure());
+    is->closure(&util);
+
+    is->startEncapsulation();
+
     for(ParamInfoList::iterator p = _outParams.begin(); p != _outParams.end(); ++p, ++i)
     {
         void* closure = reinterpret_cast<void*>(i);
@@ -398,85 +454,55 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         is->readPendingObjects();
     }
 
+    util.update();
+
+    is->endEncapsulation();
+
     return results;
 }
 
 VALUE
 IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    int traceSlicing = -1;
-
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
 
-    bool usesClasses;
-    is->read(usesClasses);
+    //
+    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // This is necessary to support object unmarshaling (see ObjectReader).
+    //
+    SlicedDataUtil util;
+    assert(!is->closure());
+    is->closure(&util);
 
-    string id;
-    is->read(id);
-    const string origId = id;
+    is->startEncapsulation();
 
-    while(!id.empty())
+    try
     {
-        ExceptionInfoPtr info = lookupExceptionInfo(id);
-        if(info)
-        {
-            volatile VALUE ex = info->unmarshal(is);
-            if(info->usesClasses)
-            {
-                is->readPendingObjects();
-            }
+        Ice::UserExceptionReaderFactoryPtr factory = new UserExceptionReaderFactoryI(communicator);
+        is->throwException(factory);
+    }
+    catch(const ExceptionReader& r)
+    {
+        volatile VALUE ex = r.getException();
 
-            if(validateException(ex))
-            {
-                return ex;
-            }
-            else
-            {
-                volatile VALUE cls = CLASS_OF(ex);
-                volatile VALUE path = callRuby(rb_class_path, cls);
-                assert(TYPE(path) == T_STRING);
-                Ice::UnknownUserException e(__FILE__, __LINE__);
-                e.unknown = RSTRING_PTR(path);
-                throw e;
-            }
+        if(validateException(ex))
+        {
+            util.update();
+
+            return ex;
         }
         else
         {
-            if(traceSlicing == -1)
-            {
-                traceSlicing = communicator->getProperties()->getPropertyAsInt("Ice.Trace.Slicing") > 0;
-            }
-
-            if(traceSlicing > 0)
-            {
-                communicator->getLogger()->trace("Slicing", "unknown exception type `" + id + "'");
-            }
-
-            is->skipSlice(); // Slice off what we don't understand.
-
-            try
-            {
-                is->read(id); // Read type id for next slice.
-            }
-            catch(Ice::UnmarshalOutOfBoundsException& ex)
-            {
-                //
-                // When readString raises this exception it means we've seen the last slice,
-                // so we set the reason member to a more helpful message.
-                //
-                ex.reason = "unknown exception type `" + origId + "'";
-                throw;
-            }
+            volatile VALUE cls = CLASS_OF(ex);
+            volatile VALUE path = callRuby(rb_class_path, cls);
+            assert(TYPE(path) == T_STRING);
+            Ice::UnknownUserException e(__FILE__, __LINE__);
+            e.unknown = RSTRING_PTR(path);
+            throw e;
         }
     }
 
-    //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have a factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
-    //
-    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
+    throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
 }
 
 bool
@@ -507,7 +533,7 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 8);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 9);
 
     //
     // Define a class to represent an operation.

@@ -2749,7 +2749,6 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
     while(info)
     {
         is->startSlice();
-
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;

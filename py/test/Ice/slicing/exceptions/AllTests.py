@@ -185,21 +185,24 @@ class Callback(CallbackBase):
 
 class RelayI(Test.Relay):
     def knownPreservedAsBase(self, current=None):
-        ex = Test.KnownPreserved()
+        ex = Test.KnownPreservedDerived()
         ex.b = "base"
         ex.kp = "preserved"
+        ex.kpd = "derived"
         raise ex
 
     def knownPreservedAsKnownPreserved(self, current=None):
-        ex = Test.KnownPreserved()
+        ex = Test.KnownPreservedDerived()
         ex.b = "base"
         ex.kp = "preserved"
+        ex.kpd = "derived"
         raise ex
 
     def unknownPreservedAsBase(self, current=None):
         ex = Test.Preserved2()
         ex.b = "base"
         ex.kp = "preserved"
+        ex.kpd = "derived"
         ex.p1 = Test.PreservedClass("bc", "pc")
         ex.p2 = ex.p1
         raise ex
@@ -208,6 +211,7 @@ class RelayI(Test.Relay):
         ex = Test.Preserved2()
         ex.b = "base"
         ex.kp = "preserved"
+        ex.kpd = "derived"
         ex.p1 = Test.PreservedClass("bc", "pc")
         ex.p2 = ex.p1
         raise ex
@@ -504,18 +508,20 @@ def allTests(communicator):
     try:
         t.relayKnownPreservedAsBase(relay)
         test(False)
-    except Test.KnownPreserved as ex:
+    except Test.KnownPreservedDerived as ex:
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
     except:
         test(False)
 
     try:
         t.relayKnownPreservedAsKnownPreserved(relay)
         test(False)
-    except Test.KnownPreserved as ex:
+    except Test.KnownPreservedDerived as ex:
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
     except:
         test(False)
 
@@ -525,19 +531,21 @@ def allTests(communicator):
     except Test.Preserved2 as ex:
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
         test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
         pc = ex.p1
         test(isinstance(pc, Test.PreservedClass))
         test(pc.bc == "bc")
         test(pc.pc == "pc")
         test(ex.p2 == ex.p1)
-    except Test.KnownPreserved as ex:
+    except Test.KnownPreservedDerived as ex:
         #
         # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
         #
         test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
     except:
         test(False)
 
@@ -547,19 +555,21 @@ def allTests(communicator):
     except Test.Preserved2 as ex:
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
         test(ex.p1.ice_id() == Test.PreservedClass.ice_staticId())
         pc = ex.p1
         test(isinstance(pc, Test.PreservedClass))
         test(pc.bc == "bc")
         test(pc.pc == "pc")
         test(ex.p2 == ex.p1)
-    except Test.KnownPreserved as ex:
+    except Test.KnownPreservedDerived as ex:
         #
         # For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
         #
         test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
         test(ex.b == "base")
         test(ex.kp == "preserved")
+        test(ex.kpd == "derived")
     except:
         test(False)
 

@@ -79,6 +79,30 @@ def allTests(communicator)
     rescue Ice::Exception
         test(false)
     end
+    if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+        begin
+            #
+            # This test succeeds for the 1.0 encoding.
+            #
+            sb = t.SBSUnknownDerivedAsSBaseCompact()
+            test(sb.sb == "SBSUnknownDerived.sb")
+        rescue
+            test(false)
+        end
+    else
+        begin
+            #
+            # This test fails when using the compact format because the instance cannot
+            # be sliced to a known type.
+            #
+            sb = t.SBSUnknownDerivedAsSBaseCompact()
+            test(false)
+        rescue Ice::MarshalException
+            # Expected.
+        rescue
+            test(false)
+        end
+    end
     puts "ok"
 
     print "unknown with Object as Object... "
@@ -447,7 +471,7 @@ def allTests(communicator)
     print "sequence slicing... "
     STDOUT.flush
     begin
-        ss = Test::SS.new
+        ss = Test::SS3.new
         ss1b = Test::B.new
         ss1b.sb = "B.sb"
         ss1b.pb = ss1b
@@ -654,6 +678,147 @@ def allTests(communicator)
     rescue Ice::Exception
         test(false)
     end
+    puts "ok"
+
+    print "preserved classes... "
+    STDOUT.flush
+
+    #
+    # Server knows the most-derived class PDerived.
+    #
+    pd = Test::PDerived.new()
+    pd.pi = 3
+    pd.ps = "preserved"
+    pd.pb = pd
+
+    r = t.exchangePBase(pd)
+    test(r.is_a?(Test::PDerived))
+    test(r.pi == 3)
+    test(r.ps == "preserved")
+    test(r.pb == r)
+
+    #
+    # Server only knows the base (non-preserved) type, so the object is sliced.
+    #
+    pu = Test::PCUnknown.new()
+    pu.pi = 3
+    pu.pu = "preserved"
+
+    r = t.exchangePBase(pu)
+    test(!r.is_a?(Test::PCUnknown))
+    test(r.pi == 3)
+
+    #
+    # Server only knows the intermediate type Preserved. The object will be sliced to
+    # Preserved for the 1.0 encoding; otherwise it should be returned intact.
+    #
+    pcd = Test::PCDerived.new()
+    pcd.pi = 3
+    pcd.pbs = [ pcd ]
+
+    r = t.exchangePBase(pcd)
+    if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+        test(!r.is_a?(Test::PCDerived))
+        test(r.pi == 3)
+    else
+        test(r.is_a?(Test::PCDerived))
+        test(r.pi == 3)
+        test(r.pbs[0] == r)
+    end
+
+    #
+    # Send an object that will have multiple preserved slices in the server.
+    # The object will be sliced to Preserved for the 1.0 encoding.
+    #
+    pcd = Test::PCDerived3.new()
+    pcd.pi = 3
+    #
+    # Sending more than 254 objects exercises the encoding for object ids.
+    #
+    pcd.pbs = []
+    for i in (0...300)
+        p2 = Test::PCDerived2.new()
+        p2.pi = i
+        p2.pbs = [ nil ] # Nil reference. This slice should not have an indirection table.
+        p2.pcd2 = i
+        pcd.pbs.push(p2)
+    end
+    pcd.pcd2 = pcd.pi
+    pcd.pcd3 = pcd.pbs[10]
+
+    r = t.exchangePBase(pcd)
+    if t.ice_getEncodingVersion() == Ice::Encoding_1_0
+        test(!r.is_a?(Test::PCDerived3))
+        test(r.is_a?(Test::Preserved))
+        test(r.pi == 3)
+    else
+        test(r.is_a?(Test::PCDerived3))
+        test(r.pi == 3)
+        for i in (0...300)
+            p2 = r.pbs[i]
+            test(p2.is_a?(Test::PCDerived2))
+            test(p2.pi == i)
+            test(p2.pbs.length == 1)
+            test(!p2.pbs[0])
+            test(p2.pcd2 == i)
+        end
+        test(r.pcd2 == r.pi)
+        test(r.pcd3 == r.pbs[10])
+    end
+
+    #
+    # Obtain an object with preserved slices and send it back to the server.
+    # The preserved slices should be excluded for the 1.0 encoding, otherwise
+    # they should be included.
+    #
+    p = t.PBSUnknownAsPreserved()
+    t.checkPBSUnknown(p)
+    if t.ice_getEncodingVersion() != Ice::Encoding_1_0
+        t.ice_encodingVersion(Ice::Encoding_1_0).checkPBSUnknown(p)
+    end
+
+    #
+    # Relay a graph through the server. This test uses a preserved class
+    # with a class member.
+    #
+    c = Test::PNode.new()
+    c._next = Test::PNode.new()
+    c._next._next = Test::PNode.new()
+    c._next._next._next = c    # Create a cyclic graph.
+
+    n = t.exchangePNode(c)
+    test(n._next != nil)
+    test(n._next != n._next._next)
+    test(n._next._next != n._next._next._next)
+    test(n._next._next._next == n)
+    n = nil        # Release reference.
+
+    #
+    # Obtain a preserved object from the server where the most-derived
+    # type is unknown. The preserved slice refers to a graph of PNode
+    # objects.
+    #
+    p = t.PBSUnknownAsPreservedWithGraph()
+    test(p)
+    t.checkPBSUnknownWithGraph(p)
+    p = nil        # Release reference.
+
+    #
+    # Obtain a preserved object from the server where the most-derived
+    # type is unknown. A data member in the preserved slice refers to the
+    # outer object, so the chain of references looks like this:
+    #
+    # outer->slicedData->outer
+    #
+    p = t.PBSUnknown2AsPreservedWithGraph()
+    test(p != nil)
+    if t.ice_getEncodingVersion() != Ice::Encoding_1_0
+        test(p._ice_slicedData != nil)
+    end
+    t.checkPBSUnknown2WithGraph(p)
+    p._ice_slicedData = nil    # Break the cycle.
+    p = nil                    # Release reference.
+
     puts "ok"
 
     return t

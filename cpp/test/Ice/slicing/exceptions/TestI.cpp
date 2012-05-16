@@ -151,6 +151,26 @@ TestI::unknownMostDerived2AsBaseCompact(const ::Ice::Current&)
 }
 
 void
+TestI::knownPreservedAsBase(const ::Ice::Current&)
+{
+    KnownPreservedDerived ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    throw ex;
+}
+
+void
+TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
+{
+    KnownPreservedDerived ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    throw ex;
+}
+
+void
 TestI::relayKnownPreservedAsBase(const RelayPrx& r, const ::Ice::Current&)
 {
     r->knownPreservedAsBase();
@@ -162,6 +182,30 @@ TestI::relayKnownPreservedAsKnownPreserved(const RelayPrx& r, const ::Ice::Curre
 {
     r->knownPreservedAsKnownPreserved();
     test(false);
+}
+
+void
+TestI::unknownPreservedAsBase(const ::Ice::Current&)
+{
+    SPreserved2 ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p2 = ex.p1;
+    throw ex;
+}
+
+void
+TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
+{
+    SPreserved2 ex;
+    ex.b = "base";
+    ex.kp = "preserved";
+    ex.kpd = "derived";
+    ex.p1 = new SPreservedClass("bc", "spc");
+    ex.p2 = ex.p1;
+    throw ex;
 }
 
 void

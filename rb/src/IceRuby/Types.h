@@ -37,6 +37,34 @@ class AbortMarshaling
 
 typedef std::map<VALUE, Ice::ObjectPtr> ObjectMap;
 
+class ObjectReader;
+typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+
+//
+// This class keeps track of Ruby objects (instances of Slice classes
+// and exceptions) that have preserved slices.
+//
+class SlicedDataUtil
+{
+public:
+
+    SlicedDataUtil();
+    ~SlicedDataUtil();
+
+    void add(const ObjectReaderPtr&);
+
+    void update();
+
+    static void setMember(VALUE, const Ice::SlicedDataPtr&);
+    static Ice::SlicedDataPtr getMember(VALUE, ObjectMap*);
+
+private:
+
+    std::set<ObjectReaderPtr> _readers;
+    static VALUE _slicedDataType;
+    static VALUE _sliceInfoType;
+};
+
 struct PrintObjectHistory
 {
     int index;
@@ -298,6 +326,7 @@ public:
     bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
     bool isLocal;
     bool isAbstract;
+    bool preserve;
     ClassInfoPtr base;
     ClassInfoList interfaces;
     DataMemberList members;
@@ -338,7 +367,6 @@ class ExceptionInfo : public IceUtil::Shared
 {
 public:
 
-    void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
     VALUE unmarshal(const Ice::InputStreamPtr&);
 
     void print(VALUE, IceUtilInternal::Output&);
@@ -358,7 +386,7 @@ class ObjectWriter : public Ice::ObjectWriter
 {
 public:
 
-    ObjectWriter(const ClassInfoPtr&, VALUE, ObjectMap*);
+    ObjectWriter(VALUE, ObjectMap*);
 
     virtual void ice_preMarshal();
 
@@ -366,9 +394,9 @@ public:
 
 private:
 
-    ClassInfoPtr _info;
     VALUE _object;
     ObjectMap* _map;
+    ClassInfoPtr _info;
 };
 
 //
@@ -382,18 +410,50 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void read(const Ice::InputStreamPtr&, bool);
+    virtual void read(const Ice::InputStreamPtr&);
 
     virtual ClassInfoPtr getInfo() const;
 
     VALUE getObject() const; // Borrowed reference.
 
+    Ice::SlicedDataPtr getSlicedData() const;
+
 private:
 
     VALUE _object;
     ClassInfoPtr _info;
+    Ice::SlicedDataPtr _slicedData;
 };
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+
+//
+// ExceptionReader creates a Ruby user exception and unmarshals it.
+//
+class ExceptionReader : public Ice::UserExceptionReader
+{
+public:
+
+    ExceptionReader(const Ice::CommunicatorPtr&, const ExceptionInfoPtr&);
+    ~ExceptionReader() throw();
+
+    virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
+    virtual void usesClasses(bool);
+
+    virtual std::string ice_name() const;
+    virtual Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    VALUE getException() const;
+
+    Ice::SlicedDataPtr getSlicedData() const;
+
+private:
+
+    ExceptionInfoPtr _info;
+    VALUE _ex;
+    Ice::SlicedDataPtr _slicedData;
+};
 
 ClassInfoPtr lookupClassInfo(const std::string&);
 ExceptionInfoPtr lookupExceptionInfo(const std::string&);

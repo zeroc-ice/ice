@@ -45,7 +45,8 @@ ICE_SRCS	= Ice/LocalException.rb \
 		  Ice/SliceChecksumDict.rb \
 		  Ice/Endpoint.rb \
 		  Ice/EndpointF.rb \
-		  Ice/EndpointTypes.rb
+		  Ice/EndpointTypes.rb \
+		  Ice/Version.rb
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Glacier2.rb!

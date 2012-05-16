@@ -131,6 +131,21 @@ Ice::Identity getIdentity(VALUE);
 VALUE createIdentity(const Ice::Identity&);
 
 //
+// Create a Ruby instance of Ice.ProtocolVersion.
+//
+VALUE createProtocolVersion(const Ice::ProtocolVersion&);
+
+//
+// Create a Ruby instance of Ice.EncodingVersion.
+//
+VALUE createEncodingVersion(const Ice::EncodingVersion&);
+
+//
+// Extracts the members of an encoding version.
+//
+bool getEncodingVersion(VALUE, Ice::EncodingVersion&);
+
+//
 // The callRuby functions are used to invoke Ruby C API functions
 // while translating any Ruby exception into RubyException so that
 // C++ objects are cleaned up properly. Overloadings are provided

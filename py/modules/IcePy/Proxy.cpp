@@ -1021,9 +1021,6 @@ extern "C"
 static PyObject*
 proxyIceGetEncodingVersion(ProxyObject* self)
 {
-    PyObject* cls = lookupType("Ice.EncodingVersion");
-    assert(cls);
-
     assert(self->proxy);
 
     PyObject* version;

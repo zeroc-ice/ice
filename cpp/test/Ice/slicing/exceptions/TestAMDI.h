@@ -54,6 +54,14 @@ public:
                     const ::Test::AMD_TestIntf_unknownMostDerived2AsBaseCompactPtr&,
                     const ::Ice::Current&);
 
+    virtual void knownPreservedAsBase_async(
+                    const ::Test::AMD_TestIntf_knownPreservedAsBasePtr&,
+                    const ::Ice::Current&);
+
+    virtual void knownPreservedAsKnownPreserved_async(
+                    const ::Test::AMD_TestIntf_knownPreservedAsKnownPreservedPtr&,
+                    const ::Ice::Current&);
+
     virtual void relayKnownPreservedAsBase_async(
                     const ::Test::AMD_TestIntf_relayKnownPreservedAsBasePtr&,
                     const ::Test::RelayPrx&,
@@ -62,6 +70,14 @@ public:
     virtual void relayKnownPreservedAsKnownPreserved_async(
                     const ::Test::AMD_TestIntf_relayKnownPreservedAsKnownPreservedPtr&,
                     const ::Test::RelayPrx&,
+                    const ::Ice::Current&);
+
+    virtual void unknownPreservedAsBase_async(
+                    const ::Test::AMD_TestIntf_unknownPreservedAsBasePtr&,
+                    const ::Ice::Current&);
+
+    virtual void unknownPreservedAsKnownPreserved_async(
+                    const ::Test::AMD_TestIntf_unknownPreservedAsKnownPreservedPtr&,
                     const ::Ice::Current&);
 
     virtual void relayUnknownPreservedAsBase_async(

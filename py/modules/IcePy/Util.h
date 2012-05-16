@@ -244,7 +244,7 @@ PyObject* createProtocolVersion(const Ice::ProtocolVersion&);
 PyObject* createEncodingVersion(const Ice::EncodingVersion&);
 
 //
-// Extracts the members of an encoding version
+// Extracts the members of an encoding version.
 //
 bool getEncodingVersion(PyObject*, Ice::EncodingVersion&);
 

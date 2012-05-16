@@ -1482,7 +1482,7 @@ def allTests(communicator):
     # The object will be sliced to Preserved for the 1.0 encoding.
     #
     pcd = Test.PCDerived3()
-    pcd.pi = 3;
+    pcd.pi = 3
     #
     # Sending more than 254 objects exercises the encoding for object ids.
     #
@@ -1572,7 +1572,7 @@ def allTests(communicator):
     # The object will be sliced to Preserved for the 1.0 encoding.
     #
     pcd = Test.PCDerived3()
-    pcd.pi = 3;
+    pcd.pi = 3
     #
     # Sending more than 254 objects exercises the encoding for object ids.
     #

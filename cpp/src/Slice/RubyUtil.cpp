@@ -607,7 +607,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
     bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() here - see bug 3739
-    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << (isAbstract ? "true" : "false") << ", ";
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << (isAbstract ? "true" : "false") << ", "
+         << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "nil";
@@ -675,7 +677,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define each operation. The arguments to __defineOperation are:
     //
-    // 'opName', Mode, [InParams], [OutParams], ReturnType, [Exceptions]
+    // 'opName', Mode, IsAmd, FormatType, [InParams], [OutParams], ReturnType, [Exceptions]
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
@@ -694,6 +696,19 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             ParamDeclList params = (*s)->parameters();
             ParamDeclList::iterator t;
             int count;
+            string format;
+            switch((*s)->format())
+            {
+            case DefaultFormat:
+                format = "nil";
+                break;
+            case CompactFormat:
+                format = "::Ice::FormatType::CompactFormat";
+                break;
+            case SlicedFormat:
+                format = "::Ice::FormatType::SlicedFormat";
+                break;
+            }
 
             _out << nl << name << "_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
                  << (*s)->name() << "', ";
@@ -722,7 +737,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
             }
-            _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", [";
+            _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", " << format
+                 << ", [";
             for(t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if(!(*t)->isOutParam())

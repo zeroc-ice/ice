@@ -14,6 +14,7 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
+#include <Ice/SlicedData.h>
 
 //
 // Required for RHASH_SIZE to work properly with Ruby 1.8.x.
@@ -172,6 +173,193 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
     //
 //    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
+}
+
+//
+// SlicedDataUtil implementation
+//
+VALUE IceRuby::SlicedDataUtil::_slicedDataType = Qnil;
+VALUE IceRuby::SlicedDataUtil::_sliceInfoType = Qnil;
+
+IceRuby::SlicedDataUtil::SlicedDataUtil()
+{
+}
+
+IceRuby::SlicedDataUtil::~SlicedDataUtil()
+{
+    //
+    // Make sure we break any cycles among the objects in preserved slices.
+    //
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        (*p)->getSlicedData()->clearObjects();
+    }
+}
+
+void
+IceRuby::SlicedDataUtil::add(const ObjectReaderPtr& reader)
+{
+    assert(reader->getSlicedData());
+    _readers.insert(reader);
+}
+
+void
+IceRuby::SlicedDataUtil::update()
+{
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        setMember((*p)->getObject(), (*p)->getSlicedData());
+    }
+}
+
+void
+IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedData)
+{
+    //
+    // Create a Ruby equivalent of the SlicedData object.
+    //
+
+    assert(slicedData);
+
+    if(_slicedDataType == Qnil)
+    {
+        _slicedDataType = callRuby(rb_path2class, "Ice::SlicedData");
+        assert(!NIL_P(_slicedDataType));
+    }
+    if(_sliceInfoType == Qnil)
+    {
+        _sliceInfoType = callRuby(rb_path2class, "Ice::SliceInfo");
+        assert(!NIL_P(_sliceInfoType));
+    }
+
+    volatile VALUE sd = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _slicedDataType);
+
+    Ice::Int sz = slicedData->slices.size();
+    volatile VALUE slices = createArray(sz);
+
+    callRuby(rb_iv_set, sd, "@slices", slices);
+
+    //
+    // Translate each SliceInfo object into its Ruby equivalent.
+    //
+    int i = 0;
+    for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    {
+        volatile VALUE slice = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), _sliceInfoType);
+
+        RARRAY_PTR(slices)[i++] = slice;
+
+        //
+        // typeId
+        //
+        volatile VALUE typeId = createString((*p)->typeId);
+        callRuby(rb_iv_set, slice, "@typeId", typeId);
+
+        //
+        // bytes
+        //
+        volatile VALUE bytes = callRuby(rb_str_new, reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+        callRuby(rb_iv_set, slice, "@bytes", bytes);
+
+        //
+        // objects
+        //
+        volatile VALUE objects = createArray((*p)->objects.size());
+        callRuby(rb_iv_set, slice, "@objects", objects);
+
+        int j = 0;
+        for(vector<Ice::ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        {
+            //
+            // Each element in the objects list is an instance of ObjectReader that wraps a Python object.
+            //
+            assert(*q);
+            ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
+            assert(r);
+            VALUE o = r->getObject();
+            assert(o != Qnil); // Should be non-nil.
+            RARRAY_PTR(objects)[j++] = o;
+        }
+    }
+
+    callRuby(rb_iv_set, obj, "@_ice_slicedData", sd);
+}
+
+//
+// Instances of preserved class and exception types may have a data member
+// named _ice_slicedData which is an instance of the Ruby class Ice::SlicedData.
+//
+Ice::SlicedDataPtr
+IceRuby::SlicedDataUtil::getMember(VALUE obj, ObjectMap* objectMap)
+{
+    Ice::SlicedDataPtr slicedData;
+
+    if(callRuby(rb_ivar_defined, obj, rb_intern("@_ice_slicedData")) == Qtrue)
+    {
+        volatile VALUE sd = callRuby(rb_iv_get, obj, "@_ice_slicedData");
+
+        if(sd != Qnil)
+        {
+            //
+            // The "slices" member is an array of Ice::SliceInfo objects.
+            //
+            volatile VALUE sl = callRuby(rb_iv_get, sd, "@slices");
+            assert(TYPE(sl) == T_ARRAY);
+
+            Ice::SliceInfoSeq slices;
+
+            long sz = RARRAY_LEN(sl);
+            for(long i = 0; i < sz; ++i)
+            {
+                volatile VALUE s = RARRAY_PTR(sl)[i];
+
+                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+
+                volatile VALUE typeId = callRuby(rb_iv_get, s, "@typeId");
+                info->typeId = getString(typeId);
+
+                volatile VALUE bytes = callRuby(rb_iv_get, s, "@bytes");
+                assert(TYPE(bytes) == T_STRING);
+                const char* str = RSTRING_PTR(bytes);
+                const long len = RSTRING_LEN(bytes);
+                if(str != 0 && len != 0)
+                {
+                    vector<Ice::Byte> vtmp(reinterpret_cast<const Ice::Byte*>(str),
+                                           reinterpret_cast<const Ice::Byte*>(str + len));
+                    info->bytes.swap(vtmp);
+                }
+
+                volatile VALUE objects = callRuby(rb_iv_get, s, "@objects");
+                assert(TYPE(objects) == T_ARRAY);
+                long osz = RARRAY_LEN(objects);
+                for(long j = 0; j < osz; ++j)
+                {
+                    VALUE o = RARRAY_PTR(objects)[j];
+
+                    Ice::ObjectPtr writer;
+
+                    ObjectMap::iterator i = objectMap->find(o);
+                    if(i == objectMap->end())
+                    {
+                        writer = new ObjectWriter(o, objectMap);
+                        objectMap->insert(ObjectMap::value_type(o, writer));
+                    }
+                    else
+                    {
+                        writer = i->second;
+                    }
+
+                    info->objects.push_back(writer);
+                }
+
+                slices.push_back(info);
+            }
+
+            slicedData = new Ice::SlicedData(slices);
+        }
+    }
+
+    return slicedData;
 }
 
 //
@@ -1397,12 +1585,7 @@ IceRuby::ClassInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* 
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        volatile VALUE cls = CLASS_OF(p);
-        volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-        assert(!NIL_P(type)); // Should have been caught by validate().
-        ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(type));
-        assert(info);
-        writer = new ObjectWriter(info, p, objectMap);
+        writer = new ObjectWriter(p, objectMap);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }
     else
@@ -1457,7 +1640,6 @@ IceRuby::ClassInfo::print(VALUE value, IceUtilInternal::Output& out, PrintObject
             {
                 type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
                 info = ClassInfoPtr::dynamicCast(getType(type));
-                assert(info);
             }
             catch(const RubyException& ex)
             {
@@ -1659,9 +1841,14 @@ IceRuby::ProxyInfo::destroy()
 //
 // ObjectWriter implementation.
 //
-IceRuby::ObjectWriter::ObjectWriter(const ClassInfoPtr& info, VALUE object, ObjectMap* objectMap) :
-    _info(info), _object(object), _map(objectMap)
+IceRuby::ObjectWriter::ObjectWriter(VALUE object, ObjectMap* objectMap) :
+    _object(object), _map(objectMap)
 {
+    volatile VALUE cls = CLASS_OF(object);
+    volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+    assert(!NIL_P(type));
+    _info = ClassInfoPtr::dynamicCast(getType(type));
+    assert(_info);
 }
 
 void
@@ -1677,12 +1864,22 @@ IceRuby::ObjectWriter::ice_preMarshal()
 void
 IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 {
+    Ice::SlicedDataPtr slicedData;
+
+    if(_info->preserve)
+    {
+        //
+        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
+        //
+        slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map));
+    }
+
+    os->startObject(slicedData);
+
     ClassInfoPtr info = _info;
     while(info)
     {
-        os->writeTypeId(info->id);
-
-        os->startSlice();
+        os->startSlice(info->id, !info->base);
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
@@ -1700,13 +1897,7 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         info = info->base;
     }
 
-    //
-    // Marshal the Ice::Object slice.
-    //
-    os->writeTypeId(Ice::Object::ice_staticId());
-    os->startSlice();
-    os->writeSize(0); // For compatibility with the old AFM.
-    os->endSlice();
+    os->endObject();
 }
 
 //
@@ -1728,8 +1919,10 @@ IceRuby::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
+IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is)
 {
+    is->startObject();
+
     //
     // Unmarshal the slices of a user-defined class.
     //
@@ -1738,11 +1931,6 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
         ClassInfoPtr info = _info;
         while(info)
         {
-            if(rid)
-            {
-                is->readTypeId();
-            }
-
             is->startSlice();
             for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
             {
@@ -1751,28 +1939,18 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
             }
             is->endSlice();
 
-            rid = true;
-
             info = info->base;
         }
     }
 
-    //
-    // Unmarshal the Ice::Object slice.
-    //
-    if(rid)
-    {
-        is->readTypeId();
-    }
+    _slicedData = is->endObject(_info->preserve);
 
-    is->startSlice();
-    // For compatibility with the old AFM.
-    Ice::Int sz = is->readSize();
-    if(sz != 0)
+    if(_slicedData)
     {
-        throw Ice::MarshalException(__FILE__, __LINE__);
+        SlicedDataUtil* util = reinterpret_cast<SlicedDataUtil*>(is->closure());
+        assert(util);
+        util->add(this);
     }
-    is->endSlice();
 }
 
 ClassInfoPtr
@@ -1785,6 +1963,12 @@ VALUE
 IceRuby::ObjectReader::getObject() const
 {
     return _object;
+}
+
+Ice::SlicedDataPtr
+IceRuby::ObjectReader::getSlicedData() const
+{
+    return _slicedData;
 }
 
 //
@@ -1848,48 +2032,11 @@ IceRuby::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 //
 // ExceptionInfo implementation.
 //
-void
-IceRuby::ExceptionInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
-{
-    if(callRuby(rb_obj_is_kind_of, p, rubyClass) == Qfalse)
-    {
-        throw RubyException(rb_eTypeError, "expected exception %s", id.c_str());
-    }
-
-    os->write(usesClasses);
-
-    ExceptionInfoPtr info = this;
-    while(info)
-    {
-        os->write(info->id);
-
-        os->startSlice();
-        for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
-        {
-            DataMemberPtr member = *q;
-            volatile VALUE val = callRuby(rb_ivar_get, p, member->rubyID);
-            if(!member->type->validate(val))
-            {
-                throw RubyException(rb_eTypeError, "invalid value for %s member `%s'", id.c_str(),
-                                    member->name.c_str());
-            }
-
-            member->type->marshal(val, os, objectMap);
-        }
-        os->endSlice();
-
-        info = info->base;
-    }
-}
-
 VALUE
 IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 {
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rubyClass);
 
-    //
-    // NOTE: The type id for the first slice has already been read.
-    //
     ExceptionInfoPtr info = this;
     while(info)
     {
@@ -1902,11 +2049,6 @@ IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         is->endSlice();
 
         info = info->base;
-        if(info)
-        {
-            string id;
-            is->read(id); // Read the ID of the next slice.
-        }
     }
 
     return obj;
@@ -1952,6 +2094,71 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
             member->type->print(val, out, history);
         }
     }
+}
+
+//
+// ExceptionReader implementation.
+//
+IceRuby::ExceptionReader::ExceptionReader(const Ice::CommunicatorPtr& communicator, const ExceptionInfoPtr& info) :
+    Ice::UserExceptionReader(communicator), _info(info)
+{
+}
+
+IceRuby::ExceptionReader::~ExceptionReader()
+    throw()
+{
+}
+
+void
+IceRuby::ExceptionReader::read(const Ice::InputStreamPtr& is) const
+{
+    is->startException();
+
+    const_cast<VALUE&>(_ex) = _info->unmarshal(is);
+
+    is->endException(false);
+}
+
+bool
+IceRuby::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
+void
+IceRuby::ExceptionReader::usesClasses(bool)
+{
+}
+
+string
+IceRuby::ExceptionReader::ice_name() const
+{
+    return _info->id;
+}
+
+Ice::Exception*
+IceRuby::ExceptionReader::ice_clone() const
+{
+    assert(false);
+    return 0;
+}
+
+void
+IceRuby::ExceptionReader::ice_throw() const
+{
+    throw *this;
+}
+
+VALUE
+IceRuby::ExceptionReader::getException() const
+{
+    return _ex;
+}
+
+Ice::SlicedDataPtr
+IceRuby::ExceptionReader::getSlicedData() const
+{
+    return 0;
 }
 
 extern "C"
@@ -2078,8 +2285,10 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
         {
             info = new ClassInfo;
             info->id = idstr;
-            info->isBase = idstr == "::Ice::Object";
+            info->isBase = idstr == Ice::Object::ice_staticId();
             info->isLocal = false;
+            info->isAbstract = false;
+            info->preserve = false;
             info->rubyClass = Qnil;
             info->typeObj = createType(info);
             info->defined = false;
@@ -2106,6 +2315,8 @@ IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
             info->id = idstr;
             info->isBase = idstr == "::Ice::LocalObject";
             info->isLocal = true;
+            info->isAbstract = false;
+            info->preserve = false;
             info->rubyClass = Qnil;
             info->typeObj = createType(info);
             info->defined = false;
@@ -2183,7 +2394,8 @@ IceRuby_TypeInfo_defineProxy(VALUE self, VALUE type, VALUE classInfo)
 
 extern "C"
 VALUE
-IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE base, VALUE interfaces, VALUE members)
+IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE preserve, VALUE base, VALUE interfaces,
+                             VALUE members)
 {
     ICE_RUBY_TRY
     {
@@ -2191,6 +2403,7 @@ IceRuby_TypeInfo_defineClass(VALUE self, VALUE type, VALUE isAbstract, VALUE bas
         assert(info);
 
         info->isAbstract = isAbstract == Qtrue;
+        info->preserve = preserve == Qtrue;
 
         if(!NIL_P(base))
         {
@@ -2329,7 +2542,7 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
-    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);
+    rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 6);
     rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 2);
 
     rb_define_module_function(iceModule, "__stringify", CAST_METHOD(IceRuby_stringify), 2);

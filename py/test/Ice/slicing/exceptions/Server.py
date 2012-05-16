@@ -107,11 +107,43 @@ class TestI(Test.TestIntf):
         umd2.umd2 = "UnknownMostDerived2.umd2"
         raise umd2
 
+    def knownPreservedAsBase(self, current=None):
+        ex = Test.KnownPreservedDerived()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.kpd = "derived"
+        raise ex
+
+    def knownPreservedAsKnownPreserved(self, current=None):
+        ex = Test.KnownPreservedDerived()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.kpd = "derived"
+        raise ex
+
     def relayKnownPreservedAsBase(self, r, current=None):
         r.knownPreservedAsBase()
 
     def relayKnownPreservedAsKnownPreserved(self, r, current=None):
         r.knownPreservedAsKnownPreserved()
+
+    def unknownPreservedAsBase(self, current=None):
+        ex = Test.SPreserved2()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.kpd = "derived"
+        ex.p1 = Test.SPreservedClass("bc", "spc")
+        ex.p2 = ex.p1
+        raise ex
+
+    def unknownPreservedAsKnownPreserved(self, current=None):
+        ex = Test.SPreserved2()
+        ex.b = "base"
+        ex.kp = "preserved"
+        ex.kpd = "derived"
+        ex.p1 = Test.SPreservedClass("bc", "spc")
+        ex.p2 = ex.p1
+        raise ex
 
     def relayUnknownPreservedAsBase(self, r, current=None):
         r.unknownPreservedAsBase()
