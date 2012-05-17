@@ -26,6 +26,7 @@ class ExceptionListTok;
 class ClassListTok;
 class EnumeratorListTok;
 class ConstDefTok;
+class DataMemberDefTok;
 
 typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
@@ -38,6 +39,7 @@ typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 typedef ::IceUtil::Handle<ConstDefTok> ConstDefTokPtr;
+typedef ::IceUtil::Handle<DataMemberDefTok> DataMemberDefTokPtr;
 
 // ----------------------------------------------------------------------
 // StringTok
@@ -172,6 +174,18 @@ public:
 
     ConstDefTok() { }
     ConstDef v;
+};
+
+// ----------------------------------------------------------------------
+// DataMemberDefTok
+// ----------------------------------------------------------------------
+
+class SLICE_API DataMemberDefTok : public GrammarBase
+{
+public:
+
+    DataMemberDefTok() { }
+    DataMemberDef v;
 };
 
 }

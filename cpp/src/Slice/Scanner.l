@@ -185,7 +185,19 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     {
         return ICE_IDENT_OP;
     }
-    return checkKeyword(ident->v) == ICE_IDENTIFIER ? ICE_IDENT_OP : ICE_KEYWORD_OP;
+    int st = checkKeyword(ident->v);
+    if(st == ICE_IDENTIFIER)
+    {
+        return ICE_IDENT_OP;
+    }
+    else if(st == ICE_OPTIONAL)
+    {
+        return ICE_OPTIONAL_OP;
+    }
+    else
+    {
+        return ICE_KEYWORD_OP;
+    }
 }
 
 {identifier} {
@@ -477,6 +489,7 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
+    keywordMap["optional"] = ICE_OPTIONAL;
 }
 
 //

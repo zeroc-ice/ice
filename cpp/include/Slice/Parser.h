@@ -157,6 +157,14 @@ struct ConstDef
     std::string valueAsLiteral;
 };
 
+struct DataMemberDef
+{
+    TypePtr type;
+    std::string name;
+    bool optional;
+    int tag;
+};
+
 // ----------------------------------------------------------------------
 // CICompare -- function object to do case-insensitive string comparison.
 // ----------------------------------------------------------------------
@@ -623,8 +631,8 @@ public:
 
     virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, Operation::Mode = Operation::Normal);
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
-                                   const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+                                   const std::string&, const std::string&);
     ClassDeclPtr declaration() const;
     ClassList bases() const;
     ClassList allBases() const;
@@ -694,8 +702,8 @@ class SLICE_API Exception : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
-                                   const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+                                   const std::string&, const std::string&);
     DataMemberList dataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
@@ -729,8 +737,8 @@ class SLICE_API Struct : virtual public Container, virtual public Constructed
 {
 public:
 
-    DataMemberPtr createDataMember(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
-                                   const std::string&);
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+                                   const std::string&, const std::string&);
     DataMemberList dataMembers() const;
     DataMemberList classDataMembers() const;
     virtual ContainedType containedType() const;
@@ -926,6 +934,8 @@ class SLICE_API DataMember : virtual public Contained
 public:
 
     TypePtr type() const;
+    bool optional() const;
+    int tag() const;
     std::string defaultValue() const;
     std::string defaultLiteral() const;
     SyntaxTreeBasePtr defaultValueType() const;
@@ -936,13 +946,15 @@ public:
 
 protected:
     
-    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&,
-               const std::string&);
+    DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
+               const std::string&, const std::string&);
     friend class ClassDef;
     friend class Struct;
     friend class Exception;
 
     TypePtr _type;
+    bool _optional;
+    int _tag;
     SyntaxTreeBasePtr _defaultValueType;
     std::string _defaultValue;
     std::string _defaultLiteral;

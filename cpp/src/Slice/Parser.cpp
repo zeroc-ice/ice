@@ -3043,8 +3043,9 @@ Slice::ClassDef::createOperation(const string& name,
 }
 
 DataMemberPtr
-Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
-                                  const string& defaultValue, const string& defaultLiteral)
+Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+                                  const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
+                                  const string& defaultLiteral)
 {
     checkIdentifier(name);
 
@@ -3186,8 +3187,25 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, const
         }
     }
 
+    if(optional)
+    {
+        //
+        // Validate the tag.
+        //
+        DataMemberList dml = allDataMembers();
+        for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        {
+            if((*q)->optional() && tag == (*q)->tag())
+            {
+                string msg = "tag for optional data member `" + name + "' is already in use";
+                _unit->error(msg);
+                break;
+            }
+        }
+    }
+
     _hasDataMembers = true;
-    DataMemberPtr member = new DataMember(this, name, type, dlt, dv, dl);
+    DataMemberPtr member = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(member);
     return member;
 }
@@ -3565,8 +3583,9 @@ Slice::Exception::destroy()
 }
 
 DataMemberPtr
-Slice::Exception::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
-                                   const string& defaultValue, const string& defaultLiteral)
+Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
+                                   const string& defaultLiteral)
 {
     checkIdentifier(name);
 
@@ -3697,7 +3716,24 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, cons
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, dlt, dv, dl);
+    if(optional)
+    {
+        //
+        // Validate the tag.
+        //
+        DataMemberList dml = allDataMembers();
+        for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        {
+            if((*q)->optional() && tag == (*q)->tag())
+            {
+                string msg = "tag for optional data member `" + name + "' is already in use";
+                _unit->error(msg);
+                break;
+            }
+        }
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -3917,8 +3953,9 @@ Slice::Exception::Exception(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 DataMemberPtr
-Slice::Struct::createDataMember(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& defaultValueType,
-                                const string& defaultValue, const string& defaultLiteral)
+Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool optional, int tag,
+                                const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
+                                const string& defaultLiteral)
 {
     checkIdentifier(name);
 
@@ -4031,7 +4068,24 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, const S
         }
     }
 
-    DataMemberPtr p = new DataMember(this, name, type, dlt, dv, dl);
+    if(optional)
+    {
+        //
+        // Validate the tag.
+        //
+        DataMemberList dml = dataMembers();
+        for(DataMemberList::iterator q = dml.begin(); q != dml.end(); ++q)
+        {
+            if((*q)->optional() && tag == (*q)->tag())
+            {
+                string msg = "tag for optional data member `" + name + "' is already in use";
+                _unit->error(msg);
+                break;
+            }
+        }
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
     return p;
 }
@@ -5160,6 +5214,18 @@ Slice::DataMember::type() const
     return _type;
 }
 
+bool
+Slice::DataMember::optional() const
+{
+    return _optional;
+}
+
+int
+Slice::DataMember::tag() const
+{
+    return _tag;
+}
+
 string
 Slice::DataMember::defaultValue() const
 {
@@ -5209,11 +5275,13 @@ Slice::DataMember::visit(ParserVisitor* visitor, bool)
 }
 
 Slice::DataMember::DataMember(const ContainerPtr& container, const string& name, const TypePtr& type,
-                              const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
-                              const string& defaultLiteral) :
+                              bool optional, int tag, const SyntaxTreeBasePtr& defaultValueType,
+                              const string& defaultValue, const string& defaultLiteral) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
+    _optional(optional),
+    _tag(tag),
     _defaultValueType(defaultValueType),
     _defaultValue(defaultValue),
     _defaultLiteral(defaultLiteral)

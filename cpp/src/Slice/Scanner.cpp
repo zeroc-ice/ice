@@ -1035,12 +1035,24 @@ YY_RULE_SETUP
     {
         return ICE_IDENT_OP;
     }
-    return checkKeyword(ident->v) == ICE_IDENTIFIER ? ICE_IDENT_OP : ICE_KEYWORD_OP;
+    int st = checkKeyword(ident->v);
+    if(st == ICE_IDENTIFIER)
+    {
+        return ICE_IDENT_OP;
+    }
+    else if(st == ICE_OPTIONAL)
+    {
+        return ICE_OPTIONAL_OP;
+    }
+    else
+    {
+        return ICE_KEYWORD_OP;
+    }
 }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 191 "Scanner.l"
+#line 203 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1051,7 +1063,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 199 "Scanner.l"
+#line 211 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1215,7 +1227,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 360 "Scanner.l"
+#line 372 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1234,7 +1246,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 376 "Scanner.l"
+#line 388 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1268,7 +1280,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 406 "Scanner.l"
+#line 418 "Scanner.l"
 {
     // Ignore white-space
     
@@ -1284,7 +1296,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 419 "Scanner.l"
+#line 431 "Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
     
@@ -1293,7 +1305,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 425 "Scanner.l"
+#line 437 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
@@ -1312,10 +1324,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 441 "Scanner.l"
+#line 453 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1318 "lex.yy.c"
+#line 1330 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -1396,7 +1408,7 @@ case YY_STATE_EOF(MAINSCAN):
 				{
 				(yy_did_buffer_switch_on_eof) = 0;
 
-				if ( slice_wrap( ) )
+				if ( slice_wrap(0) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
@@ -1732,7 +1744,7 @@ static int yy_get_next_buffer (void)
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( slice_wrap( ) )
+					if ( slice_wrap(0) )
 						return EOF;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
@@ -2315,7 +2327,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 441 "Scanner.l"
+#line 453 "Scanner.l"
 
 
 
@@ -2356,6 +2368,7 @@ initScanner()
     keywordMap["false"] = ICE_FALSE;
     keywordMap["true"] = ICE_TRUE;
     keywordMap["idempotent"] = ICE_IDEMPOTENT;
+    keywordMap["optional"] = ICE_OPTIONAL;
 }
 
 //
