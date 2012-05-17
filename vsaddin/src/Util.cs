@@ -2650,7 +2650,7 @@ namespace Ice.VisualStudio
         {
             Builder builder = Connect.getBuilder();
             builder.cleanProject(project, false);
-            builder.buildProject(project, true, vsBuildScope.vsBuildScopeProject);
+            builder.buildProject(project, true, vsBuildScope.vsBuildScopeProject, true);
         }
 
         public static int getVerboseLevel(Project p)
@@ -3394,7 +3394,7 @@ namespace Ice.VisualStudio
             //
             ComponentList components = Util.getIceCppComponents(project);
             bool debug = Util.isDebug(compilerTool.RuntimeLibrary);
-            string additionalDependencies = linkerTool.AdditionalDependencies;
+            string additionalDependencies = String.IsNullOrEmpty(linkerTool.AdditionalDependencies) ? "" : linkerTool.AdditionalDependencies;
 
             //
             // For each component we need to check that the correct 
