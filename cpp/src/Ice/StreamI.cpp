@@ -1073,7 +1073,7 @@ Ice::ObjectWriter::__write(BasicStream* os) const
 }
 
 void
-Ice::ObjectWriter::__read(BasicStream*, bool)
+Ice::ObjectWriter::__read(BasicStream*)
 {
     assert(false);
 }
@@ -1085,7 +1085,7 @@ Ice::ObjectWriter::__write(const Ice::OutputStreamPtr&) const
 }
 
 void
-Ice::ObjectWriter::__read(const Ice::InputStreamPtr&, bool)
+Ice::ObjectWriter::__read(const Ice::InputStreamPtr&)
 {
     assert(false);
 }

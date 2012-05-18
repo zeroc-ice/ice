@@ -48,9 +48,7 @@ public:
     {
         // Inlined for performance reasons.
 
-        if(_currentReadEncaps != &_preAllocatedReadEncaps ||
-           _currentWriteEncaps != &_preAllocatedWriteEncaps ||
-           _objectList)
+        if(_currentReadEncaps != &_preAllocatedReadEncaps || _currentWriteEncaps != &_preAllocatedWriteEncaps)
         {
             clear(); // Not inlined.
         }
@@ -84,17 +82,49 @@ public:
 
     void format(Ice::FormatType);
 
-    void startWriteObject(const Ice::SlicedDataPtr&);
-    void endWriteObject();
+    void startWriteObject(const Ice::SlicedDataPtr& data)
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->startObject(data);
+    }
+    void endWriteObject()
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->endObject();
+    }
 
-    void startReadObject();
-    Ice::SlicedDataPtr endReadObject(bool);
+    void startReadObject()
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        _currentReadEncaps->decoder->startObject();
+    }
+    Ice::SlicedDataPtr endReadObject(bool preserve)
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        return _currentReadEncaps->decoder->endObject(preserve);
+    }
 
-    void startWriteException(const Ice::SlicedDataPtr&);
-    void endWriteException();
+    void startWriteException(const Ice::SlicedDataPtr& data)
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->startException(data);
+    }
+    void endWriteException()
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->endException();
+    }
 
-    void startReadException();
-    Ice::SlicedDataPtr endReadException(bool);
+    void startReadException()
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        _currentReadEncaps->decoder->startException();
+    }
+    Ice::SlicedDataPtr endReadException(bool preserve)
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        return _currentReadEncaps->decoder->endException(preserve);
+    }
 
     void startWriteEncaps();
 
@@ -121,6 +151,7 @@ public:
     void endWriteEncaps()
     {
         assert(_currentWriteEncaps);
+
         Container::size_type start = _currentWriteEncaps->start;
         Ice::Int sz = static_cast<Ice::Int>(b.size() - start); // Size includes size and version.
         Ice::Byte* dest = &(*(b.begin() + start));
@@ -291,12 +322,47 @@ public:
     Ice::Int getReadEncapsSize();
     Ice::EncodingVersion skipEncaps();
 
-    void startWriteSlice(const std::string&, bool);
-    void endWriteSlice();
+    void startWriteSlice(const std::string& typeId, bool last)
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->startSlice(typeId, last);
+    }
+    void endWriteSlice()
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->endSlice();
+    }
 
-    std::string startReadSlice(); // Returns type ID of next slice
-    void endReadSlice();
-    void skipSlice();
+    std::string startReadSlice() // Returns type ID of next slice
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        return _currentReadEncaps->decoder->startSlice();
+    }
+    void endReadSlice()
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        _currentReadEncaps->decoder->endSlice();
+    }
+    void skipSlice()
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        _currentReadEncaps->decoder->skipSlice();
+    }
+
+    void readPendingObjects()
+    {
+        if(_currentReadEncaps && _currentReadEncaps->decoder)
+        {
+            _currentReadEncaps->decoder->readPendingObjects();
+        }
+    }
+    void writePendingObjects()
+    {
+        if(_currentWriteEncaps && _currentWriteEncaps->encoder)
+        {
+            _currentWriteEncaps->encoder->writePendingObjects();
+        }
+    }
 
     void writeSize(Ice::Int v) // Inlined for performance reasons.
     {
@@ -311,25 +377,21 @@ public:
             write(static_cast<Ice::Byte>(v));
         }
     }
+    void writeSizeSeq(const std::vector<Ice::Int>& v)
+    {
+        writeSize(v.size());
+        for(std::vector<Ice::Int>::const_iterator p = v.begin(); p != v.end(); ++p)
+        {
+            writeSize(*p);
+        }
+    }
     void rewriteSize(Ice::Int v, Container::iterator dest)
     {
         assert(v >= 0);
         if(v > 254)
         {
             *dest++ = Ice::Byte(255);
-#ifdef ICE_BIG_ENDIAN
-            const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest++ = *src--;
-            *dest = *src;
-#else
-            const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v);
-            *dest++ = *src++;
-            *dest++ = *src++;
-            *dest++ = *src++;
-            *dest = *src;
-#endif
+            write(v, dest);
         }
         else
         {
@@ -352,6 +414,23 @@ public:
         else
         {
             v = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
+        }
+    }
+    void readSizeSeq(std::vector<Ice::Int>& v)
+    {
+        Ice::Int sz;
+        readSize(sz);
+        if(sz > 0)
+        {
+            v.resize(sz);
+            for(Ice::Int n = 0; n < sz; ++n)
+            {
+                readSize(v[n]);
+            }
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -397,6 +476,7 @@ public:
     {
         if(i >= b.end())
         {
+            assert(false);
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
         v = *i++;
@@ -433,7 +513,10 @@ public:
     {
         Container::size_type pos = b.size();
         resize(pos + sizeof(Ice::Int));
-        Ice::Byte* dest = &b[pos];
+        write(v, &b[pos]);
+    }
+    void write(Ice::Int v, Container::iterator dest)
+    {
 #ifdef ICE_BIG_ENDIAN
         const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&v) + sizeof(Ice::Int) - 1;
         *dest++ = *src--;
@@ -448,6 +531,7 @@ public:
         *dest = *src;
 #endif
     }
+
     void write(Ice::Int, int limit);
 
     void read(Ice::Int& v) // Inlined for performance reasons.
@@ -562,14 +646,27 @@ public:
     void write(const Ice::ObjectPrx&);
     void read(Ice::ObjectPrx&);
 
-    void write(const Ice::ObjectPtr&);
-    void read(PatchFunc, void*);
-
-    void write(const Ice::UserException&);
-    void throwException(const UserExceptionFactoryPtr& = 0);
-
-    void writePendingObjects();
-    void readPendingObjects();
+    void write(const Ice::ObjectPtr& v)
+    {
+        initWriteEncaps();
+        _currentWriteEncaps->encoder->write(v);
+    }
+    void read(PatchFunc patchFunc, void* patchAddr)
+    {
+        assert(patchFunc && patchAddr);
+        initReadEncaps();
+        _currentReadEncaps->decoder->read(patchFunc, patchAddr);
+    }
+    void write(const Ice::UserException& e)
+    {
+        initWriteEncaps();
+        _currentWriteEncaps->encoder->write(e);
+    }
+    void throwException(const UserExceptionFactoryPtr& factory = 0)
+    {
+        initReadEncaps();
+        _currentReadEncaps->decoder->throwException(factory);
+    }
 
     void sliceObjects(bool);
 
@@ -624,100 +721,177 @@ private:
     //
     void* _closure;
 
-    class ICE_API ReadEncaps : private ::IceUtil::noncopyable
+    class ReadEncaps;
+    class WriteEncaps;
+    enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
+
+    class EncapsDecoder : private ::IceUtil::noncopyable
+    {
+    public:
+        EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
+            _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _traceSlicing(-1), _sliceType(NoSlice),
+            _typeIdIndex(0)
+        {
+        } 
+
+        void read(PatchFunc, void*);
+        void throwException(const UserExceptionFactoryPtr&);
+
+        void startObject();
+        Ice::SlicedDataPtr endObject(bool);
+
+        void startException();
+        Ice::SlicedDataPtr endException(bool);
+
+        const std::string& startSlice();
+        void endSlice();
+        void skipSlice();
+
+        void readPendingObjects();
+        
+    private:
+
+        const std::string& readTypeId() const;
+        Ice::ObjectPtr readInstance();
+        void addPatchEntry(Ice::Int, PatchFunc, void*);
+        Ice::SlicedDataPtr readSlicedData();
+
+        BasicStream* _stream;
+        ReadEncaps* _encaps;
+        const bool _sliceObjects;
+
+        int _traceSlicing;
+        const char* _slicingCat;
+
+        // Object/exception attributes
+        SliceType _sliceType;
+        bool _skipFirstSlice;
+        Ice::SliceInfoSeq _slices;          // Preserved slices.
+        IndexListList _indirectionTables;   // Indirection tables for the preserved slices.
+
+        // Slice attributes
+        Ice::Byte _sliceFlags;
+        Ice::Int _sliceSize;
+        std::string _typeId;
+        IndirectPatchList _indirectPatchList;
+        
+        // Encapsulation attributes for object un-marshalling
+        PatchMap _patchMap;
+        IndexToPtrMap _unmarshaledMap;
+        TypeIdReadMap _typeIdMap;
+        Ice::Int _typeIdIndex;
+    };
+
+    class EncapsEncoder : private ::IceUtil::noncopyable
+    {
+    public:
+        EncapsEncoder(BasicStream* stream, WriteEncaps* encaps, Ice::FormatType format) : 
+            _stream(stream), _encaps(encaps), _format(format), _sliceType(NoSlice), _objectIdIndex(0), _typeIdIndex(0)
+        {
+        }
+
+        void write(const Ice::ObjectPtr&);
+        void write(const Ice::UserException&);
+
+        void startObject(const Ice::SlicedDataPtr&);
+        void endObject();
+
+        void startException(const Ice::SlicedDataPtr&);
+        void endException();
+
+        void startSlice(const std::string&, bool);
+        void endSlice();
+
+        void writePendingObjects();
+
+    private:
+
+        void writeTypeId(const std::string&);
+        void writeInstance(const Ice::ObjectPtr&, Ice::Int);
+        void writeSlicedData(const Ice::SlicedDataPtr&);
+        Ice::Int registerObject(const Ice::ObjectPtr&);
+
+        BasicStream* _stream;
+        WriteEncaps* _encaps;
+        const Ice::FormatType _format;
+
+        // Object/exception attributes
+        SliceType _sliceType;
+        bool _firstSlice;
+
+        // Slice attributes
+        Ice::Byte _sliceFlags;
+        Container::size_type _writeSlice;    // Position of the slice data members
+        Container::size_type _sliceFlagsPos; // Position of the slice flags
+        IndexList _indirectionTable;
+        IndirectionMap _indirectionMap;
+
+        // Encapsulation attributes for object marshalling.
+        Ice::Int _objectIdIndex;
+        PtrToIndexMap _toBeMarshaledMap;
+        PtrToIndexMap _marshaledMap;
+        TypeIdWriteMap _typeIdMap;
+        Ice::Int _typeIdIndex;
+    };
+
+    class ReadEncaps : private ::IceUtil::noncopyable
     {
     public:
 
-        ReadEncaps() : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), indirectPatchList(0), previous(0)
+        ReadEncaps() : decoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }
         ~ReadEncaps()
         {
             // Inlined for performance reasons.
-            delete patchMap;
-            delete unmarshaledMap;
-            delete typeIdMap;
-            delete indirectPatchList;
+            delete decoder;
         }
         void reset()
         {
             // Inlined for performance reasons.
-            delete patchMap;
-            delete unmarshaledMap;
-            delete typeIdMap;
-            delete indirectPatchList;
+            delete decoder;
+            decoder = 0;
 
-            patchMap = 0;
-            unmarshaledMap = 0;
-            typeIdMap = 0;
-            typeIdIndex = 0;
-            indirectPatchList = 0;
             previous = 0;
         }
-        void swap(ReadEncaps&);
 
         Container::size_type start;
         Ice::Int sz;
         Ice::EncodingVersion encoding;
 
-        PatchMap* patchMap;
-        IndexToPtrMap* unmarshaledMap;
-        TypeIdReadMap* typeIdMap;
-        Ice::Int typeIdIndex;
-        IndirectPatchList* indirectPatchList;
+        EncapsDecoder* decoder;
 
         ReadEncaps* previous;
     };
 
-    class ICE_API WriteEncaps : private ::IceUtil::noncopyable
+    class WriteEncaps : private ::IceUtil::noncopyable
     {
+
     public:
 
-        WriteEncaps() : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0),
-                        indirectionTable(0), indirectionMap(0), previous(0)
+        WriteEncaps() : encoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }
         ~WriteEncaps()
         {
             // Inlined for performance reasons.
-            delete toBeMarshaledMap;
-            delete marshaledMap;
-            delete typeIdMap;
-            delete indirectionTable;
-            delete indirectionMap;
+            delete encoder;
         }
         void reset()
         {
             // Inlined for performance reasons.
-            delete toBeMarshaledMap;
-            delete marshaledMap;
-            delete typeIdMap;
-            delete indirectionTable;
-            delete indirectionMap;
+            delete encoder;
+            encoder = 0;
 
-            writeIndex = 0;
-            toBeMarshaledMap = 0;
-            marshaledMap = 0;
-            typeIdMap = 0;
-            typeIdIndex = 0;
-            indirectionTable = 0;
-            indirectionMap = 0;
             previous = 0;
         }
-        void swap(WriteEncaps&);
 
         Container::size_type start;
         Ice::EncodingVersion encoding;
 
-        Ice::Int writeIndex;
-        PtrToIndexMap* toBeMarshaledMap;
-        PtrToIndexMap* marshaledMap;
-        TypeIdWriteMap* typeIdMap;
-        Ice::Int typeIdIndex;
-        IndexList* indirectionTable;
-        IndirectionMap* indirectionMap;
+        EncapsEncoder* encoder;
 
         WriteEncaps* previous;
     };
@@ -739,37 +913,6 @@ private:
     ReadEncaps _preAllocatedReadEncaps;
     WriteEncaps _preAllocatedWriteEncaps;
 
-    Container::size_type _readSlice;
-    Container::size_type _writeSlice;
-    Container::size_type _writeFlags;
-
-    enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
-    SliceType _sliceType;
-
-    bool _firstSlice;       // This is true if we are in the initial slice (writing)
-
-    bool _needSliceHeader;  // This is true if the slice header needs to be read (reading)
-    Ice::Byte _sliceFlags;  // The flags for the current slice (reading)
-    std::string _typeId;    // The type ID of the current slice (reading)
-
-    Ice::SliceInfoSeq _slices;          // Preserved slices.
-    IndexListList _indirectionTables;   // Indirection tables for the preserved slices.
-
-    void readSliceHeader();
-    void writeSliceHeader(Ice::Byte, const std::string&);
-    void readTypeId(bool, std::string&);
-    bool registerTypeId(const std::string&, Ice::Int&);
-    Ice::Int registerObject(const Ice::ObjectPtr&);
-    void writeInstance(const Ice::ObjectPtr&, Ice::Int);
-    void readInstance();
-    void patchPointers(Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);
-    void addPatchEntry(Ice::Int, PatchFunc, void*);
-    void writeSlicedData(const Ice::SlicedDataPtr&);
-    Ice::SlicedDataPtr prepareSlicedData();
-
-    int _traceSlicing;
-    const char* _slicingCat;
-
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;
@@ -780,8 +923,6 @@ private:
 
     int _startSeq;
     int _minSeqSize;
-
-    ObjectList* _objectList;
 
     Ice::FormatType _format;
 

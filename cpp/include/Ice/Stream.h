@@ -767,10 +767,10 @@ public:
 private:
 
     virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool = true);
+    virtual void __read(::IceInternal::BasicStream*);
 
     virtual void __write(const OutputStreamPtr&) const;
-    virtual void __read(const InputStreamPtr&, bool);
+    virtual void __read(const InputStreamPtr&);
 };
 typedef ::IceInternal::Handle<ObjectWriter> ObjectWriterPtr;
 

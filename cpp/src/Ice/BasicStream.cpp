@@ -92,18 +92,12 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _encoding(encoding),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
-    _sliceType(NoSlice),
-    _firstSlice(false),
-    _needSliceHeader(true),
-    _sliceFlags(0),
-    _traceSlicing(-1),
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
     _unlimited(unlimited),
     _stringConverter(instance->initializationData().stringConverter),
     _wstringConverter(instance->initializationData().wstringConverter),
     _startSeq(-1),
-    _objectList(0),
     _format(_instance->defaultsAndOverrides()->defaultFormat)
 {
     //
@@ -133,12 +127,6 @@ IceInternal::BasicStream::clear()
 
     _startSeq = -1;
 
-    delete _objectList;
-    _objectList = 0;
-    _sliceType = NoSlice;
-    _firstSlice = false;
-    _needSliceHeader = true;
-    _sliceFlags = 0;
     _sliceObjects = true;
 }
 
@@ -166,272 +154,27 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(_closure, other._closure);
 
     //
-    // Swap is never called for BasicStreams that have more than one
-    // encaps.
+    // Swap is never called for BasicStreams that have encapsulations being read/write.
     //
-    assert(!_currentReadEncaps || _currentReadEncaps == &_preAllocatedReadEncaps);
-    assert(!_currentWriteEncaps || _currentWriteEncaps == &_preAllocatedWriteEncaps);
-    assert(!other._currentReadEncaps || other._currentReadEncaps == &other._preAllocatedReadEncaps);
-    assert(!other._currentWriteEncaps || other._currentWriteEncaps == &other._preAllocatedWriteEncaps);
-
-    if(_currentReadEncaps || other._currentReadEncaps)
-    {
-        _preAllocatedReadEncaps.swap(other._preAllocatedReadEncaps);
-
-        if(!_currentReadEncaps)
-        {
-            _currentReadEncaps = &_preAllocatedReadEncaps;
-            other._currentReadEncaps = 0;
-        }
-        else if(!other._currentReadEncaps)
-        {
-            other._currentReadEncaps = &other._preAllocatedReadEncaps;
-            _currentReadEncaps = 0;
-        }
-    }
-
-    if(_currentWriteEncaps || other._currentWriteEncaps)
-    {
-        _preAllocatedWriteEncaps.swap(other._preAllocatedWriteEncaps);
-
-        if(!_currentWriteEncaps)
-        {
-            _currentWriteEncaps = &_preAllocatedWriteEncaps;
-            other._currentWriteEncaps = 0;
-        }
-        else if(!other._currentWriteEncaps)
-        {
-            other._currentWriteEncaps = &other._preAllocatedWriteEncaps;
-            _currentWriteEncaps = 0;
-        }
-    }
+    assert(!_currentReadEncaps);
+    assert(!_currentWriteEncaps);
+    assert(!other._currentReadEncaps);
+    assert(!other._currentWriteEncaps);
 
     std::swap(_unlimited, other._unlimited);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
-    std::swap(_sliceType, other._sliceType);
-    std::swap(_firstSlice, other._firstSlice);
-    std::swap(_needSliceHeader, other._needSliceHeader);
-    std::swap(_sliceFlags, other._sliceFlags);
-    std::swap(_typeId, other._typeId);
-    _slices.swap(other._slices);
-    _indirectionTables.swap(other._indirectionTables);
-    std::swap(_objectList, other._objectList);
     std::swap(_format, other._format);
-}
-
-void
-IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
-{
-    std::swap(start, other.start);
-    std::swap(sz, other.sz);
-    std::swap(encoding, other.encoding);
-
-    std::swap(patchMap, other.patchMap);
-    std::swap(unmarshaledMap, other.unmarshaledMap);
-    std::swap(typeIdMap, other.typeIdMap);
-    std::swap(typeIdIndex, other.typeIdIndex);
-
-    std::swap(indirectPatchList, other.indirectPatchList);
-
-    std::swap(previous, other.previous);
-}
-
-void
-IceInternal::BasicStream::WriteEncaps::swap(WriteEncaps& other)
-{
-    std::swap(start, other.start);
-    std::swap(encoding, other.encoding);
-
-    std::swap(writeIndex, other.writeIndex);
-    std::swap(toBeMarshaledMap, other.toBeMarshaledMap);
-    std::swap(marshaledMap, other.marshaledMap);
-    std::swap(typeIdMap, other.typeIdMap);
-    std::swap(typeIdIndex, other.typeIdIndex);
-
-    std::swap(indirectionTable, other.indirectionTable);
-    std::swap(indirectionMap, other.indirectionMap);
-
-    std::swap(previous, other.previous);
 }
 
 void
 IceInternal::BasicStream::format(Ice::FormatType format)
 {
+    // TODO: XXX: shouldn't this compare format instead of _format?
     if(_format != DefaultFormat)
     {
         _format = format;
     }
-}
-
-void
-IceInternal::BasicStream::startWriteObject(const SlicedDataPtr& slicedData)
-{
-    assert(_currentWriteEncaps);
-    assert(_sliceType == ObjectSlice); // Already set in writeInstance.
-
-    //
-    // We only remarshal preserved slices if the target encoding is > 1.0 and we are
-    // using the sliced format. Otherwise, we ignore the preserved slices, which
-    // essentially "slices" the object into the most-derived type known by the sender.
-    //
-    if(slicedData && _currentWriteEncaps->encoding != Encoding_1_0 && _format == SlicedFormat)
-    {
-        writeSlicedData(slicedData);
-    }
-
-    if(_format == CompactFormat)
-    {
-        _firstSlice = true;
-    }
-}
-
-void
-IceInternal::BasicStream::endWriteObject()
-{
-    assert(_currentWriteEncaps);
-    assert(_sliceType == ObjectSlice);
-
-    if(_currentWriteEncaps->encoding == Encoding_1_0)
-    {
-        //
-        // Write the Ice::Object slice.
-        //
-        startWriteSlice(Object::ice_staticId(), true);
-        writeSize(0); // For compatibility with the old AFM.
-        endWriteSlice();
-    }
-
-    _sliceType = NoSlice;
-}
-
-void
-IceInternal::BasicStream::startReadObject()
-{
-    assert(_currentReadEncaps);
-    assert(_sliceType == ObjectSlice); // Already set in readInstance.
-}
-
-SlicedDataPtr
-IceInternal::BasicStream::endReadObject(bool preserve)
-{
-    assert(_currentReadEncaps);
-    assert(_sliceType == ObjectSlice);
-
-    SlicedDataPtr slicedData;
-
-    if(_currentReadEncaps->encoding == Encoding_1_0)
-    {
-        //
-        // Read the Ice::Object slice.
-        //
-        startReadSlice();
-
-        //
-        // For compatibility with the old AFM.
-        //
-        Int sz;
-        readSize(sz);
-        if(sz != 0)
-        {
-            throw MarshalException(__FILE__, __LINE__, "invalid Object slice");
-        }
-
-        endReadSlice();
-    }
-    else
-    {
-        //
-        // The object should end with the last slice.
-        //
-        if((_sliceFlags & FLAG_IS_LAST_SLICE) == 0)
-        {
-            throw MarshalException(__FILE__, __LINE__, "object did not end on last slice");
-        }
-
-        if(preserve)
-        {
-            slicedData = prepareSlicedData();
-        }
-    }
-
-    _sliceType = NoSlice;
-    _slices.clear();
-    _indirectionTables.clear();
-    _needSliceHeader = true;
-
-    return slicedData;
-}
-
-void
-IceInternal::BasicStream::startWriteException(const SlicedDataPtr& slicedData)
-{
-    initWriteEncaps();
-
-    assert(_sliceType == NoSlice);
-
-    _sliceType = ExceptionSlice;
-
-    //
-    // We only remarshal preserved slices if the target encoding is > 1.0 and we are
-    // using the sliced format. Otherwise, we ignore the preserved slices, which
-    // essentially "slices" the object into the most-derived type known by the sender.
-    //
-    if(slicedData && _currentWriteEncaps->encoding != Encoding_1_0 && _format == SlicedFormat)
-    {
-        writeSlicedData(slicedData);
-    }
-
-    if(_format == CompactFormat)
-    {
-        _firstSlice = true;
-    }
-}
-
-void
-IceInternal::BasicStream::endWriteException()
-{
-    assert(_sliceType == ExceptionSlice);
-
-    _sliceType = NoSlice;
-}
-
-void
-IceInternal::BasicStream::startReadException()
-{
-    initReadEncaps();
-
-    _sliceType = ExceptionSlice;
-}
-
-SlicedDataPtr
-IceInternal::BasicStream::endReadException(bool preserve)
-{
-    assert(_sliceType == ExceptionSlice);
-
-    SlicedDataPtr slicedData;
-
-    if(_currentReadEncaps->encoding != Encoding_1_0)
-    {
-        //
-        // The object should end with the last slice.
-        //
-        if((_sliceFlags & FLAG_IS_LAST_SLICE) == 0)
-        {
-            throw MarshalException(__FILE__, __LINE__, "exception did not end on last slice");
-        }
-
-        if(preserve)
-        {
-            slicedData = prepareSlicedData();
-        }
-    }
-
-    _sliceType = NoSlice;
-    _slices.clear();
-    _indirectionTables.clear();
-
-    return slicedData;
 }
 
 void
@@ -498,264 +241,6 @@ IceInternal::BasicStream::skipEncaps()
     read(encoding.minor);
     i += sz - sizeof(Int) - 2;
     return encoding;
-}
-
-void
-IceInternal::BasicStream::startWriteSlice(const string& typeId, bool lastSlice)
-{
-    assert(_currentWriteEncaps);
-    assert(_sliceType != NoSlice);
-
-    if(_currentWriteEncaps->encoding == Encoding_1_0)
-    {
-        writeSliceHeader(0, typeId);
-        write(Int(0)); // Placeholder for the slice length.
-        _writeSlice = b.size();
-    }
-    else
-    {
-        Byte flags = lastSlice ? FLAG_IS_LAST_SLICE : 0;
-
-        if(_format == CompactFormat)
-        {
-            if(_firstSlice)
-            {
-                //
-                // The first slice in the compact format includes the type ID.
-                //
-                writeSliceHeader(flags, typeId);
-
-                _firstSlice = false;
-            }
-            else
-            {
-                //
-                // Type IDs are omitted in subsequent slices of the compact format.
-                //
-                write(flags);
-            }
-        }
-        else
-        {
-            //
-            // The sliced format always includes the type ID and the slice size.
-            //
-            flags |= FLAG_HAS_SLICE_SIZE;
-            writeSliceHeader(flags, typeId);
-
-            write(Int(0)); // Placeholder for the slice length.
-            _writeSlice = b.size();
-        }
-    }
-}
-
-void
-IceInternal::BasicStream::endWriteSlice()
-{
-    assert(_currentWriteEncaps);
-    assert(_sliceType != NoSlice);
-
-    if(_currentWriteEncaps->encoding == Encoding_1_0 || _format == SlicedFormat)
-    {
-        Int sz = static_cast<Int>(b.size() - _writeSlice + sizeof(Int));
-        Byte* dest = &(*(b.begin() + _writeSlice - sizeof(Int)));
-#ifdef ICE_BIG_ENDIAN
-        const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int) - 1;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest = *src;
-#else
-        const Byte* src = reinterpret_cast<const Byte*>(&sz);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
-    }
-
-    //
-    // Only write the indirection table if it contains entries.
-    //
-    if(!_currentWriteEncaps->indirectionTable->empty())
-    {
-        assert(_currentWriteEncaps->encoding != Encoding_1_0);
-        assert(_format == SlicedFormat);
-
-        //
-        // Write the indirection table as a sequence<size> to conserve space.
-        //
-        writeSize(_currentWriteEncaps->indirectionTable->size());
-        for(vector<Int>::iterator p = _currentWriteEncaps->indirectionTable->begin();
-            p != _currentWriteEncaps->indirectionTable->end(); ++p)
-        {
-            writeSize(*p);
-        }
-
-        _currentWriteEncaps->indirectionTable->clear();
-        _currentWriteEncaps->indirectionMap->clear();
-
-        //
-        // Now we need to add FLAG_HAS_INDIRECTION_TABLE to the flag we've already written.
-        //
-        Byte* dest = &(*(b.begin() + _writeFlags));
-        *dest |= FLAG_HAS_INDIRECTION_TABLE;
-    }
-}
-
-string
-IceInternal::BasicStream::startReadSlice()
-{
-    assert(_currentReadEncaps);
-    assert(_sliceType != NoSlice);
-
-    if(_needSliceHeader)
-    {
-        readSliceHeader();
-    }
-    else
-    {
-        //
-        // The stream has already read the flags and the type ID. We need to read them next time.
-        //
-        _needSliceHeader = true;
-    }
-
-    if(_currentReadEncaps->encoding == Encoding_1_0 || (_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
-    {
-        //
-        // Read the size of the slice.
-        //
-        Int sz;
-        read(sz);
-        if(sz < 4)
-        {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-        _readSlice = i - b.begin();
-    }
-
-    return _typeId;
-}
-
-void
-IceInternal::BasicStream::endReadSlice()
-{
-    assert(_currentReadEncaps);
-    assert(_sliceType != NoSlice);
-
-    //
-    // Read the indirection table if one is present.
-    //
-    if(_currentReadEncaps->encoding != Encoding_1_0 && (_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
-    {
-        //
-        // The table is written as a sequence<size> to conserve space.
-        //
-        IndexList indirectionTable;
-        Int size;
-        readSize(size);
-        for(Int i = 0; i < size; ++i)
-        {
-            Int index;
-            readSize(index);
-            indirectionTable.push_back(index);
-        }
-
-        //
-        // Sanity checks.
-        //
-        if(indirectionTable.empty() && !_currentReadEncaps->indirectPatchList->empty())
-        {
-            throw MarshalException(__FILE__, __LINE__, "empty indirection table");
-        }
-        else if(!indirectionTable.empty() && _currentReadEncaps->indirectPatchList->empty())
-        {
-            throw MarshalException(__FILE__, __LINE__, "no references to indirection table");
-        }
-
-        //
-        // Convert indirect references into direct references.
-        //
-        for(IndirectPatchList::iterator p = _currentReadEncaps->indirectPatchList->begin();
-            p != _currentReadEncaps->indirectPatchList->end(); ++p)
-        {
-            assert(p->index >= 0);
-            if(p->index >= static_cast<Int>(indirectionTable.size()))
-            {
-                throw MarshalException(__FILE__, __LINE__, "indirection out of range");
-            }
-            const Int id = indirectionTable[p->index];
-            if(id <= 0)
-            {
-                //
-                // Entries in the table must be positive, just like a regular object reference.
-                //
-                throw MarshalException(__FILE__, __LINE__, "invalid id in object indirection table");
-            }
-            addPatchEntry(id, p->patchFunc, p->patchAddr);
-        }
-
-        _currentReadEncaps->indirectPatchList->clear();
-    }
-}
-
-void
-IceInternal::BasicStream::skipSlice()
-{
-    assert(_currentReadEncaps);
-
-    Container::iterator start = i;
-
-    if(_currentReadEncaps->encoding == Encoding_1_0 || (_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
-    {
-        Int sz;
-        read(sz);
-        if(sz < 4)
-        {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-        i += sz - sizeof(Int);
-        if(i > b.end())
-        {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
-    }
-    else
-    {
-        throw MarshalException(__FILE__, __LINE__, "compact format prevents slicing");
-    }
-
-    if(_currentReadEncaps->encoding != Encoding_1_0)
-    {
-        //
-        // Preserve this slice.
-        //
-        SliceInfoPtr info = new SliceInfo;
-        info->typeId = _typeId;
-        vector<Byte>(start, i).swap(info->bytes);
-        _slices.push_back(info);
-
-        _indirectionTables.push_back(IndexList());
-
-        if((_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
-        {
-            //
-            // Read the indirection table, which is written as a sequence<size> to conserve space.
-            //
-            Int size;
-            readSize(size);
-            if(size > 0)
-            {
-                for(Int n = 0; n < size; ++n)
-                {
-                    Int index;
-                    readSize(index);
-                    _indirectionTables.back().push_back(index);
-                }
-            }
-        }
-    }
 }
 
 void
@@ -2070,377 +1555,6 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 }
 
 void
-IceInternal::BasicStream::write(const ObjectPtr& v)
-{
-    initWriteEncaps();
-
-    if(v)
-    {
-        //
-        // Register the object.
-        //
-        Int index = registerObject(v);
-
-        if(_currentWriteEncaps->encoding == Encoding_1_0)
-        {
-            //
-            // Object references are encoded as a negative integer in 1.0.
-            //
-            write(-index);
-        }
-        else if(_format == SlicedFormat)
-        {
-            if(_sliceType != NoSlice)
-            {
-                //
-                // An object reference that appears inside a slice of an object or
-                // exception is encoded as a positive non-zero index into a per-slice
-                // indirection table. We use _currentWriteEncaps->indirectionMap to keep
-                // track of the object references in the current slice; it maps the object
-                // reference to the position in the indirection list. Note that the position
-                // is offset by one (e.g., the first position = 1).
-                //
-                IndirectionMap::iterator p = _currentWriteEncaps->indirectionMap->find(index);
-                if(p == _currentWriteEncaps->indirectionMap->end())
-                {
-                    _currentWriteEncaps->indirectionTable->push_back(index);
-                    const Int sz = static_cast<Int>(_currentWriteEncaps->indirectionTable->size()); // Position + 1
-                    _currentWriteEncaps->indirectionMap->insert(make_pair(index, sz));
-                    writeSize(sz);
-                }
-                else
-                {
-                    writeSize(p->second);
-                }
-            }
-            else
-            {
-                writeSize(index);
-            }
-        }
-        else
-        {
-            //
-            // No indirection table is used in the compact format, we just encode the
-            // index as a size.
-            //
-            assert(_format == CompactFormat);
-            writeSize(index);
-        }
-    }
-    else
-    {
-        //
-        // Write nil reference.
-        //
-        if(_currentWriteEncaps->encoding == Encoding_1_0)
-        {
-            write(0);
-        }
-        else
-        {
-            writeSize(0);
-        }
-    }
-}
-
-void
-IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
-{
-    assert(patchFunc && patchAddr);
-
-    initReadEncaps();
-
-    ObjectPtr v;
-
-    Int index;
-
-    if(_currentReadEncaps->encoding == Encoding_1_0)
-    {
-        //
-        // Object references are encoded as a negative integer in 1.0.
-        //
-        read(index);
-        if(index > 0)
-        {
-            throw MarshalException(__FILE__, __LINE__, "invalid object id");
-        }
-        index = -index;
-    }
-    else
-    {
-        //
-        // Later versions use a size.
-        //
-        readSize(index);
-        if(index < 0)
-        {
-            throw MarshalException(__FILE__, __LINE__, "invalid object id");
-        }
-    }
-
-    if(index == 0)
-    {
-        //
-        // Calling the patch function for null instances is necessary for correct functioning of Ice for
-        // Python and Ruby.
-        //
-        ObjectPtr nil;
-        patchFunc(patchAddr, nil);
-    }
-    else if(_currentReadEncaps->encoding != Encoding_1_0 && _sliceType != NoSlice &&
-            (_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
-    {
-        //
-        // Maintain a list of indirect references. Note that the indirect index
-        // starts at 1, so we decrement it by one to derive an index into
-        // the indirection table that we'll read at the end of the slice.
-        //
-        IndirectPatchEntry e;
-        e.index = index - 1;
-        e.patchFunc = patchFunc;
-        e.patchAddr = patchAddr;
-        _currentReadEncaps->indirectPatchList->push_back(e);
-    }
-    else
-    {
-        addPatchEntry(index, patchFunc, patchAddr);
-    }
-}
-
-void
-IceInternal::BasicStream::write(const UserException& v)
-{
-    initWriteEncaps();
-
-    //
-    // TODO: Eliminate leading usesClasses flag?
-    //
-    const bool usesClasses = v.__usesClasses();
-    write(usesClasses);
-    v.__write(this);
-    if(usesClasses)
-    {
-        writePendingObjects();
-    }
-}
-
-void
-IceInternal::BasicStream::throwException(const UserExceptionFactoryPtr& factory)
-{
-    initReadEncaps();
-
-    bool usesClasses;
-    read(usesClasses);
-
-    _sliceType = ExceptionSlice;
-
-    assert(_needSliceHeader);
-    readSliceHeader();
-
-    //
-    // Set a flag to indicate we've already read the first slice header.
-    //
-    _needSliceHeader = false;
-
-    const string origId = _typeId;
-    UserExceptionFactoryPtr exceptionFactory = factory;
-
-    for(;;)
-    {
-        if(!exceptionFactory)
-        {
-            //
-            // Look for a statically-generated factory for this ID.
-            //
-            exceptionFactory = factoryTable->getExceptionFactory(_typeId);
-        }
-
-        if(exceptionFactory)
-        {
-            //
-            // Got factory -- ask the factory to instantiate the
-            // exception, initialize the exception members, and throw
-            // the exception.
-            //
-            try
-            {
-                exceptionFactory->createAndThrow(_typeId);
-            }
-            catch(UserException& ex)
-            {
-                ex.__read(this);
-                ex.__usesClasses(usesClasses);
-
-                if(usesClasses)
-                {
-                    readPendingObjects();
-                }
-
-                ex.ice_throw();
-
-                // Never reached.
-            }
-        }
-
-        //
-        // If we reach here, either we didn't find a factory, or the factory
-        // didn't recognize the type. We slice the exception if possible.
-        //
-
-        //
-        // Performance sensitive, so we use lazy initialization
-        // for tracing.
-        //
-        if(_traceSlicing == -1)
-        {
-            _traceSlicing = _instance->traceLevels()->slicing;
-            _slicingCat = _instance->traceLevels()->slicingCat;
-        }
-        if(_traceSlicing > 0)
-        {
-            traceSlicing("exception", _typeId, _slicingCat, _instance->initializationData().logger);
-        }
-
-        skipSlice(); // Slice off what we don't understand.
-
-        //
-        // An oversight in the 1.0 encoding means there is no marker to indicate
-        // the last slice of an exception. As a result, we just try to read the
-        // next type ID, which raises UnmarshalOutOfBoundsException when the
-        // input buffer underflows.
-        //
-        if(_currentReadEncaps->encoding == Encoding_1_0)
-        {
-            try
-            {
-                readSliceHeader();
-            }
-            catch(UnmarshalOutOfBoundsException& ex)
-            {
-                //
-                // Set the reason member to a more helpful message.
-                //
-                ex.reason = "unknown exception type `" + origId + "'";
-                throw;
-            }
-        }
-        else
-        {
-            //
-            // Throw an exception if the flag indicates this is the last slice.
-            //
-            if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
-            {
-                // TODO: Consider adding a new exception, such as NoExceptionFactory?
-                throw UnmarshalOutOfBoundsException(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
-            }
-            else
-            {
-                readSliceHeader();
-            }
-        }
-    }
-
-    //
-    // The only way out of the loop above is to find an exception for
-    // which the receiver has a factory. If this does not happen,
-    // sender and receiver disagree about the Slice definitions they
-    // use. In that case, the receiver will eventually fail to read
-    // another type ID and throw a MarshalException.
-    //
-}
-
-void
-IceInternal::BasicStream::writePendingObjects()
-{
-    if(_currentWriteEncaps && _currentWriteEncaps->toBeMarshaledMap)
-    {
-        while(_currentWriteEncaps->toBeMarshaledMap->size())
-        {
-            PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
-            writeSize(static_cast<Int>(savedMap.size()));
-            for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
-            {
-                //
-                // Add an instance from the old to-be-marshaled map to
-                // the marshaled map and then ask the instance to
-                // marshal itself. Any new class instances that are
-                // triggered by the classes marshaled are added to
-                // toBeMarshaledMap.
-                //
-                _currentWriteEncaps->marshaledMap->insert(*p);
-                writeInstance(p->first, p->second);
-            }
-
-            //
-            // We have marshaled all the instances for this pass,
-            // substract what we have marshaled from the
-            // toBeMarshaledMap.
-            //
-            PtrToIndexMap newMap;
-            set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(),
-                           _currentWriteEncaps->toBeMarshaledMap->end(),
-                           savedMap.begin(), savedMap.end(),
-                           insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
-            *_currentWriteEncaps->toBeMarshaledMap = newMap;
-        }
-    }
-    writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
-}
-
-void
-IceInternal::BasicStream::readPendingObjects()
-{
-    Int num;
-    do
-    {
-        readSize(num);
-        for(Int k = num; k > 0; --k)
-        {
-            readInstance();
-        }
-    }
-    while(num);
-
-    if(_currentReadEncaps && _currentReadEncaps->patchMap && _currentReadEncaps->patchMap->size() != 0)
-    {
-        //
-        // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-        // to supply the object.
-        //
-        throw MarshalException(__FILE__, __LINE__, "index for class received, but no instance");
-    }
-
-    //
-    // Iterate over the object list and invoke ice_postUnmarshal on
-    // each object.  We must do this after all objects have been
-    // unmarshaled in order to ensure that any object data members
-    // have been properly patched.
-    //
-    if(_objectList)
-    {
-        for(ObjectList::iterator p = _objectList->begin(); p != _objectList->end(); ++p)
-        {
-            try
-            {
-                (*p)->ice_postUnmarshal();
-            }
-            catch(const std::exception& ex)
-            {
-                Warning out(_instance->initializationData().logger);
-                out << "std::exception raised by ice_postUnmarshal:\n" << ex;
-            }
-            catch(...)
-            {
-                Warning out(_instance->initializationData().logger);
-                out << "unknown exception raised by ice_postUnmarshal";
-            }
-        }
-    }
-}
-
-void
 IceInternal::BasicStream::sliceObjects(bool doSlice)
 {
     _sliceObjects = doSlice;
@@ -2466,12 +1580,9 @@ IceInternal::BasicStream::initReadEncaps()
         _currentReadEncaps = &_preAllocatedReadEncaps;
     }
 
-    if(!_currentReadEncaps->patchMap) // Lazy initialization.
+    if(!_currentReadEncaps->decoder) // Lazy initialization.
     {
-        _currentReadEncaps->patchMap = new PatchMap;
-        _currentReadEncaps->unmarshaledMap = new IndexToPtrMap;
-        _currentReadEncaps->typeIdMap = new TypeIdReadMap;
-        _currentReadEncaps->indirectPatchList = new IndirectPatchList;
+        _currentReadEncaps->decoder = new EncapsDecoder(this, _currentReadEncaps, _sliceObjects);
     }
 }
 
@@ -2484,267 +1595,827 @@ IceInternal::BasicStream::initWriteEncaps()
         _currentWriteEncaps->start = b.size();
     }
 
-    if(!_currentWriteEncaps->toBeMarshaledMap) // Lazy initialization.
+    if(!_currentWriteEncaps->encoder) // Lazy initialization.
     {
-        _currentWriteEncaps->toBeMarshaledMap = new PtrToIndexMap;
-        _currentWriteEncaps->marshaledMap = new PtrToIndexMap;
-        _currentWriteEncaps->typeIdMap = new TypeIdWriteMap;
-        _currentWriteEncaps->indirectionTable = new IndexList;
-        _currentWriteEncaps->indirectionMap = new IndirectionMap;
+        _currentWriteEncaps->encoder = new EncapsEncoder(this, _currentWriteEncaps, _format);
     }
 }
 
 void
-IceInternal::BasicStream::readSliceHeader()
+IceInternal::BasicStream::EncapsEncoder::write(const ObjectPtr& v)
 {
-    assert(_currentReadEncaps);
-    assert(_sliceType != NoSlice);
-
-    if(_currentReadEncaps->encoding == Encoding_1_0)
+    if(v)
     {
-        _sliceFlags = 0;
-        if(_sliceType == ObjectSlice)
+        //
+        // Register the object.
+        //
+        Int index = registerObject(v);
+
+        if(_encaps->encoding == Encoding_1_0)
         {
-            bool isIndex;
-            read(isIndex);
-            readTypeId(isIndex, _typeId);
+            //
+            // Object references are encoded as a negative integer in 1.0.
+            //
+            _stream->write(-index);
+        }
+        else if(_sliceType != NoSlice && _format == SlicedFormat)
+        {
+            //
+            // An object reference that appears inside a slice of an
+            // object or exception encoded as a positive non-zero
+            // index into a per-slice indirection table.
+            //
+            // We use _indirectionMap to keep track of the object
+            // references in the current slice; it maps the object
+            // reference to the position in the indirection list. Note
+            // that the position is offset by one (e.g., the first
+            // position = 1).
+            //
+            IndirectionMap::iterator p = _indirectionMap.find(index);
+            if(p == _indirectionMap.end())
+            {
+                _indirectionTable.push_back(index);
+                const Int sz = static_cast<Int>(_indirectionTable.size()); // Position + 1
+                _indirectionMap.insert(make_pair(index, sz));
+                _stream->writeSize(sz);
+            }
+            else
+            {
+                _stream->writeSize(p->second);
+            }
         }
         else
         {
-            read(_typeId, false); // Read a regular string (not a type ID) for an exception slice.
+            _stream->writeSize(index);
         }
     }
     else
     {
         //
-        // Read the slice encoding flags.
+        // Write nil reference.
         //
-        read(_sliceFlags);
-
-        //
-        // Read the type ID if one is present.
-        //
-        if((_sliceFlags & FLAG_HAS_TYPE_ID_STRING) != 0)
+        if(_encaps->encoding == Encoding_1_0)
         {
-            if(_sliceType == ObjectSlice)
-            {
-                readTypeId(false, _typeId);
-            }
-            else
-            {
-                read(_typeId, false); // Read a regular string (not a type ID) for an exception slice.
-            }
-        }
-        else if((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0)
-        {
-            if(_sliceType == ObjectSlice)
-            {
-                readTypeId(true, _typeId);
-            }
-            else
-            {
-                throw MarshalException(__FILE__, __LINE__, "type id index received for exception");
-            }
+            _stream->write(0);
         }
         else
         {
-            //
-            // No type ID in slice.
-            //
-            _typeId.clear();
+            _stream->writeSize(0);
         }
     }
 }
 
 void
-IceInternal::BasicStream::writeSliceHeader(Byte flags, const string& typeId)
+IceInternal::BasicStream::EncapsEncoder::write(const UserException& v)
 {
-    assert(_currentWriteEncaps);
-    assert(_sliceType != NoSlice);
+    //
+    // TODO: Eliminate leading usesClasses flag?
+    //
+    const bool usesClasses = v.__usesClasses();
+    _stream->write(usesClasses);
+    v.__write(_stream);
+    if(usesClasses)
+    {
+        writePendingObjects();
+    }
+}
 
+void
+IceInternal::BasicStream::EncapsEncoder::startObject(const SlicedDataPtr& data)
+{
+    _sliceType = ObjectSlice;
+    _firstSlice = true;
+    if(data)
+    {
+        writeSlicedData(data);
+    }
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::endObject()
+{
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        //
+        // Write the Object slice.
+        //
+        startSlice(Object::ice_staticId(), true);
+        _stream->writeSize(0); // For compatibility with the old AFM.
+        endSlice();
+    }
+    _sliceType = NoSlice;
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::startException(const SlicedDataPtr& data)
+{
+    _sliceType = ExceptionSlice;
+    _firstSlice = true;
+    if(data)
+    {
+        writeSlicedData(data);
+    }
+}
+
+void 
+IceInternal::BasicStream::EncapsEncoder::endException()
+{
+    _sliceType = NoSlice;
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, bool last)
+{
+    assert(_indirectionTable.empty() && _indirectionMap.empty());
+    _sliceFlags = 0;
+    _sliceFlagsPos = _stream->b.size();
+
+    //
+    // Encode the slice size for the old encoding and if using the
+    // sliced format.
+    //
+    if(_encaps->encoding == Encoding_1_0 || _format == SlicedFormat)
+    {
+        _sliceFlags |= FLAG_HAS_SLICE_SIZE;
+    }
+
+    //
+    // This is the last slice.
+    //
+    if(last)
+    {
+        _sliceFlags |= FLAG_IS_LAST_SLICE;
+    }
+
+    //
+    // For object slices, encode the flag and the type ID either as a
+    // string or index. For exception slices, don't encode slice flags
+    // for the old encoding and always encode the type ID a string.
+    //
     if(_sliceType == ObjectSlice)
     {
-        Int typeIdIndex;
-        const bool writeIndex = registerTypeId(typeId, typeIdIndex);
+        _stream->write(Byte(0)); // Placeholder for the slice flags
 
-        if(_currentWriteEncaps->encoding == Encoding_1_0)
-        {
-            write(writeIndex);
-        }
-        else
+        //
+        // Encode the type ID (only in the first slice for the compact
+        // encoding).
+        // 
+        if(_format == SlicedFormat || _encaps->encoding == Encoding_1_0 || _firstSlice)
         {
             //
-            // Save the position of the flags byte; we'll need this in endWriteSlice().
+            // If the type ID has already been seen, write the index
+            // of the type ID, otherwise allocate a new type ID and
+            // write the string.
             //
-            _writeFlags = b.size();
-
-            if(writeIndex)
+            TypeIdWriteMap::const_iterator p = _typeIdMap.find(typeId);
+            if(p != _typeIdMap.end())
             {
-                flags |= FLAG_HAS_TYPE_ID_INDEX;
+                _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
+                _stream->writeSize(p->second);
             }
             else
             {
-                flags |= FLAG_HAS_TYPE_ID_STRING;
+                _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
+                _typeIdMap.insert(make_pair(typeId, ++_typeIdIndex));
+                _stream->write(typeId, false);
             }
-            write(flags);
-        }
-
-        if(writeIndex)
-        {
-            writeSize(typeIdIndex);
-        }
-        else
-        {
-            write(typeId, false);
         }
     }
     else
     {
-        if(_currentWriteEncaps->encoding != Encoding_1_0)
+        if(_encaps->encoding != Encoding_1_0)
         {
-            //
-            // Save the position of the flags byte; we'll need this in endWriteSlice().
-            //
-            _writeFlags = b.size();
-
-            flags |= FLAG_HAS_TYPE_ID_STRING;
-            write(flags);
+            _stream->write(Byte(0)); // Placeholder for the slice flags
         }
+        _stream->write(typeId, false);
+    }
 
-        write(typeId, false); // Write a regular string (not a type ID) for an exception slice.
+    if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
+    {
+        _stream->write(Int(0)); // Placeholder for the slice length.
+    }
+
+    _writeSlice = _stream->b.size();
+    _firstSlice = false;
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::endSlice()
+{
+    //
+    // Write the slice length if necessary.
+    //
+    if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
+    {
+        Int sz = static_cast<Int>(_stream->b.size() - _writeSlice + sizeof(Int));
+        Byte* dest = &(*(_stream->b.begin() + _writeSlice - sizeof(Int)));
+        _stream->write(sz, dest);
+    }
+
+    //
+    // Only write the indirection table if it contains entries.
+    //
+    if(!_indirectionTable.empty())
+    {
+        assert(_format == SlicedFormat);
+        _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
+
+        //
+        // Write the indirection table as a sequence<size> to conserve space.
+        //
+        _stream->writeSizeSeq(_indirectionTable);
+
+        _indirectionTable.clear();
+        _indirectionMap.clear();
+    }
+
+    //
+    // Finally, update the slice flags.
+    //
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        if(_sliceType == ObjectSlice) // No flags for 1.0 exception slices.
+        {
+            Byte* dest = &(*(_stream->b.begin() + _sliceFlagsPos));
+            *dest = static_cast<Byte>(_sliceFlags & FLAG_HAS_TYPE_ID_INDEX ? true : false);
+        }
+    }
+    else
+    {
+        Byte* dest = &(*(_stream->b.begin() + _sliceFlagsPos));
+        *dest = _sliceFlags;
     }
 }
 
 void
-IceInternal::BasicStream::readTypeId(bool isIndex, string& id)
+IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
 {
-    assert(_currentReadEncaps && _currentReadEncaps->typeIdMap);
-
-    if(isIndex)
+    while(!_toBeMarshaledMap.empty())
     {
-        Int index;
-        readSize(index);
-        TypeIdReadMap::const_iterator k = _currentReadEncaps->typeIdMap->find(index);
-        if(k == _currentReadEncaps->typeIdMap->end())
+        //
+        // Consider the to be marshalled objects as marshalled now,
+        // this is necessary to avoid adding again the "to be
+        // marshalled objects" into _toBeMarshaledMap while writing
+        // objects.
+        //
+        _marshaledMap.insert(_toBeMarshaledMap.begin(), _toBeMarshaledMap.end());
+
+        PtrToIndexMap savedMap;
+        savedMap.swap(_toBeMarshaledMap);
+        _stream->writeSize(static_cast<Int>(savedMap.size()));
+        for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
         {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            //
+            // Add an instance from the old to-be-marshaled map to
+            // the marshaled map and then ask the instance to
+            // marshal itself. Any new class instances that are
+            // triggered by the classes marshaled are added to
+            // toBeMarshaledMap.
+            //
+            writeInstance(p->first, p->second);
         }
-        id = k->second;
     }
-    else
-    {
-        read(id, false);
-        _currentReadEncaps->typeIdMap->insert(make_pair(++_currentReadEncaps->typeIdIndex, id));
-    }
+    _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
 }
 
-bool
-IceInternal::BasicStream::registerTypeId(const string& id, Int& index)
+void
+IceInternal::BasicStream::EncapsEncoder::writeInstance(const ObjectPtr& v, Int index)
 {
-    assert(_currentWriteEncaps);
-
-    //
-    // Upon return, the index argument holds the index assigned to this
-    // type ID.
-    //
-    // If the type ID has already been seen, the function returns true
-    // and the caller must write the index. Otherwise, the function
-    // returns false and the caller must write the string.
-    //
-
-    TypeIdWriteMap::const_iterator p = _currentWriteEncaps->typeIdMap->find(id);
-    if(p != _currentWriteEncaps->typeIdMap->end())
+    if(_encaps->encoding == Encoding_1_0)
     {
-        index = p->second;
-        return true;
+        _stream->write(index);
     }
     else
     {
-        index = ++_currentWriteEncaps->typeIdIndex;
-        _currentWriteEncaps->typeIdMap->insert(make_pair(id, index));
-        return false;
+        _stream->writeSize(index);
+    }
+
+    try
+    {
+        v->ice_preMarshal();
+    }
+    catch(const std::exception& ex)
+    {
+        Warning out(_stream->instance()->initializationData().logger);
+        out << "std::exception raised by ice_preMarshal:\n" << ex;
+    }
+    catch(...)
+    {
+        Warning out(_stream->instance()->initializationData().logger);
+        out << "unknown exception raised by ice_preMarshal";
+    }
+
+    v->__write(_stream);
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::writeSlicedData(const SlicedDataPtr& slicedData)
+{
+    assert(slicedData);
+
+    //
+    // We only remarshal preserved slices if the target encoding is > 1.0 and we are
+    // using the sliced format. Otherwise, we ignore the preserved slices, which
+    // essentially "slices" the object into the most-derived type known by the sender.
+    //
+    if(_encaps->encoding == Encoding_1_0 || _format != SlicedFormat)
+    {
+        return;
+    }
+
+    for(SliceInfoSeq::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    {
+        startSlice((*p)->typeId, false); // last = false, sliced data never contains the last slice.
+ 
+        //
+        // Write the bytes associated with this slice.
+        //
+        _stream->writeBlob((*p)->bytes);
+        
+        //
+        // Assemble and write the indirection table. The table must have the same order
+        // as the list of objects.
+        //
+        for(vector<ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        {
+            _indirectionTable.push_back(registerObject(*q));
+        }
+
+        endSlice();
     }
 }
 
-Int
-IceInternal::BasicStream::registerObject(const ObjectPtr& v)
+Int 
+IceInternal::BasicStream::EncapsEncoder::registerObject(const ObjectPtr& v)
 {
     assert(v);
-
-    initWriteEncaps();
 
     //
     // Look for this instance in the to-be-marshaled map.
     //
-    PtrToIndexMap::iterator p = _currentWriteEncaps->toBeMarshaledMap->find(v);
-    if(p == _currentWriteEncaps->toBeMarshaledMap->end())
+    PtrToIndexMap::const_iterator p = _toBeMarshaledMap.find(v);
+    if(p != _toBeMarshaledMap.end())
     {
-        //
-        // Didn't find it, try the marshaled map next.
-        //
-        PtrToIndexMap::iterator q = _currentWriteEncaps->marshaledMap->find(v);
-        if(q == _currentWriteEncaps->marshaledMap->end())
-        {
-            //
-            // We haven't seen this instance previously, create a
-            // new index, and insert it into the to-be-marshaled
-            // map.
-            //
-            q = _currentWriteEncaps->toBeMarshaledMap->insert(
-                _currentWriteEncaps->toBeMarshaledMap->end(),
-                pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
-        }
-        p = q;
+        return p->second;
     }
 
     //
-    // Return the index for the instance.
+    // Didn't find it, try the marshaled map next.
     //
-    return p->second;
+    PtrToIndexMap::const_iterator q = _marshaledMap.find(v);
+    if(q != _marshaledMap.end())
+    {
+        return q->second;
+    }
+
+    //
+    // We haven't seen this instance previously, create a new
+    // index, and insert it into the to-be-marshaled map.
+    //
+    _toBeMarshaledMap.insert(make_pair(v, ++_objectIdIndex));
+    return _objectIdIndex;
 }
 
 void
-IceInternal::BasicStream::readInstance()
+IceInternal::BasicStream::EncapsDecoder::read(PatchFunc patchFunc, void* patchAddr)
 {
-    assert(_currentReadEncaps);
-
     ObjectPtr v;
 
     Int index;
-    if(_currentReadEncaps->encoding == Encoding_1_0)
+    if(_encaps->encoding == Encoding_1_0)
     {
         //
-        // Object id is encoded as an int in 1.0.
+        // Object references are encoded as a negative integer in 1.0.
         //
-        read(index);
+        _stream->read(index);
+        if(index > 0)
+        {
+            throw MarshalException(__FILE__, __LINE__, "invalid object id");
+        }
+        index = -index;
     }
     else
     {
         //
         // Later versions use a size.
         //
-        readSize(index);
+        _stream->readSize(index);
+        if(index < 0)
+        {
+            throw MarshalException(__FILE__, __LINE__, "invalid object id");
+        }
     }
 
+    if(index == 0)
+    {
+        //
+        // Calling the patch function for null instances is necessary for correct functioning of Ice for
+        // Python and Ruby.
+        //
+        ObjectPtr nil;
+        patchFunc(patchAddr, nil);
+    }
+    else if(_sliceType != NoSlice && _sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
+    {
+        //
+        // Maintain a list of indirect references. Note that the indirect index
+        // starts at 1, so we decrement it by one to derive an index into
+        // the indirection table that we'll read at the end of the slice.
+        //
+        IndirectPatchEntry e;
+        e.index = index - 1;
+        e.patchFunc = patchFunc;
+        e.patchAddr = patchAddr;
+        _indirectPatchList.push_back(e);
+    }
+    else
+    {
+        addPatchEntry(index, patchFunc, patchAddr);
+    }
+}
+
+void
+IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFactoryPtr& factory)
+{
+    assert(_sliceType == NoSlice);
+
+    // TODO: Get rid of this for 1.1?
+    bool usesClasses;
+    _stream->read(usesClasses);
+
+    _sliceType = ExceptionSlice;
+    _skipFirstSlice = false;
+
+    //
+    // Read the first slice header.
+    //
+    startSlice();
+    const string mostDerivedId = _typeId;
+    UserExceptionFactoryPtr exceptionFactory = factory;
+    while(true)
+    {
+        //
+        // Look for a statically-generated factory for this ID.
+        //
+        if(!exceptionFactory)
+        {
+            exceptionFactory = factoryTable->getExceptionFactory(_typeId);
+        }
+
+        //
+        // We found a factory, we get out of this loop.
+        //
+        if(exceptionFactory)
+        {
+            //
+            // Got factory -- ask the factory to instantiate the
+            // exception, initialize the exception members, and throw
+            // the exception.
+            //
+            try
+            {
+                assert(exceptionFactory);
+                exceptionFactory->createAndThrow(_typeId);
+            }
+            catch(UserException& ex)
+            {
+                ex.__read(_stream);
+                ex.__usesClasses(usesClasses);
+        
+                if(usesClasses)
+                {
+                    readPendingObjects();
+                }
+        
+                ex.ice_throw();
+        
+                // Never reached.
+            }
+        }
+
+        //
+        // Performance sensitive, so we use lazy initialization
+        // for tracing.
+        //
+        if(_traceSlicing == -1)
+        {
+            _traceSlicing = _stream->instance()->traceLevels()->slicing;
+            _slicingCat = _stream->instance()->traceLevels()->slicingCat;
+        }
+        if(_traceSlicing > 0)
+        {
+            traceSlicing("exception", _typeId, _slicingCat, _stream->instance()->initializationData().logger);
+        }
+
+        if(_sliceFlags & FLAG_IS_LAST_SLICE)
+        {
+            // TODO: Consider adding a new exception, such as NoExceptionFactory?
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__, "unknown exception type `" + mostDerivedId + "'");
+        }
+
+        skipSlice(); // Slice off what we don't understand.
+        try
+        {
+            startSlice();
+        }
+        catch(UnmarshalOutOfBoundsException& ex)
+        {
+            //
+            // An oversight in the 1.0 encoding means there is no marker to indicate
+            // the last slice of an exception. As a result, we just try to read the
+            // next type ID, which raises UnmarshalOutOfBoundsException when the
+            // input buffer underflows.
+            //
+            if(_encaps->encoding == Encoding_1_0)
+            {
+                // Set the reason member to a more helpful message.
+                ex.reason = "unknown exception type `" + mostDerivedId + "'";
+            }
+            throw;
+        }
+    }
+}
+
+void 
+IceInternal::BasicStream::EncapsDecoder::startObject()
+{
+    assert(_sliceType == ObjectSlice);
+    _skipFirstSlice = true;
+}
+
+SlicedDataPtr
+IceInternal::BasicStream::EncapsDecoder::endObject(bool preserve)
+{
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        //
+        // Read the Ice::Object slice.
+        //
+        startSlice();
+
+        //
+        // For compatibility with the old AFM.
+        //
+        Int sz;
+        _stream->readSize(sz);
+        if(sz != 0)
+        {
+            throw MarshalException(__FILE__, __LINE__, "invalid Object slice");
+        }
+
+        endSlice();
+    }
+
+    _sliceType = NoSlice;
+    SlicedDataPtr slicedData;
+    if(preserve)
+    {
+        slicedData = readSlicedData();
+    }
+    _slices.clear();
+    _indirectionTables.clear();
+    return slicedData;
+}
+
+void 
+IceInternal::BasicStream::EncapsDecoder::startException()
+{
+    assert(_sliceType == ExceptionSlice);
+    _skipFirstSlice = true;
+}
+
+SlicedDataPtr 
+IceInternal::BasicStream::EncapsDecoder::endException(bool preserve)
+{
+    _sliceType = NoSlice;
+    SlicedDataPtr slicedData;
+    if(preserve)
+    {
+        slicedData = readSlicedData();
+    }
+    _slices.clear();
+    _indirectionTables.clear();
+    return slicedData;
+}
+
+const string&
+IceInternal::BasicStream::EncapsDecoder::startSlice()
+{
+    //
+    // If first slice, don't read the header, it was already read in
+    // readInstance or throwException to find the factory.
+    //
+    if(_skipFirstSlice)
+    {
+        _skipFirstSlice = false;
+        return _typeId;
+    }
+
+    //
+    // Read the slice flags. For the 1.0 encoding there's no flag but
+    // just a boolean for object slices. The boolean indicates whether
+    // or not the type ID is encoded as a string or as an index.
+    //
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        _sliceFlags = FLAG_HAS_SLICE_SIZE;
+        if(_sliceType == ObjectSlice) // For exceptions, the type ID is always encoded as a string
+        {
+            bool isIndex;
+            _stream->read(isIndex);
+            _sliceFlags |= isIndex ? FLAG_HAS_TYPE_ID_INDEX : FLAG_HAS_TYPE_ID_STRING;
+        }
+    }
+    else
+    {
+        _stream->read(_sliceFlags);
+    }
+
+    //
+    // Read the type ID, for object slices the type ID is encoded as a
+    // string or as an index, for exceptions it's always encoded as a
+    // string.
+    //
+    if(_sliceType == ObjectSlice)
+    {
+        if(_sliceFlags & FLAG_HAS_TYPE_ID_INDEX)
+        {
+            Int index;
+            _stream->readSize(index);
+            TypeIdReadMap::const_iterator k = _typeIdMap.find(index);
+            if(k == _typeIdMap.end())
+            {
+                throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            _typeId = k->second;
+        }
+        else if(_sliceFlags & FLAG_HAS_TYPE_ID_STRING)
+        {
+            _stream->read(_typeId, false);
+            _typeIdMap.insert(make_pair(++_typeIdIndex, _typeId));
+        }
+        else
+        {
+            // Only the most derived slice encodes the type ID for the
+            // compact format.
+            _typeId.clear();
+        }
+    } 
+    else
+    {
+        _stream->read(_typeId, false);
+    }
+
+    //
+    // Read the slice size if necessary.
+    //
+    if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
+    {
+        _stream->read(_sliceSize);
+        if(_sliceSize < 4)
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+    }
+    else
+    {
+        _sliceSize = 0;
+    }
+
+    //
+    // Reset the indirect patch list for this new slice.
+    //
+    _indirectPatchList.clear();
+    return _typeId;
+}
+
+void
+IceInternal::BasicStream::EncapsDecoder::endSlice()
+{
+    //
+    // Read the indirection table if one is present and transform the
+    // indirect patch list into patch entries with direct references.
+    //
+    if(_sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
+    {
+        //
+        // The table is written as a sequence<size> to conserve space.
+        //
+        IndexList indirectionTable;
+        _stream->readSizeSeq(indirectionTable);
+
+        //
+        // Sanity checks.
+        //
+        if(indirectionTable.empty() && !_indirectPatchList.empty())
+        {
+            throw MarshalException(__FILE__, __LINE__, "empty indirection table");
+        }
+        else if(!indirectionTable.empty() && _indirectPatchList.empty())
+        {
+            throw MarshalException(__FILE__, __LINE__, "no references to indirection table");
+        }
+
+        //
+        // Convert indirect references into direct references.
+        //
+        for(IndirectPatchList::iterator p = _indirectPatchList.begin(); p != _indirectPatchList.end(); ++p)
+        {
+            assert(p->index >= 0);
+            if(p->index >= static_cast<Int>(indirectionTable.size()))
+            {
+                throw MarshalException(__FILE__, __LINE__, "indirection out of range");
+            }
+            const Int id = indirectionTable[p->index];
+            if(id <= 0)
+            {
+                //
+                // Entries in the table must be positive, just like a regular object reference.
+                //
+                throw MarshalException(__FILE__, __LINE__, "invalid id in object indirection table");
+            }
+            addPatchEntry(id, p->patchFunc, p->patchAddr);
+        }
+    }
+}            
+
+void
+IceInternal::BasicStream::EncapsDecoder::readPendingObjects()
+{
+    Int num;
+    ObjectList objectList;
+    do
+    {
+        _stream->readSize(num);
+        for(Int k = num; k > 0; --k)
+        {
+            objectList.push_back(readInstance());
+        }
+    }
+    while(num);
+
+    if(!_patchMap.empty())
+    {
+        //
+        // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+        // to supply the object.
+        //
+        throw MarshalException(__FILE__, __LINE__, "index for class received, but no instance");
+    }
+
+    //
+    // Iterate over the object list and invoke ice_postUnmarshal on
+    // each object.  We must do this after all objects have been
+    // unmarshaled in order to ensure that any object data members
+    // have been properly patched.
+    //
+    for(ObjectList::iterator p = objectList.begin(); p != objectList.end(); ++p)
+    {
+        try
+        {
+            (*p)->ice_postUnmarshal();
+        }
+        catch(const std::exception& ex)
+        {
+            Warning out(_stream->instance()->initializationData().logger);
+            out << "std::exception raised by ice_postUnmarshal:\n" << ex;
+        }
+        catch(...)
+        {
+            Warning out(_stream->instance()->initializationData().logger);
+            out << "unknown exception raised by ice_postUnmarshal";
+        }
+    }
+}
+
+ObjectPtr
+IceInternal::BasicStream::EncapsDecoder::readInstance()
+{
+    Int index;
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        _stream->read(index);
+    }
+    else
+    {
+        _stream->readSize(index);
+    }
+
+    ObjectPtr v;
     if(index <= 0)
     {
         throw MarshalException(__FILE__, __LINE__, "invalid object id");
     }
 
-    //
-    // We are about to start reading the slices of an object.
-    //
     _sliceType = ObjectSlice;
-
-    assert(_needSliceHeader);
-    readSliceHeader();
+    _skipFirstSlice = false;
 
     //
-    // Set a flag to indicate we've already read the first slice header.
+    // Read the first slice header.
     //
-    _needSliceHeader = false;
-
-    string mostDerivedId = _typeId;
+    startSlice();
+    const string mostDerivedId = _typeId;
+    ObjectFactoryManagerPtr servantFactoryManager = _stream->instance()->servantFactoryManager();
     while(true)
     {
         //
@@ -2761,7 +2432,7 @@ IceInternal::BasicStream::readInstance()
         //
         // Try to find a factory registered for the specific type.
         //
-        ObjectFactoryPtr userFactory = _instance->servantFactoryManager()->find(_typeId);
+        ObjectFactoryPtr userFactory = servantFactoryManager->find(_typeId);
         if(userFactory)
         {
             v = userFactory->create(_typeId);
@@ -2773,7 +2444,7 @@ IceInternal::BasicStream::readInstance()
         //
         if(!v)
         {
-            userFactory = _instance->servantFactoryManager()->find("");
+            userFactory = servantFactoryManager->find("");
             if(userFactory)
             {
                 v = userFactory->create(_typeId);
@@ -2794,178 +2465,111 @@ IceInternal::BasicStream::readInstance()
             }
         }
 
-        if(!v)
+        //
+        // We found a factory, we get out of this loop.
+        //
+        if(v)
         {
-            //
-            // If object slicing is disabled, or if the flags indicate that this is the
-            // last slice (for encodings >= 1.1), we raise NoObjectFactoryException.
-            //
-            if(!_sliceObjects)
-            {
-                throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _typeId);
-            }
-            else if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
-            {
-                throw NoObjectFactoryException(__FILE__, __LINE__, "", _typeId);
-            }
-            else
-            {
-                //
-                // Performance sensitive, so we use lazy initialization for tracing.
-                //
-                if(_traceSlicing == -1)
-                {
-                    _traceSlicing = _instance->traceLevels()->slicing;
-                    _slicingCat = _instance->traceLevels()->slicingCat;
-                }
-                if(_traceSlicing > 0)
-                {
-                    traceSlicing("class", _typeId, _slicingCat, _instance->initializationData().logger);
-                }
-
-                skipSlice(); // Slice off what we don't understand.
-                readSliceHeader(); // Read ID for next iteration.
-                continue;
-            }
+            break;
         }
 
-        IndexToPtrMap::const_iterator unmarshaledPos =
-            _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
-
         //
-        // Record each object instance so that readPendingObjects can
-        // invoke ice_postUnmarshal after all objects have been
-        // unmarshaled.
+        // If object slicing is disabled, or if the flags indicate that this is the
+        // last slice (for encodings >= 1.1), we raise NoObjectFactoryException.
         //
-        if(!_objectList)
+        if(!_sliceObjects)
         {
-            _objectList = new ObjectList;
+            throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _typeId);
         }
-        _objectList->push_back(v);
+        else if(_sliceFlags & FLAG_IS_LAST_SLICE)
+        {
+            throw NoObjectFactoryException(__FILE__, __LINE__, "", _typeId);
+        }
 
-        v->__read(this);
-        patchPointers(index, unmarshaledPos, _currentReadEncaps->patchMap->end());
+        //
+        // Performance sensitive, so we use lazy initialization for tracing.
+        //
+        if(_traceSlicing == -1)
+        {
+            _traceSlicing = _stream->instance()->traceLevels()->slicing;
+            _slicingCat = _stream->instance()->traceLevels()->slicingCat;
+        }
+        if(_traceSlicing > 0)
+        {
+            traceSlicing("class", _typeId, _slicingCat, _stream->instance()->initializationData().logger);
+        }
+        
+        skipSlice(); // Slice off what we don't understand.
+        startSlice(); // Read next Slice header for next iteration.
+    }
+     
+    //
+    // Add the object to the map of un-marshalled objects, this must
+    // be done before reading the objects (for circular references).
+    // 
+    _unmarshaledMap.insert(make_pair(index, v));
+
+    //
+    // Read the object.
+    //
+    v->__read(_stream);
+
+    //
+    // Patch all instances now that the object is un-marshalled.
+    //
+    PatchMap::iterator patchPos = _patchMap.find(index);
+    if(patchPos != _patchMap.end())
+    {
+        assert(patchPos->second.size() > 0);
+        
+        //
+        // Patch all pointers that refer to the instance.
+        //
+        for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
+        {
+            (*k->patchFunc)(k->patchAddr, v);
+        }
+        
+        //
+        // Clear out the patch map for that index -- there is nothing left
+        // to patch for that index for the time being.
+        //
+        _patchMap.erase(patchPos);
+    }
+
+    return v;
+}
+
+void
+IceInternal::BasicStream::EncapsDecoder::addPatchEntry(Int index, PatchFunc patchFunc, void* patchAddr)
+{
+    assert(index > 0);
+
+    //
+    // Check if already un-marshalled the object. If that's the case,
+    // just patch the object smart pointer and we're done.
+    //
+    IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
+    if(p != _unmarshaledMap.end())
+    {
+        (*patchFunc)(patchAddr, p->second);
         return;
     }
 
     //
-    // We can't possibly end up here: at the very least, we should have
-    // detected the last slice, or client and server were compiled with
-    // mismatched Slice definitions.
+    // Add patch entry if the object isn't un-marshalled yet, the
+    // smart pointer will be patched when the instance is
+    // un-marshalled.
     //
-    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-}
 
-void
-IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
-{
-    assert(_currentWriteEncaps);
-
-    _sliceType = ObjectSlice;
-
-    if(_currentWriteEncaps->encoding == Encoding_1_0)
-    {
-        write(index);
-    }
-    else
-    {
-        writeSize(index);
-    }
-
-    try
-    {
-        v->ice_preMarshal();
-    }
-    catch(const std::exception& ex)
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "std::exception raised by ice_preMarshal:\n" << ex;
-    }
-    catch(...)
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "unknown exception raised by ice_preMarshal";
-    }
-    v->__write(this);
-}
-
-void
-IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledPos,
-                                        PatchMap::iterator patchPos)
-{
-    //
-    // Called whenever we have unmarshaled a new instance. The index
-    // is the index of the instance.  UnmarshaledPos denotes the
-    // instance just unmarshaled and patchPos denotes the patch map
-    // entry for the index just unmarshaled. (Exactly one of these two
-    // iterators must be end().)  Patch any pointers in the patch map
-    // with the new address.
-    //
-    assert(   (unmarshaledPos != _currentReadEncaps->unmarshaledMap->end()
-               && patchPos == _currentReadEncaps->patchMap->end())
-           || (unmarshaledPos == _currentReadEncaps->unmarshaledMap->end()
-               && patchPos != _currentReadEncaps->patchMap->end())
-          );
-
-    if(unmarshaledPos != _currentReadEncaps->unmarshaledMap->end())
-    {
-        //
-        // We have just unmarshaled an instance -- check if something
-        // needs patching for that instance.
-        //
-        patchPos = _currentReadEncaps->patchMap->find(index);
-        if(patchPos == _currentReadEncaps->patchMap->end())
-        {
-            return; // We don't have anything to patch for the instance just unmarshaled.
-        }
-    }
-    else
-    {
-        //
-        // We have just unmarshaled an index -- check if we have
-        // unmarshaled the instance for that index yet.
-        //
-        unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
-        if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
-        {
-            return; // We haven't unmarshaled the instance yet.
-        }
-    }
-    assert(patchPos->second.size() > 0);
-
-    ObjectPtr v = unmarshaledPos->second;
-    assert(v);
-
-    //
-    // Patch all pointers that refer to the instance.
-    //
-    for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
-    {
-        (*k->patchFunc)(k->patchAddr, v);
-    }
-
-    //
-    // Clear out the patch map for that index -- there is nothing left
-    // to patch for that index for the time being.
-    //
-    _currentReadEncaps->patchMap->erase(patchPos);
-}
-
-void
-IceInternal::BasicStream::addPatchEntry(Int index, PatchFunc patchFunc, void* patchAddr)
-{
-    assert(index > 0);
-
-    initReadEncaps();
-
-    PatchMap::iterator p = _currentReadEncaps->patchMap->find(index);
-    if(p == _currentReadEncaps->patchMap->end())
+    PatchMap::iterator q = _patchMap.find(index);
+    if(q == _patchMap.end())
     {
         //
         // We have no outstanding instances to be patched for this
         // index, so make a new entry in the patch map.
         //
-        p = _currentReadEncaps->patchMap->insert(make_pair(index, PatchList())).first;
+        q = _patchMap.insert(make_pair(index, PatchList())).first;
     }
 
     //
@@ -2974,69 +2578,57 @@ IceInternal::BasicStream::addPatchEntry(Int index, PatchFunc patchFunc, void* pa
     PatchEntry e;
     e.patchFunc = patchFunc;
     e.patchAddr = patchAddr;
-    p->second.push_back(e);
-    patchPointers(index, _currentReadEncaps->unmarshaledMap->end(), p);
+    q->second.push_back(e);
 }
 
 void
-IceInternal::BasicStream::writeSlicedData(const SlicedDataPtr& slicedData)
+IceInternal::BasicStream::EncapsDecoder::skipSlice()
 {
-    assert(slicedData);
-    assert(_currentWriteEncaps);
-    assert(_currentWriteEncaps->encoding != Encoding_1_0);
-    assert(_format == SlicedFormat);
+    Container::iterator start = _stream->i;
 
-    for(SliceInfoSeq::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
-        Byte flags = FLAG_HAS_SLICE_SIZE;
-
-        //
-        // Only include an indirection table when necessary.
-        //
-        if(!(*p)->objects.empty())
+        assert(_sliceSize >= 4);
+        _stream->i += _sliceSize - sizeof(Int);
+        if(_stream->i > _stream->b.end())
         {
-            flags |= FLAG_HAS_INDIRECTION_TABLE;
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
+    }
+    else
+    {
+        throw MarshalException(__FILE__, __LINE__, "compact format prevents slicing");
+    }
 
+    if(_encaps->encoding != Encoding_1_0)
+    {
         //
-        // Write the flags and type ID.
+        // Preserve this slice.
         //
-        writeSliceHeader(flags, (*p)->typeId);
+        SliceInfoPtr info = new SliceInfo;
+        info->typeId = _typeId;
+        vector<Byte>(start, _stream->i).swap(info->bytes);
+        _slices.push_back(info);
 
-        //
-        // Write the bytes associated with this slice.
-        //
-        writeBlob((*p)->bytes);
+        _indirectionTables.push_back(IndexList());
 
-        //
-        // Assemble and write the indirection table. The table must have the same order
-        // as the list of objects.
-        //
-        if(!(*p)->objects.empty())
+        if(_sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
         {
-            IndexList indirections;
-            for(vector<ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
-            {
-                Int index = registerObject(*q);
-                indirections.push_back(index);
-            }
-
             //
-            // Write the table as a sequence<size> to conserve space.
+            // Read the indirection table, which is written as a sequence<size> to conserve space.
             //
-            writeSize(indirections.size());
-            for(IndexList::iterator r = indirections.begin(); r != indirections.end(); ++r)
-            {
-                writeSize(*r);
-            }
+            _stream->readSizeSeq(_indirectionTables.back());
         }
     }
 }
 
-SlicedDataPtr
-IceInternal::BasicStream::prepareSlicedData()
+SlicedDataPtr 
+IceInternal::BasicStream::EncapsDecoder::readSlicedData()
 {
-    SlicedDataPtr slicedData;
+    if(_slices.empty()) // No preserved slices.
+    {
+        return 0;
+    }
 
     //
     // The _indirectionTables member holds the indirection table for each slice
@@ -3070,10 +2662,5 @@ IceInternal::BasicStream::prepareSlicedData()
         }
     }
 
-    if(!_slices.empty())
-    {
-        slicedData = new SlicedData(_slices);
-    }
-
-    return slicedData;
+    return new SlicedData(_slices);
 }
