@@ -37,6 +37,21 @@ typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 namespace IceInternal
 {
 
+//
+// Optional data member type.
+//
+enum MemberType
+{
+    MemberTypeF1 = 0,
+    MemberTypeF2 = 1,
+    MemberTypeF4 = 2,
+    MemberTypeF8 = 3,
+    MemberTypeVSize = 4,
+    MemberTypeFSize = 5,
+    MemberTypeReserved = 6,
+    MemberTypeEndMarker = 7
+};
+
 class ICE_API BasicStream : public Buffer
 {
 public:
@@ -477,6 +492,17 @@ public:
         }
     }
 
+    void writeOpt(int tag, MemberType type)
+    {
+        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
+        _currentWriteEncaps->encoder->writeOpt(tag, type);
+    }
+    bool readOpt(int tag, MemberType expectedType)
+    {
+        assert(_currentReadEncaps && _currentReadEncaps->decoder);
+        return _currentReadEncaps->decoder->readOpt(tag, expectedType);
+    }
+    
     void write(Ice::Byte v)
     {
         b.push_back(v);
@@ -757,6 +783,8 @@ private:
         void endSlice();
         void skipSlice();
 
+        bool readOpt(int, MemberType);
+
         void readPendingObjects();
         
     private:
@@ -765,7 +793,56 @@ private:
         Ice::ObjectPtr readInstance();
         void addPatchEntry(Ice::Int, PatchFunc, void*);
         Ice::SlicedDataPtr readSlicedData();
-
+        
+        bool skipOpt(MemberType type)
+        {
+            int sz;
+            switch(type)
+            {
+            case MemberTypeF1:
+            {
+                sz = 1;
+                break;
+            }
+            case MemberTypeF2:
+            {
+                sz = 2;
+                break;
+            }
+            case MemberTypeF4:
+            {
+                sz = 4;
+                break;
+            }
+            case MemberTypeF8:
+            {
+                sz = 8;
+                break;
+            }
+            case MemberTypeVSize:
+            {
+                _stream->readSize(sz);
+                break;
+            }
+            case MemberTypeFSize:
+            {
+                _stream->read(sz);
+                break;
+            }
+            default:
+            {
+                return false;
+            }
+            }
+            
+            if(_stream->i + sz > _stream->b.end())
+            {
+                _stream->throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+            }
+            _stream->i += sz;
+            return true;
+        }
+        
         BasicStream* _stream;
         ReadEncaps* _encaps;
         const bool _sliceObjects;
@@ -813,6 +890,8 @@ private:
 
         void startSlice(const std::string&, bool);
         void endSlice();
+
+        void writeOpt(int, MemberType);
 
         void writePendingObjects();
 

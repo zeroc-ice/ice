@@ -170,8 +170,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 void
 IceInternal::BasicStream::format(Ice::FormatType format)
 {
-    // TODO: XXX: shouldn't this compare format instead of _format?
-    if(_format != DefaultFormat)
+    if(format != DefaultFormat)
     {
         _format = format;
     }
@@ -1807,6 +1806,16 @@ void
 IceInternal::BasicStream::EncapsEncoder::endSlice()
 {
     //
+    // Write the optional member end marker if some optional members
+    // were encoded. Note that the optional members are encoded before
+    // the indirection table and are included in the slice size.
+    //
+    if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
+    {
+        _stream->write(static_cast<Byte>(MemberTypeEndMarker));
+    }
+
+    //
     // Write the slice length if necessary.
     //
     if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
@@ -1848,6 +1857,23 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     {
         Byte* dest = &(*(_stream->b.begin() + _sliceFlagsPos));
         *dest = _sliceFlags;
+    }
+}
+
+void
+IceInternal::BasicStream::EncapsEncoder::writeOpt(int tag, MemberType type)
+{
+    assert(_sliceType != NoSlice);
+    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+    Byte v = static_cast<Byte>(type);
+    if(tag < 31)
+    {
+        v |= tag << 3;
+    }
+    else
+    {
+        v |= 0x0F8; // tag = 31
+        _stream->writeSize(tag);
     }
 }
 
@@ -2313,6 +2339,19 @@ IceInternal::BasicStream::EncapsDecoder::startSlice()
 void
 IceInternal::BasicStream::EncapsDecoder::endSlice()
 {
+    if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
+    {
+        //
+        // Read remaining un-read optional members.
+        // 
+        Byte v;
+        do
+        {
+            _stream->read(v);
+        }
+        while(skipOpt(static_cast<MemberType>(v & 0x07)));
+    }
+
     //
     // Read the indirection table if one is present and transform the
     // indirect patch list into patch entries with direct references.
@@ -2359,6 +2398,66 @@ IceInternal::BasicStream::EncapsDecoder::endSlice()
         }
     }
 }            
+
+bool
+IceInternal::BasicStream::EncapsDecoder::readOpt(int readTag, MemberType expectedType)
+{
+    assert(_sliceType != NoSlice);
+    if(!(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS))
+    {
+        return false; // No optional data members
+    }
+
+    int tag;
+    MemberType type;
+    do
+    {
+        Byte v;
+        _stream->read(v);
+        
+        type = static_cast<MemberType>(v & 0x07); // Read first 3 bits.
+        tag = static_cast<int>(v >> 3);
+        if(tag == 31)
+        {
+            _stream->readSize(tag);
+        }
+    } 
+    while(tag < readTag && skipOpt(type)); // Skip optional data members with lower tag values.
+    
+    if(type == MemberTypeEndMarker)
+    {
+        //
+        // Clear the optional members flag since we've reach the end. We clear
+        // the flag to prevent endSlice to skip un-read optional members and
+        // to prevent other optional members from being read.
+        //
+        _sliceFlags &= ~FLAG_HAS_OPTIONAL_MEMBERS; 
+        return false;
+    } 
+    else if(tag > readTag)
+    {
+        //
+        // Rewind the stream so that we correctly read the next
+        // optional data member tag & type.
+        //
+        _stream->i -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
+        return false; // No optional data members with the requested tag.
+    }
+    
+    assert(readTag == tag);
+    if(type != expectedType)
+    {
+        ostringstream os;
+        os << "invalid optional data member `" << tag << "' in `" << _typeId << "': unexpected type";
+        throw MarshalException(__FILE__, __LINE__, os.str());
+    }
+
+    //
+    // We have an optional data member with the requested tag and
+    // type.
+    // 
+    return true;
+}
 
 void
 IceInternal::BasicStream::EncapsDecoder::readPendingObjects()
