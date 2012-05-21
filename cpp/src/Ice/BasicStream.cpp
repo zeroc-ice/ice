@@ -1617,6 +1617,7 @@ IceInternal::BasicStream::EncapsEncoder::write(const ObjectPtr& v)
             // Object references are encoded as a negative integer in 1.0.
             //
             _stream->write(-index);
+            _usesClasses = true;
         }
         else if(_sliceType != NoSlice && _format == SlicedFormat)
         {
@@ -1657,6 +1658,7 @@ IceInternal::BasicStream::EncapsEncoder::write(const ObjectPtr& v)
         if(_encaps->encoding == Encoding_1_0)
         {
             _stream->write(0);
+            _usesClasses = true;
         }
         else
         {
@@ -1668,16 +1670,8 @@ IceInternal::BasicStream::EncapsEncoder::write(const ObjectPtr& v)
 void
 IceInternal::BasicStream::EncapsEncoder::write(const UserException& v)
 {
-    //
-    // TODO: Eliminate leading usesClasses flag?
-    //
-    const bool usesClasses = v.__usesClasses();
-    _stream->write(usesClasses);
     v.__write(_stream);
-    if(usesClasses)
-    {
-        writePendingObjects();
-    }
+    writePendingObjects();
 }
 
 void
@@ -1711,6 +1705,11 @@ IceInternal::BasicStream::EncapsEncoder::startException(const SlicedDataPtr& dat
 {
     _sliceType = ExceptionSlice;
     _firstSlice = true;
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        _usesClassesPos = _stream->b.size();
+        _stream->write(false); // Placeholder for usesClasses boolean
+    }
     if(data)
     {
         writeSlicedData(data);
@@ -1720,6 +1719,11 @@ IceInternal::BasicStream::EncapsEncoder::startException(const SlicedDataPtr& dat
 void 
 IceInternal::BasicStream::EncapsEncoder::endException()
 {
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        Byte* dest = &(*(_stream->b.begin() + _usesClassesPos));
+        *dest = static_cast<Byte>(_usesClasses);
+    }
     _sliceType = NoSlice;
 }
 
@@ -1850,6 +1854,25 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
 void
 IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
 {
+    //
+    // With the 1.0 encoding, only write pending objects if nil or
+    // non-nil references were written (_usesClasses =
+    // true). Otherwise, write pending objects only if some non-nil
+    // references were written.
+    //
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        if(!_usesClasses)
+        {
+            return;
+        }
+        _usesClasses = false;
+    }
+    else if(_toBeMarshaledMap.empty())
+    {
+        return;
+    }
+
     while(!_toBeMarshaledMap.empty())
     {
         //
@@ -1866,46 +1889,38 @@ IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
         for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
         {
             //
-            // Add an instance from the old to-be-marshaled map to
-            // the marshaled map and then ask the instance to
-            // marshal itself. Any new class instances that are
-            // triggered by the classes marshaled are added to
-            // toBeMarshaledMap.
+            // Ask the instance to marshal itself. Any new class
+            // instances that are triggered by the classes marshaled
+            // are added to toBeMarshaledMap.
             //
-            writeInstance(p->first, p->second);
+            if(_encaps->encoding == Encoding_1_0)
+            {
+                _stream->write(p->second);
+            }
+            else
+            {
+                _stream->writeSize(p->second);
+            }
+
+            try
+            {
+                p->first->ice_preMarshal();
+            }
+            catch(const std::exception& ex)
+            {
+                Warning out(_stream->instance()->initializationData().logger);
+                out << "std::exception raised by ice_preMarshal:\n" << ex;
+            }
+            catch(...)
+            {
+                Warning out(_stream->instance()->initializationData().logger);
+                out << "unknown exception raised by ice_preMarshal";
+            }
+
+            p->first->__write(_stream);
         }
     }
     _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
-}
-
-void
-IceInternal::BasicStream::EncapsEncoder::writeInstance(const ObjectPtr& v, Int index)
-{
-    if(_encaps->encoding == Encoding_1_0)
-    {
-        _stream->write(index);
-    }
-    else
-    {
-        _stream->writeSize(index);
-    }
-
-    try
-    {
-        v->ice_preMarshal();
-    }
-    catch(const std::exception& ex)
-    {
-        Warning out(_stream->instance()->initializationData().logger);
-        out << "std::exception raised by ice_preMarshal:\n" << ex;
-    }
-    catch(...)
-    {
-        Warning out(_stream->instance()->initializationData().logger);
-        out << "unknown exception raised by ice_preMarshal";
-    }
-
-    v->__write(_stream);
 }
 
 void
@@ -1988,6 +2003,7 @@ IceInternal::BasicStream::EncapsDecoder::read(PatchFunc patchFunc, void* patchAd
         // Object references are encoded as a negative integer in 1.0.
         //
         _stream->read(index);
+        _usesClasses = true;
         if(index > 0)
         {
             throw MarshalException(__FILE__, __LINE__, "invalid object id");
@@ -2039,9 +2055,20 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
 {
     assert(_sliceType == NoSlice);
 
-    // TODO: Get rid of this for 1.1?
-    bool usesClasses;
-    _stream->read(usesClasses);
+    if(_encaps->encoding == Encoding_1_0)
+    {
+        //
+        // User exception with the 1.0 encoding start with a boolean
+        // flag that indicates whether or not the exception has
+        // classes. This allows reading the pending objects even if
+        // some the exception was sliced. With encoding > 1.0, we
+        // don't need this, each slice indirect patch table indicates
+        // the presence of objects.
+        //
+        bool usesClasses;
+        _stream->read(usesClasses);
+        _usesClasses |= usesClasses;
+    }
 
     _sliceType = ExceptionSlice;
     _skipFirstSlice = false;
@@ -2080,14 +2107,8 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
             catch(UserException& ex)
             {
                 ex.__read(_stream);
-                ex.__usesClasses(usesClasses);
-        
-                if(usesClasses)
-                {
-                    readPendingObjects();
-                }
-        
-                ex.ice_throw();
+                readPendingObjects();
+                throw;
         
                 // Never reached.
             }
@@ -2342,6 +2363,24 @@ IceInternal::BasicStream::EncapsDecoder::endSlice()
 void
 IceInternal::BasicStream::EncapsDecoder::readPendingObjects()
 {
+    //
+    // With the 1.0 encoding, only read pending objects if nil or
+    // non-nil references were read (_usesClasses == true). Otherwise,
+    // read pending objects only if some non-nil references were read.
+    //
+    if(_encaps->encoding == Encoding_1_0)
+    {        
+        if(!_usesClasses)
+        {
+            return;
+        }
+        _usesClasses = false;
+    }
+    else if(_patchMap.empty())
+    {
+        return;
+    }
+
     Int num;
     ObjectList objectList;
     do

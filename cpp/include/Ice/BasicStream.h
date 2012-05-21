@@ -152,6 +152,11 @@ public:
     {
         assert(_currentWriteEncaps);
 
+        if(_currentWriteEncaps->encoder)
+        {
+            _currentWriteEncaps->encoder->writePendingObjects();
+        }
+
         Container::size_type start = _currentWriteEncaps->start;
         Ice::Int sz = static_cast<Ice::Int>(b.size() - start); // Size includes size and version.
         Ice::Byte* dest = &(*(b.begin() + start));
@@ -246,6 +251,12 @@ public:
     void endReadEncaps()
     {
         assert(_currentReadEncaps);
+
+        if(_currentReadEncaps->decoder)
+        {
+            _currentReadEncaps->decoder->readPendingObjects();
+        }
+
         Container::size_type start = _currentReadEncaps->start;
         Ice::Int sz = _currentReadEncaps->sz;
         if(i != b.begin() + start + sz)
@@ -476,7 +487,6 @@ public:
     {
         if(i >= b.end())
         {
-            assert(false);
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
         v = *i++;
@@ -730,7 +740,7 @@ private:
     public:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
             _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _traceSlicing(-1), _sliceType(NoSlice),
-            _typeIdIndex(0)
+            _usesClasses(false), _typeIdIndex(0)
         {
         } 
 
@@ -768,6 +778,7 @@ private:
         bool _skipFirstSlice;
         Ice::SliceInfoSeq _slices;          // Preserved slices.
         IndexListList _indirectionTables;   // Indirection tables for the preserved slices.
+        bool _usesClasses;
 
         // Slice attributes
         Ice::Byte _sliceFlags;
@@ -786,7 +797,8 @@ private:
     {
     public:
         EncapsEncoder(BasicStream* stream, WriteEncaps* encaps, Ice::FormatType format) : 
-            _stream(stream), _encaps(encaps), _format(format), _sliceType(NoSlice), _objectIdIndex(0), _typeIdIndex(0)
+            _stream(stream), _encaps(encaps), _format(format), _sliceType(NoSlice), _usesClasses(false),
+            _objectIdIndex(0), _typeIdIndex(0)
         {
         }
 
@@ -807,7 +819,6 @@ private:
     private:
 
         void writeTypeId(const std::string&);
-        void writeInstance(const Ice::ObjectPtr&, Ice::Int);
         void writeSlicedData(const Ice::SlicedDataPtr&);
         Ice::Int registerObject(const Ice::ObjectPtr&);
 
@@ -818,6 +829,8 @@ private:
         // Object/exception attributes
         SliceType _sliceType;
         bool _firstSlice;
+        bool _usesClasses;
+        Container::size_type _usesClassesPos;
 
         // Slice attributes
         Ice::Byte _sliceFlags;
