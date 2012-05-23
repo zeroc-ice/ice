@@ -645,6 +645,62 @@ ZEND_METHOD(Ice_ObjectPrx, ice_secure)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getEncodingVersion)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        if(!createEncodingVersion(return_value, _this->proxy->ice_getEncodingVersion() TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_encodingVersion)
+{
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zend_class_entry* cls = idToClass("::Ice::EncodingVersion" TSRMLS_CC);
+    assert(cls);
+
+    zval *zv;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O"), &zv, cls) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::EncodingVersion v;
+    if(extractEncodingVersion(zv, v TSRMLS_CC))
+    {
+        try
+        {
+            if(!_this->clone(return_value, _this->proxy->ice_encodingVersion(v) TSRMLS_CC))
+            {
+                RETURN_NULL();
+            }
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            throwException(ex TSRMLS_CC);
+            RETURN_NULL();
+        }
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_isPreferSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -1213,6 +1269,27 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getCachedConnection)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_flushBatchRequests)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->proxy->ice_flushBatchRequests();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 static ClassInfoPtr
 lookupClass(const string& id TSRMLS_DC)
 {
@@ -1570,6 +1647,8 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isSecure, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_secure, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getEncodingVersion, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_isPreferSecure, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_preferSecure, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getRouter, NULL, ZEND_ACC_PUBLIC)
@@ -1591,6 +1670,7 @@ static zend_function_entry _proxyMethods[] =
     ZEND_ME(Ice_ObjectPrx, ice_connectionId, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getConnection, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_uncheckedCast, NULL, ZEND_ACC_PUBLIC)
     ZEND_ME(Ice_ObjectPrx, ice_checkedCast, NULL, ZEND_ACC_PUBLIC)
     {0, 0, 0}

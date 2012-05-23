@@ -373,6 +373,7 @@ public:
     void printMembers(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     std::string id;
+    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     bool usesClasses;
@@ -424,7 +425,6 @@ private:
     ClassInfoPtr _info;
     Ice::SlicedDataPtr _slicedData;
 };
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
 //
 // ExceptionReader creates a Ruby user exception and unmarshals it.

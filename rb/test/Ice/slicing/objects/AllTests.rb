@@ -728,7 +728,7 @@ def allTests(communicator)
 
     #
     # Send an object that will have multiple preserved slices in the server.
-    # The object will be sliced to Preserved for the 1.0 encoding.
+    # The object will be sliced to PDerived for the 1.0 encoding.
     #
     pcd = Test::PCDerived3.new()
     pcd.pi = 3
@@ -749,7 +749,7 @@ def allTests(communicator)
     r = t.exchangePBase(pcd)
     if t.ice_getEncodingVersion() == Ice::Encoding_1_0
         test(!r.is_a?(Test::PCDerived3))
-        test(r.is_a?(Test::Preserved))
+        test(r.is_a?(Test::PDerived))
         test(r.pi == 3)
     else
         test(r.is_a?(Test::PCDerived3))

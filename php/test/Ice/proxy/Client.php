@@ -32,9 +32,12 @@ function test($b)
 function allTests($communicator)
 {
     global $NS;
+    global $Ice_Encoding_1_0;
+    global $Ice_Encoding_1_1;
 
     $random = $NS ? constant("Ice\\EndpointSelectionType::Random") : constant("Ice_EndpointSelectionType::Random");
     $ordered = $NS ? constant("Ice\\EndpointSelectionType::Ordered") : constant("Ice_EndpointSelectionType::Ordered");
+    $encodingVersion = $NS ? "Ice\\EncodingVersion" : "Ice_EncodingVersion";
 
     echo "testing stringToProxy... ";
     flush();
@@ -368,6 +371,42 @@ function allTests($communicator)
     //test(!$b1->ice_isCollocationOptimized());
     //$communicator->getProperties()->setProperty($property, "");
 
+    $property = $propertyPrefix . ".EncodingVersion";
+    test($b1->ice_getEncodingVersion() == Ice_currentEncoding());
+    $communicator->getProperties()->setProperty($property, "1.0");
+    $b1 = $communicator->propertyToProxy($propertyPrefix);
+    test($b1->ice_getEncodingVersion()->major == 1 && $b1->ice_getEncodingVersion()->minor == 0);
+    $communicator->getProperties()->setProperty($property, "6.5");
+    try
+    {
+        $communicator->propertyToProxy($propertyPrefix);
+        test(false);
+    }
+    catch(Exception $ex)
+    {
+        $cls = $NS ? "Ice\\UnsupportedEncodingException" : "Ice_UnsupportedEncodingException";
+        if(!($ex instanceof $cls))
+        {
+            throw $ex;
+        }
+    }
+
+    $communicator->getProperties()->setProperty($property, "1.2");
+    try
+    {
+        $communicator->propertyToProxy($propertyPrefix);
+        test(false);
+    }
+    catch(Exception $ex)
+    {
+        $cls = $NS ? "Ice\\UnsupportedEncodingException" : "Ice_UnsupportedEncodingException";
+        if(!($ex instanceof $cls))
+        {
+            throw $ex;
+        }
+    }
+    $communicator->getProperties()->setProperty($property, "");
+
     echo "ok\n";
 
     echo "testing proxyToProperty... ";
@@ -379,6 +418,7 @@ function allTests($communicator)
     $b1 = $b1->ice_preferSecure(false);
     $b1 = $b1->ice_endpointSelection($ordered);
     $b1 = $b1->ice_locatorCacheTimeout(100);
+    $b1 = $b1->ice_encodingVersion(eval("return new " . $encodingVersion . "(1, 0);"));
 
     $router = $communicator->stringToProxy("router");
     //$router = $router->ice_collocationOptimized(false);
@@ -398,10 +438,11 @@ function allTests($communicator)
     $b1 = $b1->ice_locator($locator->ice_uncheckedCast("::Ice::Locator"));
 
     $proxyProps = $communicator->proxyToProperty($b1, "Test");
-    test(count($proxyProps) == 18);
+    test(count($proxyProps) == 21);
 
     test($proxyProps["Test"] == "test -t");
     //test($proxyProps["Test.CollocationOptimized"] == "1");
+    test($proxyProps["Test.EncodingVersion"] == "1.0");
     test($proxyProps["Test.ConnectionCached"] == "1");
     test($proxyProps["Test.PreferSecure"] == "0");
     test($proxyProps["Test.EndpointSelection"] == "Ordered");
@@ -409,6 +450,7 @@ function allTests($communicator)
 
     test($proxyProps["Test.Locator"] == "locator -t");
     //test($proxyProps["Test.Locator.CollocationOptimized"] == "1");
+    test($proxyProps["Test.Locator.EncodingVersion"] == Ice_encodingVersionToString(Ice_currentEncoding()));
     test($proxyProps["Test.Locator.ConnectionCached"] == "0");
     test($proxyProps["Test.Locator.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.EndpointSelection"] == "Random");
@@ -416,11 +458,31 @@ function allTests($communicator)
 
     test($proxyProps["Test.Locator.Router"] == "router -t");
     //test($proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
+    test($proxyProps["Test.Locator.Router.EncodingVersion"] == Ice_encodingVersionToString(Ice_currentEncoding()));
     test($proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test($proxyProps["Test.Locator.Router.PreferSecure"] == "1");
     test($proxyProps["Test.Locator.Router.EndpointSelection"] == "Random");
     test($proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200");
 
+    try
+    {
+        $b1->ice_encodingVersion(eval("return new " . $encodingVersion . "(3, 4);"));
+        test(false);
+    }
+    catch(Exception $ex)
+    {
+        $cls = $NS ? "Ice\\UnsupportedEncodingException" : "Ice_UnsupportedEncodingException";
+        if(!($ex instanceof $cls))
+        {
+            throw $ex;
+        }
+    }
+
+    echo "ok\n";
+
+    echo "testing ice_getCommunicator... ";
+    flush();
+    test($base->ice_getCommunicator() === $communicator);
     echo "ok\n";
 
     echo "testing proxy methods... ";
@@ -435,14 +497,14 @@ function allTests($communicator)
     test($base->ice_batchDatagram()->ice_isBatchDatagram());
     test($base->ice_secure(true)->ice_isSecure());
     test(!$base->ice_secure(false)->ice_isSecure());
+    test($base->ice_preferSecure(true)->ice_isPreferSecure());
+    test(!$base->ice_preferSecure(false)->ice_isPreferSecure());
     test($base->ice_connectionId("id1")->ice_getConnectionId() == "id1");
     test($base->ice_connectionId("id2")->ice_getConnectionId() == "id2");
+    test($base->ice_encodingVersion($Ice_Encoding_1_0)->ice_getEncodingVersion() == $Ice_Encoding_1_0);
+    test($base->ice_encodingVersion($Ice_Encoding_1_1)->ice_getEncodingVersion() == $Ice_Encoding_1_1);
+    test($base->ice_encodingVersion($Ice_Encoding_1_0)->ice_getEncodingVersion() != $Ice_Encoding_1_1);
 
-    echo "ok\n";
-
-    echo "testing ice_getCommunicator... ";
-    flush();
-    test($base->ice_getCommunicator() === $communicator);
     echo "ok\n";
 
     echo "testing checked cast... ";
@@ -637,11 +699,19 @@ function allTests($communicator)
         }
     }
 
-    // Legal TCP endpoint expressed as opaque endpoint
-    $p1 = $communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+    // Legal TCP endpoint expressed as opaque endpoint.
+    $p1 = $communicator->stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     $pstr = $communicator->proxyToString($p1);
     test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
+    // 1.1 TCP endpoint encoded with 1.1 encoding.
+    $p2 = $communicator->stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQE=");
+    test($communicator->proxyToString($p2) == "test -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 10000");
+
+    // 1.0 TCP endpoint encoded with 1.1 encoding.
+    $p2 = $communicator->stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=");
+    test($communicator->proxyToString($p2) == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
+
     // Working?
     if($communicator->getProperties()->getProperty("Ice.IPv6") == "" ||
        $communicator->getProperties()->getProperty("Ice.IPv6") == "0")
@@ -649,11 +719,11 @@ function allTests($communicator)
         $ssl = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
         if(!$ssl)
         {
-            $p1->ice_ping();
+            $p1->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
         }
 
         // Two legal TCP endpoints expressed as opaque endpoints
-        $p1 = $communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        $p1 = $communicator->stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         $pstr = $communicator->proxyToString($p1);
         test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
@@ -661,11 +731,11 @@ function allTests($communicator)
         // Test that an SSL endpoint and a nonsense endpoint get written
         // back out as an opaque endpoint.
         //
-        $p1 = $communicator->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+        $p1 = $communicator->stringToProxy("test:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         $pstr = $communicator->proxyToString($p1);
         if(!$ssl)
         {
-            test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test($pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
@@ -679,7 +749,7 @@ function allTests($communicator)
         //
         try
         {
-            $p1->ice_ping();
+            $p1->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
             test(false);
         }
         catch(Exception $ex)
@@ -710,11 +780,11 @@ function allTests($communicator)
         $pstr = $communicator->proxyToString($p2);
         if(!$ssl)
         {
-            test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+            test($pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch");
         }
         else
         {
-            test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+            test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -e 1.0 -v abch");
         }
     }
     echo "ok\n";

@@ -451,7 +451,7 @@ def allTests(communicator)
     #test(!(compObj.ice_locator(loc1) < compObj.ice_locator(nil)))
     #test(compObj.ice_locator(loc1) < compObj.ice_locator(loc2))
     #test(!(compObj.ice_locator(loc2) < compObj.ice_locator(loc1)))
-    
+
     rtr1 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"))
     rtr2 = Ice::RouterPrx::uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"))
     test(compObj.ice_router(nil) == compObj.ice_router(nil))
@@ -475,12 +475,12 @@ def allTests(communicator)
     test(compObj.ice_context(ctx1) != compObj.ice_context(ctx2))
     #test(compObj.ice_context(ctx1) < compObj.ice_context(ctx2))
     #test(!(compObj.ice_context(ctx2) < compObj.ice_context(ctx1)))
-    
+
     test(compObj.ice_preferSecure(true) == compObj.ice_preferSecure(true))
     test(compObj.ice_preferSecure(true) != compObj.ice_preferSecure(false))
     #test(compObj.ice_preferSecure(false) < compObj.ice_preferSecure(true))
     #test(!(compObj.ice_preferSecure(true) < compObj.ice_preferSecure(false)))
-    
+
     compObj1 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000")
     compObj2 = communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10001")
     test(compObj1 != compObj2)
@@ -642,7 +642,7 @@ def allTests(communicator)
     rescue Ice::EndpointParseException
     end
 
-    # Legal TCP endpoint expressed as opaque endpoint
+    # Legal TCP endpoint expressed as opaque endpoint.
     p1 = communicator.stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
     pstr = communicator.proxyToString(p1)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
@@ -654,7 +654,7 @@ def allTests(communicator)
     # 1.0 TCP endpoint encoded with 1.1 encoding.
     p2 = communicator.stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=")
     test(communicator.proxyToString(p2) == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
-    
+
     # Working?
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
         ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl"

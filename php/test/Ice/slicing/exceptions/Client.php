@@ -23,11 +23,12 @@ function test($b)
 function allTests($communicator)
 {
     global $NS;
+    global $Ice_Encoding_1_0;
 
     $obj = $communicator->stringToProxy("Test:default -p 12010");
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
-    echo "testing throwing a base exception... ";
+    echo "base... ";
     flush();
     {
         try
@@ -40,7 +41,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\Base" : "Test_Base";
             if(!($b instanceof $excls))
             {
-                throw $ex;
+                throw $b;
             }
             test($b->b == "Base.b");
             test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
@@ -48,7 +49,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of unknown derived exception... ";
+    echo "unknown derived... ";
     flush();
     {
         try
@@ -61,7 +62,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\Base" : "Test_Base";
             if(!($b instanceof $excls))
             {
-                throw $ex;
+                throw $b;
             }
             test($b->b == "UnknownDerived.b");
             test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
@@ -69,7 +70,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing non-slicing of known derived exception thrown as base exception... ";
+    echo "non-slicing of known derived as base... ";
     flush();
     {
         try
@@ -82,7 +83,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownDerived" : "Test_KnownDerived";
             if(!($k instanceof $excls))
             {
-                throw $ex;
+                throw $k;
             }
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
@@ -91,7 +92,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing non-slicing of known derived exception thrown as derived exception... ";
+    echo "non-slicing of known derived as derived... ";
     flush();
     {
         try
@@ -104,7 +105,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownDerived" : "Test_KnownDerived";
             if(!($k instanceof $excls))
             {
-                throw $ex;
+                throw $k;
             }
             test($k->b == "KnownDerived.b");
             test($k->kd == "KnownDerived.kd");
@@ -113,7 +114,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of unknown intermediate exception thrown as base exception... ";
+    echo "slicing of unknown intermediate as base... ";
     flush();
     {
         try
@@ -126,7 +127,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\Base" : "Test_Base";
             if(!($b instanceof $excls))
             {
-                throw $ex;
+                throw $b;
             }
             test($b->b == "UnknownIntermediate.b");
             test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
@@ -134,7 +135,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of known intermediate exception thrown as base exception... ";
+    echo "slicing of known intermediate as base... ";
     flush();
     {
         try
@@ -147,7 +148,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
             if(!($ki instanceof $excls))
             {
-                throw $ex;
+                throw $ki;
             }
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
@@ -156,7 +157,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of known most derived exception thrown as base exception... ";
+    echo "slicing of known most derived as base... ";
     flush();
     {
         try
@@ -169,7 +170,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
             if(!($kmd instanceof $excls))
             {
-                throw $ex;
+                throw $kmd;
             }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
@@ -179,7 +180,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing non-slicing of known intermediate exception thrown as intermediate exception... ";
+    echo "non-slicing of known intermediate as intermediate... ";
     flush();
     {
         try
@@ -192,7 +193,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
             if(!($ki instanceof $excls))
             {
-                throw $ex;
+                throw $ki;
             }
             test($ki->b == "KnownIntermediate.b");
             test($ki->ki == "KnownIntermediate.ki");
@@ -201,7 +202,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing non-slicing of known most derived thrown as intermediate exception... ";
+    echo "non-slicing of known most derived as intermediate... ";
     flush();
     {
         try
@@ -214,7 +215,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
             if(!($kmd instanceof $excls))
             {
-                throw $ex;
+                throw $kmd;
             }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
@@ -224,7 +225,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing non-slicing of known most derived thrown as most derived exception... ";
+    echo "non-slicing of known most derived as most derived... ";
     flush();
     {
         try
@@ -237,7 +238,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownMostDerived" : "Test_KnownMostDerived";
             if(!($kmd instanceof $excls))
             {
-                throw $ex;
+                throw $kmd;
             }
             test($kmd->b == "KnownMostDerived.b");
             test($kmd->ki == "KnownMostDerived.ki");
@@ -247,7 +248,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of unknown most derived with known intermediate thrown as base exception... ";
+    echo "slicing of unknown most derived, known intermediate as base... ";
     flush();
     {
         try
@@ -260,7 +261,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
             if(!($ki instanceof $excls))
             {
-                throw $ex;
+                throw $ki;
             }
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
@@ -269,7 +270,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of unknown most derived with known intermediate thrown as intermediate exception... ";
+    echo "slicing of unknown most derived, known intermediate as intermediate... ";
     flush();
     {
         try
@@ -282,7 +283,7 @@ function allTests($communicator)
             $excls = $NS ? "Test\\KnownIntermediate" : "Test_KnownIntermediate";
             if(!($ki instanceof $excls))
             {
-                throw $ex;
+                throw $ki;
             }
             test($ki->b == "UnknownMostDerived1.b");
             test($ki->ki == "UnknownMostDerived1.ki");
@@ -291,7 +292,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing slicing of unknown most derived with unknown intermediate thrown as base exception... ";
+    echo "slicing of unknown most derived, unknown intermediate as base... ";
     flush();
     {
         try
@@ -304,10 +305,118 @@ function allTests($communicator)
             $excls = $NS ? "Test\\Base" : "Test_Base";
             if(!($b instanceof $excls))
             {
-                throw $ex;
+                throw $b;
             }
             test($b->b == "UnknownMostDerived2.b");
             test(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"));
+        }
+    }
+    echo "ok\n";
+
+    echo "unknown most derived in compact format... ";
+    flush();
+    {
+        try
+        {
+            $test->unknownMostDerived2AsBaseCompact();
+            test(false);
+        }
+        catch(Exception $b)
+        {
+            $excls = $NS ? "Test\\Base" : "Test_Base";
+            if(($b instanceof $excls))
+            if(get_class($b) == ($NS ? "Test\\Base" : "Test_Base"))
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to Base.
+                //
+                test($test->ice_getEncodingVersion() == $Ice_Encoding_1_0);
+            }
+            else if(get_class($b) == ($NS ? "Ice\\MarshalException" : "Ice_MarshalException"))
+            {
+                //
+                // A MarshalException is raised for the compact format because the
+                // most-derived type is unknown and the exception cannot be sliced.
+                //
+                test($test->ice_getEncodingVersion() != $Ice_Encoding_1_0);
+            }
+            else
+            {
+                throw $b;
+            }
+        }
+    }
+    echo "ok\n";
+
+    echo "preserved exceptions... ";
+    flush();
+    {
+        try
+        {
+            $test->knownPreservedAsBase();
+            test(false);
+        }
+        catch(Exception $b)
+        {
+            $excls = $NS ? "Test\\KnownPreservedDerived" : "Test_KnownPreservedDerived";
+            if(!($b instanceof $excls))
+            {
+                throw $b;
+            }
+            test($b->b == "base");
+            test($b->kp == "preserved");
+            test($b->kpd == "derived");
+        }
+
+        try
+        {
+            $test->knownPreservedAsKnownPreserved();
+            test(false);
+        }
+        catch(Exception $b)
+        {
+            $excls = $NS ? "Test\\KnownPreservedDerived" : "Test_KnownPreservedDerived";
+            if(!($b instanceof $excls))
+            {
+                throw $b;
+            }
+            test($b->b == "base");
+            test($b->kp == "preserved");
+            test($b->kpd == "derived");
+        }
+
+        try
+        {
+            $test->unknownPreservedAsBase();
+            test(false);
+        }
+        catch(Exception $b)
+        {
+            $excls = $NS ? "Test\\KnownPreservedDerived" : "Test_KnownPreservedDerived";
+            if(!($b instanceof $excls))
+            {
+                throw $b;
+            }
+            test($b->b == "base");
+            test($b->kp == "preserved");
+            test($b->kpd == "derived");
+        }
+
+        try
+        {
+            $test->unknownPreservedAsKnownPreserved();
+            test(false);
+        }
+        catch(Exception $b)
+        {
+            $excls = $NS ? "Test\\KnownPreservedDerived" : "Test_KnownPreservedDerived";
+            if(!($b instanceof $excls))
+            {
+                throw $b;
+            }
+            test($b->b == "base");
+            test($b->kp == "preserved");
+            test($b->kpd == "derived");
         }
     }
     echo "ok\n";

@@ -45,6 +45,33 @@ class AbortMarshaling
 
 typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
 
+class ObjectReader;
+typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+
+//
+// This class keeps track of PHP objects (instances of Slice classes
+// and exceptions) that have preserved slices.
+//
+class SlicedDataUtil
+{
+public:
+
+    ~SlicedDataUtil();
+
+    void add(const ObjectReaderPtr&);
+
+    void update(TSRMLS_D);
+
+    static void setMember(zval*, const Ice::SlicedDataPtr& TSRMLS_DC);
+    static Ice::SlicedDataPtr getMember(zval*, ObjectMap* TSRMLS_DC);
+
+private:
+
+    std::set<ObjectReaderPtr> _readers;
+    static zend_class_entry* _slicedDataType;
+    static zend_class_entry* _sliceInfoType;
+};
+
 struct PrintObjectHistory
 {
     int index;
@@ -329,6 +356,7 @@ public:
     std::string id;
     std::string name; // PHP class name
     bool isAbstract;
+    bool preserve;
     ClassInfoPtr base;
     ClassInfoList interfaces;
     DataMemberList members;
@@ -379,6 +407,7 @@ public:
 
     std::string id;
     std::string name; // PHP class name
+    bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
     bool usesClasses;
@@ -400,7 +429,7 @@ class ObjectWriter : public Ice::ObjectWriter
 {
 public:
 
-    ObjectWriter(const ClassInfoPtr&, zval*, ObjectMap* TSRMLS_DC);
+    ObjectWriter(zval*, ObjectMap*, const ClassInfoPtr& TSRMLS_DC);
     ~ObjectWriter();
 
     virtual void ice_preMarshal();
@@ -409,9 +438,9 @@ public:
 
 private:
 
-    ClassInfoPtr _info;
     zval* _object;
     ObjectMap* _map;
+    ClassInfoPtr _info;
 #if ZTS
     TSRMLS_D;
 #endif
@@ -429,22 +458,59 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void read(const Ice::InputStreamPtr&, bool);
+    virtual void read(const Ice::InputStreamPtr&);
 
     virtual ClassInfoPtr getInfo() const;
 
     zval* getObject() const;
+
+    Ice::SlicedDataPtr getSlicedData() const;
 
 private:
 
     zval* _object;
     ClassInfoPtr _info;
     CommunicatorInfoPtr _communicator;
+    Ice::SlicedDataPtr _slicedData;
 #if ZTS
     TSRMLS_D;
 #endif
 };
-typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
+
+//
+// ExceptionReader creates a PHP user exception and unmarshals it.
+//
+class ExceptionReader : public Ice::UserExceptionReader
+{
+public:
+
+    ExceptionReader(const CommunicatorInfoPtr&, const ExceptionInfoPtr& TSRMLS_DC);
+    ~ExceptionReader() throw();
+
+    virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
+    virtual void usesClasses(bool);
+
+    virtual std::string ice_name() const;
+    virtual Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+    ExceptionInfoPtr getInfo() const;
+
+    zval* getException() const;
+
+    Ice::SlicedDataPtr getSlicedData() const;
+
+private:
+
+    CommunicatorInfoPtr _communicatorInfo;
+    ExceptionInfoPtr _info;
+    zval* _ex;
+    Ice::SlicedDataPtr _slicedData;
+#if ZTS
+    TSRMLS_D;
+#endif
+};
 
 } // End of namespace IcePHP
 

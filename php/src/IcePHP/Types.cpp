@@ -14,6 +14,7 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <Slice/PHPUtil.h>
+#include <Ice/SlicedData.h>
 
 using namespace std;
 using namespace IcePHP;
@@ -139,6 +140,39 @@ getMostDerived(zend_class_entry* formal, zend_class_entry* cls, const ClassInfoP
     return curr;
 }
 
+static ClassInfoPtr
+getClassInfoByClass(zend_class_entry* cls, zend_class_entry* formal TSRMLS_DC)
+{
+    //
+    // See if there's a match in our class name => ClassInfo map.
+    //
+    ClassInfoPtr info = getClassInfoByName(cls->name TSRMLS_CC);
+
+    //
+    // Check the base class, assuming it's compatible with our formal type (if any).
+    //
+    if(!info && cls->parent && (!formal || checkClass(cls->parent, formal)))
+    {
+        info = getClassInfoByClass(cls->parent, formal TSRMLS_CC);
+    }
+
+    //
+    // Check interfaces.
+    //
+    if(!info)
+    {
+        for(zend_uint i = 0; i < cls->num_interfaces && !info; ++i)
+        {
+            if(!formal || checkClass(cls->interfaces[i], formal))
+            {
+                info = getClassInfoByClass(cls->interfaces[i], formal TSRMLS_CC);
+            }
+        }
+    }
+
+    return info;
+}
+
 //
 // getClassInfoById()
 //
@@ -230,6 +264,263 @@ private:
 zend_object_handle _h;
 };
 
+}
+
+//
+// SlicedDataUtil implementation
+//
+zend_class_entry* IcePHP::SlicedDataUtil::_slicedDataType = 0;
+zend_class_entry* IcePHP::SlicedDataUtil::_sliceInfoType = 0;
+
+IcePHP::SlicedDataUtil::~SlicedDataUtil()
+{
+    //
+    // Make sure we break any cycles among the objects in preserved slices.
+    //
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        (*p)->getSlicedData()->clearObjects();
+    }
+}
+
+void
+IcePHP::SlicedDataUtil::add(const ObjectReaderPtr& reader)
+{
+    assert(reader->getSlicedData());
+    _readers.insert(reader);
+}
+
+void
+IcePHP::SlicedDataUtil::update(TSRMLS_D)
+{
+    for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
+    {
+        setMember((*p)->getObject(), (*p)->getSlicedData() TSRMLS_CC);
+    }
+}
+
+void
+IcePHP::SlicedDataUtil::setMember(zval* obj, const Ice::SlicedDataPtr& slicedData TSRMLS_DC)
+{
+    //
+    // Create a PHP equivalent of the SlicedData object.
+    //
+
+    assert(slicedData);
+
+    if(!_slicedDataType)
+    {
+        _slicedDataType = idToClass("::Ice::SlicedData" TSRMLS_CC);
+        assert(_slicedDataType);
+    }
+    if(!_sliceInfoType)
+    {
+        _sliceInfoType = idToClass("::Ice::SliceInfo" TSRMLS_CC);
+        assert(_sliceInfoType);
+    }
+
+    zval* sd;
+    MAKE_STD_ZVAL(sd);
+    AutoDestroy sdDestroyer(sd);
+
+    if(object_init_ex(sd, _slicedDataType) != SUCCESS)
+    {
+        throw AbortMarshaling();
+    }
+
+    zval* slices;
+    MAKE_STD_ZVAL(slices);
+    array_init(slices);
+    AutoDestroy slicesDestroyer(slices);
+
+    if(add_property_zval(sd, STRCAST("slices"), slices) != SUCCESS)
+    {
+        throw AbortMarshaling();
+    }
+
+    //
+    // Translate each SliceInfo object into its PHP equivalent.
+    //
+    for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    {
+        zval* slice;
+        MAKE_STD_ZVAL(slice);
+        AutoDestroy sliceDestroyer(slice);
+
+        if(object_init_ex(slice, _sliceInfoType) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        add_next_index_zval(slices, slice); // Steals a reference.
+        Z_ADDREF_P(slice);
+
+        //
+        // typeId
+        //
+        zval* typeId;
+        MAKE_STD_ZVAL(typeId);
+        AutoDestroy typeIdDestroyer(typeId);
+        ZVAL_STRINGL(typeId, STRCAST((*p)->typeId.c_str()), (*p)->typeId.size(), 1);
+        if(add_property_zval(slice, STRCAST("typeId"), typeId) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        //
+        // bytes
+        //
+        zval* bytes;
+        MAKE_STD_ZVAL(bytes);
+        array_init(bytes);
+        AutoDestroy bytesDestroyer(bytes);
+        for(vector<Ice::Byte>::const_iterator q = (*p)->bytes.begin(); q != (*p)->bytes.end(); ++q)
+        {
+            add_next_index_long(bytes, *q & 0xff);
+        }
+        if(add_property_zval(slice, STRCAST("bytes"), bytes) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        //
+        // objects
+        //
+        zval* objects;
+        MAKE_STD_ZVAL(objects);
+        array_init(objects);
+        AutoDestroy objectsDestroyer(objects);
+        if(add_property_zval(slice, STRCAST("objects"), objects) != SUCCESS)
+        {
+            throw AbortMarshaling();
+        }
+
+        for(vector<Ice::ObjectPtr>::const_iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
+        {
+            //
+            // Each element in the objects list is an instance of ObjectReader that wraps a PHP object.
+            //
+            assert(*q);
+            ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
+            assert(r);
+            zval* o = r->getObject();
+            assert(Z_TYPE_P(o) == IS_OBJECT); // Should be non-nil.
+            add_next_index_zval(objects, o); // Steals a reference.
+            Z_ADDREF_P(o);
+        }
+    }
+
+    if(add_property_zval(obj, STRCAST("_ice_slicedData"), sd) != SUCCESS)
+    {
+        throw AbortMarshaling();
+    }
+}
+
+//
+// Instances of preserved class and exception types may have a data member
+// named _ice_slicedData which is an instance of the PHP class Ice_SlicedData.
+//
+Ice::SlicedDataPtr
+IcePHP::SlicedDataUtil::getMember(zval* obj, ObjectMap* objectMap TSRMLS_DC)
+{
+    Ice::SlicedDataPtr slicedData;
+
+    string name = "_ice_slicedData";
+    void* data;
+    if(zend_hash_find(Z_OBJPROP_P(obj), STRCAST(name.c_str()), name.size() + 1, &data) == SUCCESS)
+    {
+        zval* sd = *(reinterpret_cast<zval**>(data));
+
+        if(Z_TYPE_P(sd) != IS_NULL)
+        {
+            int status;
+
+            //
+            // The "slices" member is an array of Ice_SliceInfo objects.
+            //
+            status = zend_hash_find(Z_OBJPROP_P(sd), STRCAST("slices"), sizeof("slices"), &data);
+            assert(status == SUCCESS);
+            zval* sl = *(reinterpret_cast<zval**>(data));
+            assert(Z_TYPE_P(sl) == IS_ARRAY);
+
+            Ice::SliceInfoSeq slices;
+
+            HashTable* arr = Z_ARRVAL_P(sl);
+            assert(arr);
+            HashPosition pos;
+            zend_hash_internal_pointer_reset_ex(arr, &pos);
+
+            while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
+            {
+                zval* s = *(reinterpret_cast<zval**>(data));
+                assert(Z_OBJCE_P(s) == _sliceInfoType);
+
+                Ice::SliceInfoPtr info = new Ice::SliceInfo;
+
+                status = zend_hash_find(Z_OBJPROP_P(s), STRCAST("typeId"), sizeof("typeId"), &data);
+                assert(status == SUCCESS);
+                zval* typeId = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(typeId) == IS_STRING);
+                info->typeId = string(Z_STRVAL_P(typeId), Z_STRLEN_P(typeId));
+
+                status = zend_hash_find(Z_OBJPROP_P(s), STRCAST("bytes"), sizeof("bytes"), &data);
+                assert(status == SUCCESS);
+                zval* bytes = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(bytes) == IS_ARRAY);
+                HashTable* barr = Z_ARRVAL_P(bytes);
+                HashPosition bpos;
+                zend_hash_internal_pointer_reset_ex(barr, &bpos);
+                info->bytes.resize(zend_hash_num_elements(barr));
+
+                vector<Ice::Byte>::size_type i = 0;
+                while(zend_hash_get_current_data_ex(barr, &data, &bpos) != FAILURE)
+                {
+                    zval* e = *(reinterpret_cast<zval**>(data));
+                    long l = Z_LVAL_P(e);
+                    assert(l >= 0 && l <= 255);
+                    info->bytes[i++] = static_cast<Ice::Byte>(l);
+                    zend_hash_move_forward_ex(barr, &bpos);
+                }
+
+                status = zend_hash_find(Z_OBJPROP_P(s), STRCAST("objects"), sizeof("objects"), &data);
+                assert(status == SUCCESS);
+                zval* objects = *(reinterpret_cast<zval**>(data));
+                assert(Z_TYPE_P(objects) == IS_ARRAY);
+                HashTable* oarr = Z_ARRVAL_P(objects);
+                HashPosition opos;
+                zend_hash_internal_pointer_reset_ex(oarr, &opos);
+
+                while(zend_hash_get_current_data_ex(oarr, &data, &opos) != FAILURE)
+                {
+                    zval* o = *(reinterpret_cast<zval**>(data));
+                    assert(Z_TYPE_P(o) == IS_OBJECT);
+
+                    Ice::ObjectPtr writer;
+
+                    ObjectMap::iterator i = objectMap->find(Z_OBJ_HANDLE_P(o));
+                    if(i == objectMap->end())
+                    {
+                        writer = new ObjectWriter(o, objectMap, 0 TSRMLS_CC);
+                        objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(o), writer));
+                    }
+                    else
+                    {
+                        writer = i->second;
+                    }
+
+                    info->objects.push_back(writer);
+                    zend_hash_move_forward_ex(oarr, &opos);
+                }
+
+                slices.push_back(info);
+                zend_hash_move_forward_ex(arr, &pos);
+            }
+
+            slicedData = new Ice::SlicedData(slices);
+        }
+    }
+
+    return slicedData;
 }
 
 //
@@ -1770,13 +2061,7 @@ IcePHP::ClassInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* 
     ObjectMap::iterator q = objectMap->find(Z_OBJ_HANDLE_P(zv));
     if(q == objectMap->end())
     {
-        //
-        // Determine the most-derived Slice type implemented by this object by scanning its
-        // inheritance hierarchy until we find a class or interface that we recognize.
-        //
-        ClassInfoPtr info = getMostDerived(zce, Z_OBJCE_P(zv), 0 TSRMLS_CC);
-        assert(info);
-        writer = new ObjectWriter(info, zv, objectMap TSRMLS_CC);
+        writer = new ObjectWriter(zv, objectMap, this TSRMLS_CC);
         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(zv), writer));
     }
     else
@@ -2045,19 +2330,29 @@ IcePHP::ProxyInfo::destroy()
 //
 // ObjectWriter implementation.
 //
-IcePHP::ObjectWriter::ObjectWriter(const ClassInfoPtr& info, zval* object, ObjectMap* objectMap TSRMLS_DC) :
-    _info(info), _object(object), _map(objectMap)
+IcePHP::ObjectWriter::ObjectWriter(zval* object, ObjectMap* objectMap, const ClassInfoPtr& formal TSRMLS_DC) :
+    _object(object), _map(objectMap)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
 
-    Z_OBJ_HT_P(_object)->add_ref(_object TSRMLS_CC);
+    Z_ADDREF_P(_object);
+
+    //
+    // We need to determine the most-derived Slice type supported by this object.
+    // This is typically a Slice class, but it can also be an interface.
+    //
+    // The caller may have provided a ClassInfo representing the formal type, in
+    // which case we ensure that the actual type is compatible with the formal type.
+    //
+    _info = getClassInfoByClass(Z_OBJCE_P(object), formal ? formal->zce : 0 TSRMLS_CC);
+    assert(_info);
 }
 
 IcePHP::ObjectWriter::~ObjectWriter()
 {
-    Z_OBJ_HT_P(_object)->del_ref(_object TSRMLS_CC);
+    zval_ptr_dtor(&_object);
 }
 
 void
@@ -2076,12 +2371,24 @@ IcePHP::ObjectWriter::ice_preMarshal()
 void
 IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 {
+    Ice::SlicedDataPtr slicedData;
+
+    if(_info->preserve)
+    {
+        //
+        // Retrieve the SlicedData object that we stored as a hidden member of the PHP object.
+        //
+        slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map) TSRMLS_CC);
+    }
+
+    os->startObject(slicedData);
+
     ClassInfoPtr info = _info;
     while(info && info->id != Ice::Object::ice_staticId())
     {
-        os->writeTypeId(info->id);
-
-        os->startSlice();
+        assert(info->base); // All classes have the Ice::Object base type.
+        const bool lastSlice = info->base->id == Ice::Object::ice_staticId();
+        os->startSlice(info->id, lastSlice);
         for(DataMemberList::iterator q = info->members.begin(); q != info->members.end(); ++q)
         {
             DataMemberPtr member = *q;
@@ -2107,13 +2414,7 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
         info = info->base;
     }
 
-    //
-    // Marshal the Ice::Object slice.
-    //
-    os->writeTypeId(Ice::Object::ice_staticId());
-    os->startSlice();
-    os->writeSize(0); // For compatibility with the old AFM.
-    os->endSlice();
+    os->endObject();
 }
 
 //
@@ -2148,19 +2449,16 @@ IcePHP::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
+IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
 {
+    is->startObject();
+
     //
     // Unmarshal the slices of a user-defined class.
     //
     ClassInfoPtr info = _info;
     while(info && info->id != Ice::Object::ice_staticId())
     {
-        if(rid)
-        {
-            is->readTypeId();
-        }
-
         is->startSlice();
         for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
         {
@@ -2169,27 +2467,17 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
         }
         is->endSlice();
 
-        rid = true;
-
         info = info->base;
     }
 
-    //
-    // Unmarshal the Ice::Object slice.
-    //
-    if(rid)
-    {
-        is->readTypeId();
-    }
+    _slicedData = is->endObject(_info->preserve);
 
-    is->startSlice();
-    // For compatibility with the old AFM.
-    Ice::Int sz = is->readSize();
-    if(sz != 0)
+    if(_slicedData)
     {
-        throw Ice::MarshalException(__FILE__, __LINE__);
+        SlicedDataUtil* util = reinterpret_cast<SlicedDataUtil*>(is->closure());
+        assert(util);
+        util->add(this);
     }
-    is->endSlice();
 }
 
 ClassInfoPtr
@@ -2202,6 +2490,12 @@ zval*
 IcePHP::ObjectReader::getObject() const
 {
     return _object;
+}
+
+Ice::SlicedDataPtr
+IcePHP::ObjectReader::getSlicedData() const
+{
+    return _slicedData;
 }
 
 //
@@ -2297,11 +2591,6 @@ IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const Communicat
         is->endSlice();
 
         info = info->base;
-        if(info)
-        {
-            string id;
-            is->read(id); // Read the ID of the next slice.
-        }
     }
 
     return destroy.release();
@@ -2376,6 +2665,81 @@ IcePHP::ExceptionInfo::isA(const string& typeId) const
     }
 
     return false;
+}
+
+//
+// ExceptionReader implementation.
+//
+IcePHP::ExceptionReader::ExceptionReader(const CommunicatorInfoPtr& communicatorInfo, const ExceptionInfoPtr& info
+                                         TSRMLS_DC) :
+    Ice::UserExceptionReader(communicatorInfo->getCommunicator()), _communicatorInfo(communicatorInfo), _info(info)
+{
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
+}
+
+IcePHP::ExceptionReader::~ExceptionReader()
+    throw()
+{
+}
+
+void
+IcePHP::ExceptionReader::read(const Ice::InputStreamPtr& is) const
+{
+    is->startException();
+
+    const_cast<zval*&>(_ex) = _info->unmarshal(is, _communicatorInfo TSRMLS_CC);
+
+    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+}
+
+bool
+IcePHP::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
+void
+IcePHP::ExceptionReader::usesClasses(bool)
+{
+}
+
+string
+IcePHP::ExceptionReader::ice_name() const
+{
+    return _info->id;
+}
+
+Ice::Exception*
+IcePHP::ExceptionReader::ice_clone() const
+{
+    assert(false);
+    return 0;
+}
+
+void
+IcePHP::ExceptionReader::ice_throw() const
+{
+    throw *this;
+}
+
+ExceptionInfoPtr
+IcePHP::ExceptionReader::getInfo() const
+{
+    return _info;
+}
+
+zval*
+IcePHP::ExceptionReader::getException() const
+{
+    return _ex;
+}
+
+Ice::SlicedDataPtr
+IcePHP::ExceptionReader::getSlicedData() const
+{
+    return _slicedData;
 }
 
 #ifdef _WIN32
@@ -2631,12 +2995,13 @@ ZEND_FUNCTION(IcePHP_defineClass)
     char* name;
     int nameLen;
     zend_bool isAbstract;
+    zend_bool preserve;
     zval* base;
     zval* interfaces;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssbo!a!a!"), &id, &idLen, &name, &nameLen,
-                             &isAbstract, &base, &interfaces, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssbbo!a!a!"), &id, &idLen, &name, &nameLen,
+                             &isAbstract, &preserve, &base, &interfaces, &members) == FAILURE)
     {
         return;
     }
@@ -2653,6 +3018,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
     addClassInfoByName(type TSRMLS_CC);
 
     type->isAbstract = isAbstract ? true : false;
+    type->preserve = preserve ? true : false;
     if(base)
     {
         TypeInfoPtr p = Wrapper<TypeInfoPtr>::value(base TSRMLS_CC);
@@ -2746,11 +3112,12 @@ ZEND_FUNCTION(IcePHP_defineException)
     int idLen;
     char* name;
     int nameLen;
+    zend_bool preserve;
     zval* base;
     zval* members;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("sso!a!"), &id, &idLen, &name, &nameLen,
-                             &base, &members) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("ssbo!a!"), &id, &idLen, &name, &nameLen,
+                             &preserve, &base, &members) == FAILURE)
     {
         return;
     }
@@ -2758,6 +3125,7 @@ ZEND_FUNCTION(IcePHP_defineException)
     ExceptionInfoPtr ex = new ExceptionInfo();
     ex->id = id;
     ex->name = name;
+    ex->preserve = preserve ? true : false;
     if(base)
     {
         ex->base = Wrapper<ExceptionInfoPtr>::value(base TSRMLS_CC);

@@ -50,7 +50,8 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, zval*, zval*, zval*, zval* TSRMLS_DC);
+    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*
+               TSRMLS_DC);
     ~OperationI();
 
     virtual zend_function* function();
@@ -58,6 +59,7 @@ public:
     string name; // On-the-wire name.
     Ice::OperationMode mode;
     Ice::OperationMode sendMode;
+    Ice::FormatType format;
     TypeInfoList inParams;
     TypeInfoList outParams;
     TypeInfoPtr returnType;
@@ -129,6 +131,35 @@ public:
     virtual void invoke(INTERNAL_FUNCTION_PARAMETERS);
 };
 
+class UserExceptionReaderFactoryI : public Ice::UserExceptionReaderFactory
+{
+public:
+
+    UserExceptionReaderFactoryI(const CommunicatorInfoPtr& communicator TSRMLS_DC) :
+        _communicator(communicator)
+    {
+#ifdef ZTS
+        this->TSRMLS_C = TSRMLS_C;
+#endif
+    }
+
+    virtual void createAndThrow(const string& id) const
+    {
+        ExceptionInfoPtr info = getExceptionInfo(id TSRMLS_CC);
+        if(info)
+        {
+            throw ExceptionReader(_communicator, info TSRMLS_CC);
+        }
+    }
+
+private:
+
+    const CommunicatorInfoPtr _communicator;
+#if ZTS
+    TSRMLS_D;
+#endif
+};
+
 }
 
 //
@@ -160,9 +191,9 @@ IcePHP::ResultCallback::unmarshaled(zval* val, zval*, void* TSRMLS_DC)
 //
 // OperationI implementation.
 //
-IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::OperationMode sm, zval* in, zval* out,
-                               zval* ret, zval* ex TSRMLS_DC) :
-    name(n), mode(m), sendMode(sm), sendsClasses(false), returnsClasses(false), _zendFunction(0)
+IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::OperationMode sm, Ice::FormatType f, zval* in,
+                               zval* out, zval* ret, zval* ex TSRMLS_DC) :
+    name(n), mode(m), sendMode(sm), format(f), sendsClasses(false), returnsClasses(false), _zendFunction(0)
 {
     //
     // inParams
@@ -361,6 +392,12 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
             // Marshal the in parameters.
             //
             Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator->getCommunicator());
+            os->startEncapsulation(_prx->ice_getEncodingVersion());
+
+            if(_op->sendsClasses && _op->format != Ice::DefaultFormat)
+            {
+                os->format(_op->format);
+            }
 
             ObjectMap objectMap;
             int i = 0;
@@ -380,6 +417,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
                 os->writePendingObjects();
             }
 
+            os->endEncapsulation();
             os->finished(bytes);
         }
         catch(const AbortMarshaling&)
@@ -401,6 +439,16 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
                                           const pair<const Ice::Byte*, const Ice::Byte*>& bytes TSRMLS_DC)
 {
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes);
+
+    //
+    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // This is necessary to support object unmarshaling (see ObjectReader).
+    //
+    SlicedDataUtil util;
+    assert(!is->closure());
+    is->closure(&util);
+
+    is->startEncapsulation();
 
     //
     // These callbacks collect references to the unmarshaled values. We copy them into
@@ -433,6 +481,10 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
         is->readPendingObjects();
     }
 
+    util.update(TSRMLS_C);
+
+    is->endEncapsulation();
+
     int i = static_cast<int>(_op->inParams.size());
     for(ResultCallbackList::iterator q = outParamCallbacks.begin(); q != outParamCallbacks.end(); ++q, ++i)
     {
@@ -458,71 +510,48 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
 zval*
 IcePHP::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes TSRMLS_DC)
 {
-    int traceSlicing = -1;
-
     Ice::InputStreamPtr is = Ice::createInputStream(_communicator->getCommunicator(), bytes);
 
-    bool usesClasses;
-    is->read(usesClasses);
+    //
+    // Store a pointer to a local SlicedDataUtil object as the stream's closure.
+    // This is necessary to support object unmarshaling (see ObjectReader).
+    //
+    SlicedDataUtil util;
+    assert(!is->closure());
+    is->closure(&util);
 
-    string id;
-    is->read(id);
-    const string origId = id;
+    is->startEncapsulation();
 
-    while(!id.empty())
+    try
     {
-        ExceptionInfoPtr info = getExceptionInfo(id TSRMLS_CC);
-        if(info)
-        {
-            zval* ex = info->unmarshal(is, _communicator TSRMLS_CC);
-            if(ex)
-            {
-                if(info->usesClasses)
-                {
-                    is->readPendingObjects();
-                }
+        Ice::UserExceptionReaderFactoryPtr factory = new UserExceptionReaderFactoryI(_communicator TSRMLS_CC);
+        is->throwException(factory);
+    }
+    catch(const ExceptionReader& r)
+    {
+        is->endEncapsulation();
 
-                if(validateException(info TSRMLS_CC))
-                {
-                    return ex;
-                }
-                else
-                {
-                    zval_ptr_dtor(&ex);
-                    Ice::UnknownUserException uue(__FILE__, __LINE__,
-                                                  "operation raised undeclared exception `" + id + "'");
-                    return convertException(uue TSRMLS_CC);
-                }
+        zval* ex = r.getException();
+        ExceptionInfoPtr info = r.getInfo();
+
+        if(validateException(info TSRMLS_CC))
+        {
+            util.update(TSRMLS_C);
+
+            Ice::SlicedDataPtr slicedData = r.getSlicedData();
+            if(slicedData)
+            {
+                SlicedDataUtil::setMember(ex, slicedData TSRMLS_CC);
             }
+
+            return ex;
         }
         else
         {
-            if(traceSlicing == -1)
-            {
-                traceSlicing =
-                    _communicator->getCommunicator()->getProperties()->getPropertyAsInt("Ice.Trace.Slicing") > 0;
-            }
-
-            if(traceSlicing > 0)
-            {
-                _communicator->getCommunicator()->getLogger()->trace("Slicing", "unknown exception type `" + id + "'");
-            }
-
-            is->skipSlice(); // Slice off what we don't understand.
-
-            try
-            {
-                is->read(id); // Read type id for next slice.
-            }
-            catch(Ice::UnmarshalOutOfBoundsException& ex)
-            {
-                //
-                // When readString raises this exception it means we've seen the last slice,
-                // so we set the reason member to a more helpful message.
-                //
-                ex.reason = "unknown exception type `" + origId + "'";
-                return convertException(ex TSRMLS_CC);
-            }
+            zval_ptr_dtor(&ex);
+            Ice::UnknownUserException uue(__FILE__, __LINE__,
+                                          "operation raised undeclared exception `" + info->id + "'");
+            return convertException(uue TSRMLS_CC);
         }
     }
 
@@ -532,7 +561,7 @@ IcePHP::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const I
     // have a factory for. This means that sender and receiver disagree
     // about the Slice definitions they use.
     //
-    Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception type `" + origId + "'");
+    Ice::UnknownUserException uue(__FILE__, __LINE__, "unknown exception");
     return convertException(uue TSRMLS_CC);
 }
 
@@ -675,13 +704,14 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     int nameLen;
     long mode;
     long sendMode;
+    long format;
     zval* inParams;
     zval* outParams;
     zval* returnType;
     zval* exceptions;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("oslla!a!o!a!"), &cls, &name, &nameLen, &mode,
-                             &sendMode, &inParams, &outParams, &returnType, &exceptions) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("osllla!a!o!a!"), &cls, &name, &nameLen,
+                             &mode, &sendMode, &format, &inParams, &outParams, &returnType, &exceptions) == FAILURE)
     {
         return;
     }
@@ -691,8 +721,8 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     assert(c);
 
     OperationIPtr op = new OperationI(name, static_cast<Ice::OperationMode>(mode),
-                                      static_cast<Ice::OperationMode>(sendMode), inParams, outParams, returnType,
-                                      exceptions TSRMLS_CC);
+                                      static_cast<Ice::OperationMode>(sendMode), static_cast<Ice::FormatType>(format),
+                                      inParams, outParams, returnType, exceptions TSRMLS_CC);
 
     c->addOperation(name, op);
 }

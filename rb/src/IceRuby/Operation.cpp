@@ -64,7 +64,7 @@ private:
     bool _returnsClasses;
     string _deprecateMessage;
 
-    void prepareRequest(const Ice::ObjectPrx&, VALUE, bool, vector<Ice::Byte>&);
+    void prepareRequest(const Ice::ObjectPrx&, VALUE, vector<Ice::Byte>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     bool validateException(VALUE) const;
@@ -275,7 +275,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     // Marshal the input parameters to a byte sequence.
     //
     Ice::ByteSeq params;
-    prepareRequest(proxy, args, false, params);
+    prepareRequest(proxy, args, params);
 
     if(!_deprecateMessage.empty())
     {
@@ -355,7 +355,7 @@ IceRuby::OperationI::deprecate(const string& msg)
 }
 
 void
-IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, bool async, vector<Ice::Byte>& bytes)
+IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vector<Ice::Byte>& bytes)
 {
     //
     // Validate the number of arguments.
@@ -388,17 +388,9 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, boo
             volatile VALUE arg = RARRAY_PTR(args)[i];
             if(!(*p)->type->validate(arg))
             {
-                string opName;
-                if(async)
-                {
-                    opName = fixIdent(_name, IdentNormal) + "_async";
-                }
-                else
-                {
-                    opName = fixIdent(_name, IdentNormal);
-                }
-                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'",
-                                    async ? i + 2 : i + 1, opName.c_str());
+                string opName = fixIdent(_name, IdentNormal);
+                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'", i + 1,
+                                    opName.c_str());
             }
             (*p)->type->marshal(arg, os, &objectMap);
         }
@@ -483,11 +475,19 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
     }
     catch(const ExceptionReader& r)
     {
+        is->endEncapsulation();
+
         volatile VALUE ex = r.getException();
 
         if(validateException(ex))
         {
             util.update();
+
+            Ice::SlicedDataPtr slicedData = r.getSlicedData();
+            if(slicedData)
+            {
+                SlicedDataUtil::setMember(ex, slicedData);
+            }
 
             return ex;
         }

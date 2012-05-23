@@ -1563,6 +1563,8 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
     }
     catch(const ExceptionReader& r)
     {
+        is->endEncapsulation();
+
         PyObject* ex = r.getException();
 
         if(validateException(ex))

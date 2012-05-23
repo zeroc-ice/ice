@@ -370,8 +370,13 @@ IcePy::SlicedDataUtil::setMember(PyObject* obj, const Ice::SlicedDataPtr& sliced
         //
         // bytes
         //
+#if PY_VERSION_HEX >= 0x03000000
+        PyObjectHandle bytes =
+            PyBytes_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+#else
         PyObjectHandle bytes =
             PyString_FromStringAndSize(reinterpret_cast<const char*>(&(*p)->bytes[0]), (*p)->bytes.size());
+#endif
         if(!bytes.get() || PyObject_SetAttrString(slice.get(), STRCAST("bytes"), bytes.get()) < 0)
         {
             assert(PyErr_Occurred());
@@ -446,14 +451,19 @@ IcePy::SlicedDataUtil::getMember(PyObject* obj, ObjectMap* objectMap)
 
                 PyObjectHandle typeId = PyObject_GetAttrString(s.get(), STRCAST("typeId"));
                 assert(typeId.get());
-                assert(PyString_Check(typeId.get()));
                 info->typeId = getString(typeId.get());
 
                 PyObjectHandle bytes = PyObject_GetAttrString(s.get(), STRCAST("bytes"));
                 assert(bytes.get());
+                char* str;
+                Py_ssize_t strsz;
+#if PY_VERSION_HEX >= 0x03000000
+                assert(PyBytes_Check(bytes.get()));
+                PyBytes_AsStringAndSize(bytes.get(), &str, &strsz);
+#else
                 assert(PyString_Check(bytes.get()));
-                const char* str = PyString_AS_STRING(bytes.get());
-                Py_ssize_t strsz = PyString_GET_SIZE(bytes.get());
+                PyString_AsStringAndSize(bytes.get(), &str, &strsz);
+#endif
                 vector<Ice::Byte> vtmp(str, str + strsz);
                 info->bytes.swap(vtmp);
 

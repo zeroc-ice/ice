@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-Ice::loadSlice('-I. --all ClientPrivate.ice')
+Ice::loadSlice('Test.ice')
 
 def test(b)
     if !b

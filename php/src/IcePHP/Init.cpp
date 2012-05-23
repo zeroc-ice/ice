@@ -74,13 +74,27 @@ ZEND_END_ARG_INFO()
 #define ICEPHP_UTIL_FUNCTIONS \
     ZEND_FE(Ice_stringVersion, NULL) \
     ZEND_FE(Ice_intVersion, NULL) \
-    ZEND_FE(Ice_generateUUID, NULL)
+    ZEND_FE(Ice_generateUUID, NULL) \
+    ZEND_FE(Ice_currentProtocol, NULL) \
+    ZEND_FE(Ice_currentProtocolEncoding, NULL) \
+    ZEND_FE(Ice_currentEncoding, NULL) \
+    ZEND_FE(Ice_protocolVersionToString, NULL) \
+    ZEND_FE(Ice_stringToProtocolVersion, NULL) \
+    ZEND_FE(Ice_encodingVersionToString, NULL) \
+    ZEND_FE(Ice_stringToEncodingVersion, NULL)
 
 #ifdef ICEPHP_USE_NAMESPACES
 #   define ICEPHP_UTIL_NS_FUNCTIONS \
     ZEND_NS_FALIAS("Ice", stringVersion, Ice_stringVersion, NULL) \
     ZEND_NS_FALIAS("Ice", intVersion, Ice_intVersion, NULL) \
-    ZEND_NS_FALIAS("Ice", generateUUID, Ice_generateUUID, NULL)
+    ZEND_NS_FALIAS("Ice", generateUUID, Ice_generateUUID, NULL) \
+    ZEND_NS_FALIAS("Ice", currentProtocol, Ice_currentProtocol, NULL) \
+    ZEND_NS_FALIAS("Ice", currentProtocolEncoding, Ice_currentProtocolEncoding, NULL) \
+    ZEND_NS_FALIAS("Ice", currentEncoding, Ice_currentEncoding, NULL) \
+    ZEND_NS_FALIAS("Ice", protocolVersionToString, Ice_protocolVersionToString, NULL) \
+    ZEND_NS_FALIAS("Ice", stringToProtocolVersion, Ice_stringToProtocolVersion, NULL) \
+    ZEND_NS_FALIAS("Ice", encodingVersionToString, Ice_encodingVersionToString, NULL) \
+    ZEND_NS_FALIAS("Ice", stringToEncodingVersion, Ice_stringToEncodingVersion, NULL)
 #else
 #   define ICEPHP_UTIL_NS_FUNCTIONS
 #endif

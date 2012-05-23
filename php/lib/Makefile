@@ -45,7 +45,8 @@ ICE_SRCS	= Ice/LocalException.php \
 		  Ice/SliceChecksumDict.php \
 		  Ice/Endpoint.php \
 		  Ice/EndpointF.php \
-		  Ice/EndpointTypes.php
+		  Ice/EndpointTypes.php \
+		  Ice/Version.php
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Glacier2.php!

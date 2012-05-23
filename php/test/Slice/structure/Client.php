@@ -40,9 +40,9 @@ function allTests($communicator)
     // Define some default values.
     //
     $def_s2 = $NS ?
-        eval("new Test\\S2(true, 98, 99, 100, 101, 1.0, 2.0, \"string\", array(\"one\", \"two\", \"three\"),
-                           array(\"abc\" => \"def\"), new Test\\S1(\"name\"), new Test\\C(5),
-                           $communicator->stringToProxy(\"test\"));") :
+        eval("return new Test\\S2(true, 98, 99, 100, 101, 1.0, 2.0, \"string\", array(\"one\", \"two\", \"three\"),
+                                  array(\"abc\" => \"def\"), new Test\\S1(\"name\"), new Test\\C(5),
+                                  \$communicator->stringToProxy(\"test\"));") :
         new Test_S2(true, 98, 99, 100, 101, 1.0, 2.0, "string", array("one", "two", "three"),
                     array("abc" => "def"), new Test_S1("name"), new Test_C(5),
                     $communicator->stringToProxy("test"));
@@ -50,7 +50,7 @@ function allTests($communicator)
     //
     // Compare default-constructed structures.
     //
-    test($NS ? eval("new Test\\S2 == new Test\\S2;") : new Test_S2 == new Test_S2);
+    test($NS ? eval("return new Test\\S2 == new Test\\S2;") : new Test_S2 == new Test_S2);
 
     //
     // Change one primitive member at a time.
@@ -167,11 +167,11 @@ function allTests($communicator)
     test($v1 == $def_s2);
 
     $v1 = clone $def_s2;
-    $v1->s = $NS ? eval("new Test\\S1(\"name\");") : new Test_S1("name");
+    $v1->s = $NS ? eval("return new Test\\S1(\"name\");") : new Test_S1("name");
     test($v1 == $def_s2);
 
     $v1 = clone $def_s2;
-    $v1->s = $NS ? eval("new Test\\S1(\"noname\");") : new Test_S1("noname");
+    $v1->s = $NS ? eval("return new Test\\S1(\"noname\");") : new Test_S1("noname");
     test($v1 != $def_s2);
 
     $v1 = clone $def_s2;

@@ -99,7 +99,7 @@ versionToString(VALUE p)
     T v;
     if(!getVersion<T, PT>(p, v))
     {
-        return NULL;
+        return Qnil;
     }
 
     ICE_RUBY_TRY
@@ -557,43 +557,6 @@ IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
 
     return true;
 }
-
-#if 0
-VALUE
-IceRuby::currentProtocol(VALUE)
-{
-}
-
-VALUE
-IceRuby::currentProtocolEncoding(VALUE)
-{
-}
-
-VALUE
-IceRuby::currentEncoding(VALUE)
-{
-}
-
-VALUE
-IceRuby::protocolVersionToString(VALUE, VALUE)
-{
-}
-
-VALUE
-IceRuby::stringToProtocolVersion(VALUE, VALUE)
-{
-}
-
-VALUE
-IceRuby::encodingVersionToString(VALUE, VALUE)
-{
-}
-
-VALUE
-IceRuby::stringToEncodingVersion(VALUE, VALUE)
-{
-}
-#endif
 
 VALUE
 IceRuby::callProtected(RubyFunction func, VALUE arg)

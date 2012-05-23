@@ -912,7 +912,9 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", ";
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
+    _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", "
+         << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "nil";

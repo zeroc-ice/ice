@@ -286,6 +286,10 @@ IcePHP::endpointInit(TSRMLS_D)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+    zend_declare_property_null(endpointInfoClassEntry, STRCAST("protocol"), sizeof("protocol") - 1,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
+    zend_declare_property_null(endpointInfoClassEntry, STRCAST("encoding"), sizeof("encoding") - 1,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_bool(endpointInfoClassEntry, STRCAST("compress"), sizeof("compress") - 1, 0,
@@ -327,14 +331,6 @@ IcePHP::endpointInit(TSRMLS_D)
 #endif
     ce.create_object = handleEndpointInfoAlloc;
     udpEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, ipEndpointInfoClassEntry, NULL TSRMLS_CC);
-    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("protocolMajor"), sizeof("protocolMajor") - 1, 0,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
-    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("protocolMinor"), sizeof("protocolMinor") - 1, 0,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
-    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("encodingMajor"), sizeof("encodingMajor") - 1, 0,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
-    zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("encodingMinor"), sizeof("encodingMinor") - 1, 0,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_string(udpEndpointInfoClassEntry, STRCAST("mcastInterface"), sizeof("mcastInterface") - 1,
                                  STRCAST(""), ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(udpEndpointInfoClassEntry, STRCAST("mcastTtl"), sizeof("mcastTtl") - 1, 0,
@@ -350,6 +346,8 @@ IcePHP::endpointInit(TSRMLS_D)
 #endif
     ce.create_object = handleEndpointInfoAlloc;
     opaqueEndpointInfoClassEntry = zend_register_internal_class_ex(&ce, endpointInfoClassEntry, NULL TSRMLS_CC);
+    zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawEncoding"), sizeof("rawEncoding") - 1,
+                               ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_null(opaqueEndpointInfoClassEntry, STRCAST("rawBytes"), sizeof("rawBytes") - 1,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
 
@@ -410,10 +408,6 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         Ice::UDPEndpointInfoPtr info = Ice::UDPEndpointInfoPtr::dynamicCast(p);
         if((status = object_init_ex(zv, udpEndpointInfoClassEntry)) == SUCCESS)
         {
-            add_property_long(zv, STRCAST("protocolMajor"), static_cast<long>(info->protocolMajor));
-            add_property_long(zv, STRCAST("protocolMinor"), static_cast<long>(info->protocolMinor));
-            add_property_long(zv, STRCAST("encodingMajor"), static_cast<long>(info->encodingMajor));
-            add_property_long(zv, STRCAST("encodingMinor"), static_cast<long>(info->encodingMinor));
             add_property_string(zv, STRCAST("mcastInterface"), const_cast<char*>(info->mcastInterface.c_str()), 1);
             add_property_long(zv, STRCAST("mcastTtl"), static_cast<long>(info->mcastTtl));
         }
@@ -423,6 +417,12 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         Ice::OpaqueEndpointInfoPtr info = Ice::OpaqueEndpointInfoPtr::dynamicCast(p);
         if((status = object_init_ex(zv, opaqueEndpointInfoClassEntry)) == SUCCESS)
         {
+            zval* rawEncoding;
+            MAKE_STD_ZVAL(rawEncoding);
+            createEncodingVersion(rawEncoding, info->rawEncoding TSRMLS_CC);
+            add_property_zval(zv, STRCAST("rawEncoding"), rawEncoding);
+            zval_ptr_dtor(&rawEncoding); // add_property_zval increased the refcount of rawEncoding
+
             zval* rawBytes;
             MAKE_STD_ZVAL(rawBytes);
             array_init(rawBytes);
@@ -455,6 +455,18 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()), 1);
         add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
     }
+
+    zval* protocol;
+    MAKE_STD_ZVAL(protocol);
+    createProtocolVersion(protocol, p->protocol TSRMLS_CC);
+    add_property_zval(zv, STRCAST("protocol"), protocol);
+    zval_ptr_dtor(&protocol); // add_property_zval increased the refcount of protocol
+
+    zval* encoding;
+    MAKE_STD_ZVAL(encoding);
+    createEncodingVersion(encoding, p->encoding TSRMLS_CC);
+    add_property_zval(zv, STRCAST("encoding"), encoding);
+    zval_ptr_dtor(&encoding); // add_property_zval increased the refcount of encoding
 
     add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));
     add_property_bool(zv, STRCAST("compress"), static_cast<long>(p->compress));

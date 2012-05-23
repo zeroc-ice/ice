@@ -388,8 +388,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Emit the type information.
     //
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
     _out << sp << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
-         << (isAbstract ? "true" : "false") << ", ";
+         << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "$Ice__t_Object";
@@ -459,7 +460,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Define each operation. The arguments to IcePHP_defineOperation are:
         //
-        // $ClassType, 'opName', Mode, SendMode, (InParams), (OutParams), ReturnType, (Exceptions)
+        // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnType, (Exceptions)
         //
         // where InParams and OutParams are arrays of type descriptions, and Exceptions
         // is an array of exception type ids.
@@ -475,7 +476,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
                 _out << nl << "IcePHP_defineOperation(" << type << ", '" << (*oli)->name() << "', "
                      << getOperationMode((*oli)->mode(), _ns) << ", " << getOperationMode((*oli)->sendMode(), _ns)
-                     << ", ";
+                     << ", " << static_cast<int>((*oli)->format()) << ", ";
                 for(t = params.begin(), count = 0; t != params.end(); ++t)
                 {
                     if(!(*t)->isOutParam())
@@ -671,7 +672,9 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', ";
+    const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
+    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', "
+         << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
         _out << "null";

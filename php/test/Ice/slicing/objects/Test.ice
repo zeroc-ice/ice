@@ -46,7 +46,7 @@ class SS2
     BSeq s;
 };
 
-struct SS
+struct SS3
 {
     SS1 c1;
     SS2 c2;
@@ -66,9 +66,39 @@ exception DerivedException extends BaseException
     D1 pd1;
 };
 
-class Forward;          // Forward-declared class defined in another compilation unit
+class Forward;          /* Forward-declared class defined in another compilation unit */
 
-["ami"] interface TestIntf
+class PBase
+{
+    int pi;
+};
+
+sequence<PBase> PBaseSeq;
+
+["preserve-slice"]
+class Preserved extends PBase
+{
+    string ps;
+};
+
+class PDerived extends Preserved
+{
+    PBase pb;
+};
+
+["preserve-slice"]
+class PNode
+{
+    PNode next;
+};
+
+["preserve-slice"]
+exception PreservedException
+{
+};
+
+["format:sliced"]
+interface TestIntf
 {
     Object SBaseAsObject();
     SBase SBaseAsSBase();
@@ -76,6 +106,8 @@ class Forward;          // Forward-declared class defined in another compilation
     SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
 
     SBase SBSUnknownDerivedAsSBase();
+
+    ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
 
@@ -94,14 +126,28 @@ class Forward;          // Forward-declared class defined in another compilation
     B returnTest2(out B p2, out B p1);
     B returnTest3(B p1, B p2);
 
-    SS sequenceTest(SS1 p1, SS2 p2);
+    SS3 sequenceTest(SS1 p1, SS2 p2);
 
     BDict dictionaryTest(BDict bin, out BDict bout);
+
+    PBase exchangePBase(PBase pb);
+
+    Preserved PBSUnknownAsPreserved();
+    void checkPBSUnknown(Preserved p);
+
+    ["amd"] Preserved PBSUnknownAsPreservedWithGraph();
+    void checkPBSUnknownWithGraph(Preserved p);
+
+    ["amd"] Preserved PBSUnknown2AsPreservedWithGraph();
+    void checkPBSUnknown2WithGraph(Preserved p);
+
+    PNode exchangePNode(PNode pn);
 
     void throwBaseAsBase() throws BaseException;
     void throwDerivedAsBase() throws BaseException;
     void throwDerivedAsDerived() throws DerivedException;
     void throwUnknownDerivedAsBase() throws BaseException;
+    ["amd"] void throwPreservedException() throws PreservedException;
 
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 

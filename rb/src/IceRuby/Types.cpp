@@ -271,7 +271,7 @@ IceRuby::SlicedDataUtil::setMember(VALUE obj, const Ice::SlicedDataPtr& slicedDa
         for(vector<Ice::ObjectPtr>::iterator q = (*p)->objects.begin(); q != (*p)->objects.end(); ++q)
         {
             //
-            // Each element in the objects list is an instance of ObjectReader that wraps a Python object.
+            // Each element in the objects list is an instance of ObjectReader that wraps a Ruby object.
             //
             assert(*q);
             ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
@@ -1869,7 +1869,7 @@ IceRuby::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
     if(_info->preserve)
     {
         //
-        // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
+        // Retrieve the SlicedData object that we stored as a hidden member of the Ruby object.
         //
         slicedData = SlicedDataUtil::getMember(_object, const_cast<ObjectMap*>(_map));
     }
@@ -2116,7 +2116,7 @@ IceRuby::ExceptionReader::read(const Ice::InputStreamPtr& is) const
 
     const_cast<VALUE&>(_ex) = _info->unmarshal(is);
 
-    is->endException(false);
+    const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
 
 bool
@@ -2158,7 +2158,7 @@ IceRuby::ExceptionReader::getException() const
 Ice::SlicedDataPtr
 IceRuby::ExceptionReader::getSlicedData() const
 {
-    return 0;
+    return _slicedData;
 }
 
 extern "C"
@@ -2331,12 +2331,14 @@ IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
 
 extern "C"
 VALUE
-IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE base, VALUE members)
+IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE preserve, VALUE base, VALUE members)
 {
     ICE_RUBY_TRY
     {
         ExceptionInfoPtr info = new ExceptionInfo;
         info->id = getString(id);
+
+        info->preserve = preserve == Qtrue;
 
         if(!NIL_P(base))
         {
@@ -2540,7 +2542,7 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);
     rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
-    rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
+    rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 5);
 
     rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 6);
     rb_define_method(_typeInfoClass, "defineProxy", CAST_METHOD(IceRuby_TypeInfo_defineProxy), 2);

@@ -36,8 +36,8 @@ setVersion(PyObject* p, const T& version)
 {
     assert(checkIsInstance(p, PT));
 
-    PyObjectHandle major = PyInt_FromLong(version.major);
-    PyObjectHandle minor = PyInt_FromLong(version.minor);
+    PyObjectHandle major = PyLong_FromLong(version.major);
+    PyObjectHandle minor = PyLong_FromLong(version.minor);
     if(!major.get() || !minor.get())
     {
         return false;
@@ -58,12 +58,12 @@ getVersion(PyObject* p, T& v)
     PyObjectHandle minor = PyObject_GetAttrString(p, STRCAST("minor"));
     if(major.get())
     {
-        if(!PyInt_Check(major.get()))
+        if(!PyLong_Check(major.get()))
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version major must be a numeric value"));
             return false;
         }
-        int m = PyInt_AsLong(major.get());
+        long m = PyLong_AsLong(major.get());
         if(m < 0 || m > 255)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version major must be a value between 0 and 255"));
@@ -73,12 +73,12 @@ getVersion(PyObject* p, T& v)
     }
     if(minor.get())
     {
-        if(!PyInt_Check(minor.get()))
+        if(!PyLong_Check(minor.get()))
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a numeric value"));
             return false;
         }
-        int m = PyInt_AsLong(minor.get());
+        long m = PyLong_AsLong(minor.get());
         if(m < 0 || m > 255)
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a value between 0 and 255"));
@@ -134,7 +134,7 @@ versionToString(PyObject* args)
         IcePy::setPythonException(ex);
         return NULL;
     }
-    return PyString_FromString(const_cast<char*>(s.c_str()));
+    return createString(s);
 }
 
 template<typename T, const char* PT> PyObject*

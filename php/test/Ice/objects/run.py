@@ -20,4 +20,9 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
+print("Running test with compact (default) format.")
 TestUtil.clientServerTest()
+print("Running test with sliced format.")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat", additionalServerOptions="--Ice.Default.SlicedFormat")
+print("Running test with 1.0 encoding.")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
