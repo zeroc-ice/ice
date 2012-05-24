@@ -1474,10 +1474,6 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
                 (*p)->type->marshal(arg, os, &objectMap, &(*p)->metaData);
             }
 
-            if(_op->sendsClasses)
-            {
-                os->writePendingObjects();
-            }
             os->endEncapsulation();
             os->finished(bytes);
         }
@@ -1528,14 +1524,9 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
             _op->returnType->type->unmarshal(is, _op->returnType, results.get(), 0, &_op->metaData);
         }
 
-        if(_op->returnsClasses)
-        {
-            is->readPendingObjects();
-        }
+        is->endEncapsulation();
 
         util.update();
-
-        is->endEncapsulation();
     }
 
     return results.release();
@@ -3113,14 +3104,9 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 (*p)->type->unmarshal(is, *p, args.get(), closure, &(*p)->metaData);
             }
 
-            if(_op->sendsClasses)
-            {
-                is->readPendingObjects();
-            }
+            is->endEncapsulation();
 
             util.update();
-
-            is->endEncapsulation();
         }
         catch(const AbortMarshaling&)
         {
@@ -3284,11 +3270,6 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
                     throw Ice::MarshalException(__FILE__, __LINE__);
                 }
                 _op->returnType->type->marshal(res, os, &objectMap, &_op->metaData);
-            }
-
-            if(_op->returnsClasses)
-            {
-                os->writePendingObjects();
             }
 
             os->endEncapsulation();

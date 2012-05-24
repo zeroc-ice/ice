@@ -2681,10 +2681,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             C << nl << "__os->format(" << formatTypeToString(format) << ");";
         }
         writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
-        if(p->sendsClasses())
-        {
-            C << nl << "__os->writePendingObjects();";
-        }
         C << nl << "__result->__endWriteParams();";
     }
     C << nl << "__result->__send(true);";
@@ -2746,10 +2742,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, ret, p->getMetaData(), _useWstring | TypeContextAMIEnd);
-            if(p->returnsClasses())
-            {
-                C << nl << "__is->readPendingObjects();";
-            }
             C << nl << "__result->__endReadParams();";
         }
         else
@@ -2810,10 +2802,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, ret, p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
-            if(p->returnsClasses())
-            {
-                C << nl << "__is->readPendingObjects();";
-            }
             C << nl << "__result->__endReadParams();";
         }
         else
@@ -3246,10 +3234,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
             }
         }
         writeMarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
-        if(p->sendsClasses())
-        {
-            C << nl << "__os->writePendingObjects();";
-        }
         C << nl << "__og.endWriteParams();";
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -3341,10 +3325,6 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
         writeUnmarshalCode(C, outParams, ret, p->getMetaData());
-        if(p->returnsClasses())
-        {
-            C << nl << "__is->readPendingObjects();";
-        }
         C << nl << "__og.endReadParams();";
     }
     else
@@ -4845,10 +4825,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, StringList(), _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
-                if(p->sendsClasses())
-                {
-                    C << nl << "__is->readPendingObjects();";
-                }
                 C << nl << "__inS.endReadParams();";
             }
             else
@@ -4877,10 +4853,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                     C << nl << "__os->format(" << formatTypeToString(format) << ");";
                 }
                 writeMarshalCode(C, outParams, ret, p->getMetaData());
-                if(p->returnsClasses())
-                {
-                    C << nl << "__os->writePendingObjects();";
-                }
                 C << nl << "__inS.__endWriteParams(true);";
             }
             else
@@ -4917,10 +4889,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, StringList(), _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, StringList(), TypeContextInParam);
-                if(p->sendsClasses())
-                {
-                    C << nl << "__is->readPendingObjects();";
-                }
                 C << nl << "__inS.endReadParams();";
             }
             else
@@ -6718,10 +6686,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         if(ret)
         {
             writeMarshalUnmarshalCode(C, ret, "__ret", true, "", true, p->getMetaData(), TypeContextInParam);
-        }
-        if(p->returnsClasses())
-        {
-            C << nl << "__os->writePendingObjects();";
         }
         C << nl << "__endWriteParams(true);";
         C << eb;

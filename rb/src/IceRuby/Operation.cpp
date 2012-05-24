@@ -395,11 +395,6 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
             (*p)->type->marshal(arg, os, &objectMap);
         }
 
-        if(_sendsClasses)
-        {
-            os->writePendingObjects();
-        }
-
         os->endEncapsulation();
         os->finished(bytes);
     }
@@ -441,14 +436,9 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         _returnType->type->unmarshal(is, _returnType, results, 0);
     }
 
-    if(_returnsClasses)
-    {
-        is->readPendingObjects();
-    }
+    is->endEncapsulation();
 
     util.update();
-
-    is->endEncapsulation();
 
     return results;
 }

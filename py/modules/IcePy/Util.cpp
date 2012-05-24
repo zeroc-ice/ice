@@ -58,7 +58,8 @@ getVersion(PyObject* p, T& v)
     PyObjectHandle minor = PyObject_GetAttrString(p, STRCAST("minor"));
     if(major.get())
     {
-        if(!PyLong_Check(major.get()))
+        major = PyNumber_Long(major.get());
+        if(!major.get())
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version major must be a numeric value"));
             return false;
@@ -73,7 +74,8 @@ getVersion(PyObject* p, T& v)
     }
     if(minor.get())
     {
-        if(!PyLong_Check(minor.get()))
+        major = PyNumber_Long(minor.get());
+        if(!minor.get())
         {
             PyErr_Format(PyExc_ValueError, STRCAST("version minor must be a numeric value"));
             return false;

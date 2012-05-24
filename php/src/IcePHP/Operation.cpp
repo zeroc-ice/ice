@@ -412,11 +412,6 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
                 (*p)->marshal(arg, os, &objectMap TSRMLS_CC);
             }
 
-            if(_op->sendsClasses)
-            {
-                os->writePendingObjects();
-            }
-
             os->endEncapsulation();
             os->finished(bytes);
         }
@@ -476,14 +471,9 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
         _op->returnType->unmarshal(is, retCallback, _communicator, 0, 0 TSRMLS_CC);
     }
 
-    if(_op->returnsClasses)
-    {
-        is->readPendingObjects();
-    }
+    is->endEncapsulation();
 
     util.update(TSRMLS_C);
-
-    is->endEncapsulation();
 
     int i = static_cast<int>(_op->inParams.size());
     for(ResultCallbackList::iterator q = outParamCallbacks.begin(); q != outParamCallbacks.end(); ++q, ++i)
