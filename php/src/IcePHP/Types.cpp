@@ -275,11 +275,22 @@ zend_class_entry* IcePHP::SlicedDataUtil::_sliceInfoType = 0;
 IcePHP::SlicedDataUtil::~SlicedDataUtil()
 {
     //
-    // Make sure we break any cycles among the objects in preserved slices.
+    // Make sure we break any cycles among the ObjectReaders in preserved slices.
     //
     for(set<ObjectReaderPtr>::iterator p = _readers.begin(); p != _readers.end(); ++p)
     {
-        (*p)->getSlicedData()->clearObjects();
+        Ice::SlicedDataPtr slicedData = (*p)->getSlicedData();
+        for(Ice::SliceInfoSeq::const_iterator q = slicedData->slices.begin(); q != slicedData->slices.end(); ++q)
+        {
+            //
+            // Don't just call (*q)->objects.clear(), as releasing references
+            // to the objects could have unexpected side effects. We exchange
+            // the vector into a temporary and then let the temporary fall out
+            // of scope.
+            //
+            vector<Ice::ObjectPtr> tmp;
+            tmp.swap((*q)->objects);
+        }
     }
 }
 

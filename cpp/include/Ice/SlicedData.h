@@ -50,16 +50,6 @@ public:
     const SliceInfoSeq slices;
 
     //
-    // Returns true if any of the preserved slices contain object references.
-    //
-    bool hasObjects() const
-    {
-        return _hasObjects;
-    }
-
-    void clearObjects();
-
-    //
     // The internal methods below are necessary to support garbage collection
     // of Ice objects.
     //
@@ -73,10 +63,6 @@ public:
     }
 
     void __addObject(IceInternal::GCCountMap&);
-
-private:
-
-    bool _hasObjects;
 };
 
 }

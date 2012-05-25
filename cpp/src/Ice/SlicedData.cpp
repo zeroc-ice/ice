@@ -19,36 +19,6 @@ IceUtil::Shared* Ice::upCast(SlicedData* p) { return p; }
 Ice::SlicedData::SlicedData(const SliceInfoSeq& seq) :
     slices(seq)
 {
-    //
-    // Check if any of the preserved slices contain object references.
-    //
-    _hasObjects = false;
-    for(SliceInfoSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
-    {
-        if(!(*p)->objects.empty())
-        {
-            _hasObjects = true;
-            break;
-        }
-    }
-}
-
-void
-Ice::SlicedData::clearObjects()
-{
-    for(SliceInfoSeq::const_iterator p = slices.begin(); p != slices.end(); ++p)
-    {
-        //
-        // Don't just call (*p)->objects.clear(), as releasing references
-        // to the objects could have unexpected side effects. We exchange
-        // the vector into a temporary and then let the temporary fall out
-        // of scope.
-        //
-        vector<ObjectPtr> tmp;
-        tmp.swap((*p)->objects);
-    }
-
-    _hasObjects = false;
 }
 
 void
@@ -84,8 +54,6 @@ Ice::SlicedData::__gcClear()
         }
         (*p)->objects.clear();
     }
-
-    _hasObjects = false;
 }
 
 void
