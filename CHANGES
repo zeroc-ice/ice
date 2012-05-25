@@ -27,6 +27,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Fixed issue where IceGrid round-robin load balancing policy returned
+  multiple times the same adapter endpoints if some IceGrid nodes were
+  down.
+
 - Fixed a bug where under certain circumstances, Ice could assert when
   a connection was being closed.
 
