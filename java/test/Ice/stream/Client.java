@@ -80,10 +80,10 @@ public class Client extends test.Util.Application
     private static class TestObjectReader extends Ice.ObjectReader
     {
         public void
-        read(Ice.InputStream in, boolean rid)
+        read(Ice.InputStream in)
         {
             obj = new MyClass();
-            obj.__read(in, rid);
+            obj.__read(in);
             called = true;
         }
 

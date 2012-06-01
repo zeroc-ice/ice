@@ -20,8 +20,11 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-print("tests with regular server.")
+print("Running test with sliced format.")
 TestUtil.clientServerTest()
-
-print("tests with AMD server.")
+print("Running test with 1.0 encoding.")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+print("Running test with sliced format and AMD server.")
 TestUtil.clientServerTest(server="test.Ice.slicing.objects.AMDServer")
+print("Running test with 1.0 encoding and AMD server.")
+TestUtil.clientServerTest(server="test.Ice.slicing.objects.AMDServer", additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")

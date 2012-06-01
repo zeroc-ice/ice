@@ -120,6 +120,9 @@ public final class DefaultsAndOverrides
                                                   Ice.Util.encodingVersionToString(Protocol.currentEncoding));
         defaultEncoding = Ice.Util.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);        
+
+        boolean slicedFormat = properties.getPropertyAsIntWithDefault("Ice.Default.SlicedFormat", 0) > 0;
+        defaultFormat = slicedFormat ? Ice.FormatType.SlicedFormat : Ice.FormatType.CompactFormat;
     }
 
     final public String defaultHost;
@@ -129,6 +132,7 @@ public final class DefaultsAndOverrides
     final public int defaultLocatorCacheTimeout;
     final public boolean defaultPreferSecure;
     final public Ice.EncodingVersion defaultEncoding;
+    final public Ice.FormatType defaultFormat;
 
     final public boolean overrideTimeout;
     final public int overrideTimeoutValue;

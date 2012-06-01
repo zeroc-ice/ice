@@ -12,47 +12,7 @@ package test.Ice.slicing.objects;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D1AsB;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D1AsD1;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_D2AsB;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSKnownDerivedAsSBSKnownDerived;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSKnownDerivedAsSBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBSUnknownDerivedAsSBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBaseAsObject;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SBaseAsSBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_SUnknownAsObject;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_dictionaryTest;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_oneElementCycle;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest1;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest2;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest3;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_paramTest4;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest1;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest2;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_returnTest3;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_sequenceTest;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwBaseAsBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwDerivedAsBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwDerivedAsDerived;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_throwUnknownDerivedAsBase;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_twoElementCycle;
-import test.Ice.slicing.objects.client.Test.Callback_TestIntf_useForward;
-import test.Ice.slicing.objects.client.Test.B;
-import test.Ice.slicing.objects.client.Test.BDictHolder;
-import test.Ice.slicing.objects.client.Test.BHolder;
-import test.Ice.slicing.objects.client.Test.BaseException;
-import test.Ice.slicing.objects.client.Test.D1;
-import test.Ice.slicing.objects.client.Test.D3;
-import test.Ice.slicing.objects.client.Test.DerivedException;
-import test.Ice.slicing.objects.client.Test.SBSKnownDerived;
-import test.Ice.slicing.objects.client.Test.SBase;
-import test.Ice.slicing.objects.client.Test.SS;
-import test.Ice.slicing.objects.client.Test.SS1;
-import test.Ice.slicing.objects.client.Test.SS2;
-import test.Ice.slicing.objects.client.Test.TestIntfPrx;
-import test.Ice.slicing.objects.client.Test.TestIntfPrxHelper;
-import test.Ice.slicing.objects.client.Test.Forward;
-import test.Ice.slicing.objects.client.Test.ForwardHolder;
+import test.Ice.slicing.objects.client.Test.*;
 
 public class AllTests
 {
@@ -241,6 +201,68 @@ public class AllTests
         exception(Ice.LocalException exc)
         {
             test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI
+        extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
+    {
+        public void
+        response(SBase sb)
+        {
+            test(sb.sb.equals("SBSUnknownDerived.sb"));
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI
+        extends Callback_TestIntf_SBSUnknownDerivedAsSBaseCompact
+    {
+        public void
+        response(SBase sb)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(exc instanceof Ice.MarshalException);
+            callback.called();
         }
 
         public void
@@ -750,7 +772,7 @@ public class AllTests
     private static class Callback_TestIntf_sequenceTestI extends Callback_TestIntf_sequenceTest
     {
         public void
-        response(SS ss)
+        response(SS3 ss)
         {
             r = ss;
             callback.called();
@@ -776,7 +798,7 @@ public class AllTests
 
         private Callback callback = new Callback();
 
-        public SS r;
+        public SS3 r;
     }
 
     private static class Callback_TestIntf_dictionaryTestI extends Callback_TestIntf_dictionaryTest
@@ -1024,6 +1046,258 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
+    private static class Callback_TestIntf_exchangePBaseI1 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            PDerived p2 = (PDerived)r;
+            test(p2.pi == 3);
+            test(p2.ps.equals("preserved"));
+            test(p2.pb == p2);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseI2 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            test(!(r instanceof PCUnknown));
+            test(r.pi == 3);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseI3 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            test(!(r instanceof PCDerived));
+            test(r.pi == 3);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseI4 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            PCDerived p2 = (PCDerived)r;
+            test(p2.pi == 3);
+            test(p2.pbs[0] == p2);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseI5 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            test(!(r instanceof PCDerived3));
+            test(r instanceof Preserved);
+            test(r.pi == 3);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_exchangePBaseI6 extends Callback_TestIntf_exchangePBase
+    {
+        public void
+        response(PBase r)
+        {
+            PCDerived3 p3 = (PCDerived3)r;
+            test(p3.pi == 3);
+            for(int i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = (PCDerived2)p3.pbs[i];
+                test(p2.pi == i);
+                test(p2.pbs.length == 1);
+                test(p2.pbs[0] == null);
+                test(p2.pcd2 == i);
+            }
+            test(p3.pcd2 == p3.pi);
+            test(p3.pcd3 == p3.pbs[10]);
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class PNodeI extends PNode
+    {
+        public PNodeI()
+        {
+            ++counter;
+        }
+
+        static int counter = 0;
+    }
+
+    private static class NodeFactoryI implements Ice.ObjectFactory
+    {
+        public Ice.Object create(String id)
+        {
+            if(id.equals(PNode.ice_staticId()))
+            {
+                return new PNodeI();
+            }
+            return null;
+        }
+
+        public void destroy()
+        {
+        }
+    }
+
+    private static class PreservedI extends Preserved
+    {
+        public PreservedI()
+        {
+            ++counter;
+        }
+
+        static int counter = 0;
+    }
+
+    private static class PreservedFactoryI implements Ice.ObjectFactory
+    {
+        public Ice.Object create(String id)
+        {
+            if(id.equals(Preserved.ice_staticId()))
+            {
+                return new PreservedI();
+            }
+            return null;
+        }
+
+        public void destroy()
+        {
+        }
+    }
+
     public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
@@ -1154,11 +1428,42 @@ public class AllTests
         out.print("base with unknown derived as base... ");
         out.flush();
         {
-            SBase sb;
             try
             {
-                sb = test.SBSUnknownDerivedAsSBase();
+                SBase sb = test.SBSUnknownDerivedAsSBase();
                 test(sb.sb.equals("SBSUnknownDerived.sb"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+        }
+        if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+        {
+            try
+            {
+                SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
+                test(sb.sb.equals("SBSUnknownDerived.sb"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+        }
+        else
+        {
+            try
+            {
+                //
+                // This test fails when using the compact format because the instance cannot
+                // be sliced to a known type.
+                //
+                SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
+                test(false);
+            }
+            catch(Ice.MarshalException ex)
+            {
+                // Expected.
             }
             catch(Exception ex)
             {
@@ -1172,6 +1477,27 @@ public class AllTests
         {
             Callback_TestIntf_SBSUnknownDerivedAsSBaseI cb = new Callback_TestIntf_SBSUnknownDerivedAsSBaseI();
             test.begin_SBSUnknownDerivedAsSBase(cb);
+            cb.check();
+        }
+        if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+        {
+            //
+            // This test succeeds for the 1.0 encoding.
+            //
+            Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI cb =
+                new Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactI();
+            test.begin_SBSUnknownDerivedAsSBaseCompact(cb);
+            cb.check();
+        }
+        else
+        {
+            //
+            // This test fails when using the compact format because the instance cannot
+            // be sliced to a known type.
+            //
+            Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI cb =
+                new Callback_TestIntf_SBSUnknownDerivedAsSBaseCompactFailI();
+            test.begin_SBSUnknownDerivedAsSBaseCompact(cb);
             cb.check();
         }
         out.println("ok");
@@ -1918,7 +2244,7 @@ public class AllTests
         {
             try
             {
-                SS ss;
+                SS3 ss;
                 {
                     B ss1b = new B();
                     ss1b.sb = "B.sb";
@@ -2006,7 +2332,7 @@ public class AllTests
         out.print("sequence slicing (AMI)... ");
         out.flush();
         {
-            SS ss;
+            SS3 ss;
             {
                 B ss1b = new B();
                 ss1b.sb = "B.sb";
@@ -2358,6 +2684,326 @@ public class AllTests
             test.begin_useForward(cb);
             cb.check();
         }
+        out.println("ok");
+
+        out.print("preserved classes... ");
+        out.flush();
+
+        //
+        // Register a factory in order to substitute our own subclass of Preserved. This provides
+        // an easy way to determine how many unmarshaled instances currently exist.
+        //
+        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
+        // the Ice run time will install its own internal factory for Preserved upon receiving the
+        // first instance.
+        //
+        communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
+
+        {
+            //
+            // Server knows the most-derived class PDerived.
+            //
+            PDerived pd = new PDerived();
+            pd.pi = 3;
+            pd.ps = "preserved";
+            pd.pb = pd;
+
+            PBase r = test.exchangePBase(pd);
+            PDerived p2 = (PDerived)r;
+            test(p2.pi == 3);
+            test(p2.ps.equals("preserved"));
+            test(p2.pb == p2);
+        }
+
+        {
+            //
+            // Server only knows the base (non-preserved) type, so the object is sliced.
+            //
+            PCUnknown pu = new PCUnknown();
+            pu.pi = 3;
+            pu.pu = "preserved";
+
+            PBase r = test.exchangePBase(pu);
+            test(!(r instanceof PCUnknown));
+            test(r.pi == 3);
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            PCDerived pcd = new PCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            PBase r = test.exchangePBase(pcd);
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r instanceof PCDerived));
+                test(r.pi == 3);
+            }
+            else
+            {
+                PCDerived p2 = (PCDerived)r;
+                test(p2.pi == 3);
+                test(p2.pbs[0] == p2);
+            }
+        }
+
+        {
+            //
+            // Send an object that will have multiple preserved slices in the server.
+            // The object will be sliced to Preserved for the 1.0 encoding.
+            //
+            PCDerived3 pcd = new PCDerived3();
+            pcd.pi = 3;
+            //
+            // Sending more than 254 objects exercises the encoding for object ids.
+            //
+            pcd.pbs = new PBase[300];
+            int i;
+            for(i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = new PCDerived2();
+                p2.pi = i;
+                p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs[i] = p2;
+            }
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs[10];
+
+            PBase r = test.exchangePBase(pcd);
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r instanceof PCDerived3));
+                test(r instanceof Preserved);
+                test(r.pi == 3);
+            }
+            else
+            {
+                PCDerived3 p3 = (PCDerived3)r;
+                test(p3.pi == 3);
+                for(i = 0; i < 300; ++i)
+                {
+                    PCDerived2 p2 = (PCDerived2)p3.pbs[i];
+                    test(p2.pi == i);
+                    test(p2.pbs.length == 1);
+                    test(p2.pbs[0] == null);
+                    test(p2.pcd2 == i);
+                }
+                test(p3.pcd2 == p3.pi);
+                test(p3.pcd3 == p3.pbs[10]);
+            }
+        }
+
+        {
+            //
+            // Obtain an object with preserved slices and send it back to the server.
+            // The preserved slices should be excluded for the 1.0 encoding, otherwise
+            // they should be included.
+            //
+            Preserved p = test.PBSUnknownAsPreserved();
+            test.checkPBSUnknown(p);
+            if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+            }
+        }
+
+        out.println("ok");
+
+        out.print("preserved classes (AMI)... ");
+        out.flush();
+        {
+            //
+            // Server knows the most-derived class PDerived.
+            //
+            PDerived pd = new PDerived();
+            pd.pi = 3;
+            pd.ps = "preserved";
+            pd.pb = pd;
+
+            Callback_TestIntf_exchangePBaseI1 cb = new Callback_TestIntf_exchangePBaseI1();
+            test.begin_exchangePBase(pd, cb);
+            cb.check();
+        }
+
+        {
+            //
+            // Server only knows the base (non-preserved) type, so the object is sliced.
+            //
+            PCUnknown pu = new PCUnknown();
+            pu.pi = 3;
+            pu.pu = "preserved";
+
+            Callback_TestIntf_exchangePBaseI2 cb = new Callback_TestIntf_exchangePBaseI2();
+            test.begin_exchangePBase(pu, cb);
+            cb.check();
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            PCDerived pcd = new PCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                Callback_TestIntf_exchangePBaseI3 cb = new Callback_TestIntf_exchangePBaseI3();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+            else
+            {
+                Callback_TestIntf_exchangePBaseI4 cb = new Callback_TestIntf_exchangePBaseI4();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+        }
+
+        {
+            //
+            // Send an object that will have multiple preserved slices in the server.
+            // The object will be sliced to Preserved for the 1.0 encoding.
+            //
+            PCDerived3 pcd = new PCDerived3();
+            pcd.pi = 3;
+            //
+            // Sending more than 254 objects exercises the encoding for object ids.
+            //
+            pcd.pbs = new PBase[300];
+            int i;
+            for(i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = new PCDerived2();
+                p2.pi = i;
+                p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs[i] = p2;
+            }
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs[10];
+
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                Callback_TestIntf_exchangePBaseI5 cb = new Callback_TestIntf_exchangePBaseI5();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+            else
+            {
+                Callback_TestIntf_exchangePBaseI6 cb = new Callback_TestIntf_exchangePBaseI6();
+                test.begin_exchangePBase(pcd, cb);
+                cb.check();
+            }
+        }
+
+        {
+            //
+            // Obtain an object with preserved slices and send it back to the server.
+            // The preserved slices should be excluded for the 1.0 encoding, otherwise
+            // they should be included.
+            //
+            Preserved p = test.PBSUnknownAsPreserved();
+            test.checkPBSUnknown(p);
+            if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+            }
+        }
+
+        out.println("ok");
+
+        out.print("garbage collection for preserved classes... ");
+        out.flush();
+        {
+            //
+            // Register a factory in order to substitute our own subclass of PNode. This provides
+            // an easy way to determine how many unmarshaled instances currently exist.
+            //
+            communicator.addObjectFactory(new NodeFactoryI(), PNode.ice_staticId());
+
+            //
+            // Relay a graph through the server.
+            //
+            {
+                PNode c = new PNode();
+                c.next = new PNode();
+                c.next.next = new PNode();
+                c.next.next.next = c;
+
+                test(PNodeI.counter == 0);
+                PNode n = test.exchangePNode(c);
+
+                test(PNodeI.counter == 3);
+                PNodeI.counter = 0;
+            }
+
+            //
+            // Obtain a preserved object from the server where the most-derived
+            // type is unknown. The preserved slice refers to a graph of PNode
+            // objects.
+            //
+            {
+                test(PNodeI.counter == 0);
+                Preserved p = test.PBSUnknownAsPreservedWithGraph();
+                test.checkPBSUnknownWithGraph(p);
+                test(PNodeI.counter == 3);
+                PNodeI.counter = 0;
+            }
+
+            //
+            // Obtain a preserved object from the server where the most-derived
+            // type is unknown. A data member in the preserved slice refers to the
+            // outer object, so the chain of references looks like this:
+            //
+            // outer.slicedData.outer
+            //
+            {
+                PreservedI.counter = 0;
+                Preserved p = test.PBSUnknown2AsPreservedWithGraph();
+                test.checkPBSUnknown2WithGraph(p);
+                test(PreservedI.counter == 1);
+                PreservedI.counter = 0;
+            }
+
+            //
+            // Throw a preserved exception where the most-derived type is unknown.
+            // The preserved exception slice contains a class data member. This
+            // object is also preserved, and its most-derived type is also unknown.
+            // The preserved slice of the object contains a class data member that
+            // refers to itself.
+            //
+            // The chain of references looks like this:
+            //
+            // ex.slicedData.obj.slicedData.obj
+            //
+            try
+            {
+                test(PreservedI.counter == 0);
+
+                try
+                {
+                    test.throwPreservedException();
+                }
+                catch(PreservedException ex)
+                {
+                    test(PreservedI.counter == 1);
+                }
+
+                PreservedI.counter = 0;
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+        }
+
         out.println("ok");
 
         return test;

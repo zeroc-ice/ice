@@ -9,35 +9,17 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_baseAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownDerivedAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownDerivedAsKnownDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownIntermediateAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownIntermediateAsKnownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownMostDerivedAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownMostDerivedAsKnownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_knownMostDerivedAsKnownMostDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_shutdown;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_unknownDerivedAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_unknownIntermediateAsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_unknownMostDerived1AsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_unknownMostDerived1AsKnownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.AMD_TestIntf_unknownMostDerived2AsBase;
-import test.Ice.slicing.exceptions.serverAMD.Test.Base;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.KnownMostDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownDerived;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownIntermediate;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownMostDerived1;
-import test.Ice.slicing.exceptions.serverAMD.Test.UnknownMostDerived2;
-import test.Ice.slicing.exceptions.serverAMD.Test._TestIntfDisp;
+import test.Ice.slicing.exceptions.serverAMD.Test.*;
 
 public final class AMDTestI extends _TestIntfDisp
 {
-    public
-    AMDTestI()
+    private static void
+    test(boolean b)
     {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
     }
 
     public void
@@ -184,5 +166,133 @@ public final class AMDTestI extends _TestIntfDisp
         umd2.ui = "UnknownMostDerived2.ui";
         umd2.umd2 = "UnknownMostDerived2.umd2";
         cb.ice_exception(umd2);
+    }
+
+    public void
+    unknownMostDerived2AsBaseCompact_async(AMD_TestIntf_unknownMostDerived2AsBaseCompact cb, Ice.Current current)
+    {
+        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
+        umd2.b = "UnknownMostDerived2.b";
+        umd2.ui = "UnknownMostDerived2.ui";
+        umd2.umd2 = "UnknownMostDerived2.umd2";
+        cb.ice_exception(umd2);
+    }
+
+    public void
+    knownPreservedAsBase_async(AMD_TestIntf_knownPreservedAsBase cb, Ice.Current current)
+    {
+        KnownPreservedDerived ex = new KnownPreservedDerived();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        cb.ice_exception(ex);
+    }
+
+    public void
+    knownPreservedAsKnownPreserved_async(AMD_TestIntf_knownPreservedAsKnownPreserved cb, Ice.Current current)
+    {
+        KnownPreservedDerived ex = new KnownPreservedDerived();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        cb.ice_exception(ex);
+    }
+
+    public void
+    relayKnownPreservedAsBase_async(AMD_TestIntf_relayKnownPreservedAsBase cb, RelayPrx r, Ice.Current current)
+    {
+        try
+        {
+            r.knownPreservedAsBase();
+            test(false);
+        }
+        catch(Ice.UserException ex)
+        {
+            cb.ice_exception(ex);
+        }
+        catch(Ice.LocalException ex)
+        {
+            cb.ice_exception(ex);
+        }
+    }
+
+    public void
+    relayKnownPreservedAsKnownPreserved_async(AMD_TestIntf_relayKnownPreservedAsKnownPreserved cb,
+                                                     RelayPrx r, Ice.Current current)
+    {
+        try
+        {
+            r.knownPreservedAsKnownPreserved();
+            test(false);
+        }
+        catch(Ice.UserException ex)
+        {
+            cb.ice_exception(ex);
+        }
+        catch(Ice.LocalException ex)
+        {
+            cb.ice_exception(ex);
+        }
+    }
+
+    public void
+    unknownPreservedAsBase_async(AMD_TestIntf_unknownPreservedAsBase cb, Ice.Current current)
+    {
+        SPreserved2 ex = new SPreserved2();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = new SPreservedClass("bc", "spc");
+        ex.p2 = ex.p1;
+        cb.ice_exception(ex);
+    }
+
+    public void
+    unknownPreservedAsKnownPreserved_async(AMD_TestIntf_unknownPreservedAsKnownPreserved cb, Ice.Current current)
+    {
+        SPreserved2 ex = new SPreserved2();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = new SPreservedClass("bc", "spc");
+        ex.p2 = ex.p1;
+        cb.ice_exception(ex);
+    }
+
+    public void
+    relayUnknownPreservedAsBase_async(AMD_TestIntf_relayUnknownPreservedAsBase cb, RelayPrx r, Ice.Current current)
+    {
+        try
+        {
+            r.unknownPreservedAsBase();
+            test(false);
+        }
+        catch(Ice.UserException ex)
+        {
+            cb.ice_exception(ex);
+        }
+        catch(Ice.LocalException ex)
+        {
+            cb.ice_exception(ex);
+        }
+    }
+
+    public void
+    relayUnknownPreservedAsKnownPreserved_async(AMD_TestIntf_relayUnknownPreservedAsKnownPreserved cb, RelayPrx r,
+                                                Ice.Current current)
+    {
+        try
+        {
+            r.unknownPreservedAsKnownPreserved();
+            test(false);
+        }
+        catch(Ice.UserException ex)
+        {
+            cb.ice_exception(ex);
+        }
+        catch(Ice.LocalException ex)
+        {
+            cb.ice_exception(ex);
+        }
     }
 }

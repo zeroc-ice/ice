@@ -33,15 +33,6 @@ public abstract class UserExceptionWriter extends UserException
     public abstract void
     write(Ice.OutputStream os);
 
-    /**
-     * Indicates whether the encapsulated exception contains one or more
-     * data members that are instances of Slice classes.
-     *
-     * @return True if the exception contains classes, or false otherwise.
-     **/
-    public abstract boolean
-    usesClasses();
-
     public void
     __write(IceInternal.BasicStream os)
     {
@@ -69,12 +60,6 @@ public abstract class UserExceptionWriter extends UserException
     __read(Ice.InputStream is, boolean rid)
     {
         assert(false);
-    }
-
-    public boolean
-    __usesClasses()
-    {
-        return usesClasses();
     }
 
     protected Communicator _communicator;

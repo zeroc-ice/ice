@@ -160,21 +160,45 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    writeTypeId(String id)
-    {
-        _os.writeTypeId(id);
-    }
-
-    public void
     writeException(UserException v)
     {
         _os.writeUserException(v);
     }
 
     public void
-    startSlice()
+    format(FormatType format)
     {
-        _os.startWriteSlice();
+        _os.format(format);
+    }
+
+    public void
+    startObject(SlicedData slicedData)
+    {
+        _os.startWriteObject(slicedData);
+    }
+
+    public void
+    endObject()
+    {
+        _os.endWriteObject();
+    }
+
+    public void
+    startException(SlicedData slicedData)
+    {
+        _os.startWriteException(slicedData);
+    }
+
+    public void
+    endException()
+    {
+        _os.endWriteException();
+    }
+
+    public void
+    startSlice(String typeId, boolean last)
+    {
+        _os.startWriteSlice(typeId, last);
     }
 
     public void

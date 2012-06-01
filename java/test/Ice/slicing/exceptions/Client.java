@@ -9,7 +9,7 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.Test.TestIntfPrx;
+import test.Ice.slicing.exceptions.client.Test.TestIntfPrx;
 
 public class Client extends test.Util.Application
 {
@@ -17,7 +17,7 @@ public class Client extends test.Util.Application
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions.client");
         return initData;
     }
 

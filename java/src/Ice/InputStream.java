@@ -189,21 +189,48 @@ public interface InputStream
     void readObject(ReadObjectCallback cb);
 
     /**
-     * Extracts a Slice type ID from the stream.
-     *
-     * @return The extracted type ID.
-     **/
-    String readTypeId();
-
-    /**
      * Extracts a user exception from the stream and throws it.
      **/
     void throwException() throws UserException;
 
     /**
-     * Reads the start of an object or exception slice.
+     * Extracts a user exception from the stream and throws it, using the supplied
+     * factory to instantiate a UserExceptionReader.
+     *
+     * @param factory A factory that creates UserExceptionReader instances.
      **/
-    void startSlice();
+    void throwException(UserExceptionReaderFactory factory) throws UserException;
+
+    /**
+     * Marks the start of an Ice object.
+     **/
+    void startObject();
+
+    /**
+     * Marks the end of an Ice object.
+     *
+     * @return A SlicedData object containing the preserved slices for unknown types.
+     **/
+    SlicedData endObject(boolean preserve);
+
+    /**
+     * Marks the start of a user exception.
+     **/
+    void startException();
+
+    /**
+     * Marks the end of a user exception.
+     *
+     * @return A SlicedData object containing the preserved slices for unknown types.
+     **/
+    SlicedData endException(boolean preserve);
+
+    /**
+     * Reads the start of an object or exception slice.
+     *
+     * @return The Slice type ID for this slice.
+     **/
+    String startSlice();
 
     /**
      * Indicates that the end of an object or exception slice has been reached.
@@ -223,16 +250,16 @@ public interface InputStream
     Ice.EncodingVersion startEncapsulation();
 
     /**
+     * Indicates that the end of an encapsulation has been reached.
+     **/
+    void endEncapsulation();
+
+    /**
      * Skips over an encapsulation.
      *
      * @return The encapsulation encoding version.
      **/
     Ice.EncodingVersion skipEncapsulation();
-
-    /**
-     * Indicates that the end of an encapsulation has been reached.
-     **/
-    void endEncapsulation();
 
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method

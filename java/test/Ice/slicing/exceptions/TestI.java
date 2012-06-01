@@ -9,21 +9,17 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.server.Test.Base;
-import test.Ice.slicing.exceptions.server.Test.KnownDerived;
-import test.Ice.slicing.exceptions.server.Test.KnownIntermediate;
-import test.Ice.slicing.exceptions.server.Test.KnownMostDerived;
-import test.Ice.slicing.exceptions.server.Test.UnknownDerived;
-import test.Ice.slicing.exceptions.server.Test.UnknownIntermediate;
-import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived1;
-import test.Ice.slicing.exceptions.server.Test.UnknownMostDerived2;
-import test.Ice.slicing.exceptions.server.Test._TestIntfDisp;
+import test.Ice.slicing.exceptions.server.Test.*;
 
 public final class TestI extends _TestIntfDisp
 {
-    public
-    TestI()
+    private static void
+    test(boolean b)
     {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
     }
 
     public void
@@ -165,5 +161,96 @@ public final class TestI extends _TestIntfDisp
         umd2.ui = "UnknownMostDerived2.ui";
         umd2.umd2 = "UnknownMostDerived2.umd2";
         throw umd2;
+    }
+
+    public void
+    unknownMostDerived2AsBaseCompact(Ice.Current current)
+        throws Base
+    {
+        UnknownMostDerived2 umd2 = new UnknownMostDerived2();
+        umd2.b = "UnknownMostDerived2.b";
+        umd2.ui = "UnknownMostDerived2.ui";
+        umd2.umd2 = "UnknownMostDerived2.umd2";
+        throw umd2;
+    }
+
+    public void
+    knownPreservedAsBase(Ice.Current current)
+        throws Base
+    {
+        KnownPreservedDerived ex = new KnownPreservedDerived();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        throw ex;
+    }
+
+    public void
+    knownPreservedAsKnownPreserved(Ice.Current current)
+        throws KnownPreserved
+    {
+        KnownPreservedDerived ex = new KnownPreservedDerived();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        throw ex;
+    }
+
+    public void
+    relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
+        throws Base
+    {
+        r.knownPreservedAsBase();
+        test(false);
+    }
+
+    public void
+    relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+        throws KnownPreserved
+    {
+        r.knownPreservedAsKnownPreserved();
+        test(false);
+    }
+
+    public void
+    unknownPreservedAsBase(Ice.Current current)
+        throws Base
+    {
+        SPreserved2 ex = new SPreserved2();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = new SPreservedClass("bc", "spc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+
+    public void
+    unknownPreservedAsKnownPreserved(Ice.Current current)
+        throws KnownPreserved
+    {
+        SPreserved2 ex = new SPreserved2();
+        ex.b = "base";
+        ex.kp = "preserved";
+        ex.kpd = "derived";
+        ex.p1 = new SPreservedClass("bc", "spc");
+        ex.p2 = ex.p1;
+        throw ex;
+    }
+
+    public void
+    relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
+        throws Base
+    {
+        r.unknownPreservedAsBase();
+        test(false);
+    }
+
+    public void
+    relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
+        throws KnownPreserved
+    {
+        r.unknownPreservedAsKnownPreserved();
+        test(false);
     }
 }

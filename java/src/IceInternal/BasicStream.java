@@ -33,24 +33,22 @@ public class BasicStream
     initialize(Instance instance, Ice.EncodingVersion encoding, boolean unlimited, boolean direct)
     {
         _instance = instance;
-        _encoding = encoding;
         _buf = new Buffer(_instance.messageSizeMax(), direct);
         _closure = null;
+        _encoding = encoding;
         _unlimited = unlimited;
 
         _readEncapsStack = null;
         _writeEncapsStack = null;
         _readEncapsCache = null;
         _writeEncapsCache = null;
-        
-        _traceSlicing = -1;
 
         _sliceObjects = true;
 
         _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
 
         _startSeq = -1;
-        _objectList = null;
+        _format = _instance.defaultsAndOverrides().defaultFormat;
     }
 
     //
@@ -87,11 +85,6 @@ public class BasicStream
 
         _startSeq = -1;
 
-        if(_objectList != null)
-        {
-            _objectList.clear();
-        }
-
         _sliceObjects = true;
     }
 
@@ -120,37 +113,25 @@ public class BasicStream
     {
         assert(_instance == other._instance);
 
-        Object tmpClosure = other._closure;
-        other._closure = _closure;
-        _closure = tmpClosure;
-
         Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
-        ReadEncaps tmpRead = other._readEncapsStack;
-        other._readEncapsStack = _readEncapsStack;
-        _readEncapsStack = tmpRead;
+        Object tmpClosure = other._closure;
+        other._closure = _closure;
+        _closure = tmpClosure;
 
-        tmpRead = other._readEncapsCache;
-        other._readEncapsCache = _readEncapsCache;
-        _readEncapsCache = tmpRead;
+        //
+        // Swap is never called for BasicStreams that have encapsulations being read/write.
+        //
+        assert(_readEncapsStack == null);
+        assert(_writeEncapsStack == null);
+        assert(other._readEncapsStack == null);
+        assert(other._writeEncapsStack == null);
 
-        WriteEncaps tmpWrite = other._writeEncapsStack;
-        other._writeEncapsStack = _writeEncapsStack;
-        _writeEncapsStack = tmpWrite;
-
-        tmpWrite = other._writeEncapsCache;
-        other._writeEncapsCache = _writeEncapsCache;
-        _writeEncapsCache = tmpWrite;
-
-        int tmpReadSlice = other._readSlice;
-        other._readSlice = _readSlice;
-        _readSlice = tmpReadSlice;
-
-        int tmpWriteSlice = other._writeSlice;
-        other._writeSlice = _writeSlice;
-        _writeSlice = tmpWriteSlice;
+        boolean tmpUnlimited = other._unlimited;
+        other._unlimited = _unlimited;
+        _unlimited = tmpUnlimited;
 
         int tmpStartSeq = other._startSeq;
         other._startSeq = _startSeq;
@@ -160,13 +141,9 @@ public class BasicStream
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        java.util.ArrayList<Ice.Object> tmpObjectList = other._objectList;
-        other._objectList = _objectList;
-        _objectList = tmpObjectList;
-
-        boolean tmpUnlimited = other._unlimited;
-        other._unlimited = _unlimited;
-        _unlimited = tmpUnlimited;
+        Ice.FormatType tmpFormat = other._format;
+        other._format = _format;
+        _format = tmpFormat;
     }
 
     public void
@@ -199,6 +176,71 @@ public class BasicStream
     }
 
     public void
+    format(Ice.FormatType format)
+    {
+        if(format != Ice.FormatType.DefaultFormat)
+        {
+            _format = format;
+        }
+    }
+
+    public void
+    startWriteObject(Ice.SlicedData data)
+    {
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.startObject(data);
+    }
+
+    public void
+    endWriteObject()
+    {
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.endObject();
+    }
+
+    public void
+    startReadObject()
+    {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        _readEncapsStack.decoder.startObject();
+    }
+
+    public Ice.SlicedData
+    endReadObject(boolean preserve)
+    {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        return _readEncapsStack.decoder.endObject(preserve);
+    }
+
+    public void
+    startWriteException(Ice.SlicedData data)
+    {
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.startException(data);
+    }
+
+    public void
+    endWriteException()
+    {
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.endException();
+    }
+
+    public void
+    startReadException()
+    {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        _readEncapsStack.decoder.startException();
+    }
+
+    public Ice.SlicedData
+    endReadException(boolean preserve)
+    {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        return _readEncapsStack.decoder.endException(preserve);
+    }
+
+    public void
     startWriteEncaps()
     {
         //
@@ -206,7 +248,7 @@ public class BasicStream
         // encapsulation encoding version if there's a current write
         // encapsulation, otherwise, use the stream encoding version.
         //
-        
+
         if(_writeEncapsStack != null)
         {
             startWriteEncaps(_writeEncapsStack.encoding);
@@ -221,21 +263,20 @@ public class BasicStream
     startWriteEncaps(Ice.EncodingVersion encoding)
     {
         Protocol.checkSupportedEncoding(encoding);
-        
+
+        WriteEncaps curr = _writeEncapsCache;
+        if(curr != null)
         {
-            WriteEncaps curr = _writeEncapsCache;
-            if(curr != null)
-            {
-                curr.reset();
-                _writeEncapsCache = _writeEncapsCache.next;
-            }
-            else
-            {
-                curr = new WriteEncaps();
-            }
-            curr.next = _writeEncapsStack;
-            _writeEncapsStack = curr;
+            curr.reset();
+            _writeEncapsCache = _writeEncapsCache.next;
         }
+        else
+        {
+            curr = new WriteEncaps();
+        }
+        curr.next = _writeEncapsStack;
+        _writeEncapsStack = curr;
+
         _writeEncapsStack.encoding = encoding;
         _writeEncapsStack.start = _buf.size();
 
@@ -247,6 +288,12 @@ public class BasicStream
     endWriteEncaps()
     {
         assert(_writeEncapsStack != null);
+
+        if(_writeEncapsStack.encoder != null)
+        {
+            _writeEncapsStack.encoder.writePendingObjects();
+        }
+
         int start = _writeEncapsStack.start;
         int sz = _buf.size() - start; // Size includes size and version.
         _buf.b.putInt(start, sz);
@@ -265,7 +312,6 @@ public class BasicStream
         {
             throw new Ice.EncapsulationException("not in an encapsulation");
         }
-
         endWriteEncaps();
     }
 
@@ -277,7 +323,7 @@ public class BasicStream
         encoding.__write(this);
     }
 
-    public void 
+    public void
     writeEncaps(byte[] v)
     {
         if(v.length < 6)
@@ -288,7 +334,7 @@ public class BasicStream
         _buf.b.put(v);
     }
 
-    public Ice.EncodingVersion 
+    public Ice.EncodingVersion
     getWriteEncoding()
     {
         return _writeEncapsStack != null ? _writeEncapsStack.encoding : _encoding;
@@ -297,36 +343,34 @@ public class BasicStream
     public Ice.EncodingVersion
     startReadEncaps()
     {
+        ReadEncaps curr = _readEncapsCache;
+        if(curr != null)
         {
-            ReadEncaps curr = _readEncapsCache;
-            if(curr != null)
-            {
-                curr.reset();
-                _readEncapsCache = _readEncapsCache.next;
-            }
-            else
-            {
-                curr = new ReadEncaps();
-            }
-            curr.next = _readEncapsStack;
-            _readEncapsStack = curr;
+            curr.reset();
+            _readEncapsCache = _readEncapsCache.next;
         }
+        else
+        {
+            curr = new ReadEncaps();
+        }
+        curr.next = _readEncapsStack;
+        _readEncapsStack = curr;
 
         _readEncapsStack.start = _buf.b.position();
 
         //
         // I don't use readSize() and writeSize() for encapsulations,
-        // because when creating an encapsulation, I must know in
-        // advance how many bytes the size information will require in
-        // the data stream. If I use an Int, it is always 4 bytes. For
+        // because when creating an encapsulation, I must know in advance
+        // how many bytes the size information will require in the data
+        // stream. If I use an Int, it is always 4 bytes. For
         // readSize()/writeSize(), it could be 1 or 5 bytes.
+        //
         //
         int sz = readInt();
         if(sz < 6)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-
         if(sz - 4 > _buf.b.remaining())
         {
             throw new Ice.UnmarshalOutOfBoundsException();
@@ -343,6 +387,12 @@ public class BasicStream
     endReadEncaps()
     {
         assert(_readEncapsStack != null);
+
+        if(_readEncapsStack.decoder != null)
+        {
+            _readEncapsStack.decoder.readPendingObjects();
+        }
+
         if(_buf.b.position() != _readEncapsStack.start + _readEncapsStack.sz)
         {
             if(_buf.b.position() + 1 != _readEncapsStack.start + _readEncapsStack.sz)
@@ -377,14 +427,15 @@ public class BasicStream
     skipEmptyEncaps(Ice.EncodingVersion encoding)
     {
         int sz = readInt();
-        if(sz < 6)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-
         if(sz != 6)
         {
             throw new Ice.EncapsulationException();
+        }
+
+        final int pos = _buf.b.position();
+        if(pos + 2 > _buf.size())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
         }
 
         if(encoding != null)
@@ -393,7 +444,7 @@ public class BasicStream
         }
         else
         {
-            _buf.b.position(_buf.b.position() + 2);
+            _buf.b.position(pos + 2);
         }
     }
 
@@ -404,11 +455,10 @@ public class BasicStream
         {
             throw new Ice.EncapsulationException("not in an encapsulation");
         }
-
         endReadEncaps();
     }
 
-    public byte[] 
+    public byte[]
     readEncaps(Ice.EncodingVersion encoding)
     {
         int sz = readInt();
@@ -421,13 +471,13 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        
+
         if(encoding != null)
         {
             encoding.__read(this);
             _buf.b.position(_buf.b.position() - 6);
         }
-        else 
+        else
         {
             _buf.b.position(_buf.b.position() - 4);
         }
@@ -444,8 +494,8 @@ public class BasicStream
         }
     }
 
-    public Ice.EncodingVersion 
-    getReadEncoding() 
+    public Ice.EncodingVersion
+    getReadEncoding()
     {
         return _readEncapsStack != null ? _readEncapsStack.encoding : _encoding;
     }
@@ -479,101 +529,56 @@ public class BasicStream
     }
 
     public void
-    startWriteSlice()
+    startWriteSlice(String typeId, boolean last)
     {
-        writeInt(0); // Placeholder for the slice length.
-        _writeSlice = _buf.size();
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.startSlice(typeId, last);
     }
 
-    public void 
+    public void
     endWriteSlice()
     {
-        final int sz = _buf.size() - _writeSlice + 4;
-        _buf.b.putInt(_writeSlice - 4, sz);
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.endSlice();
     }
 
-    public void 
-    startReadSlice()
+    public String
+    startReadSlice() // Returns type ID of next slice
     {
-        int sz = readInt();
-        if(sz < 4)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-        _readSlice = _buf.b.position();
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        return _readEncapsStack.decoder.startSlice();
     }
 
-    public void 
+    public void
     endReadSlice()
     {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        _readEncapsStack.decoder.endSlice();
     }
 
-    public void 
+    public void
     skipSlice()
     {
-        int sz = readInt();
-        if(sz < 4)
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        _readEncapsStack.decoder.skipSlice();
+    }
+
+    public void
+    readPendingObjects()
+    {
+        if(_readEncapsStack != null && _readEncapsStack.decoder != null)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-        try
-        {
-            _buf.b.position(_buf.b.position() + sz - 4);
-        }
-        catch(IllegalArgumentException ex)
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            _readEncapsStack.decoder.readPendingObjects();
         }
     }
 
-    public int
-    readAndCheckSeqSize(int minSize)
+    public void
+    writePendingObjects()
     {
-        int sz = readSize();
-        
-        if(sz == 0)
+        if(_writeEncapsStack != null && _writeEncapsStack.encoder != null)
         {
-            return 0;
+            _writeEncapsStack.encoder.writePendingObjects();
         }
-        
-        //
-        // The _startSeq variable points to the start of the sequence for which
-        // we expect to read at least _minSeqSize bytes from the stream.
-        //
-        // If not initialized or if we already read more data than _minSeqSize, 
-        // we reset _startSeq and _minSeqSize for this sequence (possibly a 
-        // top-level sequence or enclosed sequence it doesn't really matter).
-        //
-        // Otherwise, we are reading an enclosed sequence and we have to bump
-        // _minSeqSize by the minimum size that this sequence will  require on
-        // the stream.
-        //
-        // The goal of this check is to ensure that when we start un-marshalling
-        // a new sequence, we check the minimal size of this new sequence against
-        // the estimated remaining buffer size. This estimatation is based on 
-        // the minimum size of the enclosing sequences, it's _minSeqSize.
-        //
-        if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
-        {
-            _startSeq = _buf.b.position();
-            _minSeqSize = sz * minSize;
-        }
-        else
-        {
-            _minSeqSize += sz * minSize;
-        }
-        
-        //
-        // If there isn't enough data to read on the stream for the sequence (and
-        // possibly enclosed sequences), something is wrong with the marshalled 
-        // data: it's claiming having more data that what is possible to read.
-        //
-        if(_startSeq + _minSeqSize > _buf.size())
-        {
-            throw new Ice.UnmarshalOutOfBoundsException();
-        }
-        
-        return sz;
     }
 
     public void
@@ -589,6 +594,16 @@ public class BasicStream
         {
             expand(1);
             _buf.b.put((byte)v);
+        }
+    }
+
+    public void
+    writeSizeSeq(java.util.List<Integer> v)
+    {
+        writeSize(v.size());
+        for(Integer n : v)
+        {
+            writeSize(n);
         }
     }
 
@@ -618,62 +633,71 @@ public class BasicStream
         }
     }
 
-    public void
-    writeTypeId(String id)
+    public int[]
+    readSizeSeq()
     {
-        if(_writeEncapsStack == null || _writeEncapsStack.typeIdMap == null)
-        {
-            //
-            // writeObject() must be called first.
-            //
-            throw new Ice.MarshalException("type ids require an encapsulation");
-        }
+        int sz = readSize();
+        int[] v = new int[sz];
 
-        Integer index = _writeEncapsStack.typeIdMap.get(id);
-        if(index != null)
+        if(sz > 0)
         {
-            writeBool(true);
-            writeSize(index.intValue());
-        }
-        else
-        {
-            index = Integer.valueOf(++_writeEncapsStack.typeIdIndex);
-            _writeEncapsStack.typeIdMap.put(id, index);
-            writeBool(false);
-            writeString(id);
-        }
-    }
-
-    public String
-    readTypeId()
-    {
-        if(_readEncapsStack == null || _readEncapsStack.typeIdMap == null)
-        {
-            //
-            // readObject() must be called first.
-            //
-            throw new Ice.MarshalException("type ids require an encapsulation");
-        }
-
-        String id;
-        Integer index;
-        final boolean isIndex = readBool();
-        if(isIndex)
-        {
-            index = Integer.valueOf(readSize());
-            id = _readEncapsStack.typeIdMap.get(index);
-            if(id == null)
+            for(int n = 0; n < sz; ++n)
             {
-                throw new Ice.UnmarshalOutOfBoundsException();
+                v[n] = readSize();
             }
         }
+
+        return v;
+    }
+
+    public int
+    readAndCheckSeqSize(int minSize)
+    {
+        int sz = readSize();
+
+        if(sz == 0)
+        {
+            return 0;
+        }
+
+        //
+        // The _startSeq variable points to the start of the sequence for which
+        // we expect to read at least _minSeqSize bytes from the stream.
+        //
+        // If not initialized or if we already read more data than _minSeqSize,
+        // we reset _startSeq and _minSeqSize for this sequence (possibly a
+        // top-level sequence or enclosed sequence it doesn't really matter).
+        //
+        // Otherwise, we are reading an enclosed sequence and we have to bump
+        // _minSeqSize by the minimum size that this sequence will  require on
+        // the stream.
+        //
+        // The goal of this check is to ensure that when we start un-marshalling
+        // a new sequence, we check the minimal size of this new sequence against
+        // the estimated remaining buffer size. This estimatation is based on
+        // the minimum size of the enclosing sequences, it's _minSeqSize.
+        //
+        if(_startSeq == -1 || _buf.b.position() > (_startSeq + _minSeqSize))
+        {
+            _startSeq = _buf.b.position();
+            _minSeqSize = sz * minSize;
+        }
         else
         {
-            id = readString();
-            index = Integer.valueOf(++_readEncapsStack.typeIdIndex);
-            _readEncapsStack.typeIdMap.put(index, id);
+            _minSeqSize += sz * minSize;
         }
-        return id;
+
+        //
+        // If there isn't enough data to read on the stream for the sequence (and
+        // possibly enclosed sequences), something is wrong with the marshalled
+        // data: it's claiming having more data that what is possible to read.
+        //
+        if(_startSeq + _minSeqSize > _buf.size())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+
+        return sz;
     }
 
     public void
@@ -718,6 +742,20 @@ public class BasicStream
     }
 
     public void
+    writeOpt(int tag, int type)
+    {
+        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
+        _writeEncapsStack.encoder.writeOpt(tag, type);
+    }
+
+    public boolean
+    readOpt(int tag, int expectedType)
+    {
+        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
+        return _readEncapsStack.decoder.readOpt(tag, expectedType);
+    }
+
+    public void
     writeByte(byte v)
     {
         expand(1);
@@ -732,6 +770,12 @@ public class BasicStream
             throw new Ice.MarshalException("enumerator out of range");
         }
         writeByte(v);
+    }
+
+    public void
+    writeByteAt(byte v, int dest)
+    {
+        _buf.b.put(dest, v);
     }
 
     public void
@@ -836,6 +880,12 @@ public class BasicStream
     {
         expand(1);
         _buf.b.put(v ? (byte)1 : (byte)0);
+    }
+
+    public void
+    writeBoolAt(boolean v, int dest)
+    {
+        _buf.b.put(dest, v ? (byte)1 : (byte)0);
     }
 
     public void
@@ -979,6 +1029,12 @@ public class BasicStream
             throw new Ice.MarshalException("enumerator out of range");
         }
         writeInt(v);
+    }
+
+    public void
+    writeIntAt(int v, int dest)
+    {
+        _buf.b.putInt(dest, v);
     }
 
     public void
@@ -1299,7 +1355,6 @@ public class BasicStream
         }
         else
         {
-
             //
             // Check the buffer has enough bytes to read.
             //
@@ -1394,480 +1449,37 @@ public class BasicStream
     public void
     writeObject(Ice.Object v)
     {
-        if(_writeEncapsStack == null) // Lazy initialization
-        {
-            _writeEncapsStack = _writeEncapsCache;
-            if(_writeEncapsStack != null)
-            {
-                _writeEncapsCache = _writeEncapsCache.next;
-            }
-            else
-            {
-                _writeEncapsStack = new WriteEncaps();
-            }
-        }
-
-        if(_writeEncapsStack.toBeMarshaledMap == null)  // Lazy initialization
-        {
-            _writeEncapsStack.toBeMarshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
-            _writeEncapsStack.marshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
-            _writeEncapsStack.typeIdMap = new java.util.TreeMap<String, Integer>();
-        }
-        if(v != null)
-        {
-            //
-            // Look for this instance in the to-be-marshaled map.
-            //
-            Integer p = _writeEncapsStack.toBeMarshaledMap.get(v);
-            if(p == null)
-            {
-                //
-                // Didn't find it, try the marshaled map next.
-                //
-                Integer q = _writeEncapsStack.marshaledMap.get(v);
-                if(q == null)
-                {
-                    //
-                    // We haven't seen this instance previously,
-                    // create a new index, and insert it into the
-                    // to-be-marshaled map.
-                    //
-                    q = Integer.valueOf(++_writeEncapsStack.writeIndex);
-                    _writeEncapsStack.toBeMarshaledMap.put(v, q);
-                }
-                p = q;
-            }
-            writeInt(-p.intValue());
-        }
-        else
-        {
-            writeInt(0); // Write null reference
-        }
+        initWriteEncaps();
+        _writeEncapsStack.encoder.writeObject(v);
     }
 
     public void
     readObject(Patcher patcher)
     {
-        Ice.Object v = null;
-
-        if(_readEncapsStack == null) // Lazy initialization
-        {
-            _readEncapsStack = _readEncapsCache;
-            if(_readEncapsStack != null)
-            {
-                _readEncapsCache = _readEncapsCache.next;
-            }
-            else
-            {
-                _readEncapsStack = new ReadEncaps();
-            }
-        }
-
-        if(_readEncapsStack.patchMap == null) // Lazy initialization
-        {
-            _readEncapsStack.patchMap = new java.util.TreeMap<Integer, java.util.LinkedList<Patcher> >();
-            _readEncapsStack.unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
-            _readEncapsStack.typeIdMap = new java.util.TreeMap<Integer, String>();
-        }
-
-        int index = readInt();
-
-        if(patcher != null)
-        {
-            if(index == 0)
-            {
-                patcher.patch(null);
-                return;
-            }
-
-            if(index < 0)
-            {
-                Integer i = Integer.valueOf(-index);
-                java.util.LinkedList<Patcher> patchlist = _readEncapsStack.patchMap.get(i);
-                if(patchlist == null)
-                {
-                    //
-                    // We have no outstanding instances to be patched for
-                    // this index, so make a new entry in the patch map.
-                    //
-                    patchlist = new java.util.LinkedList<Patcher>();
-                    _readEncapsStack.patchMap.put(i, patchlist);
-                }
-                //
-                // Append a patcher for this instance and see if we can
-                // patch the instance. (The instance may have been
-                // unmarshaled previously.)
-                //
-                patchlist.add(patcher);
-                patchReferences(null, i);
-                return;
-            }
-        }
-        if(index < 0)
-        {
-            throw new Ice.MarshalException("Invalid class instance index");
-        }
-
-        String mostDerivedId = readTypeId();
-        String id = mostDerivedId;
-
-        while(true)
-        {
-            //
-            // If we slice all the way down to Ice::Object, we throw
-            // because Ice::Object is abstract.
-            //
-            if(id.equals(Ice.ObjectImpl.ice_staticId()))
-            {
-                throw new Ice.NoObjectFactoryException("", mostDerivedId);
-            }
-
-            //
-            // Try to find a factory registered for the specific type.
-            //
-            Ice.ObjectFactory userFactory = _instance.servantFactoryManager().find(id);
-            if(userFactory != null)
-            {
-                v = userFactory.create(id);
-            }
-
-            //
-            // If that fails, invoke the default factory if one has
-            // been registered.
-            //
-            if(v == null)
-            {
-                userFactory = _instance.servantFactoryManager().find("");
-                if(userFactory != null)
-                {
-                    v = userFactory.create(id);
-                }
-            }
-
-            //
-            // Last chance: check the table of static factories (i.e.,
-            // automatically generated factories for concrete
-            // classes).
-            //
-            if(v == null)
-            {
-                userFactory = loadObjectFactory(id);
-                if(userFactory != null)
-                {
-                    v = userFactory.create(id);
-                }
-            }
-
-            if(v == null)
-            {
-                if(_sliceObjects)
-                {
-                    //
-                    // Performance sensitive, so we use lazy
-                    // initialization for tracing.
-                    //
-                    if(_traceSlicing == -1)
-                    {
-                        _traceSlicing = _instance.traceLevels().slicing;
-                        _slicingCat = _instance.traceLevels().slicingCat;
-                    }
-                    if(_traceSlicing > 0)
-                    {
-                        TraceUtil.traceSlicing("class", id, _slicingCat, _instance.initializationData().logger);
-                    }
-                    skipSlice(); // Slice off this derived part -- we don't understand it.
-                    id = readTypeId(); // Read next id for next iteration.
-                    continue;
-                }
-                else
-                {
-                    Ice.NoObjectFactoryException ex = new Ice.NoObjectFactoryException();
-                    ex.type = id;
-                    throw ex;
-                }
-            }
-
-            Integer i = Integer.valueOf(index);
-            _readEncapsStack.unmarshaledMap.put(i, v);
-
-            //
-            // Record each object instance so that readPendingObjects
-            // can invoke ice_postUnmarshal after all objects have
-            // been unmarshaled.
-            //
-            if(_objectList == null)
-            {
-                _objectList = new java.util.ArrayList<Ice.Object>();
-            }
-            _objectList.add(v);
-
-            v.__read(this, false);
-            patchReferences(i, null);
-            return;
-        }
+        assert(patcher != null);
+        initReadEncaps();
+        _readEncapsStack.decoder.readObject(patcher);
     }
 
     public void
-    writeUserException(Ice.UserException v)
+    writeUserException(Ice.UserException e)
     {
-        writeBool(v.__usesClasses());
-        v.__write(this);
-        if(v.__usesClasses())
-        {
-            writePendingObjects();
-        }
+        initWriteEncaps();
+        _writeEncapsStack.encoder.writeUserException(e);
     }
 
     public void
-    throwException()
+    throwException(UserExceptionFactory factory)
         throws Ice.UserException
     {
-        boolean usesClasses = readBool();
-
-        String id = readString();
-        final String origId = id;
-
-        for(;;)
-        {
-            //
-            // Look for a factory for this ID.
-            //
-            UserExceptionFactory factory = getUserExceptionFactory(id);
-
-            if(factory != null)
-            {
-                //
-                // Got factory -- get the factory to instantiate the
-                // exception, initialize the exception members, and
-                // throw the exception.
-                //
-                try
-                {
-                    factory.createAndThrow();
-                }
-                catch(Ice.UserException ex)
-                {
-                    ex.__read(this, false);
-                    if(usesClasses)
-                    {
-                        readPendingObjects();
-                    }
-                    throw ex;
-                }
-            }
-            else
-            {
-                //
-                // Performance sensitive, so we use lazy
-                // initialization for tracing.
-                //
-                if(_traceSlicing == -1)
-                {
-                    _traceSlicing = _instance.traceLevels().slicing;
-                    _slicingCat = _instance.traceLevels().slicingCat;
-                }
-                if(_traceSlicing > 0)
-                {
-                    TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.initializationData().logger);
-                }
-
-                skipSlice(); // Slice off what we don't understand.
-
-                try
-                {
-                    id = readString(); // Read type id for next slice.
-                }
-                catch(Ice.UnmarshalOutOfBoundsException ex)
-                {
-                    //
-                    // When readString raises this exception it means we've seen the last slice,
-                    // so we set the reason member to a more helpful message.
-                    //
-                    throw new Ice.UnmarshalOutOfBoundsException("unknown exception type `" + origId + "'", ex);
-                }
-            }
-        }
-
-        //
-        // The only way out of the loop above is to find an exception
-        // for which the receiver has a factory. If this does not
-        // happen, sender and receiver disagree about the Slice
-        // definitions they use. In that case, the receiver will
-        // eventually fail to read another type ID and throw a
-        // MarshalException.
-        //
-    }
-
-    public void
-    writePendingObjects()
-    {
-        if(_writeEncapsStack != null && _writeEncapsStack.toBeMarshaledMap != null)
-        {
-            while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
-            {
-                java.util.IdentityHashMap<Ice.Object, Integer> savedMap =
-                    new java.util.IdentityHashMap<Ice.Object, Integer>(_writeEncapsStack.toBeMarshaledMap);
-                writeSize(savedMap.size());
-                for(java.util.Map.Entry<Ice.Object, Integer> p : savedMap.entrySet())
-                {
-                    //
-                    // Add an instance from the old to-be-marshaled
-                    // map to the marshaled map and then ask the
-                    // instance to marshal itself. Any new class
-                    // instances that are triggered by the classes
-                    // marshaled are added to toBeMarshaledMap.
-                    //
-                    _writeEncapsStack.marshaledMap.put(p.getKey(), p.getValue());
-                    writeInstance(p.getKey(), p.getValue());
-                }
-            
-                //
-                // We have marshaled all the instances for this pass,
-                // substract what we have marshaled from the
-                // toBeMarshaledMap.
-                //
-                for(Ice.Object p : savedMap.keySet())
-                {
-                    _writeEncapsStack.toBeMarshaledMap.remove(p);
-                }
-            }
-        }
-        writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
-    }
-
-    public void
-    readPendingObjects()
-    {
-        int num;
-        do
-        {
-            num = readSize();
-            for(int k = num; k > 0; --k)
-            {
-                readObject(null);
-            }
-        }
-        while(num > 0);
-
-        if(_readEncapsStack != null && _readEncapsStack.patchMap != null && _readEncapsStack.patchMap.size() != 0)
-        {
-            //
-            // If any entries remain in the patch map, the sender has sent an index for an object, but failed
-            // to supply the object.
-            //
-            throw new Ice.MarshalException("Index for class received, but no instance");
-        }
-
-        //
-        // Iterate over unmarshaledMap and invoke ice_postUnmarshal on
-        // each object. We must do this after all objects in this
-        // encapsulation have been unmarshaled in order to ensure that
-        // any object data members have been properly patched.
-        //
-        if(_objectList != null)
-        {
-            for(Ice.Object obj : _objectList)
-            {
-                try
-                {
-                    obj.ice_postUnmarshal();
-                }
-                catch(java.lang.Exception ex)
-                {
-                    String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
-                    _instance.initializationData().logger.warning("exception raised by ice_postUnmarshal:\n");
-                }
-            }
-        }
+        initReadEncaps();
+        _readEncapsStack.decoder.throwException(factory);
     }
 
     public void
     sliceObjects(boolean b)
     {
         _sliceObjects = b;
-    }
-
-    void
-    writeInstance(Ice.Object v, Integer index)
-    {
-        writeInt(index.intValue());
-        try
-        {
-            v.ice_preMarshal();
-        }
-        catch(java.lang.Exception ex)
-        {
-            String s = "exception raised by ice_preUnmarshal:\n" + Ex.toString(ex);
-            _instance.initializationData().logger.warning("exception raised by ice_preUnmarshal:\n");
-        }
-        v.__write(this);
-    }
-
-    void
-    patchReferences(Integer instanceIndex, Integer patchIndex)
-    {
-        //
-        // Called whenever we have unmarshaled a new instance or an
-        // index.  The instanceIndex is the index of the instance just
-        // unmarshaled and patchIndex is the index just
-        // unmarshaled. (Exactly one of the two parameters must be
-        // null.) Patch any pointers in the patch map with the new
-        // address.
-        //
-        assert((instanceIndex != null && patchIndex == null) || (instanceIndex == null && patchIndex != null));
-
-        java.util.LinkedList<Patcher> patchlist;
-        Ice.Object v;
-        if(instanceIndex != null)
-        {
-            //
-            // We have just unmarshaled an instance -- check if
-            // something needs patching for that instance.
-            //
-            patchlist = _readEncapsStack.patchMap.get(instanceIndex);
-            if(patchlist == null)
-            {
-                return; // We don't have anything to patch for the instance just unmarshaled
-            }
-            v = _readEncapsStack.unmarshaledMap.get(instanceIndex);
-            patchIndex = instanceIndex;
-        }
-        else
-        {
-            //
-            // We have just unmarshaled an index -- check if we have
-            // unmarshaled the instance for that index yet.
-            //
-            v = _readEncapsStack.unmarshaledMap.get(patchIndex);
-            if(v == null)
-            {
-               return; // We haven't unmarshaled the instance for this index yet
-            }
-            patchlist = _readEncapsStack.patchMap.get(patchIndex);
-        }
-        assert(patchlist != null && patchlist.size() > 0);
-        assert(v != null);
-
-        //
-        // Patch all references that refer to the instance.
-        //
-        for(Patcher p : patchlist)
-        {
-            try
-            {
-                p.patch(v);
-            }
-            catch(ClassCastException ex)
-            {
-                throw new Ice.NoObjectFactoryException("no object factory", p.type(), ex);
-            }
-        }
-
-        //
-        // Clear out the patch map for that index -- there is nothing
-        // left to patch for that index for the time being.
-        //
-        _readEncapsStack.patchMap.remove(patchIndex);
     }
 
     public int
@@ -2216,7 +1828,7 @@ public class BasicStream
         }
 
         public void
-        createAndThrow()
+        createAndThrow(String typeId)
             throws Ice.UserException
         {
             try
@@ -2353,8 +1965,8 @@ public class BasicStream
         // are not Java keywords, but are in this list to prevent illegal code being generated if
         // someone defines Slice operations with that name.
         //
-        final String[] keywordList = 
-        {       
+        final String[] keywordList =
+        {
             "abstract", "assert", "boolean", "break", "byte", "case", "catch",
             "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
             "double", "else", "enum", "equals", "extends", "false", "final", "finalize",
@@ -2405,66 +2017,1367 @@ public class BasicStream
         return buf.toString();
     }
 
+    //
+    // Optional data member type.
+    //
+    private static final int MemberTypeF1           = 0;
+    private static final int MemberTypeF2           = 1;
+    private static final int MemberTypeF4           = 2;
+    private static final int MemberTypeF8           = 3;
+    private static final int MemberTypeVSize        = 4;
+    private static final int MemberTypeFSize        = 5;
+    private static final int MemberTypeReserved     = 6;
+    private static final int MemberTypeEndMarker    = 7;
+
     private Instance _instance;
     private Buffer _buf;
     private Object _closure;
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
 
-    private static final class ReadEncaps
+    private enum SliceType { NoSlice, ObjectSlice, ExceptionSlice }
+
+    private static final class EncapsDecoder
     {
-        int start;
-        int sz;
-
-        // byte encodingMajor; // Currently unused
-        // byte encodingMinor; // Currently unused
-
-        java.util.TreeMap<Integer, java.util.LinkedList<Patcher> > patchMap;
-        java.util.TreeMap<Integer, Ice.Object> unmarshaledMap;
-        int typeIdIndex;
-        java.util.TreeMap<Integer, String> typeIdMap;
-        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
-        ReadEncaps next;
-
-        void
-        reset()
+        EncapsDecoder(BasicStream stream, ReadEncaps encaps, boolean sliceObjects)
         {
-            if(patchMap != null)
+            _stream = stream;
+            _encaps = encaps;
+            _sliceObjects = sliceObjects;
+            _traceSlicing = -1;
+            _sliceType = SliceType.NoSlice;
+            _usesClasses = false;
+            _typeIdIndex = 0;
+            _slices = new java.util.ArrayList<Ice.SliceInfo>();
+            _indirectionTables = new java.util.ArrayList<int[]>();
+            _indirectPatchList = new java.util.ArrayList<IndirectPatchEntry>();
+            _patchMap = new java.util.TreeMap<Integer, java.util.LinkedList<Patcher> >();
+            _unmarshaledMap = new java.util.TreeMap<Integer, Ice.Object>();
+            _typeIdMap = new java.util.TreeMap<Integer, String>();
+        }
+
+        void readObject(Patcher patcher)
+        {
+            int index = 0;
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
             {
-                patchMap.clear();
-                unmarshaledMap.clear();
-                typeIdIndex = 0;
-                typeIdMap.clear();
+                //
+                // Object references are encoded as a negative integer in 1.0.
+                //
+                index = _stream.readInt();
+                _usesClasses = true;
+                if(index > 0)
+                {
+                    throw new Ice.MarshalException("invalid object id");
+                }
+                index = -index;
+            }
+            else
+            {
+                //
+                // Later versions use a size.
+                //
+                index = _stream.readSize();
+                if(index < 0)
+                {
+                    throw new Ice.MarshalException("invalid object id");
+                }
+            }
+
+            if(index == 0)
+            {
+                patcher.patch(null);
+            }
+            else if(_sliceType != SliceType.NoSlice && (_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                //
+                // Maintain a list of indirect references. Note that the indirect index
+                // starts at 1, so we decrement it by one to derive an index into
+                // the indirection table that we'll read at the end of the slice.
+                //
+                IndirectPatchEntry e = new IndirectPatchEntry();
+                e.index = index - 1;
+                e.patcher = patcher;
+                _indirectPatchList.add(e);
+            }
+            else
+            {
+                addPatchEntry(index, patcher);
             }
         }
+
+        void throwException(UserExceptionFactory factory)
+            throws Ice.UserException
+        {
+            assert(_sliceType == SliceType.NoSlice);
+
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                //
+                // User exception with the 1.0 encoding start with a boolean
+                // flag that indicates whether or not the exception has
+                // classes. This allows reading the pending objects even if
+                // some the exception was sliced. With encoding > 1.0, we
+                // don't need this, each slice indirect patch table indicates
+                // the presence of objects.
+                //
+                boolean usesClasses = _stream.readBool();
+                _usesClasses |= usesClasses;
+            }
+
+            _sliceType = SliceType.ExceptionSlice;
+            _skipFirstSlice = false;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _typeId;
+            UserExceptionFactory exceptionFactory = factory;
+            while(true)
+            {
+                //
+                // Look for a factory for this ID.
+                //
+                if(exceptionFactory == null)
+                {
+                    exceptionFactory = _stream.getUserExceptionFactory(_typeId);
+                }
+
+                //
+                // We found a factory, we get out of this loop.
+                //
+                if(exceptionFactory != null)
+                {
+                    //
+                    // Got factory -- ask the factory to instantiate the
+                    // exception, initialize the exception members, and throw
+                    // the exception.
+                    //
+                    try
+                    {
+                        exceptionFactory.createAndThrow(_typeId);
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        ex.__read(_stream);
+                        readPendingObjects();
+                        throw ex;
+
+                        // Never reached.
+                    }
+                }
+
+                //
+                // Performance sensitive, so we use lazy initialization
+                // for tracing.
+                //
+                if(_traceSlicing == -1)
+                {
+                    _traceSlicing = _stream.instance().traceLevels().slicing;
+                    _slicingCat = _stream.instance().traceLevels().slicingCat;
+                }
+                if(_traceSlicing > 0)
+                {
+                    TraceUtil.traceSlicing("exception", _typeId, _slicingCat,
+                                           _stream.instance().initializationData().logger);
+                }
+
+                if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
+                {
+                    // TODO: Consider adding a new exception, such as NoExceptionFactory?
+                    throw new Ice.UnmarshalOutOfBoundsException("unknown exception type `" + mostDerivedId + "'");
+                }
+
+                skipSlice(); // Slice off what we don't understand.
+                try
+                {
+                    startSlice();
+                }
+                catch(Ice.UnmarshalOutOfBoundsException ex)
+                {
+                    //
+                    // An oversight in the 1.0 encoding means there is no marker to indicate
+                    // the last slice of an exception. As a result, we just try to read the
+                    // next type ID, which raises UnmarshalOutOfBoundsException when the
+                    // input buffer underflows.
+                    //
+                    if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                    {
+                        // Set the reason member to a more helpful message.
+                        ex.reason = "unknown exception type `" + mostDerivedId + "'";
+                    }
+                    throw ex;
+                }
+            }
+        }
+
+        void startObject()
+        {
+            assert(_sliceType == SliceType.ObjectSlice);
+            _skipFirstSlice = true;
+        }
+
+        Ice.SlicedData endObject(boolean preserve)
+        {
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                //
+                // Read the Ice::Object slice.
+                //
+                startSlice();
+
+                //
+                // For compatibility with the old AFM.
+                //
+                int sz = _stream.readSize();
+                if(sz != 0)
+                {
+                    throw new Ice.MarshalException("invalid Object slice");
+                }
+
+                endSlice();
+            }
+
+            _sliceType = SliceType.NoSlice;
+            Ice.SlicedData slicedData = null;
+            if(preserve)
+            {
+                slicedData = readSlicedData();
+            }
+            _slices.clear();
+            _indirectionTables.clear();
+            return slicedData;
+        }
+
+        void startException()
+        {
+            assert(_sliceType == SliceType.ExceptionSlice);
+            _skipFirstSlice = true;
+        }
+
+        Ice.SlicedData endException(boolean preserve)
+        {
+            _sliceType = SliceType.NoSlice;
+            Ice.SlicedData slicedData = null;
+            if(preserve)
+            {
+                slicedData = readSlicedData();
+            }
+            _slices.clear();
+            _indirectionTables.clear();
+            return slicedData;
+        }
+
+        String startSlice()
+        {
+            //
+            // If first slice, don't read the header, it was already read in
+            // readInstance or throwException to find the factory.
+            //
+            if(_skipFirstSlice)
+            {
+                _skipFirstSlice = false;
+                return _typeId;
+            }
+
+            //
+            // Read the slice flags. For the 1.0 encoding there's no flag but
+            // just a boolean for object slices. The boolean indicates whether
+            // or not the type ID is encoded as a string or as an index.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                _sliceFlags = FLAG_HAS_SLICE_SIZE;
+                if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
+                {
+                    boolean isIndex = _stream.readBool();
+                    _sliceFlags |= isIndex ? FLAG_HAS_TYPE_ID_INDEX : FLAG_HAS_TYPE_ID_STRING;
+                }
+            }
+            else
+            {
+                _sliceFlags = _stream.readByte();
+            }
+
+            //
+            // Read the type ID, for object slices the type ID is encoded as a
+            // string or as an index, for exceptions it's always encoded as a
+            // string.
+            //
+            if(_sliceType == SliceType.ObjectSlice)
+            {
+                if((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0)
+                {
+                    int index = _stream.readSize();
+                    _typeId = _typeIdMap.get(index);
+                    if(_typeId == null)
+                    {
+                        throw new Ice.UnmarshalOutOfBoundsException();
+                    }
+                }
+                else if((_sliceFlags & FLAG_HAS_TYPE_ID_STRING) != 0)
+                {
+                    _typeId = _stream.readString();
+                    _typeIdMap.put(++_typeIdIndex, _typeId);
+                }
+                else
+                {
+                    // Only the most derived slice encodes the type ID for the
+                    // compact format.
+                    _typeId = "";
+                }
+            }
+            else
+            {
+                _typeId = _stream.readString();
+            }
+
+            //
+            // Read the slice size if necessary.
+            //
+            if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                _sliceSize = _stream.readInt();
+                if(_sliceSize < 4)
+                {
+                    throw new Ice.UnmarshalOutOfBoundsException();
+                }
+            }
+            else
+            {
+                _sliceSize = 0;
+            }
+
+            //
+            // Reset the indirect patch list for this new slice.
+            //
+            _indirectPatchList.clear();
+            return _typeId;
+        }
+
+        void endSlice()
+        {
+            if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                //
+                // Read remaining un-read optional members.
+                //
+                byte v;
+                do
+                {
+                    v = _stream.readByte();
+                }
+                while(skipOpt(v & 0x07));
+            }
+
+            //
+            // Read the indirection table if one is present and transform the
+            // indirect patch list into patch entries with direct references.
+            //
+            if((_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
+            {
+                //
+                // The table is written as a sequence<size> to conserve space.
+                //
+                int[] indirectionTable = _stream.readSizeSeq();
+
+                //
+                // Sanity checks.
+                //
+                if(indirectionTable.length == 0 && !_indirectPatchList.isEmpty())
+                {
+                    throw new Ice.MarshalException("empty indirection table");
+                }
+                else if(indirectionTable.length > 0 && _indirectPatchList.isEmpty())
+                {
+                    throw new Ice.MarshalException("no references to indirection table");
+                }
+
+                //
+                // Convert indirect references into direct references.
+                //
+                for(IndirectPatchEntry e : _indirectPatchList)
+                {
+                    assert(e.index >= 0);
+                    if(e.index >= indirectionTable.length)
+                    {
+                        throw new Ice.MarshalException("indirection out of range");
+                    }
+                    final int id = indirectionTable[e.index];
+                    if(id <= 0)
+                    {
+                        //
+                        // Entries in the table must be positive, just like a regular object reference.
+                        //
+                        throw new Ice.MarshalException("invalid id in object indirection table");
+                    }
+                    addPatchEntry(id, e.patcher);
+                }
+            }
+        }
+
+        void skipSlice()
+        {
+            int start = _stream.pos();
+
+            if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                assert(_sliceSize >= 4);
+                _stream.pos(start + _sliceSize - 4);
+                if((start + _sliceSize - 4) > _stream.size())
+                {
+                    throw new Ice.UnmarshalOutOfBoundsException();
+                }
+            }
+            else
+            {
+                throw new Ice.MarshalException("compact format prevents slicing");
+            }
+
+            if(!_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                //
+                // Preserve this slice.
+                //
+                Ice.SliceInfo info = new Ice.SliceInfo();
+                info.typeId = _typeId;
+                java.nio.ByteBuffer b = _stream.getBuffer().b;
+                final int end = b.position();
+                info.bytes = new byte[end - start];
+                b.position(start);
+                b.get(info.bytes);
+                _slices.add(info);
+
+                if((_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
+                {
+                    //
+                    // Read the indirection table, which is written as a sequence<size> to conserve space.
+                    //
+                    _indirectionTables.add(_stream.readSizeSeq());
+                }
+                else
+                {
+                    _indirectionTables.add(new int[0]);
+                }
+            }
+        }
+
+        boolean readOpt(int readTag, int expectedType)
+        {
+            assert(_sliceType != SliceType.NoSlice);
+            if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+            {
+                return false; // No optional data members
+            }
+
+            int tag;
+            int type;
+            do
+            {
+                byte v = _stream.readByte();
+
+                type = v & 0x07; // Read first 3 bits.
+                tag = (int)(v >> 3);
+                if(tag == 31)
+                {
+                    tag = _stream.readSize();
+                }
+            }
+            while(tag < readTag && skipOpt(type)); // Skip optional data members with lower tag values.
+
+            if(type == MemberTypeEndMarker)
+            {
+                //
+                // Clear the optional members flag since we've reach the end. We clear
+                // the flag to prevent endSlice to skip un-read optional members and
+                // to prevent other optional members from being read.
+                //
+                _sliceFlags &= ~FLAG_HAS_OPTIONAL_MEMBERS;
+                return false;
+            }
+            else if(tag > readTag)
+            {
+                //
+                // Rewind the stream so that we correctly read the next
+                // optional data member tag & type.
+                //
+                int pos = _stream.pos();
+                pos -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
+                _stream.pos(pos);
+                return false; // No optional data members with the requested tag.
+            }
+
+            assert(readTag == tag);
+            if(type != expectedType)
+            {
+                throw new Ice.MarshalException("invalid optional data member `" + tag + "' in `" + _typeId +
+                                               "': unexpected type");
+            }
+
+            //
+            // We have an optional data member with the requested tag and
+            // type.
+            //
+            return true;
+        }
+
+        void readPendingObjects()
+        {
+            //
+            // With the 1.0 encoding, only read pending objects if nil or
+            // non-nil references were read (_usesClasses == true). Otherwise,
+            // read pending objects only if some non-nil references were read.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                if(!_usesClasses)
+                {
+                    return;
+                }
+                _usesClasses = false;
+            }
+            else if(_patchMap.isEmpty())
+            {
+                return;
+            }
+
+            int num;
+            java.util.ArrayList<Ice.Object> objectList = new java.util.ArrayList<Ice.Object>();
+            do
+            {
+                num = _stream.readSize();
+                for(int k = num; k > 0; --k)
+                {
+                    objectList.add(readInstance());
+                }
+            }
+            while(num > 0);
+
+            if(!_patchMap.isEmpty())
+            {
+                //
+                // If any entries remain in the patch map, the sender has sent an index for an object, but failed
+                // to supply the object.
+                //
+                throw new Ice.MarshalException("index for class received, but no instance");
+            }
+
+            //
+            // Iterate over the object list and invoke ice_postUnmarshal on
+            // each object.  We must do this after all objects have been
+            // unmarshaled in order to ensure that any object data members
+            // have been properly patched.
+            //
+            for(Ice.Object p : objectList)
+            {
+                try
+                {
+                    p.ice_postUnmarshal();
+                }
+                catch(java.lang.Exception ex)
+                {
+                    String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
+                    _stream.instance().initializationData().logger.warning("exception raised by ice_postUnmarshal:\n");
+                }
+            }
+        }
+
+        private Ice.Object readInstance()
+        {
+            int index;
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                index = _stream.readInt();
+            }
+            else
+            {
+                index = _stream.readSize();
+            }
+
+            Ice.Object v = null;
+            if(index <= 0)
+            {
+                throw new Ice.MarshalException("invalid object id");
+            }
+
+            _sliceType = SliceType.ObjectSlice;
+            _skipFirstSlice = false;
+
+            //
+            // Read the first slice header.
+            //
+            startSlice();
+            final String mostDerivedId = _typeId;
+            ObjectFactoryManager servantFactoryManager = _stream.instance().servantFactoryManager();
+            while(true)
+            {
+                //
+                // For the 1.0 encoding, the type ID for the base Object class marks
+                // the last slice. For later encodings, an empty type ID means the
+                // class was marshaled in the compact format and therefore cannot be
+                // sliced.
+                //
+                if(_typeId.length() == 0 || _typeId.equals(Ice.ObjectImpl.ice_staticId()))
+                {
+                    throw new Ice.NoObjectFactoryException("", mostDerivedId);
+                }
+
+                //
+                // Try to find a factory registered for the specific type.
+                //
+                Ice.ObjectFactory userFactory = servantFactoryManager.find(_typeId);
+                if(userFactory != null)
+                {
+                    v = userFactory.create(_typeId);
+                }
+
+                //
+                // If that fails, invoke the default factory if one has been
+                // registered.
+                //
+                if(v == null)
+                {
+                    userFactory = servantFactoryManager.find("");
+                    if(userFactory != null)
+                    {
+                        v = userFactory.create(_typeId);
+                    }
+                }
+
+                //
+                // Last chance: check the table of static factories (i.e.,
+                // automatically generated factories for concrete classes).
+                //
+                if(v == null)
+                {
+                    userFactory = _stream.loadObjectFactory(_typeId);
+                    if(userFactory != null)
+                    {
+                        v = userFactory.create(_typeId);
+                        assert(v != null);
+                    }
+                }
+
+                //
+                // We found a factory, we get out of this loop.
+                //
+                if(v != null)
+                {
+                    break;
+                }
+
+                //
+                // If object slicing is disabled, or if the flags indicate that this is the
+                // last slice (for encodings >= 1.1), we raise NoObjectFactoryException.
+                //
+                if(!_sliceObjects)
+                {
+                    throw new Ice.NoObjectFactoryException("object slicing is disabled", _typeId);
+                }
+                else if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
+                {
+                    throw new Ice.NoObjectFactoryException("", _typeId);
+                }
+
+                //
+                // Performance sensitive, so we use lazy initialization for tracing.
+                //
+                if(_traceSlicing == -1)
+                {
+                    _traceSlicing = _stream.instance().traceLevels().slicing;
+                    _slicingCat = _stream.instance().traceLevels().slicingCat;
+                }
+                if(_traceSlicing > 0)
+                {
+                    TraceUtil.traceSlicing("class", _typeId, _slicingCat,
+                                           _stream.instance().initializationData().logger);
+                }
+
+                skipSlice(); // Slice off what we don't understand.
+                startSlice(); // Read next Slice header for next iteration.
+            }
+
+            //
+            // Add the object to the map of un-marshalled objects, this must
+            // be done before reading the objects (for circular references).
+            //
+            _unmarshaledMap.put(index, v);
+
+            //
+            // Read the object.
+            //
+            v.__read(_stream);
+
+            //
+            // Patch all instances now that the object is un-marshalled.
+            //
+            java.util.LinkedList<Patcher> l = _patchMap.get(index);
+            if(l != null)
+            {
+                assert(l.size() > 0);
+
+                //
+                // Patch all pointers that refer to the instance.
+                //
+                for(Patcher p : l)
+                {
+                    p.patch(v);
+                }
+
+                //
+                // Clear out the patch map for that index -- there is nothing left
+                // to patch for that index for the time being.
+                //
+                _patchMap.remove(index);
+            }
+
+            return v;
+        }
+
+        private void addPatchEntry(int index, Patcher patcher)
+        {
+            assert(index > 0);
+
+            //
+            // Check if already un-marshalled the object. If that's the case,
+            // just patch the object smart pointer and we're done.
+            //
+            Ice.Object obj = _unmarshaledMap.get(index);
+            if(obj != null)
+            {
+                patcher.patch(obj);
+                return;
+            }
+
+            //
+            // Add patch entry if the object isn't un-marshalled yet, the
+            // smart pointer will be patched when the instance is
+            // un-marshalled.
+            //
+
+            java.util.LinkedList<Patcher> l = _patchMap.get(index);
+            if(l == null)
+            {
+                //
+                // We have no outstanding instances to be patched for this
+                // index, so make a new entry in the patch map.
+                //
+                l = new java.util.LinkedList<Patcher>();
+                _patchMap.put(index, l);
+            }
+
+            //
+            // Append a patch entry for this instance.
+            //
+            l.add(patcher);
+        }
+
+        private Ice.SlicedData readSlicedData()
+        {
+            if(_slices.isEmpty()) // No preserved slices.
+            {
+                return null;
+            }
+
+            //
+            // The _indirectionTables member holds the indirection table for each slice
+            // in _slices.
+            //
+            assert(_slices.size() == _indirectionTables.size());
+
+            for(int n = 0; n < _slices.size(); ++n)
+            {
+                //
+                // We use the "objects" list in SliceInfo to hold references to the target
+                // objects. Note however that we may not have actually read these objects
+                // yet, so they need to be treated just like we had read the object references
+                // directly (i.e., we add them to the patch list).
+                //
+                // Another important note: the SlicedData object that we return here must
+                // not be destroyed before readPendingObjects is called, otherwise the
+                // patch references will refer to invalid addresses.
+                //
+                final int[] table = _indirectionTables.get(n);
+                Ice.SliceInfo info = _slices.get(n);
+                info.objects = new Ice.Object[table.length];
+                for(int j = 0; j < table.length; ++j)
+                {
+                    if(table[j] <= 0)
+                    {
+                        throw new Ice.MarshalException("invalid id in object indirection table");
+                    }
+                    SequencePatcher patcher = new SequencePatcher(info.objects, Ice.Object.class,
+                                                                  Ice.ObjectImpl.ice_staticId(), j);
+                    addPatchEntry(table[j], patcher);
+                }
+            }
+
+            Ice.SliceInfo[] arr = new Ice.SliceInfo[_slices.size()];
+            _slices.toArray(arr);
+            return new Ice.SlicedData(arr);
+        }
+
+        private boolean skipOpt(int type)
+        {
+            int sz;
+            switch(type)
+            {
+            case MemberTypeF1:
+            {
+                sz = 1;
+                break;
+            }
+            case MemberTypeF2:
+            {
+                sz = 2;
+                break;
+            }
+            case MemberTypeF4:
+            {
+                sz = 4;
+                break;
+            }
+            case MemberTypeF8:
+            {
+                sz = 8;
+                break;
+            }
+            case MemberTypeVSize:
+            {
+                sz = _stream.readSize();
+                break;
+            }
+            case MemberTypeFSize:
+            {
+                sz = _stream.readInt();
+                break;
+            }
+            default:
+            {
+                return false;
+            }
+            }
+
+            int pos = _stream.pos();
+            if(pos + sz > _stream.size())
+            {
+                throw new Ice.UnmarshalOutOfBoundsException();
+            }
+            _stream.pos(pos + sz);
+            return true;
+        }
+
+        private final BasicStream _stream;
+        private final ReadEncaps _encaps;
+        private final boolean _sliceObjects;
+
+        private int _traceSlicing;
+        private String _slicingCat;
+
+        // Object/exception attributes
+        private SliceType _sliceType;
+        private boolean _skipFirstSlice;
+        private java.util.ArrayList<Ice.SliceInfo> _slices;     // Preserved slices.
+        private java.util.ArrayList<int[]> _indirectionTables;
+        private boolean _usesClasses;
+
+        // Slice attributes
+        private byte _sliceFlags;
+        private int _sliceSize;
+        private String _typeId;
+
+        private static final class IndirectPatchEntry
+        {
+            int index;
+            Patcher patcher;
+        }
+        private java.util.ArrayList<IndirectPatchEntry> _indirectPatchList;
+
+        // Encapsulation attributes for object un-marshalling
+        private java.util.TreeMap<Integer, java.util.LinkedList<Patcher> > _patchMap;
+        private java.util.TreeMap<Integer, Ice.Object> _unmarshaledMap;
+        private java.util.TreeMap<Integer, String> _typeIdMap;
+        private int _typeIdIndex;
+    }
+
+    private static final class EncapsEncoder
+    {
+        EncapsEncoder(BasicStream stream, WriteEncaps encaps, Ice.FormatType format)
+        {
+            _stream = stream;
+            _encaps = encaps;
+            _format = format;
+            _sliceType = SliceType.NoSlice;
+            _usesClasses = false;
+            _objectIdIndex = 0;
+            _typeIdIndex = 0;
+            _indirectionTable = new java.util.ArrayList<Integer>();
+            _indirectionMap = new java.util.TreeMap<Integer, Integer>();
+            _toBeMarshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
+            _marshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
+            _typeIdMap = new java.util.TreeMap<String, Integer>();
+        }
+
+        void writeObject(Ice.Object v)
+        {
+            if(v != null)
+            {
+                //
+                // Register the object.
+                //
+                int index = registerObject(v);
+
+                if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                {
+                    //
+                    // Object references are encoded as a negative integer in 1.0.
+                    //
+                    _stream.writeInt(-index);
+                    _usesClasses = true;
+                }
+                else if(_sliceType != SliceType.NoSlice && _format == Ice.FormatType.SlicedFormat)
+                {
+                    //
+                    // An object reference that appears inside a slice of an
+                    // object or exception encoded as a positive non-zero
+                    // index into a per-slice indirection table.
+                    //
+                    // We use _indirectionMap to keep track of the object
+                    // references in the current slice; it maps the object
+                    // reference to the position in the indirection list. Note
+                    // that the position is offset by one (e.g., the first
+                    // position = 1).
+                    //
+                    Integer p = _indirectionMap.get(index);
+                    if(p == null)
+                    {
+                        _indirectionTable.add(index);
+                        int sz = _indirectionTable.size(); // Position + 1
+                        _indirectionMap.put(index, sz);
+                        _stream.writeSize(sz);
+                    }
+                    else
+                    {
+                        _stream.writeSize(p.intValue());
+                    }
+                }
+                else
+                {
+                    _stream.writeSize(index);
+                }
+            }
+            else
+            {
+                //
+                // Write nil reference.
+                //
+                if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                {
+                    _stream.writeInt(0);
+                    _usesClasses = true;
+                }
+                else
+                {
+                    _stream.writeSize(0);
+                }
+            }
+        }
+
+        void writeUserException(Ice.UserException v)
+        {
+            v.__write(_stream);
+            writePendingObjects();
+        }
+
+        void startObject(Ice.SlicedData data)
+        {
+            _sliceType = SliceType.ObjectSlice;
+            _firstSlice = true;
+            if(data != null)
+            {
+                writeSlicedData(data);
+            }
+        }
+
+        void endObject()
+        {
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                //
+                // Write the Object slice.
+                //
+                startSlice(Ice.ObjectImpl.ice_staticId(), true);
+                _stream.writeSize(0); // For compatibility with the old AFM.
+                endSlice();
+            }
+            _sliceType = SliceType.NoSlice;
+        }
+
+        void startException(Ice.SlicedData data)
+        {
+            _sliceType = SliceType.ExceptionSlice;
+            _firstSlice = true;
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                _usesClassesPos = _stream.pos();
+                _stream.writeBool(false); // Placeholder for usesClasses boolean
+            }
+            if(data != null)
+            {
+                writeSlicedData(data);
+            }
+        }
+
+        void endException()
+        {
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                _stream.writeBoolAt(_usesClasses, _usesClassesPos);
+            }
+            _sliceType = SliceType.NoSlice;
+        }
+
+        void startSlice(String typeId, boolean last)
+        {
+            assert(_indirectionTable.isEmpty() && _indirectionMap.isEmpty());
+            _sliceFlags = (byte)0;
+            _sliceFlagsPos = _stream.pos();
+
+            //
+            // Encode the slice size for the old encoding and if using the
+            // sliced format.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0) || _format == Ice.FormatType.SlicedFormat)
+            {
+                _sliceFlags |= FLAG_HAS_SLICE_SIZE;
+            }
+
+            //
+            // This is the last slice.
+            //
+            if(last)
+            {
+                _sliceFlags |= FLAG_IS_LAST_SLICE;
+            }
+
+            //
+            // For object slices, encode the flag and the type ID either as a
+            // string or index. For exception slices, don't encode slice flags
+            // for the old encoding and always encode the type ID a string.
+            //
+            if(_sliceType == SliceType.ObjectSlice)
+            {
+                _stream.writeByte((byte)0); // Placeholder for the slice flags
+
+                //
+                // Encode the type ID (only in the first slice for the compact
+                // encoding).
+                //
+                if(_format == Ice.FormatType.SlicedFormat || _encaps.encoding.equals(Ice.Util.Encoding_1_0) ||
+                   _firstSlice)
+                {
+                    //
+                    // If the type ID has already been seen, write the index
+                    // of the type ID, otherwise allocate a new type ID and
+                    // write the string.
+                    //
+                    Integer p = _typeIdMap.get(typeId);
+                    if(p != null)
+                    {
+                        _sliceFlags |= FLAG_HAS_TYPE_ID_INDEX;
+                        _stream.writeSize(p.intValue());
+                    }
+                    else
+                    {
+                        _sliceFlags |= FLAG_HAS_TYPE_ID_STRING;
+                        _typeIdMap.put(typeId, ++_typeIdIndex);
+                        _stream.writeString(typeId);
+                    }
+                }
+            }
+            else
+            {
+                if(!_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                {
+                    _stream.writeByte((byte)0); // Placeholder for the slice flags
+                }
+                _stream.writeString(typeId);
+            }
+
+            if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                _stream.writeInt(0); // Placeholder for the slice length.
+            }
+
+            _writeSlice = _stream.pos();
+            _firstSlice = false;
+        }
+
+        void endSlice()
+        {
+            //
+            // Write the optional member end marker if some optional members
+            // were encoded. Note that the optional members are encoded before
+            // the indirection table and are included in the slice size.
+            //
+            if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
+            {
+                _stream.writeByte((byte)MemberTypeEndMarker);
+            }
+
+            //
+            // Write the slice length if necessary.
+            //
+            if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
+            {
+                final int sz = _stream.pos() - _writeSlice + 4;
+                _stream.writeIntAt(sz, _writeSlice - 4);
+            }
+
+            //
+            // Only write the indirection table if it contains entries.
+            //
+            if(!_indirectionTable.isEmpty())
+            {
+                assert(_format == Ice.FormatType.SlicedFormat);
+                _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
+
+                //
+                // Write the indirection table as a sequence<size> to conserve space.
+                //
+                _stream.writeSizeSeq(_indirectionTable);
+
+                _indirectionTable.clear();
+                _indirectionMap.clear();
+            }
+
+            //
+            // Finally, update the slice flags.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                if(_sliceType == SliceType.ObjectSlice) // No flags for 1.0 exception slices.
+                {
+                    _stream.writeBoolAt((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0, _sliceFlagsPos);
+                }
+            }
+            else
+            {
+                _stream.writeByteAt(_sliceFlags, _sliceFlagsPos);
+            }
+        }
+
+        void writeOpt(int tag, int type)
+        {
+            assert(_sliceType != SliceType.NoSlice);
+            _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+            byte v = (byte)type;
+            if(tag < 31)
+            {
+                v |= (byte)(tag << 3);
+            }
+            else
+            {
+                v |= (byte)0x0F8; // tag = 31
+                _stream.writeSize(tag);
+            }
+        }
+
+        void writePendingObjects()
+        {
+            //
+            // With the 1.0 encoding, only write pending objects if nil or
+            // non-nil references were written (_usesClasses =
+            // true). Otherwise, write pending objects only if some non-nil
+            // references were written.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            {
+                if(!_usesClasses)
+                {
+                    return;
+                }
+                _usesClasses = false;
+            }
+            else if(_toBeMarshaledMap.isEmpty())
+            {
+                return;
+            }
+
+            while(_toBeMarshaledMap.size() > 0)
+            {
+                //
+                // Consider the to be marshalled objects as marshalled now,
+                // this is necessary to avoid adding again the "to be
+                // marshalled objects" into _toBeMarshaledMap while writing
+                // objects.
+                //
+                _marshaledMap.putAll(_toBeMarshaledMap);
+
+                java.util.IdentityHashMap<Ice.Object, Integer> savedMap = _toBeMarshaledMap;
+                _toBeMarshaledMap = new java.util.IdentityHashMap<Ice.Object, Integer>();
+                _stream.writeSize(savedMap.size());
+                for(java.util.Map.Entry<Ice.Object, Integer> p : savedMap.entrySet())
+                {
+                    //
+                    // Ask the instance to marshal itself. Any new class
+                    // instances that are triggered by the classes marshaled
+                    // are added to toBeMarshaledMap.
+                    //
+                    if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                    {
+                        _stream.writeInt(p.getValue().intValue());
+                    }
+                    else
+                    {
+                        _stream.writeSize(p.getValue().intValue());
+                    }
+
+                    try
+                    {
+                        p.getKey().ice_preMarshal();
+                    }
+                    catch(java.lang.Exception ex)
+                    {
+                        String s = "exception raised by ice_preUnmarshal:\n" + Ex.toString(ex);
+                        _stream.instance().initializationData().logger.warning(
+                            "exception raised by ice_preUnmarshal:\n");
+                    }
+
+                    p.getKey().__write(_stream);
+                }
+            }
+            _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
+        }
+
+        private void writeSlicedData(Ice.SlicedData slicedData)
+        {
+            assert(slicedData != null);
+
+            //
+            // We only remarshal preserved slices if the target encoding is > 1.0 and we are
+            // using the sliced format. Otherwise, we ignore the preserved slices, which
+            // essentially "slices" the object into the most-derived type known by the sender.
+            //
+            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0) || _format != Ice.FormatType.SlicedFormat)
+            {
+                return;
+            }
+
+            for(int n = 0; n < slicedData.slices.length; ++n)
+            {
+                Ice.SliceInfo info = slicedData.slices[n];
+                startSlice(info.typeId, false); // last = false, sliced data never contains the last slice.
+
+                //
+                // Write the bytes associated with this slice.
+                //
+                _stream.writeBlob(info.bytes);
+
+                //
+                // Assemble and write the indirection table. The table must have the same order
+                // as the list of objects.
+                //
+                for(int j = 0; j < info.objects.length; ++j)
+                {
+                    _indirectionTable.add(registerObject(info.objects[j]));
+                }
+
+                endSlice();
+            }
+        }
+
+        private int registerObject(Ice.Object v)
+        {
+            //
+            // Look for this instance in the to-be-marshaled map.
+            //
+            Integer p = _toBeMarshaledMap.get(v);
+            if(p != null)
+            {
+                return p.intValue();
+            }
+
+            //
+            // Didn't find it, try the marshaled map next.
+            //
+            p = _marshaledMap.get(v);
+            if(p != null)
+            {
+                return p.intValue();
+            }
+
+            //
+            // We haven't seen this instance previously, create a new
+            // index, and insert it into the to-be-marshaled map.
+            //
+            _toBeMarshaledMap.put(v, ++_objectIdIndex);
+            return _objectIdIndex;
+        }
+
+        private final BasicStream _stream;
+        private final WriteEncaps _encaps;
+        private final Ice.FormatType _format;
+
+        // Object/exception attributes
+        private SliceType _sliceType;
+        private boolean _firstSlice;
+        private boolean _usesClasses;
+        private int _usesClassesPos;
+
+        // Slice attributes
+        private byte _sliceFlags;
+        private int _writeSlice;        // Position of the slice data members
+        private int _sliceFlagsPos;     // Position of the slice flags
+        private java.util.ArrayList<Integer> _indirectionTable;
+        private java.util.TreeMap<Integer, Integer> _indirectionMap;
+
+        // Encapsulation attributes for object marshalling.
+        private int _objectIdIndex;
+        private java.util.IdentityHashMap<Ice.Object, Integer> _toBeMarshaledMap;
+        private java.util.IdentityHashMap<Ice.Object, Integer> _marshaledMap;
+        private java.util.TreeMap<String, Integer> _typeIdMap;
+        private int _typeIdIndex;
+    }
+
+    private static final class ReadEncaps
+    {
+        void reset()
+        {
+            decoder = null;
+        }
+
+        int start;
+        int sz;
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+
+        EncapsDecoder decoder;
+
+        ReadEncaps next;
     }
 
     private static final class WriteEncaps
     {
-        int start;
-
-        int writeIndex;
-        java.util.IdentityHashMap<Ice.Object, Integer> toBeMarshaledMap;
-        java.util.IdentityHashMap<Ice.Object, Integer> marshaledMap;
-        int typeIdIndex;
-        java.util.TreeMap<String, Integer> typeIdMap;
-        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
-        WriteEncaps next;
-
-        void
-        reset()
+        void reset()
         {
-            if(toBeMarshaledMap != null)
-            {
-                writeIndex = 0;
-                toBeMarshaledMap.clear();
-                marshaledMap.clear();
-                typeIdIndex = 0;
-                typeIdMap.clear();
-            }
+            encoder = null;
         }
+
+        int start;
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+
+        EncapsEncoder encoder;
+
+        WriteEncaps next;
     }
 
+    //
+    // The encoding version to use when there's no encapsulation to
+    // read from or write to. This is for example used to read message
+    // headers or when the user is using the streaming API with no
+    // encapsulation.
+    //
     private Ice.EncodingVersion _encoding;
 
     private ReadEncaps _readEncapsStack;
@@ -2472,11 +3385,47 @@ public class BasicStream
     private ReadEncaps _readEncapsCache;
     private WriteEncaps _writeEncapsCache;
 
-    private int _readSlice;
-    private int _writeSlice;
+    private void initReadEncaps()
+    {
+        if(_readEncapsStack == null) // Lazy initialization
+        {
+            _readEncapsStack = _readEncapsCache;
+            if(_readEncapsStack != null)
+            {
+                _readEncapsCache = _readEncapsCache.next;
+            }
+            else
+            {
+                _readEncapsStack = new ReadEncaps();
+            }
+        }
 
-    private int _traceSlicing;
-    private String _slicingCat;
+        if(_readEncapsStack.decoder == null) // Lazy initialization.
+        {
+            _readEncapsStack.decoder = new EncapsDecoder(this, _readEncapsStack, _sliceObjects);
+        }
+    }
+
+    private void initWriteEncaps()
+    {
+        if(_writeEncapsStack == null) // Lazy initialization
+        {
+            _writeEncapsStack = _writeEncapsCache;
+            if(_writeEncapsStack != null)
+            {
+                _writeEncapsCache = _writeEncapsCache.next;
+            }
+            else
+            {
+                _writeEncapsStack = new WriteEncaps();
+            }
+        }
+
+        if(_writeEncapsStack.encoder == null) // Lazy initialization.
+        {
+            _writeEncapsStack.encoder = new EncapsEncoder(this, _writeEncapsStack, _format);
+        }
+    }
 
     private boolean _sliceObjects;
 
@@ -2486,7 +3435,14 @@ public class BasicStream
     private int _startSeq;
     private int _minSeqSize;
 
-    private java.util.ArrayList<Ice.Object> _objectList;
+    private Ice.FormatType _format;
+
+    private static final byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
+    private static final byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);
+    private static final byte FLAG_HAS_OPTIONAL_MEMBERS     = (byte)(1<<2);
+    private static final byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
+    private static final byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
+    private static final byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
 
     private static java.util.HashMap<String, UserExceptionFactory> _exceptionFactories =
         new java.util.HashMap<String, UserExceptionFactory>();

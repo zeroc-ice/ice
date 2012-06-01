@@ -175,13 +175,6 @@ public interface OutputStream
     void writeObject(Ice.Object v);
 
     /**
-     * Writes a Slice type ID to the stream.
-     *
-     * @param id The Slice type ID to write.
-     **/
-    void writeTypeId(String id);
-
-    /**
      * Writes a user exception to the stream.
      *
      * @param id The user exception to write.
@@ -189,12 +182,46 @@ public interface OutputStream
     void writeException(UserException ex);
 
     /**
-     * Writes the start of a slice to the stream.
+     * Select the format to be used for classes and exceptions.
+     *
+     * @param format Specify the compact or sliced format.
      **/
-    void startSlice();
+    void format(FormatType format);
 
     /**
-     * Ends the previous slice.
+     * Marks the start of an Ice object.
+     *
+     * @param slicedData Preserved slices for this object, or null.
+     **/
+    void startObject(SlicedData slicedData);
+
+    /**
+     * Marks the end of an Ice object.
+     **/
+    void endObject();
+
+    /**
+     * Marks the start of a user exception.
+     *
+     * @param slicedData Preserved slices for this exception, or null.
+     **/
+    void startException(SlicedData slicedData);
+
+    /**
+     * Marks the end of a user exception.
+     **/
+    void endException();
+
+    /**
+     * Marks the start of a new slice for an Ice object or user exception.
+     *
+     * @param typeId The Slice type ID corresponding to this slice.
+     * @param last True if this is the last slice, false otherwise.
+     **/
+    void startSlice(String typeId, boolean last);
+
+    /**
+     * Marks the end of a slice for an Ice object or user exception.
      **/
     void endSlice();
 

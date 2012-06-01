@@ -501,7 +501,7 @@ public final class Outgoing implements OutgoingMessageCallback
         try
         {
             _is.startReadEncaps();
-            _is.throwException();
+            _is.throwException(null);
         }
         catch(Ice.UserException ex)
         {

@@ -7,12 +7,21 @@
 //
 // **********************************************************************
 
-package IceInternal;
+package Ice;
 
-public interface UserExceptionFactory
+/**
+ * Creates a UserExceptionReader for extracting a user exception
+ * from an input stream.
+ *
+ * @see InputStream
+ **/
+public interface UserExceptionReaderFactory
 {
+    /**
+     * Creates and throws a UserExceptionReader instance.
+     *
+     * @param typeId The Slice type ID of the user exception to be instantiated.
+     **/
     void createAndThrow(String typeId)
-        throws Ice.UserException;
-
-    void destroy();
+        throws UserExceptionReader;
 }

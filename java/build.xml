@@ -466,7 +466,7 @@
                 <include name="Test.ice" />
             </fileset>
             <fileset dir="test/Ice/slicing/exceptions">
-                <include name="Test.ice" />
+                <include name="ClientPrivate.ice" />
                 <include name="ServerPrivate.ice" />
                 <include name="ServerPrivateAMD.ice" />
             </fileset>

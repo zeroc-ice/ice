@@ -13,8 +13,11 @@
 module Test
 {
 
+//
 // Duplicate types from Test.ice. We cannot use #include since
 // that will use the types from the same prefix.
+//
+
 exception Base
 {
     string b;
@@ -35,6 +38,34 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 };
 
+["preserve-slice"]
+exception KnownPreserved extends Base
+{
+    string kp;
+};
+
+exception KnownPreservedDerived extends KnownPreserved
+{
+    string kpd;
+};
+
+["preserve-slice"]
+class BaseClass
+{
+    string bc;
+};
+
+["format:sliced"]
+interface Relay
+{
+    void knownPreservedAsBase() throws Base;
+    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void unknownPreservedAsBase() throws Base;
+    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+};
+
+["ami", "format:sliced"]
 interface TestIntf
 {
     void baseAsBase() throws Base;
@@ -53,10 +84,26 @@ interface TestIntf
     void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
     void unknownMostDerived2AsBase() throws Base;
 
+    ["format:compact"] void unknownMostDerived2AsBaseCompact() throws Base;
+
+    void knownPreservedAsBase() throws Base;
+    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void relayKnownPreservedAsBase(Relay* r) throws Base;
+    void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+
+    void unknownPreservedAsBase() throws Base;
+    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void relayUnknownPreservedAsBase(Relay* r) throws Base;
+    void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+
     void shutdown();
 };
 
-// Additional server specific types (used for testing slicing).
+//
+// Types private to the server.
+//
 
 exception UnknownDerived extends Base
 {
@@ -76,6 +123,21 @@ exception UnknownMostDerived1 extends KnownIntermediate
 exception UnknownMostDerived2 extends UnknownIntermediate
 {
    string umd2;
+};
+
+class SPreservedClass extends BaseClass
+{
+    string spc;
+};
+
+exception SPreserved1 extends KnownPreservedDerived
+{
+    BaseClass p1;
+};
+
+exception SPreserved2 extends SPreserved1
+{
+    BaseClass p2;
 };
 
 };

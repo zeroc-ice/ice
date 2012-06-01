@@ -186,23 +186,70 @@ public class InputStreamI implements InputStream
         _is.readObject(new Patcher(cb));
     }
 
-    public String
-    readTypeId()
-    {
-        return _is.readTypeId();
-    }
-
     public void
     throwException()
         throws UserException
     {
-        _is.throwException();
+        _is.throwException(null);
+    }
+
+    private static class UserExceptionFactoryI implements IceInternal.UserExceptionFactory
+    {
+        UserExceptionFactoryI(UserExceptionReaderFactory factory)
+        {
+            _factory = factory;
+        }
+
+        public void
+        createAndThrow(String id)
+            throws UserException
+        {
+            _factory.createAndThrow(id);
+        }
+
+        public void
+        destroy()
+        {
+        }
+
+        private UserExceptionReaderFactory _factory;
     }
 
     public void
+    throwException(UserExceptionReaderFactory factory)
+        throws UserException
+    {
+        _is.throwException(new UserExceptionFactoryI(factory));
+    }
+
+    public void
+    startObject()
+    {
+        _is.startReadObject();
+    }
+
+    public SlicedData
+    endObject(boolean preserve)
+    {
+        return _is.endReadObject(preserve);
+    }
+
+    public void
+    startException()
+    {
+        _is.startReadException();
+    }
+
+    public SlicedData
+    endException(boolean preserve)
+    {
+        return _is.endReadException(preserve);
+    }
+
+    public String
     startSlice()
     {
-        _is.startReadSlice();
+        return _is.startReadSlice();
     }
 
     public void
@@ -223,16 +270,16 @@ public class InputStreamI implements InputStream
         return _is.startReadEncaps();
     }
 
-    public Ice.EncodingVersion
-    skipEncapsulation()
-    {
-        return _is.skipEncaps();
-    }
-
     public void
     endEncapsulation()
     {
         _is.endReadEncapsChecked();
+    }
+
+    public Ice.EncodingVersion
+    skipEncapsulation()
+    {
+        return _is.skipEncaps();
     }
 
     public void

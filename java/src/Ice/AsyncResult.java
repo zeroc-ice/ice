@@ -234,7 +234,7 @@ public class AsyncResult
         try
         {
             _is.startReadEncaps();
-            _is.throwException();
+            _is.throwException(null);
         }
         catch(UserException ex)
         {

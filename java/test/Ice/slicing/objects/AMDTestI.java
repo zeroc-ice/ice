@@ -9,55 +9,17 @@
 
 package test.Ice.slicing.objects;
 
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_D1AsB;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_D1AsD1;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_D2AsB;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SBSKnownDerivedAsSBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SBSUnknownDerivedAsSBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SBaseAsObject;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SBaseAsSBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_SUnknownAsObject;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_dictionaryTest;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_oneElementCycle;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_paramTest1;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_paramTest2;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_paramTest3;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_paramTest4;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_returnTest1;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_returnTest2;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_returnTest3;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_sequenceTest;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_shutdown;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_throwBaseAsBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_throwDerivedAsBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_throwDerivedAsDerived;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_throwUnknownDerivedAsBase;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_twoElementCycle;
-import test.Ice.slicing.objects.serverAMD.Test.AMD_TestIntf_useForward;
-import test.Ice.slicing.objects.serverAMD.Test.B;
-import test.Ice.slicing.objects.serverAMD.Test.BaseException;
-import test.Ice.slicing.objects.serverAMD.Test.D1;
-import test.Ice.slicing.objects.serverAMD.Test.D2;
-import test.Ice.slicing.objects.serverAMD.Test.D4;
-import test.Ice.slicing.objects.serverAMD.Test.DerivedException;
-import test.Ice.slicing.objects.serverAMD.Test.Forward;
-import test.Ice.slicing.objects.serverAMD.Test.Hidden;
-import test.Ice.slicing.objects.serverAMD.Test.SBSKnownDerived;
-import test.Ice.slicing.objects.serverAMD.Test.SBSUnknownDerived;
-import test.Ice.slicing.objects.serverAMD.Test.SBase;
-import test.Ice.slicing.objects.serverAMD.Test.SS;
-import test.Ice.slicing.objects.serverAMD.Test.SS1;
-import test.Ice.slicing.objects.serverAMD.Test.SS2;
-import test.Ice.slicing.objects.serverAMD.Test.SUnknown;
-import test.Ice.slicing.objects.serverAMD.Test.UnknownDerivedException;
-import test.Ice.slicing.objects.serverAMD.Test._TestIntfDisp;
+import test.Ice.slicing.objects.serverAMD.Test.*;
 
 public final class AMDTestI extends _TestIntfDisp
 {
-    public
-    AMDTestI()
+    private static void
+    test(boolean b)
     {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
     }
 
     public void
@@ -103,6 +65,15 @@ public final class AMDTestI extends _TestIntfDisp
 
     public void
     SBSUnknownDerivedAsSBase_async(AMD_TestIntf_SBSUnknownDerivedAsSBase cb, Ice.Current current)
+    {
+        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        sbsud.sb = "SBSUnknownDerived.sb";
+        sbsud.sbsud = "SBSUnknownDerived.sbsud";
+        cb.ice_response(sbsud);
+    }
+
+    public void
+    SBSUnknownDerivedAsSBaseCompact_async(AMD_TestIntf_SBSUnknownDerivedAsSBaseCompact cb, Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -302,7 +273,7 @@ public final class AMDTestI extends _TestIntfDisp
     public void
     sequenceTest_async(AMD_TestIntf_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
     {
-        SS ss = new SS();
+        SS3 ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
         cb.ice_response(ss);
@@ -335,6 +306,116 @@ public final class AMDTestI extends _TestIntfDisp
             r.put(i * 20, d1);
         }
         cb.ice_response(r, bout);
+    }
+
+    public void
+    exchangePBase_async(AMD_TestIntf_exchangePBase cb, PBase pb, Ice.Current current)
+    {
+        cb.ice_response(pb);
+    }
+
+    public void
+    PBSUnknownAsPreserved_async(AMD_TestIntf_PBSUnknownAsPreserved cb, Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        cb.ice_response(r);
+    }
+
+    public void
+    checkPBSUnknown_async(AMD_TestIntf_checkPBSUnknown cb, Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = (PSUnknown)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.psu.equals("unknown"));
+        }
+        cb.ice_response();
+    }
+
+    public void
+    PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb, Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        r.graph = new PNode();
+        r.graph.next = new PNode();
+        r.graph.next.next = new PNode();
+        r.graph.next.next.next = r.graph;
+        cb.ice_response(r);
+        r.graph.next.next.next = null; // Break the cycle.
+    }
+
+    public void
+    checkPBSUnknownWithGraph_async(AMD_TestIntf_checkPBSUnknownWithGraph cb, Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = (PSUnknown)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.psu.equals("unknown"));
+            test(pu.graph != pu.graph.next);
+            test(pu.graph.next != pu.graph.next.next);
+            test(pu.graph.next.next.next == pu.graph);
+            pu.graph.next.next.next = null;          // Break the cycle.
+        }
+        cb.ice_response();
+    }
+
+    public void
+    PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb, Ice.Current current)
+    {
+        PSUnknown2 r = new PSUnknown2();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.pb = r;
+        cb.ice_response(r);
+        r.pb = null; // Break the cycle.
+    }
+
+    public void
+    checkPBSUnknown2WithGraph_async(AMD_TestIntf_checkPBSUnknown2WithGraph cb, Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown2));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown2 pu = (PSUnknown2)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.pb == pu);
+            pu.pb = null; // Break the cycle.
+        }
+        cb.ice_response();
+    }
+
+    public void
+    exchangePNode_async(AMD_TestIntf_exchangePNode cb, PNode pn, Ice.Current current)
+    {
+        cb.ice_response(pn);
     }
 
     public void
@@ -401,6 +482,18 @@ public final class AMDTestI extends _TestIntfDisp
         ude.sude = "sude";
         ude.pd2 = d2;
         cb.ice_exception(ude);
+    }
+
+    public void
+    throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
+    {
+        PSUnknownException ue = new PSUnknownException();
+        ue.p = new PSUnknown2();
+        ue.p.pi = 5;
+        ue.p.ps = "preserved";
+        ue.p.pb = ue.p;
+        cb.ice_exception(ue);
+        ue.p.pb = null; // Break the cycle.
     }
 
     public void

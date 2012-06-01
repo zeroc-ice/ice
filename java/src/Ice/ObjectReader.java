@@ -23,7 +23,7 @@ public abstract class ObjectReader extends ObjectImpl
      * by the unmarshaling code in case the type ID has already been read as part
      * of other unmarshaling activities.
      **/
-    public abstract void read(InputStream in, boolean rid);
+    public abstract void read(InputStream in);
 
     public void
     __write(IceInternal.BasicStream os)
@@ -32,9 +32,9 @@ public abstract class ObjectReader extends ObjectImpl
     }
 
     public void
-    __read(IceInternal.BasicStream is, boolean rid)
+    __read(IceInternal.BasicStream is)
     {
         InputStream stream = (InputStream)is.closure();
-        read(stream, rid);
+        read(stream);
     }
 }

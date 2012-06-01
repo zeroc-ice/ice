@@ -73,7 +73,13 @@ public abstract class UserException extends Exception implements Cloneable
     __write(IceInternal.BasicStream __os);
 
     public abstract void
-    __read(IceInternal.BasicStream __is, boolean __rid);
+    __writeImpl(IceInternal.BasicStream __os);
+
+    public abstract void
+    __read(IceInternal.BasicStream __is);
+
+    public abstract void
+    __readImpl(IceInternal.BasicStream __is);
 
     public void
     __write(Ice.OutputStream __outS)
@@ -82,14 +88,8 @@ public abstract class UserException extends Exception implements Cloneable
     }
 
     public void
-    __read(Ice.InputStream __inS, boolean __rid)
+    __read(Ice.InputStream __inS)
     {
         assert(false);
-    }
-
-    public boolean
-    __usesClasses()
-    {
-        return false;
     }
 }

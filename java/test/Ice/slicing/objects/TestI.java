@@ -9,32 +9,17 @@
 
 package test.Ice.slicing.objects;
 
-import test.Ice.slicing.objects.server.Test.B;
-import test.Ice.slicing.objects.server.Test.BDictHolder;
-import test.Ice.slicing.objects.server.Test.BHolder;
-import test.Ice.slicing.objects.server.Test.BaseException;
-import test.Ice.slicing.objects.server.Test.D1;
-import test.Ice.slicing.objects.server.Test.D2;
-import test.Ice.slicing.objects.server.Test.D4;
-import test.Ice.slicing.objects.server.Test.DerivedException;
-import test.Ice.slicing.objects.server.Test.Forward;
-import test.Ice.slicing.objects.server.Test.ForwardHolder;
-import test.Ice.slicing.objects.server.Test.Hidden;
-import test.Ice.slicing.objects.server.Test.SBSKnownDerived;
-import test.Ice.slicing.objects.server.Test.SBSUnknownDerived;
-import test.Ice.slicing.objects.server.Test.SBase;
-import test.Ice.slicing.objects.server.Test.SS;
-import test.Ice.slicing.objects.server.Test.SS1;
-import test.Ice.slicing.objects.server.Test.SS2;
-import test.Ice.slicing.objects.server.Test.SUnknown;
-import test.Ice.slicing.objects.server.Test.UnknownDerivedException;
-import test.Ice.slicing.objects.server.Test._TestIntfDisp;
+import test.Ice.slicing.objects.server.Test.*;
 
 public final class TestI extends _TestIntfDisp
 {
-    public
-    TestI()
+    private static void
+    test(boolean b)
     {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
     }
 
     public void
@@ -79,6 +64,15 @@ public final class TestI extends _TestIntfDisp
 
     public SBase
     SBSUnknownDerivedAsSBase(Ice.Current current)
+    {
+        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        sbsud.sb = "SBSUnknownDerived.sb";
+        sbsud.sbsud = "SBSUnknownDerived.sbsud";
+        return sbsud;
+    }
+
+    public SBase
+    SBSUnknownDerivedAsSBaseCompact(Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
         sbsud.sb = "SBSUnknownDerived.sb";
@@ -254,10 +248,10 @@ public final class TestI extends _TestIntfDisp
         return p1;
     }
 
-    public SS
+    public SS3
     sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
-        SS ss = new SS();
+        SS3 ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
         return ss;
@@ -290,6 +284,115 @@ public final class TestI extends _TestIntfDisp
             r.put(i * 20, d1);
         }
         return r;
+    }
+
+    public PBase
+    exchangePBase(PBase pb, Ice.Current current)
+    {
+        return pb;
+    }
+
+    public Preserved
+    PBSUnknownAsPreserved(Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        r.graph = null;
+        return r;
+    }
+
+    public void
+    checkPBSUnknown(Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = (PSUnknown)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.psu.equals("unknown"));
+            test(pu.graph == null);
+        }
+    }
+
+    public void
+    PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb, Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        r.graph = new PNode();
+        r.graph.next = new PNode();
+        r.graph.next.next = new PNode();
+        r.graph.next.next.next = r.graph;
+        cb.ice_response(r);
+        r.graph.next.next.next = null; // Break the cycle.
+    }
+
+    public void
+    checkPBSUnknownWithGraph(Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = (PSUnknown)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.psu.equals("unknown"));
+            test(pu.graph != pu.graph.next);
+            test(pu.graph.next != pu.graph.next.next);
+            test(pu.graph.next.next.next == pu.graph);
+            pu.graph.next.next.next = null;          // Break the cycle.
+        }
+    }
+
+    public void
+    PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb, Ice.Current current)
+    {
+        PSUnknown2 r = new PSUnknown2();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.pb = r;
+        cb.ice_response(r);
+        r.pb = null; // Break the cycle.
+    }
+
+    public void
+    checkPBSUnknown2WithGraph(Preserved p, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p instanceof PSUnknown2));
+            test(p.pi == 5);
+            test(p.ps.equals("preserved"));
+        }
+        else
+        {
+            PSUnknown2 pu = (PSUnknown2)p;
+            test(pu.pi == 5);
+            test(pu.ps.equals("preserved"));
+            test(pu.pb == pu);
+            pu.pb = null;          // Break the cycle.
+        }
+    }
+
+    public PNode
+    exchangePNode(PNode pn, Ice.Current current)
+    {
+        return pn;
     }
 
     public void
@@ -356,6 +459,18 @@ public final class TestI extends _TestIntfDisp
         ude.sude = "sude";
         ude.pd2 = d2;
         throw ude;
+    }
+
+    public void
+    throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
+    {
+        PSUnknownException ue = new PSUnknownException();
+        ue.p = new PSUnknown2();
+        ue.p.pi = 5;
+        ue.p.ps = "preserved";
+        ue.p.pb = ue.p;
+        cb.ice_exception(ue);
+        ue.p.pb = null; // Break the cycle.
     }
 
     public void

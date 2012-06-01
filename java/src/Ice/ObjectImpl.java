@@ -352,70 +352,41 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         assert(false);
         throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
     }
-    
+
     public DispatchStatus
     __collocDispatch(IceInternal.Direct request)
     {
         return request.run(this);
     }
-    
 
     public void
     __write(IceInternal.BasicStream __os)
     {
-        __os.writeTypeId(ice_staticId());
-        __os.startWriteSlice();
-        __os.writeSize(0); // For compatibility with the old AFM.
-        __os.endWriteSlice();
     }
 
     public void
-    __read(IceInternal.BasicStream __is, boolean __rid)
+    __writeImpl(IceInternal.BasicStream __os)
     {
-        if(__rid)
-        {
-            __is.readTypeId();
-        }
+    }
 
-        __is.startReadSlice();
+    public void
+    __read(IceInternal.BasicStream __is)
+    {
+    }
 
-        // For compatibility with the old AFM.
-        int sz = __is.readSize();
-        if(sz != 0)
-        {
-            throw new MarshalException();
-        }
-
-        __is.endReadSlice();
+    public void
+    __readImpl(IceInternal.BasicStream __is)
+    {
     }
 
     public void
     __write(Ice.OutputStream __outS)
     {
-        __outS.writeTypeId(ice_staticId());
-        __outS.startSlice();
-        __outS.writeSize(0); // For compatibility with the old AFM.
-        __outS.endSlice();
     }
 
     public void
-    __read(Ice.InputStream __inS, boolean __rid)
+    __read(Ice.InputStream __inS)
     {
-        if(__rid)
-        {
-            __inS.readTypeId();
-        }
-
-        __inS.startSlice();
-
-        // For compatibility with the old AFM.
-        int sz = __inS.readSize();
-        if(sz != 0)
-        {
-            throw new MarshalException();
-        }
-
-        __inS.endSlice();
     }
 
     private static String
@@ -443,11 +414,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         if(expected != received)
         {
-            if(expected == Ice.OperationMode.Idempotent 
+            if(expected == Ice.OperationMode.Idempotent
                && received == Ice.OperationMode.Nonmutating)
             {
                 //
-                // Fine: typically an old client still using the 
+                // Fine: typically an old client still using the
                 // deprecated nonmutating keyword
                 //
             }

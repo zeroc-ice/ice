@@ -9,25 +9,7 @@
 
 package test.Ice.slicing.exceptions;
 
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_baseAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownDerivedAsKnownDerived;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownIntermediateAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownIntermediateAsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_knownMostDerivedAsKnownMostDerived;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownDerivedAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownIntermediateAsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived1AsBase;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived1AsKnownIntermediate;
-import test.Ice.slicing.exceptions.Test.Callback_TestIntf_unknownMostDerived2AsBase;
-import test.Ice.slicing.exceptions.Test.Base;
-import test.Ice.slicing.exceptions.Test.KnownDerived;
-import test.Ice.slicing.exceptions.Test.KnownIntermediate;
-import test.Ice.slicing.exceptions.Test.KnownMostDerived;
-import test.Ice.slicing.exceptions.Test.TestIntfPrx;
-import test.Ice.slicing.exceptions.Test.TestIntfPrxHelper;
+import test.Ice.slicing.exceptions.client.Test.*;
 
 public class AllTests
 {
@@ -641,6 +623,53 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
+    private static class RelayI extends _RelayDisp
+    {
+        public void knownPreservedAsBase(Ice.Current current)
+            throws Base
+        {
+            KnownPreservedDerived ex = new KnownPreservedDerived();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            throw ex;
+        }
+
+        public void knownPreservedAsKnownPreserved(Ice.Current current)
+            throws KnownPreserved
+        {
+            KnownPreservedDerived ex = new KnownPreservedDerived();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            throw ex;
+        }
+
+        public void unknownPreservedAsBase(Ice.Current current)
+            throws Base
+        {
+            Preserved2 ex = new Preserved2();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            ex.p1 = new PreservedClass("bc", "pc");
+            ex.p2 = ex.p1;
+            throw ex;
+        }
+
+        public void unknownPreservedAsKnownPreserved(Ice.Current current)
+            throws KnownPreserved
+        {
+            Preserved2 ex = new Preserved2();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            ex.p1 = new PreservedClass("bc", "pc");
+            ex.p2 = ex.p1;
+            throw ex;
+        }
+    }
+
     public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated, java.io.PrintWriter out)
     {
@@ -1048,6 +1077,141 @@ public class AllTests
             Callback_TestIntf_unknownMostDerived2AsBaseI cb = new Callback_TestIntf_unknownMostDerived2AsBaseI();
             test.begin_unknownMostDerived2AsBase(cb);
             cb.check();
+        }
+        out.println("ok");
+
+        out.print("unknown most derived in compact format... ");
+        out.flush();
+        {
+            try
+            {
+                test.unknownMostDerived2AsBaseCompact();
+                test(false);
+            }
+            catch(Base ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to Base.
+                //
+                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+            }
+            catch(Ice.MarshalException ex)
+            {
+                //
+                // A MarshalException is raised for the compact format because the
+                // most-derived type is unknown and the exception cannot be sliced.
+                //
+                test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+        }
+        out.println("ok");
+
+        out.print("preserved exceptions... ");
+        out.flush();
+        {
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
+            adapter.activate();
+
+            try
+            {
+                test.relayKnownPreservedAsBase(relay);
+                test(false);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayKnownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayUnknownPreservedAsBase(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+                test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = (PreservedClass)ex.p1;
+                test(pc.bc.equals("bc"));
+                test(pc.pc.equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                test.relayUnknownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+                test(ex.p1.ice_id().equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = (PreservedClass)ex.p1;
+                test(pc.bc.equals("bc"));
+                test(pc.pc.equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
+                test(ex.b.equals("base"));
+                test(ex.kp.equals("preserved"));
+                test(ex.kpd.equals("derived"));
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            adapter.destroy();
         }
         out.println("ok");
 
