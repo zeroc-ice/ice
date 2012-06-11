@@ -128,6 +128,38 @@ TestIntfI::opBoolList(const std::list<bool>& inSeq,
     return inSeq;
 }
 
+::Test::BoolDequeList 
+TestIntfI::opBoolDequeList(const ::Test::BoolDequeList& inSeq, ::Test::BoolDequeList& outSeq, const Ice::Current&)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
+::Test::BoolDequeList 
+TestIntfI::opBoolDequeListArray(const ::std::pair<const std::deque<bool>*, const std::deque<bool>*>& inSeq, 
+                                ::Test::BoolDequeList& outSeq, 
+                                const ::Ice::Current&)
+{
+    for(const std::deque<bool>* p = inSeq.first; p != inSeq.second; ++p)
+    {
+        outSeq.push_back(*p);
+    }
+    return outSeq;
+}
+
+::Test::BoolDequeList 
+TestIntfI::opBoolDequeListRange(const ::std::pair< ::Test::BoolDequeList::const_iterator,
+                                                   ::Test::BoolDequeList::const_iterator>& inSeq,
+                                ::Test::BoolDequeList& outSeq,
+                                const ::Ice::Current&)
+{
+    for(::Test::BoolDequeList::const_iterator p = inSeq.first; p != inSeq.second; ++p)
+    {
+        outSeq.push_back(*p);
+    }
+    return outSeq;
+}
+
 std::deque< ::Ice::Byte>
 TestIntfI::opByteSeq(const std::deque< ::Ice::Byte>& inSeq,
                      std::deque< ::Ice::Byte>& outSeq,

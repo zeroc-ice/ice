@@ -26,11 +26,11 @@ namespace Ex
 {
 
 void
-throwUOE(const string& expectedType, const string& actualType)
+throwUOE(const string& expectedType, const string& type)
 {
     throw Ice::UnexpectedObjectException(__FILE__, __LINE__,
-                                         "expected element of type `" + expectedType + "' but received '" + actualType,
-                                         actualType, expectedType);
+                                         "expected element of type `" + expectedType + "' but received '" +
+                                         type, type, expectedType);
 }
 
 void
@@ -584,6 +584,17 @@ Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: no suitable object factory found for `" << type << "'";
+    if(!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}       
+
+void
+Ice::NoExceptionFactoryException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: no suitable exception factory found for `" << type << "'";
     if(!reason.empty())
     {
         out << ":\n" << reason;

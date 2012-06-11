@@ -35,36 +35,31 @@ const int TypeContextAMICallPrivateEnd = 8;
 const int TypeContextUseWstring = 16;
 
 SLICE_API std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0);
-SLICE_API std::string returnTypeToString(const TypePtr&, const StringList& = StringList(), int = 0);
-SLICE_API std::string inputTypeToString(const TypePtr&, const StringList& = StringList(), int = 0);
-SLICE_API std::string outputTypeToString(const TypePtr&, const StringList& = StringList(), int = 0);
+SLICE_API std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+SLICE_API std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
 SLICE_API std::string operationModeToString(Operation::Mode);
 SLICE_API std::string formatTypeToString(FormatType);
 
 SLICE_API std::string fixKwd(const std::string&);
 
-SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
-                                         const std::string& = "", bool = true, const StringList& = StringList(),
-                                         int = 0);
+SLICE_API void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool, int, const std::string&,
+                                         bool, const StringList& = StringList(), int = 0, const std::string& = "",
+                                         bool = true);
                                              
-SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&, 
-                                const StringList&, int = 0);
-SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&,
-                                  const StringList&, int = 0);
-
-SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&,
-                                 const StringList&, int = 0);
-
-SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool,
-                                               const std::string& = "", const StringList& = StringList(), int = 0);
+SLICE_API void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
+SLICE_API void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
+SLICE_API void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, int = 0);
 
 SLICE_API std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
-SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const TypePtr&, const StringList&);
+SLICE_API void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&);
 
 SLICE_API std::string findMetaData(const SequencePtr&, const StringList&, bool&, int = 0);
 SLICE_API std::string findMetaData(const StringList&, int = 0);
 SLICE_API bool inWstringModule(const SequencePtr&);
 
+SLICE_API std::string getDataMemberRef(const DataMemberPtr&);
 }
 
 #endif

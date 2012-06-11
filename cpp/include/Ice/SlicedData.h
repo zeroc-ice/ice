@@ -36,6 +36,11 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
     // The Ice objects referenced by this slice.
     //
     ::std::vector<ObjectPtr> objects;
+
+    //
+    // Whether or not the slice contains optional members.
+    //
+    bool hasOptionalMembers;
 };
 
 //

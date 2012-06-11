@@ -450,3 +450,37 @@ IceUtil::FileLockException::error() const
 {
     return _error;
 }
+
+IceUtil::OptionalNotSetException::OptionalNotSetException(const char* file, int line) :
+    Exception(file, line)
+{
+    if(IceUtilInternal::nullHandleAbort)
+    {
+        abort();
+    }
+}
+
+IceUtil::OptionalNotSetException::~OptionalNotSetException() throw()
+{
+}
+
+const char* IceUtil::OptionalNotSetException::_name = "IceUtil::OptionalNotSetException";
+
+string
+IceUtil::OptionalNotSetException::ice_name() const
+{
+    return _name;
+}
+
+IceUtil::Exception*
+IceUtil::OptionalNotSetException::ice_clone() const
+{
+    return new OptionalNotSetException(*this);
+}
+
+void
+IceUtil::OptionalNotSetException::ice_throw() const
+{
+    throw *this;
+}
+

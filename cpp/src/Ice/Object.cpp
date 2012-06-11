@@ -20,7 +20,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* Ice::upCast(Object* p) { return p; }
+Object* Ice::upCast(Object* p) { return p; }
+
+void 
+Ice::__patch(ObjectPtr& obj, ObjectPtr& v)
+{
+    obj = v;
+}
 
 bool
 Ice::Object::operator==(const Object& r) const
@@ -240,13 +246,6 @@ DispatchStatus
 Ice::Object::__collocDispatch(IceInternal::Direct& request)
 {
     return request.run(this);
-}
-
-void
-Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
-{
-    ObjectPtr* p = static_cast<ObjectPtr*>(__addr);
-    *p = v;
 }
 
 namespace

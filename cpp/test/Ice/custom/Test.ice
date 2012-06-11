@@ -21,6 +21,8 @@ sequence<bool> BoolSeq;
 sequence<BoolList> BoolListSeq;
 ["cpp:type:std::list< ::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
 
+["cpp:type:std::list<std::deque<bool> >"] sequence<["cpp:type:std::deque<bool>"] BoolSeq> BoolDequeList;
+
 sequence<byte> ByteSeq;
 ["cpp:type:std::list< ::Ice::Byte>"] sequence<byte> ByteList;
 
@@ -138,6 +140,12 @@ sequence<ClassStruct> ClassStructSeq;
     opBoolSeq(["cpp:type:std::deque<bool>"] BoolSeq inSeq, out ["cpp:type:std::deque<bool>"]BoolSeq outSeq);
 
     BoolList opBoolList(BoolList inSeq, out BoolList outSeq);
+
+    BoolDequeList opBoolDequeList(BoolDequeList inSeq, out BoolDequeList outSeq);
+    ["cpp:array"] BoolDequeList opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq,
+                                                out ["cpp:array"] BoolDequeList outSeq);
+    ["cpp:range"] BoolDequeList opBoolDequeListRange(["cpp:range"] BoolDequeList inSeq,
+                                                out ["cpp:range"] BoolDequeList outSeq);
 
     ["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq 
     opByteSeq(["cpp:type:std::deque< ::Ice::Byte>"] ByteSeq inSeq, 

@@ -157,7 +157,7 @@ struct ConstDef
     std::string valueAsLiteral;
 };
 
-struct DataMemberDef
+struct OptionalDef
 {
     TypePtr type;
     std::string name;
@@ -588,9 +588,11 @@ public:
     };
 
     TypePtr returnType() const;
+    bool returnIsOptional() const;
+    int returnTag() const;
     Mode mode() const;
     Mode sendMode() const;
-    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
+    ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool, bool, int);
     ParamDeclList parameters() const;
     ExceptionList throws() const;
     void setExceptionList(const ExceptionList&);
@@ -606,10 +608,12 @@ public:
 
 protected:
 
-    Operation(const ContainerPtr&, const std::string&, const TypePtr&, Mode);
+    Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
     friend class ClassDef;
 
     TypePtr _returnType;
+    bool _returnIsOptional;
+    int _returnTag;
     ExceptionList _throws;
     Mode _mode;
 };
@@ -630,7 +634,7 @@ class SLICE_API ClassDef : virtual public Container, virtual public Contained
 public:
 
     virtual void destroy();
-    OperationPtr createOperation(const std::string&, const TypePtr&, Operation::Mode = Operation::Normal);
+    OperationPtr createOperation(const std::string&, const TypePtr&, bool, int, Operation::Mode = Operation::Normal);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
     ClassDeclPtr declaration() const;
@@ -639,6 +643,7 @@ public:
     OperationList operations() const;
     OperationList allOperations() const;
     DataMemberList dataMembers() const;
+    DataMemberList orderedOptionalDataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
@@ -705,6 +710,7 @@ public:
     DataMemberPtr createDataMember(const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
                                    const std::string&, const std::string&);
     DataMemberList dataMembers() const;
+    DataMemberList orderedOptionalDataMembers() const;
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
@@ -911,6 +917,8 @@ public:
 
     TypePtr type() const;
     bool isOutParam() const;
+    bool optional() const;
+    int tag() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -918,11 +926,13 @@ public:
 
 protected:
 
-    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool isOutParam);
+    ParamDecl(const ContainerPtr&, const std::string&, const TypePtr&, bool, bool, int);
     friend class Operation;
 
     TypePtr _type;
     bool _isOutParam;
+    bool _optional;
+    int _tag;
 };
 
 // ----------------------------------------------------------------------

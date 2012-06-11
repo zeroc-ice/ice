@@ -840,6 +840,24 @@ local exception NoObjectFactoryException extends MarshalException
 
 /**
  *
+ * This exception is raised if no suitable exception factory was found during
+ * unmarshaling of a Slice exception instance.
+ *
+ **/
+["cpp:ice_print"]
+local exception NoExceptionFactoryException extends MarshalException
+{
+    /**
+     *
+     * The Slice type ID of the exception instance for which no
+     * no factory could be found.
+     *
+     **/
+    string type;
+};
+
+/**
+ *
  * This exception is raised if the type of an unmarshaled Slice class instance does
  * not match its expected type.
  * This can happen if client and server are compiled with mismatched Slice

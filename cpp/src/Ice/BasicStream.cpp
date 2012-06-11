@@ -154,18 +154,40 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(_closure, other._closure);
 
     //
-    // Swap is never called for BasicStreams that have encapsulations being read/write.
+    // Swap is never called for BasicStreams that have encapsulations being read/write. However,
+    // encapsulations might still be set in case marhsalling or un-marhsalling failed. We just
+    // reset the encapsulations if there are still some set.
     //
-    assert(!_currentReadEncaps);
-    assert(!_currentWriteEncaps);
-    assert(!other._currentReadEncaps);
-    assert(!other._currentWriteEncaps);
+    resetEncaps();
+    other.resetEncaps();
 
     std::swap(_unlimited, other._unlimited);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
     std::swap(_format, other._format);
 }
+
+void
+IceInternal::BasicStream::resetEncaps()
+{
+    while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
+    {
+        ReadEncaps* oldEncaps = _currentReadEncaps;
+        _currentReadEncaps = _currentReadEncaps->previous;
+        delete oldEncaps;
+    }
+
+    while(_currentWriteEncaps && _currentWriteEncaps != &_preAllocatedWriteEncaps)
+    {
+        WriteEncaps* oldEncaps = _currentWriteEncaps;
+        _currentWriteEncaps = _currentWriteEncaps->previous;
+        delete oldEncaps;
+    }
+
+    _preAllocatedReadEncaps.reset();
+    _preAllocatedWriteEncaps.reset();
+}
+
 
 void
 IceInternal::BasicStream::format(Ice::FormatType format)
@@ -242,14 +264,14 @@ IceInternal::BasicStream::skipEncaps()
     return encoding;
 }
 
-void
-IceInternal::BasicStream::readAndCheckSeqSize(int minSize, Int& sz)
+Int
+IceInternal::BasicStream::readAndCheckSeqSize(int minSize)
 {
-    readSize(sz);
+    Int sz = readSize();
 
     if(sz == 0)
     {
-        return;
+        return sz;
     }
 
     //
@@ -288,6 +310,8 @@ IceInternal::BasicStream::readAndCheckSeqSize(int minSize, Int& sz)
     {
         throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+    
+    return sz;
 }
 
 void
@@ -319,15 +343,6 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
     }
 }
 
-void IceInternal::BasicStream::write(Byte v, int end)
-{
-    if(v >= end)
-    {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
-    }
-    write(v);
-}
-
 void
 IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
 {
@@ -342,20 +357,25 @@ IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
 }
 
 void
-IceInternal::BasicStream::read(Byte& b, int end)
+IceInternal::BasicStream::read(std::vector<Ice::Byte>& v)
 {
-    read(b);
-    if(b >= end)
+    std::pair<const Ice::Byte*, const Ice::Byte*> p;
+    read(p);
+    if(p.first != p.second)
     {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
+        v.resize(static_cast<Ice::Int>(p.second - p.first));
+        copy(p.first, p.second, v.begin());
+    }
+    else
+    {
+        v.clear();
     }
 }
 
 void
 IceInternal::BasicStream::read(pair<const Byte*, const Byte*>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(1, sz);
+    Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.first = i;
@@ -423,8 +443,7 @@ IceInternal::BasicStream::write(const bool* begin, const bool* end)
 void
 IceInternal::BasicStream::read(vector<bool>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(1, sz);
+    Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.resize(sz);
@@ -473,8 +492,7 @@ bool*
 IceInternal::BasicStream::read(pair<const bool*, const bool*>& v)
 {
     bool* result = 0;
-    Int sz;
-    readAndCheckSeqSize(1, sz);
+    Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         result = BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i);
@@ -502,16 +520,6 @@ IceInternal::BasicStream::write(Short v)
     *dest++ = *src++;
     *dest = *src;
 #endif
-}
-
-void
-IceInternal::BasicStream::write(Short v, int end)
-{
-    if(v < 0 || v >= end)
-    {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
-    }
-    write(v);
 }
 
 void
@@ -559,20 +567,9 @@ IceInternal::BasicStream::read(Short& v)
 }
 
 void
-IceInternal::BasicStream::read(Short& v, int end)
-{
-    read(v);
-    if(v < 0 || v >= end)
-    {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
-    }
-}
-
-void
 IceInternal::BasicStream::read(vector<Short>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Short)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -601,8 +598,7 @@ Short*
 IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
 {
     Short* result = 0;
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Short)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Short)));
     if(sz > 0)
     {
 #if defined(__i386) || defined(_M_IX86)
@@ -638,26 +634,6 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
 }
 
 void
-IceInternal::BasicStream::read(Int& v, int end)
-{
-    read(v);
-    if(v < 0 || v >= end)
-    {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
-    }
-}
-
-void
-IceInternal::BasicStream::write(Int v, int end)
-{
-    if(v < 0 || v >= end)
-    {
-        throw MarshalException(__FILE__, __LINE__, "enumerator out of range");
-    }
-    write(v);
-}
-
-void
 IceInternal::BasicStream::write(const Int* begin, const Int* end)
 {
     Int sz = static_cast<Int>(end - begin);
@@ -686,8 +662,7 @@ IceInternal::BasicStream::write(const Int* begin, const Int* end)
 void
 IceInternal::BasicStream::read(vector<Int>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Int)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -718,8 +693,7 @@ Int*
 IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
 {
     Int* result = 0;
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Int)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Int)));
     if(sz > 0)
     {
 #if defined(__i386) || defined(_M_IX86)
@@ -850,8 +824,7 @@ IceInternal::BasicStream::read(Long& v)
 void
 IceInternal::BasicStream::read(vector<Long>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Long)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -886,8 +859,7 @@ Long*
 IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
 {
     Long* result = 0;
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Long)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Long)));
     if(sz > 0)
     {
 #if defined(__i386) || defined(_M_IX86)
@@ -1002,8 +974,7 @@ IceInternal::BasicStream::read(Float& v)
 void
 IceInternal::BasicStream::read(vector<Float>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Float)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -1034,8 +1005,7 @@ Float*
 IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
 {
     Float* result = 0;
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Float)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Float)));
     if(sz > 0)
     {
 #if defined(__i386) || defined(_M_IX86)
@@ -1203,8 +1173,7 @@ IceInternal::BasicStream::read(Double& v)
 void
 IceInternal::BasicStream::read(vector<Double>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Double)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
         Container::iterator begin = i;
@@ -1254,8 +1223,7 @@ Double*
 IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
 {
     Double* result = 0;
-    Int sz;
-    readAndCheckSeqSize(static_cast<int>(sizeof(Double)), sz);
+    Int sz = readAndCheckSeqSize(static_cast<int>(sizeof(Double)));
     if(sz > 0)
     {
 #if defined(__i386) || defined(_M_IX86)
@@ -1407,8 +1375,7 @@ IceInternal::BasicStream::readConverted(string& v, int sz)
 void
 IceInternal::BasicStream::read(vector<string>& v, bool convert)
 {
-    Int sz;
-    readAndCheckSeqSize(1, sz);
+    Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.resize(sz);
@@ -1504,8 +1471,7 @@ IceInternal::BasicStream::write(const wstring* begin, const wstring* end)
 void
 IceInternal::BasicStream::read(wstring& v)
 {
-    Int sz;
-    readSize(sz);
+    Int sz = readSize();
     if(sz > 0)
     {
         if(b.end() - i < sz)
@@ -1525,8 +1491,7 @@ IceInternal::BasicStream::read(wstring& v)
 void
 IceInternal::BasicStream::read(vector<wstring>& v)
 {
-    Int sz;
-    readAndCheckSeqSize(1, sz);
+    Int sz = readAndCheckSeqSize(1);
     if(sz > 0)
     {
         v.resize(sz);
@@ -1553,10 +1518,207 @@ IceInternal::BasicStream::read(ObjectPrx& v)
     v = _instance->proxyFactory()->streamToProxy(this);
 }
 
+Int
+IceInternal::BasicStream::readEnum(Int limit)
+{
+    if(getReadEncoding() == Encoding_1_0)
+    {
+        if(limit <= 127)
+        {
+            Byte value;
+            read(value);
+            return value;
+        }
+        else if(limit <= 32767)
+        {
+            Short value;
+            read(value);
+            return value;
+        }
+        else 
+        {
+            Int value;
+            read(value);
+            return value;
+        }
+    }
+    else
+    {
+        return readSize();
+    }
+}
+
+void 
+IceInternal::BasicStream::writeEnum(Int v, Int limit)
+{
+    if(getWriteEncoding() == Encoding_1_0)
+    {
+        if(limit <= 127)
+        {
+            write(static_cast<Byte>(v));
+        }
+        else if(limit <= 32767)
+        {
+            write(static_cast<Short>(v));
+        }
+        else 
+        {
+            write(v);
+        }
+    }
+    else
+    {
+        writeSize(v);
+    }
+}
+
 void
 IceInternal::BasicStream::sliceObjects(bool doSlice)
 {
     _sliceObjects = doSlice;
+}
+
+
+bool
+IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
+{
+    Int tag = 0;
+    OptionalType type;
+    do
+    {
+        if(i >= b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
+        {
+            return false; // End of encapsulation also indicates end of optionals.
+        }
+
+        Byte v;
+        read(v);
+        type = static_cast<OptionalType>(v & 0x07); // First 3 bits.
+        tag = static_cast<Int>(v >> 3);
+        if(tag == 31)
+        {
+            tag = readSize();
+        }
+    }
+    while(type != OptionalTypeEndMarker && tag < readTag && skipOpt(type)); // Skip optional data members
+    
+    if(type == OptionalTypeEndMarker || tag > readTag)
+    {
+        //
+        // Rewind the stream to correctly read the next optional data
+        // member tag & type next time.
+        //
+        i -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
+        return false; // No optional data members with the requested tag.
+    } 
+    
+    assert(readTag == tag);
+    if(type != expectedType)
+    {
+        ostringstream os;
+        os << "invalid optional data member `" << tag << "': unexpected type";
+        throw MarshalException(__FILE__, __LINE__, os.str());
+    }
+
+    //
+    // We have an optional data member with the requested tag and
+    // type.
+    // 
+    return true;
+}
+
+void
+IceInternal::BasicStream::writeOptImpl(Int tag, OptionalType type)
+{
+    Byte v = static_cast<Byte>(type);
+    if(tag < 31)
+    {
+        v |= tag << 3;
+        write(v);
+    }
+    else
+    {
+        v |= 0x0F8; // tag = 31
+        write(v);
+        writeSize(tag);
+    }
+}
+
+bool
+IceInternal::BasicStream::skipOpt(OptionalType type)
+{
+    int sz;
+    switch(type)
+    {
+    case Ice::OptionalTypeF1:
+    {
+        sz = 1;
+        break;
+    }
+    case Ice::OptionalTypeF2:
+    {
+        sz = 2;
+        break;
+    }
+    case Ice::OptionalTypeF4:
+    {
+        sz = 4;
+        break;
+    }
+    case Ice::OptionalTypeF8:
+    {
+        sz = 8;
+        break;
+    }
+    case Ice::OptionalTypeSize:
+    {
+        skipSize();
+        return true;
+    }
+    case Ice::OptionalTypeVSize:
+    {
+        sz = readSize();
+        break;
+    }
+    case Ice::OptionalTypeFSize:
+    {
+        read(sz);
+        break;
+    }
+    default:
+    {
+        return false;
+    }
+    }
+    skip(sz);
+    return true;
+}
+
+bool
+BasicStream::skipOpts()
+{
+    //
+    // Skip remaining un-read optional members.
+    // 
+    OptionalType type;
+    do
+    {
+        if(i >= b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
+        {
+            return false; // End of encapsulation also indicates end of optionals.
+        }
+
+        Byte v;
+        read(v);
+        type = static_cast<OptionalType>(v & 0x07); // Read first 3 bits.
+        if(static_cast<Int>(v >> 3) == 31)
+        {
+            skipSize();
+        }
+    }
+    while(skipOpt(type));
+    assert(type == OptionalTypeEndMarker);
+    return true;
 }
 
 void
@@ -1577,6 +1739,7 @@ IceInternal::BasicStream::initReadEncaps()
     if(!_currentReadEncaps) // Lazy initialization.
     {
         _currentReadEncaps = &_preAllocatedReadEncaps;
+        _currentReadEncaps->sz = b.size();
     }
 
     if(!_currentReadEncaps->decoder) // Lazy initialization.
@@ -1812,7 +1975,7 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     //
     if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
-        _stream->write(static_cast<Byte>(MemberTypeEndMarker));
+        _stream->write(static_cast<Byte>(OptionalTypeEndMarker));
     }
 
     //
@@ -1861,30 +2024,12 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
 }
 
 void
-IceInternal::BasicStream::EncapsEncoder::writeOpt(int tag, MemberType type)
-{
-    assert(_sliceType != NoSlice);
-    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
-    Byte v = static_cast<Byte>(type);
-    if(tag < 31)
-    {
-        v |= tag << 3;
-    }
-    else
-    {
-        v |= 0x0F8; // tag = 31
-        _stream->writeSize(tag);
-    }
-}
-
-void
 IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
 {
     //
-    // With the 1.0 encoding, only write pending objects if nil or
-    // non-nil references were written (_usesClasses =
-    // true). Otherwise, write pending objects only if some non-nil
-    // references were written.
+    // With the 1.0 encoding, write pending objects if nil or non-nil
+    // references were written (_usesClasses = true). Otherwise, write
+    // pending objects only if some non-nil references were written.
     //
     if(_encaps->encoding == Encoding_1_0)
     {
@@ -1897,6 +2042,14 @@ IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
     else if(_toBeMarshaledMap.empty())
     {
         return;
+    }
+    else 
+    {
+        //
+        // Write end marker for encapsulation optionals before encoding 
+        // the pending objects.
+        //
+        _stream->write(static_cast<Byte>(OptionalTypeEndMarker));
     }
 
     while(!_toBeMarshaledMap.empty())
@@ -1973,6 +2126,11 @@ IceInternal::BasicStream::EncapsEncoder::writeSlicedData(const SlicedDataPtr& sl
         //
         _stream->writeBlob((*p)->bytes);
         
+        if((*p)->hasOptionalMembers)
+        {
+            _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+        }
+
         //
         // Assemble and write the indirection table. The table must have the same order
         // as the list of objects.
@@ -2041,7 +2199,7 @@ IceInternal::BasicStream::EncapsDecoder::read(PatchFunc patchFunc, void* patchAd
         //
         // Later versions use a size.
         //
-        _stream->readSize(index);
+        index = _stream->readSize();
         if(index < 0)
         {
             throw MarshalException(__FILE__, __LINE__, "invalid object id");
@@ -2141,8 +2299,8 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
         }
 
         //
-        // Performance sensitive, so we use lazy initialization
-        // for tracing.
+        // Performance sensitive, so we use lazy initialization for
+        // tracing.
         //
         if(_traceSlicing == -1)
         {
@@ -2156,8 +2314,7 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
 
         if(_sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            // TODO: Consider adding a new exception, such as NoExceptionFactory?
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__, "unknown exception type `" + mostDerivedId + "'");
+            throw NoExceptionFactoryException(__FILE__, __LINE__, "", "unknown exception type `" + mostDerivedId + "'");
         }
 
         skipSlice(); // Slice off what we don't understand.
@@ -2203,8 +2360,7 @@ IceInternal::BasicStream::EncapsDecoder::endObject(bool preserve)
         //
         // For compatibility with the old AFM.
         //
-        Int sz;
-        _stream->readSize(sz);
+        Int sz = _stream->readSize();
         if(sz != 0)
         {
             throw MarshalException(__FILE__, __LINE__, "invalid Object slice");
@@ -2287,8 +2443,7 @@ IceInternal::BasicStream::EncapsDecoder::startSlice()
     {
         if(_sliceFlags & FLAG_HAS_TYPE_ID_INDEX)
         {
-            Int index;
-            _stream->readSize(index);
+            Int index = _stream->readSize();
             TypeIdReadMap::const_iterator k = _typeIdMap.find(index);
             if(k == _typeIdMap.end())
             {
@@ -2341,15 +2496,7 @@ IceInternal::BasicStream::EncapsDecoder::endSlice()
 {
     if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
-        //
-        // Read remaining un-read optional members.
-        // 
-        Byte v;
-        do
-        {
-            _stream->read(v);
-        }
-        while(skipOpt(static_cast<MemberType>(v & 0x07)));
+        _stream->skipOpts();
     }
 
     //
@@ -2365,13 +2512,15 @@ IceInternal::BasicStream::EncapsDecoder::endSlice()
         _stream->readSizeSeq(indirectionTable);
 
         //
-        // Sanity checks.
+        // Sanity checks. If there are optional members, it's possible
+        // that not all object references were read if they are from
+        // unknown optional data members.
         //
         if(indirectionTable.empty() && !_indirectPatchList.empty())
         {
             throw MarshalException(__FILE__, __LINE__, "empty indirection table");
         }
-        else if(!indirectionTable.empty() && _indirectPatchList.empty())
+        else if(!indirectionTable.empty() && _indirectPatchList.empty() && !(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS))
         {
             throw MarshalException(__FILE__, __LINE__, "no references to indirection table");
         }
@@ -2399,73 +2548,13 @@ IceInternal::BasicStream::EncapsDecoder::endSlice()
     }
 }            
 
-bool
-IceInternal::BasicStream::EncapsDecoder::readOpt(int readTag, MemberType expectedType)
-{
-    assert(_sliceType != NoSlice);
-    if(!(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS))
-    {
-        return false; // No optional data members
-    }
-
-    int tag;
-    MemberType type;
-    do
-    {
-        Byte v;
-        _stream->read(v);
-        
-        type = static_cast<MemberType>(v & 0x07); // Read first 3 bits.
-        tag = static_cast<int>(v >> 3);
-        if(tag == 31)
-        {
-            _stream->readSize(tag);
-        }
-    } 
-    while(tag < readTag && skipOpt(type)); // Skip optional data members with lower tag values.
-    
-    if(type == MemberTypeEndMarker)
-    {
-        //
-        // Clear the optional members flag since we've reach the end. We clear
-        // the flag to prevent endSlice to skip un-read optional members and
-        // to prevent other optional members from being read.
-        //
-        _sliceFlags &= ~FLAG_HAS_OPTIONAL_MEMBERS; 
-        return false;
-    } 
-    else if(tag > readTag)
-    {
-        //
-        // Rewind the stream so that we correctly read the next
-        // optional data member tag & type.
-        //
-        _stream->i -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
-        return false; // No optional data members with the requested tag.
-    }
-    
-    assert(readTag == tag);
-    if(type != expectedType)
-    {
-        ostringstream os;
-        os << "invalid optional data member `" << tag << "' in `" << _typeId << "': unexpected type";
-        throw MarshalException(__FILE__, __LINE__, os.str());
-    }
-
-    //
-    // We have an optional data member with the requested tag and
-    // type.
-    // 
-    return true;
-}
-
 void
 IceInternal::BasicStream::EncapsDecoder::readPendingObjects()
 {
     //
-    // With the 1.0 encoding, only read pending objects if nil or
-    // non-nil references were read (_usesClasses == true). Otherwise,
-    // read pending objects only if some non-nil references were read.
+    // With the 1.0 encoding, read pending objects if nil or non-nil
+    // references were read (_usesClasses == true). Otherwise, read
+    // pending objects only if some non-nil references were read.
     //
     if(_encaps->encoding == Encoding_1_0)
     {        
@@ -2479,12 +2568,20 @@ IceInternal::BasicStream::EncapsDecoder::readPendingObjects()
     {
         return;
     }
+    else
+    {
+        //
+        // Read unread encapsulation optionals before reading the
+        // pending objects.
+        //
+        _stream->skipOpts();
+    }
 
     Int num;
     ObjectList objectList;
     do
     {
-        _stream->readSize(num);
+        num = _stream->readSize();
         for(Int k = num; k > 0; --k)
         {
             objectList.push_back(readInstance());
@@ -2536,7 +2633,7 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
     }
     else
     {
-        _stream->readSize(index);
+        index = _stream->readSize();
     }
 
     ObjectPtr v;
@@ -2727,11 +2824,7 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
     if(_sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
         assert(_sliceSize >= 4);
-        _stream->i += _sliceSize - sizeof(Int);
-        if(_stream->i > _stream->b.end())
-        {
-            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-        }
+        _stream->skip(_sliceSize - sizeof(Int));
     }
     else
     {
@@ -2745,7 +2838,17 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
         //
         SliceInfoPtr info = new SliceInfo;
         info->typeId = _typeId;
-        vector<Byte>(start, _stream->i).swap(info->bytes);
+        info->hasOptionalMembers = _sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
+        if(info->hasOptionalMembers)
+        {
+            // Don't include the optional member end marker. It will be re-written by
+            // endSlice when the sliced data is re-written.
+            vector<Byte>(start, _stream->i - 1).swap(info->bytes);
+        }
+        else
+        {
+            vector<Byte>(start, _stream->i).swap(info->bytes);
+        }
         _slices.push_back(info);
 
         _indirectionTables.push_back(IndexList());
@@ -2796,7 +2899,7 @@ IceInternal::BasicStream::EncapsDecoder::readSlicedData()
             {
                 throw MarshalException(__FILE__, __LINE__, "invalid id in object indirection table");
             }
-            addPatchEntry(id, __patch__ObjectPtr, &_slices[n]->objects[j++]);
+            addPatchEntry(id, &patchHandle<Ice::Object>, &_slices[n]->objects[j++]);
         }
     }
 

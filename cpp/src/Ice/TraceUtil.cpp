@@ -100,8 +100,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
         }
     }
 
-    Int sz;
-    stream.readSize(sz);
+    Int sz = stream.readSize();
     s << "\ncontext = ";
     while(sz--)
     {

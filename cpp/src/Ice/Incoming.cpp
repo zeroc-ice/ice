@@ -528,8 +528,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     _is->read(b);
     _current.mode = static_cast<OperationMode>(b);
 
-    Int sz;
-    _is->readSize(sz);
+    Int sz = _is->readSize();
     while(sz--)
     {
         pair<const string, string> pr;

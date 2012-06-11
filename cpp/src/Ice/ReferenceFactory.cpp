@@ -583,8 +583,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     vector<EndpointIPtr> endpoints;
     string adapterId;
 
-    Ice::Int sz;
-    s->readSize(sz);
+    Ice::Int sz = s->readSize();
     
     if(sz > 0)
     {

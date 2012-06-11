@@ -18,6 +18,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
 #include <Ice/UserExceptionFactory.h>
+#include <Ice/StreamTraits.h>
 
 namespace Ice
 {
@@ -37,25 +38,18 @@ typedef IceUtil::Handle<WstringConverter> WstringConverterPtr;
 namespace IceInternal
 {
 
-//
-// Optional data member type.
-//
-enum MemberType
+template<typename T> inline void 
+patchHandle(void* addr, Ice::ObjectPtr& v)
 {
-    MemberTypeF1 = 0,
-    MemberTypeF2 = 1,
-    MemberTypeF4 = 2,
-    MemberTypeF8 = 3,
-    MemberTypeVSize = 4,
-    MemberTypeFSize = 5,
-    MemberTypeReserved = 6,
-    MemberTypeEndMarker = 7
-};
+    IceInternal::Handle<T>* p = static_cast<IceInternal::Handle<T>*>(addr);
+    __patch(*p, v); // Generated __patch method, necessary for forward declarations.
+}
 
 class ICE_API BasicStream : public Buffer
 {
 public:
 
+    typedef size_t size_type;
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
     BasicStream(Instance*, const Ice::EncodingVersion&, bool = false);
@@ -81,6 +75,7 @@ public:
     void* closure(void*);
 
     void swap(BasicStream&);
+    void resetEncaps();
 
     void resize(Container::size_type sz)
     {
@@ -172,23 +167,9 @@ public:
             _currentWriteEncaps->encoder->writePendingObjects();
         }
 
-        Container::size_type start = _currentWriteEncaps->start;
-        Ice::Int sz = static_cast<Ice::Int>(b.size() - start); // Size includes size and version.
-        Ice::Byte* dest = &(*(b.begin() + start));
-
-#ifdef ICE_BIG_ENDIAN
-        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz) + sizeof(Ice::Int) - 1;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest++ = *src--;
-        *dest = *src;
-#else
-        const Ice::Byte* src = reinterpret_cast<const Ice::Byte*>(&sz);
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest++ = *src++;
-        *dest = *src;
-#endif
+        // Size includes size and version.
+        const Ice::Int sz = static_cast<Ice::Int>(b.size() - _currentWriteEncaps->start);
+        write(sz, &(*(b.begin() + _currentWriteEncaps->start)));
 
         WriteEncaps* oldEncaps = _currentWriteEncaps;
         _currentWriteEncaps = _currentWriteEncaps->previous;
@@ -263,6 +244,7 @@ public:
 
         return _currentReadEncaps->encoding;
     }
+
     void endReadEncaps()
     {
         assert(_currentReadEncaps);
@@ -270,13 +252,27 @@ public:
         if(_currentReadEncaps->decoder)
         {
             _currentReadEncaps->decoder->readPendingObjects();
+        } 
+        else if(i < b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz &&
+                _currentReadEncaps->encoding != Ice::Encoding_1_0)
+        {
+            //
+            // Read remaining encapsulation optionals. This returns
+            // true if the optionals end with the end marker. The end
+            // marker indicates that there are more to read from the
+            // encapsuliation: object instances. In this case, don't
+            // bother reading the objects, just skip to the end of the
+            // encapsulation.
+            //
+            if(skipOpts())
+            {
+                i = b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz;
+            }
         }
 
-        Container::size_type start = _currentReadEncaps->start;
-        Ice::Int sz = _currentReadEncaps->sz;
-        if(i != b.begin() + start + sz)
+        if(i != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
         {
-            if(i + 1 != b.begin() + start + sz)
+            if(i + 1 != b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
             {
                 throwEncapsulationException(__FILE__, __LINE__);
             }
@@ -424,34 +420,35 @@ public:
             *dest = static_cast<Ice::Byte>(v);
         }
     }
-    void readSize(Ice::Int& v) // Inlined for performance reasons.
+    Ice::Int readSize() // Inlined for performance reasons.
     {
         Ice::Byte byte;
         read(byte);
-        unsigned val = static_cast<unsigned char>(byte);
+        unsigned char val = static_cast<unsigned char>(byte);
         if(val == 255)
         {
+            Ice::Int v;
             read(v);
             if(v < 0)
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
+            return v;
         }
         else
         {
-            v = static_cast<Ice::Int>(static_cast<unsigned char>(byte));
+            return static_cast<Ice::Int>(static_cast<unsigned char>(byte));
         }
     }
     void readSizeSeq(std::vector<Ice::Int>& v)
     {
-        Ice::Int sz;
-        readSize(sz);
+        Ice::Int sz = readAndCheckSeqSize(1);
         if(sz > 0)
         {
             v.resize(sz);
             for(Ice::Int n = 0; n < sz; ++n)
             {
-                readSize(v[n]);
+                v[n] = readSize();
             }
         }
         else
@@ -460,7 +457,7 @@ public:
         }
     }
 
-    void readAndCheckSeqSize(int, Ice::Int&);
+    Ice::Int readAndCheckSeqSize(int);
 
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
@@ -492,22 +489,94 @@ public:
         }
     }
 
-    void writeOpt(int tag, MemberType type)
+    template<typename T> void write(const T& v)
     {
-        assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
-        _currentWriteEncaps->encoder->writeOpt(tag, type);
+        Ice::StreamHelper<T, Ice::StreamTrait<T>::type>::write(this, v);
     }
-    bool readOpt(int tag, MemberType expectedType)
+    template<typename T> void read(T& v)
     {
-        assert(_currentReadEncaps && _currentReadEncaps->decoder);
-        return _currentReadEncaps->decoder->readOpt(tag, expectedType);
+        Ice::StreamHelper<T, Ice::StreamTrait<T>::type>::read(this, v);
     }
-    
+
+    template<typename T> void write(Ice::Int tag, const IceUtil::Optional<T>& v)
+    {
+        if(v)
+        {
+            writeOpt(tag, Ice::StreamOptionalHelper<T,
+                                                    Ice::StreamTrait<T>::type, 
+                                                    Ice::StreamTrait<T>::optionalType>::optionalType);
+            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::write(this, *v);
+        }
+    }
+    template<typename T> void read(Ice::Int tag, IceUtil::Optional<T>& v)
+    {
+        if(readOpt(tag, Ice::StreamOptionalHelper<T, 
+                                                  Ice::StreamTrait<T>::type, 
+                                                  Ice::StreamTrait<T>::optionalType>::optionalType))
+        {
+            v.__setIsSet();
+            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::read(this, *v);
+        }
+        else
+        {
+            v = IceUtil::None;
+        }
+    }
+
+    //
+    // Template functions for sequences and custom sequences
+    // 
+    template<typename T> void write(const std::vector<T>& v)
+    {
+        if(v.empty())
+        {
+            writeSize(0);
+        }
+        else
+        {
+            write(&v[0], &v[0] + v.size());
+        }
+    }
+    template<typename T> void write(const T* begin, const T* end)
+    {
+        writeSize(static_cast<Ice::Int>(end - begin));
+        for(const T* p = begin; p != end; ++p)
+        {
+            write(*p);
+        }
+    }
+
+    // Read/write type and tag for optionals
+    void writeOpt(Ice::Int tag, Ice::OptionalType type)
+    {
+        assert(_currentWriteEncaps);
+        if(_currentWriteEncaps->encoder)
+        {
+            _currentWriteEncaps->encoder->writeOpt(tag, type);
+        }
+        else
+        {
+            writeOptImpl(tag, type);
+        }
+    }
+    bool readOpt(Ice::Int tag, Ice::OptionalType expectedType)
+    {
+        assert(_currentReadEncaps);
+        if(_currentReadEncaps->decoder)
+        {
+            return _currentReadEncaps->decoder->readOpt(tag, expectedType);
+        }
+        else
+        {
+            return readOptImpl(tag, expectedType);
+        }
+    }
+
+    // Byte
     void write(Ice::Byte v)
     {
         b.push_back(v);
     }
-    void write(Ice::Byte v, int limit);
     void write(const Ice::Byte*, const Ice::Byte*);
     void read(Ice::Byte& v)
     {
@@ -517,9 +586,10 @@ public:
         }
         v = *i++;
     }
-    void read(Ice::Byte& v, int limit);
+    void read(std::vector<Ice::Byte>&);
     void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
+    // Bool
     void write(bool v)
     {
         b.push_back(static_cast<Ice::Byte>(v));
@@ -537,14 +607,14 @@ public:
     void read(std::vector<bool>&);
     bool* read(std::pair<const bool*, const bool*>&);
 
+    // Short
     void write(Ice::Short);
-    void write(Ice::Short, int limit);
     void write(const Ice::Short*, const Ice::Short*);
     void read(Ice::Short&);
-    void read(Ice::Short&, int limit);
     void read(std::vector<Ice::Short>&);
     Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
 
+    // Int
     void write(Ice::Int v) // Inlined for performance reasons.
     {
         Container::size_type pos = b.size();
@@ -568,8 +638,6 @@ public:
 #endif
     }
 
-    void write(Ice::Int, int limit);
-
     void read(Ice::Int& v) // Inlined for performance reasons.
     {
         if(b.end() - i < static_cast<int>(sizeof(Ice::Int)))
@@ -592,24 +660,26 @@ public:
         *dest = *src;
 #endif
     }
-    void read(Ice::Int& v, int limit);
 
     void write(const Ice::Int*, const Ice::Int*);
     void read(std::vector<Ice::Int>&);
     Ice::Int* read(std::pair<const Ice::Int*, const Ice::Int*>&);
 
+    // Long
     void write(Ice::Long);
     void write(const Ice::Long*, const Ice::Long*);
     void read(Ice::Long&);
     void read(std::vector<Ice::Long>&);
     Ice::Long* read(std::pair<const Ice::Long*, const Ice::Long*>&);
 
+    // Float
     void write(Ice::Float);
     void write(const Ice::Float*, const Ice::Float*);
     void read(Ice::Float&);
     void read(std::vector<Ice::Float>&);
     Ice::Float* read(std::pair<const Ice::Float*, const Ice::Float*>&);
 
+    // Double
     void write(Ice::Double);
     void write(const Ice::Double*, const Ice::Double*);
     void read(Ice::Double&);
@@ -625,6 +695,7 @@ public:
     //
     void write(const char*);
 
+    // String
     void writeConverted(const std::string& v);
     void write(const std::string& v, bool convert = true)
     {
@@ -649,8 +720,7 @@ public:
     void readConverted(std::string&, Ice::Int);
     void read(std::string& v, bool convert = true)
     {
-        Ice::Int sz;
-        readSize(sz);
+        Ice::Int sz = readSize();
         if(sz > 0)
         {
             if(b.end() - i < sz)
@@ -679,13 +749,27 @@ public:
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
 
+    // Proxy
     void write(const Ice::ObjectPrx&);
+    template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
+    {
+        write(Ice::ObjectPrx(upCast(v.get())));
+    }
     void read(Ice::ObjectPrx&);
+    template<typename T> void read(IceInternal::ProxyHandle<T>& v)
+    {
+        __read(this, v); // Generated __read method, necessary for forward declarations.
+    }
 
+    // Class
     void write(const Ice::ObjectPtr& v)
     {
         initWriteEncaps();
         _currentWriteEncaps->encoder->write(v);
+    }
+    template<typename T> void write(const IceInternal::Handle<T>& v)
+    {
+        write(Ice::ObjectPtr(upCast(v.get())));
     }
     void read(PatchFunc patchFunc, void* patchAddr)
     {
@@ -693,7 +777,17 @@ public:
         initReadEncaps();
         _currentReadEncaps->decoder->read(patchFunc, patchAddr);
     }
-    void write(const Ice::UserException& e)
+    template<typename T> void read(IceInternal::Handle<T>& v)
+    {
+        read(&patchHandle<T>, &v);
+    }
+
+    // Enum
+    Ice::Int readEnum(Ice::Int);
+    void writeEnum(Ice::Int, Ice::Int);
+
+    // Exception
+    void writeException(const Ice::UserException& e)
     {
         initWriteEncaps();
         _currentWriteEncaps->encoder->write(e);
@@ -705,6 +799,40 @@ public:
     }
 
     void sliceObjects(bool);
+
+    // Read/write/skip optionals
+    bool readOptImpl(Ice::Int, Ice::OptionalType);
+    void writeOptImpl(Ice::Int, Ice::OptionalType);
+    bool skipOpt(Ice::OptionalType);
+    bool skipOpts();
+    
+    // Skip bytes from the stream
+    void skip(size_type size)
+    {
+        if(i + size > b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        i += size;
+    }    
+    void skipSize()
+    {
+        Ice::Byte b;
+        read(b);
+        if(static_cast<unsigned char>(b) == 255)
+        {
+            skip(4);
+        }
+    }
+
+    size_type pos()
+    {
+        return b.size();
+    }
+    void rewrite(Ice::Int value, size_type p)
+    {
+        write(value, b.begin() + p);
+    }
 
     struct IndirectPatchEntry
     {
@@ -783,65 +911,27 @@ private:
         void endSlice();
         void skipSlice();
 
-        bool readOpt(int, MemberType);
+        bool readOpt(Ice::Int readTag, Ice::OptionalType expectedType)
+        {
+            if(_sliceType == NoSlice)
+            {
+                return _stream->readOptImpl(readTag, expectedType);
+            }
+            else if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
+            {
+                return _stream->readOptImpl(readTag, expectedType);
+            }
+            return false;
+        }
 
         void readPendingObjects();
-        
+
     private:
 
         const std::string& readTypeId() const;
         Ice::ObjectPtr readInstance();
         void addPatchEntry(Ice::Int, PatchFunc, void*);
         Ice::SlicedDataPtr readSlicedData();
-        
-        bool skipOpt(MemberType type)
-        {
-            int sz;
-            switch(type)
-            {
-            case MemberTypeF1:
-            {
-                sz = 1;
-                break;
-            }
-            case MemberTypeF2:
-            {
-                sz = 2;
-                break;
-            }
-            case MemberTypeF4:
-            {
-                sz = 4;
-                break;
-            }
-            case MemberTypeF8:
-            {
-                sz = 8;
-                break;
-            }
-            case MemberTypeVSize:
-            {
-                _stream->readSize(sz);
-                break;
-            }
-            case MemberTypeFSize:
-            {
-                _stream->read(sz);
-                break;
-            }
-            default:
-            {
-                return false;
-            }
-            }
-            
-            if(_stream->i + sz > _stream->b.end())
-            {
-                _stream->throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-            }
-            _stream->i += sz;
-            return true;
-        }
         
         BasicStream* _stream;
         ReadEncaps* _encaps;
@@ -891,7 +981,18 @@ private:
         void startSlice(const std::string&, bool);
         void endSlice();
 
-        void writeOpt(int, MemberType);
+        void writeOpt(Ice::Int tag, Ice::OptionalType type)
+        {
+            if(_sliceType == NoSlice)
+            {
+                return _stream->writeOptImpl(tag, type);
+            }
+            else
+            {
+                _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+                return _stream->writeOptImpl(tag, type);
+            }
+        }
 
         void writePendingObjects();
 

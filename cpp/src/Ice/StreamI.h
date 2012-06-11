@@ -38,43 +38,6 @@ public:
 
     virtual void sliceObjects(bool);
 
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual bool readBool();
-    virtual Byte readByte();
-    virtual Short readShort();
-    virtual Int readInt();
-    virtual Long readLong();
-    virtual Float readFloat();
-    virtual Double readDouble();
-    virtual ::std::string readString(bool = true);
-    virtual ::std::wstring readWstring();
-    
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual std::vector< bool > readBoolSeq();
-    virtual std::vector< Byte > readByteSeq();
-    virtual std::vector< Short > readShortSeq();
-    virtual std::vector< Int > readIntSeq();
-    virtual std::vector< Long > readLongSeq();
-    virtual std::vector< Float > readFloatSeq();
-    virtual std::vector< Double > readDoubleSeq();
-    virtual std::vector< std::string > readStringSeq(bool = true);
-    virtual std::vector< std::wstring > readWstringSeq();
-    
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual bool* readBoolSeq(std::pair<const bool*, const bool*>&);
-    virtual void readByteSeq(std::pair<const Byte*, const Byte*>&);
-    virtual Short* readShortSeq(std::pair<const Short*, const Short*>&);
-    virtual Int* readIntSeq(std::pair<const Int*, const Int*>&);
-    virtual Long* readLongSeq(std::pair<const Long*, const Long*>&);
-    virtual Float* readFloatSeq(std::pair<const Float*, const Float*>&);
-    virtual Double* readDoubleSeq(std::pair<const Double*, const Double*>&);
-
     virtual Int readSize();
     virtual Int readAndCheckSeqSize(int);
 
@@ -98,9 +61,14 @@ public:
     virtual void endEncapsulation();
     virtual Ice::EncodingVersion skipEncapsulation();
 
+    virtual Ice::EncodingVersion getEncoding();
+
     virtual void readPendingObjects();
 
     virtual void rewind();
+
+    virtual void skip(Ice::Int);
+    virtual void skipSize();
     
     virtual void read(bool& v);
     virtual void read(Byte& v);
@@ -119,6 +87,8 @@ public:
     virtual void read(std::pair<const Long*, const Long*>&, ::IceUtil::ScopedArray<Long>&);
     virtual void read(std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&);
     virtual void read(std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&);
+
+    virtual bool readOptional(Int, OptionalType);
 
     virtual void closure(void*);
     virtual void* closure() const;
@@ -142,43 +112,6 @@ public:
     virtual ~OutputStreamI();
 
     virtual CommunicatorPtr communicator() const;
-
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual void writeBool(bool);
-    virtual void writeByte(Byte);
-    virtual void writeShort(Short);
-    virtual void writeInt(Int);
-    virtual void writeLong(Long);
-    virtual void writeFloat(Float);
-    virtual void writeDouble(Double);
-    virtual void writeString(const ::std::string&, bool = true);
-    virtual void writeWstring(const ::std::wstring&);
-    
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual void writeBoolSeq(const std::vector< bool >&);
-    virtual void writeByteSeq(const std::vector< Byte >&);    
-    virtual void writeShortSeq(const std::vector< Short >&);
-    virtual void writeIntSeq(const std::vector< Int >&);
-    virtual void writeLongSeq(const std::vector< Long >&);
-    virtual void writeFloatSeq(const std::vector< Float >&);    
-    virtual void writeDoubleSeq(const std::vector< Double >&);
-    virtual void writeStringSeq(const std::vector< std::string >&, bool = true);
-    virtual void writeWstringSeq(const std::vector< std::wstring >&);
-
-    //
-    // These methods should be removed when the old stream API is removed.
-    //
-    virtual void writeBoolSeq(const bool*, const bool*);
-    virtual void writeByteSeq(const Byte*, const Byte*);
-    virtual void writeShortSeq(const Short*, const Short*);
-    virtual void writeIntSeq(const Int*, const Int*);
-    virtual void writeLongSeq(const Long*, const Long*);
-    virtual void writeFloatSeq(const Float*, const Float*);
-    virtual void writeDoubleSeq(const Double*, const Double*);
 
     virtual void writeObject(const ObjectPtr&);
     virtual void writeException(const UserException&);
@@ -206,6 +139,8 @@ public:
     virtual void write(const Float*, const Float*);
     virtual void write(const Double*, const Double*);
 
+    virtual void writeOptional(Int, OptionalType);
+
     virtual void format(FormatType);
 
     virtual void startObject(const SlicedDataPtr&);
@@ -221,11 +156,16 @@ public:
     virtual void startEncapsulation();
     virtual void endEncapsulation();
 
+    virtual Ice::EncodingVersion getEncoding();
+
     virtual void writePendingObjects();
 
     virtual void finished(std::vector< Byte >&);
 
     virtual void reset(bool);
+
+    virtual size_type pos();
+    virtual void rewrite(size_type, Int);
 
 private:
 

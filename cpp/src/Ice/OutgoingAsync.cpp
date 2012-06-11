@@ -460,7 +460,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
         //
         // Explicit context
         //
-        __writeContext(&_os, *context);
+        _os.write(*context);
     }
     else
     {
@@ -471,7 +471,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
         const Context& prxContext = ref->getContext()->getValue();
         if(implicitContext == 0)
         {
-            __writeContext(&_os, prxContext);
+            _os.write(prxContext);
         }
         else
         {

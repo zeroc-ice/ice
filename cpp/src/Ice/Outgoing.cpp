@@ -133,7 +133,7 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
             //
             // Explicit context
             //
-            __writeContext(&_os, *context);
+            _os.write(*context);
         }
         else
         {
@@ -144,7 +144,7 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
             const Context& prxContext = _handler->getReference()->getContext()->getValue();
             if(implicitContext == 0)
             {
-                __writeContext(&_os, prxContext);
+                _os.write(prxContext);
             }
             else
             {

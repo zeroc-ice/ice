@@ -1,13 +1,13 @@
-OptionalMembers.ice:23: missing tag for optional member `m1'
-OptionalMembers.ice:24: missing tag for optional member `m2'
+OptionalMembers.ice:23: missing tag for optional
+OptionalMembers.ice:24: missing tag for optional
 OptionalMembers.ice:25: `abc' is not defined
-OptionalMembers.ice:26: tag for optional member `m4' is out of range
-OptionalMembers.ice:27: tag for optional member `m5' is out of range
-OptionalMembers.ice:28: tag for optional member `m6' is out of range
+OptionalMembers.ice:26: tag for optional is out of range
+OptionalMembers.ice:27: tag for optional is out of range
+OptionalMembers.ice:28: tag for optional is out of range
 OptionalMembers.ice:30: tag for optional data member `m8' is already in use
-OptionalMembers.ice:31: tag for optional member `m9' is out of range
-OptionalMembers.ice:31: invalid tag `C3' for optional member `m9'
-OptionalMembers.ice:32: tag for optional member `m10' is out of range
-OptionalMembers.ice:32: invalid tag `C4' for optional member `m10'
-OptionalMembers.ice:33: invalid tag `C5' for optional member `m11'
+OptionalMembers.ice:31: tag for optional is out of range
+OptionalMembers.ice:31: invalid tag `C3' for optional
+OptionalMembers.ice:32: tag for optional is out of range
+OptionalMembers.ice:32: invalid tag `C4' for optional
+OptionalMembers.ice:33: invalid tag `C5' for optional
 OptionalMembers.ice:34: tag for optional data member `m12' is already in use

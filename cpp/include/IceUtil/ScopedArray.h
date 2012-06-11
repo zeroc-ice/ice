@@ -16,7 +16,7 @@ namespace IceUtil
 {
 
 template<typename T>
-class ScopedArray : private IceUtil::noncopyable
+class ScopedArray
 {
 public:
 
@@ -48,6 +48,18 @@ public:
         }
         _ptr = ptr;
     }
+
+    const ScopedArray& operator=(const ScopedArray& other)
+    {
+        if(_ptr != 0)
+        {
+            delete[] _ptr;
+        }
+        _ptr = other._ptr;
+        const_cast<ScopedArray&>(other)._ptr = 0;
+        return *this;
+    }
+
 
     T& operator[](size_t i) const
     {

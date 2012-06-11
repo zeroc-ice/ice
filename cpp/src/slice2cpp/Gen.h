@@ -255,6 +255,7 @@ private:
 
     private:
 
+        void emitDataMember(const DataMemberPtr&);
         void emitGCFunctions(const ClassDefPtr&);
         void emitGCInsertCode(const TypePtr&, const std::string&, const std::string&, int);
         void emitGCClearCode(const TypePtr&, const std::string&, const std::string&, int);
@@ -318,26 +319,6 @@ private:
         std::string _dllExport;
         int _useWstring;
         std::list<int> _useWstringHist;
-    };
-
-    class HandleVisitor : private ::IceUtil::noncopyable, public ParserVisitor
-    {
-    public:
-
-        HandleVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&, bool);
-
-        virtual bool visitModuleStart(const ModulePtr&);
-        virtual void visitModuleEnd(const ModulePtr&);
-        virtual void visitClassDecl(const ClassDeclPtr&);
-        virtual bool visitClassDefStart(const ClassDefPtr&);
-
-    private:
-
-        ::IceUtilInternal::Output& H;
-        ::IceUtilInternal::Output& C;
-
-        std::string _dllExport;
-        bool _stream;
     };
 
     class ImplVisitor : private ::IceUtil::noncopyable, public ParserVisitor

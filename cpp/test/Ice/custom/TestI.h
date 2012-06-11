@@ -70,6 +70,20 @@ public:
                                        std::list<bool>&,
                                        const Ice::Current&);
 
+    virtual ::Test::BoolDequeList opBoolDequeList(const ::Test::BoolDequeList&, 
+                                                  ::Test::BoolDequeList&, 
+                                                  const Ice::Current&);
+
+    virtual ::Test::BoolDequeList opBoolDequeListArray(const ::std::pair<const std::deque<bool>*, 
+                                                                         const std::deque<bool>*>&, 
+                                                       ::Test::BoolDequeList&, 
+                                                       const ::Ice::Current&);
+
+    virtual ::Test::BoolDequeList opBoolDequeListRange(const ::std::pair< ::Test::BoolDequeList::const_iterator,
+                                                                          ::Test::BoolDequeList::const_iterator>&, 
+                                                       ::Test::BoolDequeList&, 
+                                                       const ::Ice::Current&);
+
     virtual std::deque< ::Ice::Byte> opByteSeq(const std::deque< ::Ice::Byte>&,
                                                std::deque< ::Ice::Byte>&,
                                                const Ice::Current&);

@@ -40,6 +40,30 @@ string readWriteAttribute[] = { "read", "write" };
 string txAttribute[] = { "supports", "mandatory", "required", "never" };
 enum { Supports, Mandatory, Required, Never };
 
+DataMemberList
+filterOrderedOptionalDataMembers(const DataMemberList& members)
+{
+    class SortFn
+    {
+    public:
+        static bool compare(const DataMemberPtr& lhs, const DataMemberPtr& rhs)
+        {
+            return lhs->tag() < rhs->tag();
+        }
+    };
+
+    DataMemberList result;
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->optional())
+        {
+            result.push_back(*p);
+        }
+    }
+    result.sort(SortFn::compare);
+    return result;
+}
+
 }
 
 namespace Slice
@@ -2939,6 +2963,8 @@ Slice::ClassDef::destroy()
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
                                  const TypePtr& returnType,
+                                 bool optional,
+                                 int tag,
                                  Operation::Mode mode)
 {
     checkIdentifier(name);
@@ -3037,7 +3063,7 @@ Slice::ClassDef::createOperation(const string& name,
     }
     
     _hasOperations = true;
-    OperationPtr op = new Operation(this, name, returnType, mode);
+    OperationPtr op = new Operation(this, name, returnType, optional, tag, mode);
     _contents.push_back(op);
     return op;
 }
@@ -3280,6 +3306,12 @@ Slice::ClassDef::dataMembers() const
         }
     }
     return result;
+}
+
+DataMemberList
+Slice::ClassDef::orderedOptionalDataMembers() const
+{
+    return filterOrderedOptionalDataMembers(dataMembers());
 }
 
 //
@@ -3751,6 +3783,12 @@ Slice::Exception::dataMembers() const
         }
     }
     return result;
+}
+
+DataMemberList
+Slice::Exception::orderedOptionalDataMembers() const
+{
+    return filterOrderedOptionalDataMembers(dataMembers());
 }
 
 //
@@ -4556,22 +4594,13 @@ Slice::Enum::usesClasses() const
 size_t
 Slice::Enum::minWireSize() const
 {
-    size_t sz = _enumerators.size();
-    if(sz <= 0x7f)
-    {
-        return 1;
-    }
-    if(sz <= 0x7fff)
-    {
-        return 2;
-    }
-    return 4;
+    return 1;
 }
 
 bool
 Slice::Enum::isVariableLength() const
 {
-    return false;
+    return true;
 }
 
 string
@@ -4716,6 +4745,18 @@ Slice::Operation::returnType() const
     return _returnType;
 }
 
+bool
+Slice::Operation::returnIsOptional() const
+{
+    return _returnIsOptional;
+}
+
+int
+Slice::Operation::returnTag() const
+{
+    return _returnTag;
+}
+
 Operation::Mode
 Slice::Operation::mode() const
 {
@@ -4736,7 +4777,7 @@ Slice::Operation::sendMode() const
 }
 
 ParamDeclPtr
-Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
+Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
 {
     checkIdentifier(name);
 
@@ -4835,7 +4876,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         _unit->error(msg);
     }
 
-    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam);
+    ParamDeclPtr p = new ParamDecl(this, name, type, isOutParam, optional, tag);
     _contents.push_back(p);
     return p;
 }
@@ -5121,11 +5162,15 @@ Slice::Operation::visit(ParserVisitor* visitor, bool)
 Slice::Operation::Operation(const ContainerPtr& container,
                             const string& name,
                             const TypePtr& returnType,
+                            bool returnIsOptional,
+                            int returnTag,
                             Mode mode) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     Container(container->unit()),
     _returnType(returnType),
+    _returnIsOptional(returnIsOptional),
+    _returnTag(returnTag),
     _mode(mode)
 {
     if(_unit->profile() == IceE)
@@ -5166,6 +5211,18 @@ Slice::ParamDecl::isOutParam() const
     return _isOutParam;
 }
 
+bool
+Slice::ParamDecl::optional() const
+{
+    return _optional;
+}
+
+int
+Slice::ParamDecl::tag() const
+{
+    return _tag;
+}
+
 Contained::ContainedType
 Slice::ParamDecl::containedType() const
 {
@@ -5196,11 +5253,14 @@ Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
     visitor->visitParamDecl(this);
 }
 
-Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam) :
+Slice::ParamDecl::ParamDecl(const ContainerPtr& container, const string& name, const TypePtr& type, bool isOutParam,
+                            bool optional, int tag) :
     SyntaxTreeBase(container->unit()),
     Contained(container, name),
     _type(type),
-    _isOutParam(isOutParam)
+    _isOutParam(isOutParam),
+    _optional(optional),
+    _tag(tag)
 {
 }
 

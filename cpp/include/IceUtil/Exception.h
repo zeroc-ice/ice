@@ -119,6 +119,21 @@ private:
     std::string _path;
 };
 
+class ICE_UTIL_API OptionalNotSetException : public Exception
+{
+public:
+    
+    OptionalNotSetException(const char*, int);
+    virtual ~OptionalNotSetException() throw();
+    virtual std::string ice_name() const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+private:
+
+    static const char* _name;
+};
+
 }
 
 #endif
