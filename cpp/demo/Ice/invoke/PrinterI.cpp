@@ -35,16 +35,14 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
 
-    Ice::InputStreamPtr in;
-    if(inParams.size() > 0)
-    {
-        in = Ice::createInputStream(communicator, inParams);
-    }
+    Ice::InputStreamPtr in = Ice::createInputStream(communicator, inParams);
+    in->startEncapsulation();
 
     if(current.operation == "printString")
     {
         string message;
         in->read(message);
+        in->endEncapsulation();
         cout << "Printing string `" << message << "'" << endl;
         return true;
     }
@@ -52,6 +50,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::StringSeq seq;
         in->read(seq);
+        in->endEncapsulation();
         cout << "Printing string sequence {";
         for(Demo::StringSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -68,6 +67,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::StringDict dict;
         in->read(dict);
+        in->endEncapsulation();
         cout << "Printing dictionary {";
         for(Demo::StringDict::iterator p = dict.begin(); p != dict.end(); ++p)
         {
@@ -84,6 +84,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::Color c;
         in->read(c);
+        in->endEncapsulation();
         cout << "Printing enum " << c << endl;
         return true;
     }
@@ -91,6 +92,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::Structure s;
         in->read(s);
+        in->endEncapsulation();
         cout << "Printing struct: name=" << s.name << ", value=" << s.value << endl;
         return true;
     }
@@ -98,6 +100,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::StructureSeq seq;
         in->read(seq);
+        in->endEncapsulation();
         cout << "Printing struct sequence: {";
         for(Demo::StructureSeq::iterator p = seq.begin(); p != seq.end(); ++p)
         {
@@ -114,7 +117,7 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
     {
         Demo::CPtr c;
         in->read(c);
-        in->readPendingObjects();
+        in->endEncapsulation();
         cout << "Printing class: s.name=" << c->s.name << ", s.value=" << c->s.value << endl;
         return true;
     }
@@ -124,9 +127,10 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         c->s.name = "green";
         c->s.value = Demo::green;
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
         out->write(c);
         out->write("hello");
-        out->writePendingObjects();
+        out->endEncapsulation();
         out->finished(outParams);
         return true;
     }
@@ -136,7 +140,9 @@ PrinterI::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outPa
         Demo::PrintFailure ex;
         ex.reason = "paper tray empty";
         Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
         out->write(ex);
+        out->endEncapsulation();
         out->finished(outParams);
         return false;
     }
