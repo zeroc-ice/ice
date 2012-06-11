@@ -325,8 +325,7 @@ public:
         {
             throwEncapsulationException(__FILE__, __LINE__);
         }
-
-        if(i + 2 > b.end())
+        if(i - sizeof(Ice::Int) + sz > b.end())
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
