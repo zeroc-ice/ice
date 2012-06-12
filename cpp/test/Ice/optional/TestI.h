@@ -77,6 +77,8 @@ public:
                                               ::Test::VarStructSeq::const_iterator> >&,
         IceUtil::Optional< ::Test::VarStructSeq>&, 
         const ::Ice::Current& = ::Ice::Current());
+
+    virtual void opClassAndUnknownOptional(const Test::APtr&, const Ice::Current&);
 };
 
 #endif

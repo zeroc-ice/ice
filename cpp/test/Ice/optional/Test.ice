@@ -170,6 +170,8 @@ class Initial
 
     ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1, 
                                                           out ["cpp:range"] optional(3) VarStructSeq p3);
+
+    void opClassAndUnknownOptional(A p);
 };
 
 };

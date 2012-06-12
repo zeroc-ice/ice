@@ -153,6 +153,12 @@ private:
     bool _isSet;
 };
 
+template<class T> inline Optional<T> 
+makeOptional(const T& v)
+{
+    return Optional<T>(v);
+}
+
 template<typename T> inline void 
 Optional<T>::throwOptionalNotSetException(const char* file, int line) const
 {

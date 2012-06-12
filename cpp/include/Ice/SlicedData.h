@@ -11,8 +11,7 @@
 #define ICE_SLICED_DATA_H
 
 #include <Ice/SlicedDataF.h>
-#include <Ice/ObjectF.h>
-#include <Ice/GCShared.h>
+#include <Ice/Object.h>
 
 namespace Ice
 {
@@ -68,6 +67,31 @@ public:
     }
 
     void __addObject(IceInternal::GCCountMap&);
+};
+
+//
+// Unknown sliced object holds instance of unknown type.
+//
+class ICE_API UnknownSlicedObject : public Object, private IceInternal::GCShared 
+{
+public:
+
+    UnknownSlicedObject(const std::string&);
+
+    const std::string& getUnknownTypeId() const;
+
+    virtual void __addObject(::IceInternal::GCCountMap&);
+    virtual bool __usesGC();
+    virtual void __gcReachable(::IceInternal::GCCountMap&) const;
+    virtual void __gcClear();
+
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*);
+
+private:
+
+    const std::string _unknownTypeId;
+    SlicedDataPtr _slicedData;
 };
 
 }

@@ -638,39 +638,58 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     if(communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
         cout << "testing marshalling with unknown class slices... " << flush;
-        CPtr c = new C();
-        c->ss = "test";
-        c->ms = "testms";
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        out->write(c);
-        out->endEncapsulation();
-        out->finished(inEncaps);
-        factory->setEnabled(true);
-        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(obj);
-        in->endEncapsulation();
-        test(dynamic_cast<CObjectReader*>(obj.get())); 
-        factory->setEnabled(false);
+        {
+            CPtr c = new C();
+            c->ss = "test";
+            c->ms = "testms";
+            out = Ice::createOutputStream(communicator);
+            out->startEncapsulation();
+            out->write(c);
+            out->endEncapsulation();
+            out->finished(inEncaps);
+            factory->setEnabled(true);
+            test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+            in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
+            in->read(obj);
+            in->endEncapsulation();
+            test(dynamic_cast<CObjectReader*>(obj.get())); 
+            factory->setEnabled(false);
 
-        factory->setEnabled(true);
-        out = Ice::createOutputStream(communicator);
-        out->startEncapsulation();
-        Ice::ObjectPtr d = new DObjectWriter();
-        out->write(d);
-        out->endEncapsulation();
-        out->finished(inEncaps);
-        test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
-        in = Ice::createInputStream(communicator, outEncaps);
-        in->startEncapsulation();
-        in->read(obj);
-        in->endEncapsulation();
-        test(obj && dynamic_cast<DObjectReader*>(obj.get()));
-        dynamic_cast<DObjectReader*>(obj.get())->check();
-        factory->setEnabled(false);
-    
+            factory->setEnabled(true);
+            out = Ice::createOutputStream(communicator);
+            out->startEncapsulation();
+            Ice::ObjectPtr d = new DObjectWriter();
+            out->write(d);
+            out->endEncapsulation();
+            out->finished(inEncaps);
+            test(initial->ice_invoke("pingPong", Ice::Normal, inEncaps, outEncaps));
+            in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
+            in->read(obj);
+            in->endEncapsulation();
+            test(obj && dynamic_cast<DObjectReader*>(obj.get()));
+            dynamic_cast<DObjectReader*>(obj.get())->check();
+            factory->setEnabled(false);
+        }    
+        cout << "ok" << endl;
+
+        cout << "testing optionals with unknown classes..." << flush;
+        {
+            APtr a = new A();
+
+            out = Ice::createOutputStream(communicator);
+            out->startEncapsulation();
+            out->write(a);
+            out->write(1, IceUtil::makeOptional(Ice::ObjectPtr(new DObjectWriter)));
+            out->endEncapsulation();
+            out->finished(inEncaps);
+            test(initial->ice_invoke("opClassAndUnknownOptional", Ice::Normal, inEncaps, outEncaps));
+
+            in = Ice::createInputStream(communicator, outEncaps);
+            in->startEncapsulation();
+            in->endEncapsulation();
+        }
         cout << "ok" << endl;
     }
 

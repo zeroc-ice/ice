@@ -111,16 +111,28 @@ public:
     }
 
     void
-    response_SUnknownAsObject(const Ice::ObjectPtr& o)
+    response_SUnknownAsObject10(const Ice::ObjectPtr& o)
     {
         test(false);
     }
 
     void
-    exception_SUnknownAsObject(const Ice::Exception& exc)
+    exception_SUnknownAsObject10(const Ice::Exception& exc)
     {
         test(exc.ice_name() == "Ice::NoObjectFactoryException");
         called();
+    }
+
+    void
+    response_SUnknownAsObject11(const Ice::ObjectPtr& o)
+    {
+        called();
+    }
+
+    void
+    exception_SUnknownAsObject11(const Ice::Exception& exc)
+    {
+        test(false);
     }
 
     void
@@ -531,10 +543,11 @@ testUOO(const TestIntfPrx& test)
     try
     {
         o = test->SUnknownAsObject();
-        test(false);
+        test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
     }
     catch(const Ice::NoObjectFactoryException&)
     {
+        test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
     }
     catch(...)
     {
@@ -748,9 +761,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             CallbackPtr cb = new Callback;
-            test->begin_SUnknownAsObject(
-                newCallback_TestIntf_SUnknownAsObject(
-                    cb, &Callback::response_SUnknownAsObject, &Callback::exception_SUnknownAsObject));
+            if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+            {
+                test->begin_SUnknownAsObject(
+                    newCallback_TestIntf_SUnknownAsObject(
+                        cb, &Callback::response_SUnknownAsObject10, &Callback::exception_SUnknownAsObject10));
+            }
+            else
+            {
+                test->begin_SUnknownAsObject(
+                    newCallback_TestIntf_SUnknownAsObject(
+                        cb, &Callback::response_SUnknownAsObject11, &Callback::exception_SUnknownAsObject11));
+            }
             cb->check();
         }
         catch(...)

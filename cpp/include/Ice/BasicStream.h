@@ -260,7 +260,7 @@ public:
             // Read remaining encapsulation optionals. This returns
             // true if the optionals end with the end marker. The end
             // marker indicates that there are more to read from the
-            // encapsuliation: object instances. In this case, don't
+            // encapsulation: object instances. In this case, don't
             // bother reading the objects, just skip to the end of the
             // encapsulation.
             //

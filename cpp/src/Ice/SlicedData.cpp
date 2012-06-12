@@ -9,6 +9,7 @@
 
 #include <Ice/SlicedData.h>
 #include <Ice/Object.h>
+#include <Ice/BasicStream.h>
 
 using namespace std;
 using namespace Ice;
@@ -68,4 +69,67 @@ Ice::SlicedData::__addObject(IceInternal::GCCountMap& m)
     {
         ++pos->second;
     }
+}
+
+Ice::UnknownSlicedObject::UnknownSlicedObject(const string& unknownTypeId) : _unknownTypeId(unknownTypeId)
+{
+}
+
+const string&
+Ice::UnknownSlicedObject::getUnknownTypeId() const
+{
+    return _unknownTypeId;
+}
+
+void
+Ice::UnknownSlicedObject::__addObject(IceInternal::GCCountMap& _c)
+{
+    IceInternal::GCCountMap::iterator pos = _c.find(this);
+    if(pos == _c.end())
+    {
+        _c[this] = 1;
+    }
+    else
+    {
+        ++pos->second;
+    }
+}
+
+bool
+Ice::UnknownSlicedObject::__usesGC()
+{
+    return true;
+}
+
+void
+Ice::UnknownSlicedObject::__gcReachable(IceInternal::GCCountMap& _c) const
+{
+    if(_slicedData)
+    {
+        _slicedData->__addObject(_c);
+    }
+}
+
+void
+Ice::UnknownSlicedObject::__gcClear()
+{
+    if(_slicedData)
+    {
+        _slicedData->__decRefUnsafe();
+        _slicedData.__clearHandleUnsafe();
+    }
+}
+
+void
+Ice::UnknownSlicedObject::__write(IceInternal::BasicStream* __os) const
+{
+    __os->startWriteObject(_slicedData);
+    __os->endWriteObject();
+}
+
+void
+Ice::UnknownSlicedObject::__read(IceInternal::BasicStream* __is)
+{
+    __is->startReadObject();
+    _slicedData = __is->endReadObject(true);
 }

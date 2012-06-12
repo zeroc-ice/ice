@@ -14,6 +14,7 @@
 #include <Ice/Config.h>
 #include <Ice/Format.h>
 #include <Ice/Handle.h>
+#include <Ice/ObjectF.h>
 
 namespace IceInternal
 {
@@ -23,7 +24,7 @@ class BasicStream;
 namespace Ex
 {
 
-ICE_API void throwUOE(const ::std::string&, const ::std::string&);
+ICE_API void throwUOE(const ::std::string&, const ::Ice::ObjectPtr&);
 ICE_API void throwMemoryLimitException(const char*, int, size_t, size_t);
 ICE_API void throwMarshalException(const char*, int, const std::string&);
 

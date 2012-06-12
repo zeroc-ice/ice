@@ -283,13 +283,19 @@ TestI::exchangePBase(const Test::PBasePtr& pb, const Ice::Current&)
 }
 
 Test::PreservedPtr
-TestI::PBSUnknownAsPreserved(const Ice::Current&)
+TestI::PBSUnknownAsPreserved(const Ice::Current& current)
 {
     PSUnknownPtr r = new PSUnknown;
     r->pi = 5;
     r->ps = "preserved";
     r->psu = "unknown";
     r->graph = 0;
+    if(current.encoding != Ice::Encoding_1_0)
+    {
+        // 1.0 encoding doesn't support un-marshalling unknown classes even if referenced
+        // from unread slice.
+        r->cl = new MyClass(15);
+    }
     return r;
 }
 
@@ -309,6 +315,7 @@ TestI::checkPBSUnknown(const Test::PreservedPtr& p, const Ice::Current& current)
         test(pu->pi == 5);
         test(pu->ps == "preserved");
         test(pu->psu == "unknown");
+        test(pu->cl && pu->cl->i == 15);
         test(!pu->graph);
     }
 }

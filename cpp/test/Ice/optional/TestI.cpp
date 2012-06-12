@@ -145,3 +145,9 @@ InitialI::opVarStructSeq(const Optional<pair<VarStructSeq::const_iterator, VarSt
     }
     return p3;
 }
+
+void
+InitialI::opClassAndUnknownOptional(const APtr& a, const Ice::Current&)
+{
+}
+

@@ -46,7 +46,7 @@ public:
         _v = ::IceInternal::Handle<T>::dynamicCast(p);
         if(p && !_v)
         {
-            IceInternal::Ex::throwUOE(T::ice_staticId(), p->ice_id());
+            IceInternal::Ex::throwUOE(T::ice_staticId(), p);
         }
     }
 

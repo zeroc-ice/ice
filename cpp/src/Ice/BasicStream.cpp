@@ -2312,12 +2312,19 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
             traceSlicing("exception", _typeId, _slicingCat, _stream->instance()->initializationData().logger);
         }
 
+        //
+        // Slice off what we don't understand.
+        //
+        skipSlice(); 
+
+        //
+        // If this is the last slice, raise an exception and stop un-marshalling.
+        //
         if(_sliceFlags & FLAG_IS_LAST_SLICE)
         {
             throw NoExceptionFactoryException(__FILE__, __LINE__, "", "unknown exception type `" + mostDerivedId + "'");
         }
 
-        skipSlice(); // Slice off what we don't understand.
         try
         {
             startSlice();
@@ -2654,12 +2661,10 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
     while(true)
     {
         //
-        // For the 1.0 encoding, the type ID for the base Object class marks
-        // the last slice. For later encodings, an empty type ID means the
-        // class was marshaled in the compact format and therefore cannot be
-        // sliced.
+        // For the 1.0 encoding, the type ID for the base Object class
+        // marks the last slice.
         //
-        if(_typeId.empty() || _typeId == Object::ice_staticId())
+        if(_typeId == Object::ice_staticId())
         {
             throw NoObjectFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
@@ -2709,19 +2714,6 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
         }
 
         //
-        // If object slicing is disabled, or if the flags indicate that this is the
-        // last slice (for encodings >= 1.1), we raise NoObjectFactoryException.
-        //
-        if(!_sliceObjects)
-        {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _typeId);
-        }
-        else if(_sliceFlags & FLAG_IS_LAST_SLICE)
-        {
-            throw NoObjectFactoryException(__FILE__, __LINE__, "", _typeId);
-        }
-
-        //
         // Performance sensitive, so we use lazy initialization for tracing.
         //
         if(_traceSlicing == -1)
@@ -2733,8 +2725,30 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
         {
             traceSlicing("class", _typeId, _slicingCat, _stream->instance()->initializationData().logger);
         }
+
+        //
+        // If object slicing is disabled, stop un-marshalling.
+        //
+        if(!_sliceObjects)
+        {
+            throw NoObjectFactoryException(__FILE__, __LINE__, "object slicing is disabled", _typeId);
+        }
+
+        //
+        // Slice off what we don't understand.
+        //
+        skipSlice();
+
+        //
+        // If this is the last slice, keep the object as an opaque
+        // UnknownSlicedData object.
+        //
+        if(_sliceFlags & FLAG_IS_LAST_SLICE)
+        {
+            v = new UnknownSlicedObject(mostDerivedId);
+            break;
+        }
         
-        skipSlice(); // Slice off what we don't understand.
         startSlice(); // Read next Slice header for next iteration.
     }
      
@@ -2828,7 +2842,9 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
     }
     else
     {
-        throw MarshalException(__FILE__, __LINE__, "compact format prevents slicing");
+        throw MarshalException(__FILE__, 
+                               __LINE__, 
+                               "compact format prevents slicing (the sender should use the sliced format instead)");
     }
 
     if(_encaps->encoding != Encoding_1_0)
@@ -2899,7 +2915,7 @@ IceInternal::BasicStream::EncapsDecoder::readSlicedData()
             {
                 throw MarshalException(__FILE__, __LINE__, "invalid id in object indirection table");
             }
-            addPatchEntry(id, &patchHandle<Ice::Object>, &_slices[n]->objects[j++]);
+            addPatchEntry(id, &patchHandle<Object>, &_slices[n]->objects[j++]);
         }
     }
 

@@ -423,7 +423,6 @@ Slice::Gen::generate(const UnitPtr& p)
     if(p->hasContentsWithMetaData("preserve-slice"))
     {
         H << "\n#include <Ice/SlicedDataF.h>";
-
         C << "\n#include <Ice/SlicedData.h>";
     }
 
@@ -4165,7 +4164,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "handle = " << scope << p->name() << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !handle)";
         C << sb;
-        C << nl << "IceInternal::Ex::throwUOE(" << scoped << "::ice_staticId(), v->ice_id());";
+        C << nl << "IceInternal::Ex::throwUOE(" << scoped << "::ice_staticId(), v);";
         C << eb;
         C << eb;
 

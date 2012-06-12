@@ -26,8 +26,20 @@ namespace Ex
 {
 
 void
-throwUOE(const string& expectedType, const string& type)
+throwUOE(const string& expectedType, const ObjectPtr& v)
 {
+    //
+    // If the object is an unknown sliced object, we didn't find an
+    // object factory, in this case raise a NoObjectFactoryException
+    // instead.
+    //
+    UnknownSlicedObject* uso = dynamic_cast<UnknownSlicedObject*>(v.get());
+    if(uso)
+    {
+        throw NoObjectFactoryException(__FILE__, __LINE__, "", uso->getUnknownTypeId());
+    }
+
+    string type = v->ice_id();
     throw Ice::UnexpectedObjectException(__FILE__, __LINE__,
                                          "expected element of type `" + expectedType + "' but received '" +
                                          type, type, expectedType);
