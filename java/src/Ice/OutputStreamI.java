@@ -160,6 +160,12 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
+    writeEnum(int v, int limit)
+    {
+        _os.writeEnum(v, limit);
+    }
+
+    public void
     writeException(UserException v)
     {
         _os.writeUserException(v);
@@ -225,6 +231,12 @@ public class OutputStreamI implements OutputStream
         _os.endWriteEncapsChecked();
     }
 
+    public EncodingVersion
+    getEncoding()
+    {
+        return _os.getWriteEncoding();
+    }
+
     public void
     writePendingObjects()
     {
@@ -239,6 +251,18 @@ public class OutputStreamI implements OutputStream
         buf.b.get(result);
 
         return result;
+    }
+
+    public int
+    pos()
+    {
+        return _os.pos();
+    }
+
+    public void
+    rewrite(int pos, int sz)
+    {
+        _os.writeInt(sz, pos);
     }
 
     public void

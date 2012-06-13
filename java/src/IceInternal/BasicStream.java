@@ -36,7 +36,6 @@ public class BasicStream
         _buf = new Buffer(_instance.messageSizeMax(), direct);
         _closure = null;
         _encoding = encoding;
-        _unlimited = unlimited;
 
         _readEncapsStack = null;
         _writeEncapsStack = null;
@@ -46,6 +45,7 @@ public class BasicStream
         _sliceObjects = true;
 
         _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
+        _unlimited = unlimited;
 
         _startSeq = -1;
         _format = _instance.defaultsAndOverrides().defaultFormat;
@@ -122,12 +122,12 @@ public class BasicStream
         _closure = tmpClosure;
 
         //
-        // Swap is never called for BasicStreams that have encapsulations being read/write.
+        // Swap is never called for BasicStreams that have encapsulations being read/write. However,
+        // encapsulations might still be set in case marshalling or un-marshalling failed. We just
+        // reset the encapsulations if there are still some set.
         //
-        assert(_readEncapsStack == null);
-        assert(_writeEncapsStack == null);
-        assert(other._readEncapsStack == null);
-        assert(other._writeEncapsStack == null);
+        resetEncaps();
+        other.resetEncaps();
 
         boolean tmpUnlimited = other._unlimited;
         other._unlimited = _unlimited;
@@ -144,6 +144,13 @@ public class BasicStream
         Ice.FormatType tmpFormat = other._format;
         other._format = _format;
         _format = tmpFormat;
+    }
+
+    public void
+    resetEncaps()
+    {
+        _readEncapsStack = null;
+        _writeEncapsStack = null;
     }
 
     public void
@@ -294,8 +301,9 @@ public class BasicStream
             _writeEncapsStack.encoder.writePendingObjects();
         }
 
+        // Size includes size and version.
         int start = _writeEncapsStack.start;
-        int sz = _buf.size() - start; // Size includes size and version.
+        int sz = _buf.size() - start;
         _buf.b.putInt(start, sz);
 
         WriteEncaps curr = _writeEncapsStack;
@@ -391,6 +399,22 @@ public class BasicStream
         if(_readEncapsStack.decoder != null)
         {
             _readEncapsStack.decoder.readPendingObjects();
+        }
+        else if(_buf.b.position() < _readEncapsStack.start + _readEncapsStack.sz &&
+                !_readEncapsStack.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            //
+            // Read remaining encapsulation optionals. This returns
+            // true if the optionals end with the end marker. The end
+            // marker indicates that there are more to read from the
+            // encapsulation: object instances. In this case, don't
+            // bother reading the objects, just skip to the end of the
+            // encapsulation.
+            //
+            if(skipOpts())
+            {
+                _buf.b.position(_readEncapsStack.start + _readEncapsStack.sz);
+            }
         }
 
         if(_buf.b.position() != _readEncapsStack.start + _readEncapsStack.sz)
@@ -657,7 +681,7 @@ public class BasicStream
 
         if(sz == 0)
         {
-            return 0;
+            return sz;
         }
 
         //
@@ -741,18 +765,33 @@ public class BasicStream
         }
     }
 
+    // Read/write type and tag for optionals
     public void
-    writeOpt(int tag, int type)
+    writeOpt(int tag, Ice.OptionalType type)
     {
-        assert(_writeEncapsStack != null && _writeEncapsStack.encoder != null);
-        _writeEncapsStack.encoder.writeOpt(tag, type);
+        assert(_writeEncapsStack != null);
+        if(_writeEncapsStack.encoder != null)
+        {
+            _writeEncapsStack.encoder.writeOpt(tag, type);
+        }
+        else
+        {
+            writeOptImpl(tag, type);
+        }
     }
 
     public boolean
-    readOpt(int tag, int expectedType)
+    readOpt(int tag, Ice.OptionalType expectedType)
     {
-        assert(_readEncapsStack != null && _readEncapsStack.decoder != null);
-        return _readEncapsStack.decoder.readOpt(tag, expectedType);
+        assert(_readEncapsStack != null);
+        if(_readEncapsStack.decoder != null)
+        {
+            return _readEncapsStack.decoder.readOpt(tag, expectedType);
+        }
+        else
+        {
+            return readOptImpl(tag, expectedType);
+        }
     }
 
     public void
@@ -763,17 +802,7 @@ public class BasicStream
     }
 
     public void
-    writeByte(byte v, int end)
-    {
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        writeByte(v);
-    }
-
-    public void
-    writeByteAt(byte v, int dest)
+    writeByte(byte v, int dest)
     {
         _buf.b.put(dest, v);
     }
@@ -826,17 +855,6 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-    }
-
-    public byte
-    readByte(int end)
-    {
-        byte v = readByte();
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        return v;
     }
 
     public byte[]
@@ -946,16 +964,6 @@ public class BasicStream
     }
 
     public void
-    writeShort(short v, int end)
-    {
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        writeShort(v);
-    }
-
-    public void
     writeShortSeq(short[] v)
     {
         if(v == null)
@@ -985,17 +993,6 @@ public class BasicStream
         }
     }
 
-    public short
-    readShort(int end)
-    {
-        short v = readShort();
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        return v;
-    }
-
     public short[]
     readShortSeq()
     {
@@ -1022,17 +1019,7 @@ public class BasicStream
     }
 
     public void
-    writeInt(int v, int end)
-    {
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        writeInt(v);
-    }
-
-    public void
-    writeIntAt(int v, int dest)
+    writeInt(int v, int dest)
     {
         _buf.b.putInt(dest, v);
     }
@@ -1065,17 +1052,6 @@ public class BasicStream
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-    }
-
-    public int
-    readInt(int end)
-    {
-        int v = readInt();
-        if(v < 0 || v >= end)
-        {
-            throw new Ice.MarshalException("enumerator out of range");
-        }
-        return v;
     }
 
     public int[]
@@ -1447,6 +1423,54 @@ public class BasicStream
     }
 
     public void
+    writeEnum(int v, int limit)
+    {
+        if(getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            if(limit <= 127)
+            {
+                writeByte((byte)v);
+            }
+            else if(limit <= 32767)
+            {
+                writeShort((short)v);
+            }
+            else
+            {
+                writeInt(v);
+            }
+        }
+        else
+        {
+            writeSize(v);
+        }
+    }
+
+    public int
+    readEnum(int limit)
+    {
+        if(getReadEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            if(limit <= 127)
+            {
+                return readByte();
+            }
+            else if(limit <= 32767)
+            {
+                return readShort();
+            }
+            else
+            {
+                return readInt();
+            }
+        }
+        else
+        {
+            return readSize();
+        }
+    }
+
+    public void
     writeObject(Ice.Object v)
     {
         initWriteEncaps();
@@ -1480,6 +1504,166 @@ public class BasicStream
     sliceObjects(boolean b)
     {
         _sliceObjects = b;
+    }
+
+    public boolean
+    readOptImpl(int readTag, Ice.OptionalType expectedType)
+    {
+        int tag = 0;
+        Ice.OptionalType type;
+        do
+        {
+            if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
+            {
+                return false; // End of encapsulation also indicates end of optionals.
+            }
+
+            int v = readByte();
+            type = Ice.OptionalType.valueOf(v & 0x07); // First 3 bits.
+            tag = v >> 3;
+            if(tag == 31)
+            {
+                tag = readSize();
+            }
+        }
+        while(type != Ice.OptionalType.EndMarker && tag < readTag && skipOpt(type)); // Skip optional data members
+
+        if(type == Ice.OptionalType.EndMarker || tag > readTag)
+        {
+            //
+            // Rewind the stream to correctly read the next optional data
+            // member tag & type next time.
+            //
+            int offset = tag < 31 ? 1 : (tag < 255 ? 2 : 6);
+            _buf.b.position(_buf.b.position() - offset);
+            return false; // No optional data members with the requested tag.
+        }
+
+        assert(readTag == tag);
+        if(type != expectedType)
+        {
+            String msg = "invalid optional data member `" + tag + "': unexpected type";
+            throw new Ice.MarshalException(msg);
+        }
+
+        //
+        // We have an optional data member with the requested tag and
+        // type.
+        //
+        return true;
+    }
+
+    public void
+    writeOptImpl(int tag, Ice.OptionalType type)
+    {
+        int v = type.value();
+        if(tag < 31)
+        {
+            v |= tag << 3;
+            writeByte((byte)v);
+        }
+        else
+        {
+            v |= 0x0F8; // tag = 31
+            writeByte((byte)v);
+            writeSize(tag);
+        }
+    }
+
+    public boolean
+    skipOpt(Ice.OptionalType type)
+    {
+        int sz;
+        switch(type)
+        {
+        case F1:
+        {
+            sz = 1;
+            break;
+        }
+        case F2:
+        {
+            sz = 2;
+            break;
+        }
+        case F4:
+        {
+            sz = 4;
+            break;
+        }
+        case F8:
+        {
+            sz = 8;
+            break;
+        }
+        case Size:
+        {
+            skipSize();
+            return true;
+        }
+        case VSize:
+        {
+            sz = readSize();
+            break;
+        }
+        case FSize:
+        {
+            sz = readInt();
+            break;
+        }
+        default:
+        {
+            return false;
+        }
+        }
+        skip(sz);
+        return true;
+    }
+
+    public boolean
+    skipOpts()
+    {
+        //
+        // Skip remaining un-read optional members.
+        //
+        Ice.OptionalType type;
+        do
+        {
+            if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
+            {
+                return false; // End of encapsulation also indicates end of optionals.
+            }
+
+            int v = readByte();
+            type = Ice.OptionalType.valueOf(v & 0x07); // Read first 3 bits.
+            if((v >> 3) == 31)
+            {
+                skipSize();
+            }
+        }
+        while(skipOpt(type));
+        assert(type == Ice.OptionalType.EndMarker);
+        return true;
+    }
+
+    public void
+    skip(int size)
+    {
+        if(size > _buf.b.remaining())
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
+        _buf.b.position(_buf.b.position() + size);
+    }
+
+    public void
+    skipSize()
+    {
+        byte b = readByte();
+        if(b == -1)
+        {
+            skip(4);
+        }
     }
 
     public int
@@ -2169,8 +2353,8 @@ public class BasicStream
                 }
 
                 //
-                // Performance sensitive, so we use lazy initialization
-                // for tracing.
+                // Performance sensitive, so we use lazy initialization for
+                // tracing.
                 //
                 if(_traceSlicing == -1)
                 {
@@ -2183,13 +2367,17 @@ public class BasicStream
                                            _stream.instance().initializationData().logger);
                 }
 
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+
                 if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
                 {
-                    // TODO: Consider adding a new exception, such as NoExceptionFactory?
-                    throw new Ice.UnmarshalOutOfBoundsException("unknown exception type `" + mostDerivedId + "'");
+                    throw new Ice.NoExceptionFactoryException("unknown exception type `" + mostDerivedId + "'",
+                                                              mostDerivedId);
                 }
 
-                skipSlice(); // Slice off what we don't understand.
                 try
                 {
                     startSlice();
@@ -2360,15 +2548,7 @@ public class BasicStream
         {
             if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                //
-                // Read remaining un-read optional members.
-                //
-                byte v;
-                do
-                {
-                    v = _stream.readByte();
-                }
-                while(skipOpt(v & 0x07));
+                _stream.skipOpts();
             }
 
             //
@@ -2383,13 +2563,16 @@ public class BasicStream
                 int[] indirectionTable = _stream.readSizeSeq();
 
                 //
-                // Sanity checks.
+                // Sanity checks. If there are optional members, it's possible
+                // that not all object references were read if they are from
+                // unknown optional data members.
                 //
                 if(indirectionTable.length == 0 && !_indirectPatchList.isEmpty())
                 {
                     throw new Ice.MarshalException("empty indirection table");
                 }
-                else if(indirectionTable.length > 0 && _indirectPatchList.isEmpty())
+                else if(indirectionTable.length > 0 && _indirectPatchList.isEmpty() &&
+                        (_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) == 0)
                 {
                     throw new Ice.MarshalException("no references to indirection table");
                 }
@@ -2424,15 +2607,12 @@ public class BasicStream
             if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
             {
                 assert(_sliceSize >= 4);
-                _stream.pos(start + _sliceSize - 4);
-                if((start + _sliceSize - 4) > _stream.size())
-                {
-                    throw new Ice.UnmarshalOutOfBoundsException();
-                }
+                _stream.skip(_sliceSize - 4);
             }
             else
             {
-                throw new Ice.MarshalException("compact format prevents slicing");
+                throw new Ice.MarshalException(
+                    "compact format prevents slicing (the sender should use the sliced format instead)");
             }
 
             if(!_encaps.encoding.equals(Ice.Util.Encoding_1_0))
@@ -2442,8 +2622,17 @@ public class BasicStream
                 //
                 Ice.SliceInfo info = new Ice.SliceInfo();
                 info.typeId = _typeId;
+                info.hasOptionalMembers = (_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0;
                 java.nio.ByteBuffer b = _stream.getBuffer().b;
-                final int end = b.position();
+                int end = b.position();
+                if(info.hasOptionalMembers)
+                {
+                    //
+                    // Don't include the optional member end marker. It will be re-written by
+                    // endSlice when the sliced data is re-written.
+                    //
+                    --end;
+                }
                 info.bytes = new byte[end - start];
                 b.position(start);
                 b.get(info.bytes);
@@ -2463,71 +2652,25 @@ public class BasicStream
             }
         }
 
-        boolean readOpt(int readTag, int expectedType)
+        boolean readOpt(int readTag, Ice.OptionalType expectedType)
         {
-            assert(_sliceType != SliceType.NoSlice);
-            if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) == 0)
+            if(_sliceType == SliceType.NoSlice)
             {
-                return false; // No optional data members
+                return _stream.readOptImpl(readTag, expectedType);
             }
-
-            int tag;
-            int type;
-            do
+            else if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                byte v = _stream.readByte();
-
-                type = v & 0x07; // Read first 3 bits.
-                tag = (int)(v >> 3);
-                if(tag == 31)
-                {
-                    tag = _stream.readSize();
-                }
+                return _stream.readOptImpl(readTag, expectedType);
             }
-            while(tag < readTag && skipOpt(type)); // Skip optional data members with lower tag values.
-
-            if(type == MemberTypeEndMarker)
-            {
-                //
-                // Clear the optional members flag since we've reach the end. We clear
-                // the flag to prevent endSlice to skip un-read optional members and
-                // to prevent other optional members from being read.
-                //
-                _sliceFlags &= ~FLAG_HAS_OPTIONAL_MEMBERS;
-                return false;
-            }
-            else if(tag > readTag)
-            {
-                //
-                // Rewind the stream so that we correctly read the next
-                // optional data member tag & type.
-                //
-                int pos = _stream.pos();
-                pos -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
-                _stream.pos(pos);
-                return false; // No optional data members with the requested tag.
-            }
-
-            assert(readTag == tag);
-            if(type != expectedType)
-            {
-                throw new Ice.MarshalException("invalid optional data member `" + tag + "' in `" + _typeId +
-                                               "': unexpected type");
-            }
-
-            //
-            // We have an optional data member with the requested tag and
-            // type.
-            //
-            return true;
+            return false;
         }
 
         void readPendingObjects()
         {
             //
-            // With the 1.0 encoding, only read pending objects if nil or
-            // non-nil references were read (_usesClasses == true). Otherwise,
-            // read pending objects only if some non-nil references were read.
+            // With the 1.0 encoding, read pending objects if nil or non-nil
+            // references were read (_usesClasses == true). Otherwise, read
+            // pending objects only if some non-nil references were read.
             //
             if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
             {
@@ -2540,6 +2683,14 @@ public class BasicStream
             else if(_patchMap.isEmpty())
             {
                 return;
+            }
+            else
+            {
+                //
+                // Read unread encapsulation optionals before reading the
+                // pending objects.
+                //
+                _stream.skipOpts();
             }
 
             int num;
@@ -2613,12 +2764,10 @@ public class BasicStream
             while(true)
             {
                 //
-                // For the 1.0 encoding, the type ID for the base Object class marks
-                // the last slice. For later encodings, an empty type ID means the
-                // class was marshaled in the compact format and therefore cannot be
-                // sliced.
+                // For the 1.0 encoding, the type ID for the base Object class
+                // marks the last slice.
                 //
-                if(_typeId.length() == 0 || _typeId.equals(Ice.ObjectImpl.ice_staticId()))
+                if(_typeId.equals(Ice.ObjectImpl.ice_staticId()))
                 {
                     throw new Ice.NoObjectFactoryException("", mostDerivedId);
                 }
@@ -2668,19 +2817,6 @@ public class BasicStream
                 }
 
                 //
-                // If object slicing is disabled, or if the flags indicate that this is the
-                // last slice (for encodings >= 1.1), we raise NoObjectFactoryException.
-                //
-                if(!_sliceObjects)
-                {
-                    throw new Ice.NoObjectFactoryException("object slicing is disabled", _typeId);
-                }
-                else if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
-                {
-                    throw new Ice.NoObjectFactoryException("", _typeId);
-                }
-
-                //
                 // Performance sensitive, so we use lazy initialization for tracing.
                 //
                 if(_traceSlicing == -1)
@@ -2694,7 +2830,29 @@ public class BasicStream
                                            _stream.instance().initializationData().logger);
                 }
 
-                skipSlice(); // Slice off what we don't understand.
+                //
+                // If object slicing is disabled, stop un-marshalling.
+                //
+                if(!_sliceObjects)
+                {
+                    throw new Ice.NoObjectFactoryException("object slicing is disabled", _typeId);
+                }
+
+                //
+                // Slice off what we don't understand.
+                //
+                skipSlice();
+
+                //
+                // If this is the last slice, keep the object as an opaque
+                // UnknownSlicedData object.
+                //
+                if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
+                {
+                    v = new Ice.UnknownSlicedObject(mostDerivedId);
+                    break;
+                }
+
                 startSlice(); // Read next Slice header for next iteration.
             }
 
@@ -3123,7 +3281,7 @@ public class BasicStream
             //
             if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                _stream.writeByte((byte)MemberTypeEndMarker);
+                _stream.writeByte((byte)Ice.OptionalType.EndMarker.value());
             }
 
             //
@@ -3132,7 +3290,7 @@ public class BasicStream
             if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
             {
                 final int sz = _stream.pos() - _writeSlice + 4;
-                _stream.writeIntAt(sz, _writeSlice - 4);
+                _stream.writeInt(sz, _writeSlice - 4);
             }
 
             //
@@ -3164,33 +3322,29 @@ public class BasicStream
             }
             else
             {
-                _stream.writeByteAt(_sliceFlags, _sliceFlagsPos);
+                _stream.writeByte(_sliceFlags, _sliceFlagsPos);
             }
         }
 
-        void writeOpt(int tag, int type)
+        void writeOpt(int tag, Ice.OptionalType type)
         {
-            assert(_sliceType != SliceType.NoSlice);
-            _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
-            byte v = (byte)type;
-            if(tag < 31)
+            if(_sliceType == SliceType.NoSlice)
             {
-                v |= (byte)(tag << 3);
+                _stream.writeOptImpl(tag, type);
             }
             else
             {
-                v |= (byte)0x0F8; // tag = 31
-                _stream.writeSize(tag);
+                _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+                _stream.writeOptImpl(tag, type);
             }
         }
 
         void writePendingObjects()
         {
             //
-            // With the 1.0 encoding, only write pending objects if nil or
-            // non-nil references were written (_usesClasses =
-            // true). Otherwise, write pending objects only if some non-nil
-            // references were written.
+            // With the 1.0 encoding, write pending objects if nil or non-nil
+            // references were written (_usesClasses = true). Otherwise, write
+            // pending objects only if some non-nil references were written.
             //
             if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
             {
@@ -3203,6 +3357,14 @@ public class BasicStream
             else if(_toBeMarshaledMap.isEmpty())
             {
                 return;
+            }
+            else
+            {
+                //
+                // Write end marker for encapsulation optionals before encoding
+                // the pending objects.
+                //
+                _stream.writeByte((byte)Ice.OptionalType.EndMarker.value());
             }
 
             while(_toBeMarshaledMap.size() > 0)
@@ -3274,6 +3436,11 @@ public class BasicStream
                 // Write the bytes associated with this slice.
                 //
                 _stream.writeBlob(info.bytes);
+
+                if(info.hasOptionalMembers)
+                {
+                    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+                }
 
                 //
                 // Assemble and write the indirection table. The table must have the same order

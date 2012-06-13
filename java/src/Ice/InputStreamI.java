@@ -186,6 +186,12 @@ public class InputStreamI implements InputStream
         _is.readObject(new Patcher(cb));
     }
 
+    public int
+    readEnum(int limit)
+    {
+        return _is.readEnum(limit);
+    }
+
     public void
     throwException()
         throws UserException
@@ -282,6 +288,12 @@ public class InputStreamI implements InputStream
         return _is.skipEncaps();
     }
 
+    public EncodingVersion
+    getEncoding()
+    {
+        return _is.getReadEncoding();
+    }
+
     public void
     readPendingObjects()
     {
@@ -293,6 +305,24 @@ public class InputStreamI implements InputStream
     {
         _is.clear();
         _is.getBuffer().b.position(0);
+    }
+
+    public void
+    skip(int sz)
+    {
+        _is.skip(sz);
+    }
+
+    public void
+    skipSize()
+    {
+        _is.skipSize();
+    }
+
+    public boolean
+    readOptional(int tag, OptionalType type)
+    {
+        return _is.readOpt(tag, type);
     }
 
     public void

@@ -11,11 +11,22 @@ package IceInternal;
 
 public class Ex
 {
-    public static void throwUOE(String expectedType, String actualType)
+    public static void throwUOE(String expectedType, Ice.Object v)
     {
-        throw new Ice.UnexpectedObjectException(
-                    "expected element of type `" + expectedType + "' but received '" + actualType,
-                    actualType, expectedType);
+        //
+        // If the object is an unknown sliced object, we didn't find an
+        // object factory, in this case raise a NoObjectFactoryException
+        // instead.
+        //
+        if(v instanceof Ice.UnknownSlicedObject)
+        {
+            Ice.UnknownSlicedObject uso = (Ice.UnknownSlicedObject)v;
+            throw new Ice.NoObjectFactoryException("", uso.getUnknownTypeId());
+        }
+
+        String type = v.ice_id();
+        throw new Ice.UnexpectedObjectException("expected element of type `" + expectedType + "' but received '" +
+                                                type, type, expectedType);
     }
 
     public static void throwMemoryLimitException(int requested, int maximum)

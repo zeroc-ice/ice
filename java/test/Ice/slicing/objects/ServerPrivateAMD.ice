@@ -192,14 +192,18 @@ exception UnknownDerivedException extends BaseException
     D2 pd2;
 };
 
-["preserve-slice"]
+class MyClass
+{
+    int i;
+};
+
 class PSUnknown extends Preserved
 {
     string psu;
     PNode graph;
+    MyClass cl;
 };
 
-["preserve-slice"]
 class PSUnknown2 extends Preserved
 {
     PBase pb;

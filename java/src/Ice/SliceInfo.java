@@ -28,4 +28,9 @@ public class SliceInfo
      * The Ice objects referenced by this slice.
      **/
     public Ice.Object[] objects;
+
+    /**
+     * Whether or not the slice contains optional members.
+     **/
+    public boolean hasOptionalMembers;
 }

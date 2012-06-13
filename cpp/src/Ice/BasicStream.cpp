@@ -2322,7 +2322,8 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
         //
         if(_sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            throw NoExceptionFactoryException(__FILE__, __LINE__, "", "unknown exception type `" + mostDerivedId + "'");
+            throw NoExceptionFactoryException(__FILE__, __LINE__, "unknown exception type `" + mostDerivedId + "'",
+                                              mostDerivedId);
         }
 
         try

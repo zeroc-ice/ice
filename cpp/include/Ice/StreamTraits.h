@@ -248,14 +248,14 @@ struct StreamOptionalHelper
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        assert(ot != OptionalTypeVSize && ot != OptionalTypeFSize || st == StreamTraitTypeBuiltin);
+        assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize) || st == StreamTraitTypeBuiltin);
         StreamHelper<T, st>::write(stream, v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        assert(ot != OptionalTypeVSize && ot != OptionalTypeFSize || st == StreamTraitTypeBuiltin);
+        assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize) || st == StreamTraitTypeBuiltin);
         StreamHelper<T, st>::read(stream, v);
     }
 };

@@ -175,6 +175,14 @@ public interface OutputStream
     void writeObject(Ice.Object v);
 
     /**
+     * Write an enumerated value.
+     *
+     * @param v The enumerator.
+     * @param limit The number of enumerators in the definition.
+     **/
+    void writeEnum(int v, int limit);
+
+    /**
      * Writes a user exception to the stream.
      *
      * @param id The user exception to write.
@@ -243,6 +251,13 @@ public interface OutputStream
     void endEncapsulation();
 
     /**
+     * Determines the current encoding version.
+     *
+     * @return The encoding version.
+     **/
+    EncodingVersion getEncoding();
+
+    /**
      * Writes the state of Slice classes whose index was previously
      * written with {@link #writeObject} to the stream.
      **/
@@ -254,6 +269,21 @@ public interface OutputStream
      * @return The byte sequence containing the encoded request or reply.
      **/
     byte[] finished();
+
+    /**
+     * Determines the current position in the stream.
+     *
+     * @return The current position.
+     **/
+    int pos();
+
+    /**
+     * Inserts a fixed 32-bit size value into the stream at the given position.
+     *
+     * @param pos The position at which to write the value.
+     * @param sz The size value.
+     **/
+    void rewrite(int pos, int sz);
 
     /**
      * Resets this output stream. This method allows the stream to be reused, to avoid creating

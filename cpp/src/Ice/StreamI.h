@@ -165,7 +165,7 @@ public:
     virtual void reset(bool);
 
     virtual size_type pos();
-    virtual void rewrite(size_type, Int);
+    virtual void rewrite(Int, size_type);
 
 private:
 

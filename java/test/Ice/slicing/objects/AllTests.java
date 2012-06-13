@@ -280,7 +280,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
 
-    private static class Callback_TestIntf_SUnknownAsObjectI extends Callback_TestIntf_SUnknownAsObject
+    private static class Callback_TestIntf_SUnknownAsObjectI1 extends Callback_TestIntf_SUnknownAsObject
     {
         public void
         response(Ice.Object o)
@@ -291,9 +291,37 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
-
             test(exc.ice_name().equals("Ice::NoObjectFactoryException"));
             callback.called();
+        }
+
+        public void
+        exception(Ice.UserException exc)
+        {
+            test(false);
+        }
+
+        public void
+        check()
+        {
+            callback.check();
+        }
+
+        private Callback callback = new Callback();
+    }
+
+    private static class Callback_TestIntf_SUnknownAsObjectI2 extends Callback_TestIntf_SUnknownAsObject
+    {
+        public void
+        response(Ice.Object o)
+        {
+            callback.called();
+        }
+
+        public void
+        exception(Ice.LocalException exc)
+        {
+            test(false);
         }
 
         public void
@@ -1509,10 +1537,11 @@ public class AllTests
             try
             {
                 o = test.SUnknownAsObject();
-                test(false);
+                test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
             }
             catch(Ice.NoObjectFactoryException ex)
             {
+                test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
             }
             catch(Exception ex)
             {
@@ -1524,9 +1553,18 @@ public class AllTests
         out.print("unknown with Object as Object (AMI)... ");
         out.flush();
         {
-            Callback_TestIntf_SUnknownAsObjectI cb = new Callback_TestIntf_SUnknownAsObjectI();
-            test.begin_SUnknownAsObject(cb);
-            cb.check();
+            if(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
+            {
+                Callback_TestIntf_SUnknownAsObjectI1 cb = new Callback_TestIntf_SUnknownAsObjectI1();
+                test.begin_SUnknownAsObject(cb);
+                cb.check();
+            }
+            else
+            {
+                Callback_TestIntf_SUnknownAsObjectI2 cb = new Callback_TestIntf_SUnknownAsObjectI2();
+                test.begin_SUnknownAsObject(cb);
+                cb.check();
+            }
         }
         out.println("ok");
 

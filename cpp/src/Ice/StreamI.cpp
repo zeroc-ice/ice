@@ -678,9 +678,9 @@ OutputStreamI::pos()
 }
 
 void
-OutputStreamI::rewrite(size_type p, Int sz)
+OutputStreamI::rewrite(Int sz, size_type p)
 {
-    _os->rewrite(p, sz);
+    _os->rewrite(sz, p);
 }
 
 //

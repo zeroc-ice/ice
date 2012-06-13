@@ -47,7 +47,6 @@ class MyClass
     int i;
 };
 
-["preserve-slice"]
 class PSUnknown extends Preserved
 {
     string psu;
@@ -55,7 +54,6 @@ class PSUnknown extends Preserved
     MyClass cl;
 };
 
-["preserve-slice"]
 class PSUnknown2 extends Preserved
 {
     PBase pb;

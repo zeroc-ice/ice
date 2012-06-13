@@ -300,6 +300,14 @@ public final class TestI extends _TestIntfDisp
         r.ps = "preserved";
         r.psu = "unknown";
         r.graph = null;
+        if(!current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            //
+            // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
+            // from unread slice.
+            //
+            r.cl = new MyClass(15);
+        }
         return r;
     }
 
@@ -319,6 +327,7 @@ public final class TestI extends _TestIntfDisp
             test(pu.ps.equals("preserved"));
             test(pu.psu.equals("unknown"));
             test(pu.graph == null);
+            test(pu.cl != null && pu.cl.i == 15);
         }
     }
 

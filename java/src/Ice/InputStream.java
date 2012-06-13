@@ -189,6 +189,14 @@ public interface InputStream
     void readObject(ReadObjectCallback cb);
 
     /**
+     * Read an enumerated value.
+     *
+     * @param limit The number of enumerators in the definition.
+     * @return The enumerator.
+     **/
+    int readEnum(int limit);
+
+    /**
      * Extracts a user exception from the stream and throws it.
      **/
     void throwException() throws UserException;
@@ -247,7 +255,7 @@ public interface InputStream
      *
      * @return The encapsulation encoding version.
      **/
-    Ice.EncodingVersion startEncapsulation();
+    EncodingVersion startEncapsulation();
 
     /**
      * Indicates that the end of an encapsulation has been reached.
@@ -259,7 +267,14 @@ public interface InputStream
      *
      * @return The encapsulation encoding version.
      **/
-    Ice.EncodingVersion skipEncapsulation();
+    EncodingVersion skipEncapsulation();
+
+    /**
+     * Determines the current encoding version.
+     *
+     * @return The encoding version.
+     **/
+    EncodingVersion getEncoding();
 
     /**
      * Indicates that unmarshaling is complete, except for any Slice objects. The application must call this method
@@ -273,6 +288,27 @@ public interface InputStream
      * Resets the read position of the stream to the beginning.
      **/
     void rewind();
+
+    /**
+     * Skips ahead in the stream.
+     *
+     * @param sz The number of bytes to skip.
+     **/
+    void skip(int sz);
+
+    /**
+     * Skips over a size value.
+     **/
+    void skipSize();
+
+    /**
+     * Determine if an optional value is available for reading.
+     *
+     * @param tag The tag associated with the value.
+     * @param type The optional type for the value.
+     * @return True if the value is present, false otherwise.
+     **/
+    boolean readOptional(int tag, OptionalType type);
 
     /**
      * Destroys the stream and its associated resources. The application must call <code>destroy</code> prior

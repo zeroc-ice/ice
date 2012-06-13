@@ -322,7 +322,7 @@ public:
     virtual void finished(::std::vector<Byte>&) = 0;
 
     virtual size_type pos() = 0;
-    virtual void rewrite(size_type, Int) = 0;
+    virtual void rewrite(Int, size_type) = 0;
 
     virtual void reset(bool) = 0;
 

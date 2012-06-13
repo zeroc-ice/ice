@@ -1152,7 +1152,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+            out << nl << "IceInternal.Ex.throwUOE(type(), v);";
             out << eb;
             if(allClassMembers.size() > 1)
             {
@@ -2943,7 +2943,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 out << eb;
                 out << nl << "else";
                 out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
                 out << eb;
                 if(allClassMembers.size() > 1)
                 {
@@ -3376,7 +3376,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 out << eb;
                 out << nl << "else";
                 out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
                 out << eb;
                 if(classMembers.size() > 1)
                 {
@@ -3710,34 +3710,16 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     {
         out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
-        if(sz <= 0x7f)
-        {
-            out << nl << "__os.writeByte((byte)ordinal());";
-        }
-        else if(sz <= 0x7fff)
-        {
-            out << nl << "__os.writeShort((short)ordinal());";
-        }
-        else
-        {
-            out << nl << "__os.writeInt(ordinal());";
-        }
+        out << nl << "__os.writeEnum(ordinal(), " << sz << ");";
         out << eb;
 
         out << sp << nl << "public static " << name << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
-        if(sz <= 0x7f)
-        {
-            out << nl << "int __v = __is.readByte(" << sz << ");";
-        }
-        else if(sz <= 0x7fff)
-        {
-            out << nl << "int __v = __is.readShort(" << sz << ");";
-        }
-        else
-        {
-            out << nl << "int __v = __is.readInt(" << sz << ");";
-        }
+        out << nl << "int __v = __is.readEnum(" << sz << ");";
+        out << nl << "if(__v < 0 || __v >= " << sz << ')';
+        out << sb;
+        out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
+        out << eb;
         out << nl << "return values()[__v];";
         out << eb;
 
@@ -3745,34 +3727,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __outS)";
             out << sb;
-            if(sz <= 0x7f)
-            {
-                out << nl << "__outS.writeByte((byte)ordinal());";
-            }
-            else if(sz <= 0x7fff)
-            {
-                out << nl << "__outS.writeShort((short)ordinal());";
-            }
-            else
-            {
-                out << nl << "__outS.writeInt(ordinal());";
-            }
+            out << nl << "__outS.writeEnum(ordinal(), " << sz << ");";
             out << eb;
 
             out << sp << nl << "public static " << name << nl << "ice_read(Ice.InputStream __inS)";
             out << sb;
-            if(sz <= 0x7f)
-            {
-                out << nl << "int __v = __inS.readByte();";
-            }
-            else if(sz <= 0x7fff)
-            {
-                out << nl << "int __v = __inS.readShort();";
-            }
-            else
-            {
-                out << nl << "int __v = __inS.readInt();";
-            }
+            out << nl << "int __v = __inS.readEnum(" << sz << ");";
             out << nl << "if(__v < 0 || __v >= " << sz << ')';
             out << sb;
             out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
@@ -3953,7 +3913,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+        out << nl << "IceInternal.Ex.throwUOE(type(), v);";
         out << eb;
         out << eb;
         out << sp << nl << "public String" << nl << "type()";
