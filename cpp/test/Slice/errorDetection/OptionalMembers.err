@@ -11,3 +11,5 @@ OptionalMembers.ice:32: tag for optional is out of range
 OptionalMembers.ice:32: invalid tag `C4' for optional
 OptionalMembers.ice:33: invalid tag `C5' for optional
 OptionalMembers.ice:34: tag for optional data member `m12' is already in use
+OptionalMembers.ice:39: optional data members not supported in struct
+OptionalMembers.ice:40: optional data members not supported in struct

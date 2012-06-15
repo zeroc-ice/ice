@@ -592,7 +592,7 @@ struct_exports
 // ----------------------------------------------------------------------
 struct_export
 // ----------------------------------------------------------------------
-: data_member
+: struct_data_member
 ;
 
 // ----------------------------------------------------------------------
@@ -835,6 +835,68 @@ data_member
     {
         $$ = ex->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     }
+    assert($$);
+    unit->error("missing data member name");
+}
+;
+
+// ----------------------------------------------------------------------
+struct_data_member
+// ----------------------------------------------------------------------
+: type_id
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, 0, "", "");
+    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
+    $$ = dm;
+}
+| type_id '=' const_initializer
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($1);
+    ConstDefTokPtr value = ConstDefTokPtr::dynamicCast($3);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    DataMemberPtr dm = st->createDataMember(ts->v.second, ts->v.first, false, -1, value->v.value,
+                                            value->v.valueAsString, value->v.valueAsLiteral);
+    unit->currentContainer()->checkIntroduced(ts->v.second, dm);
+    $$ = dm;
+}
+| optional type_id
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    assert($$);
+    unit->error("optional data members not supported in struct");
+}
+| optional type_id '=' const_initializer
+{
+    TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast($2);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(ts->v.second, ts->v.first, false, 0, 0, "", ""); // Dummy
+    assert($$);
+    unit->error("optional data members not supported in struct");
+}
+| type keyword
+{
+    TypePtr type = TypePtr::dynamicCast($1);
+    string name = StringTokPtr::dynamicCast($2)->v;
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(name, type, false, 0, 0, "", ""); // Dummy
+    assert($$);
+    unit->error("keyword `" + name + "' cannot be used as data member name");
+}
+| type
+{
+    TypePtr type = TypePtr::dynamicCast($1);
+    StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+    assert(st);
+    $$ = st->createDataMember(IceUtil::generateUUID(), type, false, 0, 0, "", ""); // Dummy
     assert($$);
     unit->error("missing data member name");
 }

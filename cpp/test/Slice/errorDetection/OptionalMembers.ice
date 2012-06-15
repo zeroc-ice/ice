@@ -34,4 +34,10 @@ class C
     optional(e1) int m12;           // duplicate tag
 };
 
+struct S
+{
+    optional(1) int m1;             // not allowed in struct
+    optional(2) int m2 = 2;         // not allowed in struct
+};
+
 };

@@ -24,7 +24,7 @@ using namespace Slice;
 
 //
 // Don't use "using namespace IceUtil", or VC++ 6.0 complains
-// about ambigious symbols for constructs like
+// about ambiguous symbols for constructs like
 // "IceUtil::constMemFun(&Slice::Exception::isLocal)".
 //
 using IceUtilInternal::Output;
@@ -411,6 +411,325 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
     out << nl << "if(" << name << " != null)";
     out << sb;
     out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+    out << eb;
+}
+
+string
+Slice::JavaVisitor::getOptionalType(const TypePtr& type)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp)
+    {
+        switch(bp->kind())
+        {
+        case Builtin::KindByte:
+        case Builtin::KindBool:
+        {
+            return "Ice.OptionalType.F1";
+        }
+        case Builtin::KindShort:
+        {
+            return "Ice.OptionalType.F2";
+        }
+        case Builtin::KindInt:
+        case Builtin::KindFloat:
+        {
+            return "Ice.OptionalType.F4";
+        }
+        case Builtin::KindLong:
+        case Builtin::KindDouble:
+        {
+            return "Ice.OptionalType.F8";
+        }
+        case Builtin::KindString:
+        {
+            return "Ice.OptionalType.VSize";
+        }
+        case Builtin::KindObject:
+        {
+            return "Ice.OptionalType.Size";
+        }
+        case Builtin::KindObjectProxy:
+        {
+            return "Ice.OptionalType.FSize";
+        }
+        case Builtin::KindLocalObject:
+        {
+            assert(false);
+            break;
+        }
+        }
+    }
+
+    if(EnumPtr::dynamicCast(type))
+    {
+        return "Ice.OptionalType.Size";
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return seq->type()->isVariableLength() ? "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
+            "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return st->isVariableLength() ? "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+    }
+
+    if(ProxyPtr::dynamicCast(type))
+    {
+        return "Ice.OptionalType.FSize";
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    assert(cl);
+    return "Ice.OptionalType.Size";
+}
+
+void
+Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
+{
+    if(!member->optional())
+    {
+        writeMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), true, iter, false,
+                                  member->getMetaData());
+    }
+    else
+    {
+        out << nl << "if(__has_" << member->name() << ')';
+        out << sb;
+        out << nl << "__os.writeOpt(" << member->tag() << ", " << getOptionalType(member->type()) << ");";
+        writeMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), true, iter, false,
+                                  member->getMetaData());
+        out << eb;
+    }
+}
+
+void
+Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member,
+                                             int& iter, bool needPatcher, int& patchIter)
+{
+    string patchParams;
+    if(needPatcher)
+    {
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
+        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        {
+            ostringstream ostr;
+            ostr << "new Patcher(" << patchIter++ << ')';
+            patchParams = ostr.str();
+        }
+    }
+
+    if(!member->optional())
+    {
+        writeMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), false, iter, false,
+                                  member->getMetaData(), patchParams);
+    }
+    else
+    {
+        out << nl << "__has_" << member->name() << " = __is.readOpt(" << member->tag() << ", "
+            << getOptionalType(member->type()) << ");";
+        out << nl << "if(__has_" << member->name() << ')';
+        out << sb;
+        writeMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), false, iter, false,
+                                  member->getMetaData(), patchParams);
+        out << eb;
+    }
+}
+
+void
+Slice::JavaVisitor::writeStreamMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member,
+                                                 int& iter)
+{
+    if(!member->optional())
+    {
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), true, iter, false,
+                                        member->getMetaData());
+    }
+    else
+    {
+        out << nl << "if(__has_" << member->name() << ')';
+        out << sb;
+        out << nl << "__outS.writeOptional(" << member->tag() << ", " << getOptionalType(member->type()) << ");";
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), true, iter, false,
+                                        member->getMetaData());
+        out << eb;
+    }
+}
+
+void
+Slice::JavaVisitor::writeStreamUnmarshalDataMember(Output& out, const string& package, const DataMemberPtr& member,
+                                                   int& iter, bool needPatcher, int& patchIter)
+{
+    string patchParams;
+    if(needPatcher)
+    {
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
+        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        {
+            ostringstream ostr;
+            ostr << "new Patcher(" << patchIter++ << ')';
+            patchParams = ostr.str();
+        }
+    }
+
+    if(!member->optional())
+    {
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), false, iter, false,
+                                        member->getMetaData(), patchParams);
+    }
+    else
+    {
+        out << nl << "__has_" << member->name() << " = __inS.readOptional(" << member->tag() << ", "
+            << getOptionalType(member->type()) << ");";
+        out << nl << "if(__has_" << member->name() << ')';
+        out << sb;
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), fixKwd(member->name()), false, iter, false,
+                                        member->getMetaData(), patchParams);
+        out << eb;
+    }
+}
+
+void
+Slice::JavaVisitor::writePatcher(Output& out, const string& package, const DataMemberList& classMembers, bool stream)
+{
+    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
+    if(stream)
+    {
+        out << ", Ice.ReadObjectCallback";
+    }
+    out << sb;
+    if(classMembers.size() > 1)
+    {
+        out << sp << nl << "Patcher(int member)";
+        out << sb;
+        out << nl << "__member = member;";
+        out << eb;
+    }
+
+    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
+    out << sb;
+    if(classMembers.size() > 1)
+    {
+        out << nl << "switch(__member)";
+        out << sb;
+    }
+    int memberCount = 0;
+    for(DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
+        if(b)
+        {
+            assert(b->kind() == Builtin::KindObject);
+        }
+
+        if(classMembers.size() > 1)
+        {
+            out.dec();
+            out << nl << "case " << memberCount << ":";
+            out.inc();
+            if(b)
+            {
+                out << nl << "__typeId = Ice.ObjectImpl.ice_staticId();";
+            }
+            else
+            {
+                out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
+            }
+        }
+
+        if((*d)->optional())
+        {
+            string capName = (*d)->name();
+            capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+
+            if(b)
+            {
+                out << nl << "set" << capName << "(v);";
+            }
+            else
+            {
+                string memberType = typeToString((*d)->type(), TypeModeMember, package);
+                out << nl << "if(v == null || v instanceof " << memberType << ")";
+                out << sb;
+                out << nl << "set" << capName << "((" << memberType << ")v);";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
+                out << eb;
+            }
+        }
+        else
+        {
+            string memberName = fixKwd((*d)->name());
+            if(b)
+            {
+                out << nl << memberName << " = v;";
+            }
+            else
+            {
+                string memberType = typeToString((*d)->type(), TypeModeMember, package);
+                out << nl << "if(v == null || v instanceof " << memberType << ")";
+                out << sb;
+                out << nl << memberName << " = (" << memberType << ")v;";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
+                out << eb;
+            }
+        }
+
+        if(classMembers.size() > 1)
+        {
+            out << nl << "break;";
+        }
+
+        memberCount++;
+    }
+    if(classMembers.size() > 1)
+    {
+        out << eb;
+    }
+    out << eb;
+
+    out << sp << nl << "public String" << nl << "type()";
+    out << sb;
+    if(classMembers.size() > 1)
+    {
+        out << nl << "return __typeId;";
+    }
+    else
+    {
+        out << nl << "return \"" << (*classMembers.begin())->type()->typeId() << "\";";
+    }
+    out << eb;
+
+    if(stream)
+    {
+        out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
+        out << sb;
+        out << nl << "patch(v);";
+        out << eb;
+    }
+
+    if(classMembers.size() > 1)
+    {
+        out << sp << nl << "private int __member;";
+        out << nl << "private String __typeId;";
+    }
+
     out << eb;
 }
 
@@ -1059,6 +1378,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     int iter;
     DataMemberList members = p->dataMembers();
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
     bool preserved = basePreserved || p->hasMetaData("preserve-slice");
     DataMemberList::const_iterator d;
@@ -1083,8 +1403,14 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     iter = 0;
     for(d = members.begin(); d != members.end(); ++d)
     {
-        StringList metaData = (*d)->getMetaData();
-        writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
+        if(!(*d)->optional())
+        {
+            writeMarshalDataMember(out, package, *d, iter);
+        }
+    }
+    for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {
+        writeMarshalDataMember(out, package, *d, iter);
     }
     out << nl << "__os.endWriteSlice();";
     if(base)
@@ -1110,110 +1436,26 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     DataMemberList allClassMembers = p->allClassDataMembers();
     if(allClassMembers.size() != 0)
     {
-        out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-        if(stream)
-        {
-            out << ", Ice.ReadObjectCallback";
-        }
-        out << sb;
-        if(allClassMembers.size() > 1)
-        {
-            out << sp << nl << "Patcher(int member)";
-            out << sb;
-            out << nl << "__member = member;";
-            out << eb;
-        }
-
-        out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
-        out << sb;
-        if(allClassMembers.size() > 1)
-        {
-            out << nl << "switch(__member)";
-            out << sb;
-        }
-        int memberCount = 0;
-        for(d = allClassMembers.begin(); d != allClassMembers.end(); ++d)
-        {
-            if(allClassMembers.size() > 1)
-            {
-                out.dec();
-                out << nl << "case " << memberCount << ":";
-                out.inc();
-            }
-            if(allClassMembers.size() > 1)
-            {
-                out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
-            }
-            string memberName = fixKwd((*d)->name());
-            string memberType = typeToString((*d)->type(), TypeModeMember, package);
-            out << nl << "if(v == null || v instanceof " << memberType << ")";
-            out << sb;
-            out << nl << memberName << " = (" << memberType << ")v;";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-            out << eb;
-            if(allClassMembers.size() > 1)
-            {
-                out << nl << "break;";
-            }
-            memberCount++;
-        }
-        if(allClassMembers.size() > 1)
-        {
-            out << eb;
-        }
-        out << eb;
-
-        out << sp << nl << "public String" << nl << "type()";
-        out << sb;
-        if(allClassMembers.size() > 1)
-        {
-            out << nl << "return __typeId;";
-        }
-        else
-        {
-            out << nl << "return \"" << (*allClassMembers.begin())->type()->typeId() << "\";";
-        }
-        out << eb;
-
-        if(stream)
-        {
-            out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-            out << sb;
-            out << nl << "patch(v);";
-            out << eb;
-        }
-
-        if(allClassMembers.size() > 1)
-        {
-            out << sp << nl << "private int __member;";
-            out << nl << "private String __typeId;";
-        }
-        out << eb;
+        writePatcher(out, package, allClassMembers, stream);
     }
 
     out << sp << nl << "public void" << nl << "__readImpl(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << "__is.startReadSlice();";
-    iter = 0;
     DataMemberList classMembers = p->classDataMembers();
-    size_t classMemberCount = allClassMembers.size() - classMembers.size();
+    int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+    const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
+    iter = 0;
     for(d = members.begin(); d != members.end(); ++d)
     {
-        StringList metaData = (*d)->getMetaData();
-        ostringstream patchParams;
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+        if(!(*d)->optional())
         {
-            if(classMembers.size() > 1 || allClassMembers.size() > 1)
-            {
-                patchParams << "new Patcher(" << classMemberCount++ << ')';
-            }
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
         }
-        writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
-                                  patchParams.str());
+    }
+    for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {
+        writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
     }
     out << nl << "__is.endReadSlice();";
     if(base)
@@ -1244,9 +1486,14 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
-            StringList metaData = (*d)->getMetaData();
-            writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                            metaData);
+            if(!(*d)->optional())
+            {
+                writeStreamMarshalDataMember(out, package, *d, iter);
+            }
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
+            writeStreamMarshalDataMember(out, package, *d, iter);
         }
         out << nl << "__outS.endSlice();";
         if(base)
@@ -1273,20 +1520,17 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << sb;
         out << nl << "__inS.startSlice();";
         iter = 0;
+        classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
         for(d = members.begin(); d != members.end(); ++d)
         {
-            StringList metaData = (*d)->getMetaData();
-            ostringstream patchParams;
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+            if(!(*d)->optional())
             {
-                if(classMembers.size() > 1 || allClassMembers.size() > 1)
-                {
-                    patchParams << "new Patcher(" << classMemberCount++ << ')';
-                }
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
             }
-            writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                            metaData, patchParams.str());
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
+            writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
         }
         out << nl << "__inS.endSlice();";
         if(base)
@@ -1462,10 +1706,20 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
     {
         if((*p)->defaultValueType())
         {
-            string memberName = fixKwd((*p)->name());
-            out << nl << memberName << " = ";
-            writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
-            out << ';';
+            if((*p)->optional())
+            {
+                string capName = (*p)->name();
+                capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                out << nl << "set" << capName << '(';
+                writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
+                out << ");";
+            }
+            else
+            {
+                out << nl << fixKwd((*p)->name()) << " = ";
+                writeConstantValue(out, (*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue(), package);
+                out << ';';
+            }
         }
     }
 }
@@ -2564,8 +2818,23 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface() && !allDataMembers.empty())
     {
+        bool hasOptionalMembers = false;
+        bool hasRequiredMembers = false;
+
+        for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+        {
+            if((*d)->optional())
+            {
+                hasOptionalMembers = true;
+            }
+            else
+            {
+                hasRequiredMembers = true;
+            }
+        }
+
         //
-        // Constructors.
+        // Default constructor.
         //
         out << sp;
         out << nl << "public " << fixKwd(name) << "()";
@@ -2582,6 +2851,71 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         if(allDataMembers.size() < 255)
         {
+            DataMemberList baseDataMembers;
+            if(baseClass)
+            {
+                baseDataMembers = baseClass->allDataMembers();
+            }
+
+            if(hasRequiredMembers && hasOptionalMembers)
+            {
+                //
+                // Generate a constructor accepting parameters for just the required members.
+                //
+                out << sp << nl << "public " << fixKwd(name) << spar;
+                vector<string> paramDecl;
+                for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+                {
+                    if(!(*d)->optional())
+                    {
+                        string memberName = fixKwd((*d)->name());
+                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                        paramDecl.push_back(memberType + " " + memberName);
+                    }
+                }
+                out << paramDecl << epar;
+                out << sb;
+                if(!baseDataMembers.empty())
+                {
+                    bool hasBaseRequired = false;
+                    for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                    {
+                        if(!(*d)->optional())
+                        {
+                            hasBaseRequired = true;
+                            break;
+                        }
+                    }
+                    if(hasBaseRequired)
+                    {
+                        out << nl << "super" << spar;
+                        vector<string> baseParamNames;
+                        for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                        {
+                            if(!(*d)->optional())
+                            {
+                                baseParamNames.push_back(fixKwd((*d)->name()));
+                            }
+                        }
+                        out << baseParamNames << epar << ';';
+                    }
+                }
+
+                for(d = members.begin(); d != members.end(); ++d)
+                {
+                    if(!(*d)->optional())
+                    {
+                        string paramName = fixKwd((*d)->name());
+                        out << nl << "this." << paramName << " = " << paramName << ';';
+                    }
+                }
+                writeDataMemberInitializers(out, p->orderedOptionalDataMembers(), package);
+                out << eb;
+            }
+
+            //
+            // Generate a constructor accepting parameters for all members.
+            //
             out << sp << nl << "public " << fixKwd(name) << spar;
             vector<string> paramDecl;
             for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
@@ -2596,21 +2930,25 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
-                DataMemberList baseDataMembers = baseClass->allDataMembers();
                 for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
                 {
                     baseParamNames.push_back(fixKwd((*d)->name()));
                 }
                 out << baseParamNames << epar << ';';
             }
-            vector<string> paramNames;
             for(d = members.begin(); d != members.end(); ++d)
             {
-                paramNames.push_back(fixKwd((*d)->name()));
-            }
-            for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-            {
-                out << nl << "this." << *i << " = " << *i << ';';
+                string paramName = fixKwd((*d)->name());
+                if((*d)->optional())
+                {
+                    string capName = paramName;
+                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    out << nl << "set" << capName << '(' << paramName << ");";
+                }
+                else
+                {
+                    out << nl << "this." << paramName << " = " << paramName << ';';
+                }
             }
             out << eb;
         }
@@ -2656,7 +2994,7 @@ void
 Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     Output& out = output();
-    out << nl << "public static final long serialVersionUID = ";
+    out << sp << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
@@ -2735,7 +3073,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sb;
 
     //
-    // Constructors.
+    // Default constructor.
     //
     out << sp;
     out << nl << "public " << name << "()";
@@ -2748,19 +3086,137 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public " << name << "(Throwable cause)";
+    out << nl << "public " << name << "(Throwable __cause)";
     out << sb;
-    out << nl << "super(cause);";
+    out << nl << "super(__cause);";
     writeDataMemberInitializers(out, members, package);
     out << eb;
 
+    bool hasOptionalMembers = false;
+    bool hasRequiredMembers = false;
+    for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+    {
+        if((*d)->optional())
+        {
+            hasOptionalMembers = true;
+        }
+        else
+        {
+            hasRequiredMembers = true;
+        }
+    }
+
     if(!allDataMembers.empty())
     {
+        DataMemberList baseDataMembers;
+        if(base)
+        {
+            baseDataMembers = base->allDataMembers();
+        }
+
         //
         // A method cannot have more than 255 parameters (including the implicit "this" argument).
         //
         if(allDataMembers.size() < 255)
         {
+            if(hasRequiredMembers && hasOptionalMembers)
+            {
+                bool hasBaseRequired = false;
+                for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                {
+                    if(!(*d)->optional())
+                    {
+                        hasBaseRequired = true;
+                        break;
+                    }
+                }
+
+                DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+
+                //
+                // Generate a constructor accepting parameters for just the required members.
+                //
+                out << sp << nl << "public " << name << spar;
+                vector<string> paramDecl;
+                for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
+                {
+                    if(!(*d)->optional())
+                    {
+                        string memberName = fixKwd((*d)->name());
+                        string memberType = typeToString((*d)->type(), TypeModeMember, package, (*d)->getMetaData());
+                        paramDecl.push_back(memberType + " " + memberName);
+                    }
+                }
+                out << paramDecl << epar;
+                out << sb;
+                if(!baseDataMembers.empty())
+                {
+                    if(hasBaseRequired)
+                    {
+                        out << nl << "super" << spar;
+                        vector<string> baseParamNames;
+                        for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                        {
+                            if(!(*d)->optional())
+                            {
+                                baseParamNames.push_back(fixKwd((*d)->name()));
+                            }
+                        }
+                        out << baseParamNames << epar << ';';
+                    }
+                }
+
+                for(d = members.begin(); d != members.end(); ++d)
+                {
+                    if(!(*d)->optional())
+                    {
+                        string paramName = fixKwd((*d)->name());
+                        out << nl << "this." << paramName << " = " << paramName << ';';
+                    }
+                }
+                writeDataMemberInitializers(out, optionalMembers, package);
+                out << eb;
+
+                //
+                // Create constructor that takes all data members plus a Throwable.
+                //
+                if(allDataMembers.size() < 254)
+                {
+                    paramDecl.push_back("Throwable __cause");
+                    out << sp << nl << "public " << name << spar;
+                    out << paramDecl << epar;
+                    out << sb;
+                    if(hasBaseRequired)
+                    {
+                        out << nl << "super" << spar;
+                        vector<string> baseParamNames;
+                        for(d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                        {
+                            if(!(*d)->optional())
+                            {
+                                baseParamNames.push_back(fixKwd((*d)->name()));
+                            }
+                        }
+                        baseParamNames.push_back("__cause");
+                        out << baseParamNames << epar << ';';
+                    }
+                    else
+                    {
+                        out << nl << "super(__cause);";
+                    }
+                    for(d = members.begin(); d != members.end(); ++d)
+                    {
+                        if(!(*d)->optional())
+                        {
+                            string paramName = fixKwd((*d)->name());
+                            out << nl << "this." << paramName << " = " << paramName << ';';
+                        }
+                    }
+                    writeDataMemberInitializers(out, optionalMembers, package);
+                    out << eb;
+                }
+            }
+
             out << sp << nl << "public " << name << spar;
             vector<string> paramDecl;
             for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
@@ -2783,14 +3239,19 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
                 out << baseParamNames << epar << ';';
             }
-            vector<string> paramNames;
             for(d = members.begin(); d != members.end(); ++d)
             {
-                paramNames.push_back(fixKwd((*d)->name()));
-            }
-            for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-            {
-                out << nl << "this." << *i << " = " << *i << ';';
+                string paramName = fixKwd((*d)->name());
+                if((*d)->optional())
+                {
+                    string capName = paramName;
+                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    out << nl << "set" << capName << '(' << paramName << ");";
+                }
+                else
+                {
+                    out << nl << "this." << paramName << " = " << paramName << ';';
+                }
             }
             out << eb;
 
@@ -2799,13 +3260,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             //
             if(allDataMembers.size() < 254)
             {
-                paramDecl.push_back("Throwable cause");
+                paramDecl.push_back("Throwable __cause");
                 out << sp << nl << "public " << name << spar;
                 out << paramDecl << epar;
                 out << sb;
                 if(!base)
                 {
-                    out << nl << "super(cause);";
+                    out << nl << "super(__cause);";
                 }
                 else
                 {
@@ -2816,12 +3277,22 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     {
                         baseParamNames.push_back(fixKwd((*d)->name()));
                     }
-                    baseParamNames.push_back("cause");
+                    baseParamNames.push_back("__cause");
                     out << baseParamNames << epar << ';';
                 }
-                for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+                for(d = members.begin(); d != members.end(); ++d)
                 {
-                    out << nl << "this." << *i << " = " << *i << ';';
+                    string paramName = fixKwd((*d)->name());
+                    if((*d)->optional())
+                    {
+                        string capName = paramName;
+                        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                        out << nl << "set" << capName << '(' << paramName << ");";
+                    }
+                    else
+                    {
+                        out << nl << "this." << paramName << " = " << paramName << ';';
+                    }
                 }
                 out << eb;
             }
@@ -2851,6 +3322,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         bool preserved = basePreserved || p->hasMetaData("preserve-slice");
 
         DataMemberList members = p->dataMembers();
+        DataMemberList optionalMembers = p->orderedOptionalDataMembers();
         DataMemberList::const_iterator d;
         int iter;
 
@@ -2874,8 +3346,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
-            StringList metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
+            if(!(*d)->optional())
+            {
+                writeMarshalDataMember(out, package, *d, iter);
+            }
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
+            writeMarshalDataMember(out, package, *d, iter);
         }
         out << nl << "__os.endWriteSlice();";
         if(base)
@@ -2901,109 +3379,25 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         DataMemberList allClassMembers = p->allClassDataMembers();
         if(allClassMembers.size() != 0)
         {
-            out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
-            out << sb;
-            if(allClassMembers.size() > 1)
-            {
-                out << sp << nl << "Patcher(int member)";
-                out << sb;
-                out << nl << "__member = member;";
-                out << eb;
-            }
-
-            out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
-            out << sb;
-            if(allClassMembers.size() > 1)
-            {
-                out << nl << "switch(__member)";
-                out << sb;
-            }
-            int memberCount = 0;
-            for(d = allClassMembers.begin(); d != allClassMembers.end(); ++d)
-            {
-                if(allClassMembers.size() > 1)
-                {
-                    out.dec();
-                    out << nl << "case " << memberCount << ":";
-                    out.inc();
-                }
-                if(allClassMembers.size() > 1)
-                {
-                    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
-                }
-                string memberName = fixKwd((*d)->name());
-                string memberType = typeToString((*d)->type(), TypeModeMember, package);
-                out << nl << "if(v == null || v instanceof " << memberType << ")";
-                out << sb;
-                out << nl << memberName << " = (" << memberType << ")v;";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-                out << eb;
-                if(allClassMembers.size() > 1)
-                {
-                    out << nl << "break;";
-                }
-                memberCount++;
-            }
-            if(allClassMembers.size() > 1)
-            {
-                out << eb;
-            }
-            out << eb;
-
-            out << sp << nl << "public String" << nl << "type()";
-            out << sb;
-            if(allClassMembers.size() > 1)
-            {
-                out << nl << "return __typeId;";
-            }
-            else
-            {
-                out << nl << "return \"" << (*allClassMembers.begin())->type()->typeId() << "\";";
-            }
-            out << eb;
-
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
-
-            if(allClassMembers.size() > 1)
-            {
-                out << sp << nl << "private int __member;";
-                out << nl << "private String __typeId;";
-            }
-            out << eb;
+            writePatcher(out, package, allClassMembers, _stream);
         }
         out << sp << nl << "public void" << nl << "__readImpl(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "__is.startReadSlice();";
         iter = 0;
         DataMemberList classMembers = p->classDataMembers();
-        size_t classMemberCount = allClassMembers.size() - classMembers.size();
+        int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
+        const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
         for(d = members.begin(); d != members.end(); ++d)
         {
-            ostringstream patchParams;
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+            if(!(*d)->optional())
             {
-                if(classMembers.size() > 1 || allClassMembers.size() > 1)
-                {
-                    patchParams << "new Patcher(" << classMemberCount++ << ')';
-                }
+                writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
             }
-            StringList metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
-                                      patchParams.str());
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
         }
         out << nl << "__is.endReadSlice();";
         if(base)
@@ -3034,9 +3428,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             iter = 0;
             for(d = members.begin(); d != members.end(); ++d)
             {
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                                metaData);
+                if(!(*d)->optional())
+                {
+                    writeStreamMarshalDataMember(out, package, *d, iter);
+                }
+            }
+            for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+            {
+                writeStreamMarshalDataMember(out, package, *d, iter);
             }
             out << nl << "__outS.endSlice();";
             if(base)
@@ -3063,20 +3462,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << sb;
             out << nl << "__inS.startSlice();";
             iter = 0;
+            classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
             for(d = members.begin(); d != members.end(); ++d)
             {
-                ostringstream patchParams;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
+                if(!(*d)->optional())
                 {
-                    if(classMembers.size() > 1 || allClassMembers.size() > 1)
-                    {
-                        patchParams << "new Patcher(" << classMemberCount++ << ')';
-                    }
+                    writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
                 }
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                                metaData, patchParams.str());
+            }
+            for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+            {
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
             }
             out << nl << "__inS.endSlice();";
             if(base)
@@ -3325,8 +3721,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
         {
-            StringList metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
+            writeMarshalDataMember(out, package, *d, iter);
         }
         out << eb;
 
@@ -3334,108 +3729,17 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(classMembers.size() != 0)
         {
-            out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
-            out << sb;
-            if(classMembers.size() > 1)
-            {
-                out << sp << nl << "Patcher(int member)";
-                out << sb;
-                out << nl << "__member = member;";
-                out << eb;
-            }
-
-            out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
-            out << sb;
-            if(classMembers.size() > 1)
-            {
-                out << nl << "switch(__member)";
-                out << sb;
-            }
-            int memberCount = 0;
-            for(d = classMembers.begin(); d != classMembers.end(); ++d)
-            {
-                if(classMembers.size() > 1)
-                {
-                    out.dec();
-                    out << nl << "case " << memberCount << ":";
-                    out.inc();
-                }
-                if(classMembers.size() > 1)
-                {
-                    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
-                }
-                string memberName = fixKwd((*d)->name());
-                string memberType = typeToString((*d)->type(), TypeModeMember, package);
-                out << nl << "if(v == null || v instanceof " << memberType << ")";
-                out << sb;
-                out << nl << memberName << " = (" << memberType << ")v;";
-                out << eb;
-                out << nl << "else";
-                out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v);";
-                out << eb;
-                if(classMembers.size() > 1)
-                {
-                    out << nl << "break;";
-                }
-                memberCount++;
-            }
-            if(classMembers.size() > 1)
-            {
-                out << eb;
-            }
-            out << eb;
-
-            out << sp << nl << "public String" << nl << "type()";
-            out << sb;
-            if(classMembers.size() > 1)
-            {
-                out << nl << "return __typeId;";
-            }
-            else
-            {
-                out << nl << "return \"" << (*classMembers.begin())->type()->typeId() << "\";";
-            }
-            out << eb;
-
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
-
-            if(classMembers.size() > 1)
-            {
-                out << sp << nl << "private int __member;";
-                out << nl << "private String __typeId;";
-            }
-            out << eb;
+            writePatcher(out, package, classMembers, _stream);
         }
 
         out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
         int classMemberCount = 0;
+        const bool needCustomPatcher = classMembers.size() > 1;
         for(d = members.begin(); d != members.end(); ++d)
         {
-            ostringstream patchParams;
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-            {
-                if(classMembers.size() > 1)
-                {
-                    patchParams << "new Patcher(" << classMemberCount++ << ')';
-                }
-            }
-            StringList metaData = (*d)->getMetaData();
-            writeMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
-                                      patchParams.str());
+            writeUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
         }
         out << eb;
 
@@ -3446,9 +3750,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             iter = 0;
             for(d = members.begin(); d != members.end(); ++d)
             {
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                                metaData);
+                writeStreamMarshalDataMember(out, package, *d, iter);
             }
             out << eb;
 
@@ -3458,25 +3760,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             classMemberCount = 0;
             for(d = members.begin(); d != members.end(); ++d)
             {
-                ostringstream patchParams;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    if(classMembers.size() > 1)
-                    {
-                        patchParams << "new Patcher(" << classMemberCount++ << ')';
-                    }
-                }
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                                metaData, patchParams.str());
+                writeStreamUnmarshalDataMember(out, package, *d, iter, needCustomPatcher, classMemberCount);
             }
             out << eb;
         }
     }
     
-    out << nl;
-    out << nl << "public static final long serialVersionUID = ";
+    out << sp << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
@@ -3497,7 +3787,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 if(!IceUtilInternal::stringToInt64(serialVersionUID, v)) // conversion error
                 {
                     ostringstream os;
-                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped() << "'; generating default value";
+                    os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
+                       << "'; generating default value";
                     emitWarning("", "", os.str());
                     out << computeSerialVersionUUID(p);
                 }
@@ -3525,6 +3816,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     TypePtr type = p->type();
     string s = typeToString(type, TypeModeMember, getPackage(contained), metaData);
     Output& out = output();
+    const bool optional = p->optional();
+    const bool getSet = p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData);
 
     out << sp;
 
@@ -3540,15 +3833,24 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         out << nl << "protected " << s << ' ' << name << ';';
     }
+    else if(optional)
+    {
+        out << nl << "private " << s << ' ' << name << ';';
+    }
     else
     {
         out << nl << "public " << s << ' ' << name << ';';
     }
 
+    if(optional)
+    {
+        out << nl << "private boolean __has_" << p->name() << ';';
+    }
+
     //
     // Getter/Setter.
     //
-    if(p->hasMetaData(_getSetMetaData) || contained->hasMetaData(_getSetMetaData))
+    if(getSet || optional)
     {
         string capName = p->name();
         capName[0] = toupper(static_cast<unsigned char>(capName[0]));
@@ -3564,8 +3866,14 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             ops = cls->allOperations();
             file = p->file();
             line = p->line();
-            if(!validateGetterSetter(ops, "get" + capName, 0, file, line) ||
-               !validateGetterSetter(ops, "set" + capName, 1, file, line))
+            if(!validateMethod(ops, "get" + capName, 0, file, line) ||
+               !validateMethod(ops, "set" + capName, 1, file, line))
+            {
+                return;
+            }
+            if(optional &&
+               (!validateMethod(ops, "has" + capName, 0, file, line) ||
+                !validateMethod(ops, "clear" + capName, 0, file, line)))
             {
                 return;
             }
@@ -3576,9 +3884,16 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p, deprecateReason);
-        out << nl << "public " << s;
-        out << nl << "get" << capName << "()";
+        out << nl << "public " << s
+            << nl << "get" << capName << "()";
         out << sb;
+        if(optional)
+        {
+            out << nl << "if(!__has_" << p->name() << ')';
+            out << sb;
+            out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+            out << eb;
+        }
         out << nl << "return " << name << ';';
         out << eb;
 
@@ -3587,56 +3902,50 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         out << sp;
         writeDocComment(out, p, deprecateReason);
-        out << nl << "public void";
-        out << nl << "set" << capName << '(' << s << " _" << name << ')';
+        out << nl << "public void"
+            << nl << "set" << capName << '(' << s << " _" << name << ')';
         out << sb;
+        if(optional)
+        {
+            out << nl << "__has_" << p->name() << " = true;";
+        }
         out << nl << name << " = _" << name << ';';
         out << eb;
 
         //
-        // Check for bool type.
+        // Generate hasFoo and clearFoo for optional member.
         //
-        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() == Builtin::KindBool)
+        if(optional)
         {
-            if(cls && !validateGetterSetter(ops, "is" + capName, 0, file, line))
-            {
-                return;
-            }
             out << sp;
-            if(!deprecateReason.empty())
-            {
-                out << nl << "/**";
-                out << nl << " * @deprecated " << deprecateReason;
-                out << nl << " **/";
-            }
-            out << nl << "public boolean";
-            out << nl << "is" << capName << "()";
+            writeDocComment(out, p, deprecateReason);
+            out << nl << "public boolean"
+                << nl << "has" << capName << "()";
             out << sb;
-            out << nl << "return " << name << ';';
+            out << nl << "return __has_" << p->name() << ';';
+            out << eb;
+
+            out << sp;
+            writeDocComment(out, p, deprecateReason);
+            out << nl << "public void"
+                << nl << "clear" << capName << "()";
+            out << sb;
+            out << nl << "__has_" << p->name() << " = false;";
             out << eb;
         }
 
-        //
-        // Check for unmodified sequence type and emit indexing methods.
-        //
-        SequencePtr seq = SequencePtr::dynamicCast(type);
-        if(seq)
+        if(getSet)
         {
-            if(!hasTypeMetaData(seq, metaData))
+            //
+            // Check for bool type.
+            //
+            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+            if(b && b->kind() == Builtin::KindBool)
             {
-                if(cls &&
-                   (!validateGetterSetter(ops, "get" + capName, 1, file, line) ||
-                    !validateGetterSetter(ops, "set" + capName, 2, file, line)))
+                if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
                 {
                     return;
                 }
-
-                string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
-
-                //
-                // Indexed getter.
-                //
                 out << sp;
                 if(!deprecateReason.empty())
                 {
@@ -3644,27 +3953,83 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     out << nl << " * @deprecated " << deprecateReason;
                     out << nl << " **/";
                 }
-                out << nl << "public " << elem;
-                out << nl << "get" << capName << "(int _index)";
+                out << nl << "public boolean";
+                out << nl << "is" << capName << "()";
                 out << sb;
-                out << nl << "return " << name << "[_index];";
-                out << eb;
-
-                //
-                // Indexed setter.
-                //
-                out << sp;
-                if(!deprecateReason.empty())
+                if(optional)
                 {
-                    out << nl << "/**";
-                    out << nl << " * @deprecated " << deprecateReason;
-                    out << nl << " **/";
+                    out << nl << "if(!__has_" << p->name() << ')';
+                    out << sb;
+                    out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                    out << eb;
                 }
-                out << nl << "public void";
-                out << nl << "set" << capName << "(int _index, " << elem << " _val)";
-                out << sb;
-                out << nl << name << "[_index] = _val;";
+                out << nl << "return " << name << ';';
                 out << eb;
+            }
+
+            //
+            // Check for unmodified sequence type and emit indexing methods.
+            //
+            SequencePtr seq = SequencePtr::dynamicCast(type);
+            if(seq)
+            {
+                if(!hasTypeMetaData(seq, metaData))
+                {
+                    if(cls &&
+                       (!validateMethod(ops, "get" + capName, 1, file, line) ||
+                        !validateMethod(ops, "set" + capName, 2, file, line)))
+                    {
+                        return;
+                    }
+
+                    string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
+
+                    //
+                    // Indexed getter.
+                    //
+                    out << sp;
+                    if(!deprecateReason.empty())
+                    {
+                        out << nl << "/**";
+                        out << nl << " * @deprecated " << deprecateReason;
+                        out << nl << " **/";
+                    }
+                    out << nl << "public " << elem;
+                    out << nl << "get" << capName << "(int _index)";
+                    out << sb;
+                    if(optional)
+                    {
+                        out << nl << "if(!__has_" << p->name() << ')';
+                        out << sb;
+                        out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                        out << eb;
+                    }
+                    out << nl << "return " << name << "[_index];";
+                    out << eb;
+
+                    //
+                    // Indexed setter.
+                    //
+                    out << sp;
+                    if(!deprecateReason.empty())
+                    {
+                        out << nl << "/**";
+                        out << nl << " * @deprecated " << deprecateReason;
+                        out << nl << " **/";
+                    }
+                    out << nl << "public void";
+                    out << nl << "set" << capName << "(int _index, " << elem << " _val)";
+                    out << sb;
+                    if(optional)
+                    {
+                        out << nl << "if(!__has_" << p->name() << ')';
+                        out << sb;
+                        out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                        out << eb;
+                    }
+                    out << nl << name << "[_index] = _val;";
+                    out << eb;
+                }
             }
         }
     }
@@ -3769,8 +4134,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 }
 
 bool
-Slice::Gen::TypesVisitor::validateGetterSetter(const OperationList& ops, const std::string& name, int numArgs,
-                                               const string& file, const string& line)
+Slice::Gen::TypesVisitor::validateMethod(const OperationList& ops, const std::string& name, int numArgs,
+                                         const string& file, const string& line)
 {
     for(OperationList::const_iterator i = ops.begin(); i != ops.end(); ++i)
     {
@@ -3780,7 +4145,7 @@ Slice::Gen::TypesVisitor::validateGetterSetter(const OperationList& ops, const s
             if(numArgs >= numParams && numArgs - numParams <= 1)
             {
                 ostringstream ostr;
-                ostr << "operation `" << name << "' conflicts with getter/setter method";
+                ostr << "operation `" << name << "' conflicts with method for data member";
                 emitError(file, line, ostr.str());
                 return false;
             }
@@ -4592,8 +4957,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Avoid serialVersionUID warnings for Proxy Helper classes.
     //
-    out << nl;
-    out << nl << "public static final long serialVersionUID = 0L;";
+    out << sp << nl << "public static final long serialVersionUID = 0L;";
     out << eb;
 
     close();
@@ -5555,8 +5919,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Avoid serialVersionUID warnings for dispatch classes.
     //
-    out << nl;
-    out << nl << "public static final long serialVersionUID = 0L;";
+    out << sp << nl << "public static final long serialVersionUID = 0L;";
     out << eb;
     close();
 

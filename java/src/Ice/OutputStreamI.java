@@ -243,6 +243,12 @@ public class OutputStreamI implements OutputStream
         _os.writePendingObjects();
     }
 
+    public void
+    writeOptional(int tag, Ice.OptionalType type)
+    {
+        _os.writeOpt(tag, type);
+    }
+
     public byte[]
     finished()
     {
@@ -260,7 +266,7 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    rewrite(int pos, int sz)
+    rewrite(int sz, int pos)
     {
         _os.writeInt(sz, pos);
     }

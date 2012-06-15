@@ -63,6 +63,26 @@ protected:
                        const std::list<std::string>& = std::list<std::string>());
 
     //
+    // Returns the optional type corresponding to the given Slice type.
+    //
+    std::string getOptionalType(const TypePtr&);
+
+    //
+    // Marshal/unmarshal a data member.
+    //
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
+                                  bool, int&);
+    void writeStreamMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeStreamUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
+                                        bool, int&);
+
+    //
+    // Generate a patcher class.
+    //
+    void writePatcher(::IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool);
+
+    //
     // Generate dispatch and marshalling methods for a class or interface.
     //
     void writeDispatchAndMarshalling(::IceUtilInternal::Output&, const ClassDefPtr&, bool);
@@ -165,10 +185,9 @@ private:
     private:
 
         //
-        // Verifies that a getter/setter method does not conflict with an operation.
+        // Verifies that a data member method does not conflict with an operation.
         //
-        bool validateGetterSetter(const OperationList&, const std::string&, int, const std::string&,
-                                  const std::string&);
+        bool validateMethod(const OperationList&, const std::string&, int, const std::string&, const std::string&);
 
         bool _stream;
     };

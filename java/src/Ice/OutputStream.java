@@ -264,6 +264,14 @@ public interface OutputStream
     void writePendingObjects();
 
     /**
+     * Write the header information for an optional value.
+     *
+     * @param tag The numeric tag associated with the value.
+     * @param type The optional type of the value.
+     **/
+    void writeOptional(int tag, Ice.OptionalType type);
+
+    /**
      * Indicates that marshaling of a request or reply is finished.
      *
      * @return The byte sequence containing the encoded request or reply.
@@ -280,10 +288,10 @@ public interface OutputStream
     /**
      * Inserts a fixed 32-bit size value into the stream at the given position.
      *
+     * @param sz The 32-bit size value.
      * @param pos The position at which to write the value.
-     * @param sz The size value.
      **/
-    void rewrite(int pos, int sz);
+    void rewrite(int sz, int pos);
 
     /**
      * Resets this output stream. This method allows the stream to be reused, to avoid creating
