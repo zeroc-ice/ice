@@ -603,17 +603,6 @@ Ice::NoObjectFactoryException::ice_print(ostream& out) const
 }       
 
 void
-Ice::NoExceptionFactoryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable exception factory found for `" << type << "'";
-    if(!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
-}       
-
-void
 Ice::UnexpectedObjectException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -77,6 +77,21 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
     return su;
 }
 
+void
+TestI::checkSUnknown(const Ice::ObjectPtr& obj, const ::Ice::Current& current)
+{
+    SUnknownPtr su = SUnknownPtr::dynamicCast(obj);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!su);
+    }
+    else
+    {
+        test(su);
+        test(su->su == "SUnknown.su");
+    }
+}
+
 BPtr
 TestI::oneElementCycle(const ::Ice::Current&)
 {

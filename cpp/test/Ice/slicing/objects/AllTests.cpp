@@ -126,6 +126,8 @@ public:
     void
     response_SUnknownAsObject11(const Ice::ObjectPtr& o)
     {
+        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o));
+        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o)->getUnknownTypeId() == "::Test::SUnknown");
         called();
     }
 
@@ -544,10 +546,18 @@ testUOO(const TestIntfPrx& test)
     {
         o = test->SUnknownAsObject();
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
+        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o));
+        test(Ice::UnknownSlicedObjectPtr::dynamicCast(o)->getUnknownTypeId() == "::Test::SUnknown");
+        test->checkSUnknown(o);
     }
     catch(const Ice::NoObjectFactoryException&)
     {
         test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+    }
+    catch(const std::exception& ex)
+    {
+        cout << ex.what() << endl;
+        test(false);
     }
     catch(...)
     {

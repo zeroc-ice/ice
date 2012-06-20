@@ -25,6 +25,10 @@ class SlicedData;
 ICE_API IceUtil::Shared* upCast(SlicedData*);
 typedef IceInternal::Handle<SlicedData> SlicedDataPtr;
 
+class UnknownSlicedObject;
+ICE_API IceUtil::Shared* upCast(UnknownSlicedObject*);
+typedef IceInternal::Handle<UnknownSlicedObject> UnknownSlicedObjectPtr;
+
 }
 
 #endif

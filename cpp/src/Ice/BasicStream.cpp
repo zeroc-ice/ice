@@ -1582,6 +1582,11 @@ IceInternal::BasicStream::sliceObjects(bool doSlice)
 bool
 IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
 {
+    if(getReadEncoding() == Encoding_1_0)
+    {
+        return false; // Optional members aren't supported with the 1.0 encoding.
+    }
+
     Int tag = 0;
     OptionalType type;
     do
@@ -1627,9 +1632,14 @@ IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
     return true;
 }
 
-void
+bool
 IceInternal::BasicStream::writeOptImpl(Int tag, OptionalType type)
 {
+    if(getWriteEncoding() == Encoding_1_0)
+    {
+        return false; // Optional members aren't supported with the 1.0 encoding.
+    }
+
     Byte v = static_cast<Byte>(type);
     if(tag < 31)
     {
@@ -1642,6 +1652,7 @@ IceInternal::BasicStream::writeOptImpl(Int tag, OptionalType type)
         write(v);
         writeSize(tag);
     }
+    return true;
 }
 
 bool
@@ -1975,6 +1986,7 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     //
     if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
+        assert(_encaps->encoding != Encoding_1_0);
         _stream->write(static_cast<Byte>(OptionalTypeEndMarker));
     }
 
@@ -1993,6 +2005,7 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     //
     if(!_indirectionTable.empty())
     {
+        assert(_encaps->encoding != Encoding_1_0);
         assert(_format == SlicedFormat);
         _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
@@ -2006,7 +2019,8 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     }
 
     //
-    // Finally, update the slice flags.
+    // Finally, update the slice flags (or the object slice has index
+    // type ID boolean for the 1.0 encoding)
     //
     if(_encaps->encoding == Encoding_1_0)
     {
@@ -2119,7 +2133,7 @@ IceInternal::BasicStream::EncapsEncoder::writeSlicedData(const SlicedDataPtr& sl
 
     for(SliceInfoSeq::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
     {
-        startSlice((*p)->typeId, false); // last = false, sliced data never contains the last slice.
+        startSlice((*p)->typeId, (*p)->isLastSlice);
  
         //
         // Write the bytes associated with this slice.
@@ -2322,8 +2336,14 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
         //
         if(_sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            throw NoExceptionFactoryException(__FILE__, __LINE__, "unknown exception type `" + mostDerivedId + "'",
-                                              mostDerivedId);
+            if(mostDerivedId.length() > 2 && mostDerivedId[0] == ':' && mostDerivedId[1] == ':')
+            {
+                throw UnknownUserException(__FILE__, __LINE__, mostDerivedId.substr(2));
+            }
+            else
+            {
+                throw UnknownUserException(__FILE__, __LINE__, mostDerivedId);
+            }
         }
 
         try
@@ -2856,10 +2876,13 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
         SliceInfoPtr info = new SliceInfo;
         info->typeId = _typeId;
         info->hasOptionalMembers = _sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS;
+        info->isLastSlice = _sliceFlags & FLAG_IS_LAST_SLICE;
         if(info->hasOptionalMembers)
         {
+            //
             // Don't include the optional member end marker. It will be re-written by
             // endSlice when the sliced data is re-written.
+            //
             vector<Byte>(start, _stream->i - 1).swap(info->bytes);
         }
         else

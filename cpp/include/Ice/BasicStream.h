@@ -499,11 +499,15 @@ public:
 
     template<typename T> void write(Ice::Int tag, const IceUtil::Optional<T>& v)
     {
-        if(v)
+        if(!v)
         {
-            writeOpt(tag, Ice::StreamOptionalHelper<T,
-                                                    Ice::StreamTrait<T>::type, 
-                                                    Ice::StreamTrait<T>::optionalType>::optionalType);
+            return; // Optional not set
+        }
+
+        if(writeOpt(tag, Ice::StreamOptionalHelper<T,
+                                                   Ice::StreamTrait<T>::type, 
+                                                   Ice::StreamTrait<T>::optionalType>::optionalType))
+        {
             Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::write(this, *v);
         }
     }
@@ -546,16 +550,16 @@ public:
     }
 
     // Read/write type and tag for optionals
-    void writeOpt(Ice::Int tag, Ice::OptionalType type)
+    bool writeOpt(Ice::Int tag, Ice::OptionalType type)
     {
         assert(_currentWriteEncaps);
         if(_currentWriteEncaps->encoder)
         {
-            _currentWriteEncaps->encoder->writeOpt(tag, type);
+            return _currentWriteEncaps->encoder->writeOpt(tag, type);
         }
         else
         {
-            writeOptImpl(tag, type);
+            return writeOptImpl(tag, type);
         }
     }
     bool readOpt(Ice::Int tag, Ice::OptionalType expectedType)
@@ -801,7 +805,7 @@ public:
 
     // Read/write/skip optionals
     bool readOptImpl(Ice::Int, Ice::OptionalType);
-    void writeOptImpl(Ice::Int, Ice::OptionalType);
+    bool writeOptImpl(Ice::Int, Ice::OptionalType);
     bool skipOpt(Ice::OptionalType);
     bool skipOpts();
     
@@ -980,7 +984,7 @@ private:
         void startSlice(const std::string&, bool);
         void endSlice();
 
-        void writeOpt(Ice::Int tag, Ice::OptionalType type)
+        bool writeOpt(Ice::Int tag, Ice::OptionalType type)
         {
             if(_sliceType == NoSlice)
             {
@@ -988,8 +992,15 @@ private:
             }
             else
             {
-                _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
-                return _stream->writeOptImpl(tag, type);
+                if(_stream->writeOptImpl(tag, type))
+                {
+                    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 

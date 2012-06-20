@@ -80,6 +80,24 @@ TestI::SUnknownAsObject_async(const AMD_TestIntf_SUnknownAsObjectPtr& cb, const 
 }
 
 void
+TestI::checkSUnknown_async(const AMD_TestIntf_checkSUnknownPtr& cb,
+                           const Ice::ObjectPtr& obj,
+                           const ::Ice::Current& current)
+{
+    SUnknownPtr su = SUnknownPtr::dynamicCast(obj);
+    if(current.encoding == Ice::Encoding_1_0)
+    {
+        test(!su);
+    }
+    else
+    {
+        test(su);
+        test(su->su == "SUnknown.su");
+    }
+    cb->ice_response();
+}
+
+void
 TestI::oneElementCycle_async(const AMD_TestIntf_oneElementCyclePtr& cb, const ::Ice::Current&)
 {
     BPtr b = new B;

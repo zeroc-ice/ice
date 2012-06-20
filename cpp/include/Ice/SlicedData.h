@@ -40,6 +40,11 @@ struct ICE_API SliceInfo : public ::IceUtil::Shared
     // Whether or not the slice contains optional members.
     //
     bool hasOptionalMembers;
+
+    //
+    // Whether or not this is the last slice.
+    //
+    bool isLastSlice;
 };
 
 //

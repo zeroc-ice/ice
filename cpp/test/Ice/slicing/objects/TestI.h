@@ -29,6 +29,7 @@ public:
     virtual ::Test::SBasePtr SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&);
 
     virtual ::Ice::ObjectPtr SUnknownAsObject(const ::Ice::Current&);
+    virtual void checkSUnknown(const Ice::ObjectPtr& object, const ::Ice::Current&);
 
     virtual ::Test::BPtr oneElementCycle(const ::Ice::Current&);
     virtual ::Test::BPtr twoElementCycle(const ::Ice::Current&);

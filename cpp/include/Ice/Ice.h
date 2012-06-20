@@ -23,6 +23,7 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
+#include <Ice/SlicedData.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
