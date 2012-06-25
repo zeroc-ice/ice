@@ -1004,6 +1004,10 @@ Glacier2::SessionFactoryHelper::createInitData()
             os << _timeout;
         }
         initData.properties->setProperty("Ice.Default.Router", os.str());
+        if(_secure)
+        {
+            initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
+        }
     }
     return initData;
 }
@@ -1014,8 +1018,4 @@ Glacier2::SessionFactoryHelper::setDefaultProperties()
     assert(_initData.properties);
     _initData.properties->setProperty("Ice.ACM.Client", "0");
     _initData.properties->setProperty("Ice.RetryIntervals", "-1");
-    if(_secure)
-    {
-        _initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
-    }
 }
