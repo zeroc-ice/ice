@@ -51,7 +51,7 @@ public:
 };
 typedef IceUtil::Handle<SessionHelper> SessionHelperPtr;
 
-class GLACIER2_API SessionCallback : public IceUtil::Shared
+class GLACIER2_API SessionCallback : virtual public IceUtil::Shared
 {
 
 public:
