@@ -269,14 +269,7 @@ public interface OutputStream
      * @param tag The numeric tag associated with the value.
      * @param type The optional type of the value.
      **/
-    void writeOptional(int tag, Ice.OptionalType type);
-
-    /**
-     * Indicates that marshaling of a request or reply is finished.
-     *
-     * @return The byte sequence containing the encoded request or reply.
-     **/
-    byte[] finished();
+    boolean writeOptional(int tag, Ice.OptionalType type);
 
     /**
      * Determines the current position in the stream.
@@ -292,6 +285,25 @@ public interface OutputStream
      * @param pos The position at which to write the value.
      **/
     void rewrite(int sz, int pos);
+
+    /**
+     * Records the current position and allocates four bytes for a fixed-length (32-bit)
+     * size value.
+     **/
+    void startSize();
+
+    /**
+     * Computes the amount of data written since the previous call to startSize and
+     * writes that value at the saved position.
+     **/
+    void endSize();
+
+    /**
+     * Indicates that marshaling of a request or reply is finished.
+     *
+     * @return The byte sequence containing the encoded request or reply.
+     **/
+    byte[] finished();
 
     /**
      * Resets this output stream. This method allows the stream to be reused, to avoid creating

@@ -45,6 +45,9 @@ protected:
     std::vector<std::string> getArgsAsync(const OperationPtr&);
     std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
+    void writeMarshalUnmarshalParams(::IceUtilInternal::Output&, const std::string&, const ParamDeclList&,
+                                     const OperationPtr&, int&, bool, bool = false);
+
     //
     // Generate a throws clause containing only non-local exceptions.
     //
@@ -61,11 +64,6 @@ protected:
     //
     void writeHashCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int&,
                        const std::list<std::string>& = std::list<std::string>());
-
-    //
-    // Returns the optional type corresponding to the given Slice type.
-    //
-    std::string getOptionalType(const TypePtr&);
 
     //
     // Marshal/unmarshal a data member.

@@ -325,6 +325,12 @@ public class InputStreamI implements InputStream
         return _is.readOpt(tag, type);
     }
 
+    public int
+    pos()
+    {
+        return _is.pos();
+    }
+
     public void
     destroy()
     {

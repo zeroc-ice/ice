@@ -116,6 +116,7 @@ interface TestIntf
     ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
 
     Object SUnknownAsObject();
+    void checkSUnknown(Object o);
 
     B oneElementCycle();
     B twoElementCycle();

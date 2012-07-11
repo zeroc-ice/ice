@@ -113,6 +113,16 @@ protected:
                             const std::string& = std::string()) const;
 
     //
+    // Return the method call necessary to obtain the static type ID for an object type.
+    //
+    std::string getStaticId(const TypePtr&, const std::string&) const;
+
+    //
+    // Returns the optional type corresponding to the given Slice type.
+    //
+    std::string getOptionalType(const TypePtr&);
+
+    //
     // Get the Java name for a type. If an optional scope is provided,
     // the scope will be removed from the result if possible.
     //
@@ -124,7 +134,7 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true) const;
+                             const StringList& = StringList(), bool = true, bool = false) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the
@@ -137,8 +147,14 @@ protected:
     //
     // Generate code to marshal or unmarshal a type.
     //
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, const std::string&,
-                                   bool, int&, bool = false, const StringList& = StringList(),
+    enum OptionalMode
+    {
+        OptionalNone,
+        OptionalParam,
+        OptionalMember
+    };
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode, int,
+                                   const std::string&, bool, int&, bool = false, const StringList& = StringList(),
                                    const std::string& patchParams = "");
 
     //
@@ -152,15 +168,14 @@ protected:
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool,
-                                           const StringList& = StringList());
+                                           const std::string&, bool, int&, bool, const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a type using the public stream API.
     //
-    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, const std::string&,
-                                         bool, int&, bool = false, const StringList& = StringList(),
-                                         const std::string& patchParams = "");
+    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
+                                         int, const std::string&, bool, int&, bool = false,
+                                         const StringList& = StringList(), const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type using the public stream API.
@@ -175,6 +190,11 @@ protected:
     void writeStreamSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
                                                  const std::string&, bool, int&, bool,
                                                  const StringList& = StringList());
+
+    //
+    // Search metadata for an entry with the given prefix and return the entire string.
+    //
+    static bool findMetaData(const std::string&, const StringList&, std::string&);
 
     //
     // Get custom type metadata. If metadata is found, the abstract and

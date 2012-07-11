@@ -310,6 +310,8 @@ public interface InputStream
      **/
     boolean readOptional(int tag, OptionalType type);
 
+    int pos();
+
     /**
      * Destroys the stream and its associated resources. The application must call <code>destroy</code> prior
      * to releasing the last reference to a stream; failure to do so may result in resource leaks.

@@ -33,4 +33,9 @@ public class SliceInfo
      * Whether or not the slice contains optional members.
      **/
     public boolean hasOptionalMembers;
+
+    /**
+     * Whether or not this is the last slice.
+     **/
+    public boolean isLastSlice;
 }

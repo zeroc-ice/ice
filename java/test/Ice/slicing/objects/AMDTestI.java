@@ -90,6 +90,21 @@ public final class AMDTestI extends _TestIntfDisp
     }
 
     public void
+    checkSUnknown_async(AMD_TestIntf_checkSUnknown cb, Ice.Object obj, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(obj instanceof SUnknown));
+        }
+        else
+        {
+            SUnknown su = (SUnknown)obj;
+            test(su.su.equals("SUnknown.su"));
+        }
+        cb.ice_response();
+    }
+
+    public void
     oneElementCycle_async(AMD_TestIntf_oneElementCycle cb, Ice.Current current)
     {
         B b = new B();

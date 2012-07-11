@@ -71,6 +71,18 @@ public class Optional<T>
     }
 
     /**
+     * If the given argument is set, this optional is set to a shallow copy of the argument,
+     * otherwise this optional is unset.
+     *
+     * @param opt The source value.
+     **/
+    public void set(Optional<T> opt)
+    {
+        _value = opt._value;
+        _isSet = opt._isSet;
+    }
+
+    /**
      * Determines whether the value is set.
      *
      * @return True if the value is set, false otherwise.
@@ -78,6 +90,15 @@ public class Optional<T>
     public boolean isSet()
     {
         return _isSet;
+    }
+
+    /**
+     * Unsets this value.
+     **/
+    public void clear()
+    {
+        _isSet = false;
+        _value = null;
     }
 
     private T _value;

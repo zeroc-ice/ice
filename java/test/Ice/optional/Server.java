@@ -7,18 +7,16 @@
 //
 // **********************************************************************
 
-package test.Ice.classLoader;
+package test.Ice.optional;
 
 public class Server extends test.Util.Application
 {
     public int run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new InitialI(adapter);
-        adapter.add(object, communicator.stringToIdentity("initial"));
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+        adapter.add(new InitialI(), communicator().stringToIdentity("initial"));
         adapter.activate();
-
         return WAIT;
     }
 
@@ -26,17 +24,16 @@ public class Server extends test.Util.Application
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.classLoader");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("Ice.Default.SlicedFormat", "1");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.optional");
         return initData;
     }
 
     public static void main(String[] args)
     {
-        Server app = new Server();
-        int result = app.main("Server", args);
+        Server c = new Server();
+        int status = c.main("Server", args);
+
         System.gc();
-        System.exit(result);
+        System.exit(status);
     }
 }

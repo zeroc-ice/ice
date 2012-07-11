@@ -243,20 +243,10 @@ public class OutputStreamI implements OutputStream
         _os.writePendingObjects();
     }
 
-    public void
+    public boolean
     writeOptional(int tag, Ice.OptionalType type)
     {
-        _os.writeOpt(tag, type);
-    }
-
-    public byte[]
-    finished()
-    {
-        IceInternal.Buffer buf = _os.prepareWrite();
-        byte[] result = new byte[buf.b.limit()];
-        buf.b.get(result);
-
-        return result;
+        return _os.writeOpt(tag, type);
     }
 
     public int
@@ -268,7 +258,29 @@ public class OutputStreamI implements OutputStream
     public void
     rewrite(int sz, int pos)
     {
-        _os.writeInt(sz, pos);
+        _os.rewriteInt(sz, pos);
+    }
+
+    public void
+    startSize()
+    {
+        _os.startSize();
+    }
+
+    public void
+    endSize()
+    {
+        _os.endSize();
+    }
+
+    public byte[]
+    finished()
+    {
+        IceInternal.Buffer buf = _os.prepareWrite();
+        byte[] result = new byte[buf.b.limit()];
+        buf.b.get(result);
+
+        return result;
     }
 
     public void

@@ -49,6 +49,7 @@ public class BasicStream
 
         _startSeq = -1;
         _format = _instance.defaultsAndOverrides().defaultFormat;
+        _sizePos = -1;
     }
 
     //
@@ -144,6 +145,10 @@ public class BasicStream
         Ice.FormatType tmpFormat = other._format;
         other._format = _format;
         _format = tmpFormat;
+
+        int tmpSizePos = other._sizePos;
+        other._sizePos = _sizePos;
+        _sizePos = tmpSizePos;
     }
 
     public void
@@ -284,7 +289,7 @@ public class BasicStream
         curr.next = _writeEncapsStack;
         _writeEncapsStack = curr;
 
-        _writeEncapsStack.encoding = encoding;
+        _writeEncapsStack.setEncoding(encoding);
         _writeEncapsStack.start = _buf.size();
 
         writeInt(0); // Placeholder for the encapsulation length.
@@ -373,7 +378,6 @@ public class BasicStream
         // stream. If I use an Int, it is always 4 bytes. For
         // readSize()/writeSize(), it could be 1 or 5 bytes.
         //
-        //
         int sz = readInt();
         if(sz < 6)
         {
@@ -385,10 +389,12 @@ public class BasicStream
         }
         _readEncapsStack.sz = sz;
 
-        _readEncapsStack.encoding.__read(this);
-        Protocol.checkSupportedEncoding(_readEncapsStack.encoding); // Make sure the encoding is supported.
+        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+        encoding.__read(this);
+        Protocol.checkSupportedEncoding(encoding); // Make sure the encoding is supported.
+        _readEncapsStack.setEncoding(encoding);
 
-        return _readEncapsStack.encoding;
+        return encoding;
     }
 
     public void
@@ -400,8 +406,7 @@ public class BasicStream
         {
             _readEncapsStack.decoder.readPendingObjects();
         }
-        else if(_buf.b.position() < _readEncapsStack.start + _readEncapsStack.sz &&
-                !_readEncapsStack.encoding.equals(Ice.Util.Encoding_1_0))
+        else if(_buf.b.position() < _readEncapsStack.start + _readEncapsStack.sz && !_readEncapsStack.encoding_1_0)
         {
             //
             // Read remaining encapsulation optionals. This returns
@@ -725,6 +730,21 @@ public class BasicStream
     }
 
     public void
+    startSize()
+    {
+        _sizePos = _buf.b.position();
+        writeInt(0); // Placeholder for 32-bit size
+    }
+
+    public void
+    endSize()
+    {
+        assert(_sizePos >= 0);
+        rewriteInt(_buf.b.position() - _sizePos - 4, _sizePos);
+        _sizePos = -1;
+    }
+
+    public void
     writeBlob(byte[] v)
     {
         if(v == null)
@@ -766,17 +786,17 @@ public class BasicStream
     }
 
     // Read/write type and tag for optionals
-    public void
+    public boolean
     writeOpt(int tag, Ice.OptionalType type)
     {
         assert(_writeEncapsStack != null);
         if(_writeEncapsStack.encoder != null)
         {
-            _writeEncapsStack.encoder.writeOpt(tag, type);
+            return _writeEncapsStack.encoder.writeOpt(tag, type);
         }
         else
         {
-            writeOptImpl(tag, type);
+            return writeOptImpl(tag, type);
         }
     }
 
@@ -802,7 +822,16 @@ public class BasicStream
     }
 
     public void
-    writeByte(byte v, int dest)
+    writeByte(int tag, Ice.Optional<Byte> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F1))
+        {
+            writeByte(v.get());
+        }
+    }
+
+    public void
+    rewriteByte(byte v, int dest)
     {
         _buf.b.put(dest, v);
     }
@@ -819,6 +848,15 @@ public class BasicStream
             writeSize(v.length);
             expand(v.length);
             _buf.b.put(v);
+        }
+    }
+
+    public void
+    writeByteSeq(int tag, Ice.Optional<byte[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeByteSeq(v.get());
         }
     }
 
@@ -857,6 +895,19 @@ public class BasicStream
         }
     }
 
+    public void
+    readByte(int tag, Ice.Optional<Byte> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F1))
+        {
+            v.set(readByte());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
     public byte[]
     readByteSeq()
     {
@@ -870,6 +921,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readByteSeq(int tag, Ice.Optional<byte[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            v.set(readByteSeq());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -901,7 +965,16 @@ public class BasicStream
     }
 
     public void
-    writeBoolAt(boolean v, int dest)
+    writeBool(int tag, Ice.Optional<Boolean> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F1))
+        {
+            writeBool(v.get());
+        }
+    }
+
+    public void
+    rewriteBool(boolean v, int dest)
     {
         _buf.b.put(dest, v ? (byte)1 : (byte)0);
     }
@@ -924,6 +997,15 @@ public class BasicStream
         }
     }
 
+    public void
+    writeBoolSeq(int tag, Ice.Optional<boolean[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeBoolSeq(v.get());
+        }
+    }
+
     public boolean
     readBool()
     {
@@ -934,6 +1016,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readBool(int tag, Ice.Optional<Boolean> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F1))
+        {
+            v.set(readBool());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -957,10 +1052,32 @@ public class BasicStream
     }
 
     public void
+    readBoolSeq(int tag, Ice.Optional<boolean[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            v.set(readBoolSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeShort(short v)
     {
         expand(2);
         _buf.b.putShort(v);
+    }
+
+    public void
+    writeShort(int tag, Ice.Optional<Short> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F2))
+        {
+            writeShort(v.get());
+        }
     }
 
     public void
@@ -980,6 +1097,17 @@ public class BasicStream
         }
     }
 
+    public void
+    writeShortSeq(int tag, Ice.Optional<short[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            final short[] arr = v.get();
+            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 2 + (arr.length > 254 ? 5 : 1));
+            writeShortSeq(arr);
+        }
+    }
+
     public short
     readShort()
     {
@@ -990,6 +1118,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readShort(int tag, Ice.Optional<Short> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F2))
+        {
+            v.set(readShort());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1012,6 +1153,20 @@ public class BasicStream
     }
 
     public void
+    readShortSeq(int tag, Ice.Optional<short[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            skipSize();
+            v.set(readShortSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeInt(int v)
     {
         expand(4);
@@ -1019,7 +1174,16 @@ public class BasicStream
     }
 
     public void
-    writeInt(int v, int dest)
+    writeInt(int tag, Ice.Optional<Integer> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F4))
+        {
+            writeInt(v.get());
+        }
+    }
+
+    public void
+    rewriteInt(int v, int dest)
     {
         _buf.b.putInt(dest, v);
     }
@@ -1041,6 +1205,17 @@ public class BasicStream
         }
     }
 
+    public void
+    writeIntSeq(int tag, Ice.Optional<int[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            final int[] arr = v.get();
+            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 4 + (arr.length > 254 ? 5 : 1));
+            writeIntSeq(arr);
+        }
+    }
+
     public int
     readInt()
     {
@@ -1051,6 +1226,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readInt(int tag, Ice.Optional<Integer> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F4))
+        {
+            v.set(readInt());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1073,10 +1261,33 @@ public class BasicStream
     }
 
     public void
+    readIntSeq(int tag, Ice.Optional<int[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            skipSize();
+            v.set(readIntSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeLong(long v)
     {
         expand(8);
         _buf.b.putLong(v);
+    }
+
+    public void
+    writeLong(int tag, Ice.Optional<Long> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F8))
+        {
+            writeLong(v.get());
+        }
     }
 
     public void
@@ -1096,6 +1307,17 @@ public class BasicStream
         }
     }
 
+    public void
+    writeLongSeq(int tag, Ice.Optional<long[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            final long[] arr = v.get();
+            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 8 + (arr.length > 254 ? 5 : 1));
+            writeLongSeq(arr);
+        }
+    }
+
     public long
     readLong()
     {
@@ -1106,6 +1328,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readLong(int tag, Ice.Optional<Long> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F8))
+        {
+            v.set(readLong());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1128,10 +1363,33 @@ public class BasicStream
     }
 
     public void
+    readLongSeq(int tag, Ice.Optional<long[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            skipSize();
+            v.set(readLongSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeFloat(float v)
     {
         expand(4);
         _buf.b.putFloat(v);
+    }
+
+    public void
+    writeFloat(int tag, Ice.Optional<Float> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F4))
+        {
+            writeFloat(v.get());
+        }
     }
 
     public void
@@ -1151,6 +1409,17 @@ public class BasicStream
         }
     }
 
+    public void
+    writeFloatSeq(int tag, Ice.Optional<float[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            final float[] arr = v.get();
+            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 4 + (arr.length > 254 ? 5 : 1));
+            writeFloatSeq(arr);
+        }
+    }
+
     public float
     readFloat()
     {
@@ -1161,6 +1430,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readFloat(int tag, Ice.Optional<Float> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F4))
+        {
+            v.set(readFloat());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1183,10 +1465,33 @@ public class BasicStream
     }
 
     public void
+    readFloatSeq(int tag, Ice.Optional<float[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            skipSize();
+            v.set(readFloatSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeDouble(double v)
     {
         expand(8);
         _buf.b.putDouble(v);
+    }
+
+    public void
+    writeDouble(int tag, Ice.Optional<Double> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F8))
+        {
+            writeDouble(v.get());
+        }
     }
 
     public void
@@ -1206,6 +1511,17 @@ public class BasicStream
         }
     }
 
+    public void
+    writeDoubleSeq(int tag, Ice.Optional<double[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            final double[] arr = v.get();
+            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 8 + (arr.length > 254 ? 5 : 1));
+            writeDoubleSeq(arr);
+        }
+    }
+
     public double
     readDouble()
     {
@@ -1216,6 +1532,19 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readDouble(int tag, Ice.Optional<Double> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.F8))
+        {
+            v.set(readDouble());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1234,6 +1563,20 @@ public class BasicStream
         catch(java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
+        }
+    }
+
+    public void
+    readDoubleSeq(int tag, Ice.Optional<double[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            skipSize();
+            v.set(readDoubleSeq());
+        }
+        else
+        {
+            v.clear();
         }
     }
 
@@ -1304,6 +1647,15 @@ public class BasicStream
     }
 
     public void
+    writeString(int tag, Ice.Optional<String> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeString(v.get());
+        }
+    }
+
+    public void
     writeStringSeq(String[] v)
     {
         if(v == null)
@@ -1317,6 +1669,17 @@ public class BasicStream
             {
                 writeString(e);
             }
+        }
+    }
+
+    public void
+    writeStringSeq(int tag, Ice.Optional<String[]> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.FSize))
+        {
+            startSize();
+            writeStringSeq(v.get());
+            endSize();
         }
     }
 
@@ -1398,6 +1761,19 @@ public class BasicStream
         }
     }
 
+    public void
+    readString(int tag, Ice.Optional<String> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.VSize))
+        {
+            v.set(readString());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
     public String[]
     readStringSeq()
     {
@@ -1411,9 +1787,34 @@ public class BasicStream
     }
 
     public void
+    readStringSeq(int tag, Ice.Optional<String[]> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.FSize))
+        {
+            skip(4);
+            v.set(readStringSeq());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeProxy(Ice.ObjectPrx v)
     {
         _instance.proxyFactory().proxyToStream(v, this);
+    }
+
+    public void
+    writeProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.FSize))
+        {
+            startSize();
+            writeProxy(v.get());
+            endSize();
+        }
     }
 
     public Ice.ObjectPrx
@@ -1423,9 +1824,23 @@ public class BasicStream
     }
 
     public void
+    readProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.FSize))
+        {
+            skip(4);
+            v.set(readProxy());
+        }
+        else
+        {
+            v.clear();
+        }
+    }
+
+    public void
     writeEnum(int v, int limit)
     {
-        if(getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        if(isWriteEncoding_1_0())
         {
             if(limit <= 127)
             {
@@ -1477,12 +1892,35 @@ public class BasicStream
         _writeEncapsStack.encoder.writeObject(v);
     }
 
+    public <T extends Ice.Object> void
+    writeObject(int tag, Ice.Optional<T> v)
+    {
+        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.Size))
+        {
+            writeObject(v.get());
+        }
+    }
+
     public void
     readObject(Patcher patcher)
     {
         assert(patcher != null);
         initReadEncaps();
         _readEncapsStack.decoder.readObject(patcher);
+    }
+
+    public void
+    readObject(int tag, Ice.Optional<Ice.Object> v)
+    {
+        if(readOpt(tag, Ice.OptionalType.Size))
+        {
+            Ice.OptionalObject opt = new Ice.OptionalObject(v, Ice.Object.class, Ice.ObjectImpl.ice_staticId());
+            readObject(opt);
+        }
+        else
+        {
+            v.clear();
+        }
     }
 
     public void
@@ -1509,6 +1947,11 @@ public class BasicStream
     public boolean
     readOptImpl(int readTag, Ice.OptionalType expectedType)
     {
+        if(isReadEncoding_1_0())
+        {
+            return false; // Optional members aren't supported with the 1.0 encoding.
+        }
+
         int tag = 0;
         Ice.OptionalType type;
         do
@@ -1518,7 +1961,8 @@ public class BasicStream
                 return false; // End of encapsulation also indicates end of optionals.
             }
 
-            int v = readByte();
+            final byte b = readByte();
+            final int v = b < 0 ? (int)b + 256 : b;
             type = Ice.OptionalType.valueOf(v & 0x07); // First 3 bits.
             tag = v >> 3;
             if(tag == 31)
@@ -1553,9 +1997,14 @@ public class BasicStream
         return true;
     }
 
-    public void
+    public boolean
     writeOptImpl(int tag, Ice.OptionalType type)
     {
+        if(isWriteEncoding_1_0())
+        {
+            return false; // Optional members aren't supported with the 1.0 encoding.
+        }
+
         int v = type.value();
         if(tag < 31)
         {
@@ -1568,6 +2017,7 @@ public class BasicStream
             writeByte((byte)v);
             writeSize(tag);
         }
+        return true;
     }
 
     public boolean
@@ -1634,7 +2084,8 @@ public class BasicStream
                 return false; // End of encapsulation also indicates end of optionals.
             }
 
-            int v = readByte();
+            final byte b = readByte();
+            final int v = b < 0 ? (int)b + 256 : b;
             type = Ice.OptionalType.valueOf(v & 0x07); // Read first 3 bits.
             if((v >> 3) == 31)
             {
@@ -1967,6 +2418,13 @@ public class BasicStream
             Class<?> c = findClass(id);
             if(c != null)
             {
+                factory = new DynamicObjectFactory(c);
+                /*
+                 * TODO: See ICE-3635 regarding caching of factories.
+                 * Perhaps we should store these dynamic factories in a
+                 * per-communicator map and check this map prior to
+                 * calling findClass above.
+                 *
                 Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
                 //
                 // We will try to install the dynamic factory, but
@@ -1993,6 +2451,7 @@ public class BasicStream
                         factory = _instance.servantFactoryManager().find(id);
                     }
                 }
+                */
             }
         }
         catch(LinkageError ex)
@@ -2243,7 +2702,7 @@ public class BasicStream
         void readObject(Patcher patcher)
         {
             int index = 0;
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 //
                 // Object references are encoded as a negative integer in 1.0.
@@ -2295,7 +2754,7 @@ public class BasicStream
         {
             assert(_sliceType == SliceType.NoSlice);
 
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 //
                 // User exception with the 1.0 encoding start with a boolean
@@ -2374,8 +2833,14 @@ public class BasicStream
 
                 if((_sliceFlags & FLAG_IS_LAST_SLICE) != 0)
                 {
-                    throw new Ice.NoExceptionFactoryException("unknown exception type `" + mostDerivedId + "'",
-                                                              mostDerivedId);
+                    if(mostDerivedId.length() > 2 && mostDerivedId.charAt(0) == ':' && mostDerivedId.charAt(1) == ':')
+                    {
+                        throw new Ice.UnknownUserException(mostDerivedId.substring(2));
+                    }
+                    else
+                    {
+                        throw new Ice.UnknownUserException(mostDerivedId);
+                    }
                 }
 
                 try
@@ -2390,7 +2855,7 @@ public class BasicStream
                     // next type ID, which raises UnmarshalOutOfBoundsException when the
                     // input buffer underflows.
                     //
-                    if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                    if(_encaps.encoding_1_0)
                     {
                         // Set the reason member to a more helpful message.
                         ex.reason = "unknown exception type `" + mostDerivedId + "'";
@@ -2408,7 +2873,7 @@ public class BasicStream
 
         Ice.SlicedData endObject(boolean preserve)
         {
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 //
                 // Read the Ice::Object slice.
@@ -2474,7 +2939,7 @@ public class BasicStream
             // just a boolean for object slices. The boolean indicates whether
             // or not the type ID is encoded as a string or as an index.
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 _sliceFlags = FLAG_HAS_SLICE_SIZE;
                 if(_sliceType == SliceType.ObjectSlice) // For exceptions, the type ID is always encoded as a string
@@ -2615,7 +3080,7 @@ public class BasicStream
                     "compact format prevents slicing (the sender should use the sliced format instead)");
             }
 
-            if(!_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(!_encaps.encoding_1_0)
             {
                 //
                 // Preserve this slice.
@@ -2623,19 +3088,22 @@ public class BasicStream
                 Ice.SliceInfo info = new Ice.SliceInfo();
                 info.typeId = _typeId;
                 info.hasOptionalMembers = (_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0;
+                info.isLastSlice = (_sliceFlags & FLAG_IS_LAST_SLICE) != 0;
                 java.nio.ByteBuffer b = _stream.getBuffer().b;
-                int end = b.position();
+                final int end = b.position();
+                int dataEnd = end;
                 if(info.hasOptionalMembers)
                 {
                     //
                     // Don't include the optional member end marker. It will be re-written by
                     // endSlice when the sliced data is re-written.
                     //
-                    --end;
+                    --dataEnd;
                 }
-                info.bytes = new byte[end - start];
+                info.bytes = new byte[dataEnd - start];
                 b.position(start);
                 b.get(info.bytes);
+                b.position(end);
                 _slices.add(info);
 
                 if((_sliceFlags & FLAG_HAS_INDIRECTION_TABLE) != 0)
@@ -2672,7 +3140,7 @@ public class BasicStream
             // references were read (_usesClasses == true). Otherwise, read
             // pending objects only if some non-nil references were read.
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 if(!_usesClasses)
                 {
@@ -2737,7 +3205,7 @@ public class BasicStream
         private Ice.Object readInstance()
         {
             int index;
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 index = _stream.readInt();
             }
@@ -3086,7 +3554,7 @@ public class BasicStream
                 //
                 int index = registerObject(v);
 
-                if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                if(_encaps.encoding_1_0)
                 {
                     //
                     // Object references are encoded as a negative integer in 1.0.
@@ -3130,7 +3598,7 @@ public class BasicStream
                 //
                 // Write nil reference.
                 //
-                if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                if(_encaps.encoding_1_0)
                 {
                     _stream.writeInt(0);
                     _usesClasses = true;
@@ -3160,7 +3628,7 @@ public class BasicStream
 
         void endObject()
         {
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 //
                 // Write the Object slice.
@@ -3176,7 +3644,7 @@ public class BasicStream
         {
             _sliceType = SliceType.ExceptionSlice;
             _firstSlice = true;
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 _usesClassesPos = _stream.pos();
                 _stream.writeBool(false); // Placeholder for usesClasses boolean
@@ -3189,9 +3657,9 @@ public class BasicStream
 
         void endException()
         {
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
-                _stream.writeBoolAt(_usesClasses, _usesClassesPos);
+                _stream.rewriteBool(_usesClasses, _usesClassesPos);
             }
             _sliceType = SliceType.NoSlice;
         }
@@ -3206,7 +3674,7 @@ public class BasicStream
             // Encode the slice size for the old encoding and if using the
             // sliced format.
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0) || _format == Ice.FormatType.SlicedFormat)
+            if(_encaps.encoding_1_0 || _format == Ice.FormatType.SlicedFormat)
             {
                 _sliceFlags |= FLAG_HAS_SLICE_SIZE;
             }
@@ -3232,8 +3700,7 @@ public class BasicStream
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
                 //
-                if(_format == Ice.FormatType.SlicedFormat || _encaps.encoding.equals(Ice.Util.Encoding_1_0) ||
-                   _firstSlice)
+                if(_format == Ice.FormatType.SlicedFormat || _encaps.encoding_1_0 || _firstSlice)
                 {
                     //
                     // If the type ID has already been seen, write the index
@@ -3256,7 +3723,7 @@ public class BasicStream
             }
             else
             {
-                if(!_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                if(!_encaps.encoding_1_0)
                 {
                     _stream.writeByte((byte)0); // Placeholder for the slice flags
                 }
@@ -3281,6 +3748,7 @@ public class BasicStream
             //
             if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
+                assert(!_encaps.encoding_1_0);
                 _stream.writeByte((byte)Ice.OptionalType.EndMarker.value());
             }
 
@@ -3290,7 +3758,7 @@ public class BasicStream
             if((_sliceFlags & FLAG_HAS_SLICE_SIZE) != 0)
             {
                 final int sz = _stream.pos() - _writeSlice + 4;
-                _stream.writeInt(sz, _writeSlice - 4);
+                _stream.rewriteInt(sz, _writeSlice - 4);
             }
 
             //
@@ -3298,6 +3766,7 @@ public class BasicStream
             //
             if(!_indirectionTable.isEmpty())
             {
+                assert(!_encaps.encoding_1_0);
                 assert(_format == Ice.FormatType.SlicedFormat);
                 _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
@@ -3311,31 +3780,39 @@ public class BasicStream
             }
 
             //
-            // Finally, update the slice flags.
+            // Finally, update the slice flags (or the object slice has index
+            // type ID boolean for the 1.0 encoding)
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 if(_sliceType == SliceType.ObjectSlice) // No flags for 1.0 exception slices.
                 {
-                    _stream.writeBoolAt((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0, _sliceFlagsPos);
+                    _stream.rewriteBool((_sliceFlags & FLAG_HAS_TYPE_ID_INDEX) != 0, _sliceFlagsPos);
                 }
             }
             else
             {
-                _stream.writeByte(_sliceFlags, _sliceFlagsPos);
+                _stream.rewriteByte(_sliceFlags, _sliceFlagsPos);
             }
         }
 
-        void writeOpt(int tag, Ice.OptionalType type)
+        boolean writeOpt(int tag, Ice.OptionalType type)
         {
             if(_sliceType == SliceType.NoSlice)
             {
-                _stream.writeOptImpl(tag, type);
+                return _stream.writeOptImpl(tag, type);
             }
             else
             {
-                _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
-                _stream.writeOptImpl(tag, type);
+                if(_stream.writeOptImpl(tag, type))
+                {
+                    _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
 
@@ -3346,7 +3823,7 @@ public class BasicStream
             // references were written (_usesClasses = true). Otherwise, write
             // pending objects only if some non-nil references were written.
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+            if(_encaps.encoding_1_0)
             {
                 if(!_usesClasses)
                 {
@@ -3387,7 +3864,7 @@ public class BasicStream
                     // instances that are triggered by the classes marshaled
                     // are added to toBeMarshaledMap.
                     //
-                    if(_encaps.encoding.equals(Ice.Util.Encoding_1_0))
+                    if(_encaps.encoding_1_0)
                     {
                         _stream.writeInt(p.getValue().intValue());
                     }
@@ -3422,7 +3899,7 @@ public class BasicStream
             // using the sliced format. Otherwise, we ignore the preserved slices, which
             // essentially "slices" the object into the most-derived type known by the sender.
             //
-            if(_encaps.encoding.equals(Ice.Util.Encoding_1_0) || _format != Ice.FormatType.SlicedFormat)
+            if(_encaps.encoding_1_0 || _format != Ice.FormatType.SlicedFormat)
             {
                 return;
             }
@@ -3430,7 +3907,7 @@ public class BasicStream
             for(int n = 0; n < slicedData.slices.length; ++n)
             {
                 Ice.SliceInfo info = slicedData.slices[n];
-                startSlice(info.typeId, false); // last = false, sliced data never contains the last slice.
+                startSlice(info.typeId, info.isLastSlice);
 
                 //
                 // Write the bytes associated with this slice.
@@ -3515,9 +3992,16 @@ public class BasicStream
             decoder = null;
         }
 
+        void setEncoding(Ice.EncodingVersion encoding)
+        {
+            this.encoding = encoding;
+            encoding_1_0 = encoding.equals(Ice.Util.Encoding_1_0);
+        }
+
         int start;
         int sz;
-        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+        Ice.EncodingVersion encoding;
+        boolean encoding_1_0;
 
         EncapsDecoder decoder;
 
@@ -3531,8 +4015,15 @@ public class BasicStream
             encoder = null;
         }
 
+        void setEncoding(Ice.EncodingVersion encoding)
+        {
+            this.encoding = encoding;
+            encoding_1_0 = encoding.equals(Ice.Util.Encoding_1_0);
+        }
+
         int start;
-        Ice.EncodingVersion encoding = new Ice.EncodingVersion();
+        Ice.EncodingVersion encoding;
+        boolean encoding_1_0;
 
         EncapsEncoder encoder;
 
@@ -3546,6 +4037,16 @@ public class BasicStream
     // encapsulation.
     //
     private Ice.EncodingVersion _encoding;
+
+    private boolean isReadEncoding_1_0()
+    {
+        return _readEncapsStack != null ? _readEncapsStack.encoding_1_0 : _encoding.equals(Ice.Util.Encoding_1_0);
+    }
+
+    private boolean isWriteEncoding_1_0()
+    {
+        return _writeEncapsStack != null ? _writeEncapsStack.encoding_1_0 : _encoding.equals(Ice.Util.Encoding_1_0);
+    }
 
     private ReadEncaps _readEncapsStack;
     private WriteEncaps _writeEncapsStack;
@@ -3565,6 +4066,8 @@ public class BasicStream
             {
                 _readEncapsStack = new ReadEncaps();
             }
+            _readEncapsStack.setEncoding(_encoding);
+            _readEncapsStack.sz = _buf.b.limit();
         }
 
         if(_readEncapsStack.decoder == null) // Lazy initialization.
@@ -3586,6 +4089,7 @@ public class BasicStream
             {
                 _writeEncapsStack = new WriteEncaps();
             }
+            _writeEncapsStack.setEncoding(_encoding);
         }
 
         if(_writeEncapsStack.encoder == null) // Lazy initialization.
@@ -3603,6 +4107,8 @@ public class BasicStream
     private int _minSeqSize;
 
     private Ice.FormatType _format;
+
+    private int _sizePos;
 
     private static final byte FLAG_HAS_TYPE_ID_STRING       = (byte)(1<<0);
     private static final byte FLAG_HAS_TYPE_ID_INDEX        = (byte)(1<<1);

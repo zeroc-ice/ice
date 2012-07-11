@@ -88,6 +88,20 @@ public final class TestI extends _TestIntfDisp
         return su;
     }
 
+    public void
+    checkSUnknown(Ice.Object obj, Ice.Current current)
+    {
+        if(current.encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(obj instanceof SUnknown));
+        }
+        else
+        {
+            SUnknown su = (SUnknown)obj;
+            test(su.su.equals("SUnknown.su"));
+        }
+    }
+
     public B
     oneElementCycle(Ice.Current current)
     {
