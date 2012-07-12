@@ -63,7 +63,11 @@ IceUtil::ThreadControl::join()
         throw BadThreadControlException(__FILE__, __LINE__);
     }
 
+#ifndef ICE_OS_WINRT
     DWORD rc = WaitForSingleObject(_handle, INFINITE);
+#else
+    DWORD rc = WaitForSingleObjectEx(_handle, INFINITE, true);
+#endif
     if(rc != WAIT_OBJECT_0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -95,7 +99,11 @@ IceUtil::ThreadControl::id() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
+#ifndef ICE_OS_WINRT
     Sleep(static_cast<long>(timeout.toMilliSeconds()));
+#else
+    WaitForSingleObjectEx(GetCurrentThread(), static_cast<long>(timeout.toMilliSeconds()), true);
+#endif
 }
 
 void
@@ -106,7 +114,11 @@ IceUtil::ThreadControl::yield()
     // of its time slice to any other thread of equal priority that is
     // ready to run.
     //
+#ifndef ICE_OS_WINRT
     Sleep(0);
+#else
+    WaitForSingleObjectEx(GetCurrentThread(), 0, true);
+#endif
 }
 
 IceUtil::Thread::Thread() :
@@ -172,7 +184,7 @@ WINAPI startHook(void* arg)
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
         terminate();
 #else
-	std::terminate();
+        std::terminate();
 #endif
     }
 
@@ -220,14 +232,21 @@ IceUtil::Thread::start(size_t stackSize, int priority)
         reinterpret_cast<HANDLE>(
             _beginthreadex(0, 
                             static_cast<unsigned int>(stackSize), 
-                            startHook, this, CREATE_SUSPENDED, &id));
+                            startHook, this, 
+#ifndef ICE_OS_WINRT
+                            CREATE_SUSPENDED, 
+#else
+                            0,
+#endif
+                            &id));
     _id = id;
-
+    assert(_handle != (HANDLE)-1L);
     if(_handle == 0)
     {
         __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
+#ifndef ICE_OS_WINRT
     if(SetThreadPriority(_handle, priority) == 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -237,6 +256,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
         __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
+#endif
 
     _started = true;
     _running = true;

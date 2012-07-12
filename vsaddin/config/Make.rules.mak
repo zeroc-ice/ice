@@ -28,7 +28,7 @@ DEBUG			= yes
 OPTIMIZE		= yes
 
 #
-# Define VS to VS2010 or VS2008 to build with that Visual Studio Version.
+# Define VS to VS2012, VS2010 or VS2008 to build with that Visual Studio Version.
 # 
 #
 #VS             = VS2008
@@ -50,13 +50,23 @@ KEYFILE			= $(top_srcdir)\config\IceDevKey.snk
 # Common definitions
 #
 
+ice_language     = cs
+!if exist ($(top_srcdir)\..\config\Make.common.rules.mak)
+!include $(top_srcdir)\..\config\Make.common.rules.mak
+!else
+!include $(top_srcdir)\config\Make.common.rules.mak
+!endif
+
 EVERYTHING      = all install clean
 
 #
 # Visual Studio version
 #
 
-!if "$(VS)" == "" && "$(VSSDK100INSTALL)" != ""
+!if "$(VS)" == "" && "$(VSSDK110INSTALL)" != ""
+VS = VS2012
+!message VS2012 will be used!
+!elseif "$(VS)" == "" && "$(VSSDK100INSTALL)" != ""
 VS = VS2010
 !message VS2010 will be used!
 !elseif "$(VS)" == "" && "$(VSSDK90INSTALL)" != ""
@@ -64,14 +74,16 @@ VS = VS2008
 !message VS was not set VS2008 will be used!
 !endif
 
-!if "$(VS)" == "VS2010" 
+!if "$(VS)" == "VS2012" 
+VSSDK_HOME              = $(VSSDK110INSTALL)
+!elseif "$(VS)" == "VS2010" 
 VSSDK_HOME              = $(VSSDK100INSTALL)
 !elseif "$(VS)" == "VS2008"
 VSSDK_HOME		= $(VSSDK90INSTALL)
 !endif
 
 !if "$(VSSDK_HOME)" == ""
-!error Neither VSSDK100INSTALL not VSSDK90INSTALL is set, seems that Visual Studio SDK isn't properly installed
+!error Neither VSSDK110INSTALL, VSSDK100INSTALL not VSSDK90INSTALL is set, seems that Visual Studio SDK isn't properly installed
 !endif
 
 VSTARGET                = $(VS)
@@ -80,9 +92,7 @@ PKG_PREFIX 		= $(VSTARGET)
 
 !if "$(VS)" == "VS2008"
 PROPERTY_SHEET = "ice.vsprops"
-!endif
-
-!if "$(VS)" == "VS2010"
+!else
 PROPERTY_SHEET = "ice.props"
 !endif
 
@@ -110,15 +120,9 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-!if "$(VSTARGET)" == "VS2008"
-MCSFLAGS = $(MCSFLAGS) -define:VS2008
-!endif
+MCSFLAGS = $(MCSFLAGS) -define:$(VSTARGET)
 
-!if "$(VSTARGET)" == "VS2010"
-MCSFLAGS = $(MCSFLAGS) -define:VS2010
-!endif
-
-
+!if "$(VSTARGET)" == "VS2008" || "$(VSTARGET)" == "VS2010"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\EnvDTE.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\EnvDTE80.dll"
 
@@ -127,6 +131,17 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(VSINSTALLDIR)\Common7\IDE\PublicAssemblies\
 
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProject.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll"
+!elseif "$(VSTARGET)" == "VS2012"
+
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Common Files\microsoft shared\MSEnv\PublicAssemblies\EnvDTE.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Common Files\microsoft shared\MSEnv\PublicAssemblies\EnvDTE80.dll"
+
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Common Files\microsoft shared\MSEnv\PublicAssemblies\Microsoft.VisualStudio.CommandBars.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Common Files\microsoft shared\MSEnv\PublicAssemblies\VSLangProj.dll"
+
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProject.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.VCProjectEngine.dll"
+!endif
 
 !if "$(VSTARGET)" == "VS2008"
 
@@ -138,9 +153,7 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\Microsoft.VisualStudio.Shell.Interop.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\Microsoft.VisualStudio.Shell.Interop.8.0.dll"
 
-!endif
-
-!if "$(VSTARGET)" == "VS2010"
+!elseif "$(VSTARGET)" == "VS2010"
 
 MCSFLAGS = $(MCSFLAGS) /reference:"Microsoft.Build.dll"
 
@@ -150,7 +163,13 @@ MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.Interop.dll"
 MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.Interop.8.0.dll"
-
+!elseif "$(VSTARGET)" == "VS2012"
+MCSFLAGS = $(MCSFLAGS) /reference:"Microsoft.Build.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(PROGRAMFILES)\Common Files\microsoft shared\MSEnv\PublicAssemblies\Extensibility.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.OLE.Interop.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VS_HOME)\Common7\IDE\PrivateAssemblies\Microsoft.VisualStudio.Shell.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.Interop.dll"
+MCSFLAGS = $(MCSFLAGS) /reference:"$(VSSDK_HOME)\VisualStudioIntegration\Common\Assemblies\v2.0\Microsoft.VisualStudio.Shell.Interop.8.0.dll"
 !endif
 
 all::

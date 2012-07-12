@@ -1,0 +1,5 @@
+Debug/*
+Release/*
+TestSuite/Debug/*
+TestSuite/Release/*
+*.pch

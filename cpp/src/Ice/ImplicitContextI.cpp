@@ -37,7 +37,7 @@ private:
     IceUtil::Mutex _mutex;
 };
 
-
+#ifndef ICE_OS_WINRT
 class PerThreadImplicitContext : public ImplicitContextI
 {
 public:
@@ -101,7 +101,7 @@ private:
     size_t _index; // index in all SlotVector
     long _id; // corresponds to owner in the Slot
 };
-
+#endif
 }
 
 
@@ -118,7 +118,13 @@ ImplicitContextI::create(const std::string& kind)
     }
     else if(kind == "PerThread")
     {
+#ifndef ICE_OS_WINRT
         return new PerThreadImplicitContext;
+#else
+        throw InitializationException(__FILE__, __LINE__, 
+                                      "'PerThread' Ice.ImplicitContext isn't supported for WinRT.");
+        return 0; // Keep the compiler happy.
+#endif
     }
     else
     {
@@ -129,7 +135,7 @@ ImplicitContextI::create(const std::string& kind)
     }
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
 void
 ImplicitContextI::cleanupThread()
 {
@@ -253,7 +259,7 @@ SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 //
 // PerThreadImplicitContext implementation
 //
-
+#ifndef ICE_OS_WINRT
 long PerThreadImplicitContext::_nextId;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
 IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;
@@ -281,11 +287,11 @@ Init init;
 
 }
 
-#ifdef _WIN32
+#   ifdef _WIN32
 DWORD PerThreadImplicitContext::_key;
-#else
+#   else
 pthread_key_t PerThreadImplicitContext::_key;
-#endif
+#   endif
 
 PerThreadImplicitContext::PerThreadImplicitContext()
 {
@@ -297,19 +303,19 @@ PerThreadImplicitContext::PerThreadImplicitContext()
         // Initialize; note that we never dealloc this key (it would be
         // complex, and since it's a static variable, it's not really a leak)
         //
-#ifdef _WIN32
+#   ifdef _WIN32
         _key = TlsAlloc();
         if(_key == TLS_OUT_OF_INDEXES)
         {
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
         }
-#else
+#   else
         int err = pthread_key_create(&_key, &threadDestructor);
         if(err != 0)
         {
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
         }
-#endif
+#   endif
     }
     
     //
@@ -368,11 +374,11 @@ PerThreadImplicitContext::threadDestructor(void* v)
 Context*
 PerThreadImplicitContext::getThreadContext(bool allocate) const
 {
-#ifdef _WIN32
+#   ifdef _WIN32
     SlotVector* sv = static_cast<SlotVector*>(TlsGetValue(_key));
-#else
+#   else
     SlotVector* sv = static_cast<SlotVector*>(pthread_getspecific(_key));
-#endif
+#   endif
     if(sv == 0)
     {
         if(!allocate)
@@ -381,18 +387,18 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
         }
 
         sv = new SlotVector(_index + 1);
-#ifdef _WIN32
+#   ifdef _WIN32
 
         if(TlsSetValue(_key, sv) == 0)
         {
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
         }
-#else
+#   else
         if(int err = pthread_setspecific(_key, sv))
         {
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
         }
-#endif
+#   endif
     }
     else
     {
@@ -441,11 +447,11 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 void
 PerThreadImplicitContext::clearThreadContext() const
 {
-#ifdef _WIN32
+#   ifdef _WIN32
     SlotVector* sv = static_cast<SlotVector*>(TlsGetValue(_key));
-#else
+#   else
     SlotVector* sv = static_cast<SlotVector*>(pthread_getspecific(_key));
-#endif
+#   endif
     if(sv != 0 && _index < sv->size())
     {
         delete (*sv)[_index].context;
@@ -473,17 +479,17 @@ PerThreadImplicitContext::clearThreadContext() const
         if(clear)
         {
             delete sv;
-#ifdef _WIN32
+#   ifdef _WIN32
             if(TlsSetValue(_key, 0) == 0)
             {
                 IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
             }
-#else
+#   else
             if(int err = pthread_setspecific(_key, 0))
             {
                 throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
             }
-#endif
+#   endif
         }
         else
         {
@@ -629,3 +635,4 @@ PerThreadImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
         ctx.insert(threadCtx->begin(), threadCtx->end());
     }
 }
+#endif

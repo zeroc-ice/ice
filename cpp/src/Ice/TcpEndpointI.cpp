@@ -526,9 +526,9 @@ IceInternal::TcpEndpointI::hashInit() const
     hashAdd(h, _compress);
     return h;
 }
- 
+
 vector<ConnectorPtr>
-IceInternal::TcpEndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
+IceInternal::TcpEndpointI::connectors(const vector<Address>& addresses) const
 {
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)

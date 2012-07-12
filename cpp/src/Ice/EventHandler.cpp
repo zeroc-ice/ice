@@ -17,7 +17,7 @@ using namespace IceInternal;
 IceUtil::Shared* IceInternal::upCast(EventHandler* p) { return p; }
 
 IceInternal::EventHandler::EventHandler() :
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     _pending(SocketOperationNone),
     _ready(SocketOperationNone),
     _started(SocketOperationNone),

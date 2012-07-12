@@ -12,6 +12,8 @@
 #include <Test.h>
 #include <Dispatcher.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 int

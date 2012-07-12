@@ -650,6 +650,10 @@ namespace Ice.VisualStudio
                 Util.unexpectedExceptionWarning(ex);
                 throw;
             }
+            finally
+            {
+                _opened = false;
+            }
         }
 
         public void solutionOpened()
@@ -692,6 +696,7 @@ namespace Ice.VisualStudio
             }
             Util.getCurrentDTE().StatusBar.Text = "Ready";
             _opening = false;
+            _opened = false;
         }
         
         //
@@ -725,11 +730,13 @@ namespace Ice.VisualStudio
                 {
                     components.Add("Ice");
                 }
-                if(!components.Contains("IceUtil"))
+                if(!Util.isWinRTProject(project))
                 {
-                    components.Add("IceUtil");
+                    if(!components.Contains("IceUtil"))
+                    {
+                        components.Add("IceUtil");
+                    }
                 }
-
                 Util.addIceCppLibs(project, components);
             }
             else
@@ -884,6 +891,10 @@ namespace Ice.VisualStudio
         
         public void projectAdded(Project project)
         {
+            if(!_opened)
+            {
+                return;
+            }
             try
             {
                 if(Util.isSliceBuilderEnabled(project))
@@ -1613,63 +1624,27 @@ namespace Ice.VisualStudio
         
         public static string getSliceCompilerPath(Project project)
         {
-            string iceHome = Util.getIceHome();
             string compiler = Util.slice2cpp;
             if(Util.isCSharpProject(project))
             {
                 compiler = Util.slice2cs;
             }
-            return Path.Combine(Path.Combine(iceHome, "bin"), compiler);
-        }
-        
-        public static string getSliceCompilerVersion(Project project, string sliceCompiler)
-        {
-            string iceHome = Util.getIceHome();
-            sliceCompiler = Path.Combine(iceHome, Path.Combine("bin", sliceCompiler));
 
-            System.Diagnostics.Process process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = sliceCompiler;
-            process.StartInfo.Arguments = "-v";
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.WorkingDirectory = Path.GetDirectoryName(project.FileName);
-
-            StreamReader reader = new StreamReader();
-            process.OutputDataReceived += new DataReceivedEventHandler(reader.appendData);
-
-            try
+            if(!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IceSourceHome")))
             {
-                process.Start();
-            }
-            catch(InvalidOperationException ex)
-            {
-                Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the Slice compiler\n" +
-                           ex.ToString());
-                
-                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start the Slice compiler\n" +
-                         ex.ToString());
-                return "";
-            }
-            catch(System.ComponentModel.Win32Exception ex)
-            {
-                Util.write(project, Util.msgLevel.msgError,
-                           "An exception was thrown when trying to start the Slice compiler\n" +
-                           ex.ToString());
-                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0,
-                         "An exception was thrown when trying to start the Slice compiler\n" +
-                         ex.ToString());
-                return "";
+                return Path.Combine(Environment.GetEnvironmentVariable("IceSourceHome"), "cpp", "bin", compiler);
             }
 
-            // Start the asynchronous read of the standard output stream.
-            process.BeginOutputReadLine();
-            string version = process.StandardError.ReadToEnd();
-            process.WaitForExit();
-            return version.Trim();
+            string iceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            if(iceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin".Length), "bin", compiler);
+            }
+            if(iceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
+            {
+                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin\\bin".Length), "cpp", "bin", compiler);
+            }
+            throw new ArgumentException("Unable to determite Slice compiler location");
         }
 
         private static string getSliceCompilerArgs(Project project, string file, bool depend)
@@ -1899,7 +1874,12 @@ namespace Ice.VisualStudio
             // Read Standard error.
             string stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
-            
+            if(process.ExitCode != 0)
+            {
+                addError(project, file, TaskErrorCategory.Error, 0, 0, "Slice compiler `" + sliceCompiler +
+                                                        "' failed to start (error code " + process.ExitCode.ToString() + ")");
+                return false;
+            }
             if(parseErrors(project, sliceCompiler, file, stderr))
             {
                 bringErrorsToFront();
@@ -2104,10 +2084,12 @@ namespace Ice.VisualStudio
                 return projects.GetValue(0) as Project;
             }
 
-            projects = (Array)_applicationObject.Solution.Projects;
-            if(projects != null && projects.Length > 0)
+            if(_applicationObject.Solution.Projects != null)
             {
-                return projects.GetValue(0) as Project;
+                if (_applicationObject.Solution.Projects != null && _applicationObject.Solution.Projects.Count > 0)
+                {
+                    return _applicationObject.Solution.Projects.Item(1) as Project;
+                }
             }
             return null;
         }
@@ -2592,7 +2574,13 @@ namespace Ice.VisualStudio
             process.BeginOutputReadLine();
 
             process.WaitForExit();
-
+    
+            if(process.ExitCode != 0)
+            {
+                addError(project, file, TaskErrorCategory.Error, 0, 0, "Slice compiler `" + sliceCompiler + 
+                                                        "' failed to start (error code " + process.ExitCode.ToString() + ")");
+                return false;
+            }
             bool hasErrors = parseErrors(project, sliceCompiler, file, stderr);
             process.Close();
             if(hasErrors)
@@ -3539,7 +3527,7 @@ namespace Ice.VisualStudio
 
         private uint _dwCookie;
         private bool _opening = false;
-
+        private bool _opened = false; // True after solutionOpened has been executed.
         public bool commandLine;
     }
 }

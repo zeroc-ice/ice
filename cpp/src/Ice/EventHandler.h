@@ -24,7 +24,7 @@ class EventHandler : virtual public ::IceUtil::Shared
 {
 public:
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     //
     // Called to start a new asynchronous read or write operation.
     //
@@ -57,7 +57,7 @@ protected:
     EventHandler();
     ICE_API virtual ~EventHandler();
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     SocketOperation _ready;
     SocketOperation _pending;
     SocketOperation _started;

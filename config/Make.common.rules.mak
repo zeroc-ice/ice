@@ -33,6 +33,9 @@ ice_bin_dist = 1
 
 !if "$(AS)" == "ml64" || "$(XTARGET)" == "x64"
 x64suffix		= \x64
+ARCH			= x64
+!else
+ARCH			= x86
 !endif
 
 ice_bin_dist_dir = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)
@@ -147,16 +150,15 @@ install-common::
 	    @echo "Creating $(prefix)..." && \
 	    mkdir "$(prefix)"
 
-!if "$(install_slicedir)" != ""
+!if "$(WINRT)" != "yes" && "$(install_slicedir)" != ""
 	@if not exist "$(install_slicedir)" \
 	    @echo "Creating $(install_slicedir)..." && \
 	    mkdir "$(install_slicedir)" && \
 	    @echo "Copying slice files..." && \
 	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
-!endif
 
 	@if not exist "$(prefix)\ICE_LICENSE" \
 	    @copy $(top_srcdir)\..\ICE_LICENSE "$(prefix)"
 	@if not exist "$(prefix)\LICENSE" \
 	    @copy $(top_srcdir)\..\LICENSE "$(prefix)"
-
+!endif

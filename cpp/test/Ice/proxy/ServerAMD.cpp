@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestAMDI.h>
+
+DEFINE_TEST("serveramd")
 
 using namespace std;
 

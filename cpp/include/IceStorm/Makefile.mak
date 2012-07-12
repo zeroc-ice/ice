@@ -8,8 +8,11 @@
 # **********************************************************************
 
 top_srcdir	= ..\..
+INCLUDE_DIR	= IceStorm
 
 !include $(top_srcdir)/config/Make.rules.mak
+
+!if "$(WINRT)" != "yes"
 
 install::
 	@if not exist "$(install_includedir)\IceStorm" \
@@ -19,3 +22,10 @@ install::
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
 	    copy %i "$(install_includedir)\IceStorm"
+
+!else
+
+SDK_HEADERS	= $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceStorm.h
+
+all::	$(SDK_HEADERS)
+!endif

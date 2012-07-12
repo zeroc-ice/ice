@@ -18,33 +18,33 @@ SUBDIRS		= proxy \
 		  inheritance \
 		  facets \
 		  objects \
-		  faultTolerance \
 		  location \
 		  adapterDeactivation \
-		  slicing \
-		  gc \
-		  checksum \
+		  ami \
+		  invoke \
 		  dispatcher \
 		  hold \
 		  binding \
 		  retry \
 		  timeout \
-		  servantLocator \
-		  interceptor \
-		  stringConverter \
-		  background \
 		  udp \
-		  defaultServant \
-		  defaultValue \
-		  threadPoolPriority \
 		  stream \
 
-!if "$(CPP_COMPILER)" != "VC60"
+!if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
-		  ami \
+		  gc \
+		  slicing \
+		  faultTolerance \
+		  checksum \
+		  stringConverter \
+		  background \
+		  threadPoolPriority
 		  custom \
-		  invoke \
-		  properties
+		  properties \
+		  servantLocator \
+		  defaultServant \
+		  interceptor \
+		  defaultValue \
 !endif
 
 $(EVERYTHING)::

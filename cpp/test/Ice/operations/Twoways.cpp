@@ -731,6 +731,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             test(r == ctx);
         }
 
+#ifndef ICE_OS_WINRT
         {
             //
             // Test implicit context propagation
@@ -795,7 +796,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ic->destroy();
             }
         }
-    }
+#endif
+	}
 
     {
         Ice::Double d = 1278312346.0 / 13.0;

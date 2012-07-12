@@ -38,5 +38,8 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.grid" />
+    <None Include="application-single.xml" />
+    <None Include="application-multiple.xml" />
   </ItemGroup>
 </Project>

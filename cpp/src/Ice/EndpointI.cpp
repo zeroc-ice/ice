@@ -10,7 +10,6 @@
 #include <Ice/EndpointI.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>
-#include <Ice/Network.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -58,7 +57,7 @@ IceInternal::EndpointI::ice_getHash() const
 }
 
 vector<ConnectorPtr>
-IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs) const
+IceInternal::EndpointI::connectors(const vector<Address>& addrs) const
 {
     //
     // This method must be extended by endpoints which use the EndpointHostResolver to create
@@ -71,6 +70,8 @@ IceInternal::EndpointI::connectors(const vector<struct sockaddr_storage>& addrs)
 IceInternal::EndpointI::EndpointI() : _hashInitialized(false)
 {
 }
+
+#ifndef ICE_OS_WINRT
 
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
     IceUtil::Thread("Ice endpoint host resolver thread"),
@@ -105,7 +106,7 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 void
 IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint,
                                            const EndpointI_connectorsPtr& callback)
-{ 
+{
     //
     // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
     // entry and the thread will take care of getting the endpoint addresses.
@@ -188,3 +189,32 @@ IceInternal::EndpointHostResolver::run()
     }
     _queue.clear();
 }
+
+#else
+
+IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance)
+{
+}
+
+void
+IceInternal::EndpointHostResolver::resolve(const string&, int,
+                                           const EndpointIPtr& endpoint, 
+                                           const EndpointI_connectorsPtr& callback)
+{
+    //
+    // No DNS lookup support with WinRT.
+    //
+    callback->connectors(endpoint->connectors());
+}
+
+void
+IceInternal::EndpointHostResolver::destroy()
+{
+}
+
+void
+IceInternal::EndpointHostResolver::run()
+{
+}
+
+#endif

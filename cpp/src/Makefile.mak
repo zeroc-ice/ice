@@ -11,6 +11,14 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+!if "$(WINRT)" == "yes"
+SUBDIRS		= IceUtil\winrt \
+		  Ice\winrt \
+		  Glacier2Lib\winrt \
+		  IceStormLib\winrt \
+		  IceGridLib\winrt
+
+!else
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp
@@ -61,6 +69,8 @@ SUBDIRS		= $(SUBDIRS) \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall
+!endif
+
 !endif
 
 !endif

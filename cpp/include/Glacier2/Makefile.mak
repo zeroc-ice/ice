@@ -8,8 +8,11 @@
 # **********************************************************************
 
 top_srcdir	= ..\..
+INCLUDE_DIR	= Glacier2
 
 !include $(top_srcdir)/config/Make.rules.mak
+
+!if "$(WINRT)" != "yes"
 
 install::
 	@if not exist "$(install_includedir)\Glacier2" \
@@ -19,3 +22,17 @@ install::
 	@for %i in ( *.h ) do \
 	    @echo Installing %i && \
 	    copy %i "$(install_includedir)\Glacier2"
+
+!else
+
+SDK_HEADERS	= $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Application.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Glacier2.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\PermissionsVerifier.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Router.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SSLInfo.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Session.h \
+	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SessionHelper.h
+
+all::	$(SDK_HEADERS)
+
+!endif

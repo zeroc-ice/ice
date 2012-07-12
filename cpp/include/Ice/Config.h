@@ -22,12 +22,14 @@
 #include <vector>
 #include <map>
 
-#if defined(_WIN32)
-#   include <process.h>
-#else
-#   include <sys/types.h>
-#   include <unistd.h>
-#   include <cstddef>
+#ifndef ICE_OS_WINRT
+#   if defined(_WIN32)
+#      include <process.h>
+#   else
+#      include <sys/types.h>
+#      include <unistd.h>
+#      include <cstddef>
+#   endif
 #endif
 
 //

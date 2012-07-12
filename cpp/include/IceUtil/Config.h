@@ -52,6 +52,14 @@
 #   define ICE_32
 #endif
 
+#if defined(_MSC_VER) && _MSC_VER > 1600
+#   include <winapifamily.h>
+#   if defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_APP
+#      define ICE_OS_WINRT
+#      define ICE_STATIC_LIBS
+#   endif
+#endif
+
 //
 // Compiler extensions to export and import symbols: see the documentation 
 // for Visual C++, Sun ONE Studio 8 and HP aC++.
@@ -242,3 +250,4 @@ public:
 #endif
 
 #endif
+

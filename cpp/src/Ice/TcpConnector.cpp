@@ -31,7 +31,7 @@ IceInternal::TcpConnector::connect()
 
     try
     {
-        TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr.ss_family), false);
+        TransceiverPtr transceiver = new TcpTransceiver(_instance, createSocket(false, _addr), false);
         dynamic_cast<TcpTransceiver*>(transceiver.get())->connect(_addr);
         return transceiver;
     }
@@ -71,7 +71,7 @@ IceInternal::TcpConnector::operator==(const Connector& r) const
     {
         return false;
     }
-
+    
     if(_timeout != p->_timeout)
     {
         return false;
@@ -117,11 +117,11 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     {
         return false;
     }
-    return compareAddress(_addr, p->_addr) == -1;
+    return compareAddress(_addr, p->_addr) < 0;
 }
 
-IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_storage& addr,
-                                        Ice::Int timeout, const string& connectionId) :
+IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const Address& addr, Ice::Int timeout, 
+                                        const string& connectionId) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),

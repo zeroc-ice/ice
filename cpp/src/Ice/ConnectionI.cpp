@@ -1132,7 +1132,7 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
     return _instance->proxyFactory()->referenceToProxy(_instance->referenceFactory()->create(ident, self));
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
 Ice::ConnectionI::startAsync(SocketOperation operation)
 {
@@ -1599,7 +1599,7 @@ Ice::ConnectionI::finish()
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);
             
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             //
             // The current message might be sent but not yet removed from _sendStreams. If
             // the response has been received in the meantime, we remove the message from 
@@ -2020,7 +2020,7 @@ Ice::ConnectionI::setState(State state)
                 return;
             }
             _threadPool->finish(this);
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             _transceiver->close();
 #endif
             break;
@@ -2029,7 +2029,7 @@ Ice::ConnectionI::setState(State state)
         case StateFinished:
         {
             assert(_state == StateClosed);
-#ifndef ICE_USE_IOCP
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
             _transceiver->close();
 #endif
             _communicator = 0;
@@ -2302,6 +2302,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
             //
             message = &_sendStreams.front();
             assert(!message->stream->i);
+#ifndef ICE_OS_WINRT
             if(message->compress && message->stream->b.size() >= 100) // Only compress messages > 100 bytes.
             {
                 //
@@ -2329,6 +2330,7 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
             }
             else
             {
+#endif
                 if(message->compress)
                 {
                     //
@@ -2356,7 +2358,9 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
                 {
                     traceSend(*message->stream, _logger, _traceLevels);
                 }
+#ifndef ICE_OS_WINRT
             }
+#endif
             _writeStream.swap(*message->stream);
 
             //
@@ -2410,7 +2414,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     //
 
     message.stream->i = message.stream->b.begin();
-
+#ifndef ICE_OS_WINRT
     if(message.compress && message.stream->b.size() >= 100) // Only compress messages larger than 100 bytes.
     {
         //
@@ -2457,6 +2461,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     }
     else
     {
+#endif
         if(message.compress)
         {
             //
@@ -2506,7 +2511,9 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
 
         _sendStreams.push_back(message);
         _sendStreams.back().adopt(0); // Adopt the stream.
+#ifndef ICE_OS_WINRT
     }
+#endif
 
     _writeStream.swap(*_sendStreams.back().stream);
     scheduleTimeout(SocketOperationWrite, _endpoint->timeout());
@@ -2514,6 +2521,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     return AsyncStatusQueued;
 }
 
+#ifndef ICE_OS_WINRT
 static string
 getBZ2Error(int bzError)
 {
@@ -2658,6 +2666,7 @@ Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompresse
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
 }
+#endif
 
 void
 Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
@@ -2685,12 +2694,15 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
         Byte messageType;
         stream.read(messageType);
         stream.read(compress);
+
+#ifndef ICE_OS_WINRT
         if(compress == 2)
         {
             BasicStream ustream(_instance.get());
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
         }
+#endif
         stream.i = stream.b.begin() + headerSize;
 
         switch(messageType)

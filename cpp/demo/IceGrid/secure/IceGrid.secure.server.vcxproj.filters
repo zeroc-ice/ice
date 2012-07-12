@@ -38,5 +38,11 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="application.xml" />
+    <None Include="config.admin" />
+    <None Include="config.master" />
+    <None Include="config.node" />
+    <None Include="config.slave" />
+    <None Include="config.glacier2" />
   </ItemGroup>
 </Project>

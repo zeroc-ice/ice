@@ -54,7 +54,7 @@ basicConstraints = CA:false
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer:always
 
-subjectAltName = DNS:server, IP:127.0.0.1
+subjectAltName = DNS:127.0.0.1, IP:127.0.0.1
 
 [ req ]
 default_bits        = 1024
@@ -71,7 +71,7 @@ stateOrProvinceName    = Florida
 localityName           = Palm Beach Gardens
 organizationName       = ZeroC, Inc.
 organizationalUnitName = Ice
-commonName             = Server
+commonName             = 127.0.0.1
 emailAddress           = info@zeroc.com
 
 

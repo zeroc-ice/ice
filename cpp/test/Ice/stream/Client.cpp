@@ -20,6 +20,8 @@
 #   pragma warning( disable : 4996 )
 #endif
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILERBUG

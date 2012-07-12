@@ -32,5 +32,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.sub" />
+    <None Include="config.ib1" />
+    <None Include="config.ib2" />
+    <None Include="config.ib3" />
+    <None Include="config.s1" />
+    <None Include="config.s2" />
+    <None Include="config.s3" />
   </ItemGroup>
 </Project>

@@ -38,5 +38,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="application.xml" />
+    <None Include="application_with_replication.xml" />
+    <None Include="application_with_template.xml" />
+    <None Include="config.grid" />
   </ItemGroup>
 </Project>

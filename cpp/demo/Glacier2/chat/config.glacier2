@@ -7,7 +7,7 @@ Glacier2.InstanceName=DemoGlacier2
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Glacier2.Client.Endpoints=ssl -p 4064 -h localhost
+Glacier2.Client.Endpoints=ssl -p 4064 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -52,3 +52,10 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+
+#
+# Verify the client certificate by default. Uncomment this property
+# setting if you run the demo with a client which doesn't support
+# client certificates (such as a Metro Style App client for example).
+#
+#IceSSL.VerifyPeer=0

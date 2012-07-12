@@ -1,0 +1,5 @@
+Debug/*
+Release/*
+Chat.cpp
+Chat.h
+ipch

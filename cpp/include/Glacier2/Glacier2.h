@@ -9,11 +9,13 @@
 
 #ifndef GLACIER2_H
 #define GLACIER2_H
-
+#include <IceUtil/Config.h>
 #include <Glacier2/Router.h>
 #include <Glacier2/Session.h>
 #include <Glacier2/PermissionsVerifier.h>
-#include <Glacier2/Application.h>
+#ifndef ICE_OS_WINRT
+#   include <Glacier2/Application.h>
+#endif
 #include <Glacier2/SessionHelper.h>
 
 #endif

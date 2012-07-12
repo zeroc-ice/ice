@@ -1004,10 +1004,12 @@ Glacier2::SessionFactoryHelper::createInitData()
             os << _timeout;
         }
         initData.properties->setProperty("Ice.Default.Router", os.str());
+#ifndef ICE_OS_WINRT
         if(_secure)
         {
             initData.properties->setProperty("Ice.Plugin.IceSSL","IceSSL:createIceSSL");
         }
+#endif
     }
     return initData;
 }

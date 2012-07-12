@@ -11,32 +11,53 @@
 #include <ServantLocatorI.h>
 #include <TestCommon.h>
 
+DEFINE_TEST("server")
+
 using namespace std;
 using namespace Ice;
 
-class TestServer : public Application
+int
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-public:
-
-    virtual int run(int, char*[]);
-};
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    ServantLocatorPtr locator = new ServantLocatorI;
+    adapter->addServantLocator(locator, "");
+    adapter->activate();
+    TEST_READY
+    adapter->waitForDeactivate();
+    return EXIT_SUCCESS;
+}
 
 int
 main(int argc, char* argv[])
 {
-    TestServer app;
-    return app.main(argc, argv);
-}
+    int status;
+    Ice::CommunicatorPtr communicator;
 
-int
-TestServer::run(int argc, char* argv[])
-{
-    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    ServantLocatorPtr locator = new ServantLocatorI;
-    
-    adapter->addServantLocator(locator, "");
-    adapter->activate();
-    adapter->waitForDeactivate();
-    return EXIT_SUCCESS;
+    try
+    {
+        communicator = Ice::initialize(argc, argv);
+        status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
+    }
+
+    if(communicator)
+    {
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
+    }
+
+    return status;
 }

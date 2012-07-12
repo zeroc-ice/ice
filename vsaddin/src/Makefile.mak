@@ -20,30 +20,27 @@ TARGETS		= $(top_srcdir)\bin\$(PKG).dll
 PDBS		= $(top_srcdir)\bin\$(PKG).pdb
 
 SRCS		= IceDialog.cs \
-		   ExtraCompilerOptionsView.Designer.cs \
-		   ExtraCompilerOptionsView.cs \
-		   IncludePathView.Designer.cs \
-		   IncludePathView.cs \
-		   AssemblyInfo.cs \
-		   Builder.cs \
-		   Connect.cs \
- 		   FileTracker.cs \
-		   IceCppConfigurationDialog.cs \
-		   IceCppConfigurationDialog.Designer.cs \
-		   IceCsharpConfigurationDialog.cs \
-		   IceCsharpConfigurationDialog.Designer.cs \
-		   IceSilverlightConfigurationDialog.cs \
-		   IceSilverlightConfigurationDialog.Designer.cs \
-		   IceVBConfigurationDialog.cs \
-		   IceVBConfigurationDialog.Designer.cs \
-		   OutputDirView.cs \
-		   OutputDirView.Designer.cs \
-		   Options.cs \
-		   Util.cs
+		  ExtraCompilerOptionsView.Designer.cs \
+		  ExtraCompilerOptionsView.cs \
+		  IncludePathView.Designer.cs \
+		  IncludePathView.cs \
+		  AssemblyInfo.cs \
+		  Builder.cs \
+		  Connect.cs \
+		  FileTracker.cs \
+		  IceCppConfigurationDialog.cs \
+		  IceCppConfigurationDialog.Designer.cs \
+		  IceCsharpConfigurationDialog.cs \
+		  IceCsharpConfigurationDialog.Designer.cs \
+		  IceVBConfigurationDialog.cs \
+		  IceVBConfigurationDialog.Designer.cs \
+		  OutputDirView.cs \
+		  OutputDirView.Designer.cs \
+		  Options.cs \
+		  Util.cs
 
 RESOURCES 	= /resource:IceCppConfigurationDialog.resx \
 	   	  /resource:IceCsharpConfigurationDialog.resx \
-	   	  /resource:IceSilverlightConfigurationDialog.resx \
 	   	  /resource:IceVBConfigurationDialog.resx \
 		  /resource:ExtraCompilerOptionsView.resx \
 		  /resource:IncludePathView.resx \
@@ -66,7 +63,7 @@ install::$(TARGETS)
 	copy $(TARGETS) $(install_bindir)\$(PKG).dll
 	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
 	copy ..\config\$(PROPERTY_SHEET) $(install_configdir)\$(PROPERTY_SHEET)
-	
+
 clean::
 	-del /q $(TARGETS) $(PDBS)
 

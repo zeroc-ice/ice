@@ -151,6 +151,7 @@ IceUtilInternal::open(const string& path, int flags)
     }
 }
 
+#ifndef ICE_OS_WINRT
 int
 IceUtilInternal::getcwd(string& cwd)
 {
@@ -162,6 +163,7 @@ IceUtilInternal::getcwd(string& cwd)
     cwd = IceUtil::wstringToString(cwdbuf);
     return 0;
 }
+#endif
 
 int
 IceUtilInternal::unlink(const string& path)
@@ -183,8 +185,15 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     _fd(INVALID_HANDLE_VALUE),
     _path(path)
 {
+#ifndef ICE_OS_WINRT
     _fd = ::CreateFileW(IceUtil::stringToWstring(path).c_str(), GENERIC_WRITE, 0, NULL,
                         OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+#else
+    CREATEFILE2_EXTENDED_PARAMETERS params;
+    params.dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
+    _fd = ::CreateFile2(IceUtil::stringToWstring(path).c_str(), GENERIC_WRITE, 0,
+                        OPEN_ALWAYS, &params);
+#endif
     _path = path;
 
     if(_fd == INVALID_HANDLE_VALUE)
@@ -192,7 +201,13 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
-    if(::LockFile(_fd, 0, 0, 0, 0) == 0)
+    OVERLAPPED overlaped;
+    overlaped.Internal = 0;
+    overlaped.InternalHigh = 0;
+    overlaped.Offset = 0;
+    overlaped.OffsetHigh = 0;
+    overlaped.hEvent = nullptr;
+    if(::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);

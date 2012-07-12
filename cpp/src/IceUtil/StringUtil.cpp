@@ -497,31 +497,79 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
 {
     if(error < WSABASEERR)
     {
+#ifndef ICE_OS_WINRT
         LPVOID lpMsgBuf = 0;
-        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                 FORMAT_MESSAGE_FROM_SYSTEM |
+#else
+        int size = 256;
+        auto_ptr<BYTE> lpMsgBuf = auto_ptr<BYTE>(new BYTE[size]);
+#endif
+        DWORD ok = 0;
+#ifdef ICE_OS_WINRT
+	while(true)
+        {
+#endif
+		ok = FormatMessageW(
+#ifndef ICE_OS_WINRT
+                                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+#endif
+				FORMAT_MESSAGE_FROM_SYSTEM |
                                  FORMAT_MESSAGE_IGNORE_INSERTS | 
                                  (source != NULL ? FORMAT_MESSAGE_FROM_HMODULE : 0),
                                  source,
                                  error,
                                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-                                 (LPTSTR)&lpMsgBuf,
+#ifndef ICE_OS_WINRT
+				 (LPWSTR)&lpMsgBuf,
+#else
+                                 (LPWSTR)lpMsgBuf.get(),
+#endif
                                  0,
                                  NULL);
+#ifdef ICE_OS_WINRT
+		if(!ok && size < 65536)
+		{
+			DWORD err = GetLastError();
+			if(err == ERROR_INSUFFICIENT_BUFFER)
+			{
+			     size *= 4;
+			     size = max(size, 65536);
+			     lpMsgBuf = auto_ptr<BYTE>(new BYTE[size]);
+			     continue;
+			}
+		}
+		break;
+	}
+#endif
+
         if(ok)
         {
-            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-            assert(msg && strlen((const char*)msg) > 0);
-            string result = (const char*)msg;
+#ifndef ICE_OS_WINRT
+            LPWSTR msg = (LPWSTR)lpMsgBuf;
+#else
+            LPWSTR msg = (LPWSTR)lpMsgBuf.get();
+#endif
+            assert(msg && wcslen((const wchar_t*)msg) > 0);
+            wstring result = (const wchar_t*)msg;
             if(result[result.length() - 1] == '\n')
             {
                 result = result.substr(0, result.length() - 2);
             }
-            LocalFree(lpMsgBuf);
-            return result;
+#ifndef ICE_OS_WINRT
+	    if(lpMsgBuf)
+	    {
+                LocalFree(lpMsgBuf);
+	    }
+#endif
+            return IceUtil::wstringToString(result);
         }
         else
         {
+#ifndef ICE_OS_WINRT
+	    if(lpMsgBuf)
+	    {
+                LocalFree(lpMsgBuf);
+	    }
+#endif
             ostringstream os;
             os << "unknown error: " << error;
             return os.str();

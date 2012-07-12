@@ -10,6 +10,7 @@
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/Util.h>
 #include <cstring>
+#include <functional>
 
 #ifndef _WIN32
 #  include <fcntl.h>

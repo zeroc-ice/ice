@@ -37,6 +37,20 @@ using System.Xml;
 
 namespace Ice.VisualStudio
 {
+    public class InitializationException : System.Exception
+    {
+        public InitializationException(string message) : base(message)
+        {
+        }
+    }
+
+    public enum CPUType
+    { 
+        x86CPUType,
+        x64CPUType,
+        ARMCPUType
+    }
+
     public interface LinkerAdapter
     {
         String AdditionalDependencies
@@ -292,6 +306,11 @@ namespace Ice.VisualStudio
     {
         public enum msgLevel{ msgError, msgInfo, msgDebug };
 
+        public const string MajorVersion = "3";
+        public const string MinorVersion = "4";
+
+        public const string ProjectVersion = "1";
+
         public const string slice2cs = "slice2cs.exe";
         public const string slice2cpp = "slice2cpp.exe";
 
@@ -311,6 +330,7 @@ namespace Ice.VisualStudio
         public const string PropertyIcePrefix = "ZerocIce_Prefix";
         public const string PropertyIceDllExport = "ZerocIce_DllExport";
         public const string PropertyVerboseLevel = "ZerocIce_VerboseLevel";
+        public const string PropertyProjectVersion = "ZerocIce_ProjectVersion";
 
         private static readonly string[] silverlightNames =
         {
@@ -363,6 +383,10 @@ namespace Ice.VisualStudio
             {
                 defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin".Length);
             }
+            else if(defaultIceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
+            {
+                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin\bin".Length);
+            }
             return defaultIceHome;
         }
 
@@ -389,6 +413,35 @@ namespace Ice.VisualStudio
                 path = Util.absolutePath(project, path);
             }
             return path;
+        }
+
+        public static VCPropertySheet icePropertySheet(Project project)
+        {
+            VCPropertySheet sheet = null;
+            if(isCppProject(project))
+            {
+                VCConfiguration configuration = getActiveVCConfiguration(project);
+                if(configuration != null)
+                {
+                    sheet = findPropertySheet(((IVCCollection)configuration.PropertySheets), "ice");
+                }
+            }
+            return sheet;
+        }
+
+        public static VCUserMacro userMacro(Project project, String name)
+        {
+            VCPropertySheet sheet = icePropertySheet(project);
+            VCUserMacro macro = null;
+            foreach(VCUserMacro m in sheet.UserMacros)
+            {
+                if(m.Name.Equals(name))
+                {
+                    macro = m;
+                    break;
+                }
+            }
+            return macro;
         }
 
         public static VCPropertySheet findPropertySheet(IVCCollection propertySheets, string sheetName)
@@ -422,15 +475,16 @@ namespace Ice.VisualStudio
             propSheetFileName += ".vsprops";
 #endif
 
-#if VS2010
+#if VS2010 || VS2012
             propSheetFileName += ".props";
 #endif
 
 
             //
-            // All project configurations must include ice.vsprops (vc90) or ice.props (vc100)
+            // All project configurations must include ice.vsprops (vc90) or IceCommon.props (vc100 | vc110)
             //
             IVCCollection configurations = (IVCCollection)vcProj.Configurations;
+            string[] cppComponents = Util.getCppNames();
             foreach(VCConfiguration vcConfig in configurations)
             {
                 VCPropertySheet newSheet = findPropertySheet(vcConfig.PropertySheets as IVCCollection, "ice");
@@ -449,7 +503,7 @@ namespace Ice.VisualStudio
                     }
 #endif
 
-#if VS2010
+#if VS2010 || VS2012
                     newSheet = vcConfig.AddPropertySheet(propSheetFileName);
 #endif
 
@@ -514,21 +568,24 @@ namespace Ice.VisualStudio
             return path.ToString();
         }
 
-        private static readonly string iceIncludeDir = "$(IceHome)\\include";
-
+        private static readonly string iceIncludeDir = 
+#if VS2008
+            "$(IceHome)\\include";
+#else
+            "$(IceInclude)";
+#endif
         public static bool addCppIncludes(VCCLCompilerTool tool, Project project)
-        {
+        {            
             if(tool == null || project == null)
             {
                 return false;
             }
 
-
+            bool winrt = isWinRTProject(project);
             bool changed = false;
             ComponentList includes = new ComponentList(tool.AdditionalIncludeDirectories);
-            
 
-            if(!includes.Contains(iceIncludeDir) && !includes.Contains(quote(iceIncludeDir)))
+            if(!winrt && !includes.Contains(iceIncludeDir) && !includes.Contains(quote(iceIncludeDir)))
             {
                 changed = true;
                 includes.Add(quote(iceIncludeDir));
@@ -559,17 +616,16 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-
             bool changed = false;
-
+            
             ComponentList includes = new ComponentList(tool.AdditionalIncludeDirectories);
 
-            if(includes.Remove(quote(iceHome + "\\include")))
+            if(includes.Remove(quote(iceHome + "\\include")) || includes.Remove(iceHome + "\\include"))
             {
                 changed = true;
             }
 
-            if(includes.Remove(iceHome + "\\include"))
+            if(includes.Remove(quote(iceIncludeDir)) || includes.Remove(iceIncludeDir))
             {
                 changed = true;
             }
@@ -602,12 +658,12 @@ namespace Ice.VisualStudio
                 configuration.InheritedPropertySheets = sheets.ToString();
             }
 #endif
-#if VS2010
+#if VS2010 || VS2012
             VCPropertySheet sheet = null;
             IVCCollection sheets = (IVCCollection)configuration.PropertySheets;
             foreach(VCPropertySheet s in sheets)
             {
-                if(!s.PropertySheetFile.Equals(configuration.Evaluate("$(ALLUSERSPROFILE)\\ZeroC\\ice.props"),
+                if(!s.PropertySheetFile.Equals(configuration.Evaluate("$(ALLUSERSPROFILE)\\ZeroC\\IceCommon.props"),
                                                StringComparison.CurrentCultureIgnoreCase))
                 {
                     continue;
@@ -695,6 +751,31 @@ namespace Ice.VisualStudio
             return false;
         }
 
+#if VS2012
+        public static void addSdkReference(VCProject project, string component)
+        {
+            string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
+            VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+            if(reference != null)
+            {
+                reference.Remove();
+            }
+            project.AddSdkReference(sdkId);
+        }
+
+        public static bool removeSdkReference(VCProject project, string component)
+        {
+            string sdkId = component + ", Version=" + Util.MajorVersion + "." + Util.MinorVersion;
+            VCReference reference = (VCReference)((VCReferences)project.VCReferences).Item(sdkId);
+            if (reference != null)
+            {
+                reference.Remove();
+                return true;
+            }
+            return false;
+        }
+#endif
+
         public static void addCppLib(LinkerAdapter tool, string component, bool debug)
         {
             if(tool == null || String.IsNullOrEmpty(component))
@@ -762,13 +843,13 @@ namespace Ice.VisualStudio
         // Note: Only the last setting in the environment has effect.
         //
         public static void addIceCppEnvironment(VCDebugSettings debugSettings, Project project,
-                                                bool x64)
+                                                CPUType arch)
         {
             if(debugSettings == null || project == null)
             {
                 return;
             }
-            String value = "PATH=" + cppBinDir(project, x64);
+            String value = "PATH=" + cppBinDir(project, arch);
             if(String.IsNullOrEmpty(debugSettings.Environment))
             {
                 debugSettings.Environment = value;
@@ -808,11 +889,11 @@ namespace Ice.VisualStudio
 
             if(index == -1)
             {
-                envs.Add("PATH=" + cppBinDir(project, x64));
+                envs.Add("PATH=" + cppBinDir(project, arch));
             }
             else
             {
-                string binDir = cppBinDir(project, x64);
+                string binDir = cppBinDir(project, arch);
                 ComponentList paths = new ComponentList(assignmentValue(path), ';');
                 while(paths.Contains(binDir))
                 {
@@ -864,17 +945,18 @@ namespace Ice.VisualStudio
             return dir + Path.PathSeparator + path;
         }
 
-        public static string cppBinDir(Project project, bool x64)
+        public static string cppBinDir(Project project, CPUType arch)
         {
+#if VS2010 || VS2012
+            return isWinRTProject(project) ? "$(IceBin)\\winrt" : "$(IceBin)";
+#else
             string cppBinDir = Path.Combine("$(IceHome)", "bin");
-#if VS2010
-            cppBinDir = Path.Combine(cppBinDir, "vc100");
-#endif
-            if(x64)
+            if(arch == CPUType.x64CPUType)
             {
                 cppBinDir = Path.Combine(cppBinDir, "x64");
             }
             return cppBinDir;
+#endif
         }
 
         public static void removeIceCppEnvironment(VCDebugSettings debugSettings, string iceHome)
@@ -884,8 +966,10 @@ namespace Ice.VisualStudio
                 return;
             }
 
+
             string[] _cppBinDirs =
             {
+
                 "bin",
                 "bin\\x64",
                 "bin\\vc100",
@@ -920,6 +1004,11 @@ namespace Ice.VisualStudio
                 path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), Path.Combine(iceHome, dir));
             }
 
+#if VS2010 || VS2012
+            path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)\\winrt");
+            path = "PATH=" + removeFromPath(assignmentValue(path).Trim(), "$(IceBin)");
+#endif
+
             if(path.Equals("PATH="))
             {
                 envs.RemoveAt(index);
@@ -937,22 +1026,22 @@ namespace Ice.VisualStudio
             return;
         }
 
-        public static bool addIceCppLibraryDir(LinkerAdapter tool, Project project, bool x64)
+        public static bool addIceCppLibraryDir(LinkerAdapter tool, Project project, CPUType arch)
         {
             if(tool == null || project == null)
             {
                 return false;
             }
 
-            string iceLibDir = "$(IceHome)\\lib";
-#if VS2010
-            iceLibDir += "\\vc100";
-#endif
-            if(x64)
+
+#if VS2010 || VS2012
+            string iceLibDir = isWinRTProject(project) ? "$(IceLib)\\winrt" : "$(IceLib)";
+#else
+            if(arch == CPUType.x64CPUType)
             {
                 iceLibDir += "\\x64";
             }
-
+#endif
             string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
             if(String.IsNullOrEmpty(additionalLibraryDirectories))
             {
@@ -960,11 +1049,12 @@ namespace Ice.VisualStudio
                 return true;
             }
 
+            ComponentList libs = new ComponentList(additionalLibraryDirectories);
+            bool changed = false;
+#if !VS2010 && !VS2012
             //
             // Remove Ice lib directories that doesn't match the current ice lib dir.
             //
-
-            ComponentList libs = new ComponentList(additionalLibraryDirectories);
             ComponentList remove = new ComponentList();
 
             foreach(string lib in libs)
@@ -981,7 +1071,6 @@ namespace Ice.VisualStudio
                 }            
             }
 
-            bool changed = false;
             foreach(string lib in remove)
             {
                 if(libs.Remove(lib))
@@ -989,7 +1078,7 @@ namespace Ice.VisualStudio
                     changed = true;
                 }
             }
-
+#endif
             if(!libs.Contains(iceLibDir) && 
                !libs.Contains(quote(iceLibDir)))
             {
@@ -1012,27 +1101,37 @@ namespace Ice.VisualStudio
                 return;
             }
 
+            bool changed = false;
+            ComponentList libs = new ComponentList(tool.AdditionalLibraryDirectories);
+            //
+            // Old style lib paths. New configurations use $(IceLib) instead.
+            //
             string[] _cppLibDirs =
             {
                 "lib",
                 "lib\\x64",
                 "lib\\vc100",
-                "lib\\vc100\\x64"
+                "lib\\vc100\\x64",
             };
-
-            bool changed = false;
-            ComponentList libs = new ComponentList(tool.AdditionalLibraryDirectories);
+            
             foreach(string dir in _cppLibDirs)
             {
-                if(libs.Remove(quote(Path.Combine(iceHome, dir))))
-                {
-                    changed = true;
-                }
-                if(libs.Remove(Path.Combine(iceHome, dir)))
+                if(libs.Remove(quote(Path.Combine(iceHome, dir))) ||
+                   libs.Remove(Path.Combine(iceHome, dir)))
                 {
                     changed = true;
                 }
             }
+
+#if VS2010 || VS2012
+            if(libs.Remove(quote("$(IceLib)")) || 
+               libs.Remove("$(IceLib)") ||
+               libs.Remove(quote("$(IceLib)\\winrt")) || 
+               libs.Remove("$(IceLib)\\winrt"))
+            {
+                changed = true;
+            }
+#endif
             if(changed)
             {
                 tool.AdditionalLibraryDirectories = libs.ToString();
@@ -1191,6 +1290,34 @@ namespace Ice.VisualStudio
                 return false;
             }
             return project.Kind == vcContextGuids.vcContextGuidVCProject;
+        }
+
+        public static bool isWinRTProject(Project project)
+        {
+            if(isCppProject(project))
+            {
+                ConfigurationManager configManager = project.ConfigurationManager;
+                Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
+                VCProject vcProject = (VCProject)project.Object;
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+                foreach(VCConfiguration conf in configurations)
+                {
+                    if(!activeConfig.PlatformName.Equals(((VCPlatform)conf.Platform).Name))
+                    {
+                        continue;
+                    }
+                    IVCCollection sheets = (IVCCollection)conf.PropertySheets;
+                    foreach(VCPropertySheet s in sheets)
+                    {
+                        if(s.Name.Equals("Metro style app"))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            return false;
         }
 
         public static bool isProjectItemFolder(ProjectItem item)
@@ -1679,7 +1806,7 @@ namespace Ice.VisualStudio
         // Reference from the project file; this value doesn't change as does CopyLocal.
         //
 
-#if VS2010
+#if VS2010 || VS2012
         //
         // This method requires .NET 4. Microsoft.Build.BuildEngine is deprecated 
         // in .NET 4, so this method uses the new API Microsoft.Build.Evaluation.
@@ -1886,6 +2013,14 @@ namespace Ice.VisualStudio
                 return;
             }
 
+            //
+            // If the project version is the current version we don't need to fix settings.
+            //
+            if(Util.getProjectProperty(p, PropertyProjectVersion).Equals(ProjectVersion))
+            {
+                return; 
+            }
+
             // This variable was removed for 3.4.1.2.
             if(p.Globals.get_VariableExists("ZerocIce_HomeExpanded"))
             {
@@ -1935,13 +2070,15 @@ namespace Ice.VisualStudio
 
                         Util.removeIceCppEnvironment((VCDebugSettings)conf.DebugSettings, iceHome);
                         Util.removeIceCppLibraryDir(linkerAdapter, iceHome);
+                        Util.removeIceCppLibraryDir(linkerAdapter, "$(IceHome)");
                         Util.removeCppIncludes(compilerTool, iceHome, Util.getProjectOutputDirRaw(p));
+                        Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(p));
 
                         //
                         // Remove ice.props, old property sheet used by VS 2010
                         // from all project configurations.
                         //
-#if VS2010
+#if VS2010 || VS2012
                         VCPropertySheet sheet = null;
                         IVCCollection sheets = (IVCCollection)conf.PropertySheets;
                         foreach(VCPropertySheet s in sheets)
@@ -1976,6 +2113,35 @@ namespace Ice.VisualStudio
                 }
             }
 
+            if(Util.isCppProject(p))
+            {
+                VCProject vcProject = (VCProject)p.Object;
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+                foreach(VCConfiguration conf in configurations)
+                {
+                    if(conf == null)
+                    {
+                        continue;
+                    }
+
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                    LinkerAdapter linkerAdapter;
+                    if(staticLib)
+                    {
+                        linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                    }
+                    else
+                    {
+                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                    }
+
+                    Util.removeIceCppLibraryDir(linkerAdapter, "$(IceHome)");
+                    Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(p));
+                }
+            }
+
             // This feature was made more general for 3.4.1.2.
             if(p.Globals.get_VariableExists("ZerocIce_ConsoleOutput"))
             {
@@ -1989,6 +2155,8 @@ namespace Ice.VisualStudio
                 }
                 p.Globals.set_VariablePersists("ZerocIce_ConsoleOutput", false);
             }
+
+            Util.setProjectProperty(p, PropertyProjectVersion, ProjectVersion);
         }
 
         public static String getPrecompileHeader(Project project, string file)
@@ -2050,70 +2218,74 @@ namespace Ice.VisualStudio
         public static ComponentList getIceCppComponents(Project project)
         {
             ComponentList components = new ComponentList();
-            ConfigurationManager configManager = project.ConfigurationManager;
-            Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
-
             VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            foreach(VCConfiguration conf in configurations)
+            bool winrt = isWinRTProject(project);
+            if(!winrt)
             {
-                if(conf == null)
-                {
-                    continue;
-                }
-                if(String.IsNullOrEmpty(conf.Name))
-                {
-                    continue;
-                }
-                if(!conf.Name.Equals(activeConfig.ConfigurationName + "|" + activeConfig.PlatformName))
-                {
-                    continue;
-                }
+                ConfigurationManager configManager = project.ConfigurationManager;
+                Configuration activeConfig = (Configuration)configManager.ActiveConfiguration;
 
-                VCCLCompilerTool compilerTool =
-                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
-                if(linkerTool == null || compilerTool == null)
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+                foreach(VCConfiguration conf in configurations)
                 {
-                    break;
-                }
-
-                if(String.IsNullOrEmpty(linkerTool.AdditionalDependencies))
-                {
-                    break;
-                }
-
-                bool debug = isDebug(compilerTool.RuntimeLibrary); 
-
-                List<string> componentNames = new List<string>(linkerTool.AdditionalDependencies.Split(' '));
-                foreach(string s in componentNames)
-                {
-                    if(String.IsNullOrEmpty(s))
+                    if(conf == null)
+                    {
+                        continue;
+                    }
+                    if(String.IsNullOrEmpty(conf.Name))
+                    {
+                        continue;
+                    }
+                    if(!conf.Name.Equals(activeConfig.ConfigurationName + "|" + activeConfig.PlatformName))
                     {
                         continue;
                     }
 
-                    int index = s.LastIndexOf('.');
-                    if(index <= 0)
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
+                    if(linkerTool == null || compilerTool == null)
                     {
-                        continue;
+                        break;
                     }
 
-                    string libName = s.Substring(0, index);
-                    if(libName.EndsWith("d"))
+                    if(String.IsNullOrEmpty(linkerTool.AdditionalDependencies))
                     {
-                        libName = libName.Substring(0, libName.Length - 1);
-                    }
-                    if(String.IsNullOrEmpty(libName))
-                    {
-                        continue;
+                        break;
                     }
 
-                    if(Array.BinarySearch(Util.getCppNames(), libName, StringComparer.CurrentCultureIgnoreCase) < 0)
+                    bool debug = isDebug(compilerTool.RuntimeLibrary); 
+
+                    List<string> componentNames = new List<string>(linkerTool.AdditionalDependencies.Split(' '));
+                    foreach(string s in componentNames)
                     {
-                        continue;
+                        if(String.IsNullOrEmpty(s))
+                        {
+                            continue;
+                        }
+
+                        int index = s.LastIndexOf('.');
+                        if(index <= 0)
+                        {
+                            continue;
+                        }
+
+                        string libName = s.Substring(0, index);
+                        if(libName.EndsWith("d"))
+                        {
+                            libName = libName.Substring(0, libName.Length - 1);
+                        }
+                        if(String.IsNullOrEmpty(libName))
+                        {
+                            continue;
+                        }
+
+                        if(Array.BinarySearch(Util.getCppNames(), libName, StringComparer.CurrentCultureIgnoreCase) < 0)
+                        {
+                            continue;
+                        }
+                        components.Add(libName.Trim());
                     }
-                    components.Add(libName.Trim());
                 }
             }
             return components;
@@ -2174,94 +2346,7 @@ namespace Ice.VisualStudio
             return components;
         }
 
-        public static bool addIceCppConfigurations(Project project)
-        {
-            if(!isCppProject(project))
-            {
-                return false;
-            }
-
-            VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-            bool changed = false;
-            
-            Util.addIcePropertySheet(project);
-
-            foreach(VCConfiguration conf in configurations)
-            {
-                if(addIceCppConfiguration(project, conf))
-                {
-                    changed = true;
-                }
-            }
-            return changed;
-        }
-
-        public static bool addIceCppConfiguration(Project project, VCConfiguration conf)
-        {
-            if(!isCppProject(project))
-            {
-                return false;
-            }
-
-            if (conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeGeneric ||
-               conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeUnknown)
-            {
-                string err = "Configuration Type: '" + conf.ConfigurationType.ToString() + "' not suported by Ice Visual Studio Add-in";
-                Util.write(project, Util.msgLevel.msgError,
-                    "------ Slice compilation failed: Project: " + Util.getTraceProjectName(project) + " ------\n\n" +
-                    err);
-                MessageBox.Show(err, "Ice Visual Studio Add-in", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1,
-                                (MessageBoxOptions)0);
-
-                Connect.getBuilder().addError(project, "", TaskErrorCategory.Error, 0, 0, err);
-
-                return false;
-            }
-
-            bool x64 = false;
-
-            if(conf == null || String.IsNullOrEmpty(conf.Name))
-            {
-                return false;
-            }
-
-
-            x64 = false;
-            VCPlatform platform = (VCPlatform)conf.Platform;
-            if(platform == null || String.IsNullOrEmpty(platform.Name))
-            {
-                return false;
-            }
-
-            if(platform.Name.Equals("x64", StringComparison.CurrentCultureIgnoreCase) ||
-                platform.Name.Equals("Itanium", StringComparison.CurrentCultureIgnoreCase))
-            {
-                x64 = true;
-            }
-            VCCLCompilerTool compilerTool =
-                (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-            VCLinkerTool linkerTool = (VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool"));
-
-            Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project, x64);
-            bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-            LinkerAdapter linkerAdapter;
-            if(staticLib)
-            {
-                linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-            }
-            else
-            {
-                linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-            }
-
-            bool libChanged = Util.addIceCppLibraryDir(linkerAdapter, project, x64);
-            bool includesChanged = Util.addCppIncludes(compilerTool, project);
-
-            return libChanged | includesChanged;
-        }
-
-        public static void removeIceCppConfigurations(Project project)
+        public static void addIceCppConfigurations(Project project)
         {
             if(!isCppProject(project))
             {
@@ -2270,6 +2355,30 @@ namespace Ice.VisualStudio
 
             VCProject vcProject = (VCProject)project.Object;
             IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+            Util.addCppIncludes(project);
+            bool winrt = isWinRTProject(project);
+            if(!winrt)
+            {
+                Util.addIcePropertySheet(project);
+            }
+#if VS2012
+            if(winrt)
+            {
+                addSdkReference(vcProject, "IceWinRT");
+            }
+#endif
+        }
+
+        public static void removeIceCppConfigurations(Project project)
+        {
+            if(!isCppProject(project))
+            {
+                return;
+            }
+        
+            VCProject vcProject = (VCProject)project.Object;
+            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+            bool winrt = isWinRTProject(project);
             foreach(VCConfiguration conf in configurations)
             {
                 if(conf == null)
@@ -2277,24 +2386,10 @@ namespace Ice.VisualStudio
                     continue;
                 }
 
-                VCCLCompilerTool compilerTool =
-                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                LinkerAdapter linkerAdapter;
-                if(staticLib)
+                if(!winrt)
                 {
-                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                    Util.removeIcePropertySheet(conf);
                 }
-                else
-                {
-                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                }
-
-
-                Util.removeIceCppEnvironment((VCDebugSettings)conf.DebugSettings, "$(IceHome)");
-                Util.removeIceCppLibraryDir(linkerAdapter, "$(IceHome)");
-                Util.removeCppIncludes(compilerTool, "$(IceHome)", Util.getProjectOutputDirRaw(project));
-                Util.removeIcePropertySheet(conf);
             }
             Util.removeIceCppLibs(project);
         }
@@ -2305,43 +2400,46 @@ namespace Ice.VisualStudio
             {
                 return;
             }
-
+            bool winrt = isWinRTProject(project);
             VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
-
-            foreach(VCConfiguration conf in configurations)
+            if(!winrt)
             {
-                if(conf == null)
-                {
-                    continue;
-                }
-                VCCLCompilerTool compilerTool =
-                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                LinkerAdapter linkerAdapter;
-                if(staticLib)
-                {
-                   linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-                }
-                else
-                { 
-                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                }
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
 
-                if(compilerTool == null || linkerAdapter == null)
+                foreach(VCConfiguration conf in configurations)
                 {
-                    continue;
-                }
-
-                bool debug = isDebug(compilerTool.RuntimeLibrary);
-
-                foreach(string component in components)
-                {
-                    if(String.IsNullOrEmpty(component))
+                    if(conf == null)
                     {
                         continue;
                     }
-                    Util.addCppLib(linkerAdapter, component, debug);
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                    LinkerAdapter linkerAdapter;
+                    if(staticLib)
+                    {
+                       linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                    }
+                    else
+                    { 
+                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                    }
+
+                    if(compilerTool == null || linkerAdapter == null)
+                    {
+                        continue;
+                    }
+
+                    bool debug = isDebug(compilerTool.RuntimeLibrary);
+
+                    foreach(string component in components)
+                    {
+                        if(String.IsNullOrEmpty(component))
+                        {
+                            continue;
+                        }
+                        Util.addCppLib(linkerAdapter, component, debug);
+                    }
                 }
             }
         }
@@ -2359,57 +2457,68 @@ namespace Ice.VisualStudio
                 return removed;
             }
 
+            bool winrt = isWinRTProject(project);
             VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
 
-            foreach(VCConfiguration conf in configurations)
+            if(!winrt)
             {
-                if(conf == null)
-                {
-                    continue;
-                }
-                VCCLCompilerTool compilerTool =
-                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                LinkerAdapter linkerAdapter;
-                if(staticLib)
-                {
-                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-                }
-                else
-                {
-                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                }
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;
 
-                if(compilerTool == null || linkerAdapter == null)
+                foreach(VCConfiguration conf in configurations)
                 {
-                    continue;
-                }
+                    if(conf == null)
+                    {
+                        continue;
+                    }
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                    LinkerAdapter linkerAdapter;
+                    if(staticLib)
+                    {
+                        linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                    }
+                    else
+                    {
+                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                    }
 
-                bool debug = false;
-                if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
-                {
-                    debug = (compilerTool.PreprocessorDefinitions.Contains("DEBUG") &&
-                             !compilerTool.PreprocessorDefinitions.Contains("NDEBUG"));
-                }
-                if(!debug)
-                {
-                    debug = conf.Name.Contains("Debug");
-                }
-
-                foreach(string s in components)
-                {
-                    if(String.IsNullOrEmpty(s))
+                    if(compilerTool == null || linkerAdapter == null)
                     {
                         continue;
                     }
 
-                    if(Util.removeCppLib(linkerAdapter, s, debug) && !removed.Contains(s))
+                    bool debug = false;
+                    if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
                     {
-                        removed.Add(s);
+                        debug = (compilerTool.PreprocessorDefinitions.Contains("DEBUG") &&
+                                 !compilerTool.PreprocessorDefinitions.Contains("NDEBUG"));
+                    }
+                    if(!debug)
+                    {
+                        debug = conf.Name.Contains("Debug");
+                    }
+
+                    foreach(string s in components)
+                    {
+                        if(String.IsNullOrEmpty(s))
+                        {
+                            continue;
+                        }
+
+                        if(Util.removeCppLib(linkerAdapter, s, debug) && !removed.Contains(s))
+                        {
+                            removed.Add(s);
+                        }
                     }
                 }
             }
+#if VS2012
+            else
+            {
+                Util.removeSdkReference((VCProject)project.Object, "IceWinRT");
+            }
+#endif
             return removed;
         }
 
@@ -2447,64 +2556,68 @@ namespace Ice.VisualStudio
                 return false;
             }
 
+            bool winrt = isWinRTProject(project);
             VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
             bool found = false;
-
-            foreach(VCConfiguration conf in configurations)
+            if(!winrt)
             {
-                if(conf == null)
-                {
-                    continue;
-                }
+                IVCCollection configurations = (IVCCollection)vcProject.Configurations;                
 
-                VCCLCompilerTool compilerTool =
-                    (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
-                bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
-                LinkerAdapter linkerAdapter;
-                if(staticLib)
+                foreach(VCConfiguration conf in configurations)
                 {
-                    linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
-                }
-                else
-                {
-                    linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
-                }
+                    if(conf == null)
+                    {
+                        continue;
+                    }
 
-                if(compilerTool == null || linkerAdapter == null)
-                {
-                    continue;
-                }
+                    VCCLCompilerTool compilerTool =
+                        (VCCLCompilerTool)(((IVCCollection)conf.Tools).Item("VCCLCompilerTool"));
+                    bool staticLib = conf.ConfigurationType == Microsoft.VisualStudio.VCProjectEngine.ConfigurationTypes.typeStaticLibrary;
+                    LinkerAdapter linkerAdapter;
+                    if(staticLib)
+                    {
+                        linkerAdapter = new StaticLinkerAdapter((VCLibrarianTool)(((IVCCollection)conf.Tools).Item("VCLibrarianTool")));
+                    }
+                    else
+                    {
+                        linkerAdapter = new DynamicLinkerAdapter((VCLinkerTool)(((IVCCollection)conf.Tools).Item("VCLinkerTool")));
+                    }
 
-                bool debug = false;
-                if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
-                {
-                    debug = (compilerTool.PreprocessorDefinitions.Contains("DEBUG") &&
-                             !compilerTool.PreprocessorDefinitions.Contains("NDEBUG"));
-                }
-                if(!debug)
-                {
-                    debug = conf.Name.Contains("Debug");
-                }
+                    if(compilerTool == null || linkerAdapter == null)
+                    {
+                        continue;
+                    }
 
-                string libName = component;
-                if(debug)
-                {
-                    libName += "d";
-                }
-                libName += ".lib";
+                    bool debug = false;
+                    if(!String.IsNullOrEmpty(compilerTool.PreprocessorDefinitions))
+                    {
+                        debug = (compilerTool.PreprocessorDefinitions.Contains("DEBUG") &&
+                                 !compilerTool.PreprocessorDefinitions.Contains("NDEBUG"));
+                    }
+                    if(!debug)
+                    {
+                        debug = conf.Name.Contains("Debug");
+                    }
 
-                string additionalDependencies = linkerAdapter.AdditionalDependencies;
-                if(String.IsNullOrEmpty(additionalDependencies))
-                {
-                    continue;
-                }
+                    string libName = component;
+                    if(debug)
+                    {
+                        libName += "d";
+                    }
+                    libName += ".lib";
 
-                ComponentList components = new ComponentList(additionalDependencies.Split(' '));
-                if(components.Contains(libName))
-                {
-                    found = true;
-                    break;
+                    string additionalDependencies = linkerAdapter.AdditionalDependencies;
+                    if(String.IsNullOrEmpty(additionalDependencies))
+                    {
+                        continue;
+                    }
+
+                    ComponentList components = new ComponentList(additionalDependencies.Split(' '));
+                    if(components.Contains(libName))
+                    {
+                        found = true;
+                        break;
+                    }
                 }
             }
             return found;
@@ -2564,7 +2677,7 @@ namespace Ice.VisualStudio
         {
             if(isCppProject(project))
             {
-                addIceCppConfigurations(project); ;
+                addIceCppConfigurations(project);
             }
             else
             {
@@ -2635,7 +2748,6 @@ namespace Ice.VisualStudio
             {
                 return false; // Already disabled.
             }
-
             builder.removeBuilderFromProject(project, components);
             return true;
         }
@@ -2996,13 +3108,23 @@ namespace Ice.VisualStudio
 
         public static void unexpectedExceptionWarning(Exception ex)
         {
+            string message = "";
+
+            if (ex is InitializationException)
+            {
+                message = ex.Message;
+            }
+            else
+            {
+                message = ex.ToString();
+            }
             try
             {
                 Builder builder = Connect.getBuilder();
                 if(!builder.commandLine)
                 {
                     MessageBox.Show("The Ice Visual Studio Add-in has raised an unexpected exception:\n" +
-                                    ex.ToString(),
+                                    message,
                                     "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                                     MessageBoxIcon.Error,
                                     MessageBoxDefaultButton.Button1,
@@ -3015,7 +3137,7 @@ namespace Ice.VisualStudio
 
             try
             {
-                Util.write(null, Util.msgLevel.msgError, ex.ToString() + "\n");
+                Util.write(null, Util.msgLevel.msgError, message + "\n");
             }
             catch(Exception)
             {
@@ -3387,6 +3509,11 @@ namespace Ice.VisualStudio
                 builder.addError(project, "", TaskErrorCategory.Error, 0, 0,
                     "The selected C++ Runtime Library is not supported by Ice; Ice requires /MD or /MDd.");
                 return false;
+            }
+
+            if(isWinRTProject(project))
+            {
+                return true;
             }
 
             //

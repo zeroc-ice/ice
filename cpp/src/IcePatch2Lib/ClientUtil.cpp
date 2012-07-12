@@ -14,7 +14,6 @@
 #define ICE_PATCH2_API_EXPORTS
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
-#include <IcePatch2/FileServerI.h>
 #include <list>
 #include <iterator>
 

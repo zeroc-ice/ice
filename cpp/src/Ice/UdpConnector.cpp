@@ -8,9 +8,9 @@
 // **********************************************************************
 
 #include <Ice/UdpConnector.h>
+
 #include <Ice/UdpTransceiver.h>
 #include <Ice/UdpEndpointI.h>
-#include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -43,12 +43,10 @@ IceInternal::UdpConnector::operator==(const Connector& r) const
     {
         return false;
     }
-
     if(compareAddress(_addr, p->_addr) != 0)
     {
         return false;
     }
-
     if(_connectionId != p->_connectionId)
     {
         return false;
@@ -164,15 +162,13 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
     {
         return false;
     }
-
     return compareAddress(_addr, p->_addr) == -1;
 }
 
-
-IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const struct sockaddr_storage& addr, 
+IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const Address& addr, 
                                         const string& mcastInterface, int mcastTtl, Ice::Byte protocolMajor,
-                                        Ice::Byte protocolMinor, Ice::Byte encodingMajor, Ice::Byte encodingMinor,
-                                        const std::string& connectionId) :
+                                        Ice::Byte protocolMinor, Ice::Byte encodingMajor, 
+                                        Ice::Byte encodingMinor, const std::string& connectionId) :
     _instance(instance),
     _addr(addr),
     _mcastInterface(mcastInterface),

@@ -55,7 +55,6 @@ public:
     CtrlCHandlerCallback getCallback() const;
 };
 
-
 class ICE_UTIL_API CtrlCHandlerException : public Exception
 { 
 public:
@@ -66,6 +65,6 @@ public:
     virtual void ice_throw() const;
 };
 
-
 }
+
 #endif

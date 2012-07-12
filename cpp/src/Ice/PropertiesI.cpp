@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
+#include <Ice/PropertiesI.h>
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-#include <Ice/PropertiesI.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/PropertyNames.h>
@@ -285,7 +285,10 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
 void
 Ice::PropertiesI::load(const std::string& file)
 {
-#ifdef _WIN32
+//
+// Metro style applications cannot access Windows registry.
+//
+#if defined (_WIN32) && !defined(ICE_OS_WINRT)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
@@ -700,9 +703,12 @@ void
 Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
+#ifndef ICE_OS_WINRT
+    //
+    // WinRT cannot access environment variables
     if(value.empty() || value == "1")
     {
-#ifdef _WIN32
+#   ifdef _WIN32
         vector<wchar_t> v(256);
         DWORD ret = GetEnvironmentVariableW(L"ICE_CONFIG", &v[0], static_cast<DWORD>(v.size()));
         if(ret >= v.size())
@@ -718,14 +724,15 @@ Ice::PropertiesI::loadConfig()
         {
             value = "";
         }
-#else
+#   else
        const char* s = getenv("ICE_CONFIG");
        if(s && *s != '\0')
        {
            value = s;
        }
-#endif
+#   endif
     }
+#endif
 
     if(!value.empty())
     {

@@ -26,6 +26,10 @@
 #   include <sys/poll.h>
 #endif
 
+#if defined(ICE_OS_WINRT)
+#    include <deque>
+#endif
+
 namespace IceInternal
 {
 
@@ -36,7 +40,41 @@ class SelectorTimeoutException
 {
 };
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_OS_WINRT)
+
+struct SelectEvent
+{
+    SelectEvent(IceInternal::EventHandler* handler, SocketOperation status) : handler(handler), status(status)
+    {
+    }
+
+    IceInternal::EventHandler* handler;
+    SocketOperation status;
+};
+
+class Selector : IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    Selector(const InstancePtr&);
+
+    void destroy();
+
+    void initialize(IceInternal::EventHandler*);
+    void update(IceInternal::EventHandler*, SocketOperation, SocketOperation);    
+    void finish(IceInternal::EventHandler*);
+
+    IceInternal::EventHandler* getNextHandler(SocketOperation&, int);
+    
+    void completed(IceInternal::EventHandler*, SocketOperation);
+
+private:
+
+    const InstancePtr _instance;
+    std::deque<SelectEvent> _events;
+};
+
+#elif defined(ICE_USE_IOCP)
 
 class Selector
 {

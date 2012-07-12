@@ -1,0 +1,5 @@
+Debug/*
+Release/*
+Callback.cpp
+Callback.h
+ipch

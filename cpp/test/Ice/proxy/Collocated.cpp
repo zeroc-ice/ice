@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("collocated")
 
 using namespace std;
 

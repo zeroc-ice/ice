@@ -19,7 +19,9 @@
 #include <IceUtil/AbstractMutex.h>
 #include <IceUtil/Cache.h>
 #include <IceUtil/Cond.h>
-#include <IceUtil/CtrlCHandler.h>
+#ifndef ICE_OS_WINRT
+#   include <IceUtil/CtrlCHandler.h>
+#endif
 #include <IceUtil/Exception.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Handle.h>

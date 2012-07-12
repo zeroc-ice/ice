@@ -42,7 +42,7 @@ IceSSL::ConnectorI::connect()
 
     try
     {
-        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr.ss_family), _host, _addr);
+        return new TransceiverI(_instance, IceInternal::createSocket(false, _addr), _host, _addr);
     }
     catch(const Ice::LocalException& ex)
     {

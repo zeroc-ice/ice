@@ -10,6 +10,7 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
+#include <IceUtil/Config.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
@@ -26,7 +27,9 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
+#ifndef ICE_OS_WINRT
 #include <Ice/Application.h>
+#endif
 #include <Ice/Connection.h>
 #include <Ice/ConnectionAsync.h>
 #include <Ice/Functional.h>

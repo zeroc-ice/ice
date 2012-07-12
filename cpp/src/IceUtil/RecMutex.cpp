@@ -33,7 +33,7 @@ IceUtil::RecMutex::RecMutex(const IceUtil::MutexProtocol protocol) :
 void
 IceUtil::RecMutex::init(const MutexProtocol)
 {
-    InitializeCriticalSection(&_mutex);
+    InitializeCriticalSectionEx(&_mutex, 0, 0);
 }
 
 IceUtil::RecMutex::~RecMutex()

@@ -727,7 +727,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
     {
         // Working?
+#ifndef ICE_OS_WINRT
         bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
+#else
+        bool ssl = true;
+#endif
         if(!ssl)
         {
             p1->ice_ping();

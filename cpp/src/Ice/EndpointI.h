@@ -10,6 +10,7 @@
 #ifndef ICE_ENDPOINT_I_H
 #define ICE_ENDPOINT_I_H
 
+#include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
@@ -20,14 +21,11 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/Protocol.h>
+#include <Ice/Network.h>
 
-#ifdef _WIN32
-#   include <winsock2.h>
-#else
-#   include <sys/socket.h> // For struct sockaddr_storage
+#ifndef ICE_OS_WINRT
+#   include <deque>
 #endif
-
-#include <deque>
 
 namespace IceInternal
 {
@@ -144,8 +142,8 @@ public:
     virtual ::Ice::Int ice_getHash() const;
 
 protected:
-
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
+    
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 
     EndpointI();
@@ -167,7 +165,11 @@ inline bool operator<(const EndpointI& l, const EndpointI& r)
     return static_cast<const ::Ice::LocalObject&>(l) < static_cast<const ::Ice::LocalObject&>(r);
 }
 
+#ifndef ICE_OS_WINRT
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+#else
+class ICE_API EndpointHostResolver : public IceUtil::Shared
+#endif
 {
 public:
 
@@ -180,6 +182,7 @@ public:
 
 private:
 
+#ifndef ICE_OS_WINRT
     struct ResolveEntry
     {
         std::string host;
@@ -191,6 +194,7 @@ private:
     const InstancePtr _instance;
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
+#endif
 };
 
 }

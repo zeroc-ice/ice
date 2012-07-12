@@ -78,7 +78,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -94,7 +94,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freezed.lib;Iced.lib;IceUtild.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -110,7 +110,7 @@
     </BuildLog>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -126,7 +126,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freezed.lib;Iced.lib;IceUtild.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -139,7 +139,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -154,7 +154,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freeze.lib;Ice.lib;IceUtil.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -170,7 +170,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -185,7 +185,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freeze.lib;Ice.lib;IceUtil.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -214,16 +214,16 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Test.ice">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceHome)\bin\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">BenchTypes.cpp;BenchTypes.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceHome)\bin\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BenchTypes.cpp;BenchTypes.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceHome)\bin\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">BenchTypes.cpp;BenchTypes.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceHome)\bin\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" --dict Demo::IntIntMap,int,int --dict Demo::Struct1Struct2Map,Demo::Struct1,Demo::Struct2  --dict Demo::Struct1Class1Map,Demo::Struct1,Demo::Class1  --dict Demo::Struct1ObjectMap,Demo::Struct1,Object          --dict Demo::IndexedIntIntMap,int,int --dict-index Demo::IndexedIntIntMap          --dict Demo::IndexedStruct1Struct2Map,Demo::Struct1,Demo::Struct2          --dict-index Demo::IndexedStruct1Struct2Map,s,case-insensitive          --dict-index Demo::IndexedStruct1Struct2Map,s1          --dict Demo::IndexedStruct1Class1Map,Demo::Struct1,Demo::Class1          --dict-index Demo::IndexedStruct1Class1Map,s,case-sensitive BenchTypes Test.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BenchTypes.cpp;BenchTypes.h;%(Outputs)</Outputs>
     </CustomBuild>
@@ -234,7 +234,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" />
+      <UserProperties ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_ProjectVersion="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

@@ -10,8 +10,10 @@
 #ifndef ICE_UDP_ENDPOINT_I_H
 #define ICE_UDP_ENDPOINT_I_H
 
+#include <IceUtil/Config.h>
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -49,7 +51,7 @@ public:
 private:
 
     virtual ::Ice::Int hashInit() const;
-    virtual std::vector<ConnectorPtr> connectors(const std::vector<struct sockaddr_storage>&) const;
+    virtual std::vector<ConnectorPtr> connectors(const std::vector<IceInternal::Address>&) const;
 
     //
     // All members are const, because endpoints are immutable.

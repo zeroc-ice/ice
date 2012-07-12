@@ -14,7 +14,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Stats.h>
 #include <Ice/Buffer.h>
-#include <Ice/Network.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -56,10 +55,10 @@ IceInternal::TcpTransceiver::initialize()
     {
         try
         {
-#ifndef ICE_USE_IOCP
-            doFinishConnect(_fd);
-#else
+#if defined(ICE_USE_IOCP)
             doFinishConnectAsync(_fd, _write);
+#else
+            doFinishConnect(_fd);
 #endif
             _state = StateConnected;
             _desc = fdToString(_fd);
@@ -70,11 +69,11 @@ IceInternal::TcpTransceiver::initialize()
             {
                 Trace out(_logger, _traceLevels->networkCat);
                 out << "failed to establish tcp connection\n";
-#ifndef _WIN32
+#if !defined(_WIN32)
                 //
                 // The local address is only accessible with connected sockets on Windows.
                 //
-                struct sockaddr_storage localAddr;
+                Address localAddr;
                 fdToLocalAddress(_fd, localAddr);
                 out << "local address: " << addrToString(localAddr) << "\n";
 #else
@@ -122,8 +121,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
 {
     // Its impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
-    
-#ifdef ICE_USE_IOCP
+#   ifdef ICE_USE_IOCP
     //
     // Limit packet size to avoid performance problems on WIN32
     //
@@ -131,8 +129,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
     { 
         packetSize = _maxSendPacketSize;
     }
-#endif
-
+#   endif
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
@@ -195,7 +192,6 @@ IceInternal::TcpTransceiver::write(Buffer& buf)
             packetSize = static_cast<int>(buf.b.end() - buf.i);
         }
     }
-
     return true;
 }
 
@@ -204,7 +200,6 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
 {
     // Its impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
-    
     while(buf.i != buf.b.end())
     {
         assert(_fd != INVALID_SOCKET);
@@ -212,17 +207,6 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
 
         if(ret == 0)
         {
-            //
-            // If the connection is lost when reading data, we shut
-            // down the write end of the socket. This helps to unblock
-            // threads that are stuck in send() or select() while
-            // sending data. Note: I don't really understand why
-            // send() or select() sometimes don't detect a connection
-            // loss. Therefore this helper to make them detect it.
-            //
-            //assert(_fd != INVALID_SOCKET);
-            //shutdownSocketReadWrite(_fd);
-            
             ConnectionLostException ex(__FILE__, __LINE__);
             ex.error = 0;
             throw ex;
@@ -248,14 +232,6 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
             
             if(connectionLost())
             {
-                //
-                // See the commment above about shutting down the
-                // socket if the connection is lost while reading
-                // data.
-                //
-                //assert(_fd != INVALID_SOCKET);
-                //shutdownSocketReadWrite(_fd);
-            
                 ConnectionLostException ex(__FILE__, __LINE__);
                 ex.error = getSocketErrno();
                 throw ex;
@@ -283,11 +259,10 @@ IceInternal::TcpTransceiver::read(Buffer& buf)
 
         packetSize = static_cast<int>(buf.b.end() - buf.i);
     }
-
     return true;
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
 bool
 IceInternal::TcpTransceiver::startWrite(Buffer& buf)
 {
@@ -297,14 +272,15 @@ IceInternal::TcpTransceiver::startWrite(Buffer& buf)
         return false;
     }
 
-    assert(!buf.b.empty() && buf.i != buf.b.end());
+    assert(!buf.b.empty());
+    assert(buf.i != buf.b.end());
 
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
     if(_maxSendPacketSize > 0 && packetSize > _maxSendPacketSize)
     { 
         packetSize = _maxSendPacketSize;
     }
-
+    assert(packetSize > 0);
     _write.buf.len = packetSize;
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, NULL);
@@ -362,6 +338,7 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
             packetSize = _maxSendPacketSize;
         }
         Trace out(_logger, _traceLevels->networkCat);
+
         out << "sent " << _write.count << " of " << packetSize << " bytes via tcp\n" << toString();
     }
     
@@ -369,7 +346,6 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
     {
         _stats->bytesSent(type(), _write.count);
     }
-
     buf.i += _write.count;
 }
 
@@ -381,7 +357,6 @@ IceInternal::TcpTransceiver::startRead(Buffer& buf)
     {
         packetSize = _maxReceivePacketSize;
     }
-
     assert(!buf.b.empty() && buf.i != buf.b.end());
 
     _read.buf.len = packetSize;
@@ -432,7 +407,7 @@ IceInternal::TcpTransceiver::finishRead(Buffer& buf)
         ex.error = 0;
         throw ex;
     }
-
+    
     if(_traceLevels->network >= 3)
     {
         int packetSize = static_cast<int>(buf.b.end() - buf.i);
@@ -496,6 +471,7 @@ IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET 
 #endif
 {
     setBlock(_fd, false);
+
     setTcpBufSize(_fd, instance->initializationData().properties, _logger);
 
 #ifdef ICE_USE_IOCP
@@ -524,9 +500,9 @@ IceInternal::TcpTransceiver::~TcpTransceiver()
 }
 
 void
-IceInternal::TcpTransceiver::connect(const struct sockaddr_storage& addr)
+IceInternal::TcpTransceiver::connect(const Address& addr)
 {
-#ifndef ICE_USE_IOCP
+#if !defined(ICE_USE_IOCP)
     try
     {
         if(doConnect(_fd, addr))

@@ -14,12 +14,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Connector.h>
 #include <Ice/Protocol.h>
-
-#ifdef _WIN32
-#   include <winsock2.h>
-#else
-#   include <sys/socket.h> // For struct sockaddr_storage
-#endif
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -39,13 +34,13 @@ public:
 
 private:
     
-    UdpConnector(const InstancePtr&, const struct sockaddr_storage&, const std::string&, int, Ice::Byte, Ice::Byte, 
-                 Ice::Byte, Ice::Byte, const std::string&);
+    UdpConnector(const InstancePtr&, const Address&, const std::string&, int, Ice::Byte, Ice::Byte, Ice::Byte,
+                 Ice::Byte, const std::string&);
     virtual ~UdpConnector();
     friend class UdpEndpointI;
 
     const InstancePtr _instance;
-    struct sockaddr_storage _addr;
+    const Address _addr;
     const std::string _mcastInterface;
     const int _mcastTtl;
     const Ice::Byte _protocolMajor;
@@ -56,5 +51,4 @@ private:
 };
 
 }
-
 #endif
