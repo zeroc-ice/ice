@@ -11,6 +11,8 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 using namespace Test;
 
@@ -20,7 +22,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     void allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);
 
-    int num = argc == 2 ? atoi(argv[1]) : 0;
+    int num = argc == 2 ? atoi(argv[1]) : 1;
     for(int i = 0; i < num; i++)
     {
         ostringstream os;

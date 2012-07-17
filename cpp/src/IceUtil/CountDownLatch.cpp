@@ -19,7 +19,11 @@ IceUtilInternal::CountDownLatch::CountDownLatch(int count) :
     }
 
 #ifdef _WIN32
+#   ifndef ICE_OS_WINRT
     _event = CreateEvent(0, TRUE, FALSE, 0);
+#   else
+    _event = CreateEventExW(0, 0,  CREATE_EVENT_MANUAL_RESET, SEMAPHORE_ALL_ACCESS);
+#   endif
     if(_event == 0)
     {
         throw  IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -58,7 +62,11 @@ IceUtilInternal::CountDownLatch::await() const
 #ifdef _WIN32
     while(InterlockedExchangeAdd(&_count, 0) > 0)
     {
+#   ifndef ICE_OS_WINRT
         DWORD rc = WaitForSingleObject(_event, INFINITE);
+#   else
+        DWORD rc = WaitForSingleObjectEx(_event, INFINITE, false);
+#   endif
         assert(rc == WAIT_OBJECT_0 || rc == WAIT_FAILED);
         
         if(rc == WAIT_FAILED)

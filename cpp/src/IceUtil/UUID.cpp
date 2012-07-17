@@ -14,17 +14,18 @@
 // (/dev/random) to generate "version 4" UUIDs, as described in 
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
 
+#include <IceUtil/Random.h>
+
 #ifdef _WIN32
 #   include <rpc.h>
 #else
-#   include <IceUtil/Random.h>
 #   include <sys/types.h>
 #   include <unistd.h>
 #endif
 
 using namespace std;
 
-#ifndef _WIN32
+#if defined(ICE_OS_WINRT) || !defined(_WIN32)
 
 namespace
 {
@@ -45,7 +46,11 @@ public:
     
     PidInitializer()
     {
+#ifndef _WIN32
         pid_t p = getpid();
+#else
+        int p = GetCurrentProcessId();
+#endif
         myPid[0] = (p >> 8) & 0x7F;
         myPid[1] = p & 0xFF;
     }
@@ -87,15 +92,22 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
 
     UUID uuid;
-    UuidCreate(&uuid);
+    RPC_STATUS ret = UuidCreate(&uuid);
+    if(ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
+    {
+	throw new SyscallException(__FILE__, __LINE__, GetLastError());
+    }
 
     unsigned char* str;
 
-    UuidToString(&uuid, &str);
-
+    ret = UuidToString(&uuid, &str);
+    if(ret != RPC_S_OK)
+    {
+	throw new SyscallException(__FILE__, __LINE__, GetLastError());
+    }
     string result = reinterpret_cast<char*>(str);
 
     RpcStringFree(&str);

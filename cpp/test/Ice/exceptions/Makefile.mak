@@ -9,12 +9,20 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= client.exe
-SERVER		= server.exe
-SERVERAMD	= serveramd.exe
-COLLOCATED	= collocated.exe
+!if "$(WINRT)" != "yes"
+NAME_PREFIX	= 
+EXT		= .exe
+!else
+NAME_PREFIX	= Ice_exceptions_
+EXT		= .dll
+!endif
 
-TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
+CLIENT		= $(NAME_PREFIX)client
+SERVER		= $(NAME_PREFIX)server
+SERVERAMD	= $(NAME_PREFIX)serveramd
+COLLOCATED	= $(NAME_PREFIX)collocated
+
+TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT) $(COLLOCATED)$(EXT)
 
 OBJS		= ExceptionsI.obj
 
@@ -45,30 +53,36 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-!if "$(GENERATE_PDB)" == "yes"
-CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
-SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
-SAPDBFLAGS       = /pdb:$(SERVERAMD:.exe=.pdb)
-COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
+!if "$(WINRT)" != "yes"
+LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
+!else
+LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !endif
 
-$(CLIENT): $(COBJS) $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+!if "$(GENERATE_PDB)" == "yes"
+CPDBFLAGS        = /pdb:$(CLIENT).pdb
+SPDBFLAGS        = /pdb:$(SERVER).pdb
+SAPDBFLAGS       = /pdb:$(SERVERAMD).pdb
+COPDBFLAGS       = /pdb:$(COLLOCATED).pdb
+!endif
+
+$(CLIENT)$(EXT): $(COBJS) $(OBJS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS) $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER)$(EXT): $(SOBJS) $(OBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVERAMD): $(SAMDOBJS) $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SAPDBFLAGS) $(SETARGV) $(SAMDOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVERAMD)$(EXT): $(SAMDOBJS) $(OBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(COLLOCATED): $(COLOBJS) $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(SETARGV) $(COLOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(COLLOCATED)$(EXT): $(COLOBJS) $(OBJS)
+	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

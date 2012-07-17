@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
@@ -24,7 +27,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     adapter->addFacet(f, communicator->stringToIdentity("d"), "facetEF");
     Ice::ObjectPtr h = new HI(communicator);
     adapter->addFacet(h, communicator->stringToIdentity("d"), "facetGH");
-
+    TEST_READY
     adapter->activate();
     communicator->waitForShutdown();
 

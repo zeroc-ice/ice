@@ -9,11 +9,19 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= client.exe
-SERVER		= server.exe
-COLLOCATED	= collocated.exe
+!if "$(WINRT)" != "yes"
+NAME_PREFIX	= 
+EXT		= .exe
+!else
+NAME_PREFIX	= Ice_adapterDeactivation_
+EXT		= .dll
+!endif
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+CLIENT		= $(NAME_PREFIX)client
+SERVER		= $(NAME_PREFIX)server
+COLLOCATED	= $(NAME_PREFIX)collocated
+
+TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(COLLOCATED)$(EXT)
 
 COBJS		= Test.obj \
 		  Client.obj \
@@ -38,24 +46,30 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-!if "$(GENERATE_PDB)" == "yes"
-CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
-SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
-COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
+!if "$(WINRT)" != "yes"
+LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
+!else
+LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !endif
 
-$(CLIENT): $(COBJS)
-	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+!if "$(GENERATE_PDB)" == "yes"
+CPDBFLAGS        = /pdb:$(CLIENT).pdb
+SPDBFLAGS        = /pdb:$(SERVER).pdb
+COPDBFLAGS       = /pdb:$(COLLOCATED).pdb
+!endif
+
+$(CLIENT)$(EXT): $(COBJS)
+	$(LINK) $(LD_TESTFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(SERVER): $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(SERVER)$(EXT): $(SOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(COLLOCATED): $(COLOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(SETARGV) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+$(COLLOCATED)$(EXT): $(COLOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

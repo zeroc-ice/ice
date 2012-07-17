@@ -25,7 +25,7 @@ public:
     virtual NativeInfoPtr getNativeInfo() = 0;
     virtual void close() = 0;
     virtual void listen() = 0;
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual void startAccept() = 0;
     virtual void finishAccept() = 0;
 #endif

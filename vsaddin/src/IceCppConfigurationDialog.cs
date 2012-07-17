@@ -27,6 +27,25 @@ namespace Ice.VisualStudio
         {
             InitializeComponent();            
             _project = project;
+            _winRT = Util.isWinRTProject(_project);
+
+            if(_winRT)
+            {
+                chkFreeze.Enabled = false;
+                chkFreeze.Checked = false;
+                chkGlacier2.Enabled = false;
+                chkGlacier2.Checked = false;
+                chkIceBox.Enabled = false;
+                chkIceBox.Checked = false;
+                chkIceGrid.Enabled = false;
+                chkIceGrid.Checked = false;
+                chkIcePatch2.Enabled = false;
+                chkIcePatch2.Checked = false;
+                chkIceSSL.Enabled = false;
+                chkIceSSL.Checked = false;
+                chkIceStorm.Enabled = false;
+                chkIceStorm.Checked = false;
+            }
 
             outputDirView.init(this, _project);
             includePathView.init(this, _project);
@@ -252,13 +271,16 @@ namespace Ice.VisualStudio
             extraCompilerOptions.setEnabled(enabled);
             txtDllExportSymbol.Enabled = enabled;
 
-            chkFreeze.Enabled = _staticLib ? false : enabled;
-            chkGlacier2.Enabled = _staticLib ? false : enabled;
-            chkIceBox.Enabled = _staticLib ? false : enabled;
-            chkIceGrid.Enabled = _staticLib ? false : enabled;
-            chkIcePatch2.Enabled = _staticLib ? false : enabled;
-            chkIceSSL.Enabled = _staticLib ? false : enabled;
-            chkIceStorm.Enabled = _staticLib ? false : enabled;
+            if(!_winRT)
+            {
+                chkFreeze.Enabled = _staticLib ? false : enabled;
+                chkIceBox.Enabled = _staticLib ? false : enabled;
+                chkIcePatch2.Enabled = _staticLib ? false : enabled;
+                chkIceSSL.Enabled = _staticLib ? false : enabled;
+                chkGlacier2.Enabled = _staticLib ? false : enabled;
+                chkIceGrid.Enabled = _staticLib ? false : enabled;
+                chkIceStorm.Enabled = _staticLib ? false : enabled;
+            }
         }
         
         private void formClosing(object sender, FormClosingEventArgs e)
@@ -457,11 +479,14 @@ namespace Ice.VisualStudio
                 if(chkEnableBuilder.Checked && !Util.isSliceBuilderEnabled(_project))
                 {
                     Util.addBuilderToProject(_project, iceComponents());
-                    _changed = true;
-                    _initialized = false;
-                    loadComponents();
-                    _initialized = true;
-                    enabling = true;
+                    if(!_winRT)
+                    {
+                        _changed = true;
+                        _initialized = false;
+                        loadComponents();
+                        _initialized = true;
+                        enabling = true;
+                    }
                 }
 
                 bool changed = false;
@@ -526,7 +551,7 @@ namespace Ice.VisualStudio
                 if(!enabling)
                 {
                     
-                    if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
+                    if(!_winRT && chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
                     {
                         componentChanged("Freeze", chkFreeze.Checked);
                         if(!chkFreeze.Checked)
@@ -534,7 +559,7 @@ namespace Ice.VisualStudio
                             components.Add("Freeze");
                         }
                     }
-                    if(chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
+                    if(!_winRT && chkGlacier2.Checked != Util.hasIceCppLib(_project, "Glacier2"))
                     {
                         componentChanged("Glacier2", chkGlacier2.Checked);
                         if(!chkGlacier2.Checked)
@@ -542,7 +567,7 @@ namespace Ice.VisualStudio
                             components.Add("Glacier2");
                         }
                     }
-                    if(chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
+                    if(!_winRT && chkIceBox.Checked != Util.hasIceCppLib(_project, "IceBox"))
                     {
                         componentChanged("IceBox", chkIceBox.Checked);
                         if(!chkIceBox.Checked)
@@ -550,7 +575,7 @@ namespace Ice.VisualStudio
                             components.Add("IceBox");
                         }
                     }
-                    if(chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
+                    if(!_winRT && chkIceGrid.Checked != Util.hasIceCppLib(_project, "IceGrid"))
                     {
                         componentChanged("IceGrid", chkIceGrid.Checked);
                         if(!chkIceGrid.Checked)
@@ -558,7 +583,7 @@ namespace Ice.VisualStudio
                             components.Add("IceGrid");
                         }
                     }
-                    if(chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
+                    if(!_winRT && chkIcePatch2.Checked != Util.hasIceCppLib(_project, "IcePatch2"))
                     {
                         componentChanged("IcePatch2", chkIcePatch2.Checked);
                         if(!chkIcePatch2.Checked)
@@ -566,7 +591,7 @@ namespace Ice.VisualStudio
                             components.Add("IcePatch2");
                         }
                     }
-                    if(chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
+                    if(!_winRT && chkIceSSL.Checked != Util.hasIceCppLib(_project, "IceSSL"))
                     {
                         componentChanged("IceSSL", chkIceSSL.Checked);
                         if(!chkIceSSL.Checked)
@@ -574,7 +599,7 @@ namespace Ice.VisualStudio
                             components.Add("IceSSL");
                         }
                     }
-                    if(chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
+                    if(!_winRT && chkIceStorm.Checked != Util.hasIceCppLib(_project, "IceStorm"))
                     {
                         componentChanged("IceStorm", chkIceStorm.Checked);
                         if(!chkIceStorm.Checked)
@@ -662,7 +687,7 @@ namespace Ice.VisualStudio
                 return true;
             }
 
-            if(!_staticLib)
+            if(!_staticLib && !_winRT)
             {
                 // Ice libraries
                 if(chkFreeze.Checked != Util.hasIceCppLib(_project, "Freeze"))
@@ -714,5 +739,6 @@ namespace Ice.VisualStudio
         private Project _project;
         private bool _staticLib = false;
         private bool _changed = false;
+        private bool _winRT = false;
     }
 }

@@ -29,8 +29,6 @@
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RetryQueue.h>
-#include <Ice/TcpEndpointI.h>
-#include <Ice/UdpEndpointI.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
@@ -51,6 +49,15 @@
 #   include <syslog.h>
 #   include <pwd.h>
 #   include <sys/types.h>
+#endif
+
+#include <Ice/UdpEndpointI.h>
+
+#ifndef ICE_OS_WINRT
+#   include <Ice/TcpEndpointI.h>
+#else
+#   include <IceSSL/EndpointInfo.h> // For IceSSL::EndpointType
+#   include <Ice/winrt/StreamEndpointI.h>
 #endif
 
 using namespace std;
@@ -857,7 +864,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             if(instanceCount == 1)
             {                   
                 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
                 WORD version = MAKEWORD(1, 1);
                 WSADATA data;
                 if(WSAStartup(version, &data) != 0)
@@ -943,9 +950,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
         const_cast<Int&>(_clientACM) = _initData.properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
         const_cast<Int&>(_serverACM) = _initData.properties->getPropertyAsInt("Ice.ACM.Server");
+#ifndef ICE_OS_WINRT
         const_cast<ImplicitContextIPtr&>(_implicitContext) = 
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
-
+#endif
         _routerManager = new RouterManager;
 
         _locatorManager = new LocatorManager(_initData.properties);
@@ -973,8 +981,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _protocolSupport = EnableIPv6;
         }
         _endpointFactoryManager = new EndpointFactoryManager(this);
+#ifndef ICE_OS_WINRT
         EndpointFactoryPtr tcpEndpointFactory = new TcpEndpointFactory(this);
         _endpointFactoryManager->add(tcpEndpointFactory);
+#else
+        EndpointFactoryPtr tcpStreamEndpointFactory = new StreamEndpointFactory(this, TCPEndpointType);
+        _endpointFactoryManager->add(tcpStreamEndpointFactory);
+        EndpointFactoryPtr sslStreamEndpointFactory = new StreamEndpointFactory(this, IceSSL::EndpointType);
+        _endpointFactoryManager->add(sslStreamEndpointFactory);
+#endif
         EndpointFactoryPtr udpEndpointFactory = new UdpEndpointFactory(this);
         _endpointFactoryManager->add(udpEndpointFactory);
 
@@ -1048,7 +1063,7 @@ IceInternal::Instance::~Instance()
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
     if(--instanceCount == 0)
     {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_OS_WINRT)
         WSACleanup();
 #endif
         
@@ -1075,7 +1090,6 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
 
-
     //
     // Create threads.
     //
@@ -1098,7 +1112,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         out << "cannot create thread for timer:\n" << ex;
         throw;
     }
-    
+
     try
     {
         _endpointHostResolver = new EndpointHostResolver(this);
@@ -1109,7 +1123,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         out << "cannot create thread for endpoint host resolver:\n" << ex;
         throw;
     }
-
+    
     _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 
     //
@@ -1150,7 +1164,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     if(printProcessId)
     {
 #ifdef _MSC_VER
-        cout << _getpid() << endl;
+        cout << GetCurrentProcessId() << endl;
 #else
         cout << getpid() << endl;
 #endif
@@ -1242,7 +1256,6 @@ IceInternal::Instance::destroy()
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
     EndpointHostResolverPtr endpointHostResolver;
-
     {
         IceUtil::RecMutex::Lock sync(*this);
 
@@ -1267,7 +1280,6 @@ IceInternal::Instance::destroy()
             _clientThreadPool->destroy();
             std::swap(_clientThreadPool, clientThreadPool);
         }
-
         if(_endpointHostResolver)
         {
             _endpointHostResolver->destroy();
@@ -1319,7 +1331,7 @@ IceInternal::Instance::destroy()
         // No destroy function defined.
         // _dynamicLibraryList->destroy();
         _dynamicLibraryList = 0;
-        
+
         _adminAdapter = 0;
         _adminFacets.clear();
 
@@ -1337,11 +1349,13 @@ IceInternal::Instance::destroy()
     {
         serverThreadPool->joinWithAllThreads();
     }
+#ifndef ICE_OS_WINRT
     if(endpointHostResolver)
     {
         endpointHostResolver->getThreadControl().join();
     }
-
+#endif
+    
     if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
     {
         set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();

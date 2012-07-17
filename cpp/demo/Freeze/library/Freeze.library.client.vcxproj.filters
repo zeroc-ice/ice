@@ -47,5 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="config.client" />
   </ItemGroup>
 </Project>

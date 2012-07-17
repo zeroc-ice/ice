@@ -14,7 +14,6 @@
 
 #include <IceUtil/Mutex.h>
 
-
 namespace Ice
 {
     enum SignalPolicy { HandleSignals, NoSignalHandling } ;

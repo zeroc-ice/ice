@@ -9,7 +9,10 @@
 
 #include <Ice/Ice.h>
 #include <ServerLocator.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
@@ -45,6 +48,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     adapter->add(locator, communicator->stringToIdentity("locator"));
 
     adapter->activate();
+    TEST_READY
     communicator->waitForShutdown();
 
     return EXIT_SUCCESS;

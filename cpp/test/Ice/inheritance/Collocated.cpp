@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("collocated")
 
 using namespace std;
 using namespace Test;
@@ -20,7 +23,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new InitialI(adapter);
     adapter->add(object, communicator->stringToIdentity("initial"));
-
+    
     InitialPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);
 

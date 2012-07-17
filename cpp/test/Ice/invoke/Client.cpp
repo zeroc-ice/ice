@@ -11,6 +11,8 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 int

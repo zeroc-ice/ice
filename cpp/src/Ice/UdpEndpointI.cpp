@@ -644,7 +644,7 @@ IceInternal::UdpEndpointI::hashInit() const
 }
 
 vector<ConnectorPtr>
-IceInternal::UdpEndpointI::connectors(const vector<struct sockaddr_storage>& addresses) const
+IceInternal::UdpEndpointI::connectors(const vector<Address>& addresses) const
 {
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
@@ -654,6 +654,7 @@ IceInternal::UdpEndpointI::connectors(const vector<struct sockaddr_storage>& add
     }
     return connectors;
 }
+
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const InstancePtr& instance)
     : _instance(instance)

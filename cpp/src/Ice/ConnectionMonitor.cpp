@@ -128,7 +128,7 @@ IceInternal::ConnectionMonitor::runTimerTask()
         {          
             (*p)->monitor(now);
         }
-        catch(const Exception& ex)
+        catch(const exception& ex)
         {   
             IceUtil::Mutex::Lock sync(*this);
             if(!_instance)
@@ -137,7 +137,7 @@ IceInternal::ConnectionMonitor::runTimerTask()
             }
 
             Error out(_instance->initializationData().logger);
-            out << "exception in connection monitor:\n" << ex;
+            out << "exception in connection monitor:\n" << ex.what();
         }
         catch(...)
         {

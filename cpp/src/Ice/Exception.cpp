@@ -13,11 +13,34 @@
 #include <Ice/Plugin.h>
 #include <Ice/SlicedData.h>
 #include <IceUtil/StringUtil.h>
+#ifdef ICE_OS_WINRT
+#    include <IceUtil/Unicode.h>
+#endif
 #include <iomanip>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+namespace
+{
+
+inline string
+socketErrorToString(int error)
+{
+    if(error == 0)
+    {
+        return "unknown error";
+    }
+#ifdef ICE_OS_WINRT
+    return IceUtil::wstringToString(
+        static_cast<Windows::Networking::Sockets::SocketErrorStatus>(error).ToString()->Data());
+#else
+    return IceUtilInternal::errorToString(error);
+#endif
+}
+
+};
 
 namespace IceInternal
 {
@@ -308,15 +331,7 @@ void
 Ice::SocketException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsocket exception: ";
-    if(error == 0)
-    {
-        out << "unknown error";
-    }
-    else
-    {
-        out << IceUtilInternal::errorToString(error);
-    }
+    out << ":\nsocket exception: " << socketErrorToString(error);
 }
 
 void
@@ -342,14 +357,14 @@ void
 Ice::ConnectFailedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nconnect failed: " << IceUtilInternal::errorToString(error);
+    out << ":\nconnect failed: " << socketErrorToString(error);
 }
 
 void
 Ice::ConnectionRefusedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nconnection refused: " << IceUtilInternal::errorToString(error);
+    out << ":\nconnection refused: " << socketErrorToString(error);
 }
 
 void
@@ -363,7 +378,7 @@ Ice::ConnectionLostException::ice_print(ostream& out) const
     }
     else
     {
-        out << IceUtilInternal::errorToString(error);
+        out << socketErrorToString(error);
     }
 }
 
@@ -371,7 +386,13 @@ void
 Ice::DNSException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nDNS error: " << errorToStringDNS(error) << "\nhost: " << host;
+    out << ":\nDNS error: ";
+#ifdef ICE_OS_WINRT
+    out << socketErrorToString(error);
+#else
+    out << errorToStringDNS(error);
+#endif
+    out << "\nhost: " << host;
 }
 
 void

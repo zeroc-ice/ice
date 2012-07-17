@@ -11,23 +11,22 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+!if "$(WINRT)" == "yes"
+
+SUBDIRS		= Ice
+
+!else
+
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
                   IceSSL
-
-!if "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
 		  Glacier2 \
 		  Freeze \
 		  IceStorm \
 		  FreezeScript \
 		  IceGrid
-
-!if "$(BCPLUSPLUS)" != "yes"
-SUBDIRS		= $(SUBDIRS) \
 		  IceBox
-!endif
 
 !endif
 

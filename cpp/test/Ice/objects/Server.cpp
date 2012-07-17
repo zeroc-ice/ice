@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 using namespace Test;
@@ -57,6 +60,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     UnexpectedObjectExceptionTestIPtr uoet = new UnexpectedObjectExceptionTestI;
     adapter->add(uoet, communicator->stringToIdentity("uoet"));
     adapter->activate();
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

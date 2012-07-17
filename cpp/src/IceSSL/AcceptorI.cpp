@@ -110,7 +110,7 @@ IceSSL::AcceptorI::startAccept()
     }        
 
     assert(_acceptFd == INVALID_SOCKET);
-    _acceptFd = IceInternal::createSocket(false, _addr.ss_family);
+    _acceptFd = IceInternal::createSocket(false, _addr);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
     if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count,
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
@@ -226,7 +226,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
     _backlog = instance->communicator()->getProperties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-    _fd = IceInternal::createSocket(false, _addr.ss_family);
+    _fd = IceInternal::createSocket(false, _addr);
 #ifdef ICE_USE_IOCP
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif

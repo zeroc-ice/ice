@@ -20,6 +20,8 @@
 #   pragma warning( disable : 4996 )
 #endif
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 class TestObjectWriter : public Ice::ObjectWriter

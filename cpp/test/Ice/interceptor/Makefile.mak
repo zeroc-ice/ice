@@ -33,7 +33,7 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
-CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
+CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
 SLICE2CPPFLAGS	= --dll-export INTERCEPTOR_TEST_API $(SLICE2CPPFLAGS)

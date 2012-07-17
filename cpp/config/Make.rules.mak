@@ -28,11 +28,16 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, BCC2010
+# VC60, VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, BCC2010, VC110, VC110_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC90
 !endif
+
+#
+# Define if you want to build for WinRT
+#
+#WINRT		= yes
 
 #
 # If third party libraries are not installed in the default location
@@ -40,7 +45,11 @@ CPP_COMPILER		= VC90
 # change the following setting to reflect the installation location.
 #
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" && "$(PROCESSOR_ARCHITECTUREW6432)" == ""
+THIRDPARTY_HOME = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
+!else
+THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty 
+!endif
 !endif
 
 #
@@ -93,10 +102,15 @@ BCPLUSPLUS		= yes
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !elseif "$(CPP_COMPILER)" == "VC60" || \
         "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
-        "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
+        "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
+	"$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!endif
+
+!if "$(WINRT)" == "yes" && "$(CPP_COMPILER)" != "VC110" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
+!error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
 !if "$(CPP_COMPILER)" == "BCC2010"
@@ -106,6 +120,8 @@ libsuff			= \vc6
 UNIQUE_DLL_NAMES	= yes
 !elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
 libsuff			= \vc100$(x64suffix)
+!elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+libsuff			= \vc110$(x64suffix)
 !else
 libsuff			= $(x64suffix)
 !endif
@@ -130,7 +146,9 @@ COMPSUFFIX	= vc60_
 !elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
 COMPSUFFIX	= vc90_
 !elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
-COMPSUFFIX	= vc100_
+COMPSUFFIX  = vc100_
+!elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+COMPSUFFIX  = vc110_
 !elseif "$(CPP_COMPILER)" == "BCC2010"
 COMPSUFFIX	= bcc10_
 !endif
@@ -148,13 +166,18 @@ QT_LIBS			= QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"
 ICECPPFLAGS		= -I"$(slicedir)"
-SLICE2CPPFLAGS		= $(ICECPPFLAGS)
+SLICE2CPPFLAGS		= $(ICECPPFLAGS) $(SLICE2CPPFLAGS)
 
+!if "$(WINRT)" != "yes"
 !if "$(ice_src_dist)" != ""
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(libdir)"
 !else
 LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(ice_dir)\lib$(libsuff)"
 !endif
+!else
+LDFLAGS			= $(LDFLAGS) $(PRELIBPATH)"$(SDK_LIBRARY_PATH)"
+!endif
+
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
 !if "$(ice_src_dist)" != ""
@@ -167,19 +190,27 @@ SLICE2CPP		= $(ice_dir)\bin$(x64suffix)\slice2cpp.exe
 SLICE2FREEZE		= $(ice_dir)\bin$(x64suffix)\slice2freeze.exe
 !endif
 
+#
+# In WinRT tests we don't want a dependency on SLICEPARSELIB, as we can build all 
+# test configurations using the same slice2cpp and slice.lib.
+#
+!if "$(WINRT)" == "yes"
+SLICEPARSERLIB	= $(SLICE2CPP)
+!endif
+
 MT 			= mt.exe
 
-EVERYTHING		= all clean install
+EVERYTHING		= all clean install depend
 
 .SUFFIXES:
-.SUFFIXES:		.ice .cpp .c .obj .res .rc
+.SUFFIXES:		.ice .cpp .c .obj .res .rc .h .depend
+
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
 
 .c.obj:
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) $<
-
 
 {$(SDIR)\}.ice{$(HDIR)}.h:
 	del /q $(HDIR)\$(*F).h $(*F).cpp
@@ -189,6 +220,35 @@ EVERYTHING		= all clean install
 .ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $(*F).ice
+
+!if "$(WINRT)" == "yes"
+
+{..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
+	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
+
+{$(SDIR)\}.ice{..}.cpp:
+	@echo f
+	del /q $(HDIR)\$(*F).h ..\$(*F).cpp
+	"$(SLICE2CPP)" $(SLICE2CPPFLAGS) $<
+	move $(*F).h $(HDIR)
+	move $(*F).cpp ..
+
+!if "$(SRCS)" != ""
+SRCS_DEPEND 	= $(SRCS:.cpp=.depend)
+!endif
+
+!if "$(INCLUDE_DIR)" != ""
+.h{$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\}.h:
+	copy $(*F).h $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
+
+$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR):
+	mkdir $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
+
+all:: $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)
+!endif
+
+!endif
 
 .rc.res:
 	rc $(RCFLAGS) $<
@@ -202,6 +262,8 @@ clean::
 	-del /q $(TARGETS)
 
 !endif
+
+!if "$(WINRT)" != "yes"
 
 # Suffix set, we're using a debug build.
 !if "$(LIBSUFFIX)" != ""
@@ -232,7 +294,11 @@ clean::
 
 !endif
 
+!endif 
+
 clean::
 	-del /q *.obj *.bak *.ilk *.exp *.pdb *.tds *.idb
 
 install::
+
+depend::

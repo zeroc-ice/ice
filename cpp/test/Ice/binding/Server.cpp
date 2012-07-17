@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
@@ -20,6 +23,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::Identity id = communicator->stringToIdentity("communicator");
     adapter->add(new RemoteCommunicatorI(), id);
     adapter->activate();
+
+    TEST_READY
 
     // Disable ready print for further adapters.
     communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");

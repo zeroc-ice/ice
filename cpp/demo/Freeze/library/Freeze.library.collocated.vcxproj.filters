@@ -65,6 +65,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="config.collocated" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Library.ice">

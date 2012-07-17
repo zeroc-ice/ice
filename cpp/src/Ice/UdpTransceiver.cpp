@@ -7,14 +7,6 @@
 //
 // **********************************************************************
 
-//
-// The following is required for the Vista PSDK to bring in
-// the definitions of the IN6_IS_ADDR_* macros.
-//
-#if defined(_WIN32) && !defined(_WIN32_WINNT)
-#       define _WIN32_WINNT 0x0501
-#endif
-
 #include <Ice/UdpTransceiver.h>
 #include <Ice/Connection.h>
 #include <Ice/Instance.h>
@@ -22,14 +14,24 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Stats.h>
 #include <Ice/Buffer.h>
-#include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
 
+#ifdef ICE_OS_WINRT
+#   include <ppltasks.h> // For Concurrency::task
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+#ifdef ICE_OS_WINRT
+using namespace Platform;
+using namespace Windows::Foundation;
+using namespace Windows::Storage::Streams;
+using namespace Windows::Networking;
+using namespace Windows::Networking::Sockets;
+#endif
 
 NativeInfoPtr
 IceInternal::UdpTransceiver::getNativeInfo()
@@ -53,6 +55,26 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
         return 0;
     }
 }
+#elif defined(ICE_OS_WINRT)
+void 
+IceInternal::UdpTransceiver::setCompletedHandler(SocketOperationCompletedHandler^ handler)
+{
+    _completedHandler = handler;
+    _writeOperationCompletedHandler = ref new AsyncOperationCompletedHandler<unsigned int>(
+        [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
+        {
+            if(status != Windows::Foundation::AsyncStatus::Completed)
+            {
+                _write.count = SOCKET_ERROR;
+                _write.error = operation->ErrorCode.Value;
+            }
+            else
+            {
+                _write.count = static_cast<int>(operation->GetResults());
+            }
+            _completedHandler(SocketOperationWrite);
+        });
+}
 #endif
 
 SocketOperation
@@ -67,7 +89,16 @@ IceInternal::UdpTransceiver::initialize()
     {
         try
         {
+#if defined(ICE_USE_IOCP)
+            doFinishConnectAsync(_fd, _write);
+#elif defined(ICE_OS_WINRT)
+            if(_write.count == SOCKET_ERROR)
+            {
+                checkConnectErrorCode(__FILE__, __LINE__, _write.error, _addr.host);
+            }
+#else
             doFinishConnect(_fd);
+#endif
             _state = StateConnected;
         }
         catch(const Ice::LocalException& ex)
@@ -102,6 +133,17 @@ IceInternal::UdpTransceiver::close()
         out << "closing udp connection\n" << toString();
     }
 
+#ifdef ICE_OS_WINRT
+    IceUtil::Mutex::Lock lock(_mutex);
+    if(_readPending)
+    {
+        assert(_received.empty());
+        _completedHandler(SocketOperationRead);
+        _readPending = false;
+    }
+    _received.clear();
+#endif
+
     assert(_fd != INVALID_SOCKET);
     closeSocket(_fd);
     _fd = INVALID_SOCKET;
@@ -110,6 +152,9 @@ IceInternal::UdpTransceiver::close()
 bool
 IceInternal::UdpTransceiver::write(Buffer& buf)
 {
+#ifdef ICE_OS_WINRT
+    return false;
+#else
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET && _state >= StateConnected);
 
@@ -121,11 +166,11 @@ repeat:
     ssize_t ret;
     if(_state == StateConnected)
     {
-#ifdef _WIN32
+#   ifdef _WIN32
         ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0);
-#else
+#   else
         ret = ::send(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0);
-#endif
+#   endif
     }
     else
     {
@@ -146,13 +191,13 @@ repeat:
             throw ex;
         }
 
-#ifdef _WIN32
+#   ifdef _WIN32
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), static_cast<int>(buf.b.size()), 0, 
                        reinterpret_cast<struct sockaddr*>(&_peerAddr), len);
-#else
+#   else
         ret = ::sendto(_fd, reinterpret_cast<const char*>(&buf.b[0]), buf.b.size(), 0,
                        reinterpret_cast<struct sockaddr*>(&_peerAddr), len);
-#endif
+#   endif
     }
 
     if(ret == SOCKET_ERROR)
@@ -186,11 +231,15 @@ repeat:
     assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
     return true;
+#endif
 }
 
 bool
 IceInternal::UdpTransceiver::read(Buffer& buf)
 {
+#ifdef ICE_OS_WINRT
+    return false;
+#else
     assert(buf.i == buf.b.begin());
     assert(_fd != INVALID_SOCKET);
 
@@ -265,12 +314,12 @@ repeat:
         //
         assert(_incoming); // Client connections should always be connected at this point.
 
-#ifndef NDEBUG
+#   ifndef NDEBUG
         bool connected = doConnect(_fd, _peerAddr);
         assert(connected);
-#else
+#   else
         doConnect(_fd, _peerAddr);
-#endif
+#   endif
         _state = StateConnected;
 
         if(_traceLevels->network >= 1)
@@ -294,9 +343,10 @@ repeat:
     buf.b.resize(ret);
     buf.i = buf.b.end();
     return true;
+#endif
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
 IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 {
@@ -304,9 +354,138 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 
     // The caller is supposed to check the send size before by calling checkSendSize
     assert(min(_maxPacketSize, _sndSize - _udpOverhead) >= static_cast<int>(buf.b.size()));
-
     assert(_fd != INVALID_SOCKET);
 
+#ifdef ICE_OS_WINRT
+    if(_state < StateConnected)
+    {
+        try
+        {
+            bool multicast = isMulticast(_addr) || isAddressValid(_mcastAddr);
+            if(!multicast)
+            {
+                auto operation = safe_cast<DatagramSocket^>(_fd)->ConnectAsync(_addr.host, _addr.port);
+                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
+                {
+                    operation->Completed = ref new AsyncActionCompletedHandler(
+                        [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
+                        {
+                            if(status != Windows::Foundation::AsyncStatus::Completed)
+                            {
+                                _write.count = SOCKET_ERROR;
+                                _write.error = info->ErrorCode.Value;
+                            }
+                            else
+                            {
+                                _write.count = 0;
+                                _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
+                            }
+                            _completedHandler(SocketOperationConnect);
+                        });
+                }
+                else
+                {
+                    _write.count = 0;
+                    _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
+                }
+            }
+            else
+            {
+                auto operation = safe_cast<DatagramSocket^>(_fd)->GetOutputStreamAsync(_addr.host, _addr.port);
+                if(!checkIfErrorOrCompleted(SocketOperationConnect, operation))
+                {
+                    operation->Completed = ref new AsyncOperationCompletedHandler<IOutputStream^>(
+                        [=] (IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
+                        {
+                            if(status != Windows::Foundation::AsyncStatus::Completed)
+                            {
+                                _write.count = SOCKET_ERROR;
+                                _write.error = info->ErrorCode.Value;
+                            }
+                            else
+                            {
+                                _write.count = 0;
+                                _writer = ref new DataWriter(info->GetResults());
+                            }
+                            if(_mcastAddr.host != nullptr)
+                            {
+                                setMcastGroup(_fd, _mcastAddr, "");
+                            }
+                            _completedHandler(SocketOperationConnect);
+                        });
+                }
+                else
+                {
+                    _write.count = 0;
+                    _writer = ref new DataWriter(operation->GetResults());
+                    setMcastGroup(_fd, _mcastAddr, "");
+                }
+            }
+        }
+        catch(Platform::Exception^ ex)
+        {
+            checkConnectErrorCode(__FILE__, __LINE__, ex->HResult, _addr.host);
+        }
+        return false;
+    }
+    else if(_state == StateNotConnected)
+    {
+        try
+        {
+            DatagramSocket^ fd = safe_cast<DatagramSocket^>(_fd);
+            concurrency::create_task(fd->GetOutputStreamAsync(_peerAddr.host, _peerAddr.port)).then(
+                [=,&buf](concurrency::task<IOutputStream^> task)
+                {
+                    try
+                    {
+                        DataWriter^ writer = ref new DataWriter(task.get());
+                        writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
+                        DataWriterStoreOperation^ operation = writer->StoreAsync();
+                        if(checkIfErrorOrCompleted(SocketOperationWrite, operation))
+                        {
+                            _write.count = operation->GetResults();
+                        }
+                        else
+                        {
+                            operation->Completed = _writeOperationCompletedHandler;
+                        }
+                    }
+                    catch(Platform::Exception^ pex)
+                    {
+                        _write.count = SOCKET_ERROR;
+                        _write.error = pex->HResult;
+                        _completedHandler(SocketOperationWrite);
+                    }
+                });
+        }
+        catch(Platform::Exception^ ex)
+        {
+            checkErrorCode(__FILE__, __LINE__, ex->HResult);
+        }
+        return true;
+    }
+    else
+    {
+        try
+        {
+            _writer->WriteBytes(ref new Array<unsigned char>(&*buf.i, static_cast<int>(buf.b.size())));
+            DataWriterStoreOperation^ operation = _writer->StoreAsync();
+            if(checkIfErrorOrCompleted(SocketOperationWrite, operation))
+            {
+                _write.count = operation->GetResults();
+            }
+            else
+            {
+                operation->Completed = _writeOperationCompletedHandler;
+            }
+        }
+        catch(Platform::Exception^ ex)
+        {
+            checkErrorCode(__FILE__, __LINE__, ex->HResult);
+        }
+        return true;
+    }
+#else
     _write.buf.len = static_cast<int>(buf.b.size());
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
     int err;
@@ -354,14 +533,21 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             }
         }
     }
+#endif
     return true;
 }
 
 void
 IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 {
+    if(_state < StateConnected)
+    {
+        return;
+    }
+
     if(_write.count == SOCKET_ERROR)
     {
+#ifndef ICE_OS_WINRT
         WSASetLastError(_write.error);
         if(connectionLost())
         {
@@ -375,6 +561,9 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
             ex.error = getSocketErrno();
             throw ex;
         }
+#else
+        checkErrorCode(__FILE__, __LINE__, _write.error);
+#endif
     }
 
     if(_traceLevels->network >= 3)
@@ -388,7 +577,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         _stats->bytesSent(type(), static_cast<Int>(_write.count));
     }
 
-    assert(_write.count == static_cast<ssize_t>(buf.b.size()));
+    assert(_write.count == buf.b.size());
     buf.i = buf.b.end();
 }
 
@@ -398,9 +587,8 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
     const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
-
     assert(!buf.b.empty() && buf.i != buf.b.end());
-
+#ifndef ICE_OS_WINRT
     _read.buf.len = packetSize;
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
     int err;
@@ -439,11 +627,54 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
             }
         }
     }
+#else
+    IceUtil::Mutex::Lock lock(_mutex);
+    assert(!_readPending);
+    if(!_received.empty())
+    {
+        _completedHandler(SocketOperationRead);
+    }
+    else
+    {
+        _readPending = true;
+    }
+#endif
 }
 
 void
 IceInternal::UdpTransceiver::finishRead(Buffer& buf)
 {
+#ifdef ICE_OS_WINRT
+    IceUtil::Mutex::Lock lock(_mutex);
+    assert(!_readPending && (!_received.empty() || _fd == INVALID_SOCKET));
+    if(_fd == INVALID_SOCKET)
+    {
+        return;
+    }
+
+    DatagramSocketMessageReceivedEventArgs^ args = _received.front();
+    _received.pop_front();
+
+    int ret;
+    try
+    {
+        DataReader^ reader = args->GetDataReader();
+        ret = min(static_cast<int>(reader->UnconsumedBufferLength), static_cast<int>(buf.b.size())); // Truncate received data if too large.
+        
+        Array<unsigned char>^ data = ref new Array<unsigned char>(ret);
+        reader->ReadBytes(data);
+        memcpy(&*buf.i, data->Data, ret);
+        if(_state == StateNotConnected)
+        {
+            _peerAddr.host = args->RemoteAddress;
+            _peerAddr.port = args->RemotePort;
+        }
+    }
+    catch(Platform::Exception^ ex)
+    {
+        checkErrorCode(__FILE__, __LINE__, ex->HResult);
+    }
+#else
     if(_read.count == SOCKET_ERROR)
     {
         WSASetLastError(_read.error);
@@ -477,18 +708,21 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         _peerAddr = _readAddr;
     }
 
+    int ret = _read.count;
+#endif
+
     if(_traceLevels->network >= 3)
     {
         Trace out(_logger, _traceLevels->networkCat);
-        out << "received " << _read.count << " bytes via udp\n" << toString();
+        out << "received " << ret << " bytes via udp\n" << toString();
     }
 
     if(_stats)
     {
-        _stats->bytesReceived(type(), static_cast<Int>(_read.count));
+        _stats->bytesReceived(type(), static_cast<Int>(ret));
     }
 
-    buf.b.resize(_read.count);
+    buf.b.resize(ret);
     buf.i = buf.b.end();
 }
 #endif
@@ -510,20 +744,27 @@ IceInternal::UdpTransceiver::toString() const
     ostringstream s;
     if(_state == StateNotConnected)
     {
-        struct sockaddr_storage localAddr;
+        Address localAddr;
         fdToLocalAddress(_fd, localAddr);
         s << "local address = " << addrToString(localAddr);
-        if(_peerAddr.ss_family != AF_UNSPEC)
+        if(isAddressValid(_peerAddr))
         {
             s << "\nremote address = " << addrToString(_peerAddr);
         }
     }
     else
     {
+#ifndef ICE_OS_WINRT
         s << fdToString(_fd);
+#else
+        Address localAddr;
+        fdToLocalAddress(_fd, localAddr);
+        s << "local address = " << addrToString(localAddr);
+        s << "\nremote address = " << addrToString(_addr);
+#endif
     }
 
-    if(_mcastAddr.ss_family != AF_UNSPEC)
+    if(isAddressValid(_mcastAddr))
     {
         s << "\nmulticast address = " + addrToString(_mcastAddr);
     }
@@ -533,14 +774,23 @@ IceInternal::UdpTransceiver::toString() const
 Ice::ConnectionInfoPtr
 IceInternal::UdpTransceiver::getInfo() const
 {
-    assert(_fd != INVALID_SOCKET);
     Ice::UDPConnectionInfoPtr info = new Ice::UDPConnectionInfo();
+#if defined(ICE_OS_WINRT)
+    if(isMulticast(_addr) || isAddressValid(_mcastAddr))
+    {
+        info->remotePort = 0;
+        info->localPort = 0;
+        info->mcastPort = 0;
+        return info;
+    }
+#endif
+    assert(_fd != INVALID_SOCKET);
     if(_state == StateNotConnected)
     {
-        struct sockaddr_storage localAddr;
+        Address localAddr;
         fdToLocalAddress(_fd, localAddr);
         addrToAddressAndPort(localAddr, info->localAddress, info->localPort);
-        if(_peerAddr.ss_family != AF_UNSPEC)
+        if(isAddressValid(_peerAddr))
         {
             addrToAddressAndPort(_peerAddr, info->remoteAddress, info->remotePort);
         }
@@ -554,7 +804,7 @@ IceInternal::UdpTransceiver::getInfo() const
         fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);   
     }
 
-    if(_mcastAddr.ss_family != AF_UNSPEC)
+    if(isAddressValid(_mcastAddr))
     {
         addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
     }
@@ -590,26 +840,32 @@ IceInternal::UdpTransceiver::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const struct sockaddr_storage& addr,
-                                            const string& mcastInterface, int mcastTtl) :
+
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, 
+                                            const Address& addr,
+                                            const string& mcastInterface,
+                                            int mcastTtl) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(false),
     _addr(addr),
     _state(StateNeedConnect)
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP)
     , _read(SocketOperationRead), 
     _write(SocketOperationWrite)
+#elif defined(ICE_OS_WINRT)
+    , _readPending(false)
 #endif
 {
-    _mcastAddr.ss_family = AF_UNSPEC; // AF_UNSPEC means not multicast.
-    _peerAddr.ss_family = AF_UNSPEC; // Not initialized yet.
-
-    _fd = createSocket(true, _addr.ss_family);
+    _fd = createSocket(true, _addr);
     setBufSize(instance);
     setBlock(_fd, false);
-    
+
+#ifndef ICE_OS_WINRT
+    _mcastAddr.ss_family = AF_UNSPEC;
+    _peerAddr.ss_family = AF_UNSPEC; // Not initialized yet.
+
     //
     // In general, connecting a datagram socket should be non-blocking as this just setups 
     // the default destination address for the socket. However, on some OS, connect sometime
@@ -621,6 +877,26 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     {
         _state = StateConnected;
     }
+#else
+    DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
+    socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
+        [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
+        {
+            this->appendMessage(args);
+        });
+#endif
+
+    if(isMulticast(_addr))
+    {
+        if(mcastInterface.length() > 0)
+        {
+            setMcastInterface(_fd, mcastInterface, _addr);
+        }
+        if(mcastTtl != -1)
+        {
+            setMcastTtl(_fd, mcastTtl, _addr);
+        }
+    }
 
 #ifdef ICE_USE_IOCP
     //
@@ -631,18 +907,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     //
     assert(_state == StateConnected);
 #endif
-    
-    if(isMulticast(_addr))
-    {
-        if(mcastInterface.length() > 0)
-        {
-            setMcastInterface(_fd, mcastInterface, _addr.ss_family == AF_INET);
-        }
-        if(mcastTtl != -1)
-        {
-            setMcastTtl(_fd, mcastTtl, _addr.ss_family == AF_INET);
-        }
-    }
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
@@ -653,24 +917,36 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _incoming(true),
     _addr(getAddressForServer(host, port, instance->protocolSupport())),
     _state(connect ? StateNeedConnect : StateNotConnected)
-#ifdef ICE_USE_IOCP
+#ifdef ICE_OS_WINRT
+    , _readPending(false)
+#elif defined(ICE_USE_IOCP)
     , _read(SocketOperationRead), 
     _write(SocketOperationWrite)
 #endif
 {
-    memset(&_mcastAddr, 0, sizeof(_mcastAddr));
-    memset(&_peerAddr, 0, sizeof(_peerAddr));
-
-    _fd = createSocket(true, _addr.ss_family);
+    _fd = createSocket(true, _addr);
     setBufSize(instance);
     setBlock(_fd, false);
+
+#ifndef ICE_OS_WINRT
+    memset(&_mcastAddr, 0, sizeof(_mcastAddr));
+    memset(&_peerAddr, 0, sizeof(_peerAddr));
+    _peerAddr.ss_family = AF_UNSPEC;
+    _mcastAddr.ss_family = AF_UNSPEC;
+#else
+    DatagramSocket^ socket = safe_cast<DatagramSocket^>(_fd);
+    socket->MessageReceived += ref new TypedEventHandler<DatagramSocket^, DatagramSocketMessageReceivedEventArgs^>(
+        [=](DatagramSocket^ fd, DatagramSocketMessageReceivedEventArgs^ args)
+        {
+            this->appendMessage(args);
+        });
+#endif
+
     if(_traceLevels->network >= 2)
     {
         Trace out(_logger, _traceLevels->networkCat);
         out << "attempting to bind to udp socket " << addrToString(_addr);
     }
-
-    _peerAddr.ss_family = AF_UNSPEC; // Not assigned yet.
 
     if(isMulticast(_addr))
     {
@@ -685,11 +961,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         // address won't be the multicast address and the client will
         // therefore reject the datagram.
         //
-        const_cast<struct sockaddr_storage&>(_addr) = 
-            getAddressForServer("", port, _mcastAddr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6);
+        const_cast<Address&>(_addr) = getAddressForServer("", port, getProtocolSupport(_addr));
 #endif
 
-        const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
+        const_cast<Address&>(_addr) = doBind(_fd, _addr);
         if(getPort(_mcastAddr) == 0)
         {
             setPort(_mcastAddr, getPort(_addr));
@@ -713,16 +988,14 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         //
         setReuseAddress(_fd, true);
 #endif
-        const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
-
-        _mcastAddr.ss_family = AF_UNSPEC; // AF_UNSPEC means not multicast.
+        const_cast<Address&>(_addr) = doBind(_fd, _addr);
     }
 
     if(_traceLevels->network >= 1)
     {
         Trace out(_logger, _traceLevels->networkCat);
         out << "starting to receive udp packets\n" << toString();
-        
+
         vector<string> interfaces = 
             getHostsForEndpointExpand(inetAddrToString(_addr), instance->protocolSupport(), true);
         if(!interfaces.empty())
@@ -741,7 +1014,6 @@ IceInternal::UdpTransceiver::~UdpTransceiver()
 //
 // Set UDP receive and send buffer sizes.
 //
-
 void
 IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 {
@@ -759,7 +1031,6 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
             prop = "Ice.UDP.RcvSize";
             addr = &_rcvSize;
             dfltSize = getRecvBufferSize(_fd);
-            _rcvSize = dfltSize;
         }
         else
         {
@@ -767,8 +1038,13 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
             prop = "Ice.UDP.SndSize";
             addr = &_sndSize;
             dfltSize = getSendBufferSize(_fd);
-            _sndSize = dfltSize;
         }
+
+        if(dfltSize <= 0)
+        {
+            dfltSize = _maxPacketSize;
+        }
+        *addr = dfltSize;
 
         //
         // Get property for buffer size and check for sanity.
@@ -802,7 +1078,11 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
             //
             // Warn if the size that was set is less than the requested size.
             //
-            if(*addr < sizeRequested)
+            if(*addr == 0) // set buffer size not supported.
+            {
+                *addr = sizeRequested;
+            }
+            else if(*addr < sizeRequested)
             {
                 Warning out(_logger);
                 out << "UDP " << direction << " buffer size: requested size of "
@@ -811,6 +1091,68 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
         }
     }
 }
+
+#ifdef ICE_OS_WINRT
+bool
+IceInternal::UdpTransceiver::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info)
+{
+    //
+    // NOTE: It's important to only check for info->Status once as it
+    // might change during the checks below (the Status can be changed
+    // by the Windows thread pool concurrently).
+    //
+    // We consider that a canceled async status is the same as an
+    // error. A canceled async status can occur if there's a timeout
+    // and the socket is closed.
+    //
+    Windows::Foundation::AsyncStatus status = info->Status;
+    if(status == Windows::Foundation::AsyncStatus::Completed)
+    {
+        _completedHandler(op);
+        return true;
+    }
+    else if(status == Windows::Foundation::AsyncStatus::Started)
+    {
+        return false;
+    }
+    else
+    {
+        if(_state < StateConnected)
+        {
+            checkConnectErrorCode(__FILE__, __LINE__, info->ErrorCode.Value, _addr.host);
+        }
+        else 
+        {
+            checkErrorCode(__FILE__, __LINE__, info->ErrorCode.Value);
+        }
+        return true; // Prevent compiler warning.
+    }
+}
+
+void
+IceInternal::UdpTransceiver::appendMessage(DatagramSocketMessageReceivedEventArgs^ args)
+{
+    IceUtil::Mutex::Lock lock(_mutex);
+    if(_fd == INVALID_SOCKET) // Transceiver was closed.
+    {
+        return;
+    }
+    _received.push_back(args);
+
+    //
+    // If the transceiver is waiting to read a message, notify the
+    // selector that the transceiver is ready for read. This will in
+    // turn cause finishRead() to be called. If the transceiver is
+    // ready for read, we just queue the message. It will be picked
+    // up by startRead() when it is invoked.
+    //
+    if(_readPending)
+    {
+        _completedHandler(SocketOperationRead);
+        _readPending = false;
+    }
+}
+#endif
 
 //
 // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

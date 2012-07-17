@@ -135,8 +135,6 @@ allTests(const CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
-
-    cout << "testing udp multicast... " << flush;
     string host;
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
@@ -148,6 +146,8 @@ allTests(const CommunicatorPtr& communicator)
     }
     base = communicator->stringToProxy("test -d:udp -h " + host + " -p 12020");
     TestIntfPrx objMcast = TestIntfPrx::uncheckedCast(base);
+#ifndef ICE_OS_WINRT
+    cout << "testing udp multicast... " << flush;
 
     nRetry = 5;
     while(nRetry-- > 0)
@@ -170,6 +170,7 @@ allTests(const CommunicatorPtr& communicator)
     {
         cout << "ok" << endl;
     }
+#endif
 
     cout << "testing udp bi-dir connection... " << flush;    
     obj->ice_getConnection()->setAdapter(adapter);

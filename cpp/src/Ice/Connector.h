@@ -14,12 +14,6 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/TransceiverF.h>
 
-#ifdef _WIN32
-#   include <winsock2.h>
-#else
-#   define SOCKET int
-#endif
-
 namespace IceInternal
 {
 

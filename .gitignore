@@ -19,6 +19,7 @@
 *.opt
 *.user
 *.res
+*.exp
 .gdb_history
 .DS_Store
 core
@@ -55,4 +56,7 @@ vcproj
 *.swp
 
 # OS X (Desktop Service Store)
-.DS_Store 
+.DS_Store
+cpp/SDKs
+cpp/demo/ipch
+cpp/demo/Debug

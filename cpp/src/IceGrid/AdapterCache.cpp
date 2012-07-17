@@ -437,7 +437,8 @@ ReplicaGroupEntry::ReplicaGroupEntry(AdapterCache& cache,
                                      const string& application,
                                      const LoadBalancingPolicyPtr& policy) : 
     AdapterEntry(cache, id, application),
-    _lastReplica(0)
+    _lastReplica(0),
+    _requestInProgress(false)
 {
     update(policy);
 }
@@ -572,6 +573,12 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         replicas.reserve(_replicas.size());
         if(RoundRobinLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
+            // Serialize round-robin requests
+            while(_requestInProgress)
+            {
+                wait();
+            }
+            _requestInProgress = true;
             for(unsigned int i = 0; i < _replicas.size(); ++i)
             {
                 replicas.push_back(_replicas[(_lastReplica + i) % _replicas.size()]);
@@ -600,53 +607,78 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         }
     }
 
-    if(adaptive)
+    int unreachable = 0;
+    bool synchronizing = false;
+    try
     {
+        if(adaptive)
+        {
+            //
+            // This must be done outside the synchronization block since
+            // the trasnform() might call and lock each server adapter
+            // entry. We also can't sort directly as the load of each
+            // server adapter is not stable so we first take a snapshot of
+            // each adapter and sort the snapshot.
+            //
+            vector<pair<float, ServerAdapterEntryPtr> > rl;
+            transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
+            sort(rl.begin(), rl.end(), ReplicaLoadComp());
+            replicas.clear();
+            transform(rl.begin(), rl.end(), back_inserter(replicas), TransformToReplica());
+        }
+
         //
-        // This must be done outside the synchronization block since
-        // the trasnform() might call and lock each server adapter
-        // entry. We also can't sort directly as the load of each
-        // server adapter is not stable so we first take a snapshot of
-        // each adapter and sort the snapshot.
+        // Retrieve the proxy of each adapter from the server. The adapter
+        // might not exist anymore at this time or the node might not be
+        // reachable.
         //
-        vector<pair<float, ServerAdapterEntryPtr> > rl;
-        transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
-        sort(rl.begin(), rl.end(), ReplicaLoadComp());
-        replicas.clear();
-        transform(rl.begin(), rl.end(), back_inserter(replicas), TransformToReplica());
+        set<string> emptyExcludes;
+        bool firstUnreachable = true;
+        for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+        {
+            if(!roundRobin || excludes.find((*p)->getId()) == excludes.end())
+            {
+                try
+                {
+                    int dummy;
+                    bool dummy2;
+                    bool dummy3;
+                    (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2, dummy3, emptyExcludes);
+                    firstUnreachable = false;
+                }
+                catch(const SynchronizationException&)
+                {
+                    synchronizing = true;
+                }
+                catch(const Ice::UserException&)
+                {
+                    if(firstUnreachable)
+                    {
+                        ++unreachable; // Count the number of un-reachable nodes.
+                    }
+                }
+            }
+        }
+    }
+    catch(...)
+    {
+        if(roundRobin)
+        {
+            Lock sync(*this);
+            assert(_requestInProgress);
+            _requestInProgress = false;
+        }
+        throw;
     }
 
-    //
-    // Retrieve the proxy of each adapter from the server. The adapter
-    // might not exist anymore at this time or the node might not be
-    // reachable.
-    //
-    bool synchronizing = false;
-    set<string> emptyExcludes;
-    for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+    if(roundRobin)
     {
-        if(!roundRobin || excludes.find((*p)->getId()) == excludes.end())
+        Lock sync(*this);
+        assert(_requestInProgress);
+        _requestInProgress = false;
+        if(unreachable > 0)
         {
-            try
-            {
-                int dummy;
-                bool dummy2;
-                bool dummy3;
-                (*p)->getLocatorAdapterInfo(adapters, dummy, dummy2, dummy3, emptyExcludes);
-            }
-            catch(const AdapterNotExistException&)
-            {
-            }
-            catch(const NodeUnreachableException&)
-            {
-            }
-            catch(const DeploymentException&)
-            {
-            }
-            catch(const SynchronizationException&)
-            {
-                synchronizing = true;
-            }
+            _lastReplica = (_lastReplica + unreachable) % static_cast<int>(_replicas.size());
         }
     }
 

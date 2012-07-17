@@ -39,5 +39,6 @@
     </None>
     <None Include="Discovery.ice" />
     <None Include="README" />
+    <None Include="config.client" />
   </ItemGroup>
 </Project>

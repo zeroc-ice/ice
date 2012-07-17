@@ -11,12 +11,12 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 int
-run(int argc, char* argv[], 
-    const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData& initData)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
     Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
     Test::MyClassPrx myClass = allTests(communicator);

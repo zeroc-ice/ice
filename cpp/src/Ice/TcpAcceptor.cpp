@@ -12,7 +12,6 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Network.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <IceUtil/StringUtil.h>
@@ -66,7 +65,7 @@ IceInternal::TcpAcceptor::listen()
         _fd = INVALID_SOCKET;
         throw;
     }
-
+    
     if(_traceLevels->network >= 1)
     {
         Trace out(_logger, _traceLevels->networkCat);
@@ -105,7 +104,7 @@ IceInternal::TcpAcceptor::startAccept()
     }        
 
     assert(_acceptFd == INVALID_SOCKET);
-    _acceptFd = createSocket(false, _addr.ss_family);
+    _acceptFd = createSocket(false, _addr);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
     if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, 
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
@@ -134,22 +133,19 @@ IceInternal::TcpAcceptor::finishAccept()
         _acceptError = _info.error;
     }
 }
+
 #endif
 
 TransceiverPtr
 IceInternal::TcpAcceptor::accept()
 {
-    SOCKET fd;
-#ifndef ICE_USE_IOCP
-    fd = doAccept(_fd);
-#else
+#ifdef ICE_USE_IOCP
     if(_acceptFd == INVALID_SOCKET)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = _acceptError;
         throw ex;        
     }
-
     if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) == 
        SOCKET_ERROR)
     {
@@ -160,9 +156,12 @@ IceInternal::TcpAcceptor::accept()
         throw ex;        
     }
 
-    fd = _acceptFd;
+    SOCKET fd = _acceptFd;
     _acceptFd = INVALID_SOCKET;
+#else
+    SOCKET fd = doAccept(_fd);
 #endif
+
     if(_traceLevels->network >= 1)
     {
         Trace out(_logger, _traceLevels->networkCat);
@@ -183,7 +182,8 @@ IceInternal::TcpAcceptor::effectivePort() const
     return getPort(_addr);
 }
 
-IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port, ProtocolSupport protocol) :
+IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string& host, int port, 
+                                      ProtocolSupport protocol) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
@@ -199,10 +199,13 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     _backlog = instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
 #endif
 
-    _fd = createSocket(false, _addr.ss_family);
+
+    _fd = createSocket(false, _addr);
+
 #ifdef ICE_USE_IOCP
     _acceptBuf.resize((sizeof(sockaddr_storage) + 16) * 2);
 #endif
+
     setBlock(_fd, false);
     setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
 #ifndef _WIN32
@@ -220,12 +223,13 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
     //
     setReuseAddress(_fd, true);
 #endif
+    
     if(_traceLevels->network >= 2)
     {
         Trace out(_logger, _traceLevels->networkCat);
         out << "attempting to bind to tcp socket " << toString();
     }
-    const_cast<struct sockaddr_storage&>(_addr) = doBind(_fd, _addr);
+    const_cast<Address&>(_addr) = doBind(_fd, _addr);
 }
 
 IceInternal::TcpAcceptor::~TcpAcceptor()
@@ -235,3 +239,4 @@ IceInternal::TcpAcceptor::~TcpAcceptor()
     assert(_acceptFd == INVALID_SOCKET);
 #endif
 }
+

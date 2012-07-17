@@ -44,3 +44,10 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+
+#
+# Verify the client certificate by default. Uncomment this property
+# setting if you run the demo with a client which doesn't support
+# client certificates (such as a Metro Style App client for example).
+#
+#IceSSL.VerifyPeer=0

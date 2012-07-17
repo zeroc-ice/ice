@@ -16,12 +16,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Connector.h>
-
-#ifdef _WIN32
-#   include <winsock2.h>
-#else
-#   include <sys/socket.h>
-#endif
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -41,7 +36,7 @@ public:
 
 private:
     
-    TcpConnector(const InstancePtr&, const struct sockaddr_storage&, Ice::Int, const Ice::ProtocolVersion&, 
+    TcpConnector(const InstancePtr&, const Address&, Ice::Int, const Ice::ProtocolVersion&, 
                  const Ice::EncodingVersion&, const std::string&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
@@ -49,7 +44,7 @@ private:
     const InstancePtr _instance;
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
-    const struct sockaddr_storage _addr;
+    const Address _addr;
     const Ice::Int _timeout;
     const Ice::ProtocolVersion _protocol;
     const Ice::EncodingVersion _encoding;

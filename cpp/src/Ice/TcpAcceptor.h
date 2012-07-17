@@ -15,10 +15,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Acceptor.h>
-
-#ifndef _WIN32
-#   include <sys/socket.h> // For struct sockaddr_storage
-#endif
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -40,6 +37,7 @@ public:
     virtual void startAccept();
     virtual void finishAccept();
 #endif
+
     virtual TransceiverPtr accept();
     virtual std::string toString() const;
 
@@ -54,7 +52,7 @@ private:
     const InstancePtr _instance;
     const TraceLevelsPtr _traceLevels;
     const ::Ice::LoggerPtr _logger;
-    const struct sockaddr_storage _addr;
+    const Address _addr;
 
     int _backlog;
 #ifdef ICE_USE_IOCP
@@ -66,5 +64,5 @@ private:
 };
 
 }
-
 #endif
+

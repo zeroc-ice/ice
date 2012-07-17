@@ -38,5 +38,11 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.master" />
+    <None Include="config.node1" />
+    <None Include="config.node2" />
+    <None Include="config.replica1" />
+    <None Include="config.replica2" />
+    <None Include="application.xml" />
   </ItemGroup>
 </Project>

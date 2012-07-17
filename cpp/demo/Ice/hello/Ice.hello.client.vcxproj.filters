@@ -32,5 +32,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.client" />
   </ItemGroup>
 </Project>

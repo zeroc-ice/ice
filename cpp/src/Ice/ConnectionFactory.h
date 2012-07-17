@@ -175,10 +175,11 @@ public:
     // Operations from EventHandler
     //
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     virtual bool startAsync(SocketOperation);
     virtual bool finishAsync(SocketOperation);
 #endif
+
     virtual void message(ThreadPoolCurrent&);
     virtual void finished(ThreadPoolCurrent&);
     virtual std::string toString() const;

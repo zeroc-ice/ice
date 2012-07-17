@@ -15,6 +15,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
+#include <Ice/Network.h>
 
 namespace IceInternal
 {
@@ -37,7 +38,7 @@ public:
 #ifdef ICE_USE_IOCP
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
-
+    
     virtual SocketOperation initialize();
     virtual void close();
     virtual bool write(Buffer&);
@@ -58,7 +59,7 @@ private:
     TcpTransceiver(const InstancePtr&, SOCKET, bool);
     virtual ~TcpTransceiver();
 
-    void connect(const struct sockaddr_storage&);
+    void connect(const Address&);
 
     friend class TcpConnector;
     friend class TcpAcceptor;
@@ -69,7 +70,8 @@ private:
     
     State _state;
     std::string _desc;
-    struct sockaddr_storage _connectAddr;
+    Address _connectAddr;
+
 #ifdef ICE_USE_IOCP
     AsyncInfo _read;
     AsyncInfo _write;

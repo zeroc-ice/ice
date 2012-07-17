@@ -19,7 +19,7 @@ LOBJS 		= Test.obj
 
 COBJS		= Client.obj \
 		  AllTests.obj
-		  
+
 
 SRCS		= $(LOBJS:.obj=.cpp) \
 		   $(COBJS:.obj=.cpp)
@@ -37,7 +37,7 @@ SLICE2CPPFLAGS	= --dll-export TEST_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(LIBS)
 
 $(LIBNAME): $(DLLNAME)
-	    
+
 $(DLLNAME): $(LOBJS)
 	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(LOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)

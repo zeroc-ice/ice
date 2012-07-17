@@ -1309,7 +1309,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(const Communicat
     }
 }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
 bool
 IceInternal::IncomingConnectionFactory::startAsync(SocketOperation)
 {
@@ -1657,13 +1657,13 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 state = StateFinished;
             }
 
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
             //
-            // With IOCP, we close the acceptor now to cancel all the pending asynchronous 
-            // operations. It's important to wait for the pending asynchronous operations 
-            // to return before ConnectionI::finished(). Otherwise, if there was a pending
-            // message waiting to be sent, the connection wouldn't know whether or not the 
-            // send failed or succeeded, potentially breaking at-most-once semantics.
+            // With IOCP and WinRT, we close the acceptor now to cancel all the pending 
+            // asynchronous operations. It's important to wait for the pending asynchronous 
+            // operations to return before ConnectionI::finished(). Otherwise, if there was 
+            // a pending message waiting to be sent, the connection wouldn't know whether 
+            // or not the send failed or succeeded, potentially breaking at-most-once semantics.
             //
             if(_acceptor)
             {
@@ -1685,7 +1685,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
         case StateFinished:
         {
             assert(_state == StateClosed);
-#ifndef ICE_USE_IOCP
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
             if(_acceptor)
             {
                 _acceptor->close();

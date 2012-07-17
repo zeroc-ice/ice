@@ -176,7 +176,9 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 bool
 IceInternal::DynamicLibrary::load(const string& lib)
 {
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+    _hnd = LoadPackagedLibrary(IceUtil::stringToWstring(nativeToUTF8(_stringConverter, lib)).c_str(), 0);
+#elif defined(_WIN32)
     _hnd = LoadLibraryW(IceUtil::stringToWstring(nativeToUTF8(_stringConverter, lib)).c_str());
 #else
 
@@ -250,3 +252,4 @@ IceInternal::DynamicLibraryList::add(const DynamicLibraryPtr& library)
 {
     _libraries.push_back(library);
 }
+

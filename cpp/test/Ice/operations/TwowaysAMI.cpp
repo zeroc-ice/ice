@@ -1378,6 +1378,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             cb->check();
         }
 
+#ifndef ICE_OS_WINRT
         {
             //
             // Test implicit context propagation
@@ -1447,6 +1448,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ic->destroy();
             }
         }
+#endif
     }
 
     {

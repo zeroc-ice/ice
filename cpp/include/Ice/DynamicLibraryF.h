@@ -26,5 +26,4 @@ ICE_API IceUtil::Shared* upCast(DynamicLibraryList*);
 typedef Handle<DynamicLibraryList> DynamicLibraryListPtr;
 
 }
-
 #endif

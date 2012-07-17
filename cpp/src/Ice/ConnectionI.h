@@ -128,10 +128,11 @@ public:
     //
     // Operations from EventHandler
     //
-#ifdef ICE_USE_IOCP
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
     bool startAsync(IceInternal::SocketOperation);
     bool finishAsync(IceInternal::SocketOperation);
 #endif
+
     virtual void message(IceInternal::ThreadPoolCurrent&);
     virtual void finished(IceInternal::ThreadPoolCurrent&);
     virtual std::string toString() const; // From Connection and EvantHandler.
@@ -213,9 +214,10 @@ private:
     void sendNextMessage(std::vector<IceInternal::OutgoingAsyncMessageCallbackPtr>&);
     IceInternal::AsyncStatus sendMessage(OutgoingMessage&);
 
+#ifndef ICE_OS_WINRT
     void doCompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
-
+#endif
     void parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
                       IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,

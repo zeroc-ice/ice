@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
@@ -17,7 +20,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    int num = argc == 2 ? atoi(argv[1]) : -1;
+    int num = argc == 2 ? atoi(argv[1]) : 0;
 
     ostringstream os;
     os << "tcp -p " << (12010 + num);
@@ -47,6 +50,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
     mcastAdapter->add(new TestIntfI, communicator->stringToIdentity("test"));
     mcastAdapter->activate();
+
+    TEST_READY
 
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

@@ -8,8 +8,11 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <IceUtil/Options.h>
 #include <BlobjectI.h>
+
+DEFINE_TEST("server")
 
 using namespace std;
 
@@ -89,6 +92,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->addServantLocator(new ServantLocatorI(array, async), "");
     adapter->activate();
+
+    TEST_READY
 
     communicator->waitForShutdown();
     return EXIT_SUCCESS;

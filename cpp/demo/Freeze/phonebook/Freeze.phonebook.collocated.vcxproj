@@ -286,16 +286,16 @@
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PhoneBook.ice">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
     </CustomBuild>

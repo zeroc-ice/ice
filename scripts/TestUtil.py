@@ -36,6 +36,8 @@ sqlPassword = None
 serviceDir = None
 compact = False
 silverlight = False
+winrt = False
+serverOnly = False
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -326,6 +328,8 @@ def run(tests, root = False):
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.
+          --winrt                 Run server with configuration suite for Metro Style apps.
+          --server                Run only the server.
         """)
         sys.exit(2)
 
@@ -335,7 +339,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
                                     "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=",
-                                    "appverifier", "compact", "silverlight"])
+                                    "appverifier", "compact", "silverlight", "winrt", "server"])
     except getopt.GetoptError:
         usage()
 
@@ -351,6 +355,8 @@ def run(tests, root = False):
     noipv6 = False
     compact = "--compact" in opts
     silverlight = "--silverlight" in opts
+    winrt = "--winrt" in opts
+    serverOnly = "--server" in opts
 
     filters = []
     for o, a in opts:
@@ -397,7 +403,8 @@ def run(tests, root = False):
 
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
-                  "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight"):
+                  "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
+                  "--server"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -703,7 +710,7 @@ class InvalidSelectorString(Exception):
 sslConfigTree = {
         "cpp" : {
             "plugin" : " --Ice.Plugin.IceSSL=IceSSL:createIceSSL --Ice.Default.Protocol=ssl " +
-            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem",
+            "--IceSSL.DefaultDir=%(certsdir)s --IceSSL.CertAuthFile=cacert.pem --IceSSL.VerifyPeer=%(verifyPeer)s",
             "client" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem",
             "server" : " --IceSSL.CertFile=s_rsa1024_pub.pem --IceSSL.KeyFile=s_rsa1024_priv.pem",
             "colloc" : " --IceSSL.CertFile=c_rsa1024_pub.pem --IceSSL.KeyFile=c_rsa1024_priv.pem"
@@ -838,7 +845,7 @@ def getCommandLineProperties(exe, config):
     #
     # Turn on network tracing.
     #
-    # components.append("--Ice.Trace.Network=3")
+    #components.append("--Ice.Trace.Network=3")
 
     #
     # Now we add additional components dependent on the desired
@@ -847,6 +854,10 @@ def getCommandLineProperties(exe, config):
     if config.protocol == "ssl":
         sslenv = {}
         sslenv["certsdir"] = quoteArgument(os.path.abspath(os.path.join(toplevel, "certs")))
+        if winrt:
+            sslenv["verifyPeer"] = "0"
+        else:
+            sslenv["verifyPeer"] = "2"
         components.append(sslConfigTree[config.lang]["plugin"] % sslenv)
         components.append(sslConfigTree[config.lang][config.type] % sslenv)
 
@@ -1218,18 +1229,20 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         server = getCommandLine(server, serverCfg, additionalServerOptions)
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print("ok")
+        
+        global serverOnly
+        if not serverOnly:
+            if clientLang == lang:
+                sys.stdout.write("starting %s... " % clientDesc)
+            else:
+                sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
+            sys.stdout.flush()
+            client = getCommandLine(client, clientCfg, additionalClientOptions)
+            clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
+            print("ok")
+            clientProc.startReader()
+            clientProc.waitTestSuccess()
 
-        if clientLang == lang:
-            sys.stdout.write("starting %s... " % clientDesc)
-        else:
-            sys.stdout.write("starting %s %s ... " % (clientLang, clientDesc))
-        sys.stdout.flush()
-        client = getCommandLine(client, clientCfg, additionalClientOptions)
-        clientProc = spawnClient(client, env = clientenv, startReader = False, lang=clientCfg.lang)
-        print("ok")
-        clientProc.startReader()
-
-        clientProc.waitTestSuccess()
         serverProc.waitTestSuccess()
 
         if appverifier:
@@ -1455,6 +1468,8 @@ def processCmdLine():
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.
+          --winrt                 Run server with configuration suite for Metro Style apps.
+          --server                Run only the server.
         """)
         sys.exit(2)
 
@@ -1462,7 +1477,8 @@ def processCmdLine():
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
-                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact", "silverlight"])
+                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact", "silverlight", \
+                              "winrt", "server"])
     except getopt.GetoptError:
         usage()
 
@@ -1563,6 +1579,14 @@ def processCmdLine():
         elif o == "--silverlight":
             global silverlight
             silverlight = True
+        elif o == "--winrt":
+            global winrt
+            global serverOnly
+            winrt = True
+            serverOnly = True
+        elif o == "--server":
+            global serverOnly
+            serverOnly = True
 
     if len(args) > 0:
         usage()

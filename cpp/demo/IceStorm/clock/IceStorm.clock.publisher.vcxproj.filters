@@ -32,5 +32,8 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+    <None Include="config.pub" />
+    <None Include="config.icebox" />
+    <None Include="config.service" />
   </ItemGroup>
 </Project>

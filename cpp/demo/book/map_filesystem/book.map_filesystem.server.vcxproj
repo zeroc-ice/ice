@@ -81,7 +81,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -96,7 +96,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freeze.lib;Ice.lib;IceUtil.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -112,7 +112,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -127,7 +127,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO /IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freeze.lib;Ice.lib;IceUtil.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -138,7 +138,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -154,7 +154,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freezed.lib;Iced.lib;IceUtild.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -170,7 +170,7 @@
     </BuildLog>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;$(IceHome)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -186,7 +186,7 @@
     <Link>
       <AdditionalOptions>/FIXED:NO %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Freezed.lib;Iced.lib;IceUtild.lib;setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(IceHome)\lib\vc100\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -218,20 +218,20 @@
   <ItemGroup>
     <None Include="Filesystem.ice" />
     <CustomBuild Include="FilesystemDB.ice">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
-"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
-"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
-"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
-"$(IceHome)\bin\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityFileEntryMap,Ice::Identity,FilesystemDB::FileEntry IdentityFileEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
+"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" -I. --ice --dict FilesystemDB::IdentityDirectoryEntryMap,Ice::Identity,FilesystemDB::DirectoryEntry IdentityDirectoryEntryMap FilesystemDB.ice "$(IceHome)\slice\Ice\Identity.ice"
 </Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">IdentityFileEntryMap.cpp;IdentityFileEntryMap.h;IdentityDirectoryEntryMap.cpp;IdentityDirectoryEntryMap.h;%(Outputs)</Outputs>
     </CustomBuild>
@@ -243,7 +243,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_IncludePath="." ZerocIce_VerboseLevel="1" />
+      <UserProperties ZerocIce_Enabled="True" ZerocIce_IncludePath="." ZerocIce_VerboseLevel="1" ZerocIce_ProjectVersion="1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

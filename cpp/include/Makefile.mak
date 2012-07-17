@@ -10,18 +10,22 @@
 top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
-
-SUBDIRS		= Freeze \
-		  Glacier2 \
+SUBDIRS		= Glacier2 \
 		  Ice \
-		  IceBox \
+		  IceSSL \
 		  IceGrid \
+		  IceStorm \
+		  IceUtil
+
+!if "$(WINRT)" != "yes"
+SUBDIRS		= $(SUBDIRS) \
+		  Freeze \
+		  IceBox \
 		  IcePatch2 \
 		  IceSSL \
-		  IceStorm \
-		  IceUtil \
 		  IceXML \
 		  Slice
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

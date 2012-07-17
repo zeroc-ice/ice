@@ -63,7 +63,7 @@ TestIntfI::pingBiDir(const Ice::Identity& id, const Ice::Current& current)
         //
         // Send the reply through the incoming connection.
         //
-        Test::PingReplyPrx::uncheckedCast(current.con->createProxy(id))->reply();
+        Test::PingReplyPrx::uncheckedCast(current.con->createProxy(id))->begin_reply();
     }
     catch(const Ice::Exception& ex)
     {

@@ -26,6 +26,9 @@ environments:
  - Windows 7 (x86 & x64) with Visual Studio 2008 SP1 or Visual Studio 
    2010
 
+ - Windows 8 (x86 & x64) with Visual Studio 2010 SP1 or Visual Studio 
+   2012
+
 Visual Studio Express is not supported.
 
 
@@ -39,6 +42,10 @@ Building the Ice Visual Studio Add-in requires:
 or
 
 - Microsoft Visual Studio 2010 and Visual Studio 2010 SDK
+
+or
+
+- Microsoft Visual Studio 2012 and Visual Studio 2012 SDK
   
 
 ======================================================================
@@ -63,8 +70,8 @@ subdirectory.
 The add-in DLL is placed into the Ice-@ver@\vsaddin\bin directory.
 The library name is
 
-   IceVisualStudioAddin-VS2008.dll or IceVisualStudioAddin-VS2010.dll
-
+   IceVisualStudioAddin-VS2008.dll, IceVisualStudioAddin-VS2010.dll or
+   IceVisualStudioAddin-VS2012.dll
 
 ======================================================================
 Installation
@@ -126,8 +133,9 @@ Configuration
 
    For C++, item templates are installed in:
   
-     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems or
-     C:\Program Files\Microsoft Visual Studio 10.0\VC\vcprojectitems
+     C:\Program Files\Microsoft Visual Studio 9.0\VC\vcprojectitems ,
+     C:\Program Files\Microsoft Visual Studio 10.0\VC\vcprojectitems or
+     C:\Program Files\Microsoft Visual Studio 11.0\VC\vcprojectitems
 
    Copy the Slice template and configuration files:
 
@@ -144,9 +152,10 @@ Configuration
    > copy Slize.zip "C:\Program Files\Microsoft Visual Studio 9.0\Common7\IDE\ItemTemplates\CSharp\1033"
    > devenv /installvstemplates
 
-   For Visual Studio 2010 C#, item templates are installed in:
+   For Visual Studio 2010 C# and Visual Studio 2012 C#, item templates are installed in:
      
-     C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems
+     C:\Program Files\Microsoft Visual Studio 10.0\VC#\CSharpProjectItems or
+     C:\Program Files\Microsoft Visual Studio 11.0\VC#\CSharpProjectItems
 
    Copy the Slice template and configuration files:
 
@@ -174,7 +183,7 @@ Configuration
 
    > copy C:\Ice-@ver@\vsaddin\config\ice.vsprops .
 
-   For VS 2010 the property sheet is ice.props
+   For VS 2010 and VS 2012 the property sheet is ice.props
 
    > copy C:\Ice-@ver@\vsaddin\config\ice.props .
 
