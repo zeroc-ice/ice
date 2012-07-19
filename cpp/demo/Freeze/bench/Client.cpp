@@ -166,7 +166,7 @@ private:
             Freeze::TransactionHolder txHolder(_connection);
             for(i = 0; i < _repetitions; ++i)
             {
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1310))
+#if (defined(_MSC_VER) && (_MSC_VER < 1310))
                 m.put(T::value_type(i, i));
 #else
                 m.put(typename T::value_type(i, i));
@@ -269,7 +269,7 @@ private:
                 s2.s = os.str();
                 s2.s1 = s1;
 
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1310))
+#if (defined(_MSC_VER) && (_MSC_VER < 1310))
                 m.put(T::value_type(s1, s2));
 #else
                 m.put(typename T::value_type(s1, s2));
@@ -350,7 +350,7 @@ private:
                 ostringstream os;
                 os << i;
                 c1->s = os.str();
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1310))
+#if (defined(_MSC_VER) && (_MSC_VER < 1310))
                 m.put(T::value_type(s1, c1));
 #else
                 m.put(typename T::value_type(s1, c1));
@@ -425,7 +425,7 @@ private:
             Freeze::TransactionHolder txHolder(_connection);
             for(i = 0; i < _repetitions; ++i)
             {
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1310))
+#if (defined(_MSC_VER) && (_MSC_VER < 1310))
                 m.put(T::value_type(i, i));
 #else
                 m.put(typename T::value_type(i, i));

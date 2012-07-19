@@ -16,10 +16,6 @@ extern "C"
 {
 
 BOOL WINAPI
-#ifdef __BCPLUSPLUS__
-DllMain(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
-{
-#else
 ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
 {
     //
@@ -32,7 +28,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
             return FALSE;
         }
     }
-#endif
 
     if(reason == DLL_PROCESS_ATTACH)
     {
@@ -43,7 +38,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
         Ice::ImplicitContextI::cleanupThread();
     }
 
-#ifndef __BCPLUSPLUS__
     //
     // During DETACH, we must call _CRT_INIT last.
     //
@@ -54,7 +48,6 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
             return FALSE;
         }
     }
-#endif
 
     return TRUE;
 }

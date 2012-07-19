@@ -93,14 +93,7 @@ class ObjectStore : public ObjectStoreBase, public IceUtil::Cache<Ice::Identity,
     {
     }
 
-#ifdef __BCPLUSPLUS__
-    bool load(const Ice::Identity& ident, const TransactionIPtr& trans, ObjectRecord& rec)
-    {
-        return ObjectStoreBase::load(ident, trans, rec);
-    }
-#else
     using ObjectStoreBase::load;
-#endif
 
     typedef IceUtil::Cache<Ice::Identity, T> Cache;
 

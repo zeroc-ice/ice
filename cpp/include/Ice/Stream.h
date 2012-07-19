@@ -36,9 +36,7 @@ enum StreamTraitType
     StreamTraitTypeShortEnum,       // Enums with up to 32767 enumerators
     StreamTraitTypeIntEnum,         // Enums with more than 32767 enumerators
     StreamTraitTypeSequence,
-#ifndef __BCPLUSPLUS__ // COMPILERFIX: See StreamTrait<vector<bool>> comment below
     StreamTraitTypeSequenceBool,
-#endif
     StreamTraitTypeDictionary,
     StreamTraitTypeUserException,
     StreamTraitTypeUnknown
@@ -72,17 +70,12 @@ struct StreamTrait< ::std::vector<T> >
 // sequences (see StreamReader<StreamTraitTypeSequenceBool>::read 
 // implementation below)
 //
-// COMPILERFIX: BCC2010 doesn't allow use of full specialization over
-// partial specialization.
-//
-#ifndef __BCPLUSPLUS__
 template<>
 struct StreamTrait< ::std::vector<bool> > 
 {
     static const StreamTraitType type = StreamTraitTypeSequenceBool;
     static const int minWireSize = 1;
 };
-#endif
 
 template<>
 struct StreamTrait<UserException>
@@ -259,18 +252,6 @@ public:
     virtual CommunicatorPtr communicator() const = 0;
 
     virtual void sliceObjects(bool) = 0;
-
-    //
-    // COMPILERFIX: BCC2010 doesn't allow use of full specialization over
-    // partial specialization.
-    //
-#ifdef __BCPLUSPLUS__
-    void
-    read(::std::_Vb_reference<unsigned int, int> v)
-    {
-        v = readBool();
-    }
-#endif
 
     ICE_DEPRECATED_API virtual bool readBool() = 0;
     ICE_DEPRECATED_API virtual Byte readByte() = 0;
@@ -650,7 +631,6 @@ struct StreamReader<StreamTraitTypeSequence>
     }
 };
 
-#ifndef __BCPLUSPLUS__ // COMPILERFIX: See StreamTrait<vector<bool>> comment above
 template<> // StreamWriter specialization for sequences of bool
 struct StreamWriter<StreamTraitTypeSequenceBool>
 {
@@ -685,7 +665,6 @@ struct StreamReader<StreamTraitTypeSequenceBool>
         }
     }
 };
-#endif
 
 template<> // StreamWriter specialization for dictionaries.
 struct StreamWriter<StreamTraitTypeDictionary>

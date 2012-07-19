@@ -13,18 +13,17 @@ Table of Contents
 
   1. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
   2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010 Express)
-  3. Building and running the C++ demos (C++ Builder 2010)
-  4. Building and running the .NET demos
+  3. Building and running the .NET demos
      - Building the C# demos
      - Building the Visual Basic demos
      - Running .NET demos
      - SSL Notes for the .NET demos
-  5. Building and running the .NET Compact Framework demo
-  6. Building and running the Java demos
-  7. Building and running the Android demos
-  8. Running the Python demos
-  9. Running the Ruby demos
- 10. Building and running the PHP demos
+  4. Building and running the .NET Compact Framework demo
+  5. Building and running the Java demos
+  6. Building and running the Android demos
+  7. Running the Python demos
+  8. Running the Ruby demos
+  9. Building and running the PHP demos
 
 
 ======================================================================
@@ -88,35 +87,7 @@ another command window, type 'client' to start the client.
 
 
 ======================================================================
-3. Building and running the C++ demos (C++ Builder 2010)
-======================================================================
-
-The C++ demos are in the demo directory.
-
-You will need Microsoft NMAKE to build the demos. If you do not
-already have NMAKE installed, you can download it as part of the
-Windows Platform SDK:
-
-  http://www.microsoft.com/downloads/details.aspx?FamilyId=E6E1C3DF-A74F-4207-8586-711EBE331CDC&displaylang=en
-
-Open a "RAD Studio Command Prompt" window. If you installed Ice in a
-non-default location, set ICE_HOME as shown below:
-
-  > set ICE_HOME=<Ice installation root directory>
-
-Change to the demo directory and run the following commands to build
-the demos:
-
-  > set CPP_COMPILER=BCC2010
-  > nmake /f Makefile.mak
-
-To run a demo, change to the desired demo subdirectory and review the
-README file if one is present. Type 'server' to start the server. In
-another command window, type 'client' to start the client.
-
-
-======================================================================
-4. Building and running the .NET demos
+3. Building and running the .NET demos
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
@@ -177,7 +148,7 @@ remove the certificate:
 
 
 ======================================================================
-5. Building and running the .NET Compact Framework demo
+4. Building and running the .NET Compact Framework demo
 ======================================================================
 
 Note that the Visual Studio project file requires the Ice Visual
@@ -196,7 +167,7 @@ instructions on starting a device emulator and deploying the program.
 
 
 ======================================================================
-6. Building and running the Java demos
+5. Building and running the Java demos
 ======================================================================
 
 The Java demos are in the demoj directory.
@@ -241,7 +212,7 @@ are necessary.
 
 
 ======================================================================
-7. Building and running the Android demos
+6. Building and running the Android demos
 ======================================================================
 
 Several sample Android projects are provided in the demoj/android
@@ -275,7 +246,7 @@ subdirectory for further instructions.
 
 
 ======================================================================
-8. Running the Python demos
+7. Running the Python demos
 ======================================================================
 
 The Python demos are in the demopy directory.
@@ -291,7 +262,7 @@ separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
-9. Running the Ruby demos
+8. Running the Ruby demos
 ======================================================================
 
 The Ruby demos are in the demorb directory.
@@ -318,7 +289,7 @@ Then in a separate command window, start the Ruby client:
 
 
 ======================================================================
-10. Building and running the PHP demos
+9. Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.

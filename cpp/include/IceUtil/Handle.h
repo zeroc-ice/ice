@@ -146,17 +146,6 @@ template<typename T>
 class Handle : public HandleBase<T>
 {
 public:
-
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-    //
-    // C++Builder 2009 does not allow setting Ptr to 0.
-    //
-    Handle(int p)
-    {
-        assert(p == 0);
-	this->_ptr = 0;
-    }
-#endif
     
     Handle(T* p = 0)
     {
@@ -261,21 +250,13 @@ public:
     template<class Y>
     static Handle dynamicCast(const HandleBase<Y>& r)
     {
-#ifdef __BCPLUSPLUS__
-        return Handle<T>(dynamic_cast<T*>(r._ptr));
-#else
         return Handle(dynamic_cast<T*>(r._ptr));
-#endif
     }
 
     template<class Y>
     static Handle dynamicCast(Y* p)
     {
-#ifdef __BCPLUSPLUS__
-        return Handle<T>(dynamic_cast<T*>(p));
-#else
         return Handle(dynamic_cast<T*>(p));
-#endif
     }
 };
 

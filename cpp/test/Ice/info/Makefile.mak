@@ -40,6 +40,7 @@ CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(WINRT)" != "yes"
 LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)
+LIBS			= $(LIBS) icessl$(LIBSUFFIX).lib
 !else
 LD_TESTFLAGS	= $(LD_DLLFLAGS) /export:dllMain
 !endif

@@ -94,8 +94,6 @@ def configurePaths():
         compiler = ""
         if os.environ.get("CPP_COMPILER", "") != "":
             compiler = os.environ["CPP_COMPILER"]
-        if compiler == "BCC2010":
-            binDir = binDir + "\\bcc10;" + binDir
         if compiler == "VC100" or compiler == "VC100_EXPRESS":
             binDir = os.path.join(binDir, "vc100")
 
@@ -248,7 +246,7 @@ def isNoServices():
             config = open(os.path.join(toplevel, "config", "Make.rules.mak"), "r")
         if config != None:
             compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
-    return compiler == "BCC2010" or compiler == "VC60"
+    return compiler == "VC60"
 
 def getMapping():
     """Determine the current mapping based on the cwd."""

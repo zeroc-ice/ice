@@ -23,8 +23,7 @@ using namespace std;
 // converts these BOMs back and forth.
 //
 
-//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
-#if defined(_WIN32) && !defined(__BCPLUSPLUS__)
+#ifdef _WIN32
 
 int
 wmain(int argc, wchar_t* argv[])
@@ -41,12 +40,7 @@ main(int argc, char* argv[])
     if(argc > 1)
     {
 #ifdef _WIN32 
-
-#ifdef __BCPLUSPLUS__
-        dir = argv[1];
-#else
         dir = IceUtil::wstringToString(argv[1]);
-#endif
         dir += "\\";
 #else
         dir = argv[1];
@@ -179,7 +173,7 @@ main(int argc, char* argv[])
 
         cout << "ok" << endl;
     }
-#ifndef __BCPLUSPLUS__
+
     {
         cout << "testing UTF-8 filename... ";
         IceUtilInternal::ifstream fn(dir + "filename.txt");
@@ -251,6 +245,5 @@ main(int argc, char* argv[])
         
         cout << "ok" << endl;
     }
-#endif
     return EXIT_SUCCESS;
 }

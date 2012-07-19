@@ -12,9 +12,6 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <vector>
-#ifdef __BCPLUSPLUS__
-#  include <stdio.h>
-#endif
 
 #ifndef SLICE_API
 #   ifdef SLICE_API_EXPORTS

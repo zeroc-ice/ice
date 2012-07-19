@@ -213,12 +213,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
 {
     assert(_hnd != 0);
 #ifdef _WIN32
-#  ifdef __BCPLUSPLUS__
-    string newName = "_" + name;
-    symbol_type result = GetProcAddress(_hnd, newName.c_str());
-#  else
     symbol_type result = GetProcAddress(_hnd, name.c_str());
-#  endif
 #else
     symbol_type result = dlsym(_hnd, name.c_str());
 #endif

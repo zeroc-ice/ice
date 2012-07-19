@@ -87,11 +87,6 @@ def getCppCompiler():
     return compiler
 
 
-def isBCC2010():
-    if not isWin32():
-        return False
-    return getCppCompiler() == "BCC2010"
-
 def isVC6():
     if not isWin32():
         return False
@@ -197,9 +192,6 @@ def configurePaths():
 
     if isWin32():
         libDir = getCppBinDir()
-        if iceHome and isBCC2010():
-            addLdPath(libDir)
-            libDir = os.path.join(libDir, "bcc10")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if iceHome and x64:
@@ -646,9 +638,7 @@ def getIceBox():
     lang = getDefaultMapping()
     if lang == "cpp":
         iceBox = ""
-        if isBCC2010():
-            iceBox = os.path.join(getServiceDir(), "icebox.exe")
-        elif isWin32():
+        if isWin32():
             #
             # Read the build.txt file from the test directory to figure out
             # how the IceBox service was built ("debug" vs. "release") and
@@ -696,7 +686,7 @@ def getGlacier2Router():
     return getIceExe("glacier2router")
 
 def getIceExe(name):
-    if isBCC2010() or isVC6():
+    if isVC6():
         return os.path.join(getServiceDir(), name)
     else:
         return os.path.join(getCppBinDir(), name)
@@ -1683,10 +1673,6 @@ def runTests(start, expanded, num = 0, script = False):
 
             if not isWin32() and "win32only" in config:
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
-                continue
-
-            if isBCC2010() and "nobcc" in config:
-                print("%s*** test not supported with C++Builder%s" % (prefix, suffix))
                 continue
 
             if isVC6() and "novc6" in config:

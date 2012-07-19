@@ -6530,18 +6530,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         H << nl << "// COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual";
         H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
         H << nl << "virtual void ice_exception(const ::std::exception&);";
-
-        H.zeroIndent();
-        H << nl << "#if defined(__BCPLUSPLUS__)";
-        H.restoreIndent();
-        H << nl << "// COMPILERFIX: Avoid compiler warnings with C++Builder 2010";
-        H << nl << "virtual void ice_exception()";
-        H << sb;
-        H << nl << "::IceInternal::IncomingAsync::ice_exception();";
-        H << eb;
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
     }
     H << eb << ';';
 

@@ -30,7 +30,7 @@ private:
     map<string, string> createTypeMap(const string&);
     const string _envName;
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1300)) || defined(__BCPLUSPLUS__)
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
 //
 // Some compilers don't let local classes access private data members
 //

@@ -21,10 +21,7 @@ using namespace std;
 
 #define WS " \f\n\r\t\v"
 
-#if defined(__BCPLUSPLUS__)
-Int64 Int64Min = -9223372036854775808i64;
-Int64 Int64Max =  9223372036854775807i64;
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
 #elif defined(ICE_64)

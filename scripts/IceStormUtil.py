@@ -35,7 +35,7 @@ class IceStormUtil(object):
         self.toplevel = toplevel
         self.testdir = testdir
         self.iceBox = TestUtil.getIceBox()
-        if TestUtil.isBCC2010() or TestUtil.isVC6():
+        if TestUtil.isVC6():
             self.iceBoxAdmin = os.path.join(TestUtil.getServiceDir(), "iceboxadmin")
             self.iceStormAdmin = os.path.join(TestUtil.getServiceDir(), "icestormadmin")
         else:

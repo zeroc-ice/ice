@@ -22,10 +22,6 @@
 #  include <io.h>
 #endif
 
-#ifdef __BCPLUSPLUS__
-#  include <dir.h>
-#endif
-
 using namespace std;
 
 //

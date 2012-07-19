@@ -21,11 +21,7 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil, IceGridAdmin
 
 def icepatch2Calc(datadir, dirname):
-    icePatch2Calc = ""
-    if TestUtil.isBCC2010():
-        icePatch2Calc = os.path.join(TestUtil.getServiceDir(), "icepatch2calc")
-    else:
-        icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
+    icePatch2Calc = os.path.join(TestUtil.getCppBinDir(), "icepatch2calc")
     commandProc = TestUtil.spawn('"%s" "%s"' % (icePatch2Calc, os.path.join(datadir, dirname)))
     commandProc.waitTestSuccess()
 
