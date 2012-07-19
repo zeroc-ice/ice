@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICESTORM_SERVICE_H
-#define ICESTORM_SERVICE_H
+#pragma once
 
 #include <IceBox/IceBox.h>
 #include <IceStorm/IceStorm.h>
@@ -44,5 +43,3 @@ public:
 };
 
 };
-
-#endif

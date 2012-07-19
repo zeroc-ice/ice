@@ -1,5 +1,13 @@
-#ifndef CONFLUENCE_OUTPUT
-#define CONFLUENCE_OUTPUT
+// **********************************************************************
+//
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#pragma once
 
 #include <IceUtil/OutputUtil.h>
 #include <list>
@@ -188,5 +196,3 @@ operator<<(ConfluenceOutput& o, const EndEscapes&)
 ConfluenceOutput& operator<<(ConfluenceOutput&, std::ios_base& (*)(std::ios_base&));
 
 }
-
-#endif

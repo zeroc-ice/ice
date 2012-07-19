@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRACE_LEVELS_H
-#define ICE_TRACE_LEVELS_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/TraceLevelsF.h>
@@ -46,5 +45,3 @@ public:
 };
 
 }
-
-#endif

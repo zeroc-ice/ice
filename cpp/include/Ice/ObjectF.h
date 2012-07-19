@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_F_H
-#define ICE_OBJECT_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/Handle.h>
@@ -23,5 +22,3 @@ typedef IceInternal::Handle< Object > ObjectPtr;
 void ICE_API __patch__ObjectPtr(void*, ObjectPtr&);
 
 }
-
-#endif

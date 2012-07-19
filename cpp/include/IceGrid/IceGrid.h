@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICEGRID_H
-#define ICEGRID_H
+#pragma once
 
 #include <IceGrid/Admin.h>
 #include <IceGrid/Descriptor.h>
@@ -20,5 +19,3 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/UserAccountMapper.h>
-
-#endif

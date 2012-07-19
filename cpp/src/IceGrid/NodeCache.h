@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_NODECACHE_H
-#define ICE_GRID_NODECACHE_H
+#pragma once
 
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/Shared.h>
@@ -104,5 +103,3 @@ private:
 };
 
 };
-
-#endif

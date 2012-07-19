@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_MUTEX_PTR_LOCK_H
-#define ICE_UTIL_MUTEX_PTR_LOCK_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/ThreadException.h>
@@ -79,5 +78,3 @@ private:
 };
 
 } // End namespace IceUtilInternal
-
-#endif

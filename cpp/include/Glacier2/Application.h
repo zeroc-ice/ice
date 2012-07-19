@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_APPLICATION_H
-#define GLACIER2_APPLICATION_H
+#pragma once
 
 #include <Ice/Application.h>
 
@@ -217,5 +216,3 @@ private:
 };
 
 }
-
-#endif

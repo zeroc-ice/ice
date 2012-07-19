@@ -6,8 +6,8 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-#ifndef FILTER_I_H
-#define FILTER_I_H
+
+#pragma once
 
 #include <Glacier2/Session.h>
 
@@ -176,5 +176,3 @@ typedef FilterT<std::string, Glacier2::StringSet> StringSetI;
 typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringSet> > StringSetIPtr;
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BASIC_STREAM_H
-#define ICE_BASIC_STREAM_H
+#pragma once
 
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectF.h>
@@ -669,5 +668,3 @@ private:
 };
 
 } // End namespace IceInternal
-
-#endif

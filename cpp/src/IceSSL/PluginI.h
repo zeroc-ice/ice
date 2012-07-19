@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_PLUGIN_I_H
-#define ICE_SSL_PLUGIN_I_H
+#pragma once
 
 #include <IceSSL/Plugin.h>
 #include <IceSSL/InstanceF.h>
@@ -43,5 +42,3 @@ private:
 };
 
 }
-
-#endif

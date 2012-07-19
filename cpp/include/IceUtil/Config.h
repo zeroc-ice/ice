@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_CONFIG_H
-#define ICE_UTIL_CONFIG_H
+#pragma once
 
 //
 // Endianness
@@ -247,7 +246,5 @@ public:
 };
 
 }
-#endif
-
 #endif
 

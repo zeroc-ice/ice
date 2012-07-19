@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_NETWORK_H
-#define ICE_NETWORK_H
+#pragma once
 
 #ifdef __hpux
 #   define _XOPEN_SOURCE_EXTENDED
@@ -237,5 +236,3 @@ ICE_API void doConnectAsync(SOCKET, const Address&, AsyncInfo&);
 ICE_API void doFinishConnectAsync(SOCKET, AsyncInfo&);
 #endif
 }
-
-#endif

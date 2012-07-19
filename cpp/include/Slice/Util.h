@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_UTIL_H
-#define SLICE_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -28,5 +27,3 @@ SLICE_API void emitRaw(const char*);
 SLICE_API std::vector<std::string> filterMcppWarnings(const std::string&);
 SLICE_API void printGeneratedHeader(IceUtilInternal::Output& out, const std::string&, const std::string& commentStyle = "//");
 }
-
-#endif

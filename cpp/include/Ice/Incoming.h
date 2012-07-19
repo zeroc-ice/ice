@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INCOMING_H
-#define ICE_INCOMING_H
+#pragma once
 
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
@@ -98,5 +97,3 @@ private:
 };
 
 }
-
-#endif

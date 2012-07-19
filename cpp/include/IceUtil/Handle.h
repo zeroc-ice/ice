@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_HANDLE_H
-#define ICE_UTIL_HANDLE_H
+#pragma once
 
 #include <IceUtil/Exception.h>
 #include <algorithm>
@@ -281,5 +280,3 @@ public:
 };
 
 }
-
-#endif

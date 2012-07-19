@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_TRANSFORMER_H
-#define FREEZE_SCRIPT_TRANSFORMER_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Slice/Parser.h>
@@ -29,5 +28,3 @@ transformDatabase(const Ice::CommunicatorPtr&,
                   std::ostream&, bool, std::istream&);
 
 } // End of namespace FreezeScript
-
-#endif

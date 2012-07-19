@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_ASYNC_H
-#define ICE_COMMUNICATOR_ASYNC_H
+#pragma once
 
 #include <Ice/Communicator.h>
 
@@ -120,5 +119,3 @@ newCallback_Communicator_flushBatchRequests(T* instance, void (T::*excb)(const :
 }
 
 }
-
-#endif

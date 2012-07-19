@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef C_PLUS_PLUS_UTIL_H
-#define C_PLUS_PLUS_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -65,5 +64,3 @@ SLICE_API std::string findMetaData(const StringList&, int = 0);
 SLICE_API bool inWstringModule(const SequencePtr&);
 
 }
-
-#endif

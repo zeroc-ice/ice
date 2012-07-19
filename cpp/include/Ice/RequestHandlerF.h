@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REQUEST_HANDLER_F_H
-#define ICE_REQUEST_HANDLER_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/Handle.h>
@@ -21,5 +20,3 @@ ICE_API IceUtil::Shared* upCast(RequestHandler*);
 typedef IceInternal::Handle<RequestHandler> RequestHandlerPtr;
 
 }
-
-#endif

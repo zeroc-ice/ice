@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROTOCOL_H
-#define ICE_PROTOCOL_H
+#pragma once
 
 #include <Ice/Config.h>
 
@@ -69,5 +68,3 @@ enum ProtocolSupport
 };
 
 }
-
-#endif

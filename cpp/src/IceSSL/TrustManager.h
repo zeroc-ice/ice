@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_TRUST_MANAGER_H
-#define ICE_SSL_TRUST_MANAGER_H
+#pragma once
 
 #include <Ice/CommunicatorF.h>
 #include <IceSSL/TrustManagerF.h>
@@ -47,5 +46,3 @@ private:
 };
 
 }
-
-#endif

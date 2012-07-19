@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DYNAMIC_LIBRARY_H
-#define ICE_DYNAMIC_LIBRARY_H
+#pragma once
 
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/StringConverter.h>
@@ -105,4 +104,3 @@ private:
 
 }
 
-#endif

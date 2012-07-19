@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_MONITOR_H
-#define ICE_CONNECTION_MONITOR_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
@@ -47,5 +46,3 @@ private:
 };
 
 }
-
-#endif

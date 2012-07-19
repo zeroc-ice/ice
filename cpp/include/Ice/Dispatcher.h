@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DISPATCHER_H
-#define ICE_DISPATCHER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -38,5 +37,3 @@ public:
 typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
 
 }
-
-#endif

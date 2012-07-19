@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_THREAD_H
-#define ICE_UTIL_THREAD_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -161,6 +160,3 @@ private:
 typedef Handle<Thread> ThreadPtr;
     
 }
-
-#endif
-

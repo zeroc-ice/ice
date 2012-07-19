@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTER_INFO_F_H
-#define ICE_ROUTER_INFO_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -26,5 +25,3 @@ IceUtil::Shared* upCast(RouterInfo*);
 typedef Handle<RouterInfo> RouterInfoPtr;
 
 }
-
-#endif

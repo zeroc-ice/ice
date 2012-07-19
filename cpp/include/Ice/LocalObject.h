@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCAL_OBJECT_H
-#define ICE_LOCAL_OBJECT_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/LocalObjectF.h>
@@ -38,5 +37,3 @@ public:
 };
 
 }
-
-#endif

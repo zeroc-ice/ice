@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef CLIENT_BLOBJECT_H
-#define CLIENT_BLOBJECT_H
+#pragma once
 
 #include <Glacier2/Blobject.h>
 #include <Glacier2/Session.h>
@@ -50,5 +49,3 @@ private:
     const int _rejectTraceLevel;
 };
 }
-
-#endif

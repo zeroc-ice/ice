@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECT_REQUEST_HANDLER_H
-#define ICE_CONNECT_REQUEST_HANDLER_H
+#pragma once
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
@@ -89,5 +88,3 @@ private:
 typedef IceUtil::Handle<ConnectRequestHandler> ConnectRequestHandlerPtr;
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_TIME_H
-#define ICE_UTIL_TIME_H
+#pragma once
 
 #include <IceUtil/Config.h>
 
@@ -205,5 +204,3 @@ private:
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);
 
 } // End namespace IceUtil
-
-#endif

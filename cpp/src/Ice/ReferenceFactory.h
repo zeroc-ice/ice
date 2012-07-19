@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REFERENCE_FACTORY_H
-#define ICE_REFERENCE_FACTORY_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/ReferenceFactoryF.h>
@@ -76,5 +75,3 @@ private:
 };
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_OUTPUT_UTIL_H
-#define ICE_UTIL_OUTPUT_UTIL_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <fstream>
@@ -378,5 +377,3 @@ operator<<(XMLOutput& o, const EndEscapes&)
 ICE_UTIL_API XMLOutput& operator<<(XMLOutput&, std::ios_base& (*)(std::ios_base&));
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVICE_INSTALLER_H
-#define ICE_SERVICE_INSTALLER_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <AccCtrl.h>
@@ -76,5 +75,3 @@ private:
 
     bool _debug;
 };
-
-#endif

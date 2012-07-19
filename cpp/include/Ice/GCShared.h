@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GC_SHARED_H
-#define ICE_GC_SHARED_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/Config.h>
@@ -49,5 +48,3 @@ protected:
 };
 
 }
-
-#endif

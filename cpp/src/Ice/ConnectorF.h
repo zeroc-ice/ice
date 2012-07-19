@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTOR_F_H
-#define ICE_CONNECTOR_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -22,5 +21,3 @@ ICE_API IceUtil::Shared* upCast(Connector*);
 typedef Handle<Connector> ConnectorPtr;
 
 }
-
-#endif

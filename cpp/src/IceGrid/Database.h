@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_DATABASE_H
-#define ICE_GRID_DATABASE_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
@@ -237,5 +236,3 @@ private:
 typedef IceUtil::Handle<Database> DatabasePtr;
 
 };
-
-#endif

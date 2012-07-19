@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_I_H
-#define ICE_LOGGER_I_H
+#pragma once
 
 #include <Ice/Logger.h>
 #include <IceUtil/FileUtil.h>
@@ -41,5 +40,3 @@ private:
 typedef IceUtil::Handle<LoggerI> LoggerIPtr;
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UDP_CONNECTOR_H
-#define ICE_UDP_CONNECTOR_H
+#pragma once
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
@@ -51,4 +50,3 @@ private:
 };
 
 }
-#endif

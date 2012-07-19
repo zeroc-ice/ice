@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_DUMP_DESCRIPTORS_H
-#define FREEZE_SCRIPT_DUMP_DESCRIPTORS_H
+#pragma once
 
 #include <FreezeScript/Parser.h>
 #include <IceXML/Parser.h>
@@ -302,5 +301,3 @@ private:
 typedef IceUtil::Handle<DumpDBDescriptor> DumpDBDescriptorPtr;
 
 } // End of namespace FreezeScript
-
-#endif

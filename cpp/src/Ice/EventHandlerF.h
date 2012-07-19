@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_EVENT_HANDLER_F_H
-#define ICE_EVENT_HANDLER_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -22,5 +21,3 @@ ICE_API IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
 
 }
-
-#endif

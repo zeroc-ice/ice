@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_DATABASE_CACHE_H
-#define FREEZE_DATABASE_CACHE_H
+#pragma once
 
 #include <IceDB/FreezeTypes.h>
 
@@ -48,5 +47,3 @@ private:
 };
 
 }
-
-#endif

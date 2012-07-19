@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SERVER_BLOBJECT_H
-#define SERVER_BLOBJECT_H
+#pragma once
 
 #include <Glacier2/Blobject.h>
 
@@ -30,5 +29,3 @@ public:
 };
 
 }
-
-#endif

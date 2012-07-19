@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DB_H
-#define ICE_DB_H
+#pragma once
 
 #include <IceUtil/Exception.h>
 #include <IceUtil/Shared.h>
@@ -114,5 +113,3 @@ public:
 };
 
 };
-
-#endif

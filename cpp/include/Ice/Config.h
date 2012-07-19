@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONFIG_H
-#define ICE_CONFIG_H
+#pragma once
 
 #include <IceUtil/Config.h>
 
@@ -78,5 +77,3 @@ inline int getSystemErrno() { return errno; }
 #endif
 
 }
-
-#endif

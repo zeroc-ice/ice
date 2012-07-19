@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_CACHE_H
-#define ICE_GRID_CACHE_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
@@ -155,5 +154,3 @@ public:
 };
 
 };
-
-#endif

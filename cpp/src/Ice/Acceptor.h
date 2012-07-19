@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ACCEPTOR_H
-#define ICE_ACCEPTOR_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/AcceptorF.h>
@@ -34,5 +33,3 @@ public:
 };
 
 }
-
-#endif

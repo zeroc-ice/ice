@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_REQUEST_HANDLER_H
-#define ICE_CONNECTION_REQUEST_HANDLER_H
+#pragma once
 
 #include <Ice/RequestHandler.h>
 #include <Ice/ReferenceF.h>
@@ -43,5 +42,3 @@ private:
 };
 
 }
-
-#endif

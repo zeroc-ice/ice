@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_OBJECT_STORE_H
-#define FREEZE_OBJECT_STORE_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Ice/Identity.h>
@@ -163,6 +162,3 @@ ObjectStoreBase::sampleServant() const
 }
 
 }
-
-#endif
-

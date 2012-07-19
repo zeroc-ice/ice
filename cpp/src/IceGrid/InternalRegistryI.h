@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_INTERNALREGISTRYI_H
-#define ICE_GRID_INTERNALREGISTRYI_H
+#pragma once
 
 #include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
@@ -73,5 +72,3 @@ private:
 };
     
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TOPIC_I_H
-#define TOPIC_I_H
+#pragma once
 
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/Election.h>
@@ -104,5 +103,3 @@ private:
 typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
 
 } // End namespace IceStorm
-
-#endif

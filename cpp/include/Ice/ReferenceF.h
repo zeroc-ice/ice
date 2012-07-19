@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REFERENCE_F_H
-#define ICE_REFERENCE_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -30,5 +29,3 @@ ICE_API IceUtil::Shared* upCast(RoutableReference*);
 typedef IceInternal::Handle<RoutableReference> RoutableReferencePtr;
 
 }
-
-#endif

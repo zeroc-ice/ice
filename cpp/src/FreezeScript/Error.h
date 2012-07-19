@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_ERROR_H
-#define FREEZE_SCRIPT_ERROR_H
+#pragma once
 
 #include <Slice/Parser.h>
 
@@ -64,5 +63,3 @@ private:
 };
 
 } // End of namespace FreezeScript
-
-#endif

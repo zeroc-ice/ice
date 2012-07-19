@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REQUEST_HANDLER_H
-#define ICE_REQUEST_HANDLER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -52,5 +51,3 @@ protected:
 };
 
 }
-
-#endif

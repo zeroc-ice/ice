@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_TIMER_H
-#define ICE_UTIL_TIMER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
@@ -137,6 +136,3 @@ Timer::Token::operator<(const Timer::Token& r) const
 }
 
 }
-
-#endif
-

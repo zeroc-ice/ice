@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SHARED_DB_ENV_H
-#define FREEZE_SHARED_DB_ENV_H
+#pragma once
 
 #include <Freeze/Map.h>
 #include <IceUtil/FileUtil.h>
@@ -119,4 +118,3 @@ SharedDbEnv::getCommunicator() const
 }
 
 }
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_HANDLE_H
-#define ICE_PROXY_HANDLE_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
@@ -332,5 +331,3 @@ std::ostream& operator<<(std::ostream& os, ::IceInternal::ProxyHandle<Y> p)
 {
     return os << (p ? p->ice_toString() : std::string(""));
 }
-
-#endif

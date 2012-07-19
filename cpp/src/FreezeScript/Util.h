@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_UTIL_H
-#define FREEZE_SCRIPT_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <Ice/CommunicatorF.h>
@@ -63,5 +62,3 @@ typedef std::map<std::string, Freeze::CatalogData> CatalogDataMap;
 CatalogDataMap readCatalog(const Ice::CommunicatorPtr&, const std::string&);
 
 } // End of namespace FreezeScript
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_INPUT_UTIL_H
-#define ICE_UTIL_INPUT_UTIL_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <string>
@@ -43,5 +42,3 @@ ICE_UTIL_API IceUtil::Int64 strToInt64(const char*, char**, int);
 ICE_UTIL_API  bool stringToInt64(const std::string&, IceUtil::Int64&);
 
 }
-
-#endif

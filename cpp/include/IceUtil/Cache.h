@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_CACHE_H
-#define ICE_UTIL_CACHE_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Mutex.h>
@@ -368,5 +367,3 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
 }
 
 }
-
-#endif
