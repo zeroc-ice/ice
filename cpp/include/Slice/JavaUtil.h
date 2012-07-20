@@ -150,9 +150,17 @@ protected:
     enum OptionalMode
     {
         OptionalNone,
-        OptionalParam,
+        OptionalInParam,
+        OptionalOutParam,
+        OptionalReturnParam,
         OptionalMember
     };
+
+    bool isOptionalParam(OptionalMode mode) const
+    {
+        return mode == OptionalInParam || mode == OptionalOutParam || mode == OptionalReturnParam;
+    }
+
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode, int,
                                    const std::string&, bool, int&, bool = false, const StringList& = StringList(),
                                    const std::string& patchParams = "");

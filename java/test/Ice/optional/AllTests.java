@@ -317,6 +317,21 @@ public class AllTests
 
         test(!mo9.hasBos());
 
+        {
+            OptionalWithCustom owc1 = new OptionalWithCustom();
+            java.util.ArrayList<Byte> l = new java.util.ArrayList<Byte>();
+            l.add((byte)5);
+            l.add((byte)6);
+            l.add((byte)7);
+            owc1.setBs(l);
+            owc1.setS(new ClassVarStruct(5));
+            OptionalWithCustom owc2 = (OptionalWithCustom)initial.pingPong(owc1);
+            test(owc2.hasBs());
+            test(owc2.getBs().equals(l));
+            test(owc2.hasS());
+            test(owc2.getS().a == 5);
+        }
+
         //
         // Send a request using blobjects. Upon receival, we don't read
         // any of the optional members. This ensures the optional members
@@ -542,6 +557,105 @@ public class AllTests
         }
 
         {
+            Ice.Optional<Boolean> p1 = new Ice.Optional<Boolean>();
+            Ice.Optional<Boolean> p3 = new Ice.Optional<Boolean>();
+            Ice.Optional<Boolean> p2 = initial.opBool(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(true);
+            p2 = initial.opBool(p1, p3);
+            test(p2.get() == true && p3.get() == true);
+
+            p2 = initial.opBool(new Ice.Optional<Boolean>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.F1);
+            os.writeBool(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opBool", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.F1));
+            test(in.readBool() == true);
+            test(in.readOptional(3, Ice.OptionalType.F1));
+            test(in.readBool() == true);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<Short> p1 = new Ice.Optional<Short>();
+            Ice.Optional<Short> p3 = new Ice.Optional<Short>();
+            Ice.Optional<Short> p2 = initial.opShort(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set((short)56);
+            p2 = initial.opShort(p1, p3);
+            test(p2.get() == 56 && p3.get() == 56);
+
+            p2 = initial.opShort(new Ice.Optional<Short>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.F2);
+            os.writeShort(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opShort", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.F2));
+            test(in.readShort() == 56);
+            test(in.readOptional(3, Ice.OptionalType.F2));
+            test(in.readShort() == 56);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<Integer> p1 = new Ice.Optional<Integer>();
+            Ice.Optional<Integer> p3 = new Ice.Optional<Integer>();
+            Ice.Optional<Integer> p2 = initial.opInt(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(56);
+            p2 = initial.opInt(p1, p3);
+            test(p2.get() == 56 && p3.get() == 56);
+
+            p2 = initial.opInt(new Ice.Optional<Integer>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.F4);
+            os.writeInt(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opInt", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.F4));
+            test(in.readInt() == 56);
+            test(in.readOptional(3, Ice.OptionalType.F4));
+            test(in.readInt() == 56);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
             Ice.Optional<Long> p1 = new Ice.Optional<Long>();
             Ice.Optional<Long> p3 = new Ice.Optional<Long>();
             Ice.Optional<Long> p2 = initial.opLong(p1, p3);
@@ -575,6 +689,72 @@ public class AllTests
         }
 
         {
+            Ice.Optional<Float> p1 = new Ice.Optional<Float>();
+            Ice.Optional<Float> p3 = new Ice.Optional<Float>();
+            Ice.Optional<Float> p2 = initial.opFloat(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set((float)1.0);
+            p2 = initial.opFloat(p1, p3);
+            test(p2.get() == 1.0 && p3.get() == 1.0);
+
+            p2 = initial.opFloat(new Ice.Optional<Float>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.F4);
+            os.writeFloat(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opFloat", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.F4));
+            test(in.readFloat() == 1.0);
+            test(in.readOptional(3, Ice.OptionalType.F4));
+            test(in.readFloat() == 1.0);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<Double> p1 = new Ice.Optional<Double>();
+            Ice.Optional<Double> p3 = new Ice.Optional<Double>();
+            Ice.Optional<Double> p2 = initial.opDouble(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(1.0);
+            p2 = initial.opDouble(p1, p3);
+            test(p2.get() == 1.0 && p3.get() == 1.0);
+
+            p2 = initial.opDouble(new Ice.Optional<Double>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.F8);
+            os.writeDouble(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opDouble", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.F8));
+            test(in.readDouble() == 1.0);
+            test(in.readOptional(3, Ice.OptionalType.F8));
+            test(in.readDouble() == 1.0);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
             Ice.Optional<String> p1 = new Ice.Optional<String>();
             Ice.Optional<String> p3 = new Ice.Optional<String>();
             Ice.Optional<String> p2 = initial.opString(p1, p3);
@@ -600,6 +780,157 @@ public class AllTests
             test(in.readString().equals("test"));
             test(in.readOptional(3, Ice.OptionalType.VSize));
             test(in.readString().equals("test"));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<MyEnum> p1 = new Ice.Optional<MyEnum>();
+            Ice.Optional<MyEnum> p3 = new Ice.Optional<MyEnum>();
+            Ice.Optional<MyEnum> p2 = initial.opMyEnum(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(MyEnum.MyEnumMember);
+            p2 = initial.opMyEnum(p1, p3);
+            test(p2.get() == MyEnum.MyEnumMember && p3.get() == MyEnum.MyEnumMember);
+
+            p2 = initial.opMyEnum(new Ice.Optional<MyEnum>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.Size);
+            p1.get().ice_write(os);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opMyEnum", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.Size));
+            test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+            test(in.readOptional(3, Ice.OptionalType.Size));
+            test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<SmallStruct> p1 = new Ice.Optional<SmallStruct>();
+            Ice.Optional<SmallStruct> p3 = new Ice.Optional<SmallStruct>();
+            Ice.Optional<SmallStruct> p2 = initial.opSmallStruct(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new SmallStruct((byte)56));
+            p2 = initial.opSmallStruct(p1, p3);
+            test(p2.get().m == (byte)56 && p3.get().m == (byte)56);
+
+            p2 = initial.opSmallStruct(new Ice.Optional<SmallStruct>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(1);
+            p1.get().ice_write(os);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opSmallStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            SmallStruct f = new SmallStruct();
+            f.ice_read(in);
+            test(f.m == (byte)56);
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            f.ice_read(in);
+            test(f.m == (byte)56);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<FixedStruct> p1 = new Ice.Optional<FixedStruct>();
+            Ice.Optional<FixedStruct> p3 = new Ice.Optional<FixedStruct>();
+            Ice.Optional<FixedStruct> p2 = initial.opFixedStruct(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new FixedStruct(56));
+            p2 = initial.opFixedStruct(p1, p3);
+            test(p2.get().m == 56 && p3.get().m == 56);
+
+            p2 = initial.opFixedStruct(new Ice.Optional<FixedStruct>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(4);
+            p1.get().ice_write(os);
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opFixedStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            FixedStruct f = new FixedStruct();
+            f.ice_read(in);
+            test(f.m == 56);
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            f.ice_read(in);
+            test(f.m == 56);
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<VarStruct> p1 = new Ice.Optional<VarStruct>();
+            Ice.Optional<VarStruct> p3 = new Ice.Optional<VarStruct>();
+            Ice.Optional<VarStruct> p2 = initial.opVarStruct(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new VarStruct("test"));
+            p2 = initial.opVarStruct(p1, p3);
+            test(p2.get().m.equals("test") && p3.get().m.equals("test"));
+
+            p2 = initial.opVarStruct(new Ice.Optional<VarStruct>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.startSize();
+            p1.get().ice_write(os);
+            os.endSize();
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opVarStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.FSize));
+            in.skip(4);
+            VarStruct v = new VarStruct();
+            v.ice_read(in);
+            test(v.m.equals("test"));
+            test(in.readOptional(3, Ice.OptionalType.FSize));
+            in.skip(4);
+            v.ice_read(in);
+            test(v.m.equals("test"));
             in.endEncapsulation();
 
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
@@ -715,6 +1046,39 @@ public class AllTests
         }
 
         {
+            Ice.Optional<boolean[]> p1 = new Ice.Optional<boolean[]>();
+            Ice.Optional<boolean[]> p3 = new Ice.Optional<boolean[]>();
+            Ice.Optional<boolean[]> p2 = initial.opBoolSeq(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new boolean[100]);
+            p2 = initial.opBoolSeq(p1, p3);
+            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+
+            p2 = initial.opBoolSeq(new Ice.Optional<boolean[]>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeBoolSeq(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opBoolSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
             Ice.Optional<short[]> p1 = new Ice.Optional<short[]>();
             Ice.Optional<short[]> p3 = new Ice.Optional<short[]>();
             Ice.Optional<short[]> p2 = initial.opShortSeq(p1, p3);
@@ -752,31 +1116,146 @@ public class AllTests
         }
 
         {
-            Ice.Optional<boolean[]> p1 = new Ice.Optional<boolean[]>();
-            Ice.Optional<boolean[]> p3 = new Ice.Optional<boolean[]>();
-            Ice.Optional<boolean[]> p2 = initial.opBoolSeq(p1, p3);
+            Ice.Optional<int[]> p1 = new Ice.Optional<int[]>();
+            Ice.Optional<int[]> p3 = new Ice.Optional<int[]>();
+            Ice.Optional<int[]> p2 = initial.opIntSeq(p1, p3);
             test(!p2.isSet() && !p3.isSet());
 
-            p1.set(new boolean[100]);
-            p2 = initial.opBoolSeq(p1, p3);
+            p1.set(new int[100]);
+            java.util.Arrays.fill(p1.get(), 56);
+            p2 = initial.opIntSeq(p1, p3);
             test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
 
-            p2 = initial.opBoolSeq(new Ice.Optional<boolean[]>(), p3);
+            p2 = initial.opIntSeq(new Ice.Optional<int[]>(), p3);
             test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalType.VSize);
-            os.writeBoolSeq(p1.get());
+            os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
+            os.writeIntSeq(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
-            initial.ice_invoke("opBoolSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            initial.ice_invoke("opIntSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
             test(in.readOptional(1, Ice.OptionalType.VSize));
-            test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
             test(in.readOptional(3, Ice.OptionalType.VSize));
-            test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<long[]> p1 = new Ice.Optional<long[]>();
+            Ice.Optional<long[]> p3 = new Ice.Optional<long[]>();
+            Ice.Optional<long[]> p2 = initial.opLongSeq(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new long[100]);
+            java.util.Arrays.fill(p1.get(), 56);
+            p2 = initial.opLongSeq(p1, p3);
+            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+
+            p2 = initial.opLongSeq(new Ice.Optional<long[]>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
+            os.writeLongSeq(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opLongSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<float[]> p1 = new Ice.Optional<float[]>();
+            Ice.Optional<float[]> p3 = new Ice.Optional<float[]>();
+            Ice.Optional<float[]> p2 = initial.opFloatSeq(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new float[100]);
+            java.util.Arrays.fill(p1.get(), (float)1.0);
+            p2 = initial.opFloatSeq(p1, p3);
+            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+
+            p2 = initial.opFloatSeq(new Ice.Optional<float[]>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
+            os.writeFloatSeq(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opFloatSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<double[]> p1 = new Ice.Optional<double[]>();
+            Ice.Optional<double[]> p3 = new Ice.Optional<double[]>();
+            Ice.Optional<double[]> p2 = initial.opDoubleSeq(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new double[100]);
+            java.util.Arrays.fill(p1.get(), 1.0);
+            p2 = initial.opDoubleSeq(p1, p3);
+            test(java.util.Arrays.equals(p2.get(), p1.get()) && java.util.Arrays.equals(p3.get(), p1.get()));
+
+            p2 = initial.opDoubleSeq(new Ice.Optional<double[]>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
+            os.writeDoubleSeq(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opDoubleSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
             in.endEncapsulation();
 
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
@@ -815,6 +1294,99 @@ public class AllTests
             test(in.readOptional(3, Ice.OptionalType.FSize));
             in.skip(4);
             test(java.util.Arrays.equals(in.readStringSeq(), p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<SmallStruct[]> p1 = new Ice.Optional<SmallStruct[]>();
+            Ice.Optional<SmallStruct[]> p3 = new Ice.Optional<SmallStruct[]>();
+            Ice.Optional<SmallStruct[]> p2 = initial.opSmallStructSeq(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new SmallStruct[10]);
+            for(int i = 0; i < p1.get().length; ++i)
+            {
+                p1.get()[i] = new SmallStruct();
+            }
+            p2 = initial.opSmallStructSeq(p1, p3);
+            for(int i = 0; i < p1.get().length; ++i)
+            {
+                test(p2.get()[i].equals(p1.get()[i]));
+            }
+
+            p2 = initial.opSmallStructSeq(new Ice.Optional<SmallStruct[]>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().length + (p1.get().length > 254 ? 5 : 1));
+            SmallStructSeqHelper.write(os, p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opSmallStructSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            SmallStruct[] arr = SmallStructSeqHelper.read(in);
+            for(int i = 0; i < p1.get().length; ++i)
+            {
+                test(arr[i].equals(p1.get()[i]));
+            }
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            arr = SmallStructSeqHelper.read(in);
+            for(int i = 0; i < p1.get().length; ++i)
+            {
+                test(arr[i].equals(p1.get()[i]));
+            }
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<java.util.List<SmallStruct>> p1 = new Ice.Optional<java.util.List<SmallStruct>>();
+            Ice.Optional<java.util.List<SmallStruct>> p3 = new Ice.Optional<java.util.List<SmallStruct>>();
+            Ice.Optional<java.util.List<SmallStruct>> p2 = initial.opSmallStructList(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new java.util.ArrayList<SmallStruct>());
+            for(int i = 0; i < 10; ++i)
+            {
+                p1.get().add(new SmallStruct());
+            }
+            p2 = initial.opSmallStructList(p1, p3);
+            test(p2.get().equals(p1.get()));
+
+            p2 = initial.opSmallStructList(new Ice.Optional<java.util.List<SmallStruct>>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().size() + (p1.get().size() > 254 ? 5 : 1));
+            SmallStructListHelper.write(os, p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opSmallStructList", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
+            test(arr.equals(p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            arr = SmallStructListHelper.read(in);
+            test(arr.equals(p1.get()));
             in.endEncapsulation();
 
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
@@ -874,6 +1446,48 @@ public class AllTests
         }
 
         {
+            Ice.Optional<java.util.List<FixedStruct>> p1 = new Ice.Optional<java.util.List<FixedStruct>>();
+            Ice.Optional<java.util.List<FixedStruct>> p3 = new Ice.Optional<java.util.List<FixedStruct>>();
+            Ice.Optional<java.util.List<FixedStruct>> p2 = initial.opFixedStructList(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new java.util.ArrayList<FixedStruct>());
+            for(int i = 0; i < 10; ++i)
+            {
+                p1.get().add(new FixedStruct());
+            }
+            p2 = initial.opFixedStructList(p1, p3);
+            test(p2.get().equals(p1.get()));
+
+            p2 = initial.opFixedStructList(new Ice.Optional<java.util.List<FixedStruct>>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().size() * 4 + (p1.get().size() > 254 ? 5 : 1));
+            FixedStructListHelper.write(os, p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opFixedStructList", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
+            test(arr.equals(p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            arr = FixedStructListHelper.read(in);
+            test(arr.equals(p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
             Ice.Optional<VarStruct[]> p1 = new Ice.Optional<VarStruct[]>();
             Ice.Optional<VarStruct[]> p3 = new Ice.Optional<VarStruct[]>();
             Ice.Optional<VarStruct[]> p2 = initial.opVarStructSeq(p1, p3);
@@ -918,6 +1532,122 @@ public class AllTests
             {
                 test(arr[i].equals(p1.get()[i]));
             }
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<SerializableClass> p1 = new Ice.Optional<SerializableClass>();
+            Ice.Optional<SerializableClass> p3 = new Ice.Optional<SerializableClass>();
+            Ice.Optional<SerializableClass> p2 = initial.opSerializable(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new SerializableClass(58));
+            p2 = initial.opSerializable(p1, p3);
+            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+
+            p2 = initial.opSerializable(new Ice.Optional<SerializableClass>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSerializable(p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opSerializable", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            SerializableClass sc = SerializableHelper.read(in);
+            test(sc.equals(p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            sc = SerializableHelper.read(in);
+            test(sc.equals(p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<java.util.Map<Integer, Integer>> p1 = new Ice.Optional<java.util.Map<Integer, Integer>>();
+            Ice.Optional<java.util.Map<Integer, Integer>> p3 = new Ice.Optional<java.util.Map<Integer, Integer>>();
+            Ice.Optional<java.util.Map<Integer, Integer>> p2 = initial.opIntIntDict(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new java.util.HashMap<Integer, Integer>());
+            p1.get().put(1, 2);
+            p1.get().put(2, 3);
+            p2 = initial.opIntIntDict(p1, p3);
+            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+
+            p2 = initial.opIntIntDict(new Ice.Optional<java.util.Map<Integer, Integer>>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeSize(p1.get().size() * 8 + (p1.get().size() > 254 ? 5 : 1));
+            IntIntDictHelper.write(os, p1.get());
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opIntIntDict", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.VSize));
+            in.skipSize();
+            java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
+            test(m.equals(p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.VSize));
+            in.skipSize();
+            m = IntIntDictHelper.read(in);
+            test(m.equals(p1.get()));
+            in.endEncapsulation();
+
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            in.endEncapsulation();
+        }
+
+        {
+            Ice.Optional<java.util.Map<String, Integer>> p1 = new Ice.Optional<java.util.Map<String, Integer>>();
+            Ice.Optional<java.util.Map<String, Integer>> p3 = new Ice.Optional<java.util.Map<String, Integer>>();
+            Ice.Optional<java.util.Map<String, Integer>> p2 = initial.opStringIntDict(p1, p3);
+            test(!p2.isSet() && !p3.isSet());
+
+            p1.set(new java.util.HashMap<String, Integer>());
+            p1.get().put("1", 1);
+            p1.get().put("2", 2);
+            p2 = initial.opStringIntDict(p1, p3);
+            test(p2.get().equals(p1.get()) && p3.get().equals(p1.get()));
+
+            p2 = initial.opStringIntDict(new Ice.Optional<java.util.Map<String, Integer>>(), p3);
+            test(!p2.isSet() && !p3.isSet()); // Ensure out parameter is cleared.
+
+            os = Ice.Util.createOutputStream(communicator);
+            os.startEncapsulation();
+            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.startSize();
+            StringIntDictHelper.write(os, p1.get());
+            os.endSize();
+            os.endEncapsulation();
+            inEncaps = os.finished();
+            initial.ice_invoke("opStringIntDict", Ice.OperationMode.Normal, inEncaps, outEncaps);
+            in = Ice.Util.createInputStream(communicator, outEncaps.value);
+            in.startEncapsulation();
+            test(in.readOptional(1, Ice.OptionalType.FSize));
+            in.skip(4);
+            java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
+            test(m.equals(p1.get()));
+            test(in.readOptional(3, Ice.OptionalType.FSize));
+            in.skip(4);
+            m = StringIntDictHelper.read(in);
+            test(m.equals(p1.get()));
             in.endEncapsulation();
 
             in = Ice.Util.createInputStream(communicator, outEncaps.value);

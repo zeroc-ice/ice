@@ -353,19 +353,20 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
     {
         if(checkReturnType && op->returnTag() < (*pli)->tag())
         {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalParam, op->returnTag(), "__ret", marshal, iter, false,
-                                      op->getMetaData());
+            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, op->returnTag(), "__ret", marshal, iter,
+                                      false, op->getMetaData());
             checkReturnType = false;
         }
 
-        writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalParam, (*pli)->tag(),
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(),
+                                  (*pli)->isOutParam() ? OptionalOutParam : OptionalInParam, (*pli)->tag(),
                                   fixKwd((*pli)->name()), marshal, iter, false, (*pli)->getMetaData());
     }
 
     if(checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalParam, op->returnTag(), "__ret", marshal, iter, false,
-                                  op->getMetaData());
+        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, op->returnTag(), "__ret", marshal, iter,
+                                  false, op->getMetaData());
     }
 }
 
