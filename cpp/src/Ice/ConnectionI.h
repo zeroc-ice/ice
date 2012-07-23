@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
 
 #include <Ice/CommunicatorF.h>
@@ -30,6 +31,7 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Dispatcher.h>
+#include <Ice/ObserverF.h>
 
 #include <deque>
 #include <memory>
@@ -277,6 +279,7 @@ private:
     const std::string _type;
     const IceInternal::ConnectorPtr _connector;
     const IceInternal::EndpointIPtr _endpoint;
+    Ice::ConnectionObserverPtr _observer;
 
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
@@ -323,6 +326,11 @@ private:
     IceInternal::BasicStream _readStream;
     bool _readHeader;
     IceInternal::BasicStream _writeStream;
+
+    Ice::Byte* _writeStreamPos;
+    IceUtilInternal::StopWatch _writeWatch;
+    Ice::Byte* _readStreamPos;
+    IceUtilInternal::StopWatch _readWatch;
 
     int _dispatchCount;
 

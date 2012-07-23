@@ -16,6 +16,7 @@
 #include <Ice/LoggerF.h>
 #include <Ice/StreamF.h>
 #include <Ice/StatsF.h>
+#include <Ice/ObserverF.h>
 #include <Ice/Dispatcher.h>
 #include <Ice/StringConverter.h>
 #include <Ice/BuiltinSequences.h>
@@ -84,6 +85,7 @@ struct InitializationData
     PropertiesPtr properties;
     LoggerPtr logger;
     StatsPtr stats;
+    ObserverResolverPtr observerResolver;
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;

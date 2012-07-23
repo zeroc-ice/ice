@@ -1,0 +1,49 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICE_UTIL_STOPWATCH_H
+#define ICE_UTIL_STOPWATCH_H
+
+#include <IceUtil/Time.h>
+
+namespace IceUtilInternal
+{
+
+class ICE_UTIL_API StopWatch
+{
+public:
+
+    StopWatch() { }
+
+    void start()
+    {
+        _s = IceUtil::Time::now(IceUtil::Time::Monotonic);
+    }
+    
+    long stop()
+    {
+        assert(isStarted());
+        long d = (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
+        _s = IceUtil::Time();
+        return d;
+    }
+
+    bool isStarted() const
+    {
+        return _s != IceUtil::Time();
+    }
+
+private:
+
+    IceUtil::Time _s;
+};
+
+} // End namespace IceUtilInternal
+
+#endif

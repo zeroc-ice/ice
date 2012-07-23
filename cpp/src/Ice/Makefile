@@ -60,6 +60,9 @@ OBJS		= Acceptor.o \
 		  LoggerI.o \
 		  Logger.o \
 		  LoggerUtil.o \
+		  Metrics.o \
+		  MetricsAdminI.o \
+		  MetricsObserverI.o \
 		  Network.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
@@ -67,6 +70,7 @@ OBJS		= Acceptor.o \
 		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
 		  Object.o \
+		  Observer.o \
 		  OpaqueEndpointI.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \
@@ -132,10 +136,13 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Logger.ice \
+		  $(SDIR)/Metrics.ice \
 		  $(SDIR)/ObjectAdapterF.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/Observer.ice \
+		  $(SDIR)/ObserverF.ice \
 		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/ProcessF.ice \
@@ -149,8 +156,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice \
-		  $(SDIR)/Version.ice
-
+		  $(SDIR)/Version.ice \
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice
