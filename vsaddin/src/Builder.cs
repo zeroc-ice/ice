@@ -1138,7 +1138,12 @@ namespace Ice.VisualStudio
                 dte.StatusBar.Text = "Ready";
             }
 
-            if(scope == vsBuildScope.vsBuildScopeProject)
+            //
+            // If we are not in CommandLine mode we also update projects
+            // that depend on the project being build.
+            // 
+            if(scope == vsBuildScope.vsBuildScopeProject && 
+               _connectMode != ext_ConnectMode.ext_cm_CommandLine)
             {
                 List<Project> dependantProjects = new List<Project>();
                 foreach(ProjectItem i in buildItems)
@@ -1954,7 +1959,7 @@ namespace Ice.VisualStudio
 
             foreach(Project p in projects)
             {
-                if(p.Equals(item.ContainingProject))
+                if(p.Equals(item.ContainingProject) || !dependenciesMap.ContainsKey(p.Name))
                 {
                     continue;
                 }
