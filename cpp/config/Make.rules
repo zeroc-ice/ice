@@ -315,10 +315,14 @@ all:: $(SRCS) $(TARGETS)
 depend:: $(SRCS)  $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
 	-rm -f .depend .depend.mak
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
+		$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+		if test -n "$(HDIR)"; then \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py "\$$(HDIR)"; \
+		else \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+		fi \
 	fi
 
 clean::
