@@ -1003,14 +1003,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             //
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"exception " << scoped .substr(2)<< " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
@@ -3975,7 +3975,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             //
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
@@ -3983,7 +3983,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;

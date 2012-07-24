@@ -54,6 +54,8 @@ public:
 
     void destroy();
 
+    void updateConnectionObservers();
+
     void waitUntilFinished();
 
     Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, bool&);
@@ -163,6 +165,8 @@ public:
     void activate();
     void hold();
     void destroy();
+
+    void updateConnectionObservers();
 
     void waitUntilHolding() const;
     void waitUntilFinished();

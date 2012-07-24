@@ -28,6 +28,8 @@ public:
     bool isShutdown() const;
     void destroy();
 
+    void updateConnectionObservers();
+
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const Ice::RouterPrx&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
     void removeObjectAdapter(const ::Ice::ObjectAdapterPtr&);

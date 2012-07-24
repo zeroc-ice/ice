@@ -10,35 +10,86 @@
 #include <Ice/MetricsObserverI.h>
 #include <Ice/MetricsAdminI.h>
 
+#include <Ice/Connection.h>
+#include <Ice/Endpoint.h>
+
 using namespace std;
 using namespace Ice;
-using namespace IceMetrics;
+using namespace IceMX;
+using namespace IceMX::Ice;
 
 namespace 
 {
 
-class ConnectionMetricsHelper : public MetricsHelper
+
+class ConnectionHelper : public ObjectHelperT<ConnectionMetricsObject>
 {
 public:
     
-    ConnectionMetricsHelper(const ConnectionPtr& con) : _connection(con)
+    ConnectionHelper(const ConnectionPtr& con) : _connection(con)
     {
     }
 
-    virtual string operator()(const string& attribute) const
-    {
-        return ""; // TODO: return attribute value
-    }
-    
-    virtual MetricsObjectPtr newMetricsObject() const
-    {
-        return new ConnectionMetricsObject();
-    }
-        
+    virtual string operator()(const string&) const;
+
 private:
+
+    friend class ConnectionAttributeResolver;
+
+    ::Ice::ConnectionInfo*
+    getConnectionInfo() const
+    {
+        return _connection->getInfo().get();
+    }
+
+    ::Ice::EndpointInfo*
+    getEndpointInfo() const
+    {
+        return _connection->getEndpoint()->getInfo().get();
+    }
     
-    Ice::ConnectionPtr _connection;
+    ::Ice::ConnectionPtr _connection;
 };
+
+
+class ConnectionAttributeResolver : public ObjectAttributeResolverT<ConnectionHelper>
+{
+public:
+
+    ConnectionAttributeResolver()
+    {
+        //add("connectionId")
+
+        add("incoming", &ConnectionHelper::getConnectionInfo, &ConnectionInfo::incoming);
+        add("adapterName", &ConnectionHelper::getConnectionInfo, &ConnectionInfo::adapterName);
+
+        add("localHost", &ConnectionHelper::getConnectionInfo, &IPConnectionInfo::localAddress);
+        add("localPort", &ConnectionHelper::getConnectionInfo, &IPConnectionInfo::localPort);
+        add("remoteHost", &ConnectionHelper::getConnectionInfo, &IPConnectionInfo::remoteAddress);
+        add("remotePort", &ConnectionHelper::getConnectionInfo, &IPConnectionInfo::remotePort);
+
+        add("mcastHost", &ConnectionHelper::getConnectionInfo, &UDPConnectionInfo::mcastAddress);
+        add("mcastPort", &ConnectionHelper::getConnectionInfo, &UDPConnectionInfo::mcastPort);
+
+        add("endpointType", &ConnectionHelper::getEndpointInfo, &EndpointInfo::type);
+        add("endpointIsDatagram", &ConnectionHelper::getEndpointInfo, &EndpointInfo::datagram);
+        add("endpointIsSecure", &ConnectionHelper::getEndpointInfo, &EndpointInfo::secure);
+        add("endpointProtocolVersion", &ConnectionHelper::getEndpointInfo, &EndpointInfo::protocol);
+        add("endpointEncodingVersion", &ConnectionHelper::getEndpointInfo, &EndpointInfo::encoding);
+        add("endpointTimeout", &ConnectionHelper::getEndpointInfo, &EndpointInfo::timeout);
+        add("endpointCompress", &ConnectionHelper::getEndpointInfo, &EndpointInfo::compress);
+
+        add("endpointHost", &ConnectionHelper::getEndpointInfo, &IPEndpointInfo::host);
+        add("endpointPort", &ConnectionHelper::getEndpointInfo, &IPEndpointInfo::port);
+    }
+};
+ConnectionAttributeResolver connectionAttributes;
+
+string
+ConnectionHelper::operator()(const string& name) const
+{
+    return connectionAttributes(this, name);
+}
 
 }
 
@@ -64,50 +115,49 @@ ConnectionObserverI::detach()
     {
         void operator()(const ConnectionMetricsObjectPtr& v)
         {
-            ++v->total;
-            ++v->current;
-            ++v->initializing;
+            --v->current;
+            --v->closed;
         }
     };
     forEach(Detach());
 }
 
 void
-ConnectionObserverI::stateChanged(ConnectionState oldState, ConnectionState newState)
+ConnectionObserverI::stateChanged(ObserverConnectionState oldState, ObserverConnectionState newState)
 {
     struct StateChanged 
     {
-        StateChanged(ConnectionState oldState, ConnectionState newState) : 
+        StateChanged(ObserverConnectionState oldState, ObserverConnectionState newState) : 
             oldState(oldState), newState(newState)
         {
         }
 
         void operator()(const ConnectionMetricsObjectPtr& v)
         {
-            --(v.get()->*getConnectionStateMetric(oldState));
-            ++(v.get()->*getConnectionStateMetric(newState));
+            --(v.get()->*getObserverConnectionStateMetric(oldState));
+            ++(v.get()->*getObserverConnectionStateMetric(newState));
         }
 
         int ConnectionMetricsObject::*
-        getConnectionStateMetric(ConnectionState s)
+        getObserverConnectionStateMetric(ObserverConnectionState s)
         {
             switch(s)
             {
-            case ConnectionStateInitializing:
+            case ObserverConnectionStateInitializing:
                 return &ConnectionMetricsObject::initializing;
-            case ConnectionStateActive:
+            case ObserverConnectionStateActive:
                 return &ConnectionMetricsObject::active;
-            case ConnectionStateHolding:
+            case ObserverConnectionStateHolding:
                 return &ConnectionMetricsObject::holding;
-            case ConnectionStateClosing:
+            case ObserverConnectionStateClosing:
                 return &ConnectionMetricsObject::closing;
-            case ConnectionStateClosed:
+            case ObserverConnectionStateClosed:
                 return &ConnectionMetricsObject::closed;
             }
         }    
 
-        ConnectionState oldState;
-        ConnectionState newState;
+        ObserverConnectionState oldState;
+        ObserverConnectionState newState;
     }
     forEach(StateChanged(oldState, newState));
 }
@@ -115,15 +165,15 @@ ConnectionObserverI::stateChanged(ConnectionState oldState, ConnectionState newS
 void 
 ConnectionObserverI::sentBytes(Int num, Long duration)
 {
-    forEach(aggregate(applyOnMember(&ConnectionMetricsObject::sentBytes, Add<Int>(num)),
-                      applyOnMember(&ConnectionMetricsObject::sentTime, Add<Long>(duration))));
+    forEach(chain(add(&ConnectionMetricsObject::sentBytes, num), 
+                  add(&ConnectionMetricsObject::sentTime, duration)));
 }
 
 void 
 ConnectionObserverI::receivedBytes(Int num, Long duration)
 {
-    forEach(aggregate(applyOnMember(&ConnectionMetricsObject::receivedBytes, Add<Int>(num)),
-                      applyOnMember(&ConnectionMetricsObject::receivedTime, Add<Long>(duration))));
+    forEach(chain(add(&ConnectionMetricsObject::receivedBytes, num),
+                  add(&ConnectionMetricsObject::receivedTime, duration)));
 }
 
 ObserverResolverI::ObserverResolverI(const MetricsAdminIPtr& metrics) : _metrics(metrics)
@@ -133,56 +183,38 @@ ObserverResolverI::ObserverResolverI(const MetricsAdminIPtr& metrics) : _metrics
 void
 ObserverResolverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 {
-    class Updater : public ObjectObserverUpdater
-    {
-    public:
 
-        Updater(const ObserverUpdaterPtr& updater, void (ObserverUpdater::*fn)()) : 
-            _updater(updater), _fn(fn)
-        {
-        }
-        
-        virtual void update()
-        {
-            (_updater.get()->*_fn)();
-        }
-
-    private: 
-
-        const ObserverUpdaterPtr _updater;
-        void (ObserverUpdater::*_fn)();
-    };
-    _metrics->addUpdater("Connection", new Updater(updater, &ObserverUpdater::updateConnectionObservers));
-    _metrics->addUpdater("Thread", new Updater(updater, &ObserverUpdater::updateThreadObservers));
-    _metrics->addUpdater("ThreadPoolThread", new Updater(updater, &ObserverUpdater::updateThreadPoolThreadObservers));
+    _metrics->addUpdater("Connection", newUpdater(updater, &ObserverUpdater::updateConnectionObservers, _connections));
+    //_metrics->addUpdater("Thread", new Updater(updater, &ObserverUpdater::updateThreadObservers));
+    //_metrics->addUpdater("ThreadPoolThread", new Updater(updater, &ObserverUpdater::updateThreadPoolThreadObservers));
 }
 
 ConnectionObserverPtr 
-ObserverResolverI::getConnectionObserver(const ConnectionObserverPtr& old, const ConnectionPtr& con)
+ObserverResolverI::getConnectionObserver(const ConnectionPtr& con, const ConnectionObserverPtr& old)
 {
-    return _connections.getObserver(_metrics->getMatching("Connection", ConnectionMetricsHelper(con)), old.get());
+    return _connections.getObserver(_metrics->getMatching("Connection", ConnectionHelper(con)), old.get());
 }
 
 ObjectObserverPtr 
-ObserverResolverI::getThreadObserver(const ObjectObserverPtr&, const string&, const string&)
+ObserverResolverI::getThreadObserver(const string&, const string&, const ObjectObserverPtr&)
 {
     return 0;
 }
 
 ThreadPoolThreadObserverPtr 
-ObserverResolverI::getThreadPoolThreadObserver(const ThreadPoolThreadObserverPtr&, const string&, const string&)
+ObserverResolverI::getThreadPoolThreadObserver(const string&, const string&, const ThreadPoolThreadObserverPtr&)
 {
     return 0;
 }
 
 RequestObserverPtr 
-ObserverResolverI::getInvocationObserver(const RequestObserverPtr&, const ObjectPrx&, const string&)
+ObserverResolverI::getInvocationObserver(const ObjectPrx&, const string&)
 {
     return 0;
 }
 
 RequestObserverPtr 
-ObserverResolverI::getDispatchObserver(const RequestObserverPtr&, const ObjectPtr&, const Current&)
+ObserverResolverI::getDispatchObserver(const ObjectPtr&, const Current&)
 {
     return 0;
 }

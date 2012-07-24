@@ -779,6 +779,17 @@ Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorBatchOutgoingAsyn
 }
 
 void
+Ice::ObjectAdapterI::updateConnectionObservers()
+{
+    vector<IncomingConnectionFactoryPtr> f;
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        f = _incomingConnectionFactories;
+    }
+    for_each(f.begin(), f.end(), Ice::voidMemFun(&IncomingConnectionFactory::updateConnectionObservers));
+}
+
+void
 Ice::ObjectAdapterI::incDirectCount()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);

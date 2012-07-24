@@ -35,8 +35,10 @@
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/PropertiesI.h>
-#include <IceUtil/UUID.h>
 #include <Ice/Communicator.h>
+#include <Ice/Observer.h>
+
+#include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -101,6 +103,33 @@ public:
 };
 
 Init init;
+
+class ObserverUpdaterI : public Ice::ObserverUpdater
+{
+public:
+
+    ObserverUpdaterI(InstancePtr instance) : _instance(instance)
+    {
+    }
+
+    void updateConnectionObservers()
+    {
+        _instance->outgoingConnectionFactory()->updateConnectionObservers();
+        _instance->objectAdapterFactory()->updateConnectionObservers();
+    }
+
+    void updateThreadObservers()
+    {
+    }
+
+    void updateThreadPoolThreadObservers()
+    {
+    }
+
+private:
+
+    InstancePtr _instance;
+};
 
 }
 
@@ -1005,7 +1034,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _retryQueue = new RetryQueue(this);
 
-
         if(_initData.wstringConverter == 0)
         {
             _initData.wstringConverter = new UnicodeWstringConverter();
@@ -1082,6 +1110,11 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::finishSetup(int& argc, char* argv[])
 {
+    if(_initData.observerResolver)
+    {
+        _initData.observerResolver->setObserverUpdater(new ObserverUpdaterI(this));
+    }
+
     //
     // Load plug-ins.
     //

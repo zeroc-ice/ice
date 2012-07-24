@@ -11,73 +11,76 @@
 #define ICE_METRICSADMIN_I_H
 
 #include <Ice/Metrics.h>
-#include <Ice/Stats.h>
+#include <Ice/Properties.h>
 
 #include <Ice/MetricsObserverI.h>
 
-namespace IceMetrics
+namespace IceMX
 {
 
-class MetricsHelper
+class MetricsMap : public IceUtil::Shared
 {
-public:
-
-    virtual std::string operator()(const std::string&) const = 0;
-
-    virtual MetricsObjectPtr newMetricsObject() const = 0;
-};
-
-class MetricsMap : public IceUtil::Shared, IceUtil::Mutex
-{
-public:
-
-    struct Entry
+    class Entry : public IceUtil::Shared
     {
-        MetricsObjectPtr object;
-        MetricsMapPtr map;
-
-        bool operator<(const Entry& e)
+    public:
+        Entry(const MetricsObjectPtr& object) : object(object)
         {
-            return object < e.object;
         }
+        
+        MetricsObjectPtr object;
+        IceUtil::Mutex mutex;
     };
-    
+    typedef IceUtil::Handle<Entry> EntryPtr;
+
+public:
+
     MetricsMap(const std::string&, const NameValueDict&, const NameValueDict&);
 
     void destroy();
 
     MetricsObjectSeq getMetricsObjects() const;
 
-    MetricsObjectPtr getMatching(const MetricsHelper&);
+    std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const ObjectHelper&);
 
 private:
-
-    bool match(const std::string&, const std::string&) const;
 
     const std::vector<std::string> _groupByAttributes;
     const std::vector<std::string> _groupBySeparators;
     const NameValueDict _accept;
     const NameValueDict _reject;
-    std::map<std::string, MetricsObjectPtr> _objects;
+    std::map<std::string, EntryPtr> _objects;
 };
 typedef IceUtil::Handle<MetricsMap> MetricsMapPtr;
 
 class MetricsView : public IceUtil::Shared
 {
 public:
-
+    
     MetricsView();
+
+    void setEnabled(bool enabled)
+    {
+        _enabled = enabled;
+    }
+
+    bool isEnabled() const 
+    {
+        return _enabled;
+    }
 
     void add(const std::string&, const std::string&, const NameValueDict&, const NameValueDict&);
     void remove(const std::string&);
 
     MetricsObjectSeqDict getMetricsObjects() const;
 
-    MetricsObjectPtr getMatching(const std::string&, const MetricsHelper&) const;
+    std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const std::string&, const ObjectHelper&) const;
+
+    std::vector<std::string> getMaps() const;
 
 private:
 
     std::map<std::string, MetricsMapPtr> _maps;
+    bool _enabled;
 };
 typedef IceUtil::Handle<MetricsView> MetricsViewPtr;
 
@@ -85,18 +88,26 @@ class MetricsAdminI : public MetricsAdmin, public IceUtil::Mutex
 {
 public:
 
-    MetricsObjectSeq getMatching(const std::string&, const MetricsHelper&) const;
+    MetricsAdminI(const ::Ice::PropertiesPtr&);
+
+    std::vector<std::pair<MetricsObjectPtr, IceUtil::Mutex*> > getMatching(const std::string&, 
+                                                                           const ObjectHelper&) const;
     void addUpdater(const std::string&, const ObjectObserverUpdaterPtr&);
 
-    virtual MetricsObjectSeqDict getMetrics(const std::string&, const Ice::Current&);
-    virtual MetricsObjectSeqDictDict getAllMetrics(const Ice::Current&);
+    virtual MetricsObjectSeqDict getMetricsMaps(const std::string&, const ::Ice::Current&);
+    virtual MetricsObjectSeqDictDict getAllMetricsMaps(const ::Ice::Current&);
 
-    virtual void addClassToView(const std::string&, const std::string&, const std::string&, const NameValueDict&, 
-                                const NameValueDict&, const Ice::Current&);
+    virtual void addMapToView(const std::string&, const std::string&, const std::string&, const NameValueDict&, 
+                                const NameValueDict&, const ::Ice::Current& = ::Ice::Current());
 
-    virtual void removeClassFromView(const std::string&, const std::string&, const Ice::Current&);
+    virtual void removeMapFromView(const std::string&, const std::string&, const ::Ice::Current&);
+
+    virtual void enableView(const std::string&, const ::Ice::Current&);
+    virtual void disableView(const std::string&, const ::Ice::Current&);
 
 private:
+
+    void setViewEnabled(const std::string&, bool);
 
     std::map<std::string, MetricsViewPtr> _views;
     std::map<std::string, ObjectObserverUpdaterPtr> _updaters;

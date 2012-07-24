@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-module IceMetrics
+module IceMX
 {
 
 class MetricsObject
@@ -36,7 +36,7 @@ interface MetricsAdmin
      * with the view.
      *
      **/
-    MetricsObjectSeqDict getMetrics(string view)
+    MetricsObjectSeqDict getMetricsMaps(string view)
         throws UnknownMetricsView;
 
     /**
@@ -45,37 +45,43 @@ interface MetricsAdmin
      * returns a map of metrics view.
      *
      **/
-    MetricsObjectSeqDictDict getAllMetrics();
+    MetricsObjectSeqDictDict getAllMetricsMaps();
 
     /**
      *
-     * Monitor a new metrics class with the given view.
+     * Add a metrics map to the view.
      *
      **/
-    void addClassToView(string name, string cl, string groupBy, NameValueDict acceptFilter, NameValueDict rejectFilter);
+    void addMapToView(string view, string map, string groupBy, NameValueDict acceptFilter, NameValueDict rejectFilter);
 
     /**
      *
-     * No longer monitor the given metrics class with the given view.
+     * Remove the given map from the given metric view.
      *
      **/
-    void removeClassFromView(string name, string cl)
+    void removeMapFromView(string view, string map)
+        throws UnknownMetricsView;
+
+    /**
+     *
+     * Enable the collection of metrics for the given view.
+     *
+     **/
+    void enableView(string view)
+        throws UnknownMetricsView;
+
+    /**
+     *
+     * Disable the collection of metrics for the given view.
+     *
+     **/
+    void disableView(string view)
         throws UnknownMetricsView;
 };
 
-local interface MetricsViewProvider
+module Ice
 {
-     void addView(string name, string value, NameValueDict accept, NameValueDict reject);
-     void removeView(string name);
-     MetricsObjectSeq getView(string view);
-};
- 
-local interface MetricsViewProviderManager
-{
-     void add(string cl, MetricsViewProvider provider);
-     void remove(string cl);
-};
- 
+
 class ThreadPoolThreadMetricsObject extends MetricsObject
 {
    int inUse;
@@ -107,6 +113,8 @@ class ConnectionMetricsObject extends MetricsObject
 
    long sentBytes;
    long sentTime;
+};
+
 };
 
 };

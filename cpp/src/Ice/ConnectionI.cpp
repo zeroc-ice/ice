@@ -119,14 +119,14 @@ private:
     ConnectionIPtr _connection;
 };
 
-Ice::ConnectionState connectionStateMap[] = {
-    Ice::ConnectionStateInitializing, // StateNotInitialized
-    Ice::ConnectionStateInitializing, // StateNotValidated
-    Ice::ConnectionStateActive,       // StateActive
-    Ice::ConnectionStateHolding,      // StateHolding
-    Ice::ConnectionStateClosing,      // StateClosing
-    Ice::ConnectionStateClosed,       // StateClosed
-    Ice::ConnectionStateClosed,       // StateFinished
+Ice::ObserverConnectionState connectionStateMap[] = {
+    Ice::ObserverConnectionStateInitializing, // StateNotInitialized
+    Ice::ObserverConnectionStateInitializing, // StateNotValidated
+    Ice::ObserverConnectionStateActive,       // StateActive
+    Ice::ObserverConnectionStateHolding,      // StateHolding
+    Ice::ObserverConnectionStateClosing,      // StateClosing
+    Ice::ObserverConnectionStateClosed,       // StateClosed
+    Ice::ObserverConnectionStateClosed,       // StateFinished
 };
 
 }
@@ -445,6 +445,14 @@ Ice::ConnectionI::waitUntilFinished()
     // Clear the OA. See bug 1673 for the details of why this is necessary.
     //
     _adapter = 0;
+}
+
+void
+Ice::ConnectionI::updateObserver()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(_instance->initializationData().observerResolver);
+    _observer = _instance->initializationData().observerResolver->getConnectionObserver(this, _observer);
 }
 
 void
@@ -1908,7 +1916,7 @@ Ice::ConnectionI::ConnectionI(const CommunicatorPtr& communicator,
 
         if(_instance->initializationData().observerResolver)
         {
-            _observer = _instance->initializationData().observerResolver->getConnectionObserver(_observer, this);
+            _observer = _instance->initializationData().observerResolver->getConnectionObserver(this, _observer);
         }
     }
     catch(const IceUtil::Exception&)
@@ -2136,8 +2144,8 @@ Ice::ConnectionI::setState(State state)
 
     if(_observer)
     {
-        Ice::ConnectionState oldState = connectionStateMap[static_cast<int>(_state)];
-        Ice::ConnectionState newState = connectionStateMap[static_cast<int>(state)];
+        Ice::ObserverConnectionState oldState = connectionStateMap[static_cast<int>(_state)];
+        Ice::ObserverConnectionState newState = connectionStateMap[static_cast<int>(state)];
         if(oldState != newState)
         {
             _observer->stateChanged(oldState, newState);

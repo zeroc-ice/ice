@@ -86,6 +86,8 @@ public:
 
     void flushAsyncBatchRequests(const IceInternal::CommunicatorBatchOutgoingAsyncPtr&);
 
+    void updateConnectionObservers();
+
     void incDirectCount();
     void decDirectCount();
 

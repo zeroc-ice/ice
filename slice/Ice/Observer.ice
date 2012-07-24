@@ -23,16 +23,16 @@ local interface ObjectObserver
    void detach();
 };
  
-enum ThreadState
+enum ObserverThreadState
 {
-    ThreadIddle,
+    ThreadIdle,
     ThreadInUse,
     ThreadInUseForIO,
 };
 
 local interface ThreadPoolThreadObserver extends ObjectObserver
 {
-    void stateChanged(ThreadState oldState, ThreadState newState);
+    void stateChanged(ObserverThreadState oldState, ObserverThreadState newState);
 };
  
 local interface RequestObserver extends ObjectObserver
@@ -46,18 +46,18 @@ local interface RequestObserver extends ObjectObserver
    void callTime(long time);
 };
  
-enum ConnectionState
+enum ObserverConnectionState
 {
-    ConnectionStateInitializing,
-    ConnectionStateHolding,
-    ConnectionStateActive,
-    ConnectionStateClosing,
-    ConnectionStateClosed
+    ObserverConnectionStateInitializing,
+    ObserverConnectionStateHolding,
+    ObserverConnectionStateActive,
+    ObserverConnectionStateClosing,
+    ObserverConnectionStateClosed
 };
 
 local interface ConnectionObserver extends ObjectObserver
 {
-    void stateChanged(ConnectionState oldState, ConnectionState newState);
+    void stateChanged(ObserverConnectionState oldState, ObserverConnectionState newState);
     void sentBytes(int num, long duration);
     void receivedBytes(int num, long duration);
 };
@@ -71,13 +71,14 @@ local interface ObserverUpdater
 
 local interface ObserverResolver
 {
-    void setObserverUpdater(ObserverUpdater refresher);
+    void setObserverUpdater(ObserverUpdater updater);
     
-    ConnectionObserver getConnectionObserver(ConnectionObserver old, Connection con);
-    ObjectObserver getThreadObserver(ObjectObserver old, string parent, string id);
-    ThreadPoolThreadObserver getThreadPoolThreadObserver(ThreadPoolThreadObserver old, string parent, string id);
-    RequestObserver getInvocationObserver(RequestObserver old, Object* prx, string operation);
-    RequestObserver getDispatchObserver(RequestObserver old, Object obj, Current c); 
+    ConnectionObserver getConnectionObserver(Connection con, ConnectionObserver old);
+    ObjectObserver getThreadObserver(string parent, string id, ObjectObserver old);
+    ThreadPoolThreadObserver getThreadPoolThreadObserver(string parent, string id, ThreadPoolThreadObserver old);
+
+    RequestObserver getInvocationObserver(Object* prx, string operation);
+    RequestObserver getDispatchObserver(Object obj, Current c); 
 };
     
 };

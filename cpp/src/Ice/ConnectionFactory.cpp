@@ -125,6 +125,14 @@ IceInternal::OutgoingConnectionFactory::destroy()
 }
 
 void
+IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    for_each(_connections.begin(), _connections.end(),
+             Ice::secondVoidMemFun<const ConnectorPtr, ConnectionI>(&ConnectionI::updateObserver));
+}
+
+void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
     multimap<ConnectorPtr, ConnectionIPtr> connections;
@@ -1196,6 +1204,13 @@ IceInternal::IncomingConnectionFactory::destroy()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed);
+}
+
+void
+IceInternal::IncomingConnectionFactory::updateConnectionObservers()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::updateObserver));
 }
 
 void
