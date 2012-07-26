@@ -36,7 +36,9 @@ sqlPassword = None
 serviceDir = None
 compact = False
 silverlight = False
+global winrt
 winrt = False
+global serverOnly
 serverOnly = False
 
 def isCygwin():
@@ -949,7 +951,10 @@ def getCommandLine(exe, config, options = ""):
             props = props + p.strip().replace("--", "")
         output.write("/origin:http://localhost?%s" % props)
     else:
-        output.write(getCommandLineProperties(exe, config) + ' ' + options)
+        if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/"):
+            output.write(' ' + options)
+        else:
+            output.write(getCommandLineProperties(exe, config) + ' ' + options)
 
     commandline = output.getvalue()
     output.close()
@@ -1231,7 +1236,6 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print("ok")
         
-        global serverOnly
         if not serverOnly:
             if clientLang == lang:
                 sys.stdout.write("starting %s... " % clientDesc)
@@ -1579,12 +1583,9 @@ def processCmdLine():
             global silverlight
             silverlight = True
         elif o == "--winrt":
-            global winrt
-            global serverOnly
             winrt = True
             serverOnly = True
         elif o == "--server":
-            global serverOnly
             serverOnly = True
 
     if len(args) > 0:
