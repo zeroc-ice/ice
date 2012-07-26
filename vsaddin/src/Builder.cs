@@ -756,7 +756,7 @@ namespace Ice.VisualStudio
                     string iceHome = Util.getIceHome();
                     foreach(string component in components)
                     {
-                        Util.addDotNetReference(project, component, iceHome, development);
+                        Util.addDotNetReference(project, component, development);
                     }
                 }
                 else if(Util.isVBProject(project))
@@ -774,7 +774,7 @@ namespace Ice.VisualStudio
                     }
                     foreach(string component in components)
                     {
-                        Util.addDotNetReference(project, component, iceHome, development);
+                        Util.addDotNetReference(project, component, development);
                     }
                 }
             }
@@ -844,7 +844,7 @@ namespace Ice.VisualStudio
                 {
                     project = document.ProjectItem.ContainingProject;
                 }
-                catch(COMException)
+                catch(Exception)
                 {
                     //
                     // Expected when documents are created during project initialization
