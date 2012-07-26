@@ -13,7 +13,7 @@ require 'Ice'
 
 slice_dir = Ice.getSliceDir
 Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
-require 'AllTests'
+require './AllTests'
 
 def test(b)
     if !b

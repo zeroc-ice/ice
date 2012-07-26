@@ -313,7 +313,7 @@ IceInternal::TcpTransceiver::finishWrite(Buffer& buf)
         return;
     }
 
-    if(_write.count == SOCKET_ERROR)
+    if(static_cast<int>(_write.count) == SOCKET_ERROR)
     {
         WSASetLastError(_write.error);
         if(connectionLost())
@@ -385,7 +385,7 @@ IceInternal::TcpTransceiver::startRead(Buffer& buf)
 void
 IceInternal::TcpTransceiver::finishRead(Buffer& buf)
 {
-    if(_read.count == SOCKET_ERROR)
+    if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {
         WSASetLastError(_read.error);
         if(connectionLost())

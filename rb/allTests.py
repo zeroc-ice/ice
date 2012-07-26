@@ -35,7 +35,7 @@ tests = [
     ("Ice/location", ["core"]),
     ("Ice/objects", ["core"]),
     ("Ice/proxy", ["core"]),
-    ("Ice/properties", ["once"]),
+    ("Ice/properties", ["once", "nowin32"]),
     ("Ice/operations", ["core"]),
     ("Ice/retry", ["core"]),
     ("Ice/timeout", ["core"]),

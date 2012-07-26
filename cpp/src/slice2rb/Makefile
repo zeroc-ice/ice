@@ -9,7 +9,13 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2rb
+include $(top_srcdir)/config/Make.rules.common
+
+ifeq ($(MinGW), yes)
+	NAME		= $(top_srcdir)/bin/slice2rb.exe
+else
+	NAME		= $(top_srcdir)/bin/slice2rb
+endif
 
 TARGETS		= $(NAME)
 
@@ -21,9 +27,15 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
+ifeq ($(MinGW), yes)
+$(NAME): $(OBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lslice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX) $(BASELIBS) $(MCPP_RPATH_LINK)
+else
 $(NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS) $(MCPP_RPATH_LINK)
+endif
 
 install:: all
 	$(call installprogram,$(NAME),$(install_bindir))

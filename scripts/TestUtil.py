@@ -86,6 +86,10 @@ def getCppCompiler():
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
     return compiler
 
+def isMINGW():
+    if not isWin32():
+        return False
+    return getCppCompiler() == "MINGW"
 
 def isVC6():
     if not isWin32():
@@ -686,7 +690,7 @@ def getGlacier2Router():
     return getIceExe("glacier2router")
 
 def getIceExe(name):
-    if isVC6():
+    if isVC6() or isMINGW():
         return os.path.join(getServiceDir(), name)
     else:
         return os.path.join(getCppBinDir(), name)
@@ -1677,6 +1681,14 @@ def runTests(start, expanded, num = 0, script = False):
 
             if isVC6() and "novc6" in config:
                 print("%s*** test not supported with VC++ 6.0%s" % (prefix, suffix))
+                continue
+
+            if isMINGW() and "nomingw" in config:
+                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
+                continue
+
+            if isWin32() and "nowin32" in config:
+                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
                 continue
 
             # If this is mono and we're running ssl protocol tests

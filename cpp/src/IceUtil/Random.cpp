@@ -44,7 +44,7 @@ namespace
 // 
 Mutex* staticMutex = 0;
 #ifdef _WIN32
-HCRYPTPROV context = NULL;
+HCRYPTPROV context = 0;
 #else
 int fd = -1;
 #endif
@@ -61,10 +61,10 @@ public:
     ~Init()
     {
 #ifdef _WIN32
-        if(context != NULL)
+        if(context != 0)
         {
             CryptReleaseContext(context, 0);
-            context = NULL;
+            context = 0;
         }
 #else
         if(fd != -1)
@@ -102,7 +102,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
     //
 
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
-    if(context == NULL)
+    if(context == 0)
     {
         if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
         {

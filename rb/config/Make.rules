@@ -34,6 +34,13 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #LP64			:= yes
 
 #
+# If you have not built Ice for C++ from the cpp subdirectory or if
+# you have installed the Ice @ver@ for C++ development kit in a
+# non-standard location, set the ICE_HOME to the installation directory. 
+#
+#ICE_HOME	= C:\Program Files\ZeroC\Ice-$(VERSION)
+
+#
 # If the Ruby interpreter is in your PATH, the settings below will
 # work properly in most cases. If you want to use a particular
 # installation of Ruby, set RUBY_HOME with the installation directory.
@@ -45,24 +52,46 @@ else
     RUBY = ruby
 endif
 
-RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
-RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
+ifeq ($(RUBY18), yes)
+	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MAJOR)")')
+	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(MINOR)")')
 
-ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
-    RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
+	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
+	else
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
+							-I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
+	endif
+
+	RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
+
+	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+
+	ifeq ("$(RUBY_SHARED)","yes")
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
+	else
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
+	endif
 else
-    RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)")') \
-                          -I$(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(rubyhdrdir)/$$(arch)")')
-endif
+	RUBY_MAJOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MAJOR)")')
+	RUBY_MINOR_VERSION	= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(MINOR)")')
 
-RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
+	ifeq ("$(RUBY_MAJOR_VERSION).$(RUBY_MINOR_VERSION)", "1.8")
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(archdir)")')
+	else
+		RUBY_FLAGS		= -I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)")') \
+							-I$(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(rubyhdrdir)/$$(arch)")')
+	endif
 
-RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+	RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$$(libdir)")')
 
-ifeq ("$(RUBY_SHARED)","yes")
-    RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)")')
-else
-    RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("-l$$(RUBY_SO_NAME)-static")')
+	RUBY_SHARED		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::MAKEFILE_CONFIG["ENABLE_SHARED"]')
+
+	ifeq ("$(RUBY_SHARED)","yes")
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)")')
+	else
+		RUBY_LIB		= $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("-l$$(RUBY_SO_NAME)-static")')
+	endif
 endif
 
 RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
@@ -85,7 +114,14 @@ RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 #
 ice_language     = rb
 ice_require_cpp  = yes
-slice_translator = slice2rb
+
+include $(top_srcdir)/../cpp/config/Make.rules.common
+
+ifeq ($(MinGW), yes)
+	slice_translator = slice2rb.exe
+else
+	slice_translator = slice2rb
+endif
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
     include $(top_srcdir)/config/Make.common.rules
@@ -93,36 +129,61 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-libdir			= $(top_srcdir)/ruby
+libdir				= $(top_srcdir)/ruby
 install_rubydir		= $(prefix)/ruby
-install_libdir	        = $(prefix)/ruby
+install_libdir		= $(prefix)/ruby
+install_bindir		= $(prefix)/$(binsubdir)
 
 #
 # Platform specific definitions
 #
-ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
-    configdir = $(top_srcdir)/config
+ifeq ($(MinGW), yes)
+	include 	$(top_srcdir)/../cpp/config/Make.rules.MINGW
 else
-    configdir = $(top_srcdir)/../cpp/config
-endif 
-include	 $(configdir)/Make.rules.$(UNAME)
+	ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
+		configdir = $(top_srcdir)/config
+	else
+		configdir = $(top_srcdir)/../cpp/config
+	endif 
+	include	 $(configdir)/Make.rules.$(UNAME)
+endif
 
-ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
-    else
-        ICE_LIB_DIR = -L$(ice_cpp_dir)/$(libsubdir)
-    endif
-    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+ifeq ($(MinGW), yes)
+	ice_cpp_dir_win := $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(ice_cpp_dir))
+	ifdef ice_src_dist
+		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+			ICE_BIN_DIR	= -L"$(ice_cpp_dir_win)/bin"
+	    else
+			ICE_BIN_DIR	= -L"$(ice_cpp_dir_win)/$(binsubdir)"
+	    endif
+		ICE_FLAGS 	= -I"$(ice_cpp_dir_win)\include"
+	endif
+
+	ifdef ice_bin_dist
+		ice_dir_win	:= $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(ice_dir))
+		ICE_BIN_DIR	= -L"$(ice_dir_win)/$(binsubdir)"
+		ICE_FLAGS	= -I"$(ice_dir_win)/include"
+	endif
+	ICE_LIBS = $(ICE_BIN_DIR) -l$(ICE_LIBNAME) -l$(SLICE_LIBNAME) -l$(ICEUTIL_LIBNAME)
+else
+	ifdef ice_src_dist
+		ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+			ICE_LIB_DIR = -L$(ice_cpp_dir)/lib
+	    else
+			ICE_LIB_DIR 	= -L$(ice_cpp_dir)/$(libsubdir)
+	    endif
+	    ICE_FLAGS 	= -I$(ice_cpp_dir)/include
+	endif
+	ifdef ice_bin_dist
+		ICE_LIB_DIR 	= -L$(ice_dir)/$(libsubdir)
+		ICE_FLAGS	= -I$(ice_dir)/include
+	endif
+	ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
 endif
-ifdef ice_bin_dist
-    ICE_LIB_DIR = -L$(ice_dir)/$(libsubdir)
-    ICE_FLAGS	= -I$(ice_dir)/include
-endif
-ICE_LIBS = $(ICE_LIB_DIR) -lIce -lSlice -lIceUtil
+
 
 ifneq ($(embedded_runpath_prefix),)
-   runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
+	runpath_libdir	:= $(embedded_runpath_prefix)/$(libsubdir)
 endif
 
 CPPFLAGS		=
@@ -131,16 +192,28 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 ifdef ice_src_dist
-    ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
-        SLICE2RB 	= $(ice_cpp_dir)/bin/slice2rb
-	SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
-    else
-        SLICE2RB 	= $(ice_cpp_dir)/$(binsubdir)/slice2rb
-	SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    endif
+	ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
+		ifeq ($(MinGW), yes)
+			SLICEPARSERLIB	= $(ice_cpp_dir)/bin/$(SLICE_LIBNAME).dll
+		else
+			SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+		endif
+		SLICE2RB		= $(ice_cpp_dir)/bin/$(slice_translator)
+	else
+		ifeq ($(MinGW), yes)
+			SLICEPARSERLIB	= $(ice_cpp_dir)/$(binsubdir)/$(SLICE_LIBNAME).dll
+		else
+			SLICEPARSERLIB	= $(ice_cpp_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+		endif
+		SLICE2RB		= $(ice_cpp_dir)/$(binsubdir)/$(slice_translator)
+	endif
 else
-    SLICE2RB 		= $(ice_dir)/$(binsubdir)/slice2rb
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	ifeq ($(MinGW), yes)
+		SLICEPARSERLIB	= $(ice_dir)/$(binsubdir)/$(SLICE_LIBNAME).dll
+	else
+		SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+	endif
+	SLICE2CPP		= $(ice_dir)/$(binsubdir)/$(slice_translator)
 endif
 
 #

@@ -86,7 +86,6 @@ private:
 #else
     void* _hnd;
 #endif
-
     std::string _err;
     const Ice::StringConverterPtr _stringConverter;
 };

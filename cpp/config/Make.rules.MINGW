@@ -1,0 +1,56 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2011 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules when building with MinGW.
+#
+
+#
+# build with CygWin MinGW?
+#
+#ifeq ($(CygWin), yes)
+#   CXX         = i686-pc-mingw32-c++
+#endif
+
+#
+# Default compiler is c++ (aka g++).
+#
+ifeq ($(CXX),)
+   CXX          = c++
+endif
+
+CXXFLAGS        = $(CXXARCHFLAGS) -fexceptions -mthreads -Wall -DWIN32_LEAN_AND_MEAN
+LDFLAGS         = -Wl,-no-undefined 
+
+ifeq ($(CXX), i686-pc-mingw32-c++)
+    LDPLATFORMFLAGS := $(LDFLAGS) -static-libstdc++ -static-libgcc
+endif
+
+ifeq ($(OPTIMIZE),yes)
+	CXXFLAGS		+= -O2 -DNDEBUG
+else
+	CXXFLAGS		+= -g -D_DEBUG
+	LIBSUFFIX		= d
+endif
+
+COMPSUFFIX			= mingw_
+
+#
+# MinGW lib names
+#
+ICEUTIL_LIBNAME		= iceutil$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
+SLICE_LIBNAME		= slice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
+ICE_LIBNAME			= ice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
+ICESSL_LIBNAME  	= icessl$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
+
+BASELIBS			= -l$(ICEUTIL_LIBNAME)
+LIBS				= -l$(ICE_LIBNAME) $(BASELIBS)
+ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
+ICE_OS_LIBS			= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
+

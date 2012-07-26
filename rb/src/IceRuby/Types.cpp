@@ -840,11 +840,7 @@ IceRuby::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, VALU
         {
             seq[i] = RTEST(RARRAY_PTR(arr)[i]);
         }
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        os->writeBoolSeq(seq);
-#else
         os->write(seq);
-#endif
         break;
     }
     case PrimitiveInfo::KindByte:

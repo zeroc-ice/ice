@@ -852,7 +852,16 @@ Ice::Service::main(int argc, char* const argv[], const InitializationData& initi
 int
 Ice::Service::main(int& argc, wchar_t* argv[], const InitializationData& initializationData)
 {
+
+#   ifdef __MINGW32__ // COMPILER FIX
+    //
+    // MinGW doesn't see the main overload if we don't create the temp args object here.
+    //
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv, initializationData.stringConverter);
+    return main(args, initializationData);
+#   else
     return main(Ice::argsToStringSeq(argc, argv, initializationData.stringConverter), initializationData);
+#   endif
 }
 
 #endif

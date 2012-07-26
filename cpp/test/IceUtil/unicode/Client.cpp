@@ -23,7 +23,8 @@ using namespace std;
 // converts these BOMs back and forth.
 //
 
-#ifdef _WIN32
+//COMPILERFIX: MINGW doesn't support wmain for console applications.
+#if defined(_WIN32) && !defined(__MINGW32__)
 
 int
 wmain(int argc, wchar_t* argv[])
@@ -40,7 +41,12 @@ main(int argc, char* argv[])
     if(argc > 1)
     {
 #ifdef _WIN32 
+
+#   ifdef __MINGW32__
+        dir = argv[1];
+#   else
         dir = IceUtil::wstringToString(argv[1]);
+#   endif
         dir += "\\";
 #else
         dir = argv[1];
@@ -174,6 +180,7 @@ main(int argc, char* argv[])
         cout << "ok" << endl;
     }
 
+#ifndef __MINGW32__
     {
         cout << "testing UTF-8 filename... ";
         IceUtilInternal::ifstream fn(dir + "filename.txt");
@@ -200,11 +207,11 @@ main(int argc, char* argv[])
 
         int fd = IceUtilInternal::open(filepath, O_RDONLY);
         test(fd > 0);
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#   if defined(_MSC_VER) && (_MSC_VER >= 1400)
         test(_close(fd) == 0);
-#else
+#   else
         test(close(fd) == 0);
-#endif
+#   endif
 
         FILE* f = IceUtilInternal::fopen(filepath, "r");
         test(f != 0);
@@ -245,5 +252,6 @@ main(int argc, char* argv[])
         
         cout << "ok" << endl;
     }
+#endif
     return EXIT_SUCCESS;
 }

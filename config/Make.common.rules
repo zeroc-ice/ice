@@ -73,6 +73,25 @@ else
     binsubdir		  := bin
 endif
 
+
+ifeq ($(MinGW), yes)
+	ifneq ($(ICE_HOME), )
+		tmp = $(shell $(top_srcdir)/../cpp/config/cygpath-unix.sh "$(ICE_HOME)")
+		ifeq ($(shell test -d $(tmp) && echo 0), 0)
+			ICE_HOME		:=  $(shell $(top_srcdir)/../cpp/config/cygpath-unix.sh "$(ICE_HOME)")
+			ICE_HOME_WIN	:=  $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh "$(ICE_HOME)")
+		endif
+	endif
+	ifneq ($(prefix),)
+		prefix		:=  $(shell $(top_srcdir)/../cpp/config/cygpath-unix.sh "$(prefix)")
+	endif
+	ifeq ($(THIRDPARTY_HOME),)
+		THIRDPARTY_HOME		= $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
+	endif 
+	THIRDPARTY_HOME		:=  $(shell $(top_srcdir)/../cpp/config/cygpath-unix.sh "$(THIRDPARTY_HOME)")
+	THIRDPARTY_HOME_WIN	=  $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(THIRDPARTY_HOME))
+endif
+
 #
 # The following variables might also be defined:
 # 

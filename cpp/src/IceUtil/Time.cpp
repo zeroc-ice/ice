@@ -95,8 +95,13 @@ IceUtil::Time::now(Clock clock)
     if(clock == Realtime)
     {
 #ifdef _WIN32
+#  if defined(_MSC_VER)
         struct _timeb tb;
         _ftime(&tb);
+#  elif defined(__MINGW32__)
+        struct timeb tb;
+        ftime(&tb);
+#  endif
         return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
 #else
         struct timeval tv;
@@ -123,8 +128,13 @@ IceUtil::Time::now(Clock clock)
         }
         else
         {
+#  if defined(_MSC_VER)
             struct _timeb tb;
             _ftime(&tb);
+#  elif defined(__MINGW32__)
+            struct timeb tb;
+            ftime(&tb);
+#  endif
             return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + tb.millitm * 1000);
         }
 #elif defined(__hpux)

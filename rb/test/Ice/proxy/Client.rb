@@ -16,7 +16,7 @@ if slice_dir.empty?
 end
 
 Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
-require 'AllTests'
+require './AllTests'
 
 def test(b)
     if !b

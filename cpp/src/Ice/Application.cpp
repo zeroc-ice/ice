@@ -141,7 +141,7 @@ destroyOnInterruptCallback(int signal)
             //
             return;
         }
-        if(_nohup && signal == SIGHUP)
+        if(_nohup && signal == static_cast<int>(SIGHUP))
         {
             return;
         }
@@ -197,7 +197,7 @@ shutdownOnInterruptCallback(int signal)
             //
             return;
         }
-        if(_nohup && signal == SIGHUP)
+        if(_nohup && signal == static_cast<int>(SIGHUP))
         {
             return;
         }
