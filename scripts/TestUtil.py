@@ -204,7 +204,7 @@ def configurePaths():
                     libDir = os.path.join(libDir, "sparcv9")
                 else:
                     libDir = os.path.join(libDir, "amd64")
-            else:
+            elif not isDarwin():
                 libDir = libDir + "64"
     addLdPath(libDir)
 
@@ -898,6 +898,13 @@ def getCommandLineProperties(exe, config):
 
 def getCommandLine(exe, config, options = ""):
 
+    arch = ""
+    if isDarwin() and config.lang == "cpp":
+        if x64:
+            arch = "arch -x86_64 "
+        else:
+            arch = "arch -i386 "
+
     output = getStringIO()
 
     if config.mono and config.lang == "cs":
@@ -926,12 +933,12 @@ def getCommandLine(exe, config, options = ""):
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
         output.write("valgrind -q --child-silent-after-fork=yes --leak-check=full ")
-        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" "' + exe + '" ')
+        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" ' + arch + '"' + exe + '" ')
     else:
         if exe.find(" ") != -1:
-            output.write('"' + exe + '" ')
+            output.write(arch + '"' + exe + '" ')
         else:
-            output.write(exe + " ")
+            output.write(arch + exe + " ")
 
     if (config.silverlight and config.type == "client"):
         properties = getCommandLineProperties(exe, config) + ' ' + options
@@ -1314,15 +1321,13 @@ def simpleTest(exe = None, options = ""):
         setAppVerifierSettings([quoteArgument(exe)])
     lang = getDefaultMapping()
     config = None
-    if lang != "cpp":
-      config = DriverConfig("client")
-      config.lang = lang
+
+    config = DriverConfig("client")
+    config.lang = lang
 
     sys.stdout.write("starting client... ")
     sys.stdout.flush()
-    command  = exe + ' ' + options
-    if lang != "cpp":
-      command = getCommandLine(exe, config, options)
+    command = getCommandLine(exe, config, options)
     client = spawnClient(command, startReader = False, lang = lang)
     print("ok")
     client.startReader()
