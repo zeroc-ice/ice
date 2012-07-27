@@ -17,6 +17,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>
 #include <Ice/ReplyStatus.h>
+#include <Ice/Observer.h>
 
 using namespace std;
 using namespace Ice;
@@ -89,6 +90,30 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _sent(false)
 { 
+    const ObserverResolverPtr& resolver = _handler->getReference()->getInstance()->initializationData().observerResolver;
+    if(resolver)
+    {
+        try
+        {
+            _observer = resolver->getInvocationObserver(handler->getProxy(), 
+                                                        operation, 
+                                                        *context, 
+                                                        handler->getConnection(false));
+        }
+        catch(const Ice::LocalException&)
+        {
+            //
+            // Ignore: can be raised by getConnection is no connection could be obtained,
+            // the request will be re-tried in this case.
+            //
+        }
+
+        if(_observer)
+        {
+            _observer->attach();
+        }
+    }
+
     switch(_handler->getReference()->getMode())
     {
         case Reference::ModeTwoway:
@@ -155,6 +180,14 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     catch(const LocalException& ex)
     {
         abort(ex);
+    }
+}
+
+Outgoing::~Outgoing()
+{
+    if(_observer)
+    {
+        _observer->detach();
     }
 }
 
@@ -368,12 +401,20 @@ IceInternal::Outgoing::finished(BasicStream& is)
     {
         case replyOK:
         {
+            if(_observer)
+            {
+                _observer->responseOK();
+            }
             _state = StateOK; // The state must be set last, in case there is an exception.
             break;
         }
         
         case replyUserException:
         {
+            if(_observer)
+            {
+                _observer->responseUserException();
+            }
             _state = StateUserException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -382,6 +423,11 @@ IceInternal::Outgoing::finished(BasicStream& is)
         case replyFacetNotExist:
         case replyOperationNotExist:
         {
+            if(_observer)
+            {
+                _observer->responseRequestFailedException();
+            }
+
             //
             // Don't read the exception members directly into the
             // exception. Otherwise if reading fails and raises an
@@ -450,6 +496,11 @@ IceInternal::Outgoing::finished(BasicStream& is)
         case replyUnknownLocalException:
         case replyUnknownUserException:
         {
+            if(_observer)
+            {
+                _observer->responseUnknownException();
+            }
+
             //
             // Don't read the exception members directly into the
             // exception. Otherwise if reading fails and raises an
@@ -496,6 +547,10 @@ IceInternal::Outgoing::finished(BasicStream& is)
         
         default:
         {
+            if(_observer)
+            {
+                _observer->responseUnknownException();
+            }
             _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
             _state = StateLocalException;
             break;
@@ -521,12 +576,20 @@ IceInternal::Outgoing::throwUserException()
 {
     try
     {
+        if(_observer)
+        {
+            _watch.start();
+        }
         _is.startReadEncaps();
         _is.throwException();
     }
     catch(const Ice::UserException&)
     {
         _is.endReadEncaps();
+        if(_observer)
+        {
+            _observer->unmarshalTime(_watch.stop());
+        }
         throw;
     }
 }

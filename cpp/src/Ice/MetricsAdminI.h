@@ -12,11 +12,15 @@
 
 #include <Ice/Metrics.h>
 #include <Ice/Properties.h>
-
-#include <Ice/MetricsObserverI.h>
+#include <Ice/Initialize.h>
 
 namespace IceMX
 {
+
+class ObjectObserverUpdater;
+typedef IceUtil::Handle<ObjectObserverUpdater> ObjectObserverUpdaterPtr;
+
+class ObjectHelper;
 
 class MetricsMap : public IceUtil::Shared
 {
@@ -34,18 +38,19 @@ class MetricsMap : public IceUtil::Shared
 
 public:
 
-    MetricsMap(const std::string&, const NameValueDict&, const NameValueDict&);
+    MetricsMap(const std::string&, bool, const NameValueDict&, const NameValueDict&);
 
     void destroy();
 
-    MetricsObjectSeq getMetricsObjects() const;
+    MetricsObjectSeq getMetricsObjects();
 
     std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const ObjectHelper&);
 
 private:
 
-    const std::vector<std::string> _groupByAttributes;
-    const std::vector<std::string> _groupBySeparators;
+    std::vector<std::string> _groupByAttributes;
+    std::vector<std::string> _groupBySeparators;
+    bool _reap;
     const NameValueDict _accept;
     const NameValueDict _reject;
     std::map<std::string, EntryPtr> _objects;
@@ -68,10 +73,10 @@ public:
         return _enabled;
     }
 
-    void add(const std::string&, const std::string&, const NameValueDict&, const NameValueDict&);
+    void add(const std::string&, const std::string&, bool, const NameValueDict&, const NameValueDict&);
     void remove(const std::string&);
 
-    MetricsObjectSeqDict getMetricsObjects() const;
+    MetricsObjectSeqDict getMetricsObjects();
 
     std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const std::string&, const ObjectHelper&) const;
 
@@ -88,7 +93,7 @@ class MetricsAdminI : public MetricsAdmin, public IceUtil::Mutex
 {
 public:
 
-    MetricsAdminI(const ::Ice::PropertiesPtr&);
+    MetricsAdminI(::Ice::InitializationData&);
 
     std::vector<std::pair<MetricsObjectPtr, IceUtil::Mutex*> > getMatching(const std::string&, 
                                                                            const ObjectHelper&) const;
@@ -97,7 +102,7 @@ public:
     virtual MetricsObjectSeqDict getMetricsMaps(const std::string&, const ::Ice::Current&);
     virtual MetricsObjectSeqDictDict getAllMetricsMaps(const ::Ice::Current&);
 
-    virtual void addMapToView(const std::string&, const std::string&, const std::string&, const NameValueDict&, 
+    virtual void addMapToView(const std::string&, const std::string&, const std::string&, bool, const NameValueDict&, 
                                 const NameValueDict&, const ::Ice::Current& = ::Ice::Current());
 
     virtual void removeMapFromView(const std::string&, const std::string&, const ::Ice::Current&);
@@ -112,6 +117,7 @@ private:
     std::map<std::string, MetricsViewPtr> _views;
     std::map<std::string, ObjectObserverUpdaterPtr> _updaters;
 };
+typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 
 };
 

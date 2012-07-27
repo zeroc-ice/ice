@@ -62,7 +62,6 @@ private:
     const std::string _mcastInterface;
     const Ice::Int _mcastTtl;
     const bool _connect;
-    const std::string _connectionId;
     const bool _compress;
 };
 

@@ -295,6 +295,13 @@ generated from the section label.
         <suffix name="ThreadPool" class="deprecatedthreadpool"/>
     </class>
 
+    <class name="mx" prefix-only="false">
+        <suffix name="GroupBy" />
+        <suffix name="Reaper" />
+        <suffix name="Accept" />
+        <suffix name="Reject" />
+    </class>
+
     <section name="Ice">
         <property name="ACM.Client" />
         <property name="ACM.Server" />
@@ -377,6 +384,10 @@ generated from the section label.
         <property name="Warn.UnknownProperties" />
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
+    </section>
+
+    <section name="IceMX">
+        <property name="MetricsView.[any]" class="mx" />
     </section>
 
     <section name="IceBox">

@@ -16,7 +16,7 @@ module Ice
 
 local interface ObjectObserver;
 local interface ThreadPoolThreadObserver;
-local interface Requesttats;
+local interface RequestObserver;
 local interface ConnectionObserver;
 
 local interface ObserverResolver;

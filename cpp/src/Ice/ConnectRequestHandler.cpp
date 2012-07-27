@@ -293,6 +293,12 @@ ConnectRequestHandler::getConnection(bool waitInit)
     }
 }
 
+IceProxy::Ice::Object*
+ConnectRequestHandler::getProxy() const
+{
+    return _proxy.get();
+}
+
 void
 ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool compress)
 {

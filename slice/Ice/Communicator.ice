@@ -13,6 +13,7 @@
 
 #include <Ice/LoggerF.ice>
 #include <Ice/StatsF.ice>
+#include <Ice/ObserverF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/RouterF.ice>
@@ -380,6 +381,17 @@ local interface Communicator
      *
      **/
     ["cpp:const"] Stats getStats();
+
+    /**
+     *
+     * Get the observer resolver object for this communicator.
+     *
+     * @return This communicator's observer resolver object.
+     *
+     * @see Stats
+     *
+     **/
+    ["cpp:const"] ObserverResolver getObserverResolver();
 
     /**
      *

@@ -71,6 +71,7 @@ OBJS		= Acceptor.o \
 		  ObjectFactory.o \
 		  Object.o \
 		  Observer.o \
+		  ObserverI.o \
 		  OpaqueEndpointI.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \

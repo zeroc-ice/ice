@@ -18,6 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/StatsF.h>
+#include <Ice/ObserverF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
@@ -98,6 +99,7 @@ public:
     void setWstringConverter(const Ice::WstringConverterPtr&);
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);
+    void setObserverResolver(const Ice::ObserverResolverPtr&);
 
 private:
 

@@ -35,10 +35,18 @@ public:
     virtual AsyncStatus flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&);
 
     virtual Ice::ConnectionIPtr getConnection(bool);
+    virtual IceProxy::Ice::Object* getProxy() const;
 
 private:
 
     Ice::ConnectionIPtr _connection;
+    //
+    // We don't use a smart pointer to avoid cyclic reference
+    // counts. The lifetime of the request handler is always smaller
+    // than the proxy so the proxy pointer should always be valid. The
+    // instrumentation code needs this proxy.
+    //
+    IceProxy::Ice::Object* _proxy; 
     bool _compress;
 };
 

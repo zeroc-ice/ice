@@ -57,6 +57,12 @@ IceInternal::EndpointI::protocol() const
     return _protocol;
 }
 
+const string&
+IceInternal::EndpointI::connectionId() const
+{
+    return _connectionId;
+}
+
 Ice::Int
 IceInternal::EndpointI::ice_getHash() const
 {
@@ -79,9 +85,12 @@ IceInternal::EndpointI::connectors(const vector<Address>& addrs) const
     return vector<ConnectorPtr>();
 }
 
-IceInternal::EndpointI::EndpointI(const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding) : 
+IceInternal::EndpointI::EndpointI(const Ice::ProtocolVersion& protocol, 
+                                  const Ice::EncodingVersion& encoding, 
+                                  const std::string& connectionId) : 
     _protocol(protocol),
     _encoding(encoding), 
+    _connectionId(connectionId),
     _hashInitialized(false)
 {
 }

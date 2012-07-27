@@ -19,7 +19,8 @@ using namespace std;
 using namespace IceInternal;
 
 ConnectionRequestHandler::ConnectionRequestHandler(const ReferencePtr& reference, const Ice::ObjectPrx& proxy) :
-    RequestHandler(reference)
+    RequestHandler(reference),
+    _proxy(proxy.get())
 {
 // COMPILERFIX: Without the catch/rethrow C++Builder 2007 can get access violations.
 #ifdef __BCPLUSPLUS__ 
@@ -103,4 +104,10 @@ Ice::ConnectionIPtr
 ConnectionRequestHandler::getConnection(bool wait)
 {
     return _connection;
+}
+
+IceProxy::Ice::Object*
+ConnectionRequestHandler::getProxy() const
+{
+    return _proxy;
 }

@@ -38,6 +38,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/Observer.h>
 
+#include <Ice/MetricsAdminI.h>
+
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -774,6 +776,15 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
     _initData.threadHook = threadHook;
 }
 
+void
+IceInternal::Instance::setObserverResolver(const Ice::ObserverResolverPtr& observerResolver)
+{
+    //
+    // No locking, as it can only be called during plug-in loading
+    //
+    _initData.observerResolver = observerResolver;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
@@ -1052,6 +1063,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", new IceMX::MetricsAdminI(_initData)));
 
         __setNoDelete(false);
     }
@@ -1110,11 +1122,6 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::finishSetup(int& argc, char* argv[])
 {
-    if(_initData.observerResolver)
-    {
-        _initData.observerResolver->setObserverUpdater(new ObserverUpdaterI(this));
-    }
-
     //
     // Load plug-ins.
     //
@@ -1122,6 +1129,14 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+    //
+    // Set observer updater
+    //
+    if(_initData.observerResolver)
+    {
+        _initData.observerResolver->setObserverUpdater(new ObserverUpdaterI(this));
+    }
 
     //
     // Create threads.

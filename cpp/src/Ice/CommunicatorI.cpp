@@ -258,6 +258,12 @@ Ice::CommunicatorI::getStats() const
     return _instance->initializationData().stats;
 }
 
+ObserverResolverPtr
+Ice::CommunicatorI::getObserverResolver() const
+{
+    return _instance->initializationData().observerResolver;
+}
+
 RouterPrx
 Ice::CommunicatorI::getDefaultRouter() const
 {

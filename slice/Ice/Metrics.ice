@@ -13,8 +13,8 @@ module IceMX
 class MetricsObject
 {
     string id;
-    int total;
-    int current;
+    int total = 0;
+    int current = 0;
 };
 
 sequence<MetricsObject> MetricsObjectSeq;
@@ -52,7 +52,8 @@ interface MetricsAdmin
      * Add a metrics map to the view.
      *
      **/
-    void addMapToView(string view, string map, string groupBy, NameValueDict acceptFilter, NameValueDict rejectFilter);
+    void addMapToView(string view, string map, string groupBy, bool reap, NameValueDict acceptFilter, 
+                      NameValueDict rejectFilter);
 
     /**
      *
@@ -79,42 +80,36 @@ interface MetricsAdmin
         throws UnknownMetricsView;
 };
 
-module Ice
+class ThreadMetricsObject extends MetricsObject
 {
-
-class ThreadPoolThreadMetricsObject extends MetricsObject
-{
-   int inUse;
-   int inUseForIO;
+    int inUseForIO = 0;
+    int inUseForUser = 0;
+    int inUseForMisc = 0;
 };
-  
+
 class RequestMetricsObject extends MetricsObject
 {
-   int responseOK;
-   int responseUserException;
-   int responseSytemException;
-   int failure;
-
-   long marshalTime;
-   long unmarshalTime;
-   long time;
+    int ok = 0;
+    int responseUserException = 0;
+    int responseRequestFailedException = 0;
+    int responseUnknownException = 0;
+    
+    long duration = 0;
 };
-  
+
 class ConnectionMetricsObject extends MetricsObject
 {
-   int initializing;
-   int holding;
-   int active;
-   int closing;
-   int closed;
+   int initializing = 0;
+   int holding = 0;
+   int active = 0;
+   int closing = 0;
+   int closed = 0;
 
-   long receivedBytes;
-   long receivedTime;
+   long receivedBytes = 0;
+   long receivedTime = 0;
 
-   long sentBytes;
-   long sentTime;
-};
-
+   long sentBytes = 0;
+   long sentTime = 0;
 };
 
 };

@@ -25,7 +25,7 @@ const Ice::EncodingVersion Encoding_0_0 = { 0, 0 };
 }
 
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
-    EndpointI(Protocol_0_0, Encoding_0_0),
+    EndpointI(Protocol_0_0, Encoding_0_0, ""),
     _rawEncoding(Ice::currentEncoding)
 {
     const string delim = " \t\n\r";
@@ -183,7 +183,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) :
 }
 
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) :
-    EndpointI(Protocol_0_0, Encoding_0_0),
+    EndpointI(Protocol_0_0, Encoding_0_0, ""),
     _type(type)
 {
     _rawEncoding = s->startReadEncaps();

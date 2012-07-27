@@ -25,18 +25,17 @@ using namespace IceSSL;
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, 
                              const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding, 
                              const string& conId, bool co) :
-    IceInternal::EndpointI(protocol, encoding),
+    IceInternal::EndpointI(protocol, encoding, conId),
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _connectionId(conId),
     _compress(co)
 {
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    IceInternal::EndpointI(Ice::currentProtocol, instance->defaultEncoding()),
+    IceInternal::EndpointI(Ice::currentProtocol, instance->defaultEncoding(), ""),
     _instance(instance),
     _port(0),
     _timeout(-1),

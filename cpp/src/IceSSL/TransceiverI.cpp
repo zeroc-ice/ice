@@ -890,46 +890,50 @@ IceSSL::TransceiverI::~TransceiverI()
 NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
-    assert(_fd != INVALID_SOCKET && _ssl != 0);
+    assert(_fd != INVALID_SOCKET);
 
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
     IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
 
-    //
-    // On the client side, SSL_get_peer_cert_chain returns the entire chain of certs.
-    // On the server side, the peer certificate must be obtained separately.
-    //
-    // Since we have no clear idea whether the connection is server or client side,
-    // the peer certificate is obtained separately and compared against the first
-    // certificate in the chain. If they are not the same, it is added to the chain.
-    //
-    X509* cert = SSL_get_peer_certificate(_ssl);
-    STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
-    if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
+    if(_ssl != 0)
     {
-        CertificatePtr certificate = new Certificate(cert);
-        info->nativeCerts.push_back(certificate);
-        info->certs.push_back(certificate->encode());
-    }
-    else
-    {
-        X509_free(cert);
-    }
-
-    if(chain != 0)
-    {
-        for(int i = 0; i < sk_X509_num(chain); ++i)
+        //
+        // On the client side, SSL_get_peer_cert_chain returns the entire chain of certs.
+        // On the server side, the peer certificate must be obtained separately.
+        //
+        // Since we have no clear idea whether the connection is server or client side,
+        // the peer certificate is obtained separately and compared against the first
+        // certificate in the chain. If they are not the same, it is added to the chain.
+        //
+        X509* cert = SSL_get_peer_certificate(_ssl);
+        STACK_OF(X509)* chain = SSL_get_peer_cert_chain(_ssl);
+        if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
         {
-            //
-            // Duplicate the certificate since the stack comes straight from the SSL connection.
-            //
-            CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
+            CertificatePtr certificate = new Certificate(cert);
             info->nativeCerts.push_back(certificate);
             info->certs.push_back(certificate->encode());
         }
+        else
+        {
+            X509_free(cert);
+        }
+        
+        if(chain != 0)
+        {
+            for(int i = 0; i < sk_X509_num(chain); ++i)
+            {
+                //
+                // Duplicate the certificate since the stack comes straight from the SSL connection.
+                //
+                CertificatePtr certificate = new Certificate(X509_dup(sk_X509_value(chain, i)));
+                info->nativeCerts.push_back(certificate);
+                info->certs.push_back(certificate->encode());
+            }
+        }
+
+        info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
     }
 
-    info->cipher = SSL_get_cipher_name(_ssl); // Nothing needs to be free'd.
     info->adapterName = _adapterName;
     info->incoming = _incoming;
     return info;

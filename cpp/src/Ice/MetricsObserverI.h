@@ -7,19 +7,17 @@
 //
 // **********************************************************************
 
-#ifndef ICE_METRICSSTATS_I_H
-#define ICE_METRICSSTATS_I_H
+#ifndef ICE_METRICSOBSERVER_I_H
+#define ICE_METRICSOBSERVER_I_H
 
 #include <Ice/Observer.h>
 #include <Ice/Metrics.h>
 
+#include <Ice/MetricsAdminI.h>
 #include <Ice/MetricsFunctional.h>
 
 namespace IceMX
 {
-
-class MetricsAdminI;
-typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 
 typedef std::vector<std::pair<IceMX::MetricsObjectPtr, IceUtil::Mutex*> > MetricsObjectAndLockSeq;
 
@@ -40,32 +38,21 @@ public:
 };
 typedef IceUtil::Handle<ObjectObserverUpdater> ObjectObserverUpdaterPtr;
 
-template<class T> class ObjectObserverT : virtual public ::Ice::ObjectObserver
+template<class ObjectMetricsType> class ObjectObserverT : virtual public ::Ice::ObjectObserver
 {
 public:
 
-    typedef T Type;
-    typedef IceUtil::Handle<T> PtrType;
+    typedef ObjectMetricsType Type;
+    typedef IceInternal::Handle<ObjectMetricsType> PtrType;
     typedef std::vector<std::pair<PtrType, IceUtil::Mutex*> > SeqType;
 
-
-    ObjectObserverT(const MetricsObjectAndLockSeq& objects)
+    ObjectObserverT()
     {
-        for(MetricsObjectAndLockSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
-        {
-            _objects.push_back(std::make_pair(PtrType::dynamicCast(p->first), p->second));
-        }
     }
 
     virtual void 
     attach()
     {
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
-        {
-            IceUtil::Mutex::Lock sync(*p->second);
-            ++p->first->total;
-            ++p->first->current;
-        }
     }
 
     virtual void 
@@ -83,29 +70,33 @@ public:
             func(p->first);
         }
     }
-
-    void
-    update(ObjectObserverT* old)
+    
+    template<typename ObjectHelper> void
+    update(const ObjectHelper& helper, const MetricsObjectAndLockSeq& objects)
     {
-        typename SeqType::const_iterator p = _objects.begin();
-        typename SeqType::const_iterator q = old->_objects.begin();
-        while(p != _objects.end())
+        typename MetricsObjectAndLockSeq::const_iterator p = objects.begin();
+        typename SeqType::iterator q = _objects.begin();
+        while(p != objects.end())
         {
-            if(q == old->_objects.end() || p->first < q->first) // New metrics object
+            if(q == _objects.end() || p->first.get() < static_cast<MetricsObject*>(q->first.get())) // New metrics object
             {
                 IceUtil::Mutex::Lock sync(*p->second);
                 ++p->first->total;
                 ++p->first->current;
+                PtrType v = PtrType::dynamicCast(p->first);
+                helper.initMetricsObject(v);
+                q = _objects.insert(q, std::make_pair(v, p->second));
                 ++p;
+                ++q;
             }
-            else if(p->first == q->first) // Same metrics object
+            else if(p->first.get() == static_cast<MetricsObject*>(q->first.get())) // Same metrics object
             {
                 ++p;
                 ++q;
             }
             else // Removed metrics object
             {
-                ++q;
+                q = _objects.erase(q);
             }
         }
     }
@@ -123,146 +114,199 @@ public:
     {
         return new T();
     }
-};
 
-template<typename Helper> class ObjectAttributeResolverT
-{
-    class Resolver
+    virtual void initMetricsObject(const IceInternal::Handle<T>&) const
     {
-    public:
-        virtual ~Resolver() { }
-        virtual std::string operator()(const Helper* h) const = 0;
-    };
-
-public:
-
-    ~ObjectAttributeResolverT()
-    {
-        for(typename std::map<std::string, Resolver*>::iterator p = _attributes.begin(); p != _attributes.end(); ++p)
-        {
-            delete p->second;
-        }
-    }
-
-    std::string operator()(const Helper* helper, const std::string& attribute) const
-    {
-        typename std::map<std::string, Resolver*>::const_iterator p = _attributes.find(attribute);
-        if(p == _attributes.end())
-        {
-            return "unknown";
-        }
-        return (*p->second)(helper);
+        // To be overriden in specialization to initialize state attributes
     }
 
 protected:
 
-    template<class T, typename O, typename Y> void
-    add(const std::string& name, O* (Helper::*getFn)() const, Y T::*member)
+    template<typename Helper> class AttributeResolverT
     {
-        _attributes.insert(make_pair(name,  new MemberResolver<T, O, Y>(getFn, member)));
-    }
+        class Resolver
+        {
+        public:
+            virtual ~Resolver() { }
+            virtual std::string operator()(const Helper* h) const = 0;
+        };
 
-    template<class T, typename O, typename Y> void
-    add(const std::string& name, O* (Helper::*getFn)() const, Y (T::*memberFn)() const)
-    {
-        _attributes.insert(make_pair(name,  new MemberFunctionResolver<T, O, Y>(getFn, memberFn)));
-    }
-
-private:
-
-    template<class T, typename O, typename Y> class MemberResolver : public Resolver
-    {
     public:
 
-        MemberResolver(O* (Helper::*getFn)() const, Y T::*member) : _getFn(getFn), _member(member)
+        ~AttributeResolverT()
         {
+            for(typename std::map<std::string, Resolver*>::iterator p = _attributes.begin(); p != _attributes.end();++p)
+            {
+                delete p->second;
+            }
         }
 
-        virtual std::string operator()(const Helper* r) const
+        std::string operator()(const Helper* helper, const std::string& attribute) const
         {
-            O* o = (r->*_getFn)();
-            T* v = dynamic_cast<T*>(o);
-            if(v)
-            {
-                return toString(v->*_member);
-            }
-            else
+            typename std::map<std::string, Resolver*>::const_iterator p = _attributes.find(attribute);
+            if(p == _attributes.end())
             {
                 return "unknown";
             }
+            return (*p->second)(helper);
         }
-        
+
+        template<typename Y> void
+        add(const std::string& name, Y Helper::*member)
+        {
+            _attributes.insert(make_pair(name,  new HelperMemberResolver<Y>(member)));
+        }
+
+        template<typename Y> void
+        add(const std::string& name, Y (Helper::*memberFn)() const)
+        {
+            _attributes.insert(make_pair(name,  new HelperMemberFunctionResolver<Y>(memberFn)));
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
+        {
+            _attributes.insert(make_pair(name,  new MemberResolver<I, O, Y>(getFn, member)));
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
+        {
+            _attributes.insert(make_pair(name,  new MemberFunctionResolver<I, O, Y>(getFn, memberFn)));
+        }
+
     private:
-        
-        O* (Helper::*_getFn)() const;
-        Y T::*_member;
+            
+        template<typename Y> class HelperMemberResolver : public Resolver
+        {
+        public:
+
+            HelperMemberResolver(Y Helper::*member) : _member(member)
+            {
+            }
+
+            virtual std::string operator()(const Helper* r) const
+            {
+                return toString(r->*_member);
+            }
+
+        private:
+
+            Y Helper::*_member;
+        };
+
+        template<typename Y> class HelperMemberFunctionResolver : public Resolver
+        {
+        public:
+
+            HelperMemberFunctionResolver(Y (Helper::*memberFn)() const) : _memberFn(memberFn)
+            {
+            }
+
+            virtual std::string operator()(const Helper* r) const
+            {
+                return toString((r->*_memberFn)());
+            }
+
+        private:
+
+            Y (Helper::*_memberFn)() const;
+        };
+
+
+        template<typename I, typename O, typename Y> class MemberResolver : public Resolver
+        {
+        public:
+
+            MemberResolver(O (Helper::*getFn)() const, Y I::*member) : _getFn(getFn), _member(member)
+            {
+            }
+
+            virtual std::string operator()(const Helper* r) const
+            {
+                O o = (r->*_getFn)();
+                I* v = dynamic_cast<I*>(ReferenceWrapper<O>::get(o));
+                if(v)
+                {
+                    return toString(v->*_member);
+                }
+                else
+                {
+                    return "unknown";
+                }
+            }
+
+        private:
+
+            O (Helper::*_getFn)() const;
+            Y I::*_member;
+        };
+
+        template<typename I, typename O, typename Y> class MemberFunctionResolver : public Resolver
+        {
+        public:
+
+            MemberFunctionResolver(O (Helper::*getFn)() const, Y (I::*memberFn)() const) :
+                _getFn(getFn), _memberFn(memberFn)
+            {
+            }
+
+            virtual std::string operator()(const Helper* r) const
+            {
+                O o = (r->*_getFn)();
+                I* v = dynamic_cast<I*>(ReferenceWrapper<O>::get(o));
+                if(v)
+                {
+                    return toString((v->*_memberFn)());
+                }
+                else
+                {
+                    return "unknown";
+                }
+            }
+
+        private:
+
+            O (Helper::*_getFn)() const;
+            Y (I::*_memberFn)() const;
+        };
+
+        template<typename I> static std::string
+        toString(const I& v)
+        {
+            std::ostringstream os;
+            os << v;
+            return os.str();
+        }
+
+        static std::string
+        toString(const std::string& s)
+        {
+            return s;
+        }
+
+        static std::string
+        toString(bool v)
+        {
+            return v ? "true" : "false";
+        }
+
+        std::map<std::string, Resolver*> _attributes;
     };
 
-    template<class T, typename O, typename Y> class MemberFunctionResolver : public Resolver
-    {
-    public:
-
-        MemberFunctionResolver(O* (Helper::*getFn)() const, Y (T::*memberFn)() const) :
-            _getFn(getFn), _memberFn(memberFn)
-        {
-        }
-
-        virtual std::string operator()(const Helper* r) const
-        {
-            O* o = (r->*_getFn)();
-            T* v = dynamic_cast<T*>(o);
-            if(v)
-            {
-                return toString((v->*_memberFn)());
-            }
-            else
-            {
-                return "unknown";
-            }
-        }
-        
-    private:
-        
-        O* (Helper::*_getFn)() const;
-        Y (T::*_memberFn)() const;
-    };
-
-    template<typename T> static std::string
-    toString(const T& v)
-    {
-        std::ostringstream os;
-        os << v;
-        return os.str();
-    }
-
-    static std::string
-    toString(const std::string& s)
-    {
-        return s;
-    }
-
-    std::map<std::string, Resolver*> _attributes;
-};
-
-class ObjectObserverResolver
-{
-public:
-
-    virtual void clear() = 0;
 };
 
 template<typename T> class ObjectObserverUpdaterT : public ObjectObserverUpdater
 {
 public:
     
-    ObjectObserverUpdaterT(T* updater, void (T::*fn)(), ObjectObserverResolver& resolver) : 
-        _updater(updater), _fn(fn), _resolver(resolver)
+    ObjectObserverUpdaterT(T* updater, void (T::*fn)()) : 
+        _updater(updater), _fn(fn)
     {
     }
         
     virtual void update()
     {
-        _resolver.clear();
         (_updater.get()->*_fn)();
     }
     
@@ -270,140 +314,68 @@ private:
     
     const IceUtil::Handle<T> _updater;
     void (T::*_fn)();
-    ObjectObserverResolver& _resolver;
 };
 
 template<typename T> ObjectObserverUpdater*
-newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)(), ObjectObserverResolver& resolver)
+newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)())
 {
-    return new ObjectObserverUpdaterT<T>(updater.get(), fn, resolver);
+    return new ObjectObserverUpdaterT<T>(updater.get(), fn);
 }
 
 template<typename T> ObjectObserverUpdater*
-newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)(), ObjectObserverResolver& resolver)
+newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 {
-    return new ObjectObserverUpdaterT<T>(updater.get(), fn, resolver);
+    return new ObjectObserverUpdaterT<T>(updater.get(), fn);
 }
 
-template<typename T> 
-class ObjectObserverResolverT : public ObjectObserverResolver, public IceUtil::Mutex
+template<typename ObserverImplType> 
+class ObjectObserverResolverT
 {
-    struct Compare
-    {
-        //
-        // Only sort on the metrics object pointer value.
-        //
-        bool operator()(const MetricsObjectAndLockSeq& lhs, const MetricsObjectAndLockSeq& rhs)
-        { 
-            if(lhs.size() < rhs.size())
-            {
-                return true;
-            } 
-            else if(lhs.size() > rhs.size())
-            {
-                return false;
-            }
-
-            typename MetricsObjectAndLockSeq::const_iterator p = lhs.begin();
-            typename MetricsObjectAndLockSeq::const_iterator q = rhs.begin();
-            while(p != lhs.end())
-            {
-                if(p->first.get() < q->first.get())
-                {
-                    return true;
-                }
-                else if(p->first.get() > q->first.get())
-                {
-                    return false;
-                }
-            }
-            return false;
-        }
-    };
-
 public:
 
-    typedef IceUtil::Handle<T> TPtr;
-    typedef std::map<MetricsObjectAndLockSeq, TPtr, Compare> ObserverMap;
+    typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
 
-    template<typename S> T*
-    getObserver(const MetricsObjectAndLockSeq& objects, S* oldObserver)
+    ObjectObserverResolverT(const std::string& name, const MetricsAdminIPtr& metrics) :
+        _name(name), _metrics(metrics)
     {
-        if(objects.empty())
+    }
+
+    template<typename ObjectHelper> ObserverImplPtrType
+    getObserver(const ObjectHelper& helper)
+    {
+        MetricsObjectAndLockSeq metricsObjects = _metrics->getMatching(_name, helper);
+        if(metricsObjects.empty())
         {
             return 0;
         }
 
-        IceUtil::Mutex::Lock sync(*this);
-        typename ObserverMap::const_iterator p = _observers.find(objects);
-        if(p == _observers.end())
-        {
-            p = _observers.insert(make_pair(objects, new T(objects))).first;
-        }
-        
-        T* newObserver = p->second.get();
-        if(oldObserver)
-        {
-            newObserver->update(dynamic_cast<T*>(oldObserver));
-        }
-        return newObserver;
+        ObserverImplPtrType obsv = new ObserverImplType();
+        obsv->update(helper, metricsObjects);
+        return obsv;
     }
 
-
-    virtual void
-    clear()
+    template<typename ObjectHelper, typename ObserverPtrType> ObserverImplPtrType
+    getObserver(const ObjectHelper& helper, const ObserverPtrType& observer)
     {
-        IceUtil::Mutex::Lock sync(*this);
-        _observers.clear();
+        MetricsObjectAndLockSeq metricsObjects = _metrics->getMatching(_name, helper);
+        if(metricsObjects.empty())
+        {
+            return 0;
+        }
+
+        ObserverImplPtrType obsv = ObserverImplPtrType::dynamicCast(observer);
+        if(!obsv)
+        {
+            obsv = new ObserverImplType();
+        }
+        obsv->update(helper, metricsObjects);
+        return obsv;
     }
 
 private:
 
-    ObserverMap _observers;
-};
-
-class ConnectionObserverI : public ::Ice::ConnectionObserver, public ObjectObserverT<Ice::ConnectionMetricsObject>
-{
-public:
-
-    ConnectionObserverI(const MetricsObjectAndLockSeq& objects) : ObjectObserverT(objects)
-    {
-    }
-
-    virtual void attach();
-    virtual void detach();
-
-    virtual void stateChanged(::Ice::ObserverConnectionState, ::Ice::ObserverConnectionState);
-    virtual void sentBytes(::Ice::Int, ::Ice::Long);
-    virtual void receivedBytes(::Ice::Int, ::Ice::Long);
-};
-
-class ObserverResolverI : public ::Ice::ObserverResolver
-{
-public:
-
-    ObserverResolverI(const MetricsAdminIPtr&);
-
-    virtual void setObserverUpdater(const ::Ice::ObserverUpdaterPtr&);
-
-    virtual ::Ice::ConnectionObserverPtr 
-    getConnectionObserver(const ::Ice::ConnectionPtr&, const ::Ice::ConnectionObserverPtr&);
-
-    virtual ::Ice::ObjectObserverPtr 
-    getThreadObserver(const std::string&, const std::string&, const ::Ice::ObjectObserverPtr&);
-
-    virtual ::Ice::ThreadPoolThreadObserverPtr 
-    getThreadPoolThreadObserver(const std::string&, const std::string&, const ::Ice::ThreadPoolThreadObserverPtr&);
-
-    virtual ::Ice::RequestObserverPtr getInvocationObserver(const ::Ice::ObjectPrx&, const std::string&);
-
-    virtual ::Ice::RequestObserverPtr getDispatchObserver(const ::Ice::ObjectPtr&, const ::Ice::Current&);
-
-private:
-
+    const std::string _name;
     const MetricsAdminIPtr _metrics;
-
-    ObjectObserverResolverT<ConnectionObserverI> _connections;
 };
 
 }

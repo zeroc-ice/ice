@@ -14,6 +14,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/Exception.h>
+#include <IceUtil/StopWatch.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
@@ -21,6 +22,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Observer.h>
 
 #include <memory>
 

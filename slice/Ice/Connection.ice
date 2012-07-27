@@ -39,6 +39,13 @@ local class ConnectionInfo
      *
      **/
     string adapterName;
+
+    /**
+     *
+     * The connection id.
+     *
+     **/
+    string connectionId;
 };
 
 /**

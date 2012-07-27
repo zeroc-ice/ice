@@ -151,12 +151,14 @@ public:
     virtual bool operator<(const Ice::LocalObject&) const = 0;
     virtual ::Ice::Int ice_getHash() const;
 
+    const std::string& connectionId() const;
+    
 protected:
     
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 
-    EndpointI(const Ice::ProtocolVersion&, const Ice::EncodingVersion&);
+    EndpointI(const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
     EndpointI();
 
     void parseOption(const std::string&, const std::string&, const std::string&, const std::string&);
@@ -165,6 +167,7 @@ protected:
 
     const Ice::ProtocolVersion _protocol;
     const Ice::EncodingVersion _encoding;
+    const std::string _connectionId;
 
 private:
 

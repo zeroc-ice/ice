@@ -9,6 +9,13 @@
 
 #include <Ice/MetricsAdminI.h>
 
+#include <Ice/ObserverI.h>
+#include <Ice/Properties.h>
+#include <Ice/Communicator.h>
+#include <Ice/Instance.h>
+
+#include <IceUtil/StringUtil.h>
+
 using namespace std;
 using namespace Ice;
 using namespace IceMX;
@@ -45,10 +52,48 @@ match(const string& value, const string& expr)
 
 }
 
-MetricsMap::MetricsMap(const string& groupBy, const NameValueDict& accept, const NameValueDict& reject) : 
-    _accept(accept), _reject(reject)
+MetricsMap::MetricsMap(const string& groupBy, bool reap, const NameValueDict& accept, const NameValueDict& reject) : 
+    _reap(reap), _accept(accept), _reject(reject)
 {
-    // TODO: groupBy
+    if(!groupBy.empty())
+    {
+        string v;
+        bool attribute = IceUtilInternal::isAlpha(groupBy[0]) || IceUtilInternal::isDigit(groupBy[0]);
+        if(!attribute)
+        {
+            _groupByAttributes.push_back("");
+        }
+        
+        for(string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)
+        {
+            bool isAlphaNum = IceUtilInternal::isAlpha(*p) || IceUtilInternal::isDigit(*p);
+            if(attribute && !isAlphaNum)
+            {
+                _groupByAttributes.push_back(v);
+                v = *p;
+                attribute = false;
+            }
+            else if(!attribute && isAlphaNum)
+            {
+                _groupBySeparators.push_back(v);
+                v = *p;
+                attribute = true;
+            }
+            else
+            {
+                v += *p;
+            }
+        }
+
+        if(attribute)
+        {
+            _groupByAttributes.push_back(v);
+        }
+        else
+        {
+            _groupBySeparators.push_back(v);
+        }
+    }
 }
 
 void
@@ -58,13 +103,24 @@ MetricsMap::destroy()
 }
 
 MetricsObjectSeq
-MetricsMap::getMetricsObjects() const
+MetricsMap::getMetricsObjects()
 {
     MetricsObjectSeq objects;
-    for(map<string, EntryPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+    map<string, EntryPtr>::iterator p = _objects.begin(); 
+    while(p != _objects.end())
     {
-        // TODO: Fix ice_clone to use a co-variant type.
-        objects.push_back(dynamic_cast<MetricsObject*>(p->second->object->ice_clone().get()));
+        IceUtil::Mutex::Lock sync(p->second->mutex);
+        if(_reap && p->second->object->current == 0 && p->second->object->total == 1)
+        {
+            sync.release(); // We're going to destroy the mutex
+            _objects.erase(p++);
+        }
+        else
+        {
+            // TODO: Fix ice_clone to use a co-variant type.
+            objects.push_back(dynamic_cast<MetricsObject*>(p->second->object->ice_clone().get()));
+            ++p;
+        }
     }
     return objects;
 }
@@ -92,7 +148,11 @@ MetricsMap::getMatching(const ObjectHelper& helper)
     vector<string>::const_iterator q = _groupBySeparators.begin();
     for(vector<string>::const_iterator p = _groupByAttributes.begin(); p != _groupByAttributes.end(); ++p)
     {
-        os << helper(*p) << *q;
+        os << helper(*p);
+        if(q != _groupBySeparators.end())
+        {
+            os << *q++;
+        }
     }
 
     string key = os.str();
@@ -110,9 +170,10 @@ MetricsView::MetricsView()
 }
 
 void
-MetricsView::add(const string& cl, const string& groupBy, const NameValueDict& accept, const NameValueDict& reject)
+MetricsView::add(const string& name, const string& groupBy, bool reap, const NameValueDict& accept, 
+                 const NameValueDict& reject)
 {
-    _maps.insert(make_pair(cl, new MetricsMap(groupBy, accept, reject)));
+    _maps.insert(make_pair(name, new MetricsMap(groupBy, reap, accept, reject)));
 }
 
 void
@@ -122,7 +183,7 @@ MetricsView::remove(const string& cl)
 }
 
 MetricsObjectSeqDict
-MetricsView::getMetricsObjects() const
+MetricsView::getMetricsObjects()
 {
     MetricsObjectSeqDict metrics;
     if(_enabled)
@@ -160,9 +221,9 @@ MetricsView::getMaps() const
     return maps;
 }
 
-MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties)
+MetricsAdminI::MetricsAdminI(InitializationData& initData)
 {
-    const string viewsPrefix = "Ice.MetricsView.";
+    const string viewsPrefix = "IceMX.MetricsView.";
     
     vector<string> defaultMaps;
     defaultMaps.push_back("Connection");
@@ -170,6 +231,16 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties)
     defaultMaps.push_back("ThreadPoolThread");
     defaultMaps.push_back("Request");
     
+    PropertiesPtr properties = initData.properties;
+    if(initData.observerResolver)
+    {
+        // ERROR!
+    }
+
+    //getInstance(communicator)->setObserverResolver();
+    __setNoDelete(true);
+    initData.observerResolver = new ObserverResolverI(this);
+
     PropertyDict views = properties->getPropertiesForPrefix(viewsPrefix);
     for(PropertyDict::const_iterator p = views.begin(); p != views.end(); ++p)
     {
@@ -197,17 +268,18 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties)
                 mapName = mapName.substr(0, dotPos);
             }
             
-            if(mapName == "GroupBy" || mapName == "Accept" || mapName == "Reject")
+            if(mapName == "GroupBy" || mapName == "Accept" || mapName == "Reject" || mapName == "Reap")
             {
                 continue; // Those aren't maps.
             }
             
             ++mapsCount;
             
-            string groupBy = properties->getPropertyWithDefault(mapsPrefix + mapName + ".GroupBy", "parent");
+            string groupBy = properties->getProperty(mapsPrefix + mapName + ".GroupBy");
+            bool reap = properties->getPropertyAsInt(mapsPrefix + mapName + ".Reap") > 0;
             NameValueDict accept = parseRule(properties, mapsPrefix + mapName + ".Accept");
             NameValueDict reject = parseRule(properties, mapsPrefix + mapName + ".Reject");
-            addMapToView(viewName, mapName, groupBy, accept, reject);
+            addMapToView(viewName, mapName, groupBy, reap, accept, reject);
         }
 
         //
@@ -215,15 +287,18 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties)
         //
         if(mapsCount == 0)
         {
-            string groupBy = properties->getPropertyWithDefault(viewsPrefix + viewName + ".GroupBy", "parent");
+            string groupBy = properties->getProperty(viewsPrefix + viewName + ".GroupBy");
+            bool reap = properties->getPropertyAsInt(viewsPrefix + viewName + ".Reap") > 0;
             NameValueDict accept = parseRule(properties, viewsPrefix + viewName + ".Accept");
             NameValueDict reject = parseRule(properties, viewsPrefix + viewName + ".Reject");
             for(vector<string>::const_iterator p = defaultMaps.begin(); p != defaultMaps.end(); ++p)
             {
-                addMapToView(viewName, *p, groupBy, accept, reject);
+                addMapToView(viewName, *p, groupBy, reap, accept, reject);
             }
         }
     }
+
+    __setNoDelete(false);
 }
 
 void
@@ -279,11 +354,13 @@ MetricsAdminI::getAllMetricsMaps(const ::Ice::Current&)
 void
 MetricsAdminI::addMapToView(const string& view, 
                             const string& mapName, 
-                            const string& groupBy, 
+                            const string& groupBy,
+                            bool reap,
                             const NameValueDict& accept, 
                             const NameValueDict& reject,
                             const ::Ice::Current&)
 {
+    ObjectObserverUpdaterPtr updater;
     {
         Lock sync(*this);
         map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
@@ -291,14 +368,24 @@ MetricsAdminI::addMapToView(const string& view,
         {
             p = _views.insert(make_pair(view, new MetricsView())).first;
         }
-        p->second->add(mapName, groupBy, accept, reject);
+        p->second->add(mapName, groupBy, reap, accept, reject);
+
+        map<string, ObjectObserverUpdaterPtr>::const_iterator q = _updaters.find(mapName);
+        if(q != _updaters.end())
+        {
+            updater = q->second;
+        }
     }
-    _updaters[mapName]->update();
+    if(updater)
+    {
+        updater->update();
+    }
 }
 
 void
 MetricsAdminI::removeMapFromView(const string& view, const string& mapName, const ::Ice::Current&)
 {
+    ObjectObserverUpdaterPtr updater;
     {
         Lock sync(*this);
         map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
@@ -307,8 +394,17 @@ MetricsAdminI::removeMapFromView(const string& view, const string& mapName, cons
             throw UnknownMetricsView();
         }
         p->second->remove(mapName);
+
+        map<string, ObjectObserverUpdaterPtr>::const_iterator q = _updaters.find(mapName);
+        if(q != _updaters.end())
+        {
+            updater = q->second;
+        }
     }
-    _updaters[mapName]->update();
+    if(updater)
+    {
+        updater->update();
+    }
 }
 
 void
