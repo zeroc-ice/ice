@@ -118,6 +118,11 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
+    // Determines whether an in parameter should use the optional mapping.
+    //
+    bool useOptionalMapping(const ParamDeclPtr&);
+
+    //
     // Returns the optional type corresponding to the given Slice type.
     //
     std::string getOptionalType(const TypePtr&);
@@ -150,7 +155,8 @@ protected:
     enum OptionalMode
     {
         OptionalNone,
-        OptionalInParam,
+        OptionalInParamReq, // Use the required mapping.
+        OptionalInParamOpt, // Use the optional mapping.
         OptionalOutParam,
         OptionalReturnParam,
         OptionalMember
@@ -158,7 +164,8 @@ protected:
 
     bool isOptionalParam(OptionalMode mode) const
     {
-        return mode == OptionalInParam || mode == OptionalOutParam || mode == OptionalReturnParam;
+        return mode == OptionalInParamReq || mode == OptionalInParamOpt || mode == OptionalOutParam ||
+               mode == OptionalReturnParam;
     }
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode, int,

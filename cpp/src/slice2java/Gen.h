@@ -32,8 +32,9 @@ protected:
     //
     // Compose the parameter lists for an operation.
     //
-    std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool = false);
-    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir);
+    std::vector<std::string> getParams(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool = false);
+    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
     std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&);
 

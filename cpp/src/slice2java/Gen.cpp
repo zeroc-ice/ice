@@ -109,7 +109,7 @@ Slice::JavaVisitor::~JavaVisitor()
 }
 
 vector<string>
-Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, bool final)
+Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
 {
     vector<string> params;
 
@@ -119,6 +119,23 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, boo
         StringList metaData = (*q)->getMetaData();
         string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
                                          metaData, true, (*q)->optional());
+        params.push_back(typeString + ' ' + fixKwd((*q)->name()));
+    }
+
+    return params;
+}
+
+vector<string>
+Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package, bool final)
+{
+    vector<string> params;
+
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+        StringList metaData = (*q)->getMetaData();
+        string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
+                                         metaData, true, useOptionalMapping(*q));
         if(final)
         {
             typeString = "final " + typeString;
@@ -130,7 +147,7 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, boo
 }
 
 vector<string>
-Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package, ParamDir paramType)
+Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package, ParamDir paramType, bool proxy)
 {
     vector<string> params;
 
@@ -139,9 +156,14 @@ Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package
     {
         if((*q)->isOutParam() == (paramType == OutParam))
         {
+            bool optional = (*q)->optional();
+            if(optional && proxy)
+            {
+                optional = useOptionalMapping(*q);
+            }
             StringList metaData = (*q)->getMetaData();
             string typeString = typeToString((*q)->type(), paramType == InParam ? TypeModeIn : TypeModeOut, package,
-                                             metaData, true, (*q)->optional());
+                                             metaData, true, optional);
             params.push_back(typeString + ' ' + fixKwd((*q)->name()));
         }
     }
@@ -152,7 +174,7 @@ Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package
 vector<string>
 Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package, bool amd)
 {
-    vector<string> params = getInOutParams(op, package, InParam);
+    vector<string> params = getInOutParams(op, package, InParam, !amd);
 
     string name = op->name();
     ContainerPtr container = op->container();
@@ -358,9 +380,18 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
             checkReturnType = false;
         }
 
-        writeMarshalUnmarshalCode(out, package, (*pli)->type(),
-                                  (*pli)->isOutParam() ? OptionalOutParam : OptionalInParam, (*pli)->tag(),
-                                  fixKwd((*pli)->name()), marshal, iter, false, (*pli)->getMetaData());
+        OptionalMode mode;
+        if((*pli)->isOutParam())
+        {
+            mode = OptionalOutParam;
+        }
+        else
+        {
+            mode = useOptionalMapping(*pli) ? OptionalInParamOpt : OptionalInParamReq;
+        }
+
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(), mode, (*pli)->tag(), fixKwd((*pli)->name()), marshal,
+                                  iter, false, (*pli)->getMetaData());
     }
 
     if(checkReturnType)
@@ -2793,11 +2824,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << ';';
 
             //
-            // Generate asynchronous API for local operations marked with XXX metadata.
+            // Generate asynchronous API for local operations marked with "async" metadata.
             //
             if(p->hasMetaData("async") || op->hasMetaData("async"))
             {
-                vector<string> inParams = getInOutParams(op, package, InParam);
+                vector<string> inParams = getInOutParams(op, package, InParam, true);
 
                 out << sp;
                 writeDocCommentAMI(out, op, InParam);
@@ -2827,7 +2858,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 string cb = "Callback_" + name + "_" + opname + " __cb";
                 out << "Ice.AsyncResult begin_" << opname << spar << inParams << cb << epar << ';';
 
-                vector<string> outParams = getInOutParams(op, package, OutParam);
+                vector<string> outParams = getInOutParams(op, package, OutParam, true);
                 out << sp;
                 writeDocCommentAMI(out, op, OutParam);
                 out << nl;
@@ -4384,7 +4415,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
 
-        vector<string> params = getParams(op, package);
+        vector<string> params = getParamsProxy(op, package);
         vector<string> args = getArgs(op);
 
         ExceptionList throws = op->throws();
@@ -4478,7 +4509,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             // Write the asynchronous begin/end methods.
             //
-            vector<string> inParams = getInOutParams(op, package, InParam);
+            vector<string> inParams = getInOutParams(op, package, InParam, true);
             vector<string> inArgs = getInOutArgs(op, InParam);
             string callbackParam = "Ice.Callback __cb";
             int iter;
@@ -4600,7 +4631,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "return __result;";
             out << eb;
 
-            vector<string> outParams = getInOutParams(op, package, OutParam);
+            vector<string> outParams = getInOutParams(op, package, OutParam, true);
 
             //
             // End method
@@ -5316,7 +5347,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypePtr ret = p->returnType();
     string retS = typeToString(ret, TypeModeReturn, package, p->getMetaData(), true, p->returnIsOptional());
-    vector<string> params = getParams(p, package);
+    vector<string> params = getParamsProxy(p, package);
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
@@ -5349,7 +5380,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         // Start with the type-unsafe begin methods.
         //
-        vector<string> inParams = getInOutParams(p, package, InParam);
+        vector<string> inParams = getInOutParams(p, package, InParam, true);
         string callbackParam = "Ice.Callback __cb";
         string callbackDoc = "@param __cb The asynchronous callback object.";
 
@@ -5394,7 +5425,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << nl << "public Ice.AsyncResult begin_" << p->name() << spar << inParams << contextParam
             << typeSafeCallbackParam << epar << ';';
 
-        vector<string> outParams = getInOutParams(p, package, OutParam);
+        vector<string> outParams = getInOutParams(p, package, OutParam, true);
 
         out << sp;
         writeDocCommentAMI(out, p, OutParam);
@@ -5477,7 +5508,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
 
-        vector<string> params = getParams(op, package);
+        vector<string> params = getParamsProxy(op, package);
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -5565,7 +5596,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-        vector<string> params = getParams(op, package);
+        vector<string> params = getParamsProxy(op, package);
 
         out << sp;
         out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
@@ -5730,8 +5761,26 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-        vector<string> params = getParams(op, package, true);
-        vector<string> args = getArgs(op);
+        vector<string> params = getParamsProxy(op, package, true);
+
+        //
+        // Collect the arguments that will be passed to the servant.
+        //
+        // Note that for optional in parameters, we may have to wrap a value
+        // in an Optional object to be compatible with the servant's signature.
+        //
+        vector<string> args;
+        ParamDeclList paramList = op->parameters();
+        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            string param = fixKwd((*q)->name());
+            if(!(*q)->isOutParam() && (*q)->optional() && !useOptionalMapping(*q))
+            {
+                string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true, true);
+                param = "new " + typeString + "(" + param + ")";
+            }
+            args.push_back(param);
+        }
 
         out << sp;
         if(!deprecateReason.empty())

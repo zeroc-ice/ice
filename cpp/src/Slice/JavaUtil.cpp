@@ -550,6 +550,36 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
     }
 }
 
+bool
+Slice::JavaGenerator::useOptionalMapping(const ParamDeclPtr& p)
+{
+    if(p->optional())
+    {
+        //
+        // Optional in parameters can be marked with the "java:optional" metadata to force
+        // the mapping to use the Ice.Optional types. The tag can also be applied to an
+        // operation or its interface.
+        //
+        // Without the tag, in parameters use the normal (non-optional) mapping.
+        //
+        if(!p->isOutParam())
+        {
+            static const string tag = "java:optional";
+
+            OperationPtr op = OperationPtr::dynamicCast(p->container());
+            assert(op);
+            ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
+            assert(cl);
+
+            return p->hasMetaData(tag) || op->hasMetaData(tag) || cl->hasMetaData(tag);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 string
 Slice::JavaGenerator::getOptionalType(const TypePtr& type)
 {
@@ -667,6 +697,20 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "Ice.ObjectPrxHolder",
         "Ice.LocalObjectHolder"
     };
+    static const char* builtinOptionalTable[] =
+    {
+        "Ice.ByteOptional",
+        "Ice.BooleanOptional",
+        "Ice.ShortOptional",
+        "Ice.IntOptional",
+        "Ice.LongOptional",
+        "Ice.FloatOptional",
+        "Ice.DoubleOptional",
+        "???",
+        "???",
+        "???",
+        "???"
+    };
 
     if(!type)
     {
@@ -679,7 +723,26 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(optional)
         {
-            return "Ice.Optional<" + typeToObjectString(builtin, TypeModeIn, package, metaData, formal) + ">";
+            switch(builtin->kind())
+            {
+                case Builtin::KindByte:
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
+                {
+                    return builtinOptionalTable[builtin->kind()];
+                }
+                case Builtin::KindString:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    break;
+                }
+            }
         }
         else
         {
@@ -1184,13 +1247,25 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         {
             if(isOptionalParam(optional))
             {
-                out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                    << ", " << getOptionalType(type) << "))";
-                out << sb;
-                out << nl << stream << ".startSize();";
-                out << nl << typeS << "Helper.__write(" << stream << ", " << v << ".get());";
-                out << nl << stream << ".endSize();";
-                out << eb;
+                if(optional == OptionalInParamReq)
+                {
+                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << sb;
+                    out << nl << stream << ".startSize();";
+                    out << nl << typeS << "Helper.__write(" << stream << ", " << v << ");";
+                    out << nl << stream << ".endSize();";
+                    out << eb;
+                }
+                else
+                {
+                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
+                        << ", " << getOptionalType(type) << "))";
+                    out << sb;
+                    out << nl << stream << ".startSize();";
+                    out << nl << typeS << "Helper.__write(" << stream << ", " << v << ".get());";
+                    out << nl << stream << ".endSize();";
+                    out << eb;
+                }
             }
             else if(optional == OptionalMember)
             {
@@ -1298,10 +1373,19 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
                 if(isOptionalParam(optional))
                 {
-                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalType(type) << "))";
+                    if(optional == OptionalInParamReq)
+                    {
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                        val = v;
+                    }
+                    else
+                    {
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                            << tag << ", " << getOptionalType(type) << "))";
+                        val = v + ".get()";
+                    }
+
                     out << sb;
-                    val = v + ".get()";
                 }
                 else
                 {
@@ -1391,11 +1475,21 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         {
             if(isOptionalParam(optional))
             {
-                out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                    << ", " << getOptionalType(type) << "))";
-                out << sb;
-                out << nl << v << ".get().__write(" << stream << ");";
-                out << eb;
+                if(optional == OptionalInParamReq)
+                {
+                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << sb;
+                    out << nl << v << ".__write(" << stream << ");";
+                    out << eb;
+                }
+                else
+                {
+                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
+                        << ", " << getOptionalType(type) << "))";
+                    out << sb;
+                    out << nl << v << ".get().__write(" << stream << ");";
+                    out << eb;
+                }
             }
             else
             {
@@ -1441,14 +1535,22 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(isOptionalParam(optional))
                 {
-                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalType(type) << "))";
-                    out << sb;
+                    if(optional == OptionalInParamReq)
+                    {
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                        out << sb;
+                    }
+                    else
+                    {
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                            << tag << ", " << getOptionalType(type) << "))";
+                        out << sb;
+                    }
                 }
 
                 if(keyType->isVariableLength() || valueType->isVariableLength())
                 {
-                    string d = isOptionalParam(optional) ? v + ".get()" : v;
+                    string d = isOptionalParam(optional) && optional != OptionalInParamReq ? v + ".get()" : v;
                     out << nl << stream << ".startSize();";
                     writeDictionaryMarshalUnmarshalCode(out, package, dict, d, marshal, iter, true, metaData);
                     out << nl << stream << ".endSize();";
@@ -1457,7 +1559,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     const int wireSize = keyType->minWireSize() + valueType->minWireSize();
                     string tmpName;
-                    if(isOptionalParam(optional))
+                    if(isOptionalParam(optional) && optional != OptionalInParamReq)
                     {
                         tmpName = "__optDict";
                         out << nl << "final " << typeS << ' ' << tmpName << " = " << v << ".get();";
@@ -1548,6 +1650,9 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     "Float",
                     "Double",
                     "String",
+                    "???",
+                    "???",
+                    "???"
                 };
 
                 switch(elemBuiltin->kind())
@@ -1589,14 +1694,22 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             {
                 if(isOptionalParam(optional))
                 {
-                    out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalType(type) << "))";
+                    if(optional == OptionalInParamReq)
+                    {
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    }
+                    else
+                    {
+                        out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
+                            << tag << ", " << getOptionalType(type) << "))";
+                    }
+
                     out << sb;
                 }
 
                 if(elemType->isVariableLength())
                 {
-                    string s = isOptionalParam(optional) ? v + ".get()" : v;
+                    string s = isOptionalParam(optional) && optional != OptionalInParamReq ? v + ".get()" : v;
                     out << nl << stream << ".startSize();";
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, marshal, iter, true, metaData);
                     out << nl << stream << ".endSize();";
@@ -1610,7 +1723,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     //
 
                     string tmpName;
-                    if(isOptionalParam(optional))
+                    if(isOptionalParam(optional) && optional != OptionalInParamReq)
                     {
                         tmpName = "__optSeq";
                         out << nl << "final " << typeS << ' ' << tmpName << " = " << v << ".get();";
@@ -1647,7 +1760,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     //
                     // This just writes a byte sequence.
                     //
-                    string s = isOptionalParam(optional) ? v + ".get()" : v;
+                    string s = isOptionalParam(optional) && optional != OptionalInParamReq ? v + ".get()" : v;
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, marshal, iter, true, metaData);
                 }
                 else
@@ -1657,7 +1770,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     //
 
                     string tmpName;
-                    if(isOptionalParam(optional))
+                    if(isOptionalParam(optional) && optional != OptionalInParamReq)
                     {
                         tmpName = "__optSeq";
                         out << nl << "final " << typeS << ' ' << tmpName << " = " << v << ".get();";

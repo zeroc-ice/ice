@@ -822,11 +822,20 @@ public class BasicStream
     }
 
     public void
-    writeByte(int tag, Ice.Optional<Byte> v)
+    writeByte(int tag, Ice.ByteOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F1))
+        if(v != null && v.isSet())
         {
-            writeByte(v.get());
+            writeByte(tag, v.get());
+        }
+    }
+
+    public void
+    writeByte(int tag, byte v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F1))
+        {
+            writeByte(v);
         }
     }
 
@@ -854,9 +863,18 @@ public class BasicStream
     public void
     writeByteSeq(int tag, Ice.Optional<byte[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            writeByteSeq(v.get());
+            writeByteSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeByteSeq(int tag, byte[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeByteSeq(v);
         }
     }
 
@@ -896,7 +914,7 @@ public class BasicStream
     }
 
     public void
-    readByte(int tag, Ice.Optional<Byte> v)
+    readByte(int tag, Ice.ByteOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F1))
         {
@@ -965,11 +983,20 @@ public class BasicStream
     }
 
     public void
-    writeBool(int tag, Ice.Optional<Boolean> v)
+    writeBool(int tag, Ice.BooleanOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F1))
+        if(v != null && v.isSet())
         {
-            writeBool(v.get());
+            writeBool(tag, v.get());
+        }
+    }
+
+    public void
+    writeBool(int tag, boolean v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F1))
+        {
+            writeBool(v);
         }
     }
 
@@ -1000,9 +1027,18 @@ public class BasicStream
     public void
     writeBoolSeq(int tag, Ice.Optional<boolean[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            writeBoolSeq(v.get());
+            writeBoolSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeBoolSeq(int tag, boolean[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeBoolSeq(v);
         }
     }
 
@@ -1020,7 +1056,7 @@ public class BasicStream
     }
 
     public void
-    readBool(int tag, Ice.Optional<Boolean> v)
+    readBool(int tag, Ice.BooleanOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F1))
         {
@@ -1072,11 +1108,20 @@ public class BasicStream
     }
 
     public void
-    writeShort(int tag, Ice.Optional<Short> v)
+    writeShort(int tag, Ice.ShortOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F2))
+        if(v != null && v.isSet())
         {
-            writeShort(v.get());
+            writeShort(tag, v.get());
+        }
+    }
+
+    public void
+    writeShort(int tag, short v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F2))
+        {
+            writeShort(v);
         }
     }
 
@@ -1100,11 +1145,19 @@ public class BasicStream
     public void
     writeShortSeq(int tag, Ice.Optional<short[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            final short[] arr = v.get();
-            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 2 + (arr.length > 254 ? 5 : 1));
-            writeShortSeq(arr);
+            writeShortSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeShortSeq(int tag, short[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeSize(v == null || v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
+            writeShortSeq(v);
         }
     }
 
@@ -1122,7 +1175,7 @@ public class BasicStream
     }
 
     public void
-    readShort(int tag, Ice.Optional<Short> v)
+    readShort(int tag, Ice.ShortOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F2))
         {
@@ -1174,11 +1227,20 @@ public class BasicStream
     }
 
     public void
-    writeInt(int tag, Ice.Optional<Integer> v)
+    writeInt(int tag, Ice.IntOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F4))
+        if(v != null && v.isSet())
         {
-            writeInt(v.get());
+            writeInt(tag, v.get());
+        }
+    }
+
+    public void
+    writeInt(int tag, int v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F4))
+        {
+            writeInt(v);
         }
     }
 
@@ -1208,11 +1270,19 @@ public class BasicStream
     public void
     writeIntSeq(int tag, Ice.Optional<int[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            final int[] arr = v.get();
-            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 4 + (arr.length > 254 ? 5 : 1));
-            writeIntSeq(arr);
+            writeIntSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeIntSeq(int tag, int[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+            writeIntSeq(v);
         }
     }
 
@@ -1230,7 +1300,7 @@ public class BasicStream
     }
 
     public void
-    readInt(int tag, Ice.Optional<Integer> v)
+    readInt(int tag, Ice.IntOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F4))
         {
@@ -1282,11 +1352,20 @@ public class BasicStream
     }
 
     public void
-    writeLong(int tag, Ice.Optional<Long> v)
+    writeLong(int tag, Ice.LongOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F8))
+        if(v != null && v.isSet())
         {
-            writeLong(v.get());
+            writeLong(tag, v.get());
+        }
+    }
+
+    public void
+    writeLong(int tag, long v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F8))
+        {
+            writeLong(v);
         }
     }
 
@@ -1310,11 +1389,19 @@ public class BasicStream
     public void
     writeLongSeq(int tag, Ice.Optional<long[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            final long[] arr = v.get();
-            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 8 + (arr.length > 254 ? 5 : 1));
-            writeLongSeq(arr);
+            writeLongSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeLongSeq(int tag, long[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+            writeLongSeq(v);
         }
     }
 
@@ -1332,7 +1419,7 @@ public class BasicStream
     }
 
     public void
-    readLong(int tag, Ice.Optional<Long> v)
+    readLong(int tag, Ice.LongOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F8))
         {
@@ -1384,11 +1471,20 @@ public class BasicStream
     }
 
     public void
-    writeFloat(int tag, Ice.Optional<Float> v)
+    writeFloat(int tag, Ice.FloatOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F4))
+        if(v != null && v.isSet())
         {
-            writeFloat(v.get());
+            writeFloat(tag, v.get());
+        }
+    }
+
+    public void
+    writeFloat(int tag, float v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F4))
+        {
+            writeFloat(v);
         }
     }
 
@@ -1412,11 +1508,19 @@ public class BasicStream
     public void
     writeFloatSeq(int tag, Ice.Optional<float[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            final float[] arr = v.get();
-            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 4 + (arr.length > 254 ? 5 : 1));
-            writeFloatSeq(arr);
+            writeFloatSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeFloatSeq(int tag, float[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
+            writeFloatSeq(v);
         }
     }
 
@@ -1434,7 +1538,7 @@ public class BasicStream
     }
 
     public void
-    readFloat(int tag, Ice.Optional<Float> v)
+    readFloat(int tag, Ice.FloatOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F4))
         {
@@ -1486,11 +1590,20 @@ public class BasicStream
     }
 
     public void
-    writeDouble(int tag, Ice.Optional<Double> v)
+    writeDouble(int tag, Ice.DoubleOptional v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.F8))
+        if(v != null && v.isSet())
         {
-            writeDouble(v.get());
+            writeDouble(tag, v.get());
+        }
+    }
+
+    public void
+    writeDouble(int tag, double v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.F8))
+        {
+            writeDouble(v);
         }
     }
 
@@ -1514,11 +1627,19 @@ public class BasicStream
     public void
     writeDoubleSeq(int tag, Ice.Optional<double[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            final double[] arr = v.get();
-            writeSize(arr == null || arr.length == 0 ? 1 : arr.length * 8 + (arr.length > 254 ? 5 : 1));
-            writeDoubleSeq(arr);
+            writeDoubleSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeDoubleSeq(int tag, double[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
+            writeDoubleSeq(v);
         }
     }
 
@@ -1536,7 +1657,7 @@ public class BasicStream
     }
 
     public void
-    readDouble(int tag, Ice.Optional<Double> v)
+    readDouble(int tag, Ice.DoubleOptional v)
     {
         if(readOpt(tag, Ice.OptionalType.F8))
         {
@@ -1649,9 +1770,18 @@ public class BasicStream
     public void
     writeString(int tag, Ice.Optional<String> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.VSize))
+        if(v != null && v.isSet())
         {
-            writeString(v.get());
+            writeString(tag, v.get());
+        }
+    }
+
+    public void
+    writeString(int tag, String v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.VSize))
+        {
+            writeString(v);
         }
     }
 
@@ -1675,10 +1805,19 @@ public class BasicStream
     public void
     writeStringSeq(int tag, Ice.Optional<String[]> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.FSize))
+        if(v != null && v.isSet())
+        {
+            writeStringSeq(tag, v.get());
+        }
+    }
+
+    public void
+    writeStringSeq(int tag, String[] v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.FSize))
         {
             startSize();
-            writeStringSeq(v.get());
+            writeStringSeq(v);
             endSize();
         }
     }
@@ -1809,10 +1948,19 @@ public class BasicStream
     public void
     writeProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.FSize))
+        if(v != null && v.isSet())
+        {
+            writeProxy(tag, v.get());
+        }
+    }
+
+    public void
+    writeProxy(int tag, Ice.ObjectPrx v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.FSize))
         {
             startSize();
-            writeProxy(v.get());
+            writeProxy(v);
             endSize();
         }
     }
@@ -1895,9 +2043,18 @@ public class BasicStream
     public <T extends Ice.Object> void
     writeObject(int tag, Ice.Optional<T> v)
     {
-        if(v != null && v.isSet() && writeOpt(tag, Ice.OptionalType.Size))
+        if(v != null && v.isSet())
         {
-            writeObject(v.get());
+            writeObject(tag, v.get());
+        }
+    }
+
+    public void
+    writeObject(int tag, Ice.Object v)
+    {
+        if(writeOpt(tag, Ice.OptionalType.Size))
+        {
+            writeObject(v);
         }
     }
 
