@@ -118,9 +118,9 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
-    // Determines whether an in parameter should use the optional mapping.
+    // Determines whether an operation should use the optional mapping.
     //
-    bool useOptionalMapping(const ParamDeclPtr&);
+    bool useOptionalMapping(const OperationPtr&);
 
     //
     // Returns the optional type corresponding to the given Slice type.
@@ -155,22 +155,15 @@ protected:
     enum OptionalMode
     {
         OptionalNone,
-        OptionalInParamReq, // Use the required mapping.
-        OptionalInParamOpt, // Use the optional mapping.
+        OptionalInParam,
         OptionalOutParam,
         OptionalReturnParam,
         OptionalMember
     };
 
-    bool isOptionalParam(OptionalMode mode) const
-    {
-        return mode == OptionalInParamReq || mode == OptionalInParamOpt || mode == OptionalOutParam ||
-               mode == OptionalReturnParam;
-    }
-
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode, int,
-                                   const std::string&, bool, int&, bool = false, const StringList& = StringList(),
-                                   const std::string& patchParams = "");
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
+                                   bool, int, const std::string&, bool, int&, bool = false,
+                                   const StringList& = StringList(), const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
@@ -188,8 +181,8 @@ protected:
     //
     // Generate code to marshal or unmarshal a type using the public stream API.
     //
-    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                         int, const std::string&, bool, int&, bool = false,
+    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, bool, int,
+                                          const std::string&, bool, int&, bool = false,
                                          const StringList& = StringList(), const std::string& patchParams = "");
 
     //

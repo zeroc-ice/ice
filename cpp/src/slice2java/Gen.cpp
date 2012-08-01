@@ -109,16 +109,23 @@ Slice::JavaVisitor::~JavaVisitor()
 }
 
 vector<string>
-Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
+Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, bool local)
 {
     vector<string> params;
+
+    const bool optionalMapping = useOptionalMapping(op);
 
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         StringList metaData = (*q)->getMetaData();
+        bool optional = (*q)->optional();
+        if(optional && (local || (*q)->isOutParam()))
+        {
+            optional = optionalMapping;
+        }
         string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
-                                         metaData, true, (*q)->optional());
+                                         metaData, true, optional);
         params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
 
@@ -130,12 +137,24 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
 {
     vector<string> params;
 
+    const bool optionalMapping = useOptionalMapping(op);
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
+        bool optional;
+        if((*q)->optional())
+        {
+            optional = (*q)->isOutParam() ? true : optionalMapping;
+        }
+        else
+        {
+            optional = false;
+        }
+
         StringList metaData = (*q)->getMetaData();
         string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
-                                         metaData, true, useOptionalMapping(*q));
+                                         metaData, true, optional);
         if(final)
         {
             typeString = "final " + typeString;
@@ -151,15 +170,28 @@ Slice::JavaVisitor::getInOutParams(const OperationPtr& op, const string& package
 {
     vector<string> params;
 
+    const bool optionalMapping = useOptionalMapping(op);
+
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         if((*q)->isOutParam() == (paramType == OutParam))
         {
-            bool optional = (*q)->optional();
-            if(optional && proxy)
+            bool optional;
+            if((*q)->optional())
             {
-                optional = useOptionalMapping(*q);
+                if(proxy)
+                {
+                    optional = paramType == InParam ? optionalMapping : true;
+                }
+                else
+                {
+                    optional = true;
+                }
+            }
+            else
+            {
+                optional = false;
             }
             StringList metaData = (*q)->getMetaData();
             string typeString = typeToString((*q)->type(), paramType == InParam ? TypeModeIn : TypeModeOut, package,
@@ -186,14 +218,17 @@ Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package
 }
 
 vector<string>
-Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package)
+Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& package, bool amd)
 {
     vector<string> params;
+
+    const bool optionalMapping = amd ? useOptionalMapping(op) : true;
 
     TypePtr ret = op->returnType();
     if(ret)
     {
-        string retS = typeToString(ret, TypeModeIn, package, op->getMetaData(), true, op->returnIsOptional());
+        string retS = typeToString(ret, TypeModeIn, package, op->getMetaData(), true,
+                                   optionalMapping && op->returnIsOptional());
         params.push_back(retS + " __ret");
     }
 
@@ -203,7 +238,7 @@ Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& packa
         if((*q)->isOutParam())
         {
             string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true,
-                                             (*q)->optional());
+                                             optionalMapping && (*q)->optional());
             params.push_back(typeString + ' ' + fixKwd((*q)->name()));
         }
     }
@@ -291,7 +326,8 @@ Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
 
 void
 Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& package, const ParamDeclList& params,
-                                                const OperationPtr& op, int& iter, bool marshal, bool dispatch)
+                                                const OperationPtr& op, int& iter, bool marshal, bool optionalMapping,
+                                                bool dispatch)
 {
     ParamDeclList optionals;
     ParamDeclList::const_iterator pli;
@@ -311,8 +347,8 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
             {
                 patchParams = paramName;
             }
-            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, 0, paramName, marshal, iter, holder,
-                                      (*pli)->getMetaData(), patchParams);
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), OptionalNone, false, 0, paramName, marshal,
+                                      iter, holder, (*pli)->getMetaData(), patchParams);
         }
     }
 
@@ -325,13 +361,14 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(ret);
         returnsObject = (builtin && builtin->kind() == Builtin::KindObject) || cl;
+        const bool optional = optionalMapping && op->returnIsOptional();
 
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
+        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, optional);
         bool holder = false;
 
         if(!marshal)
         {
-            if(op->returnIsOptional())
+            if(optional)
             {
                 out << nl << retS << " __ret = new " << retS << "();";
             }
@@ -348,7 +385,7 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
 
         if(!op->returnIsOptional())
         {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalNone, 0, "__ret", marshal, iter, holder,
+            writeMarshalUnmarshalCode(out, package, ret, OptionalNone, false, 0, "__ret", marshal, iter, holder,
                                       op->getMetaData());
         }
     }
@@ -375,29 +412,22 @@ Slice::JavaVisitor::writeMarshalUnmarshalParams(Output& out, const string& packa
     {
         if(checkReturnType && op->returnTag() < (*pli)->tag())
         {
-            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, op->returnTag(), "__ret", marshal, iter,
-                                      false, op->getMetaData());
+            writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, optionalMapping, op->returnTag(),
+                                      "__ret", marshal, iter, false, op->getMetaData());
             checkReturnType = false;
         }
 
-        OptionalMode mode;
-        if((*pli)->isOutParam())
-        {
-            mode = OptionalOutParam;
-        }
-        else
-        {
-            mode = useOptionalMapping(*pli) ? OptionalInParamOpt : OptionalInParamReq;
-        }
+        const bool holder = dispatch && (*pli)->isOutParam() && !optionalMapping;
 
-        writeMarshalUnmarshalCode(out, package, (*pli)->type(), mode, (*pli)->tag(), fixKwd((*pli)->name()), marshal,
-                                  iter, false, (*pli)->getMetaData());
+        writeMarshalUnmarshalCode(out, package, (*pli)->type(),
+                                  (*pli)->isOutParam() ? OptionalOutParam : OptionalInParam, optionalMapping,
+                                  (*pli)->tag(), fixKwd((*pli)->name()), marshal, iter, holder, (*pli)->getMetaData());
     }
 
     if(checkReturnType)
     {
-        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, op->returnTag(), "__ret", marshal, iter,
-                                  false, op->getMetaData());
+        writeMarshalUnmarshalCode(out, package, ret, OptionalReturnParam, optionalMapping, op->returnTag(), "__ret",
+                                  marshal, iter, false, op->getMetaData());
     }
 }
 
@@ -554,16 +584,16 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
 {
     if(!member->optional())
     {
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, 0, fixKwd(member->name()), true, iter,
-                                  false, member->getMetaData());
+        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()),
+                                  true, iter, false, member->getMetaData());
     }
     else
     {
         out << nl << "if(__has_" << member->name() << " && __os.writeOpt(" << member->tag() << ", "
             << getOptionalType(member->type()) << "))";
         out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, 0, fixKwd(member->name()), true, iter,
-                                  false, member->getMetaData());
+        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), true,
+                                  iter, false, member->getMetaData());
         out << eb;
     }
 }
@@ -586,15 +616,15 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
 
     if(!member->optional())
     {
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, 0, fixKwd(member->name()), false, iter,
-                                  false, member->getMetaData(), patchParams);
+        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()), false,
+                                  iter, false, member->getMetaData(), patchParams);
     }
     else
     {
         out << nl << "if(__has_" << member->name() << " = __is.readOpt(" << member->tag() << ", "
             << getOptionalType(member->type()) << "))";
         out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, 0, fixKwd(member->name()), false,
+        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false,
                                   iter, false, member->getMetaData(), patchParams);
         out << eb;
     }
@@ -880,7 +910,8 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
         string deprecateReason = getDeprecateReason(op, cl, "operation");
 
-        bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool optionalMapping = useOptionalMapping(op);
 
         vector<string> params;
         vector<string> args;
@@ -962,7 +993,8 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 writeDocComment(out, op, deprecateReason);
             }
             out << nl << "public final "
-                << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional())
+                << typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
+                                optionalMapping && op->returnIsOptional())
                 << nl << opName << spar << params << epar;
             if(op->hasMetaData("UserException"))
             {
@@ -1009,7 +1041,9 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
         out << sb;
 
-        bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
+        const bool optionalMapping = useOptionalMapping(op);
+
         if(!amd)
         {
             TypePtr ret = op->returnType();
@@ -1080,7 +1114,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     }
                 }
                 iter = 0;
-                writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true);
+                writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
                 out << nl << "__inS.endReadParams();";
             }
             else
@@ -1094,7 +1128,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
                 string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData(), true,
-                                            (*pli)->optional());
+                                            optionalMapping && (*pli)->optional());
                 out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
             }
 
@@ -1109,7 +1143,8 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << nl;
             if(ret)
             {
-                string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true, op->returnIsOptional());
+                string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true,
+                                           optionalMapping && op->returnIsOptional());
                 out << retS << " __ret = ";
             }
             out << "__obj." << fixKwd(opName) << '(';
@@ -1144,7 +1179,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 {
                     out << nl << "__os.format(" << formatTypeToString(format) << ");";
                 }
-                writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, true);
+                writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
                 out << nl << "__inS.__endWriteParams(true);";
             }
             else
@@ -1205,24 +1240,28 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 iter = 0;
                 for(pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
-                    StringList metaData = (*pli)->getMetaData();
                     TypePtr paramType = (*pli)->type();
                     string paramName = fixKwd((*pli)->name());
-                    string typeS = typeToString(paramType, TypeModeIn, package, metaData);
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    string typeS = typeToString(paramType, TypeModeIn, package, (*pli)->getMetaData(),
+                                                true, (*pli)->optional());
+                    if((*pli)->optional())
                     {
-                        out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
-                        writeMarshalUnmarshalCode(out, package, paramType, OptionalNone, 0, paramName, false, iter,
-                                                  true, metaData, string());
+                        out << nl << typeS << ' ' << paramName << " = new " << typeS << "();";
                     }
                     else
                     {
-                        out << nl << typeS << ' ' << paramName << ';';
-                        writeMarshalUnmarshalCode(out, package, paramType, OptionalNone, 0, paramName, false, iter,
-                                                  false, metaData);
+                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                        {
+                            out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+                        }
+                        else
+                        {
+                            out << nl << typeS << ' ' << paramName << ';';
+                        }
                     }
                 }
+                writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
                 out << nl << "__inS.endReadParams();";
             }
             else
@@ -1243,10 +1282,13 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             {
                 TypePtr paramType = (*pli)->type();
                 out << fixKwd((*pli)->name());
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                if(!(*pli)->optional())
                 {
-                    out << ".value";
+                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    {
+                        out << ".value";
+                    }
                 }
                 out << ", ";
             }
@@ -2357,7 +2399,8 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         TypePtr ret;
         vector<string> params;
 
-        bool amd = !p->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd"));
+        const bool amd = !p->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd"));
+        const bool optionalMapping = useOptionalMapping(op);
 
         if(amd)
         {
@@ -2369,7 +2412,8 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
             ret = op->returnType();
         }
 
-        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
+        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
+                                   optionalMapping && op->returnIsOptional());
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
@@ -2528,7 +2572,9 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         ContainerPtr container = (*r)->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-        bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
+        const bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
+        const bool optionalMapping = useOptionalMapping(*r);
+
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
         //
         // Work around for Sun CC 5.5 bug #4853566
@@ -2545,8 +2591,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 #else
         string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
 #endif
+
         TypePtr ret = (*r)->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData());
+        string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData(), true,
+                                   optionalMapping && (*r)->returnIsOptional());
 
         vector<string> params;
         vector<string> args;
@@ -2780,7 +2828,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     //
     // For local classes and interfaces, we don't use the OperationsNC interface.
-    // Instead, we generated the operation signatures directly into the class
+    // Instead, we generate the operation signatures directly into the class
     // or interface.
     //
     if(p->isLocal())
@@ -2793,12 +2841,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             ContainerPtr container = op->container();
             ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
             string opname = op->name();
+            const bool optionalMapping = useOptionalMapping(op);
 
-            TypePtr ret;
-            vector<string> params = getParams(op, package);
-            ret = op->returnType();
+            TypePtr ret = op->returnType();
+            vector<string> params = getParams(op, package, true);
 
-            string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
+            string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true,
+                                       optionalMapping && op->returnIsOptional());
             ExceptionList throws = op->throws();
             throws.sort();
             throws.unique();
@@ -4418,6 +4467,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParamsProxy(op, package);
         vector<string> args = getArgs(op);
 
+        const bool optionalMapping = useOptionalMapping(op);
+
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
@@ -4615,7 +4666,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                         pl.push_back(*pli);
                     }
                 }
-                writeMarshalUnmarshalParams(out, package, pl, 0, iter, true);
+                writeMarshalUnmarshalParams(out, package, pl, 0, iter, true, optionalMapping);
                 out << nl << "__result.__endWriteParams();";
             }
             else
@@ -4688,7 +4739,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                             pl.push_back(*pli);
                         }
                     }
-                    writeMarshalUnmarshalParams(out, package, pl, op, iter, false);
+                    writeMarshalUnmarshalParams(out, package, pl, op, iter, false, true);
                     out << nl << "__result.__endReadParams();";
                 }
                 else
@@ -5562,6 +5613,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true, op->returnIsOptional());
+        const bool optionalMapping = useOptionalMapping(op);
         int iter = 0;
 
         ParamDeclList inParams;
@@ -5617,7 +5669,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "__os.format(" << formatTypeToString(format) << ");";
             }
-            writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true);
+            writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true, optionalMapping);
             out << nl << "__og.endWriteParams();";
             out << eb;
             out << nl << "catch(Ice.LocalException __ex)";
@@ -5660,7 +5712,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(ret || !outParams.empty())
         {
             out << nl << "IceInternal.BasicStream __is = __og.startReadParams();";
-            writeMarshalUnmarshalParams(out, package, outParams, op, iter, false);
+            writeMarshalUnmarshalParams(out, package, outParams, op, iter, false, true);
             out << nl << "__og.endReadParams();";
         }
         else
@@ -5742,6 +5794,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
+        const bool optionalMapping = useOptionalMapping(op);
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, op->returnIsOptional());
 
         ExceptionList throws = op->throws();
@@ -5762,25 +5815,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 #endif
 
         vector<string> params = getParamsProxy(op, package, true);
-
-        //
-        // Collect the arguments that will be passed to the servant.
-        //
-        // Note that for optional in parameters, we may have to wrap a value
-        // in an Optional object to be compatible with the servant's signature.
-        //
-        vector<string> args;
-        ParamDeclList paramList = op->parameters();
-        for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            string param = fixKwd((*q)->name());
-            if(!(*q)->isOutParam() && (*q)->optional() && !useOptionalMapping(*q))
-            {
-                string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true, true);
-                param = "new " + typeString + "(" + param + ")";
-            }
-            args.push_back(param);
-        }
 
         out << sp;
         if(!deprecateReason.empty())
@@ -5837,27 +5871,87 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << sb;
             }
 
+            //
+            // Collect the arguments that will be passed to the servant.
+            //
+            vector<string> args;
+            ParamDeclList paramList = op->parameters();
+            ParamDeclList::const_iterator q;
+            for(q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                string param = fixKwd((*q)->name());
+                //
+                // For optional parameters, the proxy mapping can differ from the servant
+                // mapping, depending on whether the optional mapping is being used.
+                //
+                if((*q)->optional() && !optionalMapping)
+                {
+                    if((*q)->isOutParam())
+                    {
+                        param = "__" + (*q)->name();
+                        string typeS = typeToString((*q)->type(), TypeModeOut, package, (*q)->getMetaData());
+                        out << nl << typeS << ' ' << param << " = new " << typeS << "();";
+                    }
+                    else
+                    {
+                        string typeS = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData(), true, true);
+                        param = "new " + typeS + "(" + param + ")";
+                    }
+                }
+                args.push_back(param);
+            }
+
             out << nl;
             if(ret)
             {
                 if(op->returnIsOptional())
                 {
-                    out << resultType << " __r = ";
+                    if(optionalMapping)
+                    {
+                        out << resultType << " __r = ";
+                    }
+                    else
+                    {
+                        out << typeToString(ret, TypeModeIn, package, op->getMetaData()) << " __r = ";
+                    }
                 }
                 else
                 {
                     out << "__result.value = ";
                 }
             }
+
             out << "__servant." << opName << spar << args << "__current" << epar << ';';
-            if(op->returnIsOptional())
+
+            for(q = paramList.begin(); q != paramList.end(); ++q)
             {
-                out << nl << "if(__r != null && __r.isSet())";
-                out << sb;
-                out << nl << "__result.set(__r.get());";
-                out << eb;
+                //
+                // For optional parameters, the proxy mapping can differ from the servant
+                // mapping, depending on whether the optional mapping is being used.
+                //
+                if((*q)->optional() && !optionalMapping && (*q)->isOutParam())
+                {
+                    out << nl << fixKwd((*q)->name()) << ".set(__" << (*q)->name() << ".value);";
+                }
             }
+
+            if(ret && op->returnIsOptional())
+            {
+                if(optionalMapping)
+                {
+                    out << nl << "if(__r != null && __r.isSet())";
+                    out << sb;
+                    out << nl << "__result.set(__r.get());";
+                    out << eb;
+                }
+                else
+                {
+                    out << nl << "__result.set(__r);";
+                }
+            }
+
             out << nl << "return Ice.DispatchStatus.DispatchOK;";
+
             if(!throws.empty())
             {
                 out << eb;
@@ -5991,129 +6085,144 @@ Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir) :
 
 void
 Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& package, const string& name, const TypePtr& type,
-                                       const StringList& metaData)
+                                       const StringList& metaData, bool optional)
 {
-    out << nl << typeToString(type, TypeModeIn, package, metaData) << ' ' << name;
+    string typeS = typeToString(type, TypeModeIn, package, metaData, true, optional);
+    out << nl << typeS << ' ' << name;
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if(optional)
     {
-        switch(builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                out << " = false";
-                break;
-            }
-            case Builtin::KindByte:
-            {
-                out << " = (byte)0";
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                out << " = (short)0";
-                break;
-            }
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                out << " = 0";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                out << " = (float)0.0";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                out << " = 0.0";
-                break;
-            }
-            case Builtin::KindString:
-            {
-                out << " = \"\"";
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                out << " = null";
-                break;
-            }
-        }
+        out << " = new " << typeS << "();";
     }
     else
     {
-        EnumPtr en = EnumPtr::dynamicCast(type);
-        if(en)
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if(builtin)
         {
-            EnumeratorList enumerators = en->getEnumerators();
-            out << " = " << getAbsolute(en, package) << '.' << fixKwd(enumerators.front()->name());
+            switch(builtin->kind())
+            {
+                case Builtin::KindBool:
+                {
+                    out << " = false";
+                    break;
+                }
+                case Builtin::KindByte:
+                {
+                    out << " = (byte)0";
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    out << " = (short)0";
+                    break;
+                }
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                {
+                    out << " = 0";
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    out << " = (float)0.0";
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    out << " = 0.0";
+                    break;
+                }
+                case Builtin::KindString:
+                {
+                    out << " = \"\"";
+                    break;
+                }
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    out << " = null";
+                    break;
+                }
+            }
         }
         else
         {
-            out << " = null";
+            EnumPtr en = EnumPtr::dynamicCast(type);
+            if(en)
+            {
+                EnumeratorList enumerators = en->getEnumerators();
+                out << " = " << getAbsolute(en, package) << '.' << fixKwd(enumerators.front()->name());
+            }
+            else
+            {
+                out << " = null";
+            }
         }
-    }
 
-    out << ';';
+        out << ';';
+    }
 }
 
 void
-Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type)
+Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type, bool optional)
 {
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if(optional)
     {
-        switch(builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                out << nl << "return false;";
-                break;
-            }
-            case Builtin::KindByte:
-            {
-                out << nl << "return (byte)0;";
-                break;
-            }
-            case Builtin::KindShort:
-            {
-                out << nl << "return (short)0;";
-                break;
-            }
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                out << nl << "return 0;";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                out << nl << "return (float)0.0;";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                out << nl << "return 0.0;";
-                break;
-            }
-            case Builtin::KindString:
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                out << nl << "return null;";
-                break;
-            }
-        }
-        return;
+        out << nl << "return null;";
     }
+    else
+    {
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+        if(builtin)
+        {
+            switch(builtin->kind())
+            {
+                case Builtin::KindBool:
+                {
+                    out << nl << "return false;";
+                    break;
+                }
+                case Builtin::KindByte:
+                {
+                    out << nl << "return (byte)0;";
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    out << nl << "return (short)0;";
+                    break;
+                }
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                {
+                    out << nl << "return 0;";
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    out << nl << "return (float)0.0;";
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    out << nl << "return 0.0;";
+                    break;
+                }
+                case Builtin::KindString:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    out << nl << "return null;";
+                    break;
+                }
+            }
+            return;
+        }
 
-    out << nl << "return null;";
+        out << nl << "return null;";
+    }
 }
 
 void
@@ -6122,8 +6231,10 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
     string opName = op->name();
 
     TypePtr ret = op->returnType();
+    const bool optionalMapping = useOptionalMapping(op);
     StringList opMetaData = op->getMetaData();
-    string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
+    string retS = typeToString(ret, TypeModeReturn, package, opMetaData, true,
+                               optionalMapping && op->returnIsOptional());
     vector<string> params = getParams(op, package);
 
     ContainerPtr container = op->container();
@@ -6168,13 +6279,14 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         }
         if(ret)
         {
-            writeDecl(out, package, result, ret, opMetaData);
+            writeDecl(out, package, result, ret, opMetaData, optionalMapping && op->returnIsOptional());
         }
         for(q = paramList.begin(); q != paramList.end(); ++q)
         {
             if((*q)->isOutParam())
             {
-                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData());
+                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData(),
+                          optionalMapping && (*q)->optional());
             }
         }
 
@@ -6231,7 +6343,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         //
         if(ret)
         {
-            writeReturn(out, ret);
+            writeReturn(out, ret, optionalMapping && op->returnIsOptional());
         }
 
         out << eb;
@@ -6432,7 +6544,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         ExceptionList throws = p->throws();
 
-        vector<string> params = getParamsAsyncCB(p, classPkg);
+        vector<string> params = getParamsAsyncCB(p, classPkg, false);
         vector<string> args = getInOutArgs(p, OutParam);
 
         writeDocCommentOp(out, p);
@@ -6529,7 +6641,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         ExceptionList throws = p->throws();
 
-        vector<string> params = getParamsAsyncCB(p, classPkg);
+        vector<string> params = getParamsAsyncCB(p, classPkg, false);
         vector<string> args = getInOutArgs(p, OutParam);
 
         writeDocCommentOp(out, p);
@@ -6596,7 +6708,9 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         string classNameAMDI = "_AMD_" + cl->name();
         string absoluteAMDI = getAbsolute(cl, "", "_AMD_", "_" + name);
 
-        vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
+        vector<string> paramsAMD = getParamsAsyncCB(p, classPkg, true);
+
+        const bool optionalMapping = useOptionalMapping(p);
 
         {
             open(absoluteAMD, p->file());
@@ -6676,19 +6790,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 {
                     out << nl << "__os.format(" << formatTypeToString(format) << ");";
                 }
-                for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-                {
-                    StringList metaData = (*pli)->getMetaData();
-                    string typeS = typeToString((*pli)->type(), TypeModeIn, classPkg, metaData);
-                    writeMarshalUnmarshalCode(out, classPkg, (*pli)->type(), OptionalNone, 0, fixKwd((*pli)->name()),
-                                              true, iter, false, metaData);
-                }
-                if(ret)
-                {
-                    string retS = typeToString(ret, TypeModeIn, classPkg, opMetaData);
-                    writeMarshalUnmarshalCode(out, classPkg, ret, OptionalNone, 0, "__ret", true, iter, false,
-                                              opMetaData);
-                }
+                writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
                 out << nl << "this.__endWriteParams(true);";
                 out << eb;
                 out << nl << "catch(Ice.LocalException __ex)";

@@ -32,11 +32,11 @@ protected:
     //
     // Compose the parameter lists for an operation.
     //
-    std::vector<std::string> getParams(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool = false);
     std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool = false);
     std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool);
-    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&);
+    std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool);
 
     //
     // Compose the argument lists for an operation.
@@ -47,7 +47,7 @@ protected:
     std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     void writeMarshalUnmarshalParams(::IceUtilInternal::Output&, const std::string&, const ParamDeclList&,
-                                     const OperationPtr&, int&, bool, bool = false);
+                                     const OperationPtr&, int&, bool, bool, bool = false);
 
     //
     // Generate a throws clause containing only non-local exceptions.
@@ -290,12 +290,13 @@ private:
         // Generate code to emit a local variable declaration and initialize it
         // if necessary.
         //
-        void writeDecl(::IceUtilInternal::Output&, const std::string&, const std::string&, const TypePtr&, const StringList&);
+        void writeDecl(::IceUtilInternal::Output&, const std::string&, const std::string&, const TypePtr&,
+                       const StringList&, bool);
 
         //
         // Generate code to return a value.
         //
-        void writeReturn(::IceUtilInternal::Output&, const TypePtr&);
+        void writeReturn(::IceUtilInternal::Output&, const TypePtr&, bool);
 
         //
         // Generate an operation.
