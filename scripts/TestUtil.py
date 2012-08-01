@@ -951,7 +951,7 @@ def getCommandLine(exe, config, options = ""):
             props = props + p.strip().replace("--", "")
         output.write("/origin:http://localhost?%s" % props)
     else:
-        if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/"):
+        if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/") != -1:
             output.write(' ' + options)
         else:
             output.write(getCommandLineProperties(exe, config) + ' ' + options)
