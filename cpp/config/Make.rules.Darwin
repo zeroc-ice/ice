@@ -11,7 +11,13 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-CXX                     = clang++
+ifeq ($(DEVELOPER_PATH),)
+	DEVELOPER_PATH	= $(shell xcode-select -print-path)
+endif
+
+TOOLCHAIN_BIN_DIR	= $(DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/bin
+CXX					= $(TOOLCHAIN_BIN_DIR)/clang++
+
 #CXX	                = g++
 
 CXXFLAGS		= -Wall -D_REENTRANT
