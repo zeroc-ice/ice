@@ -91,19 +91,11 @@ public:
     BasicStream* os() { return &_os; }
     BasicStream* startReadParams()
     {
-        if(_observer)
-        {
-            _watch.start();
-        }
         _is.startReadEncaps();
         return &_is;
     }
     void endReadParams()
     {
-        if(_observer)
-        {
-            _observer->unmarshalTime(_watch.stop());
-        }
         _is.endReadEncaps();
     }
     void readEmptyParams()
@@ -117,19 +109,11 @@ public:
 
     BasicStream* startWriteParams()
     {
-        if(_observer)
-        {
-            _watch.start();
-        }
         _os.startWriteEncaps(_encoding);
         return &_os;
     }
     void endWriteParams()
     {
-        if(_observer)
-        {
-            _observer->marshalTime(_watch.stop());
-        }
         _os.endWriteEncaps();
     }
     void writeEmptyParams()
@@ -162,8 +146,7 @@ private:
     // deleted while a stack-allocated Outgoing still holds it.
     //
     RequestHandler* _handler;
-    Ice::RequestObserverPtr _observer;
-    IceUtilInternal::StopWatch _watch;
+    Ice::Instrumentation::RequestObserverPtr _observer;
 
     std::auto_ptr<Ice::LocalException> _exception;
 

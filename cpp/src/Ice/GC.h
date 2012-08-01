@@ -14,6 +14,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
+#include <Ice/ObserverF.h>
 
 namespace IceInternal
 {
@@ -36,6 +37,7 @@ public:
     virtual void run();
     void stop();
     void collectGarbage();
+    void updateObserver(const Ice::Instrumentation::ObserverResolverPtr&);
 
 private:
 
@@ -44,6 +46,7 @@ private:
     bool _collecting;
     int _interval;
     StatsCallback _statsCallback;
+    Ice::Instrumentation::ThreadObserverPtr _observer;
 };
 
 }

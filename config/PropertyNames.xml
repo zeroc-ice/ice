@@ -297,7 +297,7 @@ generated from the section label.
 
     <class name="mx" prefix-only="false">
         <suffix name="GroupBy" />
-        <suffix name="Reaper" />
+        <suffix name="RetainDetached" />
         <suffix name="Accept" />
         <suffix name="Reject" />
     </class>

@@ -391,7 +391,7 @@ local interface Communicator
      * @see Stats
      *
      **/
-    ["cpp:const"] ObserverResolver getObserverResolver();
+    ["cpp:const"] Ice::Instrumentation::ObserverResolver getObserverResolver();
 
     /**
      *

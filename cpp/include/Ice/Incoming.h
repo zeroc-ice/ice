@@ -18,7 +18,7 @@
 #include <Ice/Object.h>
 #include <Ice/Current.h>
 #include <Ice/IncomingAsyncF.h>
-#include <Ice/Observer.h>
+#include <Ice/ObserverF.h>
 
 #include <IceUtil/StopWatch.h>
 
@@ -55,13 +55,11 @@ protected:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
-    Ice::DispatchObserverPtr _observer;
+    Ice::Instrumentation::RequestObserverPtr _observer;
     bool _response;
     Ice::Byte _compress;
 
     BasicStream _os;
-
-    mutable IceUtilInternal::StopWatch _watch;
 
     //
     // Optimization. The connection may not be deleted while a
@@ -99,11 +97,6 @@ public:
     // Inlined for speed optimization.
     BasicStream* startReadParams()
     {
-        if(_observer)
-        {
-            _watch.start();
-        }
-
         //
         // Remember the encoding used by the input parameters, we'll
         // encode the response parameters with the same encoding.
@@ -114,27 +107,14 @@ public:
     void endReadParams() const
     {
         _is->endReadEncaps();
-        if(_observer)
-        {
-            _observer->unmarshalTime(_watch.stop());
-            _watch.start();
-        }
     }
     void readEmptyParams()
     {
         _current.encoding = _is->skipEmptyEncaps();
-        if(_observer)
-        {
-            _watch.start(); // for userTime
-        }
     }
     void readParamEncaps(const Ice::Byte*& v, Ice::Int& sz)
     {
         _current.encoding = _is->readEncaps(v, sz);
-        if(_observer)
-        {
-            _watch.start(); // for userTime
-        }
     }
 
 private:

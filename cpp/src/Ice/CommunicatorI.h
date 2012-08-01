@@ -49,7 +49,7 @@ public:
     virtual PropertiesPtr getProperties() const;
     virtual LoggerPtr getLogger() const;
     virtual StatsPtr getStats() const;
-    virtual ObserverResolverPtr getObserverResolver() const;
+    virtual Ice::Instrumentation::ObserverResolverPtr getObserverResolver() const;
 
     virtual RouterPrx getDefaultRouter() const;
     virtual void setDefaultRouter(const RouterPrx&);

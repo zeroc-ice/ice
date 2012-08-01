@@ -390,7 +390,7 @@ IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
 vector<IceInternal::ConnectorPtr>
 IceSSL::EndpointI::connectors() const
 {
-    return connectors(IceInternal::getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<EndpointI*>(this));
 }
 
 void

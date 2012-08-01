@@ -22,7 +22,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
-#include <Ice/Observer.h>
+#include <Ice/ObserverF.h>
 
 #include <memory>
 

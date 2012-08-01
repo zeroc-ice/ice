@@ -85,7 +85,7 @@ struct InitializationData
     PropertiesPtr properties;
     LoggerPtr logger;
     StatsPtr stats;
-    ObserverResolverPtr observerResolver;
+    Instrumentation::ObserverResolverPtr observerResolver;
     StringConverterPtr stringConverter;
     WstringConverterPtr wstringConverter;
     ThreadNotificationPtr threadHook;

@@ -111,7 +111,7 @@ IceInternal::ObjectAdapterFactory::destroy()
 }
 
 void
-IceInternal::ObjectAdapterFactory::updateConnectionObservers()
+IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 {
     list<ObjectAdapterIPtr> adapters;
 
@@ -120,7 +120,7 @@ IceInternal::ObjectAdapterFactory::updateConnectionObservers()
         adapters = _adapters;
     }
 
-    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(&ObjectAdapterI::updateConnectionObservers));
+    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(fn));
 }
 
 ObjectAdapterPtr

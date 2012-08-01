@@ -24,11 +24,13 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
+#include <Ice/Observer.h>
 #include <IceUtil/Random.h>
 #include <iterator>
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
@@ -250,13 +252,29 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
     // Try to establish the connection to the connectors.
     //
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
     vector<ConnectorInfo>::const_iterator q;
     for(q = connectors.begin(); q != connectors.end(); ++q)
     {
+        ObserverPtr observer;
+        if(resolver)
+        {
+            observer = resolver->getConnectObserver(q->endpoint->getInfo(), q->connector->toString());
+            if(observer)
+            {
+                observer->attach();
+            }
+        }
+
         try
         {
             connection = createConnection(q->connector->connect(), *q);
             connection->start(0);
+
+            if(observer)
+            {
+                observer->detach();
+            }
 
             if(defaultsAndOverrides->overrideCompress)
             {
@@ -272,6 +290,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         }
         catch(const Ice::CommunicatorDestroyedException& ex)
         {
+            if(observer)
+            {
+                observer->failed(ex.ice_name());
+                observer->detach();
+            }
             exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
             handleConnectionException(*exception.get(), hasMore || q != connectors.end() - 1);
             connection = 0;
@@ -279,6 +302,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         }
         catch(const Ice::LocalException& ex)
         {
+            if(observer)
+            {
+                observer->failed(ex.ice_name());
+                observer->detach();
+            }
             exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
             handleConnectionException(*exception.get(), hasMore || q != connectors.end() - 1);
             connection = 0;
@@ -963,6 +991,11 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(const O
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartCompleted(const ConnectionIPtr& connection)
 {
+    if(_observer)
+    {
+        _observer->detach();
+    }
+    
     connection->activate();
     _factory->finishGetConnection(_connectors, *_iter, connection, this);
 }
@@ -972,6 +1005,12 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(c
                                                                                const LocalException& ex)
 {
     assert(_iter != _connectors.end());
+
+    if(_observer)
+    {
+        _observer->failed(ex.ice_name());
+        _observer->detach();
+    }
     
     _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
     if(dynamic_cast<const Ice::CommunicatorDestroyedException*>(&ex)) // No need to continue.
@@ -1120,6 +1159,17 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
     Ice::ConnectionIPtr connection;
     try
     {
+
+        const ObserverResolverPtr& resolver = _factory->_instance->initializationData().observerResolver;
+        if(resolver)
+        {
+            _observer = resolver->getConnectObserver(_iter->endpoint->getInfo(), _iter->connector->toString());
+            if(_observer)
+            {
+                _observer->attach();
+            }
+        }
+
         assert(_iter != _connectors.end());
         connection = _factory->createConnection(_iter->connector->connect(), *_iter);
         connection->start(this);
@@ -1526,7 +1576,7 @@ IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::Connect
     {
         return;
     }
-    
+
     if(_warn)
     {
         Warning out(_instance->initializationData().logger);

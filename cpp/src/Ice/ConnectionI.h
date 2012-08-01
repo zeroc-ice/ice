@@ -71,8 +71,8 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
 
         Observer(const IceInternal::BasicStream&, const IceInternal::BasicStream&);
 
-        void setObserver(const Ice::ConnectionObserverPtr&); 
-        const Ice::ConnectionObserverPtr& getObserver() const
+        void setObserver(const Ice::Instrumentation::ConnectionObserverPtr&); 
+        const Ice::Instrumentation::ConnectionObserverPtr& getObserver() const
         {
             return _observer;
         }
@@ -84,7 +84,7 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
 
     private:
 
-        Ice::ConnectionObserverPtr _observer;
+        Ice::Instrumentation::ConnectionObserverPtr _observer;
         Ice::Byte* _writeStreamPos;
         IceUtilInternal::StopWatch _writeWatch;
         Ice::Byte* _readStreamPos;
@@ -186,6 +186,8 @@ public:
     void finish();
 
 private:
+
+    friend class IceInternal::ConnectionReaper;
 
     enum State
     {
@@ -311,6 +313,8 @@ private:
     const IceInternal::ConnectorPtr _connector;
     const IceInternal::EndpointIPtr _endpoint;
 
+    mutable Ice::ConnectionInfoPtr _info;
+    
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 

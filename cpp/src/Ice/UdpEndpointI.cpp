@@ -416,7 +416,7 @@ IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::UdpEndpointI::connectors() const
 {
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<UdpEndpointI*>(this));
 }
 
 void

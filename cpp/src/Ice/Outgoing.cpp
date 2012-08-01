@@ -18,9 +18,11 @@
 #include <Ice/Instance.h>
 #include <Ice/ReplyStatus.h>
 #include <Ice/Observer.h>
+#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalException& ex, bool r) :
@@ -90,12 +92,13 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _sent(false)
 { 
-    const ObserverResolverPtr& resolver = _handler->getReference()->getInstance()->initializationData().observerResolver;
+    const ReferencePtr& ref = _handler->getReference();
+    const ObserverResolverPtr& resolver = ref->getInstance()->initializationData().observerResolver;
     if(resolver)
     {
         try
         {
-            _observer = resolver->getInvocationObserver(handler->getProxy(), 
+            _observer = resolver->getInvocationObserver(ref->getInstance()->proxyFactory()->referenceToProxy(ref),
                                                         operation, 
                                                         *context, 
                                                         handler->getConnection(false));
@@ -114,7 +117,7 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
         }
     }
 
-    switch(_handler->getReference()->getMode())
+    switch(ref->getMode())
     {
         case Reference::ModeTwoway:
         case Reference::ModeOneway:
@@ -134,18 +137,18 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
 
     try
     {
-        _handler->getReference()->getIdentity().__write(&_os);
+        ref->getIdentity().__write(&_os);
 
         //
         // For compatibility with the old FacetPath.
         //
-        if(_handler->getReference()->getFacet().empty())
+        if(ref->getFacet().empty())
         {
             _os.write(static_cast<string*>(0), static_cast<string*>(0));
         }
         else
         {
-            string facet = _handler->getReference()->getFacet();
+            string facet = ref->getFacet();
             _os.write(&facet, &facet + 1);
         }
 
@@ -165,8 +168,8 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
             //
             // Implicit context
             //
-            const ImplicitContextIPtr& implicitContext = _handler->getReference()->getInstance()->getImplicitContext();
-            const Context& prxContext = _handler->getReference()->getContext()->getValue();
+            const ImplicitContextIPtr& implicitContext = ref->getInstance()->getImplicitContext();
+            const Context& prxContext = ref->getContext()->getValue();
             if(implicitContext == 0)
             {
                 _os.write(prxContext);
@@ -576,20 +579,12 @@ IceInternal::Outgoing::throwUserException()
 {
     try
     {
-        if(_observer)
-        {
-            _watch.start();
-        }
         _is.startReadEncaps();
         _is.throwException();
     }
     catch(const Ice::UserException&)
     {
         _is.endReadEncaps();
-        if(_observer)
-        {
-            _observer->unmarshalTime(_watch.stop());
-        }
         throw;
     }
 }

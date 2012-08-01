@@ -790,6 +790,20 @@ Ice::ObjectAdapterI::updateConnectionObservers()
 }
 
 void
+Ice::ObjectAdapterI::updateThreadObservers()
+{
+    ThreadPoolPtr threadPool;
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        threadPool = _threadPool;
+    }
+    if(threadPool)
+    {
+        threadPool->updateObservers();
+    }
+}
+
+void
 Ice::ObjectAdapterI::incDirectCount()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);

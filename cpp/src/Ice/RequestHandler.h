@@ -44,8 +44,6 @@ public:
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
     virtual Ice::ConnectionIPtr getConnection(bool) = 0;
-    virtual IceProxy::Ice::Object* getProxy() const = 0;
-
     
 protected:
 

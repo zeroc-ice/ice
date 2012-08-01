@@ -26,6 +26,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 namespace IceUtilInternal
@@ -50,7 +51,6 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connect
 
 IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
     _current(in._current), // copy
-    _observer(in._observer),
     _os(in._os.instance(), Ice::currentProtocolEncoding),
     _interceptorAsyncCallbackQueue(in._interceptorAsyncCallbackQueue) // copy
 {
@@ -60,6 +60,9 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 void
 IceInternal::IncomingBase::__adopt(IncomingBase& other)
 {
+    _observer = other._observer;
+    other._observer = 0;
+
     _servant = other._servant;
     other._servant = 0;
 
@@ -84,15 +87,6 @@ IceInternal::IncomingBase::__adopt(IncomingBase& other)
 BasicStream* 
 IncomingBase::__startWriteParams()
 {
-    if(_observer)
-    {
-        if(_watch.isStarted()) // isStarted == false if dispatched with AMD
-        {
-            _observer->userTime(_watch.stop());
-        }
-        _watch.start();
-    }
-
     if(_response)
     {
         assert(_os.b.size() == headerSize + 4); // Reply status position.
@@ -118,11 +112,8 @@ IncomingBase::__endWriteParams(bool ok)
     {
         *(_os.b.begin() + headerSize + 4) = ok ? replyOK : replyUserException; // Reply status position.
         _os.endWriteEncaps();
-    }
 
-    if(_observer)
-    {
-        if(_response)
+        if(_observer)
         {
             if(ok)
             {
@@ -133,56 +124,29 @@ IncomingBase::__endWriteParams(bool ok)
                 _observer->responseUserException();
             }
         }
-        _observer->marshalTime(_watch.stop());
     }
 }
 
 void 
 IncomingBase::__writeEmptyParams()
 {
-    if(_observer)
-    {
-        if(_watch.isStarted()) // isStarted == false if dispatched with AMD
-        {
-            _observer->userTime(_watch.stop());
-        }
-        if(_response)
-        {
-            _observer->responseOK();
-        }
-    }
-
     if(_response)
     {
         assert(_os.b.size() == headerSize + 4); // Reply status position.
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.write(replyOK);
         _os.writeEmptyEncaps(_current.encoding);
+
+        if(_observer)
+        {
+            _observer->responseOK();
+        }
     }
 }
 
 void 
 IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 {
-    if(_observer)
-    {
-        if(_watch.isStarted()) // isStarted == false if dispatched with AMD
-        {
-            _observer->userTime(_watch.stop());
-        }
-        if(_response)
-        {
-            if(ok)
-            {
-                _observer->responseOK();
-            }
-            else
-            {
-                _observer->responseUserException();
-            }
-        }
-    }
-
     if(_response)
     {
         assert(_os.b.size() == headerSize + 4); // Reply status position.
@@ -196,11 +160,18 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
         {
             _os.writeEncaps(v, sz);
         }
-    }
 
-    if(_observer && _locator)
-    {
-        _watch.start();
+        if(_observer)
+        {
+            if(ok)
+            {
+                _observer->responseOK();
+            }
+            else
+            {
+                _observer->responseUserException();
+            }
+        }
     }
 }
 
@@ -252,25 +223,12 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     assert(_locator && _servant);
     try
     {
-        if(_observer)
-        {
-            assert(!_watch.isStarted());
-            _watch.start();
-        }
         _locator->finished(_current, _servant, _cookie);
-        if(_observer)
-        {
-            _observer->finishedTime(_watch.stop());
-        }
         return true;
     }
     catch(const UserException& ex)
     {
         assert(_connection);
-        if(_observer)
-        {
-            _observer->finishedTime(_watch.stop());
-        }
 
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
@@ -302,18 +260,10 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     }
     catch(const std::exception& ex)
     {
-        if(_observer)
-        {
-            _observer->finishedTime(_watch.stop());
-        }
         __handleException(ex);
     }
     catch(...)
     {
-        if(_observer)
-        {
-            _observer->finishedTime(_watch.stop());
-        }
         __handleException();
     }
     return false;
@@ -668,7 +618,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         if(_observer)
         {
             _observer->attach();
-            _watch.start();
         }
     }
 
@@ -691,31 +640,20 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
             if(_locator)
             {
-                if(_observer)
-                {
-                    _watch.start();
-                }
-
                 try
                 {
                     _servant = _locator->locate(_current, _cookie);
-
-                    if(_observer)
-                    {
-                        _observer->locateTime(_watch.stop());
-                    }
                 }
                 catch(const UserException& ex)
                 {
-                    if(_observer)
-                    {
-                        _observer->locateTime(_watch.stop());
-                    }
-
                     Ice::EncodingVersion encoding = _is->skipEncaps(); // Required for batch requests.
 
                     if(_response)
                     {
+                        if(_observer)
+                        {
+                            _observer->responseUserException();
+                        }
                         _os.write(replyUserException);
                         _os.startWriteEncaps(encoding);
                         _os.write(ex);
@@ -729,11 +667,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
                     if(_observer)
                     {
-                        _observer->userException();
-                        if(_response)
-                        {
-                            _observer->response();
-                        }
                         _observer->detach();
                         _observer = 0;
                     }
@@ -742,20 +675,12 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 }
                 catch(const std::exception& ex)
                 {
-                    if(_observer)
-                    {
-                        _observer->locateTime(_watch.stop());
-                    }
                     _is->skipEncaps(); // Required for batch requests.
                     __handleException(ex);
                     return;
                 }
                 catch(...)
                 {
-                    if(_observer)
-                    {
-                        _observer->locateTime(_watch.stop());
-                    }
                     _is->skipEncaps(); // Required for batch requests.
                     __handleException();
                     return;
@@ -774,14 +699,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
             //
             if(_servant->__dispatch(*this, _current) == DispatchAsync)
             {            
-                //
-                // If this was an asynchronous dispatch, we're done here.
-                //
-                if(_observer)
-                {
-                    _observer->userTime(_watch.stop());
-                    _observer = 0; // Don't detach, it's now attached to the IncomingAsync
-                }
                 return;
             }
 
@@ -844,10 +761,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
     if(_observer)
     {
-        if(_response)
-        {
-            _observer->response();
-        }
         _observer->detach();
         _observer = 0;
     }

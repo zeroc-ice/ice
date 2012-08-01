@@ -195,10 +195,12 @@ public:
 
     EndpointHostResolver(const InstancePtr&);
 
+    std::vector<ConnectorPtr> resolve(const std::string&, int, const EndpointIPtr&);
     void resolve(const std::string&, int, const EndpointIPtr&, const EndpointI_connectorsPtr&);
     void destroy();
 
     virtual void run();
+    void updateObserver();
 
 private:
 
@@ -209,11 +211,13 @@ private:
         int port;
         EndpointIPtr endpoint;
         EndpointI_connectorsPtr callback;
+        Ice::Instrumentation::ObserverPtr observer;
     };
 
     const InstancePtr _instance;
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
+    Ice::Instrumentation::ThreadObserverPtr _observer;
 #endif
 };
 

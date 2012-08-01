@@ -10,11 +10,15 @@
 module IceMX
 {
 
+dictionary<string, int> StringIntDict;
+
 class MetricsObject
 {
     string id;
     int total = 0;
     int current = 0;
+    long totalLifetime = 0;
+    StringIntDict failures;
 };
 
 sequence<MetricsObject> MetricsObjectSeq;
@@ -52,7 +56,7 @@ interface MetricsAdmin
      * Add a metrics map to the view.
      *
      **/
-    void addMapToView(string view, string map, string groupBy, bool reap, NameValueDict acceptFilter, 
+    void addMapToView(string view, string map, string groupBy, int retainDetached, NameValueDict acceptFilter, 
                       NameValueDict rejectFilter);
 
     /**
@@ -89,27 +93,25 @@ class ThreadMetricsObject extends MetricsObject
 
 class RequestMetricsObject extends MetricsObject
 {
-    int ok = 0;
+    int responseOK = 0;
     int responseUserException = 0;
     int responseRequestFailedException = 0;
     int responseUnknownException = 0;
-    
-    long duration = 0;
 };
 
 class ConnectionMetricsObject extends MetricsObject
 {
-   int initializing = 0;
-   int holding = 0;
-   int active = 0;
-   int closing = 0;
-   int closed = 0;
-
-   long receivedBytes = 0;
-   long receivedTime = 0;
-
-   long sentBytes = 0;
-   long sentTime = 0;
+    int validating = 0;
+    int holding = 0;
+    int active = 0;
+    int closing = 0;
+    int closed = 0;
+    
+    long receivedBytes = 0;
+    long receivedTime = 0;
+    
+    long sentBytes = 0;
+    long sentTime = 0;
 };
 
 };

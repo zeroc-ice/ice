@@ -207,6 +207,11 @@ IceInternal::IncomingAsync::__response()
             _connection->sendNoResponse();
         }
 
+        if(_observer)
+        {
+            _observer->detach();
+            _observer = 0;
+        }
         _connection = 0;
     }
     catch(const LocalException& ex)

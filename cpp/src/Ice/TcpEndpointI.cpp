@@ -384,7 +384,7 @@ IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors() const
 {
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<TcpEndpointI*>(this));
 }
 
 void

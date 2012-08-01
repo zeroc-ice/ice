@@ -11,6 +11,7 @@
 
 [["cpp:header-ext:h"]]
 
+#include <Ice/EndpointF.ice>
 #include <Ice/ConnectionF.ice>
 #include <Ice/Current.ice>
 
@@ -26,7 +27,7 @@ module Instrumentation
  * notify the observer of their existence.
  *
  **/
-local interface ObjectObserver
+local interface Observer
 {
     /**
      *
@@ -43,6 +44,15 @@ local interface ObjectObserver
      *
      **/
     void detach();
+
+    /**
+     *
+     * Notification of a failure.
+     *
+     * @param The name of the exception.
+     *
+     **/
+    void failed(string exceptionName);
 };
  
 /**
@@ -58,7 +68,7 @@ enum ThreadState
      * The thread is idle.
      *
      **/
-    ThreadIdle,
+    ThreadStateIdle,
 
     /**
      *
@@ -67,7 +77,7 @@ enum ThreadState
      * pool.
      *
      **/
-    ThreadInUseForIO,
+    ThreadStateInUseForIO,
 
     /**
      *
@@ -76,7 +86,7 @@ enum ThreadState
      * pool. 
      *
      **/
-    ThreadInUseForUser,
+    ThreadStateInUseForUser,
 
     /**
      *
@@ -84,7 +94,7 @@ enum ThreadState
      * lookups, timer callbacks, etc).
      *
      **/
-    ThreadInUseForMisc,
+    ThreadStateInUseForMisc,
 };
 
 /**
@@ -94,7 +104,7 @@ enum ThreadState
  * the Ice core.
  * 
  **/
-local interface ThreadObserver extends ObjectObserver
+local interface ThreadObserver extends Observer
 {
     /**
      *
@@ -114,7 +124,7 @@ local interface ThreadObserver extends ObjectObserver
  * dispatches and proxy invocations.
  * 
  **/
-local interface RequestObserver extends ObjectObserver
+local interface RequestObserver extends Observer
 {
     /**
      *
@@ -161,12 +171,10 @@ enum ConnectionState
 {
     /**
      *
-     * The connection is being initialized. Depending on the
-     * transport, this can include connection establishment, SSL
-     * handshake, etc.
+     * The connection is being validated.
      *
      **/ 
-    ConnectionStateInitializing,
+    ConnectionStateValidating,
 
     /**
      *
@@ -206,7 +214,7 @@ enum ConnectionState
  * connections.
  * 
  **/
-local interface ConnectionObserver extends ObjectObserver
+local interface ConnectionObserver extends Observer
 {
     /**
      *
@@ -280,7 +288,7 @@ local interface ObserverUpdater
      * return an updated observer if necessary.
      * 
      **/
-    void updateThreads();
+    void updateThreadObservers();
 };
 
 /**
@@ -296,13 +304,53 @@ local interface ObserverUpdater
 local interface ObserverResolver
 {
     /**
+     *
+     * This method sould return an observer for the given adapter ID
+     * locator query.
+     * 
+     * @param The name of the adapter ID.
+     *
+     **/
+    Observer getLocatorQueryObserver(string adapterId);
+
+    /**
+     *
+     * This method should return an observer for the given endpoint
+     * information and connector. The Ice runtime calls this method
+     * for each connection establishment attempt.
+     *
+     * @param endpt The endpoint information.
+     *
+     * @param connector The description of the connector. For IP
+     * transports, this is typically the IP address to connect to.
+     *
+     **/
+    Observer getConnectObserver(EndpointInfo endpt, string connector);
+
+    /**
+     *
+     * This method should return an observer for the given endpoint
+     * information. The Ice runtime calls this method to resolve an
+     * endpoint and obtain the list of connectors. 
+     *
+     * For IP endpoints, this typically involves doing a DNS lookup to
+     * obtain the IP addresses associated with the DNS name.
+     *
+     * @param endpt The endpoint information.
+     *
+     **/
+    Observer getEndpointResolveObserver(EndpointInfo endpt, string endpoint);
+
+    /**
      * 
      * This method should return a connection observer for the given
      * connection. The Ice runtime calls this method for each new
      * connection and for all the Ice communicator connections when
      * ObserverUpdater::updateConnections is called.
      *
-     * @param con The connection to observe
+     * @param con The connection information of the connection
+     *
+     * @param endpt The endpoint information of the connection
      *
      * @param s The state of the connection
      *
@@ -312,7 +360,8 @@ local interface ObserverResolver
      * @return The connection observer object.
      *
      **/
-    ConnectionObserver getConnectionObserver(Connection con, ConnectionState s, ConnectionObserver o);
+    ConnectionObserver getConnectionObserver(ConnectionInfo con, EndpointInfo endpt, ConnectionState s, 
+                                             ConnectionObserver o);
 
     /**
      * 
@@ -331,7 +380,7 @@ local interface ObserverResolver
      * @return The thread observer object.
      *
      **/
-    ThreadObserver getThreadObserver(string parent, string id, ThreadState s);
+    ThreadObserver getThreadObserver(string parent, string id, ThreadState s, ThreadObserver o);
 
     /**
      * 

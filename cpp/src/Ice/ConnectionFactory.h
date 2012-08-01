@@ -25,6 +25,8 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/EndpointI.h>
+#include <Ice/ObserverF.h>
+
 #include <list>
 #include <set>
 
@@ -118,6 +120,7 @@ private:
         const bool _hasMore;
         const CreateConnectionCallbackPtr _callback;
         const Ice::EndpointSelectionType _selType;
+        Ice::Instrumentation::ObserverPtr _observer;
         std::vector<EndpointIPtr>::const_iterator _endpointsIter;
         std::vector<ConnectorInfo> _connectors;
         std::vector<ConnectorInfo>::const_iterator _iter;

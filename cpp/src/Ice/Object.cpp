@@ -20,7 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Object* Ice::upCast(Object* p) { return p; }
+IceUtil::Shared* Ice::upCast(Object* p) { return p; }
 
 void 
 Ice::__patch(ObjectPtr& obj, ObjectPtr& v)

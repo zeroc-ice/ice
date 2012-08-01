@@ -13,9 +13,6 @@
 #include <IceUtil/ScopedArray.h>
 #include <IceUtil/Iterator.h>
 
-#include <Ice/ObjectF.h>
-
-
 namespace Ice
 {
 

@@ -56,7 +56,6 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 Ice.Admin.Endpoints=tcp -p 12000
 Ice.Admin.InstanceName=server 
 
-IceMX.MetricsView.Debug.Reap=1
 IceMX.MetricsView.Debug.GroupBy=id
 
 IceMX.MetricsView.Global=1

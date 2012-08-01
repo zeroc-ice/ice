@@ -265,13 +265,13 @@ public:
     virtual void writeProxy(const ObjectPrx&) = 0;
     template<typename T> void write(const IceInternal::ProxyHandle<T>& v)
     {
-        writeProxy(ObjectPrx(upCast(v.get())));
+        writeProxy(ObjectPrx(v.get()));
     }
 
     virtual void writeObject(const ObjectPtr&) = 0;
     template<typename T> void write(const IceInternal::Handle<T>& v)
     {
-        writeObject(ObjectPtr(upCast(v.get())));
+        writeObject(ObjectPtr(v.get()));
     }
 
     void

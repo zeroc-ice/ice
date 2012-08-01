@@ -14,12 +14,17 @@
 module Ice
 {
 
-local interface ObjectObserver;
-local interface ThreadPoolThreadObserver;
+module Instrumentation
+{
+
+local interface Observer;
+local interface ThreadObserver;
 local interface RequestObserver;
 local interface ConnectionObserver;
 
 local interface ObserverResolver;
+
+};
 
 };
 

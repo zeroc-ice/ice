@@ -70,7 +70,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
     ThreadPoolPtr clientThreadPool();
-    ThreadPoolPtr serverThreadPool();
+    ThreadPoolPtr serverThreadPool(bool create = true);
     EndpointHostResolverPtr endpointHostResolver();
     RetryQueuePtr retryQueue();
     IceUtil::TimerPtr timer();
@@ -99,7 +99,7 @@ public:
     void setWstringConverter(const Ice::WstringConverterPtr&);
     void setLogger(const Ice::LoggerPtr&);
     void setThreadHook(const Ice::ThreadNotificationPtr&);
-    void setObserverResolver(const Ice::ObserverResolverPtr&);
+    void setObserverResolver(const Ice::Instrumentation::ObserverResolverPtr&);
 
 private:
 

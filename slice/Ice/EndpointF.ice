@@ -14,6 +14,7 @@
 module Ice
 {
 
+local class EndpointInfo;
 local class TCPEndpointInfo;
 local class UDPEndpointInfo;
 local interface Endpoint;

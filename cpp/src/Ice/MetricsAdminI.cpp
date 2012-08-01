@@ -23,15 +23,6 @@ using namespace IceMX;
 namespace 
 {
 
-struct MOCompare
-{
-    bool operator()(const pair<MetricsObjectPtr, IceUtil::Mutex*>& lhs, 
-                    const pair<MetricsObjectPtr, IceUtil::Mutex*>& rhs)
-    { 
-        return lhs.first.get() < rhs.first.get();
-    }
-};
-
 NameValueDict
 parseRule(const ::Ice::PropertiesPtr& properties, const string& name)
 {
@@ -52,8 +43,8 @@ match(const string& value, const string& expr)
 
 }
 
-MetricsMap::MetricsMap(const string& groupBy, bool reap, const NameValueDict& accept, const NameValueDict& reject) : 
-    _reap(reap), _accept(accept), _reject(reject)
+MetricsMap::MetricsMap(const string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject) : 
+    _retain(retain), _accept(accept), _reject(reject)
 {
     if(!groupBy.empty())
     {
@@ -96,43 +87,27 @@ MetricsMap::MetricsMap(const string& groupBy, bool reap, const NameValueDict& ac
     }
 }
 
-void
-MetricsMap::destroy()
-{
-    _objects.clear();
-}
-
 MetricsObjectSeq
 MetricsMap::getMetricsObjects()
 {
     MetricsObjectSeq objects;
-    map<string, EntryPtr>::iterator p = _objects.begin(); 
-    while(p != _objects.end())
+
+    Lock sync(*this);
+    for(map<string, EntryPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
     {
-        IceUtil::Mutex::Lock sync(p->second->mutex);
-        if(_reap && p->second->object->current == 0 && p->second->object->total == 1)
-        {
-            sync.release(); // We're going to destroy the mutex
-            _objects.erase(p++);
-        }
-        else
-        {
-            // TODO: Fix ice_clone to use a co-variant type.
-            objects.push_back(dynamic_cast<MetricsObject*>(p->second->object->ice_clone().get()));
-            ++p;
-        }
+        objects.push_back(p->second->clone());
     }
     return objects;
 }
 
-pair<MetricsObjectPtr, IceUtil::Mutex*>
+MetricsMap::EntryPtr
 MetricsMap::getMatching(const ObjectHelper& helper)
 {
     for(map<string, string>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
     {
         if(!match(helper(p->first), p->second))
         {
-            return make_pair(MetricsObjectPtr(), static_cast<IceUtil::Mutex*>(0));
+            return 0;
         }
     }
     
@@ -140,7 +115,7 @@ MetricsMap::getMatching(const ObjectHelper& helper)
     {
         if(match(helper(p->first), p->second))
         {
-            return make_pair(MetricsObjectPtr(), static_cast<IceUtil::Mutex*>(0));
+            return 0;
         }
     }
     
@@ -156,13 +131,53 @@ MetricsMap::getMatching(const ObjectHelper& helper)
     }
 
     string key = os.str();
+
+    Lock sync(*this);
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
     if(p == _objects.end())
     {
-        p = _objects.insert(make_pair(os.str(), new Entry(helper.newMetricsObject()))).first;
-        p->second->object->id = key;
+        p = _objects.insert(make_pair(key, new Entry(this, helper.newMetricsObject(key)))).first;
     }
-    return make_pair(p->second->object, &p->second->mutex);
+    return p->second;
+}
+
+void
+MetricsMap::detached(Entry* entry)
+{
+    Lock sync(*this);
+    if(_retain == 0)
+    {
+        return;
+    }
+
+    assert(_detachedQueue.size() <= _retain);
+
+    deque<Entry*>::iterator p = _detachedQueue.begin();
+    while(p != _detachedQueue.end())
+    {
+        if(*p == entry)
+        {
+            _detachedQueue.erase(p);
+            break;
+        }
+        else if(!(*p)->isDetached())
+        {
+            p = _detachedQueue.erase(p);
+        }
+        else
+        {
+            ++p;
+        }
+    }
+
+    if(_detachedQueue.size() == _retain)
+    {
+        // Remove oldest entry if there's still no room
+        _objects.erase(_detachedQueue.front()->id());
+        _detachedQueue.pop_front();
+    }
+
+    _detachedQueue.push_back(entry);
 }
     
 MetricsView::MetricsView()
@@ -170,10 +185,10 @@ MetricsView::MetricsView()
 }
 
 void
-MetricsView::add(const string& name, const string& groupBy, bool reap, const NameValueDict& accept, 
+MetricsView::add(const string& name, const string& groupBy, int retain, const NameValueDict& accept, 
                  const NameValueDict& reject)
 {
-    _maps.insert(make_pair(name, new MetricsMap(groupBy, reap, accept, reject)));
+    _maps.insert(make_pair(name, new MetricsMap(groupBy, retain, accept, reject)));
 }
 
 void
@@ -196,7 +211,7 @@ MetricsView::getMetricsObjects()
     return metrics;
 }
 
-pair<MetricsObjectPtr, IceUtil::Mutex*>
+MetricsMap::EntryPtr
 MetricsView::getMatching(const string& mapName, const ObjectHelper& helper) const
 {
     if(_enabled)
@@ -207,7 +222,7 @@ MetricsView::getMatching(const string& mapName, const ObjectHelper& helper) cons
             return p->second->getMatching(helper);
         }
     }
-    return make_pair(MetricsObjectPtr(), static_cast<IceUtil::Mutex*>(0));
+    return 0;
 }
 
 vector<string>
@@ -228,17 +243,16 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
     vector<string> defaultMaps;
     defaultMaps.push_back("Connection");
     defaultMaps.push_back("Thread");
-    defaultMaps.push_back("ThreadPoolThread");
     defaultMaps.push_back("Request");
+    defaultMaps.push_back("LocatorQuery");
+    defaultMaps.push_back("Connect");
+    defaultMaps.push_back("EndpointResolve");
     
     PropertiesPtr properties = initData.properties;
-    if(initData.observerResolver)
-    {
-        // ERROR!
-    }
 
-    //getInstance(communicator)->setObserverResolver();
     __setNoDelete(true);
+
+    assert(!initData.observerResolver);
     initData.observerResolver = new ObserverResolverI(this);
 
     PropertyDict views = properties->getPropertiesForPrefix(viewsPrefix);
@@ -268,7 +282,7 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
                 mapName = mapName.substr(0, dotPos);
             }
             
-            if(mapName == "GroupBy" || mapName == "Accept" || mapName == "Reject" || mapName == "Reap")
+            if(mapName == "GroupBy" || mapName == "Accept" || mapName == "Reject" || mapName == "RetainDetached")
             {
                 continue; // Those aren't maps.
             }
@@ -276,10 +290,10 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
             ++mapsCount;
             
             string groupBy = properties->getProperty(mapsPrefix + mapName + ".GroupBy");
-            bool reap = properties->getPropertyAsInt(mapsPrefix + mapName + ".Reap") > 0;
+            int retain = properties->getPropertyAsIntWithDefault(mapsPrefix + mapName + ".RetainDetached", 10);
             NameValueDict accept = parseRule(properties, mapsPrefix + mapName + ".Accept");
             NameValueDict reject = parseRule(properties, mapsPrefix + mapName + ".Reject");
-            addMapToView(viewName, mapName, groupBy, reap, accept, reject);
+            addMapToView(viewName, mapName, groupBy, retain, accept, reject);
         }
 
         //
@@ -288,12 +302,12 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
         if(mapsCount == 0)
         {
             string groupBy = properties->getProperty(viewsPrefix + viewName + ".GroupBy");
-            bool reap = properties->getPropertyAsInt(viewsPrefix + viewName + ".Reap") > 0;
+            int retain = properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".RetainDetached", 10);
             NameValueDict accept = parseRule(properties, viewsPrefix + viewName + ".Accept");
             NameValueDict reject = parseRule(properties, viewsPrefix + viewName + ".Reject");
             for(vector<string>::const_iterator p = defaultMaps.begin(); p != defaultMaps.end(); ++p)
             {
-                addMapToView(viewName, *p, groupBy, reap, accept, reject);
+                addMapToView(viewName, *p, groupBy, retain, accept, reject);
             }
         }
     }
@@ -307,20 +321,20 @@ MetricsAdminI::addUpdater(const string& mapName, const ObjectObserverUpdaterPtr&
     _updaters.insert(make_pair(mapName, updater));
 }
 
-vector<pair<MetricsObjectPtr, IceUtil::Mutex*> >
+vector<MetricsMap::EntryPtr>
 MetricsAdminI::getMatching(const string& mapName, const ObjectHelper& helper) const
 {
     Lock sync(*this);
-    vector<pair<MetricsObjectPtr, IceUtil::Mutex*> > objects;
+    vector<MetricsMap::EntryPtr> objects;
     for(map<string, MetricsViewPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        pair<MetricsObjectPtr, IceUtil::Mutex*> e = p->second->getMatching(mapName, helper);
-        if(e.first)
+        MetricsMap::EntryPtr e = p->second->getMatching(mapName, helper);
+        if(e)
         {
             objects.push_back(e);
         }
     }
-    sort(objects.begin(), objects.end(), MOCompare());
+    sort(objects.begin(), objects.end());
     return objects;
 }
 
@@ -355,7 +369,7 @@ void
 MetricsAdminI::addMapToView(const string& view, 
                             const string& mapName, 
                             const string& groupBy,
-                            bool reap,
+                            int retain,
                             const NameValueDict& accept, 
                             const NameValueDict& reject,
                             const ::Ice::Current&)
@@ -368,7 +382,7 @@ MetricsAdminI::addMapToView(const string& view,
         {
             p = _views.insert(make_pair(view, new MetricsView())).first;
         }
-        p->second->add(mapName, groupBy, reap, accept, reject);
+        p->second->add(mapName, groupBy, retain, accept, reject);
 
         map<string, ObjectObserverUpdaterPtr>::const_iterator q = _updaters.find(mapName);
         if(q != _updaters.end())

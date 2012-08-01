@@ -18,3 +18,10 @@ IceSSL.DefaultDir=../../../../certs
 IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=s_rsa1024_pub.pem
 IceSSL.KeyFile=s_rsa1024_priv.pem
+
+Ice.Admin.Endpoints=tcp -p 12000
+Ice.Admin.InstanceName=server 
+
+IceMX.MetricsView.Debug.GroupBy=id
+IceMX.MetricsView.OnParent.GroupBy=parent
+IceMX.MetricsView.PerOperation.Request.GroupBy=operation  

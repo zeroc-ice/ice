@@ -18,3 +18,9 @@ IceSSL.CertAuthFile=cacert.pem
 IceSSL.CertFile=c_rsa1024_pub.pem
 IceSSL.KeyFile=c_rsa1024_priv.pem
 
+Ice.Admin.Endpoints=tcp -p 12001
+Ice.Admin.InstanceName=client 
+
+IceMX.MetricsView.Debug.GroupBy=id
+IceMX.MetricsView.OnParent.GroupBy=parent
+IceMX.MetricsView.PerOperation.Request.GroupBy=operation-mode

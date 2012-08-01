@@ -22,38 +22,104 @@ typedef IceUtil::Handle<ObjectObserverUpdater> ObjectObserverUpdaterPtr;
 
 class ObjectHelper;
 
-class MetricsMap : public IceUtil::Shared
+class MetricsMap : public IceUtil::Shared, public IceUtil::Mutex
 {
-    class Entry : public IceUtil::Shared
+public:
+
+    class Entry : public Ice::LocalObject, public IceUtil::Mutex
     {
     public:
-        Entry(const MetricsObjectPtr& object) : object(object)
+
+        Entry(MetricsMap* map, const MetricsObjectPtr& object) : _map(map), _object(object)
         {
         }
+
+        template<typename ObjectHelper, typename MetricsObjectPtrType> MetricsObjectPtrType 
+        attach(const ObjectHelper& helper)
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            ++_object->total;
+            ++_object->current;
+
+            MetricsObjectPtrType obj = MetricsObjectPtrType::dynamicCast(_object);
+            helper.initMetricsObject(obj);
+            return obj;
+        }
         
-        MetricsObjectPtr object;
-        IceUtil::Mutex mutex;
+        void detach(long lifetime)
+        {
+            bool detached = false;
+            {
+                IceUtil::Mutex::Lock sync(*this);
+                detached = --_object->current == 0;
+
+                _object->totalLifetime += lifetime;
+            }
+            if(detached)
+            {
+                _map->detached(this);
+            }
+        }
+
+        void failed(const std::string& exceptionName)
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            ++_object->failures[exceptionName];
+        }
+
+        MetricsObjectPtr
+        clone() const
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            // TODO: Fix ice_clone to use a co-variant type.
+            return dynamic_cast<MetricsObject*>(_object->ice_clone().get());
+        }
+
+
+        template<typename Function, typename MetricsObjectType> void
+        execute(Function func, const MetricsObjectType& obj)
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            func(obj);
+        }
+
+        const std::string& id() const
+        {
+            return _object->id;
+        }
+
+        bool isDetached() const
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            return _object->current == 0;
+        }
+
+    private:
+
+        MetricsMap* _map;
+        MetricsObjectPtr _object;
     };
     typedef IceUtil::Handle<Entry> EntryPtr;
 
-public:
-
-    MetricsMap(const std::string&, bool, const NameValueDict&, const NameValueDict&);
-
-    void destroy();
+    MetricsMap(const std::string&, int, const NameValueDict&, const NameValueDict&);
 
     MetricsObjectSeq getMetricsObjects();
 
-    std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const ObjectHelper&);
+    EntryPtr getMatching(const ObjectHelper&);
 
 private:
 
+    friend class Entry;
+    void detached(Entry*);
+
     std::vector<std::string> _groupByAttributes;
     std::vector<std::string> _groupBySeparators;
-    bool _reap;
+    int _retain;
     const NameValueDict _accept;
     const NameValueDict _reject;
+
     std::map<std::string, EntryPtr> _objects;
+    std::deque<Entry*> _detachedQueue;
 };
 typedef IceUtil::Handle<MetricsMap> MetricsMapPtr;
 
@@ -73,12 +139,12 @@ public:
         return _enabled;
     }
 
-    void add(const std::string&, const std::string&, bool, const NameValueDict&, const NameValueDict&);
+    void add(const std::string&, const std::string&, int, const NameValueDict&, const NameValueDict&);
     void remove(const std::string&);
 
     MetricsObjectSeqDict getMetricsObjects();
 
-    std::pair<MetricsObjectPtr, IceUtil::Mutex*> getMatching(const std::string&, const ObjectHelper&) const;
+    MetricsMap::EntryPtr getMatching(const std::string&, const ObjectHelper&) const;
 
     std::vector<std::string> getMaps() const;
 
@@ -95,14 +161,13 @@ public:
 
     MetricsAdminI(::Ice::InitializationData&);
 
-    std::vector<std::pair<MetricsObjectPtr, IceUtil::Mutex*> > getMatching(const std::string&, 
-                                                                           const ObjectHelper&) const;
+    std::vector<MetricsMap::EntryPtr> getMatching(const std::string&, const ObjectHelper&) const;
     void addUpdater(const std::string&, const ObjectObserverUpdaterPtr&);
 
     virtual MetricsObjectSeqDict getMetricsMaps(const std::string&, const ::Ice::Current&);
     virtual MetricsObjectSeqDictDict getAllMetricsMaps(const ::Ice::Current&);
 
-    virtual void addMapToView(const std::string&, const std::string&, const std::string&, bool, const NameValueDict&, 
+    virtual void addMapToView(const std::string&, const std::string&, const std::string&, int, const NameValueDict&, 
                                 const NameValueDict&, const ::Ice::Current& = ::Ice::Current());
 
     virtual void removeMapFromView(const std::string&, const std::string&, const ::Ice::Current&);

@@ -48,7 +48,6 @@ public:
     virtual AsyncStatus flushAsyncBatchRequests(const BatchOutgoingAsyncPtr&);
 
     virtual Ice::ConnectionIPtr getConnection(bool);
-    virtual IceProxy::Ice::Object* getProxy() const;
 
     virtual void setConnection(const Ice::ConnectionIPtr&, bool);
     virtual void setException(const Ice::LocalException&);

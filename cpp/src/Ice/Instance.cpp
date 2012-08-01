@@ -37,7 +37,7 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/Communicator.h>
 #include <Ice/Observer.h>
-
+#include <Ice/GC.h>
 #include <Ice/MetricsAdminI.h>
 
 #include <IceUtil/UUID.h>
@@ -76,6 +76,13 @@ extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 };
 
+namespace IceInternal
+{
+
+extern IceUtil::Handle<IceInternal::GC> theCollector;
+
+}
+
 namespace
 {
 
@@ -106,7 +113,7 @@ public:
 
 Init init;
 
-class ObserverUpdaterI : public Ice::ObserverUpdater
+class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
 {
 public:
 
@@ -117,15 +124,16 @@ public:
     void updateConnectionObservers()
     {
         _instance->outgoingConnectionFactory()->updateConnectionObservers();
-        _instance->objectAdapterFactory()->updateConnectionObservers();
+        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateConnectionObservers);
     }
 
     void updateThreadObservers()
     {
-    }
-
-    void updateThreadPoolThreadObservers()
-    {
+        _instance->clientThreadPool()->updateObservers();
+        _instance->serverThreadPool(false)->updateObservers();
+        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
+        _instance->endpointHostResolver()->updateObserver();
+        theCollector->updateObserver(_instance->initializationData().observerResolver);
     }
 
 private:
@@ -300,7 +308,7 @@ IceInternal::Instance::clientThreadPool()
 }
 
 ThreadPoolPtr
-IceInternal::Instance::serverThreadPool()
+IceInternal::Instance::serverThreadPool(bool create)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -309,7 +317,7 @@ IceInternal::Instance::serverThreadPool()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    if(!_serverThreadPool) // Lazy initialization.
+    if(!_serverThreadPool && create) // Lazy initialization.
     {
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
         _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
@@ -777,7 +785,7 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
 }
 
 void
-IceInternal::Instance::setObserverResolver(const Ice::ObserverResolverPtr& observerResolver)
+IceInternal::Instance::setObserverResolver(const Ice::Instrumentation::ObserverResolverPtr& observerResolver)
 {
     //
     // No locking, as it can only be called during plug-in loading
@@ -1063,7 +1071,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
-        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", new IceMX::MetricsAdminI(_initData)));
+
+        //
+        // Register the metrics admin plugin only if the user didn't already set an
+        // Ice observer resovler.
+        //
+        if(!_initData.observerResolver)
+        {
+            _adminFacets.insert(FacetMap::value_type("MetricsAdmin", new IceMX::MetricsAdminI(_initData)));
+        }
 
         __setNoDelete(false);
     }
@@ -1135,6 +1151,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     if(_initData.observerResolver)
     {
+        theCollector->updateObserver(_initData.observerResolver);
         _initData.observerResolver->setObserverUpdater(new ObserverUpdaterI(this));
     }
 

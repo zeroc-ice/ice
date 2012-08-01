@@ -12,9 +12,11 @@
 #include <IceUtil/RecMutex.h>
 #include <Ice/GC.h>
 #include <Ice/GCShared.h>
+#include <Ice/Observer.h>
 #include <set>
 
 using namespace IceUtil;
+using namespace Ice::Instrumentation;
 
 namespace 
 {
@@ -138,7 +140,7 @@ IceInternal::GCShared::__setNoDelete(bool b)
 //
 
 
-IceInternal::GC::GC(int interval, StatsCallback cb)
+IceInternal::GC::GC(int interval, StatsCallback cb) : Thread("Ice.GC")
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(numCollectorsMutex);
     if(numCollectors++ > 0)
@@ -174,6 +176,7 @@ IceInternal::GC::run()
     while(true)
     {
         bool collect = false;
+        ThreadObserverPtr observer;
         {
             Monitor<Mutex>::Lock sync(*this);
 
@@ -186,11 +189,26 @@ IceInternal::GC::run()
             {
                 collect = true;
             }
+            observer = _observer;
         }
         if(collect)
         {
-            collectGarbage();
+            if(observer)
+            {
+                observer->stateChanged(ThreadStateIdle, ThreadStateInUseForMisc);
+                collectGarbage();
+                observer->stateChanged(ThreadStateInUseForMisc, ThreadStateIdle);
+            }
+            else
+            {
+                collectGarbage();
+            }
         }
+    }
+
+    if(_observer)
+    {
+        _observer->detach();
     }
 }
 
@@ -371,5 +389,17 @@ IceInternal::GC::collectGarbage()
         Monitor<Mutex>::Lock sync(*this);
 
         _collecting = false;
+    }
+}
+
+void
+IceInternal::GC::updateObserver(const ObserverResolverPtr& resolver)
+{
+    Monitor<Mutex>::Lock sync(*this);
+    assert(resolver);
+    _observer = resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer);
+    if(_observer)
+    {
+        _observer->attach();
     }
 }
