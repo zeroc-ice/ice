@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_REPLICA_SESSION_MANAGER_H
-#define ICE_GRID_REPLICA_SESSION_MANAGER_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Mutex.h>
@@ -109,5 +108,3 @@ private:
 };
 
 }
-
-#endif

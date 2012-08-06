@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH2_FILE_SERVER_I_H
-#define ICE_PATCH2_FILE_SERVER_I_H
+#pragma once
 
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServer.h>
@@ -38,5 +37,3 @@ private:
 };
 
 }
-
-#endif

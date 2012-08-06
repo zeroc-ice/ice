@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_COND_H
-#define ICE_UTIL_COND_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Time.h>
@@ -268,5 +267,3 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
 #endif
 
 } // End namespace IceUtil
-
-#endif

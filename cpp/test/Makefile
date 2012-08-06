@@ -14,13 +14,17 @@ include $(top_srcdir)/config/Make.rules
 SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
-                  IceSSL \
-		  IceBox \
-		  IceStorm \
-		  Freeze \
-		  FreezeScript \
-		  Glacier2 \
-		  IceGrid
+                  IceSSL
+		  
+ifneq ($(MinGW), yes)
+SUBDIRS		:= $(SUBDIRS) \
+			  IceBox \
+			  IceStorm \
+			  Freeze \
+			  FreezeScript \
+			  Glacier2 \
+			  IceGrid
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

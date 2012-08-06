@@ -9,11 +9,17 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mkrblibfilename,IceRuby,$(VERSION))
-SONAME          = $(call mkrbsoname,IceRuby,$(SOVERSION))  
-LIBNAME		= $(call mkrblibname,IceRuby)
+include $(top_srcdir)/../cpp/config/Make.rules.common
 
-TARGETS		=  $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+ifeq ($(MinGW), yes)
+	DLLNAME         = $(libdir)/IceRuby.so
+	TARGETS		= $(DLLNAME)
+else
+	LIBFILENAME     = $(call mkrblibfilename,IceRuby,$(VERSION))
+	SONAME          = $(call mkrbsoname,IceRuby,$(SOVERSION))  
+	LIBNAME		= $(call mkrblibname,IceRuby)
+	TARGETS		=  $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+endif
 
 OBJS		= Connection.o \
 		  Communicator.o \
@@ -34,8 +40,17 @@ SRCS		= $(OBJS:.o=.cpp)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I.. $(CPPFLAGS) $(ICE_FLAGS) $(RUBY_FLAGS)
+LINKWITH        := -L"$(libdir)" $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
 
-LINKWITH        := -L$(libdir) $(ICE_LIBS) $(RUBY_LIBS) $(CXXLIBS)
+ifeq ($(MinGW), yes)
+
+$(DLLNAME): $(OBJS)
+	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
+
+install:: all
+	$(call installprogram,$(DLLNAME),$(install_libdir))
+
+else
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -52,4 +67,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 
-include .depend
+endif
+
+#include .depend

@@ -132,7 +132,7 @@ IceSSL::AcceptorI::startAccept()
 void 
 IceSSL::AcceptorI::finishAccept()
 {
-    if(_info.count == SOCKET_ERROR || _fd == INVALID_SOCKET)
+    if(static_cast<int>(_info.count) == SOCKET_ERROR || _fd == INVALID_SOCKET)
     {
         IceInternal::closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;

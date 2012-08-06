@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_GRAMMAR_UTIL_H
-#define SLICE_GRAMMAR_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 
@@ -215,5 +214,3 @@ int slice_parse();
 // yyoverflow.
 //
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
-
-#endif

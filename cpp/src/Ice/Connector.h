@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTOR_H
-#define ICE_CONNECTOR_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/ConnectorF.h>
@@ -32,5 +31,3 @@ public:
 };
 
 }
-
-#endif

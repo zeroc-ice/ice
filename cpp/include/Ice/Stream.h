@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_H
-#define ICE_STREAM_H
+#pragma once
 
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
@@ -96,18 +95,6 @@ public:
     virtual CommunicatorPtr communicator() const = 0;
 
     virtual void sliceObjects(bool) = 0;
-
-    //
-    // COMPILERFIX: BCC2010 doesn't allow use of full specialization over
-    // partial specialization.
-    //
-#ifdef __BCPLUSPLUS__
-    void
-    read(::std::_Vb_reference<unsigned int, int> v)
-    {
-        v = readBool();
-    }
-#endif
 
     //
     // Sequences of bool are handled specifically because C++
@@ -434,5 +421,3 @@ protected:
 };
 
 }
-
-#endif

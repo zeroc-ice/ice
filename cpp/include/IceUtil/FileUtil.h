@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_FILE_UTIL_H
-#define ICE_FILE_UTIL_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -39,7 +38,7 @@ ICE_UTIL_API bool directoryExists(const std::string&);
 
 #ifdef _WIN32
 
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
 typedef struct _stat structstat;
 #else
 typedef struct _stat64i32 structstat;
@@ -160,4 +159,3 @@ private:
 };
 
 }
-#endif

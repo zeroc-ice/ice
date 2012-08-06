@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_I_H
-#define ICE_STREAM_I_H
+#pragma once
 
 #include <Ice/Stream.h>
 
@@ -175,5 +174,3 @@ private:
 };
 
 }
-
-#endif

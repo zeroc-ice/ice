@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PLUGIN_MANAGER_I_H
-#define ICE_PLUGIN_MANAGER_I_H
+#pragma once
 
 #include <Ice/Plugin.h>
 #include <Ice/InstanceF.h>
@@ -59,6 +58,3 @@ private:
 typedef IceUtil::Handle<PluginManagerI> PluginManagerIPtr;
 
 }
-
-
-#endif

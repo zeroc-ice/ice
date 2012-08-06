@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-require 'TestI.rb'
+require './TestI.rb'
 
 #
 # Ice for Ruby behaves differently than Ice for C++, because

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROTOCOL_H
-#define ICE_PROTOCOL_H
+#pragma once
 
 #include <Ice/Config.h>
 #include <Ice/Version.h>
@@ -188,5 +187,3 @@ checkSupportedEncoding(const Ice::EncodingVersion& v)
 }
 
 }
-
-#endif

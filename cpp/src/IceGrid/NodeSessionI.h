@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICEGRID_NODE_SESSION_H
-#define ICEGRID_NODE_SESSION_H
+#pragma once
 
 #include <IceGrid/Internal.h>
 #include <set>
@@ -101,5 +100,3 @@ private:
 typedef IceUtil::Handle<NodeSessionI> NodeSessionIPtr;
 
 };
-
-#endif

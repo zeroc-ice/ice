@@ -12,7 +12,7 @@ require 'pathname'
 
 require 'Ice'
 Ice::loadSlice('Test.ice')
-require 'AllTests'
+require './AllTests'
 
 def run(args, communicator)
     thrower = allTests(communicator)

@@ -22,10 +22,6 @@
 #  include <io.h>
 #endif
 
-#ifdef __BCPLUSPLUS__
-#  include <dir.h>
-#endif
-
 using namespace std;
 
 //
@@ -174,7 +170,7 @@ IceUtilInternal::unlink(const string& path)
 int
 IceUtilInternal::close(int fd)
 {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#if defined(_MSC_VER) && (_MSC_VER >= 1400) || defined(__MINGW32__)
         return _close(fd);
 #else
         return ::close(fd);
@@ -201,6 +197,12 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
 
+#ifdef __MINGW32__
+    if(::LockFile(_fd, 0, 0, 0, 0) == 0)
+    {
+        throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
+    }
+#else
     OVERLAPPED overlaped;
     overlaped.Internal = 0;
     overlaped.InternalHigh = 0;
@@ -212,6 +214,7 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
         ::CloseHandle(_fd);
         throw IceUtil::FileLockException(__FILE__, __LINE__, GetLastError(), _path);
     }
+#endif
     //
     // In Windows implementation we don't write the process pid to the file, as is 
     // not posible to read the file from other process while it is locked here.
@@ -314,14 +317,23 @@ IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
 
 #else
 
-IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : std::ifstream(IceUtil::stringToWstring(path).c_str(), mode)
+IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : 
+#ifdef  __MINGW32__
+    std::ifstream(path.c_str(), mode)
+#else
+    std::ifstream(IceUtil::stringToWstring(path).c_str(), mode)
+#endif
 {
 }
 
 void
 IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
 {
+#ifdef  __MINGW32__
+    std::ifstream::open(path.c_str(), mode);
+#else
     std::ifstream::open(IceUtil::stringToWstring(path).c_str(), mode);
+#endif
 }
 
 #endif
@@ -375,14 +387,23 @@ IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
 
 #else
 
-IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : std::ofstream(IceUtil::stringToWstring(path).c_str(), mode)
+IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : 
+#ifdef __MINGW32__
+    std::ofstream(path.c_str(), mode)
+#else
+    std::ofstream(IceUtil::stringToWstring(path).c_str(), mode)
+#endif
 {
 }
 
 void
 IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
 {
+#ifdef __MINGW32__
+    std::ofstream::open(path.c_str(), mode);
+#else
     std::ofstream::open(IceUtil::stringToWstring(path).c_str(), mode);
+#endif
 }
 
 #endif

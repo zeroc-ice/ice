@@ -71,7 +71,7 @@ def getDefaultLocatorProperty():
 def startIceGridRegistry(testdir, dynamicRegistration = False):
 
     iceGrid = ""
-    if TestUtil.isBCC2010() or TestUtil.isVC6():
+    if TestUtil.isVC6():
         iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridregistry")
     else:
         iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")
@@ -155,7 +155,7 @@ def iceGridNodePropertiesOverride():
 def startIceGridNode(testdir):
 
     iceGrid = ""
-    if TestUtil.isBCC2010() or TestUtil.isVC6():
+    if TestUtil.isVC6():
         iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridnode")
     else:
         iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridnode")

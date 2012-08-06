@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTER_INFO_H
-#define ICE_ROUTER_INFO_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -104,5 +103,3 @@ private:
 };
 
 }
-
-#endif

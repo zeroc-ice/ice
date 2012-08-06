@@ -683,49 +683,29 @@ namespace Ice.VisualStudio
         private static readonly string _csCompactFrameworkBinDirs = "\\bin\\cf\\";
         private static readonly string _slBinDirs = "\\bin\\sl\\";
 
-        public static bool addDotNetReference(Project project, string component, string iceHome, bool development)
+        public static bool addDotNetReference(Project project, string component, bool development)
         {
             if(project == null || String.IsNullOrEmpty(component))
             {
                 return false;
             }
 
-            string csBinDir = null;
-            if(isVBSmartDeviceProject(project) || isCSharpSmartDeviceProject(project))
+            VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
+            try
             {
-                csBinDir = _csCompactFrameworkBinDirs;
-            }
-            else if (isSilverlightProject(project))
-            {
-                csBinDir = _slBinDirs;
-            }
-            else
-            {
-                csBinDir = _csBinDirs;
-            }
-
-
-            string reference = iceHome + csBinDir + component + ".dll";
-            if(File.Exists(reference))
-            {
-                VSLangProj.VSProject vsProject = (VSLangProj.VSProject)project.Object;
-                try
+                Reference r = vsProject.References.Add(component + ".dll");
+                if (development)
                 {
-                    Reference r = vsProject.References.Add(reference);
-                    if (development)
-                    {
-                        r.CopyLocal = false;
-                    }
-                    return true;
+                    r.CopyLocal = false;
                 }
-                catch (COMException ex)
-                {
-                    Console.WriteLine(ex);
-                }
+                return true;
+            }
+            catch (COMException ex)
+            {
+                Console.WriteLine(ex);
             }
 
-            MessageBox.Show("Could not locate '" + component +
-                            ".dll'. in '" + Path.GetDirectoryName(reference) + "'",
+            MessageBox.Show("Could not locate '" + component + ".dll'.",
                             "Ice Visual Studio Add-in", MessageBoxButtons.OK,
                             MessageBoxIcon.Error,
                             MessageBoxDefaultButton.Button1,
@@ -2678,44 +2658,6 @@ namespace Ice.VisualStudio
             if(isCppProject(project))
             {
                 addIceCppConfigurations(project);
-            }
-            else
-            {
-                string iceHome = getIceHome();
-                string binDir = getCsBinDir(project);
-                ComponentList components = Util.getIceDotNetComponents(project);
-
-                foreach(string component in components)
-                {
-                    if (String.IsNullOrEmpty(component))
-                    {
-                        continue;
-                    }
-
-                    string reference = iceHome + binDir + component + ".dll";
-
-                    //
-                    // If Ice components are not from the current Ice home binary
-                    // directory, we update the references to use the new value of
-                    // Ice home.
-                    //
-                    bool development = developmentMode(project);
-                    foreach(Reference r in ((VSProject)project.Object).References)
-                    {
-                        if(r.Name.Equals(component, StringComparison.OrdinalIgnoreCase))
-                        {
-                            if(!r.Path.Equals(reference))
-                            {
-                                bool copyLocal = getCopyLocal(project, component);
-                                Util.removeDotNetReference(project, component);
-
-                                Util.addDotNetReference(project, component, iceHome, development);
-                                setCopyLocal(project, component, copyLocal);
-                            }
-                            break;
-                        }
-                    }
-                }
             }
         }
 

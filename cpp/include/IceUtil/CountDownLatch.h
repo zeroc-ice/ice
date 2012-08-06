@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_COUNT_DOWN_LATCH_H
-#define ICE_UTIL_COUNT_DOWN_LATCH_H
+#pragma once
 
 #include <IceUtil/Config.h>
 
@@ -46,5 +45,3 @@ private:
 };
 
 }
-
-#endif

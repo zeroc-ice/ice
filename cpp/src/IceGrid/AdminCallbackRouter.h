@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_ADMIN_CALLBACK_ROUTER_H
-#define ICE_GRID_ADMIN_CALLBACK_ROUTER_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
@@ -42,4 +41,3 @@ private:
 
 typedef IceUtil::Handle<AdminCallbackRouter> AdminCallbackRouterPtr;
 }
-#endif

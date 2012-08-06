@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_DATA_H
-#define FREEZE_SCRIPT_DATA_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Slice/Parser.h>
@@ -614,5 +613,3 @@ public:
 };
 
 } // End of namespace FreezeScript
-
-#endif

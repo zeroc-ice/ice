@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_NODE_I_H
-#define ICE_GRID_NODE_I_H
+#pragma once
 
 #include <IceUtil/Timer.h>
 #include <IcePatch2/FileServer.h>
@@ -175,5 +174,3 @@ private:
 typedef IceUtil::Handle<NodeI> NodeIPtr;
 
 }
-
-#endif

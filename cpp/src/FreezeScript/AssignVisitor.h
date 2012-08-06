@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_ASSIGN_VISITOR_H
-#define FREEZE_SCRIPT_ASSIGN_VISITOR_H
+#pragma once
 
 #include <FreezeScript/Data.h>
 
@@ -50,5 +49,3 @@ private:
 };
 
 } // End of namespace FreezeScript
-
-#endif

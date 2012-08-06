@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_MONITOR_H
-#define ICE_UTIL_MONITOR_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
@@ -245,5 +244,3 @@ IceUtil::Monitor<T>::notifyImpl(int nnotify) const
         }
     }
 }
-
-#endif

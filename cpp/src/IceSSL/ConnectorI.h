@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_CONNECTOR_I_H
-#define ICE_SSL_CONNECTOR_I_H
+#pragma once
 
 #include <Ice/LoggerF.h>
 #include <Ice/TransceiverF.h>
@@ -58,5 +57,3 @@ private:
 };
 
 }
-
-#endif

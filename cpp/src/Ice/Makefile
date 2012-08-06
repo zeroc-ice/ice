@@ -9,11 +9,17 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,Ice,$(VERSION))
-SONAME          = $(call mksoname,Ice,$(SOVERSION))  
-LIBNAME		= $(call mklibname,Ice)
+include $(top_srcdir)/config/Make.rules.common
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+ifeq ($(MinGW), yes)
+	DLLNAME		= $(top_srcdir)/bin/ice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+	TARGETS		= $(DLLNAME) $(LIBNAME)
+else
+	LIBFILENAME	= $(call mklibfilename,Ice,$(VERSION))
+	SONAME		= $(call mksoname,Ice,$(SOVERSION))  
+	LIBNAME		= $(call mklibname,Ice)
+	TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+endif
 
 OBJS		= Acceptor.o \
 		  Application.o \
@@ -96,8 +102,7 @@ OBJS		= Acceptor.o \
 		  Stats.o \
 		  StreamI.o \
 		  Stream.o \
-                  StringConverter.o \
-		  SysLoggerI.o \
+		  StringConverter.o \
 		  TcpAcceptor.o \
 		  TcpConnector.o \
 		  TcpEndpointI.o \
@@ -110,6 +115,12 @@ OBJS		= Acceptor.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
 		  Version.o
+
+ifneq ($(MinGW), yes)
+OBJS		:= $(OBJS) \
+		  SysLoggerI.o
+endif
+
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
@@ -160,8 +171,16 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS $(BZIP2_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
+ifeq ($(MinGW), yes)
+CPPFLAGS	:= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
+LINKWITH        := $(ICE_OS_LIBS) -l$(ICEUTIL_LIBNAME) $(BZIP2_LIBS) 
+$(DLLNAME): $(OBJS)
+	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
+	
+install:: all
+	$(call installprogram,$(DLLNAME),$(install_bindir))
+else
 LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICONV_LIBS) $(ICE_OS_LIBS)
-
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
@@ -176,6 +195,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+endif
 
 $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp

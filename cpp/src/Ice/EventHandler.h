@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_EVENT_HANDLER_H
-#define ICE_EVENT_HANDLER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/EventHandlerF.h>
@@ -72,5 +71,3 @@ protected:
 };
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_H
-#define ICE_OUTGOING_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
@@ -197,5 +196,3 @@ private:
 };
 
 }
-
-#endif

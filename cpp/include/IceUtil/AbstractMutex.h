@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_ABSTRACT_MUTEX_H
-#define ICE_UTIL_ABSTRACT_MUTEX_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
@@ -36,10 +35,8 @@ class AbstractMutexI : public AbstractMutex, public T
 {
 public:
 
-#ifndef __BCPLUSPLUS__
     typedef LockT<AbstractMutexI> Lock;
     typedef TryLockT<AbstractMutexI> TryLock;
-#endif
 
     virtual void lock() const
     {
@@ -65,10 +62,8 @@ class AbstractMutexReadI : public AbstractMutex, public T
 {
 public:
 
-#ifndef __BCPLUSPLUS__
     typedef LockT<AbstractMutexReadI> Lock;
     typedef TryLockT<AbstractMutexReadI> TryLock;
-#endif
 
     virtual void lock() const
     {
@@ -94,10 +89,8 @@ class AbstractMutexWriteI : public AbstractMutex, public T
 {
 public:
 
-#ifndef __BCPLUSPLUS__
     typedef LockT<AbstractMutexWriteI> Lock;
     typedef TryLockT<AbstractMutexWriteI> TryLock;
-#endif
 
     virtual void lock() const
     {
@@ -120,5 +113,3 @@ public:
 
 
 }
-
-#endif

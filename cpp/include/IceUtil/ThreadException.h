@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_THREAD_EXCEPTION_H
-#define ICE_UTIL_THREAD_EXCEPTION_H
+#pragma once
 
 #include <IceUtil/Exception.h>
 #include <IceUtil/Time.h>
@@ -103,6 +102,3 @@ private:
 };
     
 }
-
-#endif
-

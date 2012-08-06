@@ -91,11 +91,7 @@ const char closeConnectionMsg = 4;
 
 const char magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
 
-#ifdef __BCPLUSPLUS__
-const char requestHdr[headerSize + sizeof(Ice::Int)] = 
-#else
 const char requestHdr[] = 
-#endif
 {
     magic[0],
     magic[1],
@@ -111,11 +107,7 @@ const char requestHdr[] =
     0, 0, 0, 0 // Request id (placeholder)
 };
 
-#ifdef __BCPLUSPLUS__
-const char requestBatchHdr[headerSize + sizeof(Ice::Int)] =
-#else
 const char requestBatchHdr[] =
-#endif
 {
     magic[0],
     magic[1],

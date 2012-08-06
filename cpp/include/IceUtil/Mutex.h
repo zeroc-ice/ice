@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_MUTEX_H
-#define ICE_UTIL_MUTEX_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
@@ -325,5 +324,3 @@ Mutex::willUnlock() const
 }
 
 } // End namespace IceUtil
-
-#endif

@@ -214,12 +214,12 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#endif\n";
+    H << '\n';
     C << '\n';
 
     if(_impl)
     {
-        implH << "\n\n#endif\n";
+        implH << '\n';
         implC << '\n';
     }
 }
@@ -280,15 +280,7 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         FileTracker::instance()->addFile(fileImplC);
 
-        string s = fileImplH;
-        if(_include.size())
-        {
-            s = _include + '/' + s;
-        }
-        transform(s.begin(), s.end(), s.begin(), ToIfdef());
-        implH << "#ifndef __" << s << "__";
-        implH << "\n#define __" << s << "__";
-        implH << '\n';
+        implH << "#pragma once\n";
     }
 
     string fileH = _base + "." + _headerExtension;
@@ -322,16 +314,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
-
-    string s = fileH;
-    if(_include.size())
-    {
-        s = _include + '/' + s;
-    }
-    transform(s.begin(), s.end(), s.begin(), ToIfdef());
-    H << "\n#ifndef __" << s << "__";
-    H << "\n#define __" << s << "__";
-    H << '\n';
+    H << "#pragma once\n";
 
     validateMetaData(p);
 
@@ -6045,18 +6028,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         H << nl << "// COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual";
         H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
         H << nl << "virtual void ice_exception(const ::std::exception&);";
-
-        H.zeroIndent();
-        H << nl << "#if defined(__BCPLUSPLUS__)";
-        H.restoreIndent();
-        H << nl << "// COMPILERFIX: Avoid compiler warnings with C++Builder 2010";
-        H << nl << "virtual void ice_exception()";
-        H << sb;
-        H << nl << "::IceInternal::IncomingAsync::ice_exception();";
-        H << eb;
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
     }
     H << eb << ';';
 

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICEGRID_ADMINSESSIONI_H
-#define ICEGRID_ADMINSESSIONI_H
+#pragma once
 
 #include <IceGrid/SessionI.h>
 #include <IceGrid/Topics.h>
@@ -147,5 +146,3 @@ private:
 };
 
 };
-
-#endif

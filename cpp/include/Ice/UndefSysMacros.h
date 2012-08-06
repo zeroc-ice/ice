@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UNDEF_SYS_MACROS_H
-#define ICE_UNDEF_SYS_MACROS_H
+#pragma once
 
 //
 // This header includes macros that can end up being dragged into
@@ -37,6 +36,4 @@
 
 #ifdef max
 #undef max
-#endif
-
 #endif

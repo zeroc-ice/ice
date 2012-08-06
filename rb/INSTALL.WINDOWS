@@ -6,7 +6,7 @@ Requirements
 Operating System
 ----------------
 
-Ice for Ruby is only supported on Windows XP.
+Ice for Ruby is only supported on Windows XP and Windows 7.
 
 
 Build Environment
@@ -15,17 +15,18 @@ Build Environment
 To build Ice for Ruby you must have the following:
 
  - Ice @ver@ for C++
- - Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
- - Ruby 1.8.6
+ - Ruby 1.9.3
+ - MinGW from Ruby Development Kit
+ - Cygwin with make package
 
-* Ruby requires Visual C++ 6.0, therefore it is the only compiler
-  supported by Ice for Ruby.
+The Ruby distribution for Windows uses the MinGW compiler, therefore
+MinGW is the only compiler supported by Ice for Ruby.
 
 The instructions in this file make the following assumptions about
 your build environment:
 
-1. You have installed the Ice @ver@ for Visual C++ 6.0 distribution
-   using the installer available at the link below:
+1. You have installed the Ice @ver@ distribution using the installer
+   available at the link below:
 
    http://www.zeroc.com/download.html
 
@@ -33,12 +34,24 @@ your build environment:
    
    C:\Program Files\ZeroC\Ice-@ver@
 
-2. You have installed Ruby using the Windows installer available at
-   RubyForge:
+2. You have installed Ruby 1.9.3 using the Windows installer available
+   at RubyInstaller:
 
-   http://rubyforge.org/projects/rubyinstaller/
+   http://rubyinstaller.org/downloads/
 
-   The default installation directory is C:\ruby.
+   The default installation directory is C:\Ruby193
+
+3. You have installed the Ruby Development Kit 4.5.2 available at
+   RubyInstaller:
+
+   http://rubyinstaller.org/downloads/
+   
+4. You have installed Cygwin and included the "make" package in your
+   installation. See the link below for more information on installing
+   Cygwin:
+
+   http://cygwin.com/install.html
+
 
 If you selected different installation directories, you will need to
 modify the relevant path names in the steps below to match your
@@ -55,42 +68,31 @@ Compiling Ice for Ruby
 
 Follow these steps to build the Ice extension for Ruby:
 
-1) Open a command prompt that supports command-line compilation with
-   Visual C++. For example, you can execute the Visual C++ batch file
-   vcvars32.bat to configure your environment. Alternatively, you can
-   start a "Visual Studio Command Prompt" by selecting the appropriate
-   entry from the Visual Studio program group in your Start menu.
+1) Open a Cygwin command prompt
 
-2) Change to the Ice for Ruby source directory:
+2) Add Ruby to your PATH:
 
-   > cd Ice-@ver@\rb
+  $ export PATH=/cygdrive/c/Ruby193/bin:$PATH
 
-3) If you installed the Ice @ver@ for Visual C++ 6.0 distribution in a 
-   non-standard location, set the ICE_HOME environment variable with
-   the Ice installation directory. For example:
+3) Add MinGW from the Ruby Development Kit to your PATH:
 
-   > set ICE_HOME=C:\Ice-@ver@
+  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
 
-4) Edit config\Make.rules.mak and review the settings. In particular
-   you must set CPP_COMPILER to the appropriate compiler.
+4) Change to the Ice for Ruby source directory:
 
-5) Run nmake:
+   $ cd Ice-@ver@/rb
 
-   > nmake /f Makefile.mak
+5) If you installed the Ice @ver@ distribution in a non-standard
+   location, set the ICE_HOME environment variable with the Ice
+   installation directory. For example:
+
+   $ export ICE_HOME=C:\Ice-@ver@
+
+6) Run make:
+
+   $ make
 
 If no errors occurred, you can now begin using Ice for Ruby.
-
-NOTES:
-
- * Normally you should build with OPTIMIZE=yes. If you are using a
-   Ruby interpreter that was compiled in debug mode, set OPTIMIZE=no
-   and edit ruby/Ice.rb to change the line below from
-
-   require "IceRuby"
-
-   to the following:
-
-   require "IceRubyd"
 
 
 Running the tests
@@ -104,8 +106,8 @@ test suite. Python is required to run the test suite:
 The test suites require that the Ice for C++ tests be built in the cpp
 subdirectory of this source distribution.
 
-Open a command window and change to the top-level directory. At the
-command prompt, execute:
+Open a Windows (not Cygwin) command window and change to the top-level
+directory. At the command prompt, execute:
 
   > python allTests.py
 
@@ -124,12 +126,12 @@ Installation
 
 You can perform an automated installation with the following command:
 
-  > nmake /f Makefile.mak install
+  $ make install
 
-This process uses the "prefix" variable in config\Make.rules.mak as
+This process uses the "prefix" variable in config\Make.rules as
 the installation's root directory. The subdirectory <prefix>\ruby is
 created as a copy of the local "ruby" directory and contains the Ice
-for Ruby extension library (IceRuby.dll) as well as Ruby source code.
+for Ruby extension library (IceRuby.so) as well as Ruby source code.
 Using this installation method requires that you modify your
 environment as described in "Using Ice for Ruby" below.
 
@@ -218,23 +220,3 @@ ZeroC to implement server-side functionality, therefore Ice for Ruby
 can only be used in client applications. If you have a need for this
 feature and wish to sponsor its development, please contact us at
 info@zeroc.com.
-
-
-OpenSSL Compatibility Issue
----------------------------
-
-The Ruby installer includes versions of the OpenSSL DLLs that are not
-compatible with the ones supplied with Ice. If you intend to use SSL
-in your Ice for Ruby applications, you will need to remove or rename
-the following files in the Ruby installation directory:
-
-  libeay32.dll
-  ssleay32.dll
-
-If you used the default installation directory, these files are
-located in C:\ruby\bin.
-
-Also be aware that the Ruby installer inserts C:\ruby\bin at the
-beginning of the system PATH, therefore the DLLs listed above can also
-have an adverse impact on other Ice language mappings that use
-OpenSSL, such as C++ and Python.

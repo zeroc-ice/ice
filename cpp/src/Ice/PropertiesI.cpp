@@ -171,9 +171,11 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             // dot is an error.
             //
             assert(dotPos != string::npos);
-
+            
+            bool mismatchCase = false;
+            string otherKey;
             string propPrefix = pattern.substr(0, dotPos);
-            if(propPrefix != prefix)
+            if(IceUtilInternal::toUpper(propPrefix) != IceUtilInternal::toUpper(prefix))
             {
                 continue;
             }
@@ -193,10 +195,23 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
                         currentKey = prop.deprecatedBy;
                     }
                 }
+                
+                if(!found && IceUtilInternal::match(IceUtilInternal::toUpper(currentKey), 
+                                                    IceUtilInternal::toUpper(prop.pattern)))
+                {
+                    found = true;
+                    mismatchCase = true;
+                    otherKey = prop.pattern;
+                    break;
+                }
             }
             if(!found)
             {
                 logger->warning("unknown property: `" + currentKey + "'");
+            }
+            else if(mismatchCase)
+            {
+                logger->warning("unknown property: `" + currentKey + "'; did you mean `" + otherKey + "'");
             }
         }
     }

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_I_H
-#define FREEZE_EVICTOR_I_H
+#pragma once
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
@@ -220,7 +219,7 @@ protected:
                 }
                 ObjectStore<T>* store = new ObjectStore<T>(facet, facetType,_createDb, this, storeIndices, populateEmptyIndices);
 
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
                 _storeMap.insert(StoreMap::value_type(facet, store));
 #else
                 _storeMap.insert(typename StoreMap::value_type(facet, store));
@@ -235,7 +234,7 @@ protected:
             {
                 facet = "";
             }
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
             std::pair<StoreMap::iterator, bool> ir = 
                 _storeMap.insert(StoreMap::value_type(facet, 0));
 #elif (defined(_MSC_VER) && (_MSC_VER >= 1600))
@@ -281,7 +280,7 @@ protected:
             }
             os = new ObjectStore<T>(facet, facetType, true, this);
 
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if (defined(_MSC_VER) && (_MSC_VER < 1300))
             _storeMap.insert(StoreMap::value_type(facet, os));
 #else
             _storeMap.insert(typename StoreMap::value_type(facet, os));
@@ -356,5 +355,3 @@ checkIdentity(const Ice::Identity& ident)
 }
 
 }
-
-#endif

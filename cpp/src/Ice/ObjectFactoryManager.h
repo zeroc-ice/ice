@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_FACTORY_MANAGER_H
-#define ICE_SERVANT_FACTORY_MANAGER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -39,5 +38,3 @@ private:
 };
 
 }
-
-#endif

@@ -10,11 +10,17 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
-SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceSSL)
+include $(top_srcdir)/config/Make.rules.common
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+ifeq ($(MinGW), yes)
+	DLLNAME         = $(top_srcdir)/bin/icessl$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+	TARGETS		= $(DLLNAME) $(LIBNAME)
+else
+	LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
+	SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
+	LIBNAME		= $(call mklibname,IceSSL)
+	TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+endif
 
 OBJS		= AcceptorI.o \
 		  Certificate.o \
@@ -42,6 +48,17 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
+ifeq ($(MinGW), yes)
+
+LINKWITH        := -lice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX) -liceutil$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX) $(ICE_OS_LIBS) $(OPENSSL_LIBS)
+	
+$(DLLNAME): $(OBJS)
+	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
+
+install:: all
+	$(call installprogram,$(DLLNAME),$(install_bindir))
+
+else
 LINKWITH        := $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(OPENSSL_LIBS) $(CXXLIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
@@ -58,5 +75,6 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+endif
 
 include .depend

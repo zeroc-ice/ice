@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_GRAMMAR_UTIL_H
-#define FREEZE_SCRIPT_GRAMMAR_UTIL_H
+#pragma once
 
 #include <FreezeScript/Parser.h>
 
@@ -132,5 +131,3 @@ int freeze_script_parse();
 // yyoverflow.
 //
 #define yyoverflow(a, b, c, d, e, f) freeze_script_error(a)
-
-#endif

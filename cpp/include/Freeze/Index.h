@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_INDEX_H
-#define FREEZE_INDEX_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Freeze/DB.h>
@@ -56,6 +55,3 @@ private:
 
 typedef IceUtil::Handle<Index> IndexPtr;
 }
-
-#endif
-

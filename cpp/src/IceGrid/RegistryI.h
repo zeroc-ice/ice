@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_REGISTRYI_H
-#define ICE_GRID_REGISTRYI_H
+#pragma once
 
 #include <IceUtil/Timer.h>
 #include <IceGrid/Registry.h>
@@ -133,5 +132,3 @@ private:
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
 
 }
-
-#endif

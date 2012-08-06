@@ -11,7 +11,6 @@
 
 
 require 'Ice'
-require 'iconv'
 
 def test(b)
     if !b

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_WELL_KNOWN_OBJECTS_MANAGER_H
-#define ICE_GRID_WELL_KNOWN_OBJECTS_MANAGER_H
+#pragma once
 
 #include <IceGrid/Internal.h>
 
@@ -47,5 +46,3 @@ private:
 typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
 
 };
-
-#endif

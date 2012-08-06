@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DISPATCH_INTERCEPTOR_H
-#define ICE_DISPATCH_INTERCEPTOR_H
+#pragma once
 
 #include <Ice/Object.h>
 
@@ -32,5 +31,3 @@ public:
 typedef IceInternal::Handle<DispatchInterceptor> DispatchInterceptorPtr;
 
 }
-
-#endif

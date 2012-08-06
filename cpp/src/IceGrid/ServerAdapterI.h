@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_SERVER_ADAPTER_I_H
-#define ICE_GRID_SERVER_ADAPTER_I_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceGrid/Internal.h>
@@ -56,5 +55,3 @@ private:
 typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_DESCRIPTOR_BUILDER_H
-#define ICE_GRID_DESCRIPTOR_BUILDER_H
+#pragma once
 
 #include <Ice/Logger.h>
 #include <IceXML/Parser.h>
@@ -311,5 +310,3 @@ private:
 };
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_LOCATOR_REGISTRY_I_H
-#define ICE_GRID_LOCATOR_REGISTRY_I_H
+#pragma once
 
 #include <IceGrid/Internal.h>
 #include <Ice/Locator.h>
@@ -55,5 +54,3 @@ private:
 typedef IceUtil::Handle<LocatorRegistryI> LocatorRegistryIPtr;
 
 }
-
-#endif

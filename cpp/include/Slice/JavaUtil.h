@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef JAVA_UTIL_H
-#define JAVA_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -267,5 +266,3 @@ private:
 };
 
 }
-
-#endif

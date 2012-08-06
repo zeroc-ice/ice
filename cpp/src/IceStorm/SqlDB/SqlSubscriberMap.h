@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SQL_SUBSCRIBER_MAP_H
-#define SQL_SUBSCRIBER_MAP_H
+#pragma once
 
 #include <Ice/CommunicatorF.h>
 #include <IceStorm/SubscriberRecord.h>
@@ -64,5 +63,3 @@ private:
 typedef IceUtil::Handle<SqlSubscriberMap> SqlSubscriberMapPtr;
 
 }
-
-#endif

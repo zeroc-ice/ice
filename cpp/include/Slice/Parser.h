@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_PARSER_H
-#define SLICE_PARSER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -31,7 +30,7 @@
 namespace Slice
 {
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__)
  
 const IceUtil::Int64 Int32Max =  0x7fffffffi64;
 const IceUtil::Int64 Int32Min = -Int32Max - 1i64;
@@ -1071,5 +1070,3 @@ private:
 extern SLICE_API Unit* unit; // The current parser for bison/flex
 
 }
-
-#endif

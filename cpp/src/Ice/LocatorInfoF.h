@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOCATOR_INFO_F_H
-#define ICE_LOCATOR_INFO_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -30,5 +29,3 @@ IceUtil::Shared* upCast(LocatorTable*);
 typedef Handle<LocatorTable> LocatorTablePtr;
 
 }
-
-#endif

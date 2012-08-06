@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_HANDLE_H
-#define ICE_PROXY_HANDLE_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
@@ -114,17 +113,6 @@ template<typename T>
 class ProxyHandle : public ::IceUtil::HandleBase<T>
 {
 public:
-
-#if defined(__BCPLUSPLUS__) && (__BCPLUSPLUS__ >= 0x0600)
-    //
-    // C++Builder 2009 does not allow setting Prx to 0.
-    //
-    ProxyHandle(int p)
-    {
-	assert(p == 0);
-        this->_ptr = 0;
-    }
-#endif
     
     ProxyHandle(T* p = 0)
     {
@@ -332,5 +320,3 @@ std::ostream& operator<<(std::ostream& os, ::IceInternal::ProxyHandle<Y> p)
 {
     return os << (p ? p->ice_toString() : std::string(""));
 }
-
-#endif

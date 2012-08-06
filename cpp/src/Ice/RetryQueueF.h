@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RETRY_QUEUE_F_H
-#define ICE_RETRY_QUEUE_F_H
+#pragma once
 
 #include <Ice/Handle.h>
 
@@ -20,5 +19,3 @@ IceUtil::Shared* upCast(RetryQueue*);
 typedef Handle<RetryQueue> RetryQueuePtr;
 
 }
-
-#endif

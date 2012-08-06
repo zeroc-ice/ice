@@ -28,7 +28,7 @@ prefix			= C:\Ice-$(VERSION)
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, BCC2010, VC110, VC110_EXPRESS
+# VC60, VC90, VC90_EXPRESS, VC100, VC100_EXPRESS, VC110, VC110_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
 CPP_COMPILER		= VC90
@@ -97,13 +97,10 @@ SETARGV			= setargv.obj
 #
 # Compiler specific definitions
 #
-!if "$(CPP_COMPILER)" == "BCC2010"
-BCPLUSPLUS		= yes
-!include 	$(top_srcdir)/config/Make.rules.bcc
-!elseif "$(CPP_COMPILER)" == "VC60" || \
+!if "$(CPP_COMPILER)" == "VC60" || \
         "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS" || \
         "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS" || \
-	"$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
+        "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 !include        $(top_srcdir)/config/Make.rules.msvc
 ! else
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
@@ -113,9 +110,7 @@ BCPLUSPLUS		= yes
 !error CPP_COMPILER: $(CPP_COMPILER) not supported to build Ice for WinRT
 !endif
 
-!if "$(CPP_COMPILER)" == "BCC2010"
-libsuff			= \bcc10
-!elseif "$(CPP_COMPILER)" == "VC60"
+!if "$(CPP_COMPILER)" == "VC60"
 libsuff			= \vc6
 UNIQUE_DLL_NAMES	= yes
 !elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
@@ -146,11 +141,9 @@ COMPSUFFIX	= vc60_
 !elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
 COMPSUFFIX	= vc90_
 !elseif "$(CPP_COMPILER)" == "VC100" || "$(CPP_COMPILER)" == "VC100_EXPRESS"
-COMPSUFFIX  = vc100_
+COMPSUFFIX	= vc100_
 !elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 COMPSUFFIX  = vc110_
-!elseif "$(CPP_COMPILER)" == "BCC2010"
-COMPSUFFIX	= bcc10_
 !endif
 !endif
 

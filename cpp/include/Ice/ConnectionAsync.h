@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_ASYNC_H
-#define ICE_CONNECTION_ASYNC_H
+#pragma once
 
 #include <Ice/Connection.h>
 
@@ -120,5 +119,3 @@ newCallback_Connection_flushBatchRequests(T* instance, void (T::*excb)(const ::I
 }
 
 }
-
-#endif

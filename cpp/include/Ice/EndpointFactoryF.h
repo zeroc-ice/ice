@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ENDPOINT_FACTORY_F_H
-#define ICE_ENDPOINT_FACTORY_F_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 
@@ -22,5 +21,3 @@ ICE_API IceUtil::Shared* upCast(EndpointFactory*);
 typedef Handle<EndpointFactory> EndpointFactoryPtr;
 
 }
-
-#endif

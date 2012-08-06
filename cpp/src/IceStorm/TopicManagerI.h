@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef TOPIC_MANAGER_I_H
-#define TOPIC_MANAGER_I_H
+#pragma once
 
 #include <IceStorm/IceStorm.h>
 
@@ -91,5 +90,3 @@ private:
 typedef IceUtil::Handle<TopicManagerImpl> TopicManagerImplPtr;
 
 } // End namespace IceStorm
-
-#endif

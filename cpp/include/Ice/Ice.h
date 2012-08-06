@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ICE_H
-#define ICE_ICE_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #include <Ice/Initialize.h>
@@ -43,6 +42,4 @@
 
 #ifndef _WIN32
 #include <Ice/IconvStringConverter.h>
-#endif
-
 #endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVICE_H
-#define ICE_SERVICE_H
+#pragma once
 
 #include <Ice/Ice.h>
 
@@ -262,5 +261,3 @@ public:
 };
 
 } // End of namespace Ice
-
-#endif

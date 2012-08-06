@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_RUBY_UTIL_H
-#define SLICE_RUBY_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -48,5 +47,3 @@ SLICE_API void printHeader(IceUtilInternal::Output&);
 
 }
 }
-
-#endif

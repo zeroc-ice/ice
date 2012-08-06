@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_H
-#define ICE_PROXY_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -2201,5 +2200,3 @@ newCallback_Object_ice_flushBatchRequests(T* instance,
 }
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_DISABLEWARNINGS_H
-#define ICE_UTIL_DISABLEWARNINGS_H
+#pragma once
 
 //
 // This header file disables various annoying compiler warnings that
@@ -26,6 +25,4 @@
 
 #if defined(_MSC_VER) && _MSC_VER >= 1300
 #    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
-#endif
-
 #endif

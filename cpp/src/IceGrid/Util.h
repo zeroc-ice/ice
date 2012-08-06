@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_UTIL_H
-#define ICE_GRID_UTIL_H
+#pragma once
 
 #include <IceGrid/Descriptor.h>
 #include <IceUtil/StringUtil.h>
@@ -118,5 +117,3 @@ inline getMatchingKeys(const T& m, const std::string& expression)
 }
 
 };
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_SCRIPT_EXCEPTION_H
-#define FREEZE_SCRIPT_EXCEPTION_H
+#pragma once
 
 #include <IceUtil/Exception.h>
 
@@ -35,5 +34,3 @@ private:
 };
 
 } // End of namespace FreezeScript
-
-#endif

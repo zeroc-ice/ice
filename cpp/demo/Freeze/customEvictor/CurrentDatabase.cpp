@@ -18,7 +18,7 @@ using namespace IceUtil;
 // can only create and destroy one CurrentDatabase per process run.
 //
 
-#if defined(_MSC_VER) || defined(__BCPLUSPLUS__)
+#ifdef _MSC_VER
    #define __thread __declspec(thread)
 #endif
 

@@ -17,7 +17,7 @@ if slice_dir.empty?
 end
 
 Ice::loadSlice("'-I" + slice_dir + "' --checksum Test.ice CTypes.ice")
-require 'AllTests'
+require './AllTests'
 
 def run(args, communicator)
     checksum = allTests(communicator)

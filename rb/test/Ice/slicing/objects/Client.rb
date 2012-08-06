@@ -9,7 +9,7 @@
 # **********************************************************************
 
 require 'pathname'
-require 'AllTests'
+require './AllTests'
 
 def run(args, communicator)
     t = allTests(communicator)

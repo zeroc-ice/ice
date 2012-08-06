@@ -130,6 +130,13 @@ USE_READLINE		?= no
 #GENPIC                     ?= yes
 
 #
+# If building with MinGW and Ice third party packages is not installed
+# in the default location set THIRDPARTY_HOME to the Ice third party
+# installation directory.
+#
+#THIRDPARTY_HOME		?= C:\Program Files\ZeroC\Ice-$(VERSION)-ThirdParty
+
+#
 # Default Mutex protocol: one of PrioNone or PrioInherit.
 #
 #DEFAULT_MUTEX_PROTOCOL  ?= PrioNone
@@ -138,12 +145,22 @@ USE_READLINE		?= no
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
+ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.common && echo 0),0)
+	include $(top_srcdir)/config/Make.rules.common
+else
+	include $(top_srcdir)/../cpp/config/Make.rules.common
+endif
+
 #
 # Common definitions
 #
 ice_language     = cpp
 ifneq ($(shell test "$(USE_BIN_DIST)" != "yes" -a -d $(top_srcdir)/../$(ice_language) && echo 0),0)
-    slice_translator = slice2cpp
+    ifeq ($(MinGW), yes)
+        slice_translator = slice2cpp.exe
+    else
+        slice_translator = slice2cpp
+    endif
     ice_require_cpp  = 1
 endif
 
@@ -170,7 +187,11 @@ endif
 #
 # Platform specific definitions
 #
-include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+ifeq ($(MinGW), yes)
+	include	 $(top_srcdir)/config/Make.rules.MinGW
+else
+	include	 $(top_srcdir)/config/Make.rules.$(UNAME)
+endif
 
 install_includedir	:= $(prefix)/include
 install_docdir		:= $(prefix)/doc
@@ -188,58 +209,71 @@ ifeq ($(DEFAULT_MUTEX_PROTOCOL), PrioInherit)
     ICEUTIL_FLAGS           = -DICE_PRIO_INHERIT
 endif
 
-OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
-OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
-OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
-
-BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
-BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
-BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
-
-ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
-
-ifneq ($(DB_HOME),)
-   DB_FLAGS             = -I$(DB_HOME)/include
-   DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
-   DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
+ifeq ($(MinGW), yes)
+	OPENSSL_LIBS            = -leay32_mingw -lssleay32_mingw
+	BZIP2_LIBS			= -lbzip2_mingw
+	MCPP_LIBS              = -lmcpp
+	slicedir_win 		= $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(slicedir))
+	ICECPPFLAGS		= -I"$(slicedir_win)"
 else
-   ifeq ($(shell if [ -d /usr/include/db48 -a -d /usr/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
-      DB_FLAGS          = -I/usr/include/db48
-      DB_LIBS           = -L/usr/$(libsubdir)/db48 -ldb_cxx
-   else
-      DB_LIBS           = -ldb_cxx
-   endif
+	OPENSSL_FLAGS           = $(if $(OPENSSL_HOME),-I$(OPENSSL_HOME)/include)
+	OPENSSL_LIBS            = $(if $(OPENSSL_HOME),-L$(OPENSSL_HOME)/$(libsubdir)) -lssl -lcrypto
+	OPENSSL_RPATH_LINK      = $(if $(OPENSSL_HOME),$(call rpathlink,$(OPENSSL_HOME)/$(libsubdir)))
+	BZIP2_FLAGS             = $(if $(BZIP2_HOME),-I$(BZIP2_HOME)/include)
+	BZIP2_LIBS              = $(if $(BZIP2_HOME),-L$(BZIP2_HOME)/$(libsubdir)) -lbz2
+	BZIP2_RPATH_LINK        = $(if $(BZIP2_HOME),$(call rpathlink,$(BZIP2_HOME)/$(libsubdir)))
+	ICONV_LIBS              = $(if $(ICONV_HOME),-L$(ICONV_HOME)/$(libsubdir)) $(ICONV_LIB)
+
+	ifneq ($(DB_HOME),)
+	   DB_FLAGS             = -I$(DB_HOME)/include
+	   DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
+	   DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
+	else
+	   ifeq ($(shell if [ -d /usr/include/db48 -a -d /usr/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
+	      DB_FLAGS          = -I/usr/include/db48
+	      DB_LIBS           = -L/usr/$(libsubdir)/db48 -ldb_cxx
+	   else
+	      DB_LIBS           = -ldb_cxx
+	   endif
+	endif
+	EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
+	EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
+	EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
+	MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
+	MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
+
+	ifeq ($(PLATFORM_HAS_READLINE),yes)
+	    ifeq ($(USE_READLINE),yes)
+		READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
+		READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
+	    endif
+	endif
+	ICECPPFLAGS		= -I$(slicedir)
 endif
 
-EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
-EXPAT_LIBS              = $(if $(EXPAT_HOME),-L$(EXPAT_HOME)/$(libsubdir)) -lexpat
-EXPAT_RPATH_LINK        = $(if $(EXPAT_HOME),$(call rpathlink,$(EXPAT_HOME)/$(libsubdir)))
 
-MCPP_LIBS              = $(if $(MCPP_HOME),-L$(MCPP_HOME)/$(libsubdir)) -lmcpp
-MCPP_RPATH_LINK        = $(if $(MCPP_HOME),$(call rpathlink,$(MCPP_HOME)/$(libsubdir)))
-
-ifeq ($(PLATFORM_HAS_READLINE),yes)
-    ifeq ($(USE_READLINE),yes)
-        READLINE_FLAGS  = -DHAVE_READLINE $(if $(READLINE_HOME),-I$(READLINE_HOME)/include)
-        READLINE_LIBS   = $(if $(READLINE_HOME),-L$(READLINE_HOME)/$(libsubdir)) -lreadline -lncurses        
-    endif
-endif
-
-ifneq ($(DB_HOME),)
-endif
-
-ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr) 
     CPPFLAGS		= 
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
-    CPPFLAGS	= -I$(includedir)
-    ifdef ice_src_dist
-        LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir) 
+    ifeq ($(MinGW), yes)
+		includedir_win  = $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(includedir))
+		CPPFLAGS	= -I"$(includedir_win)"
+		ice_dir_win	= $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(ice_dir))
+		ifdef ice_src_dist
+			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+	    else
+			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L"$(ice_dir_win)\$(binsubdir)"
+	    endif
     else
-        LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir) 
+		CPPFLAGS	= -I$(includedir)
+		ifdef ice_src_dist
+			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
+	    else
+			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(ice_dir)/$(libsubdir)
+	    endif
     endif
 endif
 
@@ -255,18 +289,35 @@ else
     BISONFLAGS		:= -dvt
 endif
 
+ifneq ($(MinGW), yes)
 ifeq ($(mkshlib),)
     $(error You need to define mkshlib in Make.rules.$(UNAME)) 
 endif
+endif
 
 ifdef ice_src_dist
-    SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2CPP		= $(bindir)/slice2cpp
-    SLICE2FREEZE	= $(bindir)/slice2freeze
+	ifeq ($(MinGW), yes)
+		SLICEPARSERLIB	= $(bindir)/$(SLICE_LIBNAME).dll
+		SLICE2CPP		= $(bindir)/slice2cpp.exe
+	else
+		SLICEPARSERLIB	= $(libdir)/$(call mklibfilename,Slice,$(VERSION))
+		SLICE2CPP		= $(bindir)/slice2cpp
+		SLICE2FREEZE	= $(bindir)/slice2freeze
+    endif
 else
-    SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
-    SLICE2CPP		= $(ice_dir)/$(binsubdir)/slice2cpp
-    SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
+	ifeq ($(MinGW), yes)
+		SLICEPARSERLIB	= $(ice_dir)/$(binsubdir)/$(SLICE_LIBNAME).dll
+		SLICE2CPP		= $(ice_dir)/$(binsubdir)/slice2cpp.exe
+    else
+		SLICEPARSERLIB	= $(ice_dir)/$(libsubdir)/$(call mklibfilename,Slice,$(VERSION))
+		SLICE2CPP		= $(ice_dir)/$(binsubdir)/slice2cpp
+		SLICE2FREEZE	= $(ice_dir)/$(binsubdir)/slice2freeze
+     endif
+endif
+
+ifeq ($(MinGW), yes)
+	CPPFLAGS		:= $(CPPFLAGS) -I"$(THIRDPARTY_HOME_WIN)\include"
+	LDFLAGS			:= $(LDFLAGS) -L"$(THIRDPARTY_HOME_WIN)\lib\mingw" -L"$(THIRDPARTY_HOME_WIN)\bin" -L$(libdir) -L$(bindir)
 endif
 
 EVERYTHING		= all depend clean install 
@@ -279,7 +330,6 @@ EVERYTHING		= all depend clean install
 
 .c.o:
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
-
 
 $(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
@@ -315,10 +365,14 @@ all:: $(SRCS) $(TARGETS)
 depend:: $(SRCS)  $(patsubst $(SDIR)/%.ice,$(HDIR)/%.h,$(wildcard $(SDIR)/*F.ice)) $(SLICE_SRCS)
 	-rm -f .depend .depend.mak
 	if test -n "$(SRCS)" ; then \
-	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
+		$(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | $(ice_dir)/config/makedepend.py; \
 	fi
 	if test -n "$(SLICE_SRCS)" ; then \
-	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+		if test -n "$(HDIR)"; then \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py "\$$(HDIR)"; \
+		else \
+			$(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | $(ice_dir)/config/makedepend.py; \
+		fi \
 	fi
 
 clean::

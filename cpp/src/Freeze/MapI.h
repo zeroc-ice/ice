@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_MAP_I_H
-#define FREEZE_MAP_I_H
+#pragma once
 
 #include <Freeze/Map.h>
 #include <Freeze/ConnectionI.h>
@@ -187,5 +186,3 @@ IteratorHelperI::tx() const
 }
 
 }
-
-#endif
