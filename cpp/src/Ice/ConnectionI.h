@@ -31,7 +31,7 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Dispatcher.h>
-#include <Ice/ObserverF.h>
+#include <Ice/ObserverHelper.h>
 
 #include <deque>
 #include <memory>
@@ -65,17 +65,11 @@ class LocalException;
 
 class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
 {
-    class Observer
+    class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
     {
     public:
 
         Observer(const IceInternal::BasicStream&, const IceInternal::BasicStream&);
-
-        void setObserver(const Ice::Instrumentation::ConnectionObserverPtr&); 
-        const Ice::Instrumentation::ConnectionObserverPtr& getObserver() const
-        {
-            return _observer;
-        }
 
         void startRead();
         void finishRead();
@@ -84,7 +78,6 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
 
     private:
 
-        Ice::Instrumentation::ConnectionObserverPtr _observer;
         Ice::Byte* _writeStreamPos;
         IceUtilInternal::StopWatch _writeWatch;
         Ice::Byte* _readStreamPos;

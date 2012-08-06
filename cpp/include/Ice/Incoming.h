@@ -18,9 +18,8 @@
 #include <Ice/Object.h>
 #include <Ice/Current.h>
 #include <Ice/IncomingAsyncF.h>
-#include <Ice/ObserverF.h>
+#include <Ice/ObserverHelper.h>
 
-#include <IceUtil/StopWatch.h>
 
 #include <deque>
 
@@ -55,7 +54,7 @@ protected:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
-    Ice::Instrumentation::RequestObserverPtr _observer;
+    ObserverHelperT<Ice::Instrumentation::Observer> _observer;
     bool _response;
     Ice::Byte _compress;
 

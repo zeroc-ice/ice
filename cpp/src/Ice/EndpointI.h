@@ -22,6 +22,7 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/Protocol.h>
 #include <Ice/Network.h>
+#include <Ice/ObserverHelper.h>
 
 #ifndef ICE_OS_WINRT
 #   include <deque>
@@ -217,7 +218,7 @@ private:
     const InstancePtr _instance;
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
-    Ice::Instrumentation::ThreadObserverPtr _observer;
+    ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 #endif
 };
 

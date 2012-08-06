@@ -1122,11 +1122,7 @@ IceInternal::ThreadPool::EventHandlerThread::updateObserver()
     {
         ostringstream os;
         os << _pool->_prefix << '-' << this;
-        _observer = resolver->getThreadObserver(_pool->_prefix, os.str(), _state, _observer);
-        if(_observer)
-        {
-            _observer->attach();
-        }
+        _observer.attach(resolver->getThreadObserver(_pool->_prefix, os.str(), _state, _observer.get()));
     }
 }
 
@@ -1179,10 +1175,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
         out << "unknown exception in `" << _pool->_prefix << "'"; 
     }
 
-    if(_observer)
-    {
-        _observer->detach();
-    }
+    _observer.detach();
 
     if(_pool->_instance->initializationData().threadHook)
     {

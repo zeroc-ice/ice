@@ -98,10 +98,10 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     {
         try
         {
-            _observer = resolver->getInvocationObserver(ref->getInstance()->proxyFactory()->referenceToProxy(ref),
-                                                        operation, 
-                                                        *context, 
-                                                        handler->getConnection(false));
+            _observer.attach(resolver->getInvocationObserver(ref->getInstance()->proxyFactory()->referenceToProxy(ref),
+                                                             operation, 
+                                                             *context, 
+                                                             handler->getConnection(false)));
         }
         catch(const Ice::LocalException&)
         {
@@ -109,11 +109,6 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
             // Ignore: can be raised by getConnection is no connection could be obtained,
             // the request will be re-tried in this case.
             //
-        }
-
-        if(_observer)
-        {
-            _observer->attach();
         }
     }
 
@@ -188,10 +183,6 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
 
 Outgoing::~Outgoing()
 {
-    if(_observer)
-    {
-        _observer->detach();
-    }
 }
 
 bool
@@ -404,20 +395,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
     {
         case replyOK:
         {
-            if(_observer)
-            {
-                _observer->responseOK();
-            }
             _state = StateOK; // The state must be set last, in case there is an exception.
             break;
         }
         
         case replyUserException:
         {
-            if(_observer)
-            {
-                _observer->responseUserException();
-            }
             _state = StateUserException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -426,11 +409,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
         case replyFacetNotExist:
         case replyOperationNotExist:
         {
-            if(_observer)
-            {
-                _observer->responseRequestFailedException();
-            }
-
             //
             // Don't read the exception members directly into the
             // exception. Otherwise if reading fails and raises an
@@ -499,11 +477,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
         case replyUnknownLocalException:
         case replyUnknownUserException:
         {
-            if(_observer)
-            {
-                _observer->responseUnknownException();
-            }
-
             //
             // Don't read the exception members directly into the
             // exception. Otherwise if reading fails and raises an
@@ -550,10 +523,6 @@ IceInternal::Outgoing::finished(BasicStream& is)
         
         default:
         {
-            if(_observer)
-            {
-                _observer->responseUnknownException();
-            }
             _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
             _state = StateLocalException;
             break;

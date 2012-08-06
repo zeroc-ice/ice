@@ -24,6 +24,7 @@
 #include <Ice/EventHandler.h>
 #include <Ice/Selector.h>
 #include <Ice/BasicStream.h>
+#include <Ice/ObserverHelper.h>
 #include <Ice/Observer.h>
 
 #include <set>
@@ -52,7 +53,7 @@ class ThreadPool : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mute
     private:
 
         ThreadPoolPtr _pool;
-        Ice::Instrumentation::ThreadObserverPtr _observer;
+        ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
         Ice::Instrumentation::ThreadState _state;
     };
     typedef IceUtil::Handle<EventHandlerThread> EventHandlerThreadPtr;

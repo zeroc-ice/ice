@@ -189,15 +189,15 @@ IceInternal::GC::run()
             {
                 collect = true;
             }
-            observer = _observer;
+            observer = _observer.get();
         }
         if(collect)
         {
             if(observer)
             {
-                observer->stateChanged(ThreadStateIdle, ThreadStateInUseForMisc);
+                observer->stateChanged(ThreadStateIdle, ThreadStateInUseForOther);
                 collectGarbage();
-                observer->stateChanged(ThreadStateInUseForMisc, ThreadStateIdle);
+                observer->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
             }
             else
             {
@@ -206,10 +206,7 @@ IceInternal::GC::run()
         }
     }
 
-    if(_observer)
-    {
-        _observer->detach();
-    }
+    _observer.detach();
 }
 
 void
@@ -397,9 +394,5 @@ IceInternal::GC::updateObserver(const ObserverResolverPtr& resolver)
 {
     Monitor<Mutex>::Lock sync(*this);
     assert(resolver);
-    _observer = resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer);
-    if(_observer)
-    {
-        _observer->attach();
-    }
+    _observer.attach(resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
 }

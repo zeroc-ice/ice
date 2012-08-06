@@ -19,7 +19,7 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
-#include <Ice/Observer.h>
+#include <Ice/ObserverHelper.h>
 #include <memory>
 
 namespace Ice
@@ -146,7 +146,7 @@ private:
     // deleted while a stack-allocated Outgoing still holds it.
     //
     RequestHandler* _handler;
-    Ice::Instrumentation::RequestObserverPtr _observer;
+    ObserverHelperT<> _observer;
 
     std::auto_ptr<Ice::LocalException> _exception;
 

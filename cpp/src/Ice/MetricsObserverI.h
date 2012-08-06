@@ -21,22 +21,22 @@
 namespace IceMX
 {
 
-class ObjectHelper
+class MetricsHelper
 {
 public:
 
     virtual std::string operator()(const std::string&) const = 0;
 
-    virtual MetricsObjectPtr newMetricsObject(const std::string&) const = 0;
+    virtual MetricsPtr newMetrics(const std::string&) const = 0;
 };
 
-class ObjectObserverUpdater : public IceUtil::Shared
+class Updater : public IceUtil::Shared
 {
 public:
 
     virtual void update() = 0;
 };
-typedef IceUtil::Handle<ObjectObserverUpdater> ObjectObserverUpdaterPtr;
+typedef IceUtil::Handle<Updater> UpdaterPtr;
 
 template<class ObjectMetricsType> class ObserverT : virtual public Ice::Instrumentation::Observer
 {
@@ -44,7 +44,7 @@ public:
 
     typedef ObjectMetricsType Type;
     typedef IceInternal::Handle<ObjectMetricsType> PtrType;
-    typedef std::vector<std::pair<PtrType, MetricsMap::EntryPtr> > SeqType;
+    typedef std::vector<std::pair<PtrType, MetricsMapI::EntryPtr> > SeqType;
 
     ObserverT()
     {
@@ -84,16 +84,16 @@ public:
         }
     }
     
-    template<typename ObjectHelper> void
-    update(const ObjectHelper& helper, const std::vector<MetricsMap::EntryPtr>& objects)
+    template<typename MetricsHelper> void
+    update(const MetricsHelper& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
     {
-        std::vector<MetricsMap::EntryPtr>::const_iterator p = objects.begin();
+        std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin();
         typename SeqType::iterator q = _objects.begin();
         while(p != objects.end())
         {
             if(q == _objects.end() || *p < q->second) // New metrics object
             {
-                q = _objects.insert(q, std::make_pair((*p)->attach<ObjectHelper, PtrType>(helper), *p));
+                q = _objects.insert(q, std::make_pair((*p)->attach<MetricsHelper, PtrType>(helper), *p));
                 ++p;
                 ++q;
             }
@@ -115,18 +115,18 @@ private:
     IceUtilInternal::StopWatch _watch;
 };
 
-template<typename T> class ObjectHelperT : public ObjectHelper
+template<typename T> class MetricsHelperT : public MetricsHelper
 {
 public:
 
-    virtual MetricsObjectPtr newMetricsObject(const std::string& id) const
+    virtual MetricsPtr newMetrics(const std::string& id) const
     {
-        MetricsObjectPtr t = new T();
+        MetricsPtr t = new T();
         t->id = id;
         return t;
     }
 
-    virtual void initMetricsObject(const IceInternal::Handle<T>&) const
+    virtual void initMetrics(const IceInternal::Handle<T>&) const
     {
         // To be overriden in specialization to initialize state attributes
     }
@@ -307,11 +307,11 @@ protected:
 
 };
 
-template<typename T> class ObjectObserverUpdaterT : public ObjectObserverUpdater
+template<typename T> class UpdaterT : public Updater
 {
 public:
     
-    ObjectObserverUpdaterT(T* updater, void (T::*fn)()) : 
+    UpdaterT(T* updater, void (T::*fn)()) : 
         _updater(updater), _fn(fn)
     {
     }
@@ -327,38 +327,38 @@ private:
     void (T::*_fn)();
 };
 
-class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<MetricsObject>
+class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
 {
 };
 
-template<typename T> ObjectObserverUpdater*
+template<typename T> Updater*
 newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)())
 {
-    return new ObjectObserverUpdaterT<T>(updater.get(), fn);
+    return new UpdaterT<T>(updater.get(), fn);
 }
 
-template<typename T> ObjectObserverUpdater*
+template<typename T> Updater*
 newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 {
-    return new ObjectObserverUpdaterT<T>(updater.get(), fn);
+    return new UpdaterT<T>(updater.get(), fn);
 }
 
 template<typename ObserverImplType> 
-class ObjectObserverResolverT
+class ObserverResolverT
 {
 public:
 
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
 
-    ObjectObserverResolverT(const std::string& name, const MetricsAdminIPtr& metrics) :
+    ObserverResolverT(const std::string& name, const MetricsAdminIPtr& metrics) :
         _name(name), _metrics(metrics)
     {
     }
 
-    template<typename ObjectHelper> ObserverImplPtrType
-    getObserver(const ObjectHelper& helper)
+    template<typename MetricsHelper> ObserverImplPtrType
+    getObserver(const MetricsHelper& helper)
     {
-        std::vector<MetricsMap::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
         if(metricsObjects.empty())
         {
             return 0;
@@ -369,10 +369,10 @@ public:
         return obsv;
     }
 
-    template<typename ObjectHelper, typename ObserverPtrType> ObserverImplPtrType
-    getObserver(const ObjectHelper& helper, const ObserverPtrType& observer)
+    template<typename MetricsHelper, typename ObserverPtrType> ObserverImplPtrType
+    getObserver(const MetricsHelper& helper, const ObserverPtrType& observer)
     {
-        std::vector<MetricsMap::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
         if(metricsObjects.empty())
         {
             return 0;

@@ -13,6 +13,7 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <Ice/Observer.h>
 
 using namespace std;
 using namespace Ice::Instrumentation;
@@ -191,15 +192,11 @@ vector<ConnectorPtr>
 IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
 {
     vector<ConnectorPtr> connectors;
-    ObserverPtr observer;
+    ObserverHelperT<> observer;
     const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
     if(resolver)
     {
-        observer = resolver->getEndpointResolveObserver(endpoint->getInfo(), endpoint->toString());
-        if(observer)
-        {
-            observer->attach();
-        }
+        observer.attach(resolver->getEndpointResolveObserver(endpoint->getInfo(), endpoint->toString()));
     }
     
     try 
@@ -208,15 +205,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     }
     catch(const Ice::LocalException& ex)
     {
-        if(observer)
-        {
-            observer->failed(ex.ice_name());
-        }
-    }
-
-    if(observer)
-    {
-        observer->detach();
+        observer.failed(ex.ice_name());
     }
     return connectors;
 }
@@ -297,7 +286,7 @@ IceInternal::EndpointHostResolver::run()
 
             r = _queue.front();
             _queue.pop_front();
-            threadObserver = _observer;
+            threadObserver = _observer.get();
         }
 
         const ProtocolSupport protocol = _instance->protocolSupport();
@@ -305,14 +294,14 @@ IceInternal::EndpointHostResolver::run()
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(ThreadStateIdle, ThreadStateInUseForMisc);
+                threadObserver->stateChanged(ThreadStateIdle, ThreadStateInUseForOther);
             }
 
             r.callback->connectors(r.endpoint->connectors(getAddresses(r.host, r.port, protocol, true)));
 
             if(threadObserver)
             {
-                threadObserver->stateChanged(ThreadStateInUseForMisc, ThreadStateIdle);
+                threadObserver->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
             }
         }
         catch(const Ice::LocalException& ex)
@@ -351,11 +340,7 @@ IceInternal::EndpointHostResolver::updateObserver()
     const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
     if(resolver)
     {
-        _observer = resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer);
-        if(_observer)
-        {
-            _observer->attach();
-        }
+        _observer.attach(resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
     }
 }
 

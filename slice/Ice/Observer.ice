@@ -90,11 +90,11 @@ enum ThreadState
 
     /**
      *
-     * The thread is performing miscellaneous internal activities (DNS
+     * The thread is performing other internal activities (DNS
      * lookups, timer callbacks, etc).
      *
      **/
-    ThreadStateInUseForMisc,
+    ThreadStateInUseForOther,
 };
 
 /**
@@ -401,7 +401,7 @@ local interface ObserverResolver
      * @return The request observer object.
      *
      **/
-    RequestObserver getInvocationObserver(Object* prx, string operation, Context ctx, Connection con);
+    Observer getInvocationObserver(Object* prx, string operation, Context ctx, Connection con);
 
     /**
      * 
@@ -416,7 +416,7 @@ local interface ObserverResolver
      * @return The request observer object.
      *
      **/
-    RequestObserver getDispatchObserver(Current c); 
+    Observer getDispatchObserver(Current c); 
 
     /**
      *

@@ -139,7 +139,7 @@ IceInternal::ConnectionReaper::add(const ConnectionIPtr& connection)
     _connections.push_back(connection);
     if(connection->_observer.get())
     {
-        connection->_observer->getObserver()->detach();
+        connection->_observer.reset(0);
     }
 }
 
@@ -153,12 +153,6 @@ IceInternal::ConnectionReaper::swapConnections(vector<ConnectionIPtr>& connectio
 Ice::ConnectionI::Observer::Observer(const BasicStream& readStream, const BasicStream& writeStream) : 
     _readStream(readStream), _writeStream(writeStream)
 {
-}
-
-void
-Ice::ConnectionI::Observer::setObserver(const ConnectionObserverPtr& observer)
-{
-    _observer = observer;
 }
 
 void
@@ -510,14 +504,6 @@ Ice::ConnectionI::updateObserver()
         return;
     }
 
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    assert(resolver);
-    ConnectionObserverPtr obsv;
-    if(_observer.get())
-    {
-        obsv =  _observer->getObserver();
-    }
-
     ConnectionInfoPtr info;
     if(!_info && _state < StateClosed)
     {
@@ -527,18 +513,19 @@ Ice::ConnectionI::updateObserver()
         _info->adapterName = _adapter ? _adapter->getName() : string();
     }
 
-    obsv = resolver->getConnectionObserver(info,
-                                           _endpoint->getInfo(),
-                                           connectionStateMap[static_cast<int>(_state)], 
-                                           obsv);
+    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
+    assert(resolver);
+    ConnectionObserverPtr obsv = resolver->getConnectionObserver(info,
+                                                                 _endpoint->getInfo(),
+                                                                 connectionStateMap[static_cast<int>(_state)], 
+                                                                 _observer.get() ? _observer->get() : 0);
     if(obsv)
     {
         if(!_observer.get())
         {
             _observer.reset(new Observer(_readStream, _writeStream));
         }
-        _observer->setObserver(obsv);
-        obsv->attach();
+        _observer->attach(obsv);
     }
     else
     {
@@ -1382,7 +1369,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         // We can't measure the time to receive the header as it would
                         // include the wait time.
                         //
-                        _observer->getObserver()->receivedBytes(static_cast<int>(headerSize), 0);
+                        (*_observer)->receivedBytes(static_cast<int>(headerSize), 0);
                     }
                 
                     ptrdiff_t pos = _readStream.i - _readStream.b.begin();
@@ -2207,13 +2194,13 @@ Ice::ConnectionI::setState(State state)
         ConnectionState newState = connectionStateMap[static_cast<int>(state)];
         if(oldState != newState)
         {
-            _observer->getObserver()->stateChanged(oldState, newState);
+            (*_observer)->stateChanged(oldState, newState);
         }
         if(state == StateClosed && _exception.get())
         {
             if(!dynamic_cast<CloseConnectionException*>(_exception.get()))
             {
-                _observer->getObserver()->failed(_exception->ice_name());
+                (*_observer)->failed(_exception->ice_name());
             }
         }
     }
@@ -2308,8 +2295,7 @@ Ice::ConnectionI::initialize(SocketOperation operation)
         if(obsv)
         {
             _observer.reset(new Observer(_readStream, _writeStream));
-            _observer->setObserver(obsv);
-            obsv->attach();
+            _observer->attach(obsv);
         }
     }
 

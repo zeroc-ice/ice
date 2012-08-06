@@ -2253,7 +2253,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else 
     {
-        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams();";
+        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << formatTypeToString(p->format()) << ");";
         FormatType format = p->format();
         if(p->sendsClasses() && format != DefaultFormat)
         {

@@ -43,7 +43,7 @@ match(const string& value, const string& expr)
 
 }
 
-MetricsMap::MetricsMap(const string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject) : 
+MetricsMapI::MetricsMapI(const string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject) : 
     _retain(retain), _accept(accept), _reject(reject)
 {
     if(!groupBy.empty())
@@ -87,10 +87,10 @@ MetricsMap::MetricsMap(const string& groupBy, int retain, const NameValueDict& a
     }
 }
 
-MetricsObjectSeq
-MetricsMap::getMetricsObjects()
+MetricsMap
+MetricsMapI::getMetrics()
 {
-    MetricsObjectSeq objects;
+    MetricsMap objects;
 
     Lock sync(*this);
     for(map<string, EntryPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
@@ -100,8 +100,25 @@ MetricsMap::getMetricsObjects()
     return objects;
 }
 
-MetricsMap::EntryPtr
-MetricsMap::getMatching(const ObjectHelper& helper)
+MetricsFailuresSeq
+MetricsMapI::getFailures()
+{
+    MetricsFailuresSeq failures;
+
+    Lock sync(*this);
+    for(map<string, EntryPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+    {
+        MetricsFailures f = p->second->getFailures();
+        if(!f.failures.empty())
+        {
+            failures.push_back(f);
+        }
+    }
+    return failures;
+}
+
+MetricsMapI::EntryPtr
+MetricsMapI::getMatching(const MetricsHelper& helper)
 {
     for(map<string, string>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
     {
@@ -136,13 +153,13 @@ MetricsMap::getMatching(const ObjectHelper& helper)
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
     if(p == _objects.end())
     {
-        p = _objects.insert(make_pair(key, new Entry(this, helper.newMetricsObject(key)))).first;
+        p = _objects.insert(make_pair(key, new Entry(this, helper.newMetrics(key)))).first;
     }
     return p->second;
 }
 
 void
-MetricsMap::detached(Entry* entry)
+MetricsMapI::detached(Entry* entry)
 {
     Lock sync(*this);
     if(_retain == 0)
@@ -180,43 +197,54 @@ MetricsMap::detached(Entry* entry)
     _detachedQueue.push_back(entry);
 }
     
-MetricsView::MetricsView()
+MetricsViewI::MetricsViewI()
 {
 }
 
 void
-MetricsView::add(const string& name, const string& groupBy, int retain, const NameValueDict& accept, 
-                 const NameValueDict& reject)
+MetricsViewI::add(const string& name, const string& groupBy, int retain, const NameValueDict& accept, 
+                  const NameValueDict& reject)
 {
-    _maps.insert(make_pair(name, new MetricsMap(groupBy, retain, accept, reject)));
+    _maps.insert(make_pair(name, new MetricsMapI(groupBy, retain, accept, reject)));
 }
 
 void
-MetricsView::remove(const string& cl)
+MetricsViewI::remove(const string& cl)
 {
     _maps.erase(cl);
 }
 
-MetricsObjectSeqDict
-MetricsView::getMetricsObjects()
+MetricsView
+MetricsViewI::getMetrics()
 {
-    MetricsObjectSeqDict metrics;
+    MetricsView metrics;
     if(_enabled)
     {
-        for(map<string, MetricsMapPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+        for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
         {
-            metrics.insert(make_pair(p->first, p->second->getMetricsObjects()));
+            metrics.insert(make_pair(p->first, p->second->getMetrics()));
         }
     }
     return metrics;
 }
 
-MetricsMap::EntryPtr
-MetricsView::getMatching(const string& mapName, const ObjectHelper& helper) const
+MetricsFailuresSeq
+MetricsViewI::getFailures(const string& mapName)
+{
+    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    if(p != _maps.end())
+    {
+        return p->second->getFailures();
+    }
+    return MetricsFailuresSeq();
+}
+
+MetricsMapI::EntryPtr
+MetricsViewI::getMatching(const string& mapName, const MetricsHelper& helper) const
 {
     if(_enabled)
     {
-        map<string, MetricsMapPtr>::const_iterator p = _maps.find(mapName);
+        map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
         if(p != _maps.end())
         {
             return p->second->getMatching(helper);
@@ -226,10 +254,10 @@ MetricsView::getMatching(const string& mapName, const ObjectHelper& helper) cons
 }
 
 vector<string>
-MetricsView::getMaps() const
+MetricsViewI::getMaps() const
 {
     vector<string> maps;
-    for(map<string, MetricsMapPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+    for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
     {
         maps.push_back(p->first);
     }
@@ -265,7 +293,7 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
             viewName = viewName.substr(0, dotPos);
         }
         
-        MetricsViewPtr view = new MetricsView();
+        MetricsViewIPtr view = new MetricsViewI();
         _views.insert(make_pair(viewName, view));
 
         view->setEnabled(properties->getPropertyAsIntWithDefault(viewsPrefix + viewName, 1) > 0);
@@ -316,19 +344,19 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
 }
 
 void
-MetricsAdminI::addUpdater(const string& mapName, const ObjectObserverUpdaterPtr& updater)
+MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
 {
     _updaters.insert(make_pair(mapName, updater));
 }
 
-vector<MetricsMap::EntryPtr>
-MetricsAdminI::getMatching(const string& mapName, const ObjectHelper& helper) const
+vector<MetricsMapI::EntryPtr>
+MetricsAdminI::getMatching(const string& mapName, const MetricsHelper& helper) const
 {
     Lock sync(*this);
-    vector<MetricsMap::EntryPtr> objects;
-    for(map<string, MetricsViewPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    vector<MetricsMapI::EntryPtr> objects;
+    for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        MetricsMap::EntryPtr e = p->second->getMatching(mapName, helper);
+        MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
         if(e)
         {
             objects.push_back(e);
@@ -338,31 +366,41 @@ MetricsAdminI::getMatching(const string& mapName, const ObjectHelper& helper) co
     return objects;
 }
 
-MetricsObjectSeqDict
-MetricsAdminI::getMetricsMaps(const string& view, const ::Ice::Current&)
+Ice::StringSeq
+MetricsAdminI::getMetricsViewNames(const ::Ice::Current&)
+{
+    Ice::StringSeq names;
+
+    Lock sync(*this);
+    for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    {
+        names.push_back(p->first);
+    }
+    return names;
+}
+
+MetricsView
+MetricsAdminI::getMetricsView(const string& view, const ::Ice::Current&)
 {
     Lock sync(*this);
-    std::map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
+    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
     if(p == _views.end())
     {
         throw UnknownMetricsView();
     }
-    return p->second->getMetricsObjects();
+    return p->second->getMetrics();
 }
 
-MetricsObjectSeqDictDict 
-MetricsAdminI::getAllMetricsMaps(const ::Ice::Current&)
+MetricsFailuresSeq
+MetricsAdminI::getMetricsFailures(const string& view, const string& map, const ::Ice::Current&)
 {
     Lock sync(*this);
-    MetricsObjectSeqDictDict metrics;
-    for(map<string, MetricsViewPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
+    if(p == _views.end())
     {
-        if(p->second->isEnabled())
-        {
-            metrics.insert(make_pair(p->first, p->second->getMetricsObjects()));
-        }
+        throw UnknownMetricsView();
     }
-    return metrics;
+    return p->second->getFailures(map);
 }
 
 void
@@ -374,17 +412,17 @@ MetricsAdminI::addMapToView(const string& view,
                             const NameValueDict& reject,
                             const ::Ice::Current&)
 {
-    ObjectObserverUpdaterPtr updater;
+    UpdaterPtr updater;
     {
         Lock sync(*this);
-        map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
+        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
         if(p == _views.end())
         {
-            p = _views.insert(make_pair(view, new MetricsView())).first;
+            p = _views.insert(make_pair(view, new MetricsViewI())).first;
         }
         p->second->add(mapName, groupBy, retain, accept, reject);
 
-        map<string, ObjectObserverUpdaterPtr>::const_iterator q = _updaters.find(mapName);
+        map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
         if(q != _updaters.end())
         {
             updater = q->second;
@@ -399,17 +437,17 @@ MetricsAdminI::addMapToView(const string& view,
 void
 MetricsAdminI::removeMapFromView(const string& view, const string& mapName, const ::Ice::Current&)
 {
-    ObjectObserverUpdaterPtr updater;
+    UpdaterPtr updater;
     {
         Lock sync(*this);
-        map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
+        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
         if(p == _views.end())
         {
             throw UnknownMetricsView();
         }
         p->second->remove(mapName);
 
-        map<string, ObjectObserverUpdaterPtr>::const_iterator q = _updaters.find(mapName);
+        map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
         if(q != _updaters.end())
         {
             updater = q->second;
@@ -422,24 +460,12 @@ MetricsAdminI::removeMapFromView(const string& view, const string& mapName, cons
 }
 
 void
-MetricsAdminI::enableView(const string& view, const ::Ice::Current&)
-{
-    setViewEnabled(view, true);
-}
-
-void
-MetricsAdminI::disableView(const string& view, const ::Ice::Current&)
-{
-    setViewEnabled(view, false);
-}
-
-void
 MetricsAdminI::setViewEnabled(const string& view, bool enabled)
 {
     vector<string> maps;
     {
         Lock sync(*this);
-        map<string, MetricsViewPtr>::const_iterator p = _views.find(view);
+        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
         if(p == _views.end())
         {
             throw UnknownMetricsView();

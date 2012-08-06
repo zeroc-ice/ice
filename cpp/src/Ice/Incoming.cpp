@@ -60,8 +60,7 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 void
 IceInternal::IncomingBase::__adopt(IncomingBase& other)
 {
-    _observer = other._observer;
-    other._observer = 0;
+    _observer.adopt(other._observer);
 
     _servant = other._servant;
     other._servant = 0;
@@ -112,18 +111,6 @@ IncomingBase::__endWriteParams(bool ok)
     {
         *(_os.b.begin() + headerSize + 4) = ok ? replyOK : replyUserException; // Reply status position.
         _os.endWriteEncaps();
-
-        if(_observer)
-        {
-            if(ok)
-            {
-                _observer->responseOK();
-            }
-            else
-            {
-                _observer->responseUserException();
-            }
-        }
     }
 }
 
@@ -136,11 +123,6 @@ IncomingBase::__writeEmptyParams()
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.write(replyOK);
         _os.writeEmptyEncaps(_current.encoding);
-
-        if(_observer)
-        {
-            _observer->responseOK();
-        }
     }
 }
 
@@ -159,18 +141,6 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
         else
         {
             _os.writeEncaps(v, sz);
-        }
-
-        if(_observer)
-        {
-            if(ok)
-            {
-                _observer->responseOK();
-            }
-            else
-            {
-                _observer->responseUserException();
-            }
         }
     }
 }
@@ -235,10 +205,6 @@ IceInternal::IncomingBase::__servantLocatorFinished()
         //
         if(_response)
         {
-            if(_observer)
-            {
-                _observer->responseUserException();
-            }
             _os.b.resize(headerSize + 4); // Reply status position.
             _os.write(replyUserException);
             _os.startWriteEncaps(_current.encoding);
@@ -251,11 +217,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
             _connection->sendNoResponse();
         }
 
-        if(_observer)
-        {
-            _observer->detach();
-            _observer = 0;
-        }
+        _observer.detach();
         _connection = 0;
     }
     catch(const std::exception& ex)
@@ -301,11 +263,6 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 
         if(_response)
         {
-            if(_observer)
-            {
-                _observer->responseRequestFailedException();
-            }
-
             _os.b.resize(headerSize + 4); // Reply status position.
             if(dynamic_cast<ObjectNotExistException*>(rfe))
             {
@@ -357,11 +314,6 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 
         if(_response)
         {
-            if(_observer)
-            {
-                _observer->responseUnknownException();
-            }
-
             _os.b.resize(headerSize + 4); // Reply status position.
             if(const UnknownLocalException* ule = dynamic_cast<const UnknownLocalException*>(&exc))
             {
@@ -428,11 +380,6 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
 
         if(_response)
         {
-            if(_observer)
-            {
-                _observer->responseUnknownException();
-            }
-
             _os.b.resize(headerSize + 4); // Reply status position.
             _os.write(replyUnknownException);
             ostringstream str;
@@ -446,12 +393,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
         }
     }
 
-    if(_observer)
-    {
-        _observer->detach();
-        _observer = 0;
-    }
-    
+    _observer.detach();
     _connection = 0;
 }
 
@@ -467,10 +409,6 @@ IceInternal::IncomingBase::__handleException()
 
     if(_response)
     {
-        if(_observer)
-        {
-            _observer->responseUnknownException();
-        }
         _os.b.resize(headerSize + 4); // Reply status position.
         _os.write(replyUnknownException);
         string reason = "unknown c++ exception";
@@ -482,11 +420,7 @@ IceInternal::IncomingBase::__handleException()
         _connection->sendNoResponse();
     }
 
-    if(_observer)
-    {
-        _observer->detach();
-        _observer = 0;
-    }
+    _observer.detach();
     _connection = 0;
 }
 
@@ -614,11 +548,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     const ObserverResolverPtr& resolver = _is->instance()->initializationData().observerResolver;
     if(resolver)
     {
-        _observer = resolver->getDispatchObserver(_current);
-        if(_observer)
-        {
-            _observer->attach();
-        }
+        _observer.attach(resolver->getDispatchObserver(_current));
     }
 
     //
@@ -650,10 +580,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
                     if(_response)
                     {
-                        if(_observer)
-                        {
-                            _observer->responseUserException();
-                        }
                         _os.write(replyUserException);
                         _os.startWriteEncaps(encoding);
                         _os.write(ex);
@@ -665,11 +591,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                         _connection->sendNoResponse();
                     }
 
-                    if(_observer)
-                    {
-                        _observer->detach();
-                        _observer = 0;
-                    }
+                    _observer.detach();
                     _connection = 0;
                     return;
                 }
@@ -759,12 +681,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _connection->sendNoResponse();
     }
 
-    if(_observer)
-    {
-        _observer->detach();
-        _observer = 0;
-    }
-
+    _observer.detach();
     _connection = 0;
 }
 
