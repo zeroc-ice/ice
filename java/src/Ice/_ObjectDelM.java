@@ -20,7 +20,7 @@ public class _ObjectDelM implements _ObjectDel
         {
             try
             {
-                IceInternal.BasicStream __os = __og.startWriteParams();
+                IceInternal.BasicStream __os = __og.startWriteParams(Ice.FormatType.DefaultFormat);
                 __os.writeString(__id);
                 __og.endWriteParams();
             }

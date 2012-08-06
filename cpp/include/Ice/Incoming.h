@@ -28,10 +28,11 @@ public:
 
     void __adopt(IncomingBase&);
 
-    BasicStream* __startWriteParams();
+    BasicStream* __startWriteParams(Ice::FormatType);
     void __endWriteParams(bool);
     void __writeEmptyParams();
     void __writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
+    void __writeUserException(const Ice::UserException&, Ice::FormatType);
 
 protected:
 

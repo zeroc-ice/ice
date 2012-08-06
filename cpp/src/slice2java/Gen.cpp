@@ -66,9 +66,9 @@ sliceModeToIceMode(Operation::Mode opMode)
 }
 
 static string
-formatTypeToString(FormatType type)
+opFormatTypeToString(const OperationPtr& op)
 {
-    switch(type)
+    switch(op->format())
     {
     case DefaultFormat:
         return "Ice.FormatType.DefaultFormat";
@@ -1171,14 +1171,10 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             //
             // Marshal 'out' parameters and return value.
             //
-            FormatType format = op->format();
             if(!outParams.empty() || ret)
             {
-                out << nl << "IceInternal.BasicStream __os = __inS.__startWriteParams();";
-                if(op->returnsClasses() && format != DefaultFormat)
-                {
-                    out << nl << "__os.format(" << formatTypeToString(format) << ");";
-                }
+                out << nl << "IceInternal.BasicStream __os = __inS.__startWriteParams(" 
+                    << opFormatTypeToString(op) << ");";
                 writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
                 out << nl << "__inS.__endWriteParams(true);";
             }
@@ -1200,13 +1196,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     string exS = getAbsolute(*t, package);
                     out << nl << "catch(" << exS << " ex)";
                     out << sb;
-                    out << nl << "IceInternal.BasicStream __os = __inS.__startWriteParams();";
-                    if(format != DefaultFormat)
-                    {
-                        out << nl << "__os.format(" << formatTypeToString(format) << ");";
-                    }
-                    out << nl << "__os.writeUserException(ex);";
-                    out << nl << "__inS.__endWriteParams(false);";
+                    out << nl << "__inS.__writeUserException(ex, " << opFormatTypeToString(op) << ");";
                     out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     out << eb;
                 }
@@ -4652,12 +4642,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             iter = 0;
             if(!inArgs.empty())
             {
-                out << nl << "IceInternal.BasicStream __os = __result.__startWriteParams();";
-                FormatType format = op->format();
-                if(op->sendsClasses() && format != DefaultFormat)
-                {
-                    out << nl << "__os.format(" << formatTypeToString(format) << ");";
-                }
+                out << nl << "IceInternal.BasicStream __os = __result.__startWriteParams(" 
+                    << opFormatTypeToString(op) << ");";
                 ParamDeclList pl;
                 for(pli = paramList.begin(); pli != paramList.end(); ++pli)
                 {
@@ -5663,12 +5649,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "try";
             out << sb;
-            out << nl << "IceInternal.BasicStream __os = __og.startWriteParams();";
-            FormatType format = op->format();
-            if(op->sendsClasses() && format != DefaultFormat)
-            {
-                out << nl << "__os.format(" << formatTypeToString(format) << ");";
-            }
+            out << nl << "IceInternal.BasicStream __os = __og.startWriteParams(" << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true, optionalMapping);
             out << nl << "__og.endWriteParams();";
             out << eb;
@@ -6780,16 +6761,12 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             iter = 0;
             out << nl << "if(__validateResponse(true))";
             out << sb;
-            FormatType format = p->format();
             if(ret || !outParams.empty())
             {
                 out << nl << "try";
                 out << sb;
-                out << nl << "IceInternal.BasicStream __os = this.__startWriteParams();";
-                if(p->returnsClasses() && format != DefaultFormat)
-                {
-                    out << nl << "__os.format(" << formatTypeToString(format) << ");";
-                }
+                out << nl << "IceInternal.BasicStream __os = this.__startWriteParams(" 
+                    << opFormatTypeToString(p) << ");";
                 writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
                 out << nl << "this.__endWriteParams(true);";
                 out << eb;
@@ -6822,13 +6799,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                     out << sb;
                     out << nl << "if(__validateResponse(false))";
                     out << sb;
-                    out << nl << "IceInternal.BasicStream __os = __startWriteParams();";
-                    if(format != DefaultFormat)
-                    {
-                        out << nl << "__os.format(" << formatTypeToString(format) << ");";
-                    }
-                    out << nl << "__os.writeUserException(__ex);";
-                    out << nl << "__endWriteParams(false);";
+                    out << nl << "__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
                     out << nl << "__response();";
                     out << eb;
                     out << eb;

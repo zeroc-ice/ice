@@ -397,9 +397,9 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     }
 
     public BasicStream
-    __startWriteParams()
+    __startWriteParams(Ice.FormatType format)
     {
-        _os.startWriteEncaps(_encoding);
+        _os.startWriteEncaps(_encoding, format);
         return _os;
     }
 

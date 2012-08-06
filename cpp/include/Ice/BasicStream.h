@@ -89,8 +89,6 @@ public:
         b.resize(sz);
     }
 
-    void format(Ice::FormatType);
-
     void startWriteObject(const Ice::SlicedDataPtr& data)
     {
         assert(_currentWriteEncaps && _currentWriteEncaps->encoder);
@@ -137,7 +135,7 @@ public:
 
     void startWriteEncaps();
 
-    void startWriteEncaps(const Ice::EncodingVersion& encoding)
+    void startWriteEncaps(const Ice::EncodingVersion& encoding, Ice::FormatType format)
     {
         checkSupportedEncoding(encoding);
 
@@ -151,6 +149,7 @@ public:
             _currentWriteEncaps = new WriteEncaps();
             _currentWriteEncaps->previous = oldEncaps;
         }
+        _currentWriteEncaps->format = format;
         _currentWriteEncaps->encoding = encoding;
         _currentWriteEncaps->start = b.size();
 
@@ -965,9 +964,9 @@ private:
     class EncapsEncoder : private ::IceUtil::noncopyable
     {
     public:
-        EncapsEncoder(BasicStream* stream, WriteEncaps* encaps, Ice::FormatType format) : 
-            _stream(stream), _encaps(encaps), _format(format), _sliceType(NoSlice), _usesClasses(false),
-            _objectIdIndex(0), _typeIdIndex(0)
+        EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : 
+            _stream(stream), _encaps(encaps), _sliceType(NoSlice), _usesClasses(false), _objectIdIndex(0), 
+            _typeIdIndex(0)
         {
         }
 
@@ -1013,7 +1012,6 @@ private:
 
         BasicStream* _stream;
         WriteEncaps* _encaps;
-        const Ice::FormatType _format;
 
         // Object/exception attributes
         SliceType _sliceType;
@@ -1092,6 +1090,7 @@ private:
 
         Container::size_type start;
         Ice::EncodingVersion encoding;
+        Ice::FormatType format;
 
         EncapsEncoder* encoder;
 
@@ -1125,8 +1124,6 @@ private:
 
     int _startSeq;
     int _minSeqSize;
-
-    Ice::FormatType _format;
 
     static const Ice::Byte FLAG_HAS_TYPE_ID_STRING;
     static const Ice::Byte FLAG_HAS_TYPE_ID_INDEX;

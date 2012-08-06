@@ -209,7 +209,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         try
         {
             __result.__prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx);
-            IceInternal.BasicStream __os = __result.__startWriteParams();
+            IceInternal.BasicStream __os = __result.__startWriteParams(Ice.FormatType.DefaultFormat);
             __os.writeString(__id);
             __result.__endWriteParams();
             __result.__send(true);

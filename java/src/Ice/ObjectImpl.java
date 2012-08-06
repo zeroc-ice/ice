@@ -91,7 +91,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         String __id = __is.readString();
         __inS.endReadParams();
         boolean __ret = __obj.ice_isA(__id, __current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams();
+        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeBool(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
@@ -154,7 +154,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         __inS.readEmptyParams();
         String[] __ret = __obj.ice_ids(__current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams();
+        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeStringSeq(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;
@@ -188,7 +188,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     {
         __inS.readEmptyParams();
         String __ret = __obj.ice_id(__current);
-        IceInternal.BasicStream __os = __inS.__startWriteParams();
+        IceInternal.BasicStream __os = __inS.__startWriteParams(Ice.FormatType.DefaultFormat);
         __os.writeString(__ret);
         __inS.__endWriteParams(true);
         return DispatchStatus.DispatchOK;

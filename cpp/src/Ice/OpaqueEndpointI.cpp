@@ -196,7 +196,7 @@ void
 IceInternal::OpaqueEndpointI::streamWrite(BasicStream* s) const
 {
     s->write(_type);
-    s->startWriteEncaps(_rawEncoding);
+    s->startWriteEncaps(_rawEncoding, DefaultFormat);
     s->writeBlob(_rawBytes);
     s->endWriteEncaps();
 }

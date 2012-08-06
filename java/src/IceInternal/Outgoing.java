@@ -457,9 +457,9 @@ public final class Outgoing implements OutgoingMessageCallback
     }
 
     public BasicStream
-    startWriteParams()
+    startWriteParams(Ice.FormatType format)
     {
-        _os.startWriteEncaps(_encoding);
+        _os.startWriteEncaps(_encoding, format);
         return _os;
     }
 

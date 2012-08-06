@@ -48,7 +48,6 @@ public class BasicStream
         _unlimited = unlimited;
 
         _startSeq = -1;
-        _format = _instance.defaultsAndOverrides().defaultFormat;
         _sizePos = -1;
     }
 
@@ -142,10 +141,6 @@ public class BasicStream
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        Ice.FormatType tmpFormat = other._format;
-        other._format = _format;
-        _format = tmpFormat;
-
         int tmpSizePos = other._sizePos;
         other._sizePos = _sizePos;
         _sizePos = tmpSizePos;
@@ -185,15 +180,6 @@ public class BasicStream
     getBuffer()
     {
         return _buf;
-    }
-
-    public void
-    format(Ice.FormatType format)
-    {
-        if(format != Ice.FormatType.DefaultFormat)
-        {
-            _format = format;
-        }
     }
 
     public void
@@ -263,16 +249,16 @@ public class BasicStream
 
         if(_writeEncapsStack != null)
         {
-            startWriteEncaps(_writeEncapsStack.encoding);
+            startWriteEncaps(_writeEncapsStack.encoding, _writeEncapsStack.format);
         }
         else
         {
-            startWriteEncaps(_encoding);
+            startWriteEncaps(_encoding, Ice.FormatType.DefaultFormat);
         }
     }
 
     public void
-    startWriteEncaps(Ice.EncodingVersion encoding)
+    startWriteEncaps(Ice.EncodingVersion encoding, Ice.FormatType format)
     {
         Protocol.checkSupportedEncoding(encoding);
 
@@ -289,6 +275,7 @@ public class BasicStream
         curr.next = _writeEncapsStack;
         _writeEncapsStack = curr;
 
+        _writeEncapsStack.format = format;
         _writeEncapsStack.setEncoding(encoding);
         _writeEncapsStack.start = _buf.size();
 
@@ -3686,11 +3673,10 @@ public class BasicStream
 
     private static final class EncapsEncoder
     {
-        EncapsEncoder(BasicStream stream, WriteEncaps encaps, Ice.FormatType format)
+        EncapsEncoder(BasicStream stream, WriteEncaps encaps)
         {
             _stream = stream;
             _encaps = encaps;
-            _format = format;
             _sliceType = SliceType.NoSlice;
             _usesClasses = false;
             _objectIdIndex = 0;
@@ -3719,7 +3705,7 @@ public class BasicStream
                     _stream.writeInt(-index);
                     _usesClasses = true;
                 }
-                else if(_sliceType != SliceType.NoSlice && _format == Ice.FormatType.SlicedFormat)
+                else if(_sliceType != SliceType.NoSlice && _encaps.format == Ice.FormatType.SlicedFormat)
                 {
                     //
                     // An object reference that appears inside a slice of an
@@ -3831,7 +3817,7 @@ public class BasicStream
             // Encode the slice size for the old encoding and if using the
             // sliced format.
             //
-            if(_encaps.encoding_1_0 || _format == Ice.FormatType.SlicedFormat)
+            if(_encaps.encoding_1_0 || _encaps.format == Ice.FormatType.SlicedFormat)
             {
                 _sliceFlags |= FLAG_HAS_SLICE_SIZE;
             }
@@ -3857,7 +3843,7 @@ public class BasicStream
                 // Encode the type ID (only in the first slice for the compact
                 // encoding).
                 //
-                if(_format == Ice.FormatType.SlicedFormat || _encaps.encoding_1_0 || _firstSlice)
+                if(_encaps.format == Ice.FormatType.SlicedFormat || _encaps.encoding_1_0 || _firstSlice)
                 {
                     //
                     // If the type ID has already been seen, write the index
@@ -3924,7 +3910,7 @@ public class BasicStream
             if(!_indirectionTable.isEmpty())
             {
                 assert(!_encaps.encoding_1_0);
-                assert(_format == Ice.FormatType.SlicedFormat);
+                assert(_encaps.format == Ice.FormatType.SlicedFormat);
                 _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
                 //
@@ -4056,7 +4042,7 @@ public class BasicStream
             // using the sliced format. Otherwise, we ignore the preserved slices, which
             // essentially "slices" the object into the most-derived type known by the sender.
             //
-            if(_encaps.encoding_1_0 || _format != Ice.FormatType.SlicedFormat)
+            if(_encaps.encoding_1_0 || _encaps.format != Ice.FormatType.SlicedFormat)
             {
                 return;
             }
@@ -4119,7 +4105,6 @@ public class BasicStream
 
         private final BasicStream _stream;
         private final WriteEncaps _encaps;
-        private final Ice.FormatType _format;
 
         // Object/exception attributes
         private SliceType _sliceType;
@@ -4179,6 +4164,7 @@ public class BasicStream
         }
 
         int start;
+        Ice.FormatType format;
         Ice.EncodingVersion encoding;
         boolean encoding_1_0;
 
@@ -4249,9 +4235,14 @@ public class BasicStream
             _writeEncapsStack.setEncoding(_encoding);
         }
 
+        if(_writeEncapsStack.format == Ice.FormatType.DefaultFormat)
+        {
+            _writeEncapsStack.format = _instance.defaultsAndOverrides().defaultFormat;
+        }
+
         if(_writeEncapsStack.encoder == null) // Lazy initialization.
         {
-            _writeEncapsStack.encoder = new EncapsEncoder(this, _writeEncapsStack, _format);
+            _writeEncapsStack.encoder = new EncapsEncoder(this, _writeEncapsStack);
         }
     }
 
@@ -4262,8 +4253,6 @@ public class BasicStream
 
     private int _startSeq;
     private int _minSeqSize;
-
-    private Ice.FormatType _format;
 
     private int _sizePos;
 

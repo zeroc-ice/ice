@@ -172,12 +172,6 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    format(FormatType format)
-    {
-        _os.format(format);
-    }
-
-    public void
     startObject(SlicedData slicedData)
     {
         _os.startWriteObject(slicedData);
@@ -214,9 +208,9 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    startEncapsulation(Ice.EncodingVersion encoding)
+    startEncapsulation(Ice.EncodingVersion encoding, Ice.FormatType format)
     {
-        _os.startWriteEncaps(encoding);
+        _os.startWriteEncaps(encoding, format);
     }
 
     public void

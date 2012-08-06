@@ -97,8 +97,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _unlimited(unlimited),
     _stringConverter(instance->initializationData().stringConverter),
     _wstringConverter(instance->initializationData().wstringConverter),
-    _startSeq(-1),
-    _format(_instance->defaultsAndOverrides()->defaultFormat)
+    _startSeq(-1)
 {
     //
     // Initialize the encoding members of our pre-allocated encapsulations, in case
@@ -164,7 +163,6 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(_unlimited, other._unlimited);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
-    std::swap(_format, other._format);
 }
 
 void
@@ -188,16 +186,6 @@ IceInternal::BasicStream::resetEncaps()
     _preAllocatedWriteEncaps.reset();
 }
 
-
-void
-IceInternal::BasicStream::format(Ice::FormatType format)
-{
-    if(format != DefaultFormat)
-    {
-        _format = format;
-    }
-}
-
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
@@ -209,11 +197,11 @@ IceInternal::BasicStream::startWriteEncaps()
 
     if(_currentWriteEncaps)
     {
-        startWriteEncaps(_currentWriteEncaps->encoding);
+        startWriteEncaps(_currentWriteEncaps->encoding, _currentWriteEncaps->format);
     }
     else
     {
-        startWriteEncaps(_encoding);
+        startWriteEncaps(_encoding, Ice::DefaultFormat);
     }
 }
 
@@ -1768,9 +1756,14 @@ IceInternal::BasicStream::initWriteEncaps()
         _currentWriteEncaps->start = b.size();
     }
 
+    if(_currentWriteEncaps->format == Ice::DefaultFormat)
+    {
+        _currentWriteEncaps->format = _instance->defaultsAndOverrides()->defaultFormat;
+    }
+
     if(!_currentWriteEncaps->encoder) // Lazy initialization.
     {
-        _currentWriteEncaps->encoder = new EncapsEncoder(this, _currentWriteEncaps, _format);
+        _currentWriteEncaps->encoder = new EncapsEncoder(this, _currentWriteEncaps);
     }
 }
 
@@ -1792,7 +1785,7 @@ IceInternal::BasicStream::EncapsEncoder::write(const ObjectPtr& v)
             _stream->write(-index);
             _usesClasses = true;
         }
-        else if(_sliceType != NoSlice && _format == SlicedFormat)
+        else if(_sliceType != NoSlice && _encaps->format == SlicedFormat)
         {
             //
             // An object reference that appears inside a slice of an
@@ -1911,7 +1904,7 @@ IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, bool l
     // Encode the slice size for the old encoding and if using the
     // sliced format.
     //
-    if(_encaps->encoding == Encoding_1_0 || _format == SlicedFormat)
+    if(_encaps->encoding == Encoding_1_0 || _encaps->format == SlicedFormat)
     {
         _sliceFlags |= FLAG_HAS_SLICE_SIZE;
     }
@@ -1937,7 +1930,7 @@ IceInternal::BasicStream::EncapsEncoder::startSlice(const string& typeId, bool l
         // Encode the type ID (only in the first slice for the compact
         // encoding).
         // 
-        if(_format == SlicedFormat || _encaps->encoding == Encoding_1_0 || _firstSlice)
+        if(_encaps->format == SlicedFormat || _encaps->encoding == Encoding_1_0 || _firstSlice)
         {
             //
             // If the type ID has already been seen, write the index
@@ -2006,7 +1999,7 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     if(!_indirectionTable.empty())
     {
         assert(_encaps->encoding != Encoding_1_0);
-        assert(_format == SlicedFormat);
+        assert(_encaps->format == SlicedFormat);
         _sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
         //
@@ -2126,7 +2119,7 @@ IceInternal::BasicStream::EncapsEncoder::writeSlicedData(const SlicedDataPtr& sl
     // using the sliced format. Otherwise, we ignore the preserved slices, which
     // essentially "slices" the object into the most-derived type known by the sender.
     //
-    if(_encaps->encoding == Encoding_1_0 || _format != SlicedFormat)
+    if(_encaps->encoding == Encoding_1_0 || _encaps->format != SlicedFormat)
     {
         return;
     }

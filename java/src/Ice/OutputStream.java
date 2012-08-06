@@ -190,13 +190,6 @@ public interface OutputStream
     void writeException(UserException ex);
 
     /**
-     * Select the format to be used for classes and exceptions.
-     *
-     * @param format Specify the compact or sliced format.
-     **/
-    void format(FormatType format);
-
-    /**
      * Marks the start of an Ice object.
      *
      * @param slicedData Preserved slices for this object, or null.
@@ -237,8 +230,11 @@ public interface OutputStream
      * Writes the start of an encapsulation to the stream.
      *
      * @param encoding The encoding version of the encapsulation.
+     *
+     * @param format Specify the compact or sliced format.
+     *
      **/
-    void startEncapsulation(Ice.EncodingVersion encoding);
+    void startEncapsulation(Ice.EncodingVersion encoding, Ice.FormatType format);
 
     /**
      * Writes the start of an encapsulation to the stream.

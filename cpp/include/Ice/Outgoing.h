@@ -103,9 +103,9 @@ public:
         _is.readEncaps(encaps, sz);
     }
 
-    BasicStream* startWriteParams()
+    BasicStream* startWriteParams(Ice::FormatType format)
     {
-        _os.startWriteEncaps(_encoding);
+        _os.startWriteEncaps(_encoding, format);
         return &_os;
     }
     void endWriteParams()
