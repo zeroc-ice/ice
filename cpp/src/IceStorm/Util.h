@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 
 #include <string>
 
@@ -21,4 +20,3 @@ std::string
 describeEndpoints(const Ice::ObjectPrx&);
 
 }
-#endif

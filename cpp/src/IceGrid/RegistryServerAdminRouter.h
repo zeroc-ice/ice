@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_REGISTRY_SERVER_ADMIN_ROUTER_H
-#define ICE_GRID_REGISTRY_SERVER_ADMIN_ROUTER_H
+#pragma once
 
 #include <IceGrid/Database.h>
 
@@ -31,4 +30,3 @@ private:
 };
 
 }
-#endif

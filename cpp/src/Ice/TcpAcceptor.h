@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_ACCEPTOR_H
-#define ICE_TCP_ACCEPTOR_H
+#pragma once
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
@@ -64,5 +63,4 @@ private:
 };
 
 }
-#endif
 

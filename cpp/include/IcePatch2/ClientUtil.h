@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH2_CLIENT_UTIL_H
-#define ICE_PATCH2_CLIENT_UTIL_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
@@ -161,5 +160,3 @@ private:
 typedef IceUtil::Handle<Patcher> PatcherPtr;
 
 }
-
-#endif

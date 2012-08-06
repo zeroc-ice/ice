@@ -2276,7 +2276,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     // failure to connect. The socket isn't closed by this method.
     //
 
-    if(info.count == SOCKET_ERROR)
+    if(static_cast<int>(info.count) == SOCKET_ERROR)
     {
         WSASetLastError(info.error);
         if(connectionRefused())

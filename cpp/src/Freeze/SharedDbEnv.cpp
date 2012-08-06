@@ -89,10 +89,8 @@ dbErrCallback(const char* prefix, char* msg)
     out << "DbEnv \"" << env->getEnvName() << "\": " << msg;
 }
 
-#ifndef __BCPLUSPLUS__ // COMPILERFIX
 namespace
 {
-#endif
 
 Mutex* mapMutex = 0;
 Mutex* refCountMutex = 0;
@@ -119,9 +117,7 @@ public:
 
 Init init;
 
-#ifndef __BCPLUSPLUS__ // COMPILERFIX
 }
-#endif
 
 typedef map<MapKey, Freeze::SharedDbEnv*> SharedDbEnvMap;
 SharedDbEnvMap* sharedDbEnvMap;

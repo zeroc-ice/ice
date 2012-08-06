@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FILE_TRACKER_H
-#define FILE_TRACKER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Slice/Parser.h>
@@ -67,5 +66,3 @@ private:
 };
 
 }
-
-#endif

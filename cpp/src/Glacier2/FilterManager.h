@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FILTER_MANAGER_H
-#define FILTER_MANAGER_H
+#pragma once
 
 //
 // It'd be better if we didn't have to include this everywhere, but
@@ -84,6 +83,3 @@ private:
     FilterManager(const InstancePtr& , const StringSetIPtr&, const StringSetIPtr&, const IdentitySetIPtr&);
 };
 };
-
-#endif /* FILTER_MANAGER_H */
-

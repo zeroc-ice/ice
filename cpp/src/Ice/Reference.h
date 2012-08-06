@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REFERENCE_H
-#define ICE_REFERENCE_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <Ice/ReferenceF.h>
@@ -298,5 +297,3 @@ private:
 };
 
 }
-
-#endif

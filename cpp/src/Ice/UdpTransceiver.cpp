@@ -545,7 +545,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         return;
     }
 
-    if(_write.count == SOCKET_ERROR)
+    if(static_cast<int>(_write.count) == SOCKET_ERROR)
     {
 #ifndef ICE_OS_WINRT
         WSASetLastError(_write.error);
@@ -675,7 +675,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 #else
-    if(_read.count == SOCKET_ERROR)
+    if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {
         WSASetLastError(_read.error);
 

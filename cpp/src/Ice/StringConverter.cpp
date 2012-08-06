@@ -16,8 +16,13 @@
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Communicator.h>
+
 #ifndef _WIN32
 #include <Ice/IconvStringConverter.h>
+#endif
+
+#ifdef __MINGW32__
+#  include <limits.h>
 #endif
 
 using namespace IceUtil;

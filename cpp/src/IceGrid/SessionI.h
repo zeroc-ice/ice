@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICEGRID_SESSIONI_H
-#define ICEGRID_SESSIONI_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
@@ -157,5 +156,3 @@ private:
 };
 
 };
-
-#endif

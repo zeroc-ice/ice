@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef DOTNETNAMES_H
-#define DOTNETNAMES_H
+#pragma once
 
 #include <string>
 
@@ -30,5 +29,3 @@ std::string mangleName(const std::string&, int baseTypes = 0);
 }
 
 }
-
-#endif

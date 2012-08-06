@@ -40,8 +40,7 @@ commonPreamble = commonPreamble + """
 """
 
 cppHeaderPreamble = commonPreamble + """
-#ifndef ICE_INTERNAL_%(classname)s_H
-#define ICE_INTERNAL_%(classname)s_H
+#pragma once
 
 #include <Ice/Config.h>
 
@@ -95,7 +94,6 @@ cppHeaderPostamble = """
 
 }
 
-#endif
 """
 
 cppSrcPreamble = commonPreamble + """

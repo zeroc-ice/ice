@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef C_PLUS_PLUS_UTIL_H
-#define C_PLUS_PLUS_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -40,7 +39,7 @@ SLICE_API std::string returnTypeToString(const TypePtr&, bool, const StringList&
 SLICE_API std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
 SLICE_API std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
 SLICE_API std::string operationModeToString(Operation::Mode);
-SLICE_API std::string formatTypeToString(FormatType);
+SLICE_API std::string opFormatTypeToString(const OperationPtr&);
 
 SLICE_API std::string fixKwd(const std::string&);
 
@@ -61,5 +60,3 @@ SLICE_API bool inWstringModule(const SequencePtr&);
 
 SLICE_API std::string getDataMemberRef(const DataMemberPtr&);
 }
-
-#endif

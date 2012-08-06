@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_ASYNC_H
-#define ICE_OUTGOING_ASYNC_H
+#pragma once
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
@@ -223,9 +222,9 @@ public:
 
     bool __send(bool);
 
-    BasicStream* __startWriteParams()
+    BasicStream* __startWriteParams(Ice::FormatType format)
     {
-        _os.startWriteEncaps(_encoding);
+        _os.startWriteEncaps(_encoding, format);
         return &_os;
     }
     void __endWriteParams()
@@ -465,5 +464,3 @@ public:
 };
 
 }
-
-#endif

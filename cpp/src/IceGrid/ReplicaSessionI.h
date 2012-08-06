@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICEGRID_REPLICA_SESSION_H
-#define ICEGRID_REPLICA_SESSION_H
+#pragma once
 
 #include <IceGrid/Registry.h>
 #include <IceGrid/Internal.h>
@@ -72,5 +71,3 @@ private:
 typedef IceUtil::Handle<ReplicaSessionI> ReplicaSessionIPtr;
 
 };
-
-#endif

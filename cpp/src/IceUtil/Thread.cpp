@@ -251,7 +251,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
-    if(ResumeThread(_handle) == -1)
+    if(static_cast<int>(ResumeThread(_handle)) == -1)
     {
         __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());

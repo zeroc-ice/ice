@@ -88,14 +88,14 @@ public class IncomingBase
     }
 
     public BasicStream
-    __startWriteParams()
+    __startWriteParams(Ice.FormatType format)
     {
         if(_response)
         {
             assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
             assert(_current.encoding != null); // Encoding for reply is known.
             _os.writeByte((byte)0);
-            _os.startWriteEncaps(_current.encoding);
+            _os.startWriteEncaps(_current.encoding, format);
         }
     
         //
@@ -150,6 +150,14 @@ public class IncomingBase
                 _os.writeEncaps(v);
             }
         }
+    }
+
+    public void
+    __writeUserException(Ice.UserException ex, Ice.FormatType format)
+    {
+        BasicStream __os = __startWriteParams(format);
+        __os.writeUserException(ex);
+        __endWriteParams(false);
     }
 
     //

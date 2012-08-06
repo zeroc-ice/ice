@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INITIALIZE_H
-#define ICE_INITIALIZE_H
+#pragma once
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>
@@ -123,5 +122,3 @@ namespace IceInternal
 ICE_API InstancePtr getInstance(const ::Ice::CommunicatorPtr&);
 
 }
-
-#endif

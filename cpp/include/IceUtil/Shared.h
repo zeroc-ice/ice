@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_SHARED_H
-#define ICE_UTIL_SHARED_H
+#pragma once
 
 #include <IceUtil/Config.h>
 
@@ -144,5 +143,3 @@ protected:
 };
 
 }
-
-#endif

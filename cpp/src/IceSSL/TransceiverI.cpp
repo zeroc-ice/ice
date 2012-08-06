@@ -692,7 +692,7 @@ IceSSL::TransceiverI::finishWrite(IceInternal::Buffer& buf)
         return;
     }
 
-    if(_write.count == SOCKET_ERROR)
+    if(static_cast<int>(_write.count) == SOCKET_ERROR)
     {
         WSASetLastError(_write.error);
         if(IceInternal::connectionLost())
@@ -763,7 +763,7 @@ IceSSL::TransceiverI::startRead(IceInternal::Buffer& buf)
 void
 IceSSL::TransceiverI::finishRead(IceInternal::Buffer& buf)
 {
-    if(_read.count == SOCKET_ERROR)
+    if(static_cast<int>(_read.count) == SOCKET_ERROR)
     {
         WSASetLastError(_read.error);
         if(IceInternal::connectionLost())

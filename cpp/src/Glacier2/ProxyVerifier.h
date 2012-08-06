@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROXY_VERIFIER_H
-#define ICE_PROXY_VERIFIER_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <vector>
@@ -56,4 +55,3 @@ private:
 typedef IceUtil::Handle<ProxyVerifier> ProxyVerifierPtr;
 
 }
-#endif

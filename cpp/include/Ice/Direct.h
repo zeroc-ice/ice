@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DIRECT_H
-#define ICE_DIRECT_H
+#pragma once
 
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ReferenceF.h>
@@ -55,5 +54,3 @@ private:
 };
 
 }
-
-#endif

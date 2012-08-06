@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_OBJECT_STORE_H
-#define FREEZE_OBJECT_STORE_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Ice/Identity.h>
@@ -96,14 +95,7 @@ class ObjectStore : public ObjectStoreBase, public IceUtil::Cache<Ice::Identity,
     {
     }
 
-#ifdef __BCPLUSPLUS__
-    bool load(const Ice::Identity& ident, const TransactionIPtr& trans, ObjectRecord& rec)
-    {
-        return ObjectStoreBase::load(ident, trans, rec);
-    }
-#else
     using ObjectStoreBase::load;
-#endif
 
     typedef IceUtil::Cache<Ice::Identity, T> Cache;
 
@@ -171,6 +163,3 @@ ObjectStoreBase::sampleServant() const
 }
 
 }
-
-#endif
-

@@ -84,14 +84,14 @@ IceInternal::IncomingBase::__adopt(IncomingBase& other)
 }
 
 BasicStream* 
-IncomingBase::__startWriteParams()
+IncomingBase::__startWriteParams(FormatType format)
 {
     if(_response)
     {
         assert(_os.b.size() == headerSize + 4); // Reply status position.
         assert(_current.encoding >= Ice::Encoding_1_0); // Encoding for reply is known.
         _os.write(static_cast<Ice::Byte>(0));
-        _os.startWriteEncaps(_current.encoding);
+        _os.startWriteEncaps(_current.encoding, format);
     }
     
     //
@@ -143,6 +143,14 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
             _os.writeEncaps(v, sz);
         }
     }
+}
+
+void 
+IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
+{
+    ::IceInternal::BasicStream* __os = __startWriteParams(format);
+    __os->write(ex);
+    __endWriteParams(false);
 }
 
 void
@@ -207,7 +215,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
         {
             _os.b.resize(headerSize + 4); // Reply status position.
             _os.write(replyUserException);
-            _os.startWriteEncaps(_current.encoding);
+            _os.startWriteEncaps(_current.encoding, DefaultFormat);
             _os.write(ex);
             _os.endWriteEncaps();
             _connection->sendResponse(&_os, _compress);
@@ -581,7 +589,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                     if(_response)
                     {
                         _os.write(replyUserException);
-                        _os.startWriteEncaps(encoding);
+                        _os.startWriteEncaps(encoding, DefaultFormat);
                         _os.write(ex);
                         _os.endWriteEncaps();
                         _connection->sendResponse(&_os, _compress);

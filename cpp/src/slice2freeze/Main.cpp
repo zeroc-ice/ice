@@ -1454,11 +1454,7 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         }
     }
 
-    string s = fileH;
-    transform(s.begin(), s.end(), s.begin(), ToIfdef());
-    H << "\n#ifndef __" << s << "__";
-    H << "\n#define __" << s << "__";
-    H << '\n';
+    H << "#pragma once\n";
 
     if(dicts.size() > 0)
     {
@@ -1507,7 +1503,7 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         }
     }
 
-    H << "\n\n#endif\n";
+    H << "\n\n";
     CPP << '\n';
 
     H.close();

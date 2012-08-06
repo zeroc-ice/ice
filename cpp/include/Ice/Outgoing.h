@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OUTGOING_H
-#define ICE_OUTGOING_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
@@ -107,9 +106,9 @@ public:
         _is.readEncaps(encaps, sz);
     }
 
-    BasicStream* startWriteParams()
+    BasicStream* startWriteParams(Ice::FormatType format)
     {
-        _os.startWriteEncaps(_encoding);
+        _os.startWriteEncaps(_encoding, format);
         return &_os;
     }
     void endWriteParams()
@@ -201,5 +200,3 @@ private:
 };
 
 }
-
-#endif

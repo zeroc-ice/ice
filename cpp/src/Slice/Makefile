@@ -9,11 +9,17 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,Slice,$(VERSION))
-SONAME          = $(call mksoname,Slice,$(SOVERSION))  
-LIBNAME		= $(call mklibname,Slice)
+include $(top_srcdir)/config/Make.rules.common
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+ifeq ($(MinGW), yes)
+	DLLNAME		= $(top_srcdir)/bin/slice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+	TARGETS		= $(DLLNAME) $(LIBNAME)
+else
+	LIBFILENAME	= $(call mklibfilename,Slice,$(VERSION))
+	SONAME		= $(call mksoname,Slice,$(SOVERSION))  
+	LIBNAME		= $(call mklibname,Slice)
+	TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+endif
 
 OBJS		= Scanner.o \
 		  ../Slice/Grammar.o \
@@ -36,10 +42,19 @@ SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
+
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DSLICE_API_EXPORTS 
-LINKWITH	:= -lIceUtil $(MCPP_LIBS)
 BISONFLAGS	:= --name-prefix "slice_" $(BISONFLAGS)
 
+ifeq ($(MinGW), yes)
+LINKWITH	:= -l$(ICEUTIL_LIBNAME) $(MCPP_LIBS)
+$(DLLNAME): $(OBJS)
+	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
+	
+install:: all
+	$(call installprogram,$(DLLNAME),$(install_bindir))
+else
+LINKWITH	:= -lIceUtil $(MCPP_LIBS)
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
 	rm -f $@
@@ -57,9 +72,8 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 endif
-
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-
+endif
 
 include .depend

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INCOMING_H
-#define ICE_INCOMING_H
+#pragma once
 
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
@@ -32,10 +31,11 @@ public:
 
     void __adopt(IncomingBase&);
 
-    BasicStream* __startWriteParams();
+    BasicStream* __startWriteParams(Ice::FormatType);
     void __endWriteParams(bool);
     void __writeEmptyParams();
     void __writeParamEncaps(const Ice::Byte*, Ice::Int, bool);
+    void __writeUserException(const Ice::UserException&, Ice::FormatType);
 
 protected:
 
@@ -125,5 +125,3 @@ private:
 };
 
 }
-
-#endif

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_FUNCTIONAL_H
-#define ICE_UTIL_FUNCTIONAL_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <functional>
@@ -446,7 +445,5 @@ voidbind2nd(const _Operation& __fn, const _Tp& __x)
 }
 
 _STLP_END_NAMESPACE
-
-#endif
 
 #endif

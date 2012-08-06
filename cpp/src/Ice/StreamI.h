@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_I_H
-#define ICE_STREAM_I_H
+#pragma once
 
 #include <Ice/Stream.h>
 
@@ -141,8 +140,6 @@ public:
 
     virtual void writeOptional(Int, OptionalType);
 
-    virtual void format(FormatType);
-
     virtual void startObject(const SlicedDataPtr&);
     virtual void endObject();
 
@@ -152,7 +149,7 @@ public:
     virtual void startSlice(const std::string&, bool);
     virtual void endSlice();
 
-    virtual void startEncapsulation(const Ice::EncodingVersion&);
+    virtual void startEncapsulation(const Ice::EncodingVersion&, FormatType);
     virtual void startEncapsulation();
     virtual void endEncapsulation();
 
@@ -175,5 +172,3 @@ private:
 };
 
 }
-
-#endif

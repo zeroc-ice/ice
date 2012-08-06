@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef JAVA_UTIL_H
-#define JAVA_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -118,6 +117,11 @@ protected:
     std::string getStaticId(const TypePtr&, const std::string&) const;
 
     //
+    // Determines whether an operation should use the optional mapping.
+    //
+    bool useOptionalMapping(const OperationPtr&);
+
+    //
     // Returns the optional type corresponding to the given Slice type.
     //
     std::string getOptionalType(const TypePtr&);
@@ -150,12 +154,15 @@ protected:
     enum OptionalMode
     {
         OptionalNone,
-        OptionalParam,
+        OptionalInParam,
+        OptionalOutParam,
+        OptionalReturnParam,
         OptionalMember
     };
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode, int,
-                                   const std::string&, bool, int&, bool = false, const StringList& = StringList(),
-                                   const std::string& patchParams = "");
+
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
+                                   bool, int, const std::string&, bool, int&, bool = false,
+                                   const StringList& = StringList(), const std::string& patchParams = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
@@ -173,8 +180,8 @@ protected:
     //
     // Generate code to marshal or unmarshal a type using the public stream API.
     //
-    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                         int, const std::string&, bool, int&, bool = false,
+    void writeStreamMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, bool, int,
+                                          const std::string&, bool, int&, bool = false,
                                          const StringList& = StringList(), const std::string& patchParams = "");
 
     //
@@ -259,5 +266,3 @@ private:
 };
 
 }
-
-#endif

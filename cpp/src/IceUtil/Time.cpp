@@ -98,7 +98,7 @@ IceUtil::Time::now(Clock clock)
 #  if defined(_MSC_VER)
         struct _timeb tb;
         _ftime(&tb);
-#  elif defined(__BCPLUSPLUS__)
+#  elif defined(__MINGW32__)
         struct timeb tb;
         ftime(&tb);
 #  endif
@@ -131,7 +131,7 @@ IceUtil::Time::now(Clock clock)
 #  if defined(_MSC_VER)
             struct _timeb tb;
             _ftime(&tb);
-#  elif defined(__BCPLUSPLUS__)
+#  elif defined(__MINGW32__)
             struct timeb tb;
             ftime(&tb);
 #  endif

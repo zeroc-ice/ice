@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_MAP_H
-#define FREEZE_MAP_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <iterator>
@@ -1233,7 +1232,5 @@ inline forward_iterator_tag iterator_category(const Freeze::IteratorBase&)
 inline ptrdiff_t* distance_type(const Freeze::IteratorBase&) { return (ptrdiff_t*) 0; }
 
 }
-
-#endif
 
 #endif

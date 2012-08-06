@@ -149,7 +149,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                         if(_response)
                         {
                             _os.writeByte(ReplyStatus.replyUserException);
-                            _os.startWriteEncaps(encoding);
+                            _os.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
                             _os.writeUserException(ex);
                             _os.endWriteEncaps();
                             _connection.sendResponse(_os, _compress);

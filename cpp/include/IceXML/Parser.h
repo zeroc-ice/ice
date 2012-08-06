@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_XML_PARSER_H
-#define ICE_XML_PARSER_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -153,5 +152,3 @@ public:
 };
 
 }
-
-#endif

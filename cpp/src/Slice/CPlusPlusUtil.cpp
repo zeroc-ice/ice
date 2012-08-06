@@ -712,9 +712,9 @@ Slice::operationModeToString(Operation::Mode mode)
 }
 
 string
-Slice::formatTypeToString(FormatType type)
+Slice::opFormatTypeToString(const OperationPtr& op)
 {
-    switch(type)
+    switch(op->format())
     {
     case DefaultFormat:
         return "::Ice::DefaultFormat";

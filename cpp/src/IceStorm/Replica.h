@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef REPLICA_H
-#define REPLICA_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IceStorm/Election.h>
@@ -43,5 +42,3 @@ public:
 typedef IceUtil::Handle<Replica> ReplicaPtr;
 
 }
-
-#endif // RELICA_H

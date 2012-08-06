@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_RETRY_QUEUE_H
-#define ICE_RETRY_QUEUE_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -57,6 +56,3 @@ private:
 };
 
 }
-
-#endif
-

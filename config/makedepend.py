@@ -64,8 +64,16 @@ for line in fileinput.input("-"):
     else:
         previous = ""
 
+    i = 0
     for s in line.split():
         if(s[0] == "/"):
+            continue
+
+        if i == 0 and s.endswith(".h") and prefix != None:
+            if depend:
+                print >>depend, prefix + "/" + s,
+            print >>dependmak, prefix + "\\" + s,
+            i += 1
             continue
 
         if s.endswith(".cs:"):

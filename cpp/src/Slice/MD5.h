@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_MD5_H
-#define SLICE_MD5_H
+#pragma once
 
 #include <IceUtil/Config.h>
 
@@ -40,5 +39,3 @@ private:
 };
 
 }
-
-#endif

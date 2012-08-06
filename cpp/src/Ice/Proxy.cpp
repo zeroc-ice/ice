@@ -155,7 +155,7 @@ IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
     try
     {
         __result->__prepare(ice_isA_name, Nonmutating, ctx);
-        IceInternal::BasicStream* __os = __result->__startWriteParams();
+        IceInternal::BasicStream* __os = __result->__startWriteParams(DefaultFormat);
         __os->write(typeId);
         __result->__endWriteParams();
         __result->__send(true);
@@ -1461,7 +1461,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context* context)
     Outgoing __og(__handler.get(), ice_isA_name, ::Ice::Nonmutating, context);
     try
     {
-        BasicStream* __os = __og.startWriteParams();
+        BasicStream* __os = __og.startWriteParams(DefaultFormat);
         __os->write(__id, false);
         __og.endWriteParams();
     }

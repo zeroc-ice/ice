@@ -179,7 +179,9 @@ namespace Ice
                     dotPos = pattern.IndexOf('.');
                     Debug.Assert(dotPos != -1);
                     string propPrefix = pattern.Substring(1, dotPos - 2);
-                    if(!propPrefix.Equals(prefix))
+                    bool mismatchCase = false;
+                    string otherKey = "";
+                    if(!propPrefix.ToUpper().Equals(prefix.ToUpper()))
                     {
                         continue;
                     }
@@ -198,10 +200,29 @@ namespace Ice
                                 key = IceInternal.PropertyNames.validProps[i][j].deprecatedBy();
                             }
                         }
+
+                        if(!found)
+                        {
+                            r = new Regex(IceInternal.PropertyNames.validProps[i][j].pattern().ToUpper());
+                            m = r.Match(key.ToUpper());
+                            if(m.Success)
+                            {
+                                found = true;
+                                mismatchCase = true;
+                                otherKey = IceInternal.PropertyNames.validProps[i][j].pattern().Replace("\\", "").
+                                                                                                Replace("^", "").
+                                                                                                Replace("$", "");
+                                break;
+                            }
+                        }
                     }
                     if(!found)
                     {
                         logger.warning("unknown property: " + key);
+                    }
+                    else if(mismatchCase)
+                    {
+                        logger.warning("unknown property: `" + key + "'; did you mean `" + otherKey + "'");
                     }
                 }
             }

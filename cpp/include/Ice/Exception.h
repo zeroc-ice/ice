@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_EXCEPTION_H
-#define ICE_EXCEPTION_H
+#pragma once
 
 #include <IceUtil/Exception.h>
 #include <Ice/Config.h>
@@ -99,5 +98,3 @@ ICE_API std::ostream& operator<<(std::ostream&, const SystemException&);
 #endif
 
 }
-
-#endif

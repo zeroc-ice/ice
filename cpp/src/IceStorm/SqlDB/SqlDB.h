@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SQL_DATABASE_CACHE_H
-#define SQL_DATABASE_CACHE_H
+#pragma once
 
 #include <IceStorm/DB.h>
 
@@ -57,5 +56,3 @@ private:
 };
 
 }
-
-#endif

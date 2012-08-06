@@ -214,12 +214,12 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#endif\n";
+    H << '\n';
     C << '\n';
 
     if(_impl)
     {
-        implH << "\n\n#endif\n";
+        implH << '\n';
         implC << '\n';
     }
 }
@@ -280,15 +280,7 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         FileTracker::instance()->addFile(fileImplC);
 
-        string s = fileImplH;
-        if(_include.size())
-        {
-            s = _include + '/' + s;
-        }
-        transform(s.begin(), s.end(), s.begin(), ToIfdef());
-        implH << "#ifndef __" << s << "__";
-        implH << "\n#define __" << s << "__";
-        implH << '\n';
+        implH << "#pragma once\n";
     }
 
     string fileH = _base + "." + _headerExtension;
@@ -322,16 +314,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
-
-    string s = fileH;
-    if(_include.size())
-    {
-        s = _include + '/' + s;
-    }
-    transform(s.begin(), s.end(), s.begin(), ToIfdef());
-    H << "\n#ifndef __" << s << "__";
-    H << "\n#define __" << s << "__";
-    H << '\n';
+    H << "#pragma once\n";
 
     validateMetaData(p);
 
@@ -2253,12 +2236,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else 
     {
-        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << formatTypeToString(p->format()) << ");";
-        FormatType format = p->format();
-        if(p->sendsClasses() && format != DefaultFormat)
-        {
-            C << nl << "__os->format(" << formatTypeToString(format) << ");";
-        }
+        C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << opFormatTypeToString(p) <<");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
         C << nl << "__result->__endWriteParams();";
     }
@@ -2794,15 +2772,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams();";
-        if(p->sendsClasses())
-        {
-            FormatType format = p->format();
-            if(format != DefaultFormat)
-            {
-                C << nl << "__os->format(" << formatTypeToString(format) << ");";
-            }
-        }
+        C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
         C << nl << "__og.endWriteParams();";
         C << eb;
@@ -4361,14 +4331,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << retS << " __ret = ";
             }
             C << fixKwd(name) << args << ';';
-            FormatType format = p->format();
             if(ret || !outParams.empty())
             {
-                C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams();";
-                if(p->returnsClasses() && format != DefaultFormat)
-                {
-                    C << nl << "__os->format(" << formatTypeToString(format) << ");";
-                }
+                C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams("
+                  << opFormatTypeToString(p) << ");";
                 writeMarshalCode(C, outParams, p);
                 C << nl << "__inS.__endWriteParams(true);";
             }
@@ -4385,13 +4351,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 {
                     C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
                     C << sb;
-                    C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams();";
-                    if(format != DefaultFormat)
-                    {
-                        C << nl << "__os->format(" << formatTypeToString(format) << ");";
-                    }
-                    C << nl << "__os->write(__ex);";
-                    C << nl << "__inS.__endWriteParams(false);";
+                    C << nl << "__inS.__writeUserException(__ex, " << opFormatTypeToString(p) << ");";
                     C << eb;
                 }
                 C << nl << "return ::Ice::DispatchUserException;";
@@ -6045,18 +6005,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         H << nl << "// COMPILERFIX: The using directive avoid compiler warnings with -Woverloaded-virtual";
         H << nl << "using ::IceInternal::IncomingAsync::ice_exception;";
         H << nl << "virtual void ice_exception(const ::std::exception&);";
-
-        H.zeroIndent();
-        H << nl << "#if defined(__BCPLUSPLUS__)";
-        H.restoreIndent();
-        H << nl << "// COMPILERFIX: Avoid compiler warnings with C++Builder 2010";
-        H << nl << "virtual void ice_exception()";
-        H << sb;
-        H << nl << "::IceInternal::IncomingAsync::ice_exception();";
-        H << eb;
-        H.zeroIndent();
-        H << nl << "#endif";
-        H.restoreIndent();
     }
     H << eb << ';';
 
@@ -6073,16 +6021,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "if(__validateResponse(true))";
     C << sb;
-    FormatType format = p->format();
     if(ret || !outParams.empty())
     {
         C << nl << "try";
         C << sb;
-        C << nl << "::IceInternal::BasicStream* __os = __startWriteParams();";
-        if(p->returnsClasses() && format != DefaultFormat)
-        {
-            C << nl << "__os->format(" << formatTypeToString(format) << ");";
-        }
+        C << nl << "::IceInternal::BasicStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p, TypeContextInParam);
         C << nl << "__endWriteParams(true);";
         C << eb;
@@ -6118,13 +6061,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
-            C << nl << "::IceInternal::BasicStream* __os = __startWriteParams();";
-            if(format != DefaultFormat)
-            {
-                C << nl << "__os->format(" << formatTypeToString(format) << ");";
-            }
-            C << nl << "__os->write(*__ex);";
-            C << nl << "__endWriteParams(false);";
+            C << nl << "__writeUserException(*__ex, " << opFormatTypeToString(p) << ");";
             C << nl << "__response();";
             C << eb;
             C << eb;

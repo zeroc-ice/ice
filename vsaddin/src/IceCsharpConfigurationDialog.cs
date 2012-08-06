@@ -330,7 +330,7 @@ namespace Ice.VisualStudio
         {
             if(value)
             {
-                if(!Util.addDotNetReference(_project, name, Util.getIceHome(), development))
+                if(!Util.addDotNetReference(_project, name, development))
                 {
                     checkComponent(name, false);
                 }

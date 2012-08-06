@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_PHP_UTIL_H
-#define SLICE_PHP_UTIL_H
+#pragma once
 
 #include <Slice/Parser.h>
 
@@ -46,5 +45,3 @@ SLICE_API std::string escapeName(const std::string&);
 
 }
 }
-
-#endif

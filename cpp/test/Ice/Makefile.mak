@@ -38,7 +38,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  checksum \
 		  stringConverter \
 		  background \
-		  threadPoolPriority
+		  threadPoolPriority \
 		  custom \
 		  properties \
 		  servantLocator \

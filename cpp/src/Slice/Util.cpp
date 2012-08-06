@@ -15,10 +15,6 @@
 
 #include <unistd.h> // For readlink()
 
-#ifdef __BCPLUSPLUS__
-#  include <dir.h>
-#endif
-
 using namespace std;
 using namespace Slice;
 

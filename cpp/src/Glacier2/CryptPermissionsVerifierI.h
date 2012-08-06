@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER2_CRYPT_PERMISSIONS_VERIFIER_I_H
-#define GLACIER2_CRYPT_PERMISSIONS_VERIFIER_I_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
@@ -30,5 +29,3 @@ private:
 };
 
 }
-
-#endif

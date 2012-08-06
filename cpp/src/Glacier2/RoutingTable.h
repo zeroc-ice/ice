@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ROUTING_TABLE_H
-#define ICE_ROUTING_TABLE_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IceUtil/Mutex.h>
@@ -55,5 +54,3 @@ private:
 };
 
 }
-
-#endif

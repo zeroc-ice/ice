@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_I_H
-#define ICE_PROPERTIES_I_H
+#pragma once
 
 #include <IceUtil/Mutex.h>
 #include <Ice/Properties.h>
@@ -89,5 +88,3 @@ private:
 };
 
 }
-
-#endif

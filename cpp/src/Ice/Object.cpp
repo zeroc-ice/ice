@@ -111,7 +111,7 @@ Ice::Object::___ice_isA(Incoming& __inS, const Current& __current)
     __is->read(__id, false);
     __inS.endReadParams();
     bool __ret = ice_isA(__id, __current);
-    BasicStream* __os = __inS.__startWriteParams();
+    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(__ret);
     __inS.__endWriteParams(true);
     return DispatchOK;
@@ -131,7 +131,7 @@ Ice::Object::___ice_ids(Incoming& __inS, const Current& __current)
 {
     __inS.readEmptyParams();
     vector<string> __ret = ice_ids(__current);
-    BasicStream* __os = __inS.__startWriteParams();
+    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(&__ret[0], &__ret[0] + __ret.size(), false);
     __inS.__endWriteParams(true);
     return DispatchOK;
@@ -142,7 +142,7 @@ Ice::Object::___ice_id(Incoming& __inS, const Current& __current)
 {
     __inS.readEmptyParams();
     string __ret = ice_id(__current);
-    BasicStream* __os = __inS.__startWriteParams();
+    BasicStream* __os = __inS.__startWriteParams(DefaultFormat);
     __os->write(__ret, false);
     __inS.__endWriteParams(true);
     return DispatchOK;

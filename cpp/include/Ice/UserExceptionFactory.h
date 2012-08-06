@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_USER_EXCEPTION_FACTORY_H
-#define ICE_USER_EXCEPTION_FACTORY_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -28,5 +27,3 @@ public:
 typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
 
 };
-
-#endif

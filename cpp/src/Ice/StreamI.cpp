@@ -577,12 +577,6 @@ OutputStreamI::writeOptional(Int tag, OptionalType type)
 }
 
 void
-OutputStreamI::format(FormatType format)
-{
-    _os->format(format);
-}
-
-void
 OutputStreamI::startObject(const SlicedDataPtr& slicedData)
 {
     _os->startWriteObject(slicedData);
@@ -619,9 +613,9 @@ OutputStreamI::endSlice()
 }
 
 void
-OutputStreamI::startEncapsulation(const EncodingVersion& version)
+OutputStreamI::startEncapsulation(const EncodingVersion& version, FormatType format)
 {
-    _os->startWriteEncaps(version);
+    _os->startWriteEncaps(version, format);
 }
 
 void

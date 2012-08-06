@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_ICE_SSL_H
-#define ICE_SSL_ICE_SSL_H
+#pragma once
 
 #include <IceUtil/Config.h>
 #ifndef ICE_OS_WINRT
@@ -16,5 +15,3 @@
 #endif
 #include <IceSSL/EndpointInfo.h>
 #include <IceSSL/ConnectionInfo.h>
-
-#endif

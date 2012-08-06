@@ -34,18 +34,8 @@ private:
     bool _pause;
 };
 
-//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
-#ifdef __BCPLUSPLUS__
-
-int
-main(int argc, char* argv[])
-
-#else
-
 int
 wmain(int argc, wchar_t* argv[])
-
-#endif
 {
     Install app;
     InitializationData id;

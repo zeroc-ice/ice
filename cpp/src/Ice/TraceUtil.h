@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TRACE_UTIL_H
-#define ICE_TRACE_UTIL_H
+#pragma once
 
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
@@ -24,5 +23,3 @@ void trace(const char*, const BasicStream&, const ::Ice::LoggerPtr&, const Trace
 void traceSlicing(const char*, const ::std::string&, const char *, const ::Ice::LoggerPtr&);
 
 }
-
-#endif

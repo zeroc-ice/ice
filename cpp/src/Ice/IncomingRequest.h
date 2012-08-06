@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_INCOMING_REQUEST_H
-#define ICE_INCOMING_REQUEST_H
+#pragma once
 
 #include <Ice/Incoming.h>
 #include <Ice/Object.h>
@@ -34,5 +33,3 @@ public:
     Incoming& _in;
 };
 }
-
-#endif

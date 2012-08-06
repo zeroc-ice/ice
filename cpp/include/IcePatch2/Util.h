@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PATCH2_UTIL_H
-#define ICE_PATCH2_UTIL_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IcePatch2/FileInfo.h>
@@ -188,5 +187,3 @@ struct FileTree0
 ICE_PATCH2_API void getFileTree0(const FileInfoSeq&, FileTree0&);
 
 }
-
-#endif

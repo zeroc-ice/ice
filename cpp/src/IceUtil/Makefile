@@ -9,11 +9,17 @@
 
 top_srcdir	= ../..
 
-LIBFILENAME     = $(call mklibfilename,IceUtil,$(VERSION))
-SONAME          = $(call mksoname,IceUtil,$(SOVERSION))  
-LIBNAME		= $(call mklibname,IceUtil)
+include $(top_srcdir)/config/Make.rules.common
 
-TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+ifeq ($(MinGW), yes)
+	DLLNAME		= $(top_srcdir)/bin/iceutil$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
+	TARGETS		= $(DLLNAME) $(LIBNAME)
+else
+	LIBFILENAME	= $(call mklibfilename,IceUtil,$(VERSION))
+	SONAME		= $(call mksoname,IceUtil,$(SOVERSION))  
+	LIBNAME		= $(call mklibname,IceUtil)
+	TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+endif
 
 OBJS		= ArgVector.o \
 		  Cond.o \
@@ -21,7 +27,6 @@ OBJS		= ArgVector.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \
-		  FileUtil.o \
 		  InputUtil.o \
 		  Options.o \
 		  OutputUtil.o \
@@ -35,7 +40,8 @@ OBJS		= ArgVector.o \
 		  Timer.o \
 		  UUID.o \
 		  Unicode.o \
-		  MutexProtocol.o
+		  MutexProtocol.o \
+		  FileUtil.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -43,8 +49,15 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS        := $(CPPFLAGS) $(ICEUTIL_FLAGS) -DICE_UTIL_API_EXPORTS -I..
 
-LINKWITH        := $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
+LINKWITH        := $(ICEUTIL_OS_LIBS)
 
+ifeq ($(MinGW), yes)
+$(DLLNAME): $(OBJS)
+	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
+	
+install:: all
+	$(call installprogram,$(DLLNAME),$(install_bindir))
+else
 ifeq ($(STATICLIBS),yes)
 $(libdir)/$(LIBNAME): $(OBJS)
 	rm -f $@
@@ -62,9 +75,9 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 endif
-
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+endif
 
 include .depend
 

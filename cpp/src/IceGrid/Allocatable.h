@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_ALLOCATABLE_H
-#define ICE_GRID_ALLOCATABLE_H
+#pragma once
 
 #include <IceUtil/Handle.h>
 #include <IceUtil/Mutex.h>
@@ -113,5 +112,3 @@ protected:
 };
 
 };
-
-#endif

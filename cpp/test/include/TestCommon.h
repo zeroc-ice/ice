@@ -19,10 +19,6 @@
 
 #include <cstdlib>
 
-#ifdef __BCPLUSPLUS__
-#include <stdlib.h>
-#endif
-
 void 
 inline print(const std::string& msg)
 {

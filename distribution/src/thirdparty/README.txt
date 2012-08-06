@@ -178,16 +178,30 @@ bzip2
 If you have not already applied the patch for bzip2, please read the
 "Patches" section above before continuing.
 
-To build bzip2, change to the source directory and use the replacement
-makefile included in this archive:
+- Microsoft Visual C++
+
+  To build bzip2, change to the source directory and use the
+  replacement makefile included in this archive:
 
   > nmake /f ..\bzip2\Makefile.mak
 
-This will build the release and debug versions of the bzip2 DLLs. If
-you are using Visual C++ 6.0, first set the CPP_COMPILER environment
-variable as shown below:
+  This will build the release and debug versions of the bzip2 DLLs. If
+  you are using Visual C++ 6.0, first set the CPP_COMPILER environment
+  variable as shown below:
 
   > set CPP_COMPILER=VC60
+
+- MinGW
+
+  Open a Cygwin command window and set your PATH environment variable
+  to use the MinGW compiler from the Ruby Development Kit:
+
+  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+
+  Change to the bzip2 source directory and use the replacement
+  makefile included in this archive:
+
+  $ make -f ../bzip2/Makefile
 
 
 mcpp
@@ -204,9 +218,13 @@ Follow these instructions for building mcpp:
 
   > patch --binary -p0 < ..\noconfig\vc2008.dif
 
-  and for C++Builder 2010 you would run:
+  for C++Builder 2010 you would run:
 
   > patch --binary -p0 < ..\noconfig\bc59.dif
+
+  and for MinGW:
+
+  > patch --binary -p0 < ..\noconfig\mingw345.dif
 
 - Microsoft Visual C++: 
  
@@ -223,3 +241,14 @@ Follow these instructions for building mcpp:
   Build the mcpp library:
 
   > make -DMCPP_LIB -f..\noconfig\borlandc.mak mcpplib
+
+- MinGW
+
+  Open a Cygwin command window and set your PATH environment variable
+  to use the MinGW compiler from the Ruby Development Kit:
+
+  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+
+  Build the mcpp library:
+
+  $ MCPP_LIB=1 make -f ../noconfig/Makefile.mingw mcpplib

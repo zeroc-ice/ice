@@ -577,6 +577,7 @@
             </fileset>
             <fileset dir="test/Ice/optional">
                 <include name="Test.ice" />
+                <include name="TestAMD.ice" />
             </fileset>
             <fileset dir="test/Ice/stream">
                 <include name="Test.ice" />

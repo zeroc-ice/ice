@@ -903,7 +903,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             out << nl << "__os.startWriteEncaps();";
         }
         iter = 0;
-        writeMarshalUnmarshalCode(out, "", type, OptionalNone, 0, valS, true, iter, false);
+        writeMarshalUnmarshalCode(out, "", type, OptionalNone, false, 0, valS, true, iter, false);
         if(type->usesClasses())
         {
             out << nl << "__os.writePendingObjects();";
@@ -996,7 +996,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
-                writeMarshalUnmarshalCode(out, "", type, OptionalNone, 0, "__r", false, iter, false, metaData,
+                writeMarshalUnmarshalCode(out, "", type, OptionalNone, false, 0, "__r", false, iter, false, metaData,
                                           patchParams);
                 break;
             }
@@ -1004,7 +1004,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
         else
         {
-            writeMarshalUnmarshalCode(out, "", type, OptionalNone, 0, "__r", false, iter, false, metaData, patchParams);
+            writeMarshalUnmarshalCode(out, "", type, OptionalNone, false, 0, "__r", false, iter, false, metaData,
+                                      patchParams);
         }
         if(type->usesClasses())
         {
@@ -1069,7 +1070,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             out << nl << "IceInternal.BasicStream __os = "
                 << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);";
             int iter = 0;
-            writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, 0, keyS, true, iter, false);
+            writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, false, 0, keyS, true, iter, false);
             assert(!indexTypes[i]->usesClasses());
 
             out << nl << "IceInternal.Buffer buf = __os.prepareWrite();";
@@ -1153,7 +1154,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
                 {
-                    writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, 0, "r", false, iter, false,
+                    writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, false, 0, "r", false, iter, false,
                                               metaData, patchParams);
                     break;
                 }
@@ -1161,8 +1162,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             }
             else
             {
-                writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, 0, "r", false, iter, false, metaData,
-                                          patchParams);
+                writeMarshalUnmarshalCode(out, "", indexTypes[i], OptionalNone, false, 0, "r", false, iter, false,
+                                          metaData, patchParams);
             }
             out << nl << "return r;";
         }
@@ -1409,7 +1410,7 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     out << nl << "IceInternal.BasicStream __os = "
         << "new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator()), encoding(), true, false);";
     int iter = 0;
-    writeMarshalUnmarshalCode(out, "", dataMember->type(), OptionalNone, 0, valueS, true, iter, false);
+    writeMarshalUnmarshalCode(out, "", dataMember->type(), OptionalNone, false, 0, valueS, true, iter, false);
     if(type->usesClasses())
     {
         out << nl << "__os.writePendingObjects();";

@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DYNAMIC_LIBRARY_H
-#define ICE_DYNAMIC_LIBRARY_H
+#pragma once
 
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/StringConverter.h>
@@ -87,7 +86,6 @@ private:
 #else
     void* _hnd;
 #endif
-
     std::string _err;
     const Ice::StringConverterPtr _stringConverter;
 };
@@ -105,4 +103,3 @@ private:
 
 }
 
-#endif

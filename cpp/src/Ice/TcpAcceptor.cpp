@@ -126,7 +126,7 @@ IceInternal::TcpAcceptor::startAccept()
 void
 IceInternal::TcpAcceptor::finishAccept()
 {
-    if(_info.count == SOCKET_ERROR || _fd == INVALID_SOCKET)
+    if(static_cast<int>(_info.count) == SOCKET_ERROR || _fd == INVALID_SOCKET)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;

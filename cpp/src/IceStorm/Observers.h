@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef OBSERVERS_H
-#define OBSERVERS_H
+#pragma once
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
@@ -82,5 +81,3 @@ private:
 typedef IceUtil::Handle<Observers> ObserversPtr;
 
 }
-
-#endif // OBSERVERS_H

@@ -7,8 +7,8 @@
 #
 # **********************************************************************
 
-require 'Twoways'
-require 'BatchOneways'
+require './Twoways'
+require './BatchOneways'
 
 def allTests(communicator)
     ref = "test:default -p 12010"

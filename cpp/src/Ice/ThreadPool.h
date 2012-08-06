@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_THREAD_POOL_H
-#define ICE_THREAD_POOL_H
+#pragma once
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -349,7 +348,7 @@ public:
             // of the event handler. We need to lock the event handler here to call 
             // finishMessage.
             //
-#if defined(__BCPLUSPLUS__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
             IceUtil::LockT<T> sync(_mutex);
 #else
             IceUtil::LockT<typename T> sync(_mutex);
@@ -367,6 +366,3 @@ private:
 #endif
 
 };
-
-
-#endif

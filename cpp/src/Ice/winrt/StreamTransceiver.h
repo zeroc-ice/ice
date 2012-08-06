@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_STREAM_TRANSCEIVER_H
-#define ICE_STREAM_TRANSCEIVER_H
+#pragma once
 
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
@@ -89,5 +88,3 @@ private:
 };
 
 }
-
-#endif

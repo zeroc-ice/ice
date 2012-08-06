@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_FILEUSERACCOUNTMAPPERI_H
-#define ICE_GRID_FILEUSERACCOUNTMAPPERI_H
+#pragma once
 
 #include <IceGrid/UserAccountMapper.h>
 
@@ -29,5 +28,3 @@ private:
 };
 
 };
-
-#endif

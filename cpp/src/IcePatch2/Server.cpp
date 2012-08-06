@@ -213,18 +213,8 @@ IcePatch2::PatcherService::usage(const string& appName)
 
 #ifdef _WIN32
 
-//COMPILERFIX: Borland C++ 2010 doesn't support wmain for console applications.
-#ifdef __BCCPLUSPLUS__
-
-int
-main(int argc, char* argv[])
-
-#else
-
 int
 wmain(int argc, wchar_t* argv[])
-
-#endif
 {
     IcePatch2::PatcherService svc;
     int status = EXIT_FAILURE;

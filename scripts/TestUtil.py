@@ -36,7 +36,9 @@ sqlPassword = None
 serviceDir = None
 compact = False
 silverlight = False
+global winrt
 winrt = False
+global serverOnly
 serverOnly = False
 
 def isCygwin():
@@ -86,11 +88,10 @@ def getCppCompiler():
         compiler = re.search("CPP_COMPILER[\t\s]*= ([A-Z0-9]*)", config.read()).group(1)
     return compiler
 
-
-def isBCC2010():
+def isMINGW():
     if not isWin32():
         return False
-    return getCppCompiler() == "BCC2010"
+    return getCppCompiler() == "MINGW"
 
 def isVC6():
     if not isWin32():
@@ -197,9 +198,6 @@ def configurePaths():
 
     if isWin32():
         libDir = getCppBinDir()
-        if iceHome and isBCC2010():
-            addLdPath(libDir)
-            libDir = os.path.join(libDir, "bcc10")
     else:
         libDir = os.path.join(getIceDir("cpp"), "lib")
         if iceHome and x64:
@@ -208,7 +206,7 @@ def configurePaths():
                     libDir = os.path.join(libDir, "sparcv9")
                 else:
                     libDir = os.path.join(libDir, "amd64")
-            else:
+            elif not isDarwin():
                 libDir = libDir + "64"
     addLdPath(libDir)
 
@@ -646,9 +644,7 @@ def getIceBox():
     lang = getDefaultMapping()
     if lang == "cpp":
         iceBox = ""
-        if isBCC2010():
-            iceBox = os.path.join(getServiceDir(), "icebox.exe")
-        elif isWin32():
+        if isWin32():
             #
             # Read the build.txt file from the test directory to figure out
             # how the IceBox service was built ("debug" vs. "release") and
@@ -696,7 +692,7 @@ def getGlacier2Router():
     return getIceExe("glacier2router")
 
 def getIceExe(name):
-    if isBCC2010() or isVC6():
+    if isVC6() or isMINGW():
         return os.path.join(getServiceDir(), name)
     else:
         return os.path.join(getCppBinDir(), name)
@@ -904,6 +900,13 @@ def getCommandLineProperties(exe, config):
 
 def getCommandLine(exe, config, options = ""):
 
+    arch = ""
+    if isDarwin() and config.lang == "cpp":
+        if x64:
+            arch = "arch -x86_64 "
+        else:
+            arch = "arch -i386 "
+
     output = getStringIO()
 
     if config.mono and config.lang == "cs":
@@ -932,12 +935,12 @@ def getCommandLine(exe, config, options = ""):
         # --child-silent-after-fork=yes is required for the IceGrid/activator test where the node
         # forks a process with execv failing (invalid exe name).
         output.write("valgrind -q --child-silent-after-fork=yes --leak-check=full ")
-        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" "' + exe + '" ')
+        output.write('--suppressions="' + os.path.join(toplevel, "config", "valgrind.sup") + '" ' + arch + '"' + exe + '" ')
     else:
         if exe.find(" ") != -1:
-            output.write('"' + exe + '" ')
+            output.write(arch + '"' + exe + '" ')
         else:
-            output.write(exe + " ")
+            output.write(arch + exe + " ")
 
     if (config.silverlight and config.type == "client"):
         properties = getCommandLineProperties(exe, config) + ' ' + options
@@ -948,7 +951,10 @@ def getCommandLine(exe, config, options = ""):
             props = props + p.strip().replace("--", "")
         output.write("/origin:http://localhost?%s" % props)
     else:
-        output.write(getCommandLineProperties(exe, config) + ' ' + options)
+        if exe.find("IceUtil\\") != -1 or exe.find("IceUtil/") != -1:
+            output.write(' ' + options)
+        else:
+            output.write(getCommandLineProperties(exe, config) + ' ' + options)
 
     commandline = output.getvalue()
     output.close()
@@ -1230,7 +1236,6 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
         print("ok")
         
-        global serverOnly
         if not serverOnly:
             if clientLang == lang:
                 sys.stdout.write("starting %s... " % clientDesc)
@@ -1320,15 +1325,13 @@ def simpleTest(exe = None, options = ""):
         setAppVerifierSettings([quoteArgument(exe)])
     lang = getDefaultMapping()
     config = None
-    if lang != "cpp":
-      config = DriverConfig("client")
-      config.lang = lang
+
+    config = DriverConfig("client")
+    config.lang = lang
 
     sys.stdout.write("starting client... ")
     sys.stdout.flush()
-    command  = exe + ' ' + options
-    if lang != "cpp":
-      command = getCommandLine(exe, config, options)
+    command = getCommandLine(exe, config, options)
     client = spawnClient(command, startReader = False, lang = lang)
     print("ok")
     client.startReader()
@@ -1580,12 +1583,9 @@ def processCmdLine():
             global silverlight
             silverlight = True
         elif o == "--winrt":
-            global winrt
-            global serverOnly
             winrt = True
             serverOnly = True
         elif o == "--server":
-            global serverOnly
             serverOnly = True
 
     if len(args) > 0:
@@ -1685,12 +1685,16 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
                 continue
 
-            if isBCC2010() and "nobcc" in config:
-                print("%s*** test not supported with C++Builder%s" % (prefix, suffix))
-                continue
-
             if isVC6() and "novc6" in config:
                 print("%s*** test not supported with VC++ 6.0%s" % (prefix, suffix))
+                continue
+
+            if isMINGW() and "nomingw" in config:
+                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
+                continue
+
+            if isWin32() and "nowin32" in config:
+                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
                 continue
 
             # If this is mono and we're running ssl protocol tests
