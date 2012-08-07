@@ -307,7 +307,7 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
             }
             else
             {
-                __writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+                __writeParamEncaps(&outEncaps[0], static_cast<::Ice::Int>(outEncaps.size()), ok);
             }
         }
         catch(const LocalException& ex)

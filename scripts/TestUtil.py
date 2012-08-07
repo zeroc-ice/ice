@@ -1690,11 +1690,11 @@ def runTests(start, expanded, num = 0, script = False):
                 continue
 
             if isMINGW() and "nomingw" in config:
-                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
+                print("%s*** test not supported with MINGW%s" % (prefix, suffix))
                 continue
 
             if isWin32() and "nowin32" in config:
-                print "%s*** test not supported with MINGW%s" % (prefix, suffix)
+                print("%s*** test not supported with MINGW%s" % (prefix, suffix))
                 continue
 
             # If this is mono and we're running ssl protocol tests
