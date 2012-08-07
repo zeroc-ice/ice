@@ -636,7 +636,7 @@ Slice::JavaVisitor::writeStreamMarshalDataMember(Output& out, const string& pack
 {
     if(!member->optional())
     {
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), OptionalNone, 0, fixKwd(member->name()), true,
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), false, 0, fixKwd(member->name()), true,
                                         iter, false, member->getMetaData());
     }
     else
@@ -644,8 +644,8 @@ Slice::JavaVisitor::writeStreamMarshalDataMember(Output& out, const string& pack
         out << nl << "if(__has_" << member->name() << " && __outS.writeOptional(" << member->tag() << ", "
             << getOptionalType(member->type()) << "))";
         out << sb;
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), OptionalMember, member->tag(),
-                                        fixKwd(member->name()), true, iter, false, member->getMetaData());
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
+                                        true, iter, false, member->getMetaData());
         out << eb;
     }
 }
@@ -668,7 +668,7 @@ Slice::JavaVisitor::writeStreamUnmarshalDataMember(Output& out, const string& pa
 
     if(!member->optional())
     {
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), OptionalNone, 0, fixKwd(member->name()), false,
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), false, 0, fixKwd(member->name()), false,
                                         iter, false, member->getMetaData(), patchParams);
     }
     else
@@ -676,8 +676,8 @@ Slice::JavaVisitor::writeStreamUnmarshalDataMember(Output& out, const string& pa
         out << nl << "if(__has_" << member->name() << " = __inS.readOptional(" << member->tag() << ", "
             << getOptionalType(member->type()) << "))";
         out << sb;
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), OptionalMember, member->tag(),
-                                        fixKwd(member->name()), false, iter, false, member->getMetaData(), patchParams);
+        writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
+                                        false, iter, false, member->getMetaData(), patchParams);
         out << eb;
     }
 }
