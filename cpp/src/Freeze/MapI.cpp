@@ -440,13 +440,22 @@ Freeze::IteratorHelperI::find(const Key& key) const
 {
     Dbt dbKey;
     initializeInDbt(key, dbKey);
+#if (DB_VERSION_MAJOR <= 4) || (DB_VERSION_MAJOR == 5 && DB_VERSION_MINOR <= 1)
     //
     // When we have a custom-comparison function, Berkeley DB returns
     // the key on-disk (when it finds one). We disable this behavior:
     // (ref Oracle SR 5925672.992)
     //
     dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
-    
+#else
+    //
+    // In DB > 5.1 we can not set DB_DBT_PARTIAL in the key Dbt,
+    // when using DB_SET, we must resize the Dbt key param to hold enought
+    // space or Dbc::get fails with DB_BUFFER_SMALL.
+    //
+    dbKey.set_flags(DB_DBT_USERMEM);
+    dbKey.set_ulen(static_cast<u_int32_t>(key.size()));
+#endif
     //
     // Keep 0 length since we're not interested in the data
     //
@@ -1766,12 +1775,22 @@ Freeze::MapIndexI::untypedCount(const Key& k, const ConnectionIPtr& connection) 
 {
     Dbt dbKey;
     initializeInDbt(k, dbKey);
+#if (DB_VERSION_MAJOR <= 4)
     //
     // When we have a custom-comparison function, Berkeley DB returns
     // the key on-disk (when it finds one). We disable this behavior:
     // (ref Oracle SR 5925672.992)
     //
     dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+#else
+    //
+    // In DB 5.x we can not set DB_DBT_PARTIAL in the key Dbt,
+    // when using DB_SET, we must resize the Dbt key param to hold enought
+    // space or Dbc::get fails with DB_BUFFER_SMALL.
+    //
+    dbKey.set_flags(DB_DBT_USERMEM);
+    dbKey.set_ulen(static_cast<u_int32_t>(k.size()));
+#endif
 
     
     Dbt dbValue;

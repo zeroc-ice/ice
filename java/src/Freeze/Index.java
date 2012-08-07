@@ -76,7 +76,15 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             // the key on-disk (when it finds one). We disable this behavior:
             // (ref Oracle SR 5925672.992)
             //
-            key.setPartial(true);
+            // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
+            // getSearchKey.
+            //
+            if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
+               (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+                com.sleepycat.db.Environment.getVersionMinor() <= 1))
+            {
+                key.setPartial(true);
+            }
 
             com.sleepycat.db.DatabaseEntry pkey = new com.sleepycat.db.DatabaseEntry();
             com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
@@ -217,7 +225,15 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             // the key on-disk (when it finds one). We disable this behavior:
             // (ref Oracle SR 5925672.992)
             //
-            key.setPartial(true);
+            // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
+            // getSearchKey.
+            //
+            if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
+               (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+                com.sleepycat.db.Environment.getVersionMinor() <= 1))
+            {
+                key.setPartial(true);
+            }
 
             com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
             //

@@ -239,7 +239,15 @@ public abstract class Index<K, V, I>
         // the key on-disk (when it finds one). We disable this behavior:
         // (ref Oracle SR 5925672.992)
         //
-        dbKey.setPartial(true);
+        // In DB > 5.1.x we can not set DB_DBT_PARTIAL in the key Dbt when calling
+        // getSearchKey.
+        //
+        if(com.sleepycat.db.Environment.getVersionMajor() < 5 || 
+           (com.sleepycat.db.Environment.getVersionMajor() == 5 && 
+            com.sleepycat.db.Environment.getVersionMinor() <= 1))
+        {
+            dbKey.setPartial(true);
+        }
 
         //
         // dlen is 0, so we should not retrieve any value
