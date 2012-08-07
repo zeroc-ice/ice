@@ -55,7 +55,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -85,6 +84,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -142,7 +143,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -470,7 +479,6 @@ char *yytext;
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
@@ -492,12 +500,15 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-#define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
-
 #ifdef _MSC_VER
-#   undef yywrap
-#   define yywrap() 1
+#   ifdef yywrap
+#      undef yywrap
+#      define yywrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
 #endif
+
+#define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 namespace IceStorm
 {
@@ -510,7 +521,7 @@ void initScanner();
 }
 #define	YY_USER_INIT initScanner();
 
-#line 512 "lex.yy.c"
+#line 523 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -591,7 +602,12 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -610,7 +626,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		unsigned n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( yyin )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -692,10 +708,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 61 "Scanner.l"
+#line 63 "Scanner.l"
 
 
-#line 697 "lex.yy.c"
+#line 713 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -780,7 +796,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 63 "Scanner.l"
+#line 65 "Scanner.l"
 {
     // C++-style comment
     int c;
@@ -793,7 +809,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 73 "Scanner.l"
+#line 75 "Scanner.l"
 {
     // C-style comment
     while(true)
@@ -822,7 +838,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 98 "Scanner.l"
+#line 100 "Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -837,14 +853,14 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 109 "Scanner.l"
+#line 111 "Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 113 "Scanner.l"
+#line 115 "Scanner.l"
 {
     // "..."-type strings
     string s;
@@ -921,7 +937,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 187 "Scanner.l"
+#line 189 "Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -949,7 +965,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 212 "Scanner.l"
+#line 214 "Scanner.l"
 {
     // Simple strings
     string s;
@@ -979,10 +995,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 239 "Scanner.l"
+#line 241 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 984 "lex.yy.c"
+#line 1000 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1736,8 +1752,8 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to yylex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
@@ -1976,7 +1992,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 239 "Scanner.l"
+#line 241 "Scanner.l"
 
 
 

@@ -1,10 +1,9 @@
-
-/* A Bison parser, made by GNU Bison 2.4.1.  */
+/* A Bison parser, made by GNU Bison 2.4.3.  */
 
 /* Skeleton implementation for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-   Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
+   2009, 2010 Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -46,7 +45,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.4.1"
+#define YYBISON_VERSION "2.4.3"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -123,7 +122,7 @@ slice_error(const char* s)
 
 
 /* Line 189 of yacc.c  */
-#line 127 "Grammar.tab.c"
+#line 126 "Grammar.tab.c"
 
 /* Enabling traces.  */
 #ifndef YYDEBUG
@@ -209,7 +208,7 @@ typedef int YYSTYPE;
 
 
 /* Line 264 of yacc.c  */
-#line 213 "Grammar.tab.c"
+#line 212 "Grammar.tab.c"
 
 #ifdef short
 # undef short
@@ -259,7 +258,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -1026,9 +1025,18 @@ static const yytype_uint8 yystos[] =
 
 /* Like YYERROR except do call yyerror.  This remains here temporarily
    to ease the transition to the new meaning of YYERROR, for GCC.
-   Once GCC version 2 has supplanted version 1, this can go.  */
+   Once GCC version 2 has supplanted version 1, this can go.  However,
+   YYFAIL appears to be in use.  Nevertheless, it is formally deprecated
+   in Bison 2.4.2's NEWS entry, where a plan to phase it out is
+   discussed.  */
 
 #define YYFAIL		goto yyerrlab
+#if defined YYFAIL
+  /* This is here to suppress warnings from the GCC cpp's
+     -Wunused-macros.  Normally we don't worry about that warning, but
+     some users do, and we want to make it easy for users to remove
+     YYFAIL uses, which will produce warnings from Bison 2.5.  */
+#endif
 
 #define YYRECOVERING()  (!!yyerrstatus)
 
@@ -1085,7 +1093,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -1823,7 +1831,7 @@ yyreduce:
     {
         case 2:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 108 "../Slice/Grammar.y"
     {
 ;}
@@ -1831,7 +1839,7 @@ yyreduce:
 
   case 3:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 116 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
@@ -1840,7 +1848,7 @@ yyreduce:
 
   case 4:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 125 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
@@ -1849,7 +1857,7 @@ yyreduce:
 
   case 5:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 129 "../Slice/Grammar.y"
     {
     (yyval) = new StringListTok;
@@ -1858,7 +1866,7 @@ yyreduce:
 
   case 6:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 138 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -1871,7 +1879,7 @@ yyreduce:
 
   case 8:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 147 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -1885,7 +1893,7 @@ yyreduce:
 
   case 10:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 157 "../Slice/Grammar.y"
     {
     yyerrok;
@@ -1894,7 +1902,7 @@ yyreduce:
 
   case 12:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 162 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
@@ -1903,7 +1911,7 @@ yyreduce:
 
   case 13:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 166 "../Slice/Grammar.y"
     {
 ;}
@@ -1911,7 +1919,7 @@ yyreduce:
 
   case 14:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 174 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ModulePtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1920,7 +1928,7 @@ yyreduce:
 
   case 15:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 178 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ClassDeclPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1929,7 +1937,7 @@ yyreduce:
 
   case 16:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 182 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ClassDefPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1938,7 +1946,7 @@ yyreduce:
 
   case 17:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 186 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ClassDeclPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1947,7 +1955,7 @@ yyreduce:
 
   case 18:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 190 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ClassDefPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1956,7 +1964,7 @@ yyreduce:
 
   case 19:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 194 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0);
@@ -1965,7 +1973,7 @@ yyreduce:
 
   case 20:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 198 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ExceptionPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1974,7 +1982,7 @@ yyreduce:
 
   case 21:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 202 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0);
@@ -1983,7 +1991,7 @@ yyreduce:
 
   case 22:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 206 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || StructPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -1992,7 +2000,7 @@ yyreduce:
 
   case 23:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 210 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || SequencePtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -2001,7 +2009,7 @@ yyreduce:
 
   case 24:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 214 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || DictionaryPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -2010,7 +2018,7 @@ yyreduce:
 
   case 25:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 218 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || EnumPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -2019,7 +2027,7 @@ yyreduce:
 
   case 26:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 222 "../Slice/Grammar.y"
     {
     assert((yyvsp[(1) - (1)]) == 0 || ConstPtr::dynamicCast((yyvsp[(1) - (1)])));
@@ -2028,7 +2036,7 @@ yyreduce:
 
   case 27:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 231 "../Slice/Grammar.y"
     {
     unit->setSeenDefinition();
@@ -2050,7 +2058,7 @@ yyreduce:
 
   case 28:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 248 "../Slice/Grammar.y"
     {
     if((yyvsp[(3) - (6)]))
@@ -2067,7 +2075,7 @@ yyreduce:
 
   case 29:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 265 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -2076,7 +2084,7 @@ yyreduce:
 
   case 30:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 269 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2087,7 +2095,7 @@ yyreduce:
 
   case 31:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 280 "../Slice/Grammar.y"
     {
     unit->error("exceptions cannot be forward declared");
@@ -2097,7 +2105,7 @@ yyreduce:
 
   case 32:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 290 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -2116,7 +2124,7 @@ yyreduce:
 
   case 33:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 304 "../Slice/Grammar.y"
     {
     if((yyvsp[(4) - (7)]))
@@ -2129,7 +2137,7 @@ yyreduce:
 
   case 34:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 317 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2142,7 +2150,7 @@ yyreduce:
 
   case 35:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 325 "../Slice/Grammar.y"
     {
     (yyval) = 0;
@@ -2151,7 +2159,7 @@ yyreduce:
 
   case 36:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 334 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -2165,7 +2173,7 @@ yyreduce:
 
   case 37:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 343 "../Slice/Grammar.y"
     {
 ;}
@@ -2173,7 +2181,7 @@ yyreduce:
 
   case 38:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 346 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
@@ -2182,7 +2190,7 @@ yyreduce:
 
   case 39:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 350 "../Slice/Grammar.y"
     {
 ;}
@@ -2190,7 +2198,7 @@ yyreduce:
 
   case 40:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 358 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2203,7 +2211,7 @@ yyreduce:
 
   case 41:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 371 "../Slice/Grammar.y"
     {
     IntegerTokPtr i = IntegerTokPtr::dynamicCast((yyvsp[(2) - (3)]));
@@ -2228,7 +2236,7 @@ yyreduce:
 
   case 42:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 391 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(2) - (3)]));
@@ -2303,7 +2311,7 @@ yyreduce:
 
   case 43:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 461 "../Slice/Grammar.y"
     {
     unit->error("missing tag for optional");
@@ -2316,7 +2324,7 @@ yyreduce:
 
   case 44:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 469 "../Slice/Grammar.y"
     {
     unit->error("missing tag for optional");
@@ -2329,7 +2337,7 @@ yyreduce:
 
   case 45:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 482 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2342,7 +2350,7 @@ yyreduce:
 
   case 46:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 490 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2357,7 +2365,7 @@ yyreduce:
 
   case 48:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 511 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -2366,7 +2374,7 @@ yyreduce:
 
   case 49:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 515 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2377,7 +2385,7 @@ yyreduce:
 
   case 50:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 526 "../Slice/Grammar.y"
     {
     unit->error("structs cannot be forward declared");
@@ -2387,7 +2395,7 @@ yyreduce:
 
   case 51:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 536 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2405,7 +2413,7 @@ yyreduce:
 
   case 52:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 549 "../Slice/Grammar.y"
     {
     if((yyvsp[(3) - (6)]))
@@ -2428,7 +2436,7 @@ yyreduce:
 
   case 53:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 572 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -2442,7 +2450,7 @@ yyreduce:
 
   case 54:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 581 "../Slice/Grammar.y"
     {
 ;}
@@ -2450,7 +2458,7 @@ yyreduce:
 
   case 55:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 584 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
@@ -2459,7 +2467,7 @@ yyreduce:
 
   case 56:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 588 "../Slice/Grammar.y"
     {
 ;}
@@ -2467,7 +2475,7 @@ yyreduce:
 
   case 58:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 602 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -2476,7 +2484,7 @@ yyreduce:
 
   case 59:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 606 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2487,7 +2495,7 @@ yyreduce:
 
   case 60:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 617 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2500,7 +2508,7 @@ yyreduce:
 
   case 61:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 630 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -2528,7 +2536,7 @@ yyreduce:
 
   case 62:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 653 "../Slice/Grammar.y"
     {
     if((yyvsp[(5) - (8)]))
@@ -2545,7 +2553,7 @@ yyreduce:
 
   case 63:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 670 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2584,7 +2592,7 @@ yyreduce:
 
   case 64:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 704 "../Slice/Grammar.y"
     {
     (yyval) = 0;
@@ -2593,7 +2601,7 @@ yyreduce:
 
   case 65:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 713 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -2602,7 +2610,7 @@ yyreduce:
 
   case 66:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 717 "../Slice/Grammar.y"
     {
     (yyval) = new ClassListTok;
@@ -2611,7 +2619,7 @@ yyreduce:
 
   case 67:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 726 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -2625,7 +2633,7 @@ yyreduce:
 
   case 68:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 735 "../Slice/Grammar.y"
     {
 ;}
@@ -2633,7 +2641,7 @@ yyreduce:
 
   case 69:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 738 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
@@ -2642,7 +2650,7 @@ yyreduce:
 
   case 70:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 742 "../Slice/Grammar.y"
     {
 ;}
@@ -2650,7 +2658,7 @@ yyreduce:
 
   case 71:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 750 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2677,7 +2685,7 @@ yyreduce:
 
   case 72:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 772 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr def = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -2709,7 +2717,7 @@ yyreduce:
 
   case 73:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 799 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2736,7 +2744,7 @@ yyreduce:
 
   case 74:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 821 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2762,7 +2770,7 @@ yyreduce:
 
   case 75:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 847 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2776,7 +2784,7 @@ yyreduce:
 
   case 76:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 856 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -2792,7 +2800,7 @@ yyreduce:
 
   case 77:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 867 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -2806,7 +2814,7 @@ yyreduce:
 
   case 78:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 876 "../Slice/Grammar.y"
     {
     TypeStringTokPtr ts = TypeStringTokPtr::dynamicCast((yyvsp[(2) - (4)]));
@@ -2820,7 +2828,7 @@ yyreduce:
 
   case 79:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 885 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2835,7 +2843,7 @@ yyreduce:
 
   case 80:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 895 "../Slice/Grammar.y"
     {
     TypePtr type = TypePtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -2849,7 +2857,7 @@ yyreduce:
 
   case 81:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 909 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2860,7 +2868,7 @@ yyreduce:
 
   case 82:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 915 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = new OptionalDefTok();
@@ -2873,7 +2881,7 @@ yyreduce:
 
   case 83:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 923 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr m = new OptionalDefTok;
@@ -2885,7 +2893,7 @@ yyreduce:
 
   case 84:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 935 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2914,7 +2922,7 @@ yyreduce:
 
   case 85:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 959 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(2) - (3)]));
@@ -2944,7 +2952,7 @@ yyreduce:
 
   case 86:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 984 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -2973,7 +2981,7 @@ yyreduce:
 
   case 87:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1008 "../Slice/Grammar.y"
     {
     OptionalDefTokPtr returnType = OptionalDefTokPtr::dynamicCast((yyvsp[(2) - (3)]));
@@ -3003,7 +3011,7 @@ yyreduce:
 
   case 88:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1038 "../Slice/Grammar.y"
     {
     if((yyvsp[(1) - (3)]))
@@ -3020,7 +3028,7 @@ yyreduce:
 
   case 89:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1050 "../Slice/Grammar.y"
     {
     OperationPtr op = OperationPtr::dynamicCast((yyvsp[(4) - (5)]));
@@ -3035,7 +3043,7 @@ yyreduce:
 
   case 90:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1060 "../Slice/Grammar.y"
     {
     if((yyvsp[(1) - (3)]))
@@ -3048,7 +3056,7 @@ yyreduce:
 
   case 91:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1068 "../Slice/Grammar.y"
     {
     OperationPtr op = OperationPtr::dynamicCast((yyvsp[(4) - (5)]));
@@ -3063,7 +3071,7 @@ yyreduce:
 
   case 94:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1090 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3072,7 +3080,7 @@ yyreduce:
 
   case 95:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1094 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3083,7 +3091,7 @@ yyreduce:
 
   case 96:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1105 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -3097,7 +3105,7 @@ yyreduce:
 
   case 97:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1119 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3120,7 +3128,7 @@ yyreduce:
 
   case 98:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1137 "../Slice/Grammar.y"
     {
     if((yyvsp[(4) - (7)]))
@@ -3137,7 +3145,7 @@ yyreduce:
 
   case 99:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1154 "../Slice/Grammar.y"
     {
     ClassListTokPtr intfs = ClassListTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3177,7 +3185,7 @@ yyreduce:
 
   case 100:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1189 "../Slice/Grammar.y"
     {
     ClassListTokPtr intfs = new ClassListTok;
@@ -3217,7 +3225,7 @@ yyreduce:
 
   case 101:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1224 "../Slice/Grammar.y"
     {
     unit->error("illegal inheritance from type Object");
@@ -3227,7 +3235,7 @@ yyreduce:
 
   case 102:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1234 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3236,7 +3244,7 @@ yyreduce:
 
   case 103:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1238 "../Slice/Grammar.y"
     {
     (yyval) = new ClassListTok;
@@ -3245,7 +3253,7 @@ yyreduce:
 
   case 104:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1247 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -3259,7 +3267,7 @@ yyreduce:
 
   case 105:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1256 "../Slice/Grammar.y"
     {
 ;}
@@ -3267,7 +3275,7 @@ yyreduce:
 
   case 106:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1259 "../Slice/Grammar.y"
     {
     unit->error("`;' missing after definition");
@@ -3276,7 +3284,7 @@ yyreduce:
 
   case 107:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1263 "../Slice/Grammar.y"
     {
 ;}
@@ -3284,7 +3292,7 @@ yyreduce:
 
   case 109:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1277 "../Slice/Grammar.y"
     {
     ExceptionPtr exception = ExceptionPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3296,7 +3304,7 @@ yyreduce:
 
   case 110:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1284 "../Slice/Grammar.y"
     {
     ExceptionPtr exception = ExceptionPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3308,7 +3316,7 @@ yyreduce:
 
   case 111:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1296 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3325,7 +3333,7 @@ yyreduce:
 
   case 112:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1308 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3336,7 +3344,7 @@ yyreduce:
 
   case 113:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1319 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (7)]));
@@ -3350,7 +3358,7 @@ yyreduce:
 
   case 114:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1328 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (7)]));
@@ -3365,7 +3373,7 @@ yyreduce:
 
   case 115:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1343 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (10)]));
@@ -3381,7 +3389,7 @@ yyreduce:
 
   case 116:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1354 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (10)]));
@@ -3398,7 +3406,7 @@ yyreduce:
 
   case 117:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1371 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3407,7 +3415,7 @@ yyreduce:
 
   case 118:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1375 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3418,7 +3426,7 @@ yyreduce:
 
   case 119:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1386 "../Slice/Grammar.y"
     {
     BoolTokPtr local = BoolTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -3432,7 +3440,7 @@ yyreduce:
 
   case 120:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1395 "../Slice/Grammar.y"
     {
     EnumPtr en = EnumPtr::dynamicCast((yyvsp[(3) - (6)]));
@@ -3451,7 +3459,7 @@ yyreduce:
 
   case 121:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1410 "../Slice/Grammar.y"
     {
     unit->error("missing enumeration name");
@@ -3466,7 +3474,7 @@ yyreduce:
 
   case 122:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1425 "../Slice/Grammar.y"
     {
     EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3477,7 +3485,7 @@ yyreduce:
 
   case 123:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1431 "../Slice/Grammar.y"
     {
 ;}
@@ -3485,7 +3493,7 @@ yyreduce:
 
   case 124:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1439 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3502,7 +3510,7 @@ yyreduce:
 
   case 125:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1451 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3514,7 +3522,7 @@ yyreduce:
 
   case 126:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1458 "../Slice/Grammar.y"
     {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
@@ -3524,7 +3532,7 @@ yyreduce:
 
   case 127:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1468 "../Slice/Grammar.y"
     {
     BoolTokPtr out = new BoolTok;
@@ -3535,7 +3543,7 @@ yyreduce:
 
   case 128:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1474 "../Slice/Grammar.y"
     {
     BoolTokPtr out = new BoolTok;
@@ -3546,7 +3554,7 @@ yyreduce:
 
   case 129:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1485 "../Slice/Grammar.y"
     {
 ;}
@@ -3554,7 +3562,7 @@ yyreduce:
 
   case 130:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1488 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3575,7 +3583,7 @@ yyreduce:
 
   case 131:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1504 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (5)]));
@@ -3596,7 +3604,7 @@ yyreduce:
 
   case 132:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1520 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (4)]));
@@ -3613,7 +3621,7 @@ yyreduce:
 
   case 133:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1532 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (6)]));
@@ -3630,7 +3638,7 @@ yyreduce:
 
   case 134:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1544 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3646,7 +3654,7 @@ yyreduce:
 
   case 135:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1555 "../Slice/Grammar.y"
     {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast((yyvsp[(3) - (5)]));
@@ -3662,7 +3670,7 @@ yyreduce:
 
   case 136:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1571 "../Slice/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
@@ -3671,7 +3679,7 @@ yyreduce:
 
   case 137:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1575 "../Slice/Grammar.y"
     {
     (yyval) = new ExceptionListTok;
@@ -3680,7 +3688,7 @@ yyreduce:
 
   case 138:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1584 "../Slice/Grammar.y"
     {
 ;}
@@ -3688,7 +3696,7 @@ yyreduce:
 
   case 139:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1587 "../Slice/Grammar.y"
     {
     StringTokPtr ident = StringTokPtr::dynamicCast((yyvsp[(2) - (2)]));
@@ -3699,7 +3707,7 @@ yyreduce:
 
   case 140:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1593 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (3)]));
@@ -3712,7 +3720,7 @@ yyreduce:
 
   case 141:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1606 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindByte);
@@ -3721,7 +3729,7 @@ yyreduce:
 
   case 142:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1610 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindBool);
@@ -3730,7 +3738,7 @@ yyreduce:
 
   case 143:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1614 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindShort);
@@ -3739,7 +3747,7 @@ yyreduce:
 
   case 144:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1618 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindInt);
@@ -3748,7 +3756,7 @@ yyreduce:
 
   case 145:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1622 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindLong);
@@ -3757,7 +3765,7 @@ yyreduce:
 
   case 146:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1626 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindFloat);
@@ -3766,7 +3774,7 @@ yyreduce:
 
   case 147:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1630 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindDouble);
@@ -3775,7 +3783,7 @@ yyreduce:
 
   case 148:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1634 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindString);
@@ -3784,7 +3792,7 @@ yyreduce:
 
   case 149:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1638 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindObject);
@@ -3793,7 +3801,7 @@ yyreduce:
 
   case 150:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1642 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindObjectProxy);
@@ -3802,7 +3810,7 @@ yyreduce:
 
   case 151:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1646 "../Slice/Grammar.y"
     {
     (yyval) = unit->builtin(Builtin::KindLocalObject);
@@ -3811,7 +3819,7 @@ yyreduce:
 
   case 152:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1650 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3835,7 +3843,7 @@ yyreduce:
 
   case 153:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1669 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -3876,7 +3884,7 @@ yyreduce:
 
   case 154:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1710 "../Slice/Grammar.y"
     {
     StringTokPtr str1 = StringTokPtr::dynamicCast((yyvsp[(1) - (2)]));
@@ -3887,7 +3895,7 @@ yyreduce:
 
   case 155:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1716 "../Slice/Grammar.y"
     {
 ;}
@@ -3895,7 +3903,7 @@ yyreduce:
 
   case 156:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1724 "../Slice/Grammar.y"
     {
     StringTokPtr str = StringTokPtr::dynamicCast((yyvsp[(3) - (3)]));
@@ -3907,7 +3915,7 @@ yyreduce:
 
   case 157:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1731 "../Slice/Grammar.y"
     {
     StringTokPtr str = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -3919,7 +3927,7 @@ yyreduce:
 
   case 158:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1743 "../Slice/Grammar.y"
     {
     BoolTokPtr local = new BoolTok;
@@ -3930,7 +3938,7 @@ yyreduce:
 
   case 159:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1749 "../Slice/Grammar.y"
     {
     BoolTokPtr local = new BoolTok;
@@ -3941,7 +3949,7 @@ yyreduce:
 
   case 160:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1760 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindLong);
@@ -3959,7 +3967,7 @@ yyreduce:
 
   case 161:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1773 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindDouble);
@@ -3977,7 +3985,7 @@ yyreduce:
 
   case 162:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1786 "../Slice/Grammar.y"
     {
     StringTokPtr scoped = StringTokPtr::dynamicCast((yyvsp[(1) - (1)]));
@@ -4028,7 +4036,7 @@ yyreduce:
 
   case 163:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1832 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindString);
@@ -4044,7 +4052,7 @@ yyreduce:
 
   case 164:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1843 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
@@ -4060,7 +4068,7 @@ yyreduce:
 
   case 165:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1854 "../Slice/Grammar.y"
     {
     BuiltinPtr type = unit->builtin(Builtin::KindBool);
@@ -4076,7 +4084,7 @@ yyreduce:
 
   case 166:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1870 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(2) - (6)]));
@@ -4090,7 +4098,7 @@ yyreduce:
 
   case 167:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1879 "../Slice/Grammar.y"
     {
     StringListTokPtr metaData = StringListTokPtr::dynamicCast((yyvsp[(2) - (5)]));
@@ -4104,7 +4112,7 @@ yyreduce:
 
   case 168:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1893 "../Slice/Grammar.y"
     {
 ;}
@@ -4112,7 +4120,7 @@ yyreduce:
 
   case 169:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1896 "../Slice/Grammar.y"
     {
 ;}
@@ -4120,7 +4128,7 @@ yyreduce:
 
   case 170:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1899 "../Slice/Grammar.y"
     {
 ;}
@@ -4128,7 +4136,7 @@ yyreduce:
 
   case 171:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1902 "../Slice/Grammar.y"
     {
 ;}
@@ -4136,7 +4144,7 @@ yyreduce:
 
   case 172:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1905 "../Slice/Grammar.y"
     {
 ;}
@@ -4144,7 +4152,7 @@ yyreduce:
 
   case 173:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1908 "../Slice/Grammar.y"
     {
 ;}
@@ -4152,7 +4160,7 @@ yyreduce:
 
   case 174:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1911 "../Slice/Grammar.y"
     {
 ;}
@@ -4160,7 +4168,7 @@ yyreduce:
 
   case 175:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1914 "../Slice/Grammar.y"
     {
 ;}
@@ -4168,7 +4176,7 @@ yyreduce:
 
   case 176:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1917 "../Slice/Grammar.y"
     {
 ;}
@@ -4176,7 +4184,7 @@ yyreduce:
 
   case 177:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1920 "../Slice/Grammar.y"
     {
 ;}
@@ -4184,7 +4192,7 @@ yyreduce:
 
   case 178:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1923 "../Slice/Grammar.y"
     {
 ;}
@@ -4192,7 +4200,7 @@ yyreduce:
 
   case 179:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1926 "../Slice/Grammar.y"
     {
 ;}
@@ -4200,7 +4208,7 @@ yyreduce:
 
   case 180:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1929 "../Slice/Grammar.y"
     {
 ;}
@@ -4208,7 +4216,7 @@ yyreduce:
 
   case 181:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1932 "../Slice/Grammar.y"
     {
 ;}
@@ -4216,7 +4224,7 @@ yyreduce:
 
   case 182:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1935 "../Slice/Grammar.y"
     {
 ;}
@@ -4224,7 +4232,7 @@ yyreduce:
 
   case 183:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1938 "../Slice/Grammar.y"
     {
 ;}
@@ -4232,7 +4240,7 @@ yyreduce:
 
   case 184:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1941 "../Slice/Grammar.y"
     {
 ;}
@@ -4240,7 +4248,7 @@ yyreduce:
 
   case 185:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1944 "../Slice/Grammar.y"
     {
 ;}
@@ -4248,7 +4256,7 @@ yyreduce:
 
   case 186:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1947 "../Slice/Grammar.y"
     {
 ;}
@@ -4256,7 +4264,7 @@ yyreduce:
 
   case 187:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1950 "../Slice/Grammar.y"
     {
 ;}
@@ -4264,7 +4272,7 @@ yyreduce:
 
   case 188:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1953 "../Slice/Grammar.y"
     {
 ;}
@@ -4272,7 +4280,7 @@ yyreduce:
 
   case 189:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1956 "../Slice/Grammar.y"
     {
 ;}
@@ -4280,7 +4288,7 @@ yyreduce:
 
   case 190:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1959 "../Slice/Grammar.y"
     {
 ;}
@@ -4288,7 +4296,7 @@ yyreduce:
 
   case 191:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1962 "../Slice/Grammar.y"
     {
 ;}
@@ -4296,7 +4304,7 @@ yyreduce:
 
   case 192:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1965 "../Slice/Grammar.y"
     {
 ;}
@@ -4304,7 +4312,7 @@ yyreduce:
 
   case 193:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1968 "../Slice/Grammar.y"
     {
 ;}
@@ -4312,7 +4320,7 @@ yyreduce:
 
   case 194:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1971 "../Slice/Grammar.y"
     {
 ;}
@@ -4320,7 +4328,7 @@ yyreduce:
 
   case 195:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1974 "../Slice/Grammar.y"
     {
 ;}
@@ -4328,7 +4336,7 @@ yyreduce:
 
   case 196:
 
-/* Line 1455 of yacc.c  */
+/* Line 1464 of yacc.c  */
 #line 1977 "../Slice/Grammar.y"
     {
 ;}
@@ -4336,8 +4344,8 @@ yyreduce:
 
 
 
-/* Line 1455 of yacc.c  */
-#line 4341 "Grammar.tab.c"
+/* Line 1464 of yacc.c  */
+#line 4349 "Grammar.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -4548,7 +4556,7 @@ yyreturn:
 
 
 
-/* Line 1675 of yacc.c  */
+/* Line 1684 of yacc.c  */
 #line 1981 "../Slice/Grammar.y"
 
 

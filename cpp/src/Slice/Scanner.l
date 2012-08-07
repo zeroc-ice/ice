@@ -9,7 +9,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <Slice/GrammarUtil.h>	// Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
 #include <IceUtil/InputUtil.h>
@@ -28,6 +27,14 @@
 // Puts a pointer-difference into an int
 //
 #   pragma warning( 4 : 4244 )
+#endif
+
+#ifdef _MSC_VER
+#   ifdef slice_wrap
+#      undef slice_wrap
+#      define slice_wrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
 #endif
 
 using namespace std;

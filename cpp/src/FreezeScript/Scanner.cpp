@@ -75,7 +75,6 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
-#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -105,6 +104,8 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
+
+#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -162,7 +163,15 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k.
+ * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
+ * Ditto for the __ia64__ case accordingly.
+ */
+#define YY_BUF_SIZE 32768
+#else
 #define YY_BUF_SIZE 16384
+#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -525,7 +534,6 @@ char *freeze_script_text;
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <FreezeScript/GrammarUtil.h>        // Before Grammar.h, so that YYSTYPE is defined
 #include <FreezeScript/Grammar.h>
 #include <IceUtil/InputUtil.h>
@@ -537,10 +545,23 @@ char *freeze_script_text;
 
 #if defined(_MSC_VER) && defined(ICE_64)
 //
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+//
+#   pragma warning( 4 : 4267 )
+//
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 // Puts a pointer-difference into an int
 //
 #   pragma warning( 4 : 4244 )
+#endif
+
+#ifdef _MSC_VER
+#   ifdef freeze_script_wrap
+#      undef freeze_script_wrap
+#      define freeze_script_wrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
 #endif
 
 using namespace std;
@@ -561,7 +582,7 @@ StringTokPtr parseString(char);
 #define        YY_USER_INIT initScanner();
 
 #define        YY_INPUT(buf, result, max_size) { result = getInput(buf, max_size); }
-#line 563 "lex.yy.c"
+#line 584 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -642,7 +663,12 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
+#ifdef __ia64__
+/* On IA-64, the buffer size is 16k, not 8k */
+#define YY_READ_BUF_SIZE 16384
+#else
 #define YY_READ_BUF_SIZE 8192
+#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -661,7 +687,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		unsigned n; \
+		size_t n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( freeze_script_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -743,10 +769,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 61 "Scanner.l"
+#line 73 "Scanner.l"
 
 
-#line 748 "lex.yy.c"
+#line 774 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -827,7 +853,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 63 "Scanner.l"
+#line 75 "Scanner.l"
 {
     // C++-style comment
     int c;
@@ -844,7 +870,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 77 "Scanner.l"
+#line 89 "Scanner.l"
 {
     // C-style comment
     while(true)
@@ -876,7 +902,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 106 "Scanner.l"
+#line 118 "Scanner.l"
 {
     StringTokPtr ident = new StringTok;
     ident->v = freeze_script_text;
@@ -886,7 +912,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 113 "Scanner.l"
+#line 125 "Scanner.l"
 {
     StringTokPtr str = parseString('"');
     *yylvalp = str;
@@ -895,7 +921,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 119 "Scanner.l"
+#line 131 "Scanner.l"
 {
     StringTokPtr str = parseString('\'');
     *yylvalp = str;
@@ -904,7 +930,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 125 "Scanner.l"
+#line 137 "Scanner.l"
 {
     IntegerTokPtr itp = new IntegerTok;
     *yylvalp = itp;
@@ -921,7 +947,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 139 "Scanner.l"
+#line 151 "Scanner.l"
 {
     errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
@@ -953,7 +979,7 @@ YY_RULE_SETUP
 case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
-#line 167 "Scanner.l"
+#line 179 "Scanner.l"
 {
     // Igore white-space
     
@@ -965,97 +991,97 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 176 "Scanner.l"
+#line 188 "Scanner.l"
 return TOK_LESS_THAN;
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 177 "Scanner.l"
+#line 189 "Scanner.l"
 return TOK_GREATER_THAN;
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 178 "Scanner.l"
+#line 190 "Scanner.l"
 return TOK_LESS_EQUAL;
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 179 "Scanner.l"
+#line 191 "Scanner.l"
 return TOK_GREATER_EQUAL;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 180 "Scanner.l"
+#line 192 "Scanner.l"
 return TOK_EQUAL;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 181 "Scanner.l"
+#line 193 "Scanner.l"
 return TOK_NEQ;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 182 "Scanner.l"
+#line 194 "Scanner.l"
 return TOK_ADD;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 183 "Scanner.l"
+#line 195 "Scanner.l"
 return TOK_SUB;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 184 "Scanner.l"
+#line 196 "Scanner.l"
 return TOK_MUL;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 185 "Scanner.l"
+#line 197 "Scanner.l"
 return TOK_DIV;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 186 "Scanner.l"
+#line 198 "Scanner.l"
 return TOK_MOD;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 187 "Scanner.l"
+#line 199 "Scanner.l"
 return TOK_LPAREN;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 188 "Scanner.l"
+#line 200 "Scanner.l"
 return TOK_RPAREN;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 189 "Scanner.l"
+#line 201 "Scanner.l"
 return TOK_LBRACKET;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 190 "Scanner.l"
+#line 202 "Scanner.l"
 return TOK_RBRACKET;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 191 "Scanner.l"
+#line 203 "Scanner.l"
 return TOK_SCOPE_DELIMITER;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 193 "Scanner.l"
+#line 205 "Scanner.l"
 {
     return freeze_script_text[0];
 }
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 197 "Scanner.l"
+#line 209 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1057 "lex.yy.c"
+#line 1083 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1810,8 +1836,8 @@ YY_BUFFER_STATE freeze_script__scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to freeze_script_lex() will
  * scan from a @e copy of @a bytes.
- * @param bytes the byte buffer to scan
- * @param len the number of bytes in the buffer pointed to by @a bytes.
+ * @param yybytes the byte buffer to scan
+ * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
@@ -2050,7 +2076,7 @@ void freeze_script_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 197 "Scanner.l"
+#line 209 "Scanner.l"
 
 
 

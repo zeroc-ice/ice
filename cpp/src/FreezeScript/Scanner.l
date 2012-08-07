@@ -9,7 +9,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <FreezeScript/GrammarUtil.h>        // Before Grammar.h, so that YYSTYPE is defined
 #include <FreezeScript/Grammar.h>
 #include <IceUtil/InputUtil.h>
@@ -21,10 +20,23 @@
 
 #if defined(_MSC_VER) && defined(ICE_64)
 //
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+//
+#   pragma warning( 4 : 4267 )
+//
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 // Puts a pointer-difference into an int
 //
 #   pragma warning( 4 : 4244 )
+#endif
+
+#ifdef _MSC_VER
+#   ifdef freeze_script_wrap
+#      undef freeze_script_wrap
+#      define freeze_script_wrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
 #endif
 
 using namespace std;

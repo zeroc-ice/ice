@@ -9,11 +9,15 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <Parser.h>
 #include <Grammar.h>
 
 #if defined(_MSC_VER) && defined(ICE_64)
+//
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+//
+#   pragma warning( 4 : 4267 )
 //
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 // Puts a pointer-difference into an int
@@ -22,6 +26,14 @@
 #endif
 
 using namespace std;
+
+#ifdef _MSC_VER
+#   ifdef yywrap
+#      undef yywrap
+#      define yywrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
+#endif
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 

@@ -9,7 +9,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/ScannerConfig.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
@@ -30,6 +29,14 @@
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
+
+#ifdef _MSC_VER
+#   ifdef yywrap
+#      undef yywrap
+#      define yywrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
+#endif
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
