@@ -71,6 +71,7 @@ Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@
 	echo #include "IceUtil/Config.h" > Scanner.cpp
+	echo #include "stdint.h" >> Scanner.cpp
 	type lex.yy.c >> Scanner.cpp
 	del /q lex.yy.c
 

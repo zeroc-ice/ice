@@ -9,6 +9,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/ScannerConfig.h>
 #include <FreezeScript/GrammarUtil.h>        // Before Grammar.h, so that YYSTYPE is defined
 #include <FreezeScript/Grammar.h>
 #include <IceUtil/InputUtil.h>

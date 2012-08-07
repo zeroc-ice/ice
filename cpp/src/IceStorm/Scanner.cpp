@@ -1,4 +1,5 @@
 #include <IceUtil/Config.h>
+#include <stdint.h>
 
 #line 3 "lex.yy.c"
 
@@ -469,11 +470,17 @@ char *yytext;
 //
 // **********************************************************************
 
+#include <IceUtil/ScannerConfig.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
 
 #if defined(_MSC_VER) && defined(ICE_64)
+//
+// '=' : conversion from 'size_t' to 'int', possible loss of data
+// The result of fread() is a size_t and gets inserted into an int
+//
+#   pragma warning( 4 : 4267 )
 //
 // 'initializing' : conversion from '__int64' to 'int', possible loss of data
 // Puts a pointer-difference into an int
@@ -487,6 +494,11 @@ using namespace IceStorm;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
+#ifdef _MSC_VER
+#   undef yywrap
+#   define yywrap() 1
+#endif
+
 namespace IceStorm
 {
 
@@ -498,7 +510,7 @@ void initScanner();
 }
 #define	YY_USER_INIT initScanner();
 
-#line 501 "lex.yy.c"
+#line 512 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -680,10 +692,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 50 "Scanner.l"
+#line 61 "Scanner.l"
 
 
-#line 686 "lex.yy.c"
+#line 697 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -768,7 +780,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 52 "Scanner.l"
+#line 63 "Scanner.l"
 {
     // C++-style comment
     int c;
@@ -781,7 +793,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 62 "Scanner.l"
+#line 73 "Scanner.l"
 {
     // C-style comment
     while(true)
@@ -810,7 +822,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 87 "Scanner.l"
+#line 98 "Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -825,14 +837,14 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 98 "Scanner.l"
+#line 109 "Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 102 "Scanner.l"
+#line 113 "Scanner.l"
 {
     // "..."-type strings
     string s;
@@ -909,7 +921,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 176 "Scanner.l"
+#line 187 "Scanner.l"
 {
     // '...'-type strings
     string s;
@@ -937,7 +949,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 201 "Scanner.l"
+#line 212 "Scanner.l"
 {
     // Simple strings
     string s;
@@ -967,10 +979,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 228 "Scanner.l"
+#line 239 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 973 "lex.yy.c"
+#line 984 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1048,7 +1060,7 @@ case YY_STATE_EOF(INITIAL):
 				{
 				(yy_did_buffer_switch_on_eof) = 0;
 
-				if ( yywrap(0) )
+				if ( yywrap( ) )
 					{
 					/* Note: because we've taken care in
 					 * yy_get_next_buffer() to have set up
@@ -1383,7 +1395,7 @@ static int yy_get_next_buffer (void)
 
 				case EOB_ACT_END_OF_FILE:
 					{
-					if ( yywrap(0) )
+					if ( yywrap( ) )
 						return EOF;
 
 					if ( ! (yy_did_buffer_switch_on_eof) )
@@ -1964,7 +1976,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 228 "Scanner.l"
+#line 239 "Scanner.l"
 
 
 

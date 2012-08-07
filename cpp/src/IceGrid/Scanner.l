@@ -9,6 +9,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/ScannerConfig.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Parser.h>
 #include <IceGrid/Grammar.h>
