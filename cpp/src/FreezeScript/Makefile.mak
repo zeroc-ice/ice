@@ -47,13 +47,8 @@ TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-TRES_FILE        = ,, TransformDB.res
-DRES_FILE        = ,, DumpDB.res
-!else
 TRES_FILE        = TransformDB.res
 DRES_FILE        = DumpDB.res
-!endif
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
 	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
@@ -91,14 +86,7 @@ install:: all
 	copy $(TRANSFORMDB) "$(install_bindir)"
 	copy $(DUMPDB) "$(install_bindir)"
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(TRANSFORMDB:.exe=.tds) "$(install_bindir)"
-	copy $(DUMPDB:.exe=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.pdb) "$(install_bindir)"

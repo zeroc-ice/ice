@@ -34,11 +34,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, Glacier2.res
-!else
 RES_FILE        = Glacier2.res
-!endif
 
 SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
 
@@ -64,13 +60,7 @@ install:: all
 	copy $(LIBNAME) "$(install_libdir)"
 	copy $(DLLNAME) "$(install_bindir)"
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"

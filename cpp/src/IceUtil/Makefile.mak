@@ -46,11 +46,7 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE	= ,, IceUtil.res
-!else
 RES_FILE	= IceUtil.res
-!endif
 
 !if "$(STATICLIBS)" == "yes"
 
@@ -80,13 +76,7 @@ install:: all
 	copy $(LIBNAME) "$(install_libdir)"
 	copy $(DLLNAME) "$(install_bindir)"
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"

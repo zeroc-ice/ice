@@ -28,7 +28,7 @@ SUBDIRS		= minimal \
 		  interleaved \
 		  invoke
 
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
+!if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \
 		  MFC
 !endif

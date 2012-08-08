@@ -41,11 +41,7 @@ CPPFLAGS        = -I.. $(CPPFLAGS)
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, IceGrid.res
-!else
 RES_FILE        = IceGrid.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 
@@ -74,12 +70,7 @@ install:: all
 	copy $(DLLNAME) "$(install_bindir)"
 
 
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"

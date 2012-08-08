@@ -59,71 +59,6 @@ The following C++ compilers are supported:
 
   http://www.microsoft.com/express/downloads/
 
-- Microsoft Visual C++ 6.0 SP5 with the Windows Server 2003 PSDK
-  and STLport 4.6.2 (or later)
-
-  Visual C++ 6.0 is only supported in order to build the Ice extension
-  for Ruby. Visual C++ 6.0 is not supported for general application 
-  development in this release.
-
-- CodeGear C++Builder 2010
-
-  The Ice services (IceGrid, IceStorm, etc.) are not supported with
-  C++Builder builds. C++Builder applications can use the Ice services
-  but the service executables themselves must come from either a 
-  Visual C++ 2008/2010 build or from the Windows installer (which 
-  includes executables built using Visual C++ 2008 and Visual C++
-  2010).
-
-
-C++Builder 2010 Setup
----------------------
-
-Users of C++Builder 2010 need to install the Microsoft Platform SDK:
-
-  http://www.microsoft.com/Downloads/details.aspx?familyid=0BAF2B35-C656-4969-ACE8-E4C0C0716ADB&displaylang=en
-
-Once installed, you need to add the Platform SDK directories to the
-INCLUDE, LIB and PATH environment variables. This can be done by
-executing the following script from within the compiler command
-prompt:
-
-  C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2\SetEnv.Cmd
-
-
-Visual C++ 6.0 Setup
---------------------
-
-Users of Visual C++ 6.0 need to install the February 2003 Microsoft
-Platform SDK in order to compile Ice.
-
-MSDN subscribers may download the PSDK from the MSDN Subscriber Downloads. 
-In the content tree open:
-
-  Tools and Resources / Platform SDK and DDKs / Platform SDK - February 2003 Edition (English)
-
-and then download the file en_platformsdk_win2003.exe.
-
-Once installed, you need to add the Platform SDK directories to the
-INCLUDE, LIB and PATH environment variables. This can be done by
-executing the following script:
-
-  C:\Program Files\Microsoft SDK\SetEnv.Bat
-
-Note that you must execute this script after setting up your VC60
-build environment to ensure that the Platform SDK include directory
-appears before the VC60 include directories in the INCLUDE environment
-variable.
-
-This Platform SDK is only required to compile Ice and is not necessary
-to build applications using Ice.
-
-To build the MFC demos, you must have the Unicode library installed.
-If you get a link failure about a missing MFC42UD.LIB, run Visual Studio
-setup, and add the Unicode library (under "MFC and Template Libraries",
-"MS Foundation Class Libraries", "Shared Libraries for Unicode") to
-your Visual Studio installation.
-
 
 Third-party libraries
 ---------------------
@@ -135,7 +70,6 @@ Ice has dependencies on a number of third-party libraries:
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
 - mcpp 2.7.2 (with patches)
-- STLport 4.6.2 or later (only for Visual C++ 6.0)
 - QT 4.5.3 (optional)
 
 You do not need to build these packages yourself, as ZeroC supplies a
@@ -206,8 +140,6 @@ environment variable:
 Note that you must be using a Windows x64 platform when compiling a
 64-bit version of Ice.
 
-For C++Builder use the "RAD Studio Command Prompt".
-
 Change the working directory to Ice-@ver@. For example:
 
 > cd C:\Ice-@ver@\cpp
@@ -271,8 +203,6 @@ After installation, if you plan to use the Visual Studio IDE for your
 Ice project, make sure to add the bin directory to the Visual C++
 "Executable files", the include directory to the "Include files" and
 the lib directory to the "Library files" in the IDE:
-
-  * Visual C++ 6.0: Tools->Options->Directories
 
   * Visual C++ 2008: Tools->Options->Projects and Solutions->
                                                     VC++ Directories

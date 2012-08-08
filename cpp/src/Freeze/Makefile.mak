@@ -57,11 +57,7 @@ LINKWITH	= $(LIBS) $(DB_LIBS)
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, Freeze.res
-!else
 RES_FILE        = Freeze.res
-!endif
 
 $(LIBNAME): $(DLLNAME)
 
@@ -105,13 +101,7 @@ install:: all
 	copy $(LIBNAME) "$(install_libdir)"
 	copy $(DLLNAME) "$(install_bindir)"
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"

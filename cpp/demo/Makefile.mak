@@ -25,8 +25,6 @@ SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
 !endif
 
-!endif
-
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
 	    @echo "making $@ in %i" && \
