@@ -33,7 +33,7 @@ class Metrics
      * The total number of objects that were observed by this metrics.
      *
      **/
-    int total = 0;
+    long total = 0;
     
     /**
      *
@@ -175,11 +175,21 @@ class ThreadMetrics extends Metrics
     int inUseForOther = 0;
 };
 
+/**
+ *
+ * Invocation metrics.
+ *
+ **/
 class InvocationMetrics extends Metrics
 {
-    MetricsMap remote;     // sub-maps for remote invocations
-    MetricsMap collocated; // sub-maps for collocated invocations
+    /**
+     *
+     * Number of retries.
+     *
+     **/
     int retry;
+
+    MetricsMap remote;
 };
 
 /**

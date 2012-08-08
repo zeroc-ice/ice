@@ -27,6 +27,7 @@
 #include <Ice/Current.h>
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/ObserverHelper.h>
 #include <iosfwd>
 
 namespace IceProxy
@@ -601,14 +602,16 @@ public:
 
     void end_ice_flushBatchRequests(const ::Ice::AsyncResultPtr&);
 
-    ::IceInternal::ReferencePtr __reference() const;
+    ::IceInternal::ReferencePtr __reference() const { return _reference; }
+
     void __copyFrom(const ::Ice::ObjectPrx&);
     int __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, const ::Ice::LocalException&, 
-                          bool, int&);
+                          bool, int&, ::IceInternal::InvocationObserver&);
     int __handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-                                 const ::IceInternal::LocalExceptionWrapper&);
+                                 const ::IceInternal::LocalExceptionWrapper&, ::IceInternal::InvocationObserver&);
     int __handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&,
-                                        const ::IceInternal::LocalExceptionWrapper&, bool, int&);
+                                        const ::IceInternal::LocalExceptionWrapper&, bool, int&, 
+                                        ::IceInternal::InvocationObserver&);
 
     void __checkTwowayOnly(const ::std::string&) const;
     void __checkAsyncTwowayOnly(const ::std::string&) const;
@@ -694,14 +697,15 @@ class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*) = 0;
-    virtual void ice_ping(const ::Ice::Context*) = 0;
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*) = 0;
-    virtual ::std::string ice_id(const ::Ice::Context*) = 0;
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
+    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
+    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*) = 0;
-    virtual void ice_flushBatchRequests() = 0;
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, 
+                            ::IceInternal::InvocationObserver&) = 0;
+    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&) = 0;
 
     virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const = 0;
     virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&) = 0;
@@ -718,14 +722,14 @@ public:
 
     virtual ~Object();
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*);
-    virtual void ice_ping(const ::Ice::Context*);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
-    virtual ::std::string ice_id(const ::Ice::Context*);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
-    virtual void ice_flushBatchRequests();
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&);
 
     virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
     virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);
@@ -751,14 +755,14 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*);
-    virtual void ice_ping(const ::Ice::Context*);
-    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
-    virtual ::std::string ice_id(const ::Ice::Context*);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual void ice_ping(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual ::std::string ice_id(const ::Ice::Context*, ::IceInternal::InvocationObserver&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
                             const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
-    virtual void ice_flushBatchRequests();
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+    virtual void ice_flushBatchRequests(::IceInternal::InvocationObserver&);
 
     virtual ::IceInternal::RequestHandlerPtr __getRequestHandler() const;
     virtual void __setRequestHandler(const ::IceInternal::RequestHandlerPtr&);

@@ -2173,6 +2173,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
+    C << nl << "::IceInternal::InvocationObserver __observer(this, " << p->flattenedScope() << p->name() 
+      << "_name, __ctx);";
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
     C << sb;
@@ -2192,7 +2194,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << "return ";
     }
-    C << "__del->" << fixKwd(name) << spar << args << "__ctx" << epar << ';';
+    C << "__del->" << fixKwd(name) << spar << args << "__ctx" << "__observer" << epar << ';';
     if(!ret)
     {
         C << nl << "return;";
@@ -2202,16 +2204,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, true, __cnt);";
+        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, true, __cnt, __observer);";
     }
     else
     {
-        C << nl << "__handleExceptionWrapper(__delBase, __ex);";
+        C << nl << "__handleExceptionWrapper(__delBase, __ex, __observer);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__handleException(__delBase, __ex, true, __cnt);";
+    C << nl << "__handleException(__delBase, __ex, true, __cnt, __observer);";
     C << eb;
     C << eb;
     C << eb;
@@ -2614,6 +2616,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << " = 0;";
 }
@@ -2755,7 +2758,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
     paramsDecl.push_back("const ::Ice::Context* __context");
+    paramsDecl.push_back("::IceInternal::InvocationObserver& __observer");
 
     string flatName = p->flattenedScope() + p->name() + "_name";
 
@@ -2763,7 +2768,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "::IceInternal::Outgoing __og(__handler.get(), " << flatName << ", "
-      << operationModeToString(p->sendMode()) << ", __context);";
+      << operationModeToString(p->sendMode()) << ", __context, __observer);";
     if(inParams.empty())
     {
         C << nl << "__og.writeEmptyParams();";
@@ -3017,6 +3022,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
+    paramsDecl.push_back("const ::Ice::Context* __context");
+    paramsDecl.push_back("::IceInternal::InvocationObserver&");
     args.push_back("__current");
     argMembers.push_back("_current");
 
@@ -3041,8 +3049,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl
-          << "const ::Ice::Context* __context" << epar;
+        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
         C << sb;
         C << nl << "class _DirectI : public ::IceInternal::Direct";
         C << sb;

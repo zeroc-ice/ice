@@ -10,7 +10,8 @@
 #ifndef ICE_OBSERVERHELPER_H
 #define ICE_OBSERVERHELPER_H
 
-#include <Ice/ObserverF.h>
+#include <Ice/Observer.h>
+#include <Ice/ProxyF.h>
 
 namespace IceInternal
 {
@@ -97,6 +98,28 @@ public:
 protected:
 
     TPtr _observer;
+};
+
+class InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
+{
+public:
+
+    InvocationObserver(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+    InvocationObserver();
+
+    void attach(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+
+    void retry()
+    {
+        if(_observer)
+        {
+            InvocationObserver::retryImpl();
+        }
+    }
+
+private:
+
+    void retryImpl();
 };
 
 }

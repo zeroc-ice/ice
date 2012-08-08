@@ -31,6 +31,13 @@ class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, public Obse
     virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
 };
 
+class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, public ObserverT<InvocationMetrics>
+{
+    virtual void retried();
+
+    virtual Ice::Instrumentation::ObserverPtr getRemoteInvocationObserver(const Ice::ConnectionPtr&);
+};
+
 class ObserverResolverI : public Ice::Instrumentation::ObserverResolver
 {
 public:
@@ -38,8 +45,6 @@ public:
     ObserverResolverI(const MetricsAdminIPtr&);
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
-
-    virtual Ice::Instrumentation::ObserverPtr getLocatorQueryObserver(const std::string&);
  
     virtual Ice::Instrumentation::ObserverPtr getConnectObserver(const Ice::EndpointInfoPtr&, 
                                                                  const std::string&);
@@ -57,10 +62,12 @@ public:
                                                                       Ice::Instrumentation::ThreadState,
                                                                       const Ice::Instrumentation::ThreadObserverPtr&);
 
-    virtual Ice::Instrumentation::ObserverPtr getInvocationObserver(const Ice::ObjectPrx&, 
-                                                                    const std::string&, 
-                                                                    const Ice::Context&, 
-                                                                    const Ice::ConnectionPtr&);
+    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserverWithContext(const Ice::ObjectPrx&, 
+                                                                                         const std::string&, 
+                                                                                         const Ice::Context&);
+    
+    virtual Ice::Instrumentation::InvocationObserverPtr getInvocationObserver(const Ice::ObjectPrx&, 
+                                                                              const std::string&);
 
     virtual Ice::Instrumentation::ObserverPtr getDispatchObserver(const Ice::Current&);
 
@@ -69,9 +76,9 @@ private:
     const MetricsAdminIPtr _metrics;
 
     ObserverResolverT<ConnectionObserverI> _connections;
-    ObserverResolverT<ObserverI> _requests;
+    ObserverResolverT<ObserverI> _dispatch;
+    ObserverResolverT<InvocationObserverI> _invocations;
     ObserverResolverT<ThreadObserverI> _threads;
-    ObserverResolverT<ObserverI> _locatorQueries;
     ObserverResolverT<ObserverI> _connects;
     ObserverResolverT<ObserverI>  _endpointResolves;
 

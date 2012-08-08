@@ -77,7 +77,7 @@ class ICE_API Outgoing : public OutgoingMessageCallback
 {
 public:
 
-    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*);
+    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*, InvocationObserver&);
     ~Outgoing();
 
     bool invoke(); // Returns true if ok, false if user exception.
@@ -145,7 +145,7 @@ private:
     // deleted while a stack-allocated Outgoing still holds it.
     //
     RequestHandler* _handler;
-    ObserverHelperT<> _observer;
+    InvocationObserver& _observer;
 
     std::auto_ptr<Ice::LocalException> _exception;
 

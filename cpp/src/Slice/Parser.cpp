@@ -5823,10 +5823,10 @@ Slice::Unit::usesProxies() const
         }
     }
 
-    if(_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
-    {
-        return true;
-    }
+    // if(_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
+    // {
+    //     return true;
+    // }
 
     return false;
 }

@@ -21,6 +21,7 @@ local interface Observer;
 local interface ThreadObserver;
 local interface RequestObserver;
 local interface ConnectionObserver;
+local interface InvocationObserver;
 
 local interface ObserverResolver;
 

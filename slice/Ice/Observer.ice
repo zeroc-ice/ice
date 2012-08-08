@@ -117,50 +117,6 @@ local interface ThreadObserver extends Observer
      **/ 
     void stateChanged(ThreadState oldState, ThreadState newState);
 };
- 
-/**
- *
- * The Ice request observer interface to instrument Ice servant
- * dispatches and proxy invocations.
- * 
- **/
-local interface RequestObserver extends Observer
-{
-    /**
-     *
-     * Called when the request response is received or sent and if the
-     * response isn't an exception.
-     *
-     **/ 
-    void responseOK();
-
-    /**
-     *
-     * Called when the request response is received or sent and if the
-     * response is a user exception.
-     *
-     **/ 
-    void responseUserException();
-
-    /**
-     *
-     * Called when the request response is received or sent and if the
-     * response is a request failed exception
-     * (Ice::ObjectNotExistException, Ice::FacetNotExistException,
-     * Ice::OperationNotExistException).
-     *
-     **/ 
-    void responseRequestFailedException();
-
-
-    /**
-     *
-     * Called when the request response is received or sent and if the
-     * response is an unknow exception.
-     *
-     **/ 
-    void responseUnknownException();
-};
 
 /**
  *
@@ -252,6 +208,28 @@ local interface ConnectionObserver extends Observer
 
 /**
  *
+ * The invocation observer.
+ *
+ **/
+local interface InvocationObserver extends Observer
+{
+    /**
+     *
+     * Notification of the invocation being retried.
+     *
+     **/
+    void retried();
+
+    /**
+     *
+     * Get a connection invocation observer for this invocation.
+     *
+     **/
+    Observer getRemoteInvocationObserver(Ice::Connection con);
+};
+
+/**
+ *
  * The ObserverUpdater interface is implemented by the Ice runtime and
  * an instance of this interface is provided by the Ice communictor on
  * initialization to the ObserverResolver object set with the
@@ -303,16 +281,6 @@ local interface ObserverUpdater
  **/
 local interface ObserverResolver
 {
-    /**
-     *
-     * This method sould return an observer for the given adapter ID
-     * locator query.
-     * 
-     * @param The name of the adapter ID.
-     *
-     **/
-    Observer getLocatorQueryObserver(string adapterId);
-
     /**
      *
      * This method should return an observer for the given endpoint
@@ -392,16 +360,27 @@ local interface ObserverResolver
      *
      * @param operation The name of the invocation
      *
-     * @param ctx The context passed to the Ice invocation
-     *
-     * @param con The connection used to send the invocation. Note
-     * that this connection might be null if no established connection
-     * could be found at the time of the invocation.
-     *
-     * @return The request observer object.
+     * @return The invocation observer object.
      *
      **/
-    Observer getInvocationObserver(Object* prx, string operation, Context ctx, Connection con);
+    InvocationObserver getInvocationObserver(Object* prx, string operation);
+
+    /**
+     * 
+     * This method should return an invocation observer for the given
+     * invocation. The Ice runtime calls this method for each new
+     * invocation on a proxy if a context is provided.
+     *
+     * @param prx The proxy used for the invocation
+     *
+     * @param operation The name of the invocation
+     *
+     * @param ctx The context passed to the Ice invocation
+     *
+     * @return The invocation observer object.
+     *
+     **/
+    InvocationObserver getInvocationObserverWithContext(Object* prx, string operation, Context ctx);
 
     /**
      * 
@@ -413,7 +392,7 @@ local interface ObserverResolver
      * @param current The Ice::Current object as provided to the Ice
      * servant dispatching the invocation.
      *
-     * @return The request observer object.
+     * @return The observer object.
      *
      **/
     Observer getDispatchObserver(Current c); 
@@ -422,8 +401,8 @@ local interface ObserverResolver
      *
      * The Ice runtime calls this method when the communicator is
      * initialized. The add-in implementing this interface can use
-     * this object to get the Ice runtime to call the get methods of
-     * this inteface for each of the observed objects.
+     * this object to get the Ice runtime to re-obtain observers for
+     * observed objects.
      *
      * @param updater The observer updater object.
      *

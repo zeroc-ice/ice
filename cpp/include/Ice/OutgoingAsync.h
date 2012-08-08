@@ -21,7 +21,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
-#include <Ice/ObserverF.h>
+#include <Ice/ObserverHelper.h>
 
 #include <memory>
 
@@ -115,7 +115,7 @@ public:
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
-    void __exception(const Exception&); // Required to be public for AsynchronousException
+    virtual void __exception(const Exception&); // Required to be public for AsynchronousException
     void __sent(); // Required to be public for AsynchronousSent
 
 protected:
@@ -138,7 +138,7 @@ protected:
     const std::string& _operation;
     const IceInternal::CallbackBasePtr _callback;
     const LocalObjectPtr _cookie;
-    
+
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     IceInternal::BasicStream _is;
     IceInternal::BasicStream _os;
@@ -151,6 +151,7 @@ protected:
     unsigned char _state;
     bool _sentSynchronously;
     std::auto_ptr<Exception> _exception;
+    IceInternal::InvocationObserver _observer;
 };
 
 }
@@ -295,6 +296,7 @@ public:
 private:
     
     Ice::ObjectPrx _proxy;
+    IceInternal::InvocationObserver _observer;
 };
 
 class ICE_API ConnectionBatchOutgoingAsync : public BatchOutgoingAsync

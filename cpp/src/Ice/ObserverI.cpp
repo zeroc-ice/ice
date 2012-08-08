@@ -274,36 +274,31 @@ private:
 
 DispatchRequestHelper::Attributes DispatchRequestHelper::attributes;
 
-class InvocationRequestHelper : public MetricsHelperT<Metrics>
+class InvocationHelper : public MetricsHelperT<Metrics>
 {
 public:
 
-    class Attributes : public AttributeResolverT<InvocationRequestHelper>
+    class Attributes : public AttributeResolverT<InvocationHelper>
     {
     public:
         
         Attributes()
         {
-            add("parent", &InvocationRequestHelper::getParent);
-            add("id", &InvocationRequestHelper::getId);
+            add("parent", &InvocationHelper::getParent);
+            add("id", &InvocationHelper::getId);
 
-            addConnectionAttributes<InvocationRequestHelper>(*this);
-
-            add("operation", &InvocationRequestHelper::_operation);
-            add("identityCategory", &InvocationRequestHelper::getIdentity, &Identity::category);
-            add("identityName", &InvocationRequestHelper::getIdentity, &Identity::name);
-            add("facet", &InvocationRequestHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
-            add("encoding", &InvocationRequestHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
-            add("mode", &InvocationRequestHelper::getMode);
+            add("operation", &InvocationHelper::_operation);
+            add("identityCategory", &InvocationHelper::getIdentity, &Identity::category);
+            add("identityName", &InvocationHelper::getIdentity, &Identity::name);
+            add("facet", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
+            add("encoding", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
+            add("mode", &InvocationHelper::getMode);
         }
     };
     static Attributes attributes;
     
-    InvocationRequestHelper(const Ice::ObjectPrx& proxy, 
-                            const string& op, 
-                            const Ice::Context& ctx, 
-                            const Ice::ConnectionPtr& con) :
-        _proxy(proxy), _operation(op), _context(ctx), _connection(con)
+    InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = Ice::Context()) :
+        _proxy(proxy), _operation(op), _context(ctx)
     {
     }
 
@@ -378,25 +373,6 @@ public:
         return _proxy;
     }
 
-    ::Ice::ConnectionInfoPtr
-    getConnectionInfo() const
-    {
-        if(!_connection)
-        {
-            return 0;
-        }
-        return _connection->getInfo();
-    }
-
-    ::Ice::EndpointInfoPtr
-    getEndpointInfo() const
-    {
-        if(!_connection)
-        {
-            return 0;
-        }
-        return _connection->getEndpoint()->getInfo();
-    }
 
     Identity
     getIdentity() const
@@ -409,10 +385,9 @@ private:
     const ObjectPrx& _proxy;
     string _operation;
     const Ice::Context& _context;
-    const Ice::ConnectionPtr& _connection;
 };
 
-InvocationRequestHelper::Attributes InvocationRequestHelper::attributes;
+InvocationHelper::Attributes InvocationHelper::attributes;
 
 class ThreadHelper : public MetricsHelperT<ThreadMetrics>
 {
@@ -575,12 +550,24 @@ ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
     forEach(StateChanged(oldState, newState));
 }
 
+void
+InvocationObserverI::retried()
+{
+    forEach(inc(&InvocationMetrics::retry));
+}
+
+ObserverPtr
+InvocationObserverI::getRemoteInvocationObserver(const Ice::ConnectionPtr&)
+{
+    return 0;
+}
+
 ObserverResolverI::ObserverResolverI(const MetricsAdminIPtr& metrics) : 
     _metrics(metrics),
     _connections("Connection", metrics),
-    _requests("Request", metrics),
+    _dispatch("Dispatch", metrics),
+    _invocations("Invocation", metrics),
     _threads("Thread", metrics),
-    _locatorQueries("LocatorQuery", metrics),
     _connects("Connect", metrics),
     _endpointResolves("EndpointResolve", metrics)
 {
@@ -591,12 +578,6 @@ ObserverResolverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 {
     _metrics->addUpdater("Connection", newUpdater(updater, &ObserverUpdater::updateConnectionObservers));
     _metrics->addUpdater("Thread", newUpdater(updater, &ObserverUpdater::updateThreadObservers));
-}
-
-Ice::Instrumentation::ObserverPtr
-ObserverResolverI::getLocatorQueryObserver(const string& adapterId)
-{
-    return 0;
 }
 
 Ice::Instrumentation::ObserverPtr
@@ -629,17 +610,22 @@ ObserverResolverI::getThreadObserver(const string& parent,
     return _threads.getObserver(ThreadHelper(parent, id, state), observer);
 }
 
-ObserverPtr 
-ObserverResolverI::getInvocationObserver(const ObjectPrx& proxy, 
-                                         const string& op, 
-                                         const Context& ctx, 
-                                         const ConnectionPtr& con)
+InvocationObserverPtr 
+ObserverResolverI::getInvocationObserver(const ObjectPrx& proxy, const string& op)
 {
-    return _requests.getObserver(InvocationRequestHelper(proxy, op, ctx, con));
+    return _invocations.getObserver(InvocationHelper(proxy, op));
+}
+
+InvocationObserverPtr 
+ObserverResolverI::getInvocationObserverWithContext(const ObjectPrx& proxy, 
+                                                    const string& op, 
+                                                    const Context& ctx)
+{
+    return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
 }
 
 ObserverPtr 
 ObserverResolverI::getDispatchObserver(const Current& current)
 {
-    return _requests.getObserver(DispatchRequestHelper(current));
+    return _dispatch.getObserver(DispatchRequestHelper(current));
 }

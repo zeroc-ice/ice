@@ -285,6 +285,8 @@ Ice::AsyncResult::__exception(const Ice::Exception& ex)
             __warning();
         }
     }
+
+    _observer.detach();
 }
 
 void
@@ -325,6 +327,8 @@ Ice::AsyncResult::__response()
             __warning();
         }
     }
+
+    _observer.detach();
 }
 
 void
@@ -424,6 +428,8 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
     _mode = mode;
     _sentSynchronously = false;
 
+    _observer.attach(_proxy.get(), operation, context);
+
     //
     // Can't call async via a batch proxy.
     //
@@ -497,6 +503,10 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
     {
         if(!_proxy->ice_isTwoway())
         {
+            if(!_callback || !_callback->__hasSentCallback())
+            {
+                _observer.detach();
+            }
             _state |= Done | OK;
         }
         else if(connection->timeout() > 0)
@@ -519,6 +529,10 @@ IceInternal::OutgoingAsync::__sent()
 #else
     ::Ice::AsyncResult::__sent();
 #endif
+    if(!_proxy->ice_isTwoway())
+    {
+        _observer.detach();
+    }
 }
 
 void
@@ -786,11 +800,11 @@ IceInternal::OutgoingAsync::handleException(const LocalExceptionWrapper& ex)
 {
     if(_mode == Nonmutating || _mode == Idempotent)
     {
-        return _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, false, _cnt);
+        return _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, false, _cnt, _observer);
     }
     else
     {
-        return _proxy->__handleExceptionWrapper(_delegate, ex);
+        return _proxy->__handleExceptionWrapper(_delegate, ex, _observer);
     }
 }
 
@@ -827,16 +841,16 @@ IceInternal::OutgoingAsync::handleException(const Ice::LocalException& exc, bool
     {
         if(_mode == Nonmutating || _mode == Idempotent)
         {
-            return _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, false, _cnt);
+            return _proxy->__handleExceptionWrapperRelaxed(_delegate, ex, false, _cnt, _observer);
         }
         else
         {
-            return _proxy->__handleExceptionWrapper(_delegate, ex);
+            return _proxy->__handleExceptionWrapper(_delegate, ex, _observer);
         }
     }
     catch(const Ice::LocalException& ex)
     {
-        return _proxy->__handleException(_delegate, ex, false, _cnt);
+        return _proxy->__handleException(_delegate, ex, false, _cnt, _observer);
     }
     return 0; // Keep the compiler happy.
 }
@@ -873,7 +887,15 @@ IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
     assert(!_exception.get());
     _state |= Done | OK | Sent;
     _monitor.notifyAll();
-    return _callback && _callback->__hasSentCallback();
+    if(_callback && _callback->__hasSentCallback())
+    {
+        return true;
+    }
+    else
+    {
+        _observer.detach();
+        return false;
+    }
 }
 
 void
@@ -899,6 +921,7 @@ IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectP
     BatchOutgoingAsync(proxy->ice_getCommunicator(), proxy->__reference()->getInstance(), operation, delegate, cookie),
     _proxy(proxy)
 {
+    _observer.attach(proxy.get(), operation, 0);
 }
 
 void
@@ -925,7 +948,7 @@ IceInternal::ProxyBatchOutgoingAsync::__send()
     }
     catch(const ::Ice::LocalException& ex)
     {
-        _proxy->__handleException(delegate, ex, 0, cnt);
+        _proxy->__handleException(delegate, ex, 0, cnt, _observer);
     }
 }
 
