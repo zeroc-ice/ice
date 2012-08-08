@@ -29,6 +29,14 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
+#ifdef _MSC_VER
+#   ifdef slice_wrap
+#      undef slice_wrap
+#      define slice_wrap() 1
+#   endif
+#   define YY_NO_UNISTD_H
+#endif
+
 using namespace std;
 using namespace Slice;
 

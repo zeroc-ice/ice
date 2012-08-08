@@ -374,12 +374,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
         // Marshal the in parameters.
         //
         Ice::OutputStreamPtr os = Ice::createOutputStream(proxy->ice_getCommunicator());
-        os->startEncapsulation(proxy->ice_getEncodingVersion());
-
-        if(_sendsClasses && _format != Ice::DefaultFormat)
-        {
-            os->format(_format);
-        }
+        os->startEncapsulation(proxy->ice_getEncodingVersion(), _format);
 
         ObjectMap objectMap;
         long i = 0;

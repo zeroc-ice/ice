@@ -1547,7 +1547,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    const int wireSize = keyType->minWireSize() + valueType->minWireSize();
+                    const size_t wireSize = keyType->minWireSize() + valueType->minWireSize();
                     string tmpName;
                     if(optionalParam && optionalMapping)
                     {
@@ -1726,7 +1726,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                        (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
                     {
                         out << nl << "final int __optSize = " << tmpName << " == null ? 0 : " << tmpName << ".size();";
-                        const int wireSize = elemType->minWireSize();
+                        const size_t wireSize = elemType->minWireSize();
 
                         if(wireSize > 1)
                         {
@@ -1773,7 +1773,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                        elemBuiltin->kind() != Builtin::KindBool))
                     {
                         out << nl << "final int __optSize = " << tmpName << " == null ? 0 : " << tmpName << ".length;";
-                        const int wireSize = elemType->minWireSize();
+                        const size_t wireSize = elemType->minWireSize();
 
                         if(wireSize > 1)
                         {
@@ -2795,7 +2795,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    const int wireSize = keyType->minWireSize() + valueType->minWireSize();
+                    const size_t wireSize = keyType->minWireSize() + valueType->minWireSize();
                     out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".size();";
                     out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
                         << " + 5 : __optSize * " << wireSize << " + 1);";
@@ -2854,7 +2854,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                        (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
                     {
                         out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".size();";
-                        const int wireSize = elemType->minWireSize();
+                        const size_t wireSize = elemType->minWireSize();
 
                         if(wireSize > 1)
                         {
@@ -2889,7 +2889,7 @@ Slice::JavaGenerator::writeStreamMarshalUnmarshalCode(Output& out,
                        elemBuiltin->kind() != Builtin::KindBool))
                     {
                         out << nl << "final int __optSize = " << v << " == null ? 0 : " << v << ".length;";
-                        const int wireSize = elemType->minWireSize();
+                        const size_t wireSize = elemType->minWireSize();
 
                         if(wireSize > 1)
                         {

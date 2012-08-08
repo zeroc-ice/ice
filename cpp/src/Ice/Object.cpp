@@ -318,7 +318,7 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     }
     else
     {
-        in.__writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+        in.__writeParamEncaps(&outEncaps[0], static_cast<Ice::Int>(outEncaps.size()), ok);
     }
     if(ok)
     {
@@ -345,7 +345,7 @@ Ice::BlobjectArray::__dispatch(Incoming& in, const Current& current)
     }
     else
     {
-        in.__writeParamEncaps(&outEncaps[0], outEncaps.size(), ok);
+        in.__writeParamEncaps(&outEncaps[0], static_cast<Ice::Int>(outEncaps.size()), ok);
     }
     if(ok)
     {

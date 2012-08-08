@@ -398,7 +398,7 @@ public:
     }
     void writeSizeSeq(const std::vector<Ice::Int>& v)
     {
-        writeSize(v.size());
+        writeSize(static_cast<Ice::Int>(v.size()));
         for(std::vector<Ice::Int>::const_iterator p = v.begin(); p != v.end(); ++p)
         {
             writeSize(*p);

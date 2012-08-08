@@ -1738,7 +1738,7 @@ IceInternal::BasicStream::initReadEncaps()
     if(!_currentReadEncaps) // Lazy initialization.
     {
         _currentReadEncaps = &_preAllocatedReadEncaps;
-        _currentReadEncaps->sz = b.size();
+        _currentReadEncaps->sz = static_cast<Ice::Int>(b.size());
     }
 
     if(!_currentReadEncaps->decoder) // Lazy initialization.

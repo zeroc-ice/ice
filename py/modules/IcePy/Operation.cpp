@@ -1440,12 +1440,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             // Marshal the in parameters.
             //
             Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
-            os->startEncapsulation(_prx->ice_getEncodingVersion());
-
-            if(_op->sendsClasses && _op->format != Ice::DefaultFormat)
-            {
-                os->format(_op->format);
-            }
+            os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
             int i = 0;
@@ -3214,12 +3209,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
                 }
             }
 
-            os->startEncapsulation(encoding);
-
-            if(_op->returnsClasses && _op->format != Ice::DefaultFormat)
-            {
-                os->format(_op->format);
-            }
+            os->startEncapsulation(encoding, _op->format);
 
             ObjectMap objectMap;
 
@@ -3343,12 +3333,7 @@ IcePy::TypedUpcall::exception(PyException& ex, const Ice::EncodingVersion& encod
                 else
                 {
                     Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
-                    os->startEncapsulation(encoding);
-
-                    if(_op->format != Ice::DefaultFormat)
-                    {
-                        os->format(_op->format);
-                    }
+                    os->startEncapsulation(encoding, _op->format);
 
                     ExceptionWriter writer(_communicator, ex.ex, info);
                     os->writeException(writer);
