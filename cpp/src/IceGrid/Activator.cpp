@@ -481,11 +481,7 @@ Activator::activate(const string& name,
     //
     // Make a copy of the command line.
     //
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
     wchar_t* cmdbuf = _wcsdup(IceUtil::stringToWstring(cmd).c_str());
-#else
-    wchar_t* cmdbuf = wcsdup(IceUtil::stringToWstring(cmd).c_str());
-#endif
 
     //
     // Create the environment block for the child process. We start with the environment

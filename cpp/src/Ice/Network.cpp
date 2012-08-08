@@ -2238,11 +2238,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, AsyncInfo& info)
     }        
 
     if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, 
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
-                  reinterpret_cast<LPOVERLAPPED>(&info)
-#else
                   &info
-#endif
                   ))
     {
         if(!connectInProgress())

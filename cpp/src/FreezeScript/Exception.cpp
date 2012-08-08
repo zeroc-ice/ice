@@ -34,11 +34,7 @@ FreezeScript::FailureException::ice_name() const
 void
 FreezeScript::FailureException::ice_print(ostream& out) const
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    Exception::ice_print(out);
-#else
     ::IceUtil::Exception::ice_print(out);
-#endif
     out << ":\nerror occurred during transformation"; // TODO
     if(!_reason.empty())
     {

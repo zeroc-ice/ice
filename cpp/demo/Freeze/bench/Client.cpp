@@ -166,11 +166,7 @@ private:
             Freeze::TransactionHolder txHolder(_connection);
             for(i = 0; i < _repetitions; ++i)
             {
-#if (defined(_MSC_VER) && (_MSC_VER < 1310))
-                m.put(T::value_type(i, i));
-#else
                 m.put(typename T::value_type(i, i));
-#endif
             }
             txHolder.commit();
         }
@@ -268,12 +264,7 @@ private:
                 os << i;
                 s2.s = os.str();
                 s2.s1 = s1;
-
-#if (defined(_MSC_VER) && (_MSC_VER < 1310))
-                m.put(T::value_type(s1, s2));
-#else
                 m.put(typename T::value_type(s1, s2));
-#endif
             }
             txHolder.commit();
         }
@@ -350,11 +341,7 @@ private:
                 ostringstream os;
                 os << i;
                 c1->s = os.str();
-#if (defined(_MSC_VER) && (_MSC_VER < 1310))
-                m.put(T::value_type(s1, c1));
-#else
                 m.put(typename T::value_type(s1, c1));
-#endif
             }
             txHolder.commit();
         }
@@ -425,11 +412,7 @@ private:
             Freeze::TransactionHolder txHolder(_connection);
             for(i = 0; i < _repetitions; ++i)
             {
-#if (defined(_MSC_VER) && (_MSC_VER < 1310))
-                m.put(T::value_type(i, i));
-#else
                 m.put(typename T::value_type(i, i));
-#endif
             }
             txHolder.commit();
         }
@@ -720,64 +703,22 @@ TestApp::run(int argc, char* argv[])
     _connection = Freeze::createConnection(communicator(), _envName);
 
     cout << "IntIntMap" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        IntIntMap* dummy = 0;
-        IntIntMapTest("IntIntMap", dummy);
-    }
-#else
     IntIntMapTest<IntIntMap>("IntIntMap");
-#endif
     
     cout << "IntIntMap with index" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        IndexedIntIntMap* dummy = 0;
-        IntIntMapTest("IndexedIntIntMap", dummy);
-    }
-#else
     IntIntMapTest<IndexedIntIntMap>("IndexedIntIntMap");
-#endif
 
     cout <<"Struct1Struct2Map" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        Struct1Struct2Map* dummy = 0;
-        Struct1Struct2MapTest("Struct1Struct2Map", dummy);
-    }
-#else
     Struct1Struct2MapTest<Struct1Struct2Map>("Struct1Struct2Map");
-#endif
 
     cout <<"Struct1Struct2Map with index" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        IndexedStruct1Struct2Map* dummy = 0;
-        Struct1Struct2MapTest("IndexedStruct1Struct2Map", dummy);
-    }
-#else
     Struct1Struct2MapTest<IndexedStruct1Struct2Map>("IndexedStruct1Struct2Map");
-#endif
 
     cout <<"Struct1Class1Map" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        Struct1Class1Map* dummy = 0;
-        Struct1Class1MapTest("Struct1Class1Map", dummy);
-    }
-#else
     Struct1Class1MapTest<Struct1Class1Map>("Struct1Class1Map");
-#endif
 
     cout <<"Struct1Class1Map with index" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)
-    {
-        IndexedStruct1Class1Map* dummy = 0;
-        Struct1Class1MapTest("IndexedStruct1Class1Map", dummy);
-    }
-#else
     Struct1Class1MapTest<IndexedStruct1Class1Map>("IndexedStruct1Class1Map");
-#endif
 
     MyFactoryPtr factory = new MyFactory();
 
@@ -785,24 +726,10 @@ TestApp::run(int argc, char* argv[])
     Struct1ObjectMapTest();
 
     cout <<"IntIntMap (read test)" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)  
-    {
-        IntIntMap* dummy = 0;
-        IntIntMapReadTest("IntIntMap", dummy);
-    }
-#else
     IntIntMapReadTest<IntIntMap>("IntIntMap");
-#endif
 
     cout <<"IntIntMap with index (read test)" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1310)  
-    {
-        IndexedIntIntMap* dummy = 0;
-        IntIntMapReadTest("IndexedIntIntMap", dummy);
-    }
-#else
     IntIntMapReadTest<IndexedIntIntMap>("IndexedIntIntMap");
-#endif
     
     _connection->close();
     

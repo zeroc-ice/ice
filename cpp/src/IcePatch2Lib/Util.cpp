@@ -493,12 +493,7 @@ IcePatch2::readDirectory(const string& pa)
     const wstring fs = IceUtil::stringToWstring(simplify(path + "/*"));
 
     struct _wfinddata_t data;
-
-#  if defined(_MSC_VER) && (_MSC_VER < 1300)
-    long h = _wfindfirst(fs.c_str(), &data);
-#  else
     intptr_t h = _wfindfirst(fs.c_str(), &data);
-#  endif
     if(h == -1)
     {
         throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
@@ -970,13 +965,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     while(bytesLeft > 0)
                     {
                         ByteSeq bytes(min(bytesLeft, 1024u*1024));
-                        if(
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-                            _read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
-#else
-                            read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
-#endif
-                            == -1)
+                        if(_read(fd, &bytes[0], static_cast<unsigned int>(bytes.size())) == -1)
                         {
                             if(doCompress)
                             {

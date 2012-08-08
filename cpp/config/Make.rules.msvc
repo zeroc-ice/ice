@@ -42,9 +42,7 @@ ARFLAGS	= $(ARFLAGS) /ignore:4264 /ignore:4221
 CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE
 !endif
 
-!if "$(CPP_COMPILER)" != "VC60"
 CPPFLAGS        = $(CPPFLAGS) -MP
-!endif
 
 !if "$(OPTIMIZE)" == "yes"
 
@@ -54,15 +52,8 @@ CONFIG		= Retail
 
 !else
 
-CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd
+CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd -RTC1
 CONFIG		= Debug
-
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = $(CPPFLAGS) -GZ -Gm
-!else
-CPPFLAGS        = $(CPPFLAGS) -RTC1
-!endif
-
 !endif
 
 !if "$(STATICLIBS)" == "yes"

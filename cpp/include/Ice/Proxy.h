@@ -152,11 +152,6 @@ typedef IceUtil::Handle<AMI_Object_ice_flushBatchRequests> AMI_Object_ice_flushB
 namespace IceProxy { namespace Ice
 {
 
-#if defined(_MSC_VER) && (_MSC_VER == 1310)
-// Work around for VC++ 7.1 bug
-typedef ::std::map< ::std::string, ::std::string> Context;
-#endif
-
 class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
 {
 public:
@@ -998,33 +993,21 @@ checkedCast(const ::IceInternal::ProxyHandle<Y>& b)
 {
     Y* tag = 0;
     Ice::Context* ctx = 0;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, ctx);
-#else
     return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, ctx);
-#endif
 }
 
 template<typename P, typename Y> inline P 
 checkedCast(const ::IceInternal::ProxyHandle<Y>& b, const ::Ice::Context& context)
 {
     Y* tag = 0;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::checkedCastHelper<P::element_type>(b, tag, &context);
-#else
     return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag, &context);
-#endif
 }
 
 template<typename P, typename Y> inline P
 uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
 {
     Y* tag = 0;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return ::IceInternal::uncheckedCastHelper<P::element_type>(b, tag);
-#else
     return ::IceInternal::uncheckedCastHelper<typename P::element_type>(b, tag);
-#endif
 }
 
 template<typename P> inline P 
@@ -1222,20 +1205,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(result, ex);
-#else
             CallbackNC<T>::__exception(result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)();
-#else
             (CallbackNC<T>::callback.get()->*response)();
-#endif
         }
     }
 
@@ -1267,20 +1242,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(result, ex);
-#else
             Callback<T, CT>::__exception(result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(CT::dynamicCast(result->getCookie()));
-#else
             (Callback<T, CT>::callback.get()->*response)(CT::dynamicCast(result->getCookie()));
-#endif
         }
     }
 
@@ -1317,20 +1284,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret);
-#else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
-#endif
         }
     }
 
@@ -1362,20 +1321,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#endif
         }
     }
 
@@ -1441,20 +1392,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret);
-#else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
-#endif
         }
     }
 
@@ -1486,20 +1429,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#endif
         }
     }
 
@@ -1531,20 +1466,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret);
-#else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ret);
-#endif
         }
     }
 
@@ -1576,20 +1503,12 @@ public:
         }
         catch(const ::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
             return;
         }
         if(response)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ret, CT::dynamicCast(__result->getCookie()));
-#endif
         }
     }
 
@@ -1630,18 +1549,10 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-                __exception(__result, ex);
-#else
                 ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
                 return;
             }
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ok, outParams);
-#else
             (::IceInternal::CallbackNC<T>::callback.get()->*response)(__ok, outParams);
-#endif
             return;
         }
     
@@ -1655,18 +1566,10 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-                __exception(__result, ex);
-#else
                 ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
                 return;
             }
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*responseArray)(__ok, outParams);
-#else
             (::IceInternal::CallbackNC<T>::callback.get()->*responseArray)(__ok, outParams);
-#endif
             return;
         }
     }
@@ -1709,20 +1612,12 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-                __exception(__result, ex);
-#else
                 ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
                 return;
             }
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*response)(__ok, outParams, CT::dynamicCast(__result->getCookie()));
-#else
             (::IceInternal::Callback<T, CT>::callback.get()->*response)(__ok, 
                                                                         outParams, 
                                                                         CT::dynamicCast(__result->getCookie()));
-#endif
             return;
         }
     
@@ -1736,20 +1631,12 @@ public:
             }
             catch(const ::Ice::Exception& ex)
             {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-                __exception(__result, ex);
-#else
                 ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
                 return;
             }
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            (callback.get()->*responseArray)(__ok, outParams, CT::dynamicCast(__result->getCookie()));
-#else
             (::IceInternal::Callback<T, CT>::callback.get()->*responseArray)(__ok,
                                                                              outParams, 
                                                                              CT::dynamicCast(__result->getCookie()));
-#endif
             return;
         }
     }

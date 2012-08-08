@@ -25,12 +25,8 @@ SUBDIRS		= minimal \
 		  multicast \
 		  nrvo \
 		  plugin \
-		  interleaved
-
-!if "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
+		  interleaved \
 		  invoke
-!endif
 
 !if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \

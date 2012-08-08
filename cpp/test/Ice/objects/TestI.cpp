@@ -228,7 +228,6 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
                                            std::vector<Ice::Byte>& outParams,
                                            const Ice::Current& current)
 {
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
     Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
     out->startEncapsulation();
@@ -237,6 +236,5 @@ UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
     out->writePendingObjects();
     out->endEncapsulation();
     out->finished(outParams);
-#endif
     return true;
 }

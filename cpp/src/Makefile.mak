@@ -21,37 +21,18 @@ SUBDIRS		= IceUtil\winrt \
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
-		  slice2cpp
-
-
-!if "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
-		  slice2freeze
-
-!if "$(BCPLUSPLUS)" != "yes"
-SUBDIRS		= $(SUBDIRS) \
+		  slice2cpp \
+		  slice2freeze \
 		  slice2cs \
 		  slice2freezej \
 		  slice2java \
 		  slice2py \
-		  slice2html
-!endif
-
-!endif
-
-!if "$(BCPLUSPLUS)" != "yes"
-SUBDIRS		= $(SUBDIRS) \
+		  slice2html \
 		  slice2php \
-		  slice2rb
-!endif
-
-SUBDIRS		= $(SUBDIRS) \
+		  slice2rb \
 		  Ice \
 		  IceSSL \
-		  ca
-
-!if "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
+		  ca \
 		  IceXML \
 		  Freeze \
 		  FreezeScript \
@@ -59,9 +40,6 @@ SUBDIRS		= $(SUBDIRS) \
 		  Glacier2Lib \
 		  IceStormLib \
 		  IceGridLib \
-
-!if "$(BCPLUSPLUS)" != "yes"
-SUBDIRS		= $(SUBDIRS) \
 		  IceBox \
 		  IcePatch2 \
 		  Glacier2 \
@@ -69,9 +47,6 @@ SUBDIRS		= $(SUBDIRS) \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall
-!endif
-
-!endif
 
 !endif
 

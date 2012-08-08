@@ -19,10 +19,7 @@
 //            header file in Ice *source* files!
 //
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400
+#if defined(_MSC_VER)
 #    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated/
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER >= 1300
 #    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
 #endif

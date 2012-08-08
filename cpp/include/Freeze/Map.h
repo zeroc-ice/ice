@@ -622,34 +622,7 @@ private:
     mutable bool _refValid;
 };
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-//
-// Without partial template specialization
-//
-struct IceEncodingCompare
-{
-    bool operator()(...)
-    {
-        return false;
-    }
-};
-
-template<typename Compare>
-inline bool 
-enableKeyCompare(const Compare&)
-{
-    return true;
-}
-
-template<> 
-inline bool 
-enableKeyCompare<IceEncodingCompare>(const IceEncodingCompare&)
-{
-    return false;
-}
-# else
 struct IceEncodingCompare {};
-#endif
 
 template<typename key_type, typename KeyCodec, typename Compare>
 class KeyCompare : public KeyCompareBase
@@ -658,11 +631,7 @@ public:
     KeyCompare(const Compare& mapCompare,
                const Ice::CommunicatorPtr& communicator, 
                const Ice::EncodingVersion& encoding) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        KeyCompareBase(enableKeyCompare(mapCompare)),
-#else
         KeyCompareBase(true),
-#endif
         _compare(mapCompare),
         _communicator(communicator),
         _encoding(encoding)
@@ -694,7 +663,6 @@ private:
     const Ice::EncodingVersion _encoding;
 };
 
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
 //
 // Partial template specialization: 
 // do nothing for the IceEncodingCompare comparator
@@ -713,7 +681,6 @@ public:
         return 0;
     }
 };
-#endif
 
 //
 // Need to separate MapIndex template class because _communicator is
@@ -746,11 +713,7 @@ public:
 
 protected:
     MapIndex(const std::string& mapName, const Compare& mapCompare) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        MapIndexBase(mapName, enableKeyCompare(mapCompare)),
-#else
         MapIndexBase(mapName, true),
-#endif
         _compare(mapCompare)
     {}
 
@@ -758,7 +721,6 @@ private:
     Compare _compare;
 };
 
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
 //
 // Partial template specialization: 
 // do nothing for the IceEncodingCompare comparator
@@ -778,7 +740,6 @@ protected:
         MapIndexBase(mapName, false)
     {}
 };
-#endif
 
 //
 // A sorted map, similar to a std::map, with one notable difference:
@@ -1201,36 +1162,3 @@ protected:
 
 
 }
-
-//
-// This is for MSVC.
-//
-# ifdef _STLP_USE_OLD_HP_ITERATOR_QUERIES
-namespace std
-{
-
-// TODO: update.
-template <class key_type, class mapped_type, class KeyCodec, class ValueCodec, class Compare>
-inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::Iterator<key_type, mapped_type, KeyCodec, ValueCodec, Compare>&)
-{
-    return (pair<const key_type, const mapped_type>*)0;
-}
-
-template <class key_type, class mapped_type, class KeyCodec, class ValueCodec, class Compare>
-inline pair<const key_type, const mapped_type>*
-value_type(const Freeze::ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec, Compare>&)
-{
-    return (pair<const key_type, const mapped_type>*)0;
-}
-
-inline forward_iterator_tag iterator_category(const Freeze::IteratorBase&)
-{
-    return forward_iterator_tag();
-}
-
-inline ptrdiff_t* distance_type(const Freeze::IteratorBase&) { return (ptrdiff_t*) 0; }
-
-}
-
-#endif

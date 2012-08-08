@@ -40,11 +40,7 @@ Slice::FileException::ice_name() const
 void
 Slice::FileException::ice_print(ostream& out) const
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    Exception::ice_print(out);
-#else
     IceUtil::Exception::ice_print(out);
-#endif
     out << ": " << _reason;
 }
 

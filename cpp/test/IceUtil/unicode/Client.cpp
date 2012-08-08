@@ -207,11 +207,7 @@ main(int argc, char* argv[])
 
         int fd = IceUtilInternal::open(filepath, O_RDONLY);
         test(fd > 0);
-#   if defined(_MSC_VER) && (_MSC_VER >= 1400)
         test(_close(fd) == 0);
-#   else
-        test(close(fd) == 0);
-#   endif
 
         FILE* f = IceUtilInternal::fopen(filepath, "r");
         test(f != 0);

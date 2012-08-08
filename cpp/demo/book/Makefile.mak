@@ -13,13 +13,9 @@ top_srcdir	= ..\..
 
 SUBDIRS		= printer \
 		  simple_filesystem \
-		  lifecycle
-
-!if "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
+		  lifecycle \
 		  map_filesystem \
 		  evictor_filesystem
-!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

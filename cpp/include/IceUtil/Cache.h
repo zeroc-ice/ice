@@ -168,12 +168,7 @@ template<typename Key, typename Value> bool
 Cache<Key, Value>::pin(const Key& key, const Handle<Value>& obj)
 {
     Mutex::Lock sync(_mutex);
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    std::pair<CacheMap::iterator, bool> ir = 
-#else
     std::pair<typename CacheMap::iterator, bool> ir =
-#endif 
-
 #ifdef _MSC_VER
        _map.insert(CacheMap::value_type(key, CacheValue(obj)));
 #else
@@ -222,12 +217,7 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
                 latch = 0;
             }
     
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-            std::pair<CacheMap::iterator, bool> ir = 
-#else
             std::pair<typename CacheMap::iterator, bool> ir =
-#endif          
-            
 #if defined(_MSC_VER)
                 _map.insert(CacheMap::value_type(key, CacheValue(0)));
 #else

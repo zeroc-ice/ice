@@ -134,26 +134,6 @@ operator<<(Output& out, const std::vector<T>& val)
     return out;
 }
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-
-//
-// Visual C++ 6.0 needs also a version of the function above with a
-// non-const vector as argument.
-//
-
-template<typename T>
-inline Output&
-operator<<(Output& out, std::vector<T>& val)
-{
-    for(typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
-    {
-        out << *p;
-    }
-    return out;
-}
-
-#endif
-
 template<>
 inline Output&
 operator<<(Output& o, const NextLine&)

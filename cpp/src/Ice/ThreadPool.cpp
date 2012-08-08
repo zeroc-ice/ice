@@ -333,13 +333,7 @@ void
 IceInternal::ThreadPoolWorkQueue::postMessage()
 {
 #if defined(ICE_USE_IOCP)
-    if(!PostQueuedCompletionStatus(_selector.getIOCPHandle(), 0, reinterpret_cast<ULONG_PTR>(this),
-#   if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
-                                   reinterpret_cast<LPOVERLAPPED>(&_info)
-#   else
-                                   &_info
-#   endif
-                                   ))
+    if(!PostQueuedCompletionStatus(_selector.getIOCPHandle(), 0, reinterpret_cast<ULONG_PTR>(this), &_info))
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = GetLastError();

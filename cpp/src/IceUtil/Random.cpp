@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#if defined(_MSC_VER) && (_MSC_VER > 1400)
+#ifdef _MSC_VER
 #  define _CRT_RAND_S
 #endif
 
@@ -25,7 +25,7 @@
 using namespace std;
 using namespace IceUtil;
 
-#if !defined(_WIN32) || !defined(_MSC_VER) || (_MSC_VER < 1400)
+#if !defined(_WIN32) || !defined(_MSC_VER)
 namespace
 {
 
@@ -88,7 +88,7 @@ IceUtilInternal::generateRandom(char* buffer, int size)
 {
 #ifdef _WIN32
 
-#  if defined(_MSC_VER) && (_MSC_VER >= 1400)
+#  if defined(_MSC_VER)
     for(int i = 0; i < size; ++i)
     {
         buffer[i] = random(256);
@@ -168,7 +168,7 @@ unsigned int
 IceUtilInternal::random(int limit)
 {
     unsigned int r;
-#if defined(_MSC_VER) && (_MSC_VER > 1400)
+#if defined(_MSC_VER)
     errno_t err = rand_s(&r);
     if(err != 0)
     {

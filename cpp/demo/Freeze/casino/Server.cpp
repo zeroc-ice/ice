@@ -30,13 +30,6 @@ private:
     map<string, string> createTypeMap(const string&);
     const string _envName;
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1300))
-//
-// Some compilers don't let local classes access private data members
-//
-public:
-#endif
-
     CasinoStore::PersistentBankPrx _bankPrx;
     Freeze::TransactionalEvictorPtr _bankEvictor;
     Freeze::TransactionalEvictorPtr _playerEvictor;
@@ -269,13 +262,7 @@ CasinoServer::run(int argc, char* argv[])
 
         for(size_t i = 0; i < 12; ++i)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-            Ice::Identity ident;
-            ident.name = players[i];
-            ident.category = "player";
-#else
             Ice::Identity ident = { players[i], "player" };
-#endif
             if(!_playerEvictor->hasObject(ident))
             {
                 _playerEvictor->add(new PlayerI, ident);

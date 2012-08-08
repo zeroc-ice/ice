@@ -117,19 +117,11 @@ struct ReplicaGroupEq : std::binary_function<ReplicaGroupDescriptor&, ReplicaGro
 template <typename GetKeyFunc, typename Seq> Seq
 getSeqUpdatedElts(const Seq& lseq, const Seq& rseq, GetKeyFunc func)
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-   return getSeqUpdatedEltsWithEq(lseq, rseq, func, equal_to<Seq::value_type>());
-#else
    return getSeqUpdatedEltsWithEq(lseq, rseq, func, equal_to<typename Seq::value_type>());
-#endif
 }
 
 template <typename GetKeyFunc, typename EqFunc, typename Seq> Seq
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
 getSeqUpdatedEltsWithEq(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
-#else
-getSeqUpdatedEltsWithEq(const Seq& lseq, const Seq& rseq, GetKeyFunc func, EqFunc eq)
-#endif
 {
     Seq result;
     for(typename Seq::const_iterator p = rseq.begin(); p != rseq.end(); ++p)
@@ -216,11 +208,7 @@ getDictUpdatedEltsWithEq(const Dict& ldict, const Dict& rdict, EqFunc eq)
 template<typename Dict> Dict
 getDictUpdatedElts(const Dict& ldict, const Dict& rdict)
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<Dict::mapped_type>());
-#else
     return getDictUpdatedEltsWithEq(ldict, rdict, equal_to<typename Dict::mapped_type>());
-#endif
 }
 
 template <typename Dict> Ice::StringSeq

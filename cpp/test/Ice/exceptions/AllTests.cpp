@@ -1110,10 +1110,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(false);
     }
 
-#if (!defined(_MSC_VER) || _MSC_VER >= 1300)
-//
-// With VC6 SP5, there is no way to call ::A::__write from ::Mod::A
-//
     try
     {
         thrower->throwModA(1, 2);
@@ -1134,7 +1130,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         test(false);
     }
-#endif
 
     cout << "ok" << endl;
 
@@ -1169,10 +1164,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(false);
     }
 
-#if (!defined(_MSC_VER) || _MSC_VER >= 1300)
-//
-// With VC6 SP5, there is no way to call ::A::__write from ::Mod::A
-//
     try
     {
         thrower->throwModA(1, 2);
@@ -1192,7 +1183,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         test(false);
     }
-#endif
 
     cout << "ok" << endl;
 
@@ -1519,16 +1509,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             cb->check();
         }
 
-#if (!defined(_MSC_VER) || _MSC_VER >= 1300)
-//
-// With VC6 SP5, there is no way to call ::A::__write from ::Mod::A
-//
         {
             AMI_Thrower_throwModAIPtr cb = new AMI_Thrower_throwModAI;
             thrower->throwModA_async(cb, 1, 2);
             cb->check();
         }
-#endif
 
         cout << "ok" << endl;
 
@@ -1673,10 +1658,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             cb->check();
         }
 
-#if (!defined(_MSC_VER) || _MSC_VER >= 1300)
-//
-// With VC6 SP5, there is no way to call ::A::__write from ::Mod::A
-//
         {
             CallbackPtr cb = new Callback;
             Callback_Thrower_throwModAPtr callback = 
@@ -1684,7 +1665,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->begin_throwModA(1, 2, callback);
             cb->check();
         }
-#endif
 
         cout << "ok" << endl;
 

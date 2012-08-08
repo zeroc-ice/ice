@@ -77,7 +77,7 @@
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+#if defined(_MSC_VER)
 #   define ICE_DEPRECATED_API __declspec(deprecated)
 #elif defined(__GNUC__)
 #   define ICE_DEPRECATED_API __attribute__((deprecated))
@@ -94,27 +94,9 @@
 #   define ICE_UTIL_API ICE_DECLSPEC_IMPORT
 #endif
 
-//
-// For STLport. If we compile in debug mode, we want to use the debug
-// STLport library. This is done by setting _STLP_DEBUG before any
-// STLport header files are included.
-//
-// TODO: figure out why IceUtil does not compile with _SLTP_DEBUG using
-// the Intel compiler.
-//
-#if !defined(NDEBUG) && !defined(_STLP_DEBUG) && !defined(__INTEL_COMPILER)
-#   define _STLP_DEBUG
-#endif
-
 #if defined(_WIN32)
 
 #   ifndef _WIN32_WINNT
-        //
-        // Necessary for TryEnterCriticalSection (see IceUtil/Mutex.h).
-        //
-#       if defined(_MSC_VER) && _MSC_VER < 1500
-#           define _WIN32_WINNT 0x0400
-#       endif
 #   elif _WIN32_WINNT < 0x0400
 #       error "TryEnterCricalSection requires _WIN32_WINNT >= 0x0400"
 #   endif
@@ -141,13 +123,6 @@
 //      ...: decorated name length exceeded, name was truncated
 #      pragma warning( disable : 4503 )  
 #   endif
-
-    //
-    // For STLport. Define _STLP_NEW_PLATFORM_SDK if a PSDK newer than the PSDK included with VC6.
-    //
-#   if !defined(_STLP_NEW_PLATFORM_SDK) && WINVER > 0x0400
-#       define _STLP_NEW_PLATFORM_SDK 1
-#   endif
 #endif
 
 //
@@ -160,13 +135,6 @@
 #ifndef _WIN32
 #   include <pthread.h>
 #   include <errno.h>
-#endif
-
-//
-// If we use Visual C++ 6.0, we must use STLport
-//
-#if defined(_MSC_VER) && (_MSC_VER < 1300) && !defined(_STLP_BEGIN_NAMESPACE)
-#   error "Ice for Visual C++ 6.0 requires STLport"
 #endif
 
 //
