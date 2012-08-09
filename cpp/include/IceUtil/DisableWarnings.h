@@ -24,4 +24,7 @@
 #    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
 #    pragma warning( 4 : 4800 ) // C4800 forcing value to bool 'true' or 'false' (performance warning)
 
+#    if (_MSC_VER < 1700)
+#       pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
+#    endif
 #endif
