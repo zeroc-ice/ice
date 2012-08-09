@@ -128,7 +128,7 @@ public:
         IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection);
         if(info)
         {
-            os << info->localAddress << ':' << info->localPort << '/' << info->remoteAddress << ':' << info->remotePort;
+            os << info->localAddress << ':' << info->localPort << " -> " << info->remoteAddress << ':' << info->remotePort;
         }
         else
         {
@@ -231,7 +231,7 @@ public:
         {
             os << _current.id.category << '/';
         }
-        os << _current.id.name << '-' << _current.operation;
+        os << _current.id.name << " [" << _current.operation << ']';
         return os.str();
     }
 
@@ -291,6 +291,7 @@ public:
             add("facet", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
             add("encoding", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
             add("mode", &InvocationHelper::getMode);
+            add("proxy", &InvocationHelper::getProxy);
         }
     };
     static Attributes attributes;
@@ -350,12 +351,7 @@ public:
     getId() const
     {
         ostringstream os;
-        const Ice::Identity& id = _proxy->ice_getIdentity();
-        if(!id.category.empty())
-        {
-            os << id.category << '/';
-        }
-        os << id.name << '-' << _operation;
+        os << _proxy << " [" << _operation << ']';
         return os.str();
     }
 
@@ -386,6 +382,80 @@ private:
 };
 
 InvocationHelper::Attributes InvocationHelper::attributes;
+
+class RemoteInvocationHelper : public MetricsHelperT<Metrics>
+{
+public:
+
+    class Attributes : public AttributeResolverT<RemoteInvocationHelper>
+    {
+    public:
+        
+        Attributes()
+        {
+            add("parent", &RemoteInvocationHelper::getParent);
+            add("id", &RemoteInvocationHelper::getId);
+            addConnectionAttributes<RemoteInvocationHelper>(*this);
+        }
+    };
+    static Attributes attributes;
+    
+    RemoteInvocationHelper(const ConnectionPtr& con) : MetricsHelperT("Remote"), _connection(con)
+    {
+    }
+
+    virtual string operator()(const string& attribute) const
+    {
+        return attributes(this, attribute);
+    }
+
+    string 
+    getId() const
+    {
+        ostringstream os;
+        IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection->getInfo());
+        if(info)
+        {
+            os << info->remoteAddress << ':' << info->remotePort;
+        }
+        else
+        {
+            os << "connection-" << _connection.get();
+        }
+        return os.str();
+    }
+    
+    string 
+    getParent() const
+    {
+        if(_connection->getAdapter())
+        {
+            return _connection->getAdapter()->getName();
+        }
+        else
+        {
+            return "Communicator";
+        }
+    }
+    
+    ::Ice::ConnectionInfoPtr
+    getConnectionInfo() const
+    {
+        return _connection->getInfo();
+    }
+
+    ::Ice::EndpointInfoPtr
+    getEndpointInfo() const
+    {
+        return _connection->getEndpoint()->getInfo();
+    }
+    
+private:
+
+    ConnectionPtr _connection;
+};
+
+RemoteInvocationHelper::Attributes RemoteInvocationHelper::attributes;
 
 class ThreadHelper : public MetricsHelperT<ThreadMetrics>
 {
@@ -430,24 +500,26 @@ private:
 
 ThreadHelper::Attributes ThreadHelper::attributes;
 
-class ConnectHelper : public MetricsHelperT<Metrics>
+class EndpointHelper : public MetricsHelperT<Metrics>
 {
 public:
 
-    class Attributes : public AttributeResolverT<ConnectHelper>
+    class Attributes : public AttributeResolverT<EndpointHelper>
     {
     public:
         
         Attributes()
         {
-            add("parent", &ConnectHelper::getParent);
-            add("id", &ConnectHelper::_id);
-            addEndpointAttributes<ConnectHelper>(*this);
+            add("parent", &EndpointHelper::getParent);
+            add("id", &EndpointHelper::_id);
+            addEndpointAttributes<EndpointHelper>(*this);
         }
     };
     static Attributes attributes;
     
-    ConnectHelper(const EndpointInfoPtr& endpt, const string& id) : MetricsHelperT("Connect"), _id(id), _endpoint(endpt)
+    EndpointHelper(const string& mapName, 
+                   const EndpointInfoPtr& endpt, 
+                   const string& id) : MetricsHelperT(mapName), _id(id), _endpoint(endpt)
     {
     }
 
@@ -474,7 +546,7 @@ private:
     const Ice::EndpointInfoPtr _endpoint;
 };
 
-ConnectHelper::Attributes ConnectHelper::attributes;
+EndpointHelper::Attributes EndpointHelper::attributes;
 
 }
 
@@ -559,9 +631,9 @@ InvocationObserverI::retried()
 }
 
 ObserverPtr
-InvocationObserverI::getRemoteObserver(const Ice::ConnectionPtr&)
+InvocationObserverI::getRemoteObserver(const Ice::ConnectionPtr& connection)
 {
-    return 0;
+    return getObserver<ObserverI>(RemoteInvocationHelper(connection));
 }
 
 CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) : 
@@ -576,9 +648,12 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
     metrics->addFactory("Connection", _connections.newFactory());
     metrics->addFactory("Thread", _threads.newFactory());
     metrics->addFactory("Dispatch", _dispatch.newFactory());
-    metrics->addFactory("Invocation", _invocations.newFactory());
-    metrics->addFactory("Connect", _connects.newFactory());
-    metrics->addFactory("EndpointLookups", _endpointLookups.newFactory());
+    metrics->addFactory("ConnectionEstablishment", _connects.newFactory());
+    metrics->addFactory("EndpointLookup", _endpointLookups.newFactory());
+
+    map<string, MetricsMap InvocationMetrics::*> subMaps;
+    subMaps["Remote"] = &InvocationMetrics::remotes;
+    metrics->addFactory("Invocation", _invocations.newFactory(subMaps));
 }
 
 void
@@ -589,15 +664,15 @@ CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 }
 
 ObserverPtr
-CommunicatorObserverI::getConnectObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
+CommunicatorObserverI::getConnectionEstablishmentObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
 {
-    return _connects.getObserver(ConnectHelper(endpt, connector));
+    return _connects.getObserver(EndpointHelper("ConnectionEstablishment", endpt, connector));
 }
 
 ObserverPtr
 CommunicatorObserverI::getEndpointLookupObserver(const Ice::EndpointInfoPtr& endpt, const string& endpoint)
 {
-    return _endpointLookups.getObserver(ConnectHelper(endpt, endpoint));
+    return _endpointLookups.getObserver(EndpointHelper("EndpointLookup", endpt, endpoint));
 }
 
 ConnectionObserverPtr 

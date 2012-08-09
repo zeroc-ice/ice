@@ -293,7 +293,7 @@ local interface CommunicatorObserver
      * transports, this is typically the IP address to connect to.
      *
      **/
-    Observer getConnectObserver(EndpointInfo endpt, string connector);
+    Observer getConnectionEstablishmentObserver(EndpointInfo endpt, string connector);
 
     /**
      *

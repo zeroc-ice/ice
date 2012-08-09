@@ -55,8 +55,8 @@ public:
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
-    virtual Ice::Instrumentation::ObserverPtr getConnectObserver(const Ice::EndpointInfoPtr&, 
-                                                                 const std::string&);
+    virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointInfoPtr&, 
+                                                                                 const std::string&);
  
     virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointInfoPtr&, 
                                                                         const std::string&);

@@ -259,7 +259,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         ObserverPtr observer;
         if(obsv)
         {
-            observer = obsv->getConnectObserver(q->endpoint->getInfo(), q->connector->toString());
+            observer = obsv->getConnectionEstablishmentObserver(q->endpoint->getInfo(), q->connector->toString());
             if(observer)
             {
                 observer->attach();
@@ -1163,7 +1163,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
         const CommunicatorObserverPtr& obsv = _factory->_instance->initializationData().observer;
         if(obsv)
         {
-            _observer = obsv->getConnectObserver(_iter->endpoint->getInfo(), _iter->connector->toString());
+            _observer = obsv->getConnectionEstablishmentObserver(_iter->endpoint->getInfo(), 
+                                                                 _iter->connector->toString());
             if(_observer)
             {
                 _observer->attach();

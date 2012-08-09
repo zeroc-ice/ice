@@ -194,7 +194,7 @@ class InvocationMetrics extends Metrics
      * Remote invocations metrics map.
      *
      **/
-    MetricsMap remote;
+    MetricsMap remotes;
 };
 
 /**

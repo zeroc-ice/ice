@@ -43,9 +43,12 @@ match(const string& value, const string& expr)
 
 }
 
-MetricsMapI::MetricsMapI(const string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject) : 
-    _retain(retain), _accept(accept), _reject(reject)
+MetricsMapI::MetricsMapI(const std::string& mapPrefix, const Ice::PropertiesPtr& properties) :
+    _retain(properties->getPropertyAsIntWithDefault(mapPrefix + ".RetainDetached", 10)),
+    _accept(parseRule(properties, mapPrefix + ".Accept")),
+    _reject(parseRule(properties, mapPrefix + ".Reject"))
 {
+    string groupBy = properties->getPropertyWithDefault(mapPrefix + ".GroupBy", "id");
     if(!groupBy.empty())
     {
         string v;
@@ -87,8 +90,17 @@ MetricsMapI::MetricsMapI(const string& groupBy, int retain, const NameValueDict&
     }
 }
 
+MetricsMapI::MetricsMapI(const MetricsMapI& map) :
+    _groupByAttributes(map._groupByAttributes),
+    _groupBySeparators(map._groupBySeparators),
+    _retain(map._retain),
+    _accept(map._accept),
+    _reject(map._reject)
+{
+}
+
 MetricsMap
-MetricsMapI::getMetrics()
+MetricsMapI::getMetrics() const
 {
     MetricsMap objects;
 
@@ -153,7 +165,7 @@ MetricsMapI::getMatching(const MetricsHelper& helper)
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
     if(p == _objects.end())
     {
-        p = _objects.insert(make_pair(key, newEntry(this, helper.newMetrics(key)))).first;
+        p = _objects.insert(make_pair(key, newEntry(helper.newMetrics(key)))).first;
     }
     return p->second;
 }
@@ -279,7 +291,7 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
     _factories[mapName] = factory;
 
     //
-    // Add maps to views configured with the given map name.
+    // Add maps to views configured with the given map.
     //
     const string viewsPrefix = "IceMX.MetricsView.";
     PropertyDict views = _properties->getPropertiesForPrefix(viewsPrefix);
@@ -302,22 +314,18 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
         
         const string mapsPrefix = viewsPrefix + viewName + ".Map.";
         string mapPrefix = mapsPrefix + mapName;
-        if(_properties->getPropertiesForPrefix(mapPrefix).empty() && 
-           _properties->getPropertiesForPrefix(mapsPrefix).empty())
+        if(_properties->getPropertyAsInt(mapPrefix) == 0 || _properties->getPropertiesForPrefix(mapPrefix).empty())
         {
-            mapPrefix = viewsPrefix + viewName;
+            if(_properties->getPropertiesForPrefix(mapsPrefix).empty())
+            {
+                mapPrefix = viewsPrefix + viewName;
+            }
+            else
+            {
+                continue; // This map isn't configured for this view.
+            }
         }
-        else
-        {
-            continue; // This map isn't configured for this view.
-        }
-
-        string groupBy = _properties->getProperty(mapPrefix + ".GroupBy");
-        int retain = _properties->getPropertyAsIntWithDefault(mapPrefix + ".RetainDetached", 10);
-        NameValueDict accept = parseRule(_properties, mapPrefix + ".Accept");
-        NameValueDict reject = parseRule(_properties, mapPrefix + ".Reject");
-
-        view->add(mapName, factory->create(groupBy, retain, accept, reject));
+        view->add(mapName, factory->create(mapPrefix, _properties));
     }
 }
 
@@ -386,19 +394,20 @@ MetricsAdminI::addMapToView(const string& view,
 {
     UpdaterPtr updater;
     {
-        Lock sync(*this);
-        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-        if(p == _views.end())
-        {
-            p = _views.insert(make_pair(view, new MetricsViewI(true))).first;
-        }
-        p->second->add(mapName, _factories[mapName]->create(groupBy, retain, accept, reject));
+        // TODO: XXX
+        // Lock sync(*this);
+        // map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
+        // if(p == _views.end())
+        // {
+        //     p = _views.insert(make_pair(view, new MetricsViewI(true))).first;
+        // }
+        // p->second->add(mapName, _factories[mapName]->create());
 
-        map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
-        if(q != _updaters.end())
-        {
-            updater = q->second;
-        }
+        // map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
+        // if(q != _updaters.end())
+        // {
+        //     updater = q->second;
+        // }
     }
     if(updater)
     {

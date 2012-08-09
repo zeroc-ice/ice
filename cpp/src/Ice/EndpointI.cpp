@@ -191,7 +191,16 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 vector<ConnectorPtr>
 IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
 {
-    vector<ConnectorPtr> connectors;
+    //
+    // Try to get the addresses without DNS lookup. If this doesn't
+    // work, we retry with DNS lookup (and observer).
+    //
+    vector<struct sockaddr_storage> addrs = getAddresses(host, port, _instance->protocolSupport(), false);
+    if(!addrs.empty())
+    {
+        return endpoint->connectors(addrs);
+    }
+
     ObserverHelperT<> observer;
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
@@ -199,6 +208,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
         observer.attach(obsv->getEndpointLookupObserver(endpoint->getInfo(), endpoint->toString()));
     }
     
+    vector<ConnectorPtr> connectors;
     try 
     {
         connectors = endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), true));

@@ -35,12 +35,6 @@ public:
         return _name;
     }
 
-    const std::string& 
-    getSubMapName() const
-    {
-        return _subName;
-    }
-
 protected:
 
     MetricsHelper(const std::string& name, const std::string& subName) : _name(name), _subName(subName)
@@ -107,6 +101,10 @@ protected:
             typename std::map<std::string, Resolver*>::const_iterator p = _attributes.find(attribute);
             if(p == _attributes.end())
             {
+                if(attribute == "none")
+                {
+                    return "";
+                }
                 return "unknown";
             }
             return (*p->second)(helper);
@@ -276,6 +274,8 @@ private:
     void (T::*_fn)();
 };
 
+class ObserverI;
+
 template<class MetricsType> class ObserverT : virtual public Ice::Instrumentation::Observer
 {
 public:
@@ -345,6 +345,24 @@ public:
                 q = _objects.erase(q);
             }
         }
+    }
+
+    template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
+    getObserver(const MetricsHelperT<ObserverMetricsType>& helper)
+    {
+        std::vector<MetricsMapI::EntryPtr> metricsObjects;
+        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        {
+            MetricsMapI::EntryPtr e = p->second->getMatching(helper.getMapName(), helper);
+            if(e)
+            {
+                metricsObjects.push_back(e);
+            }
+        }
+
+        IceInternal::Handle<ObserverImpl> obsv = new ObserverImpl();
+        obsv->update(helper, metricsObjects);
+        return obsv;
     }
     
 private:
@@ -421,12 +439,35 @@ public:
         public:
 
             virtual MetricsMapIPtr
-            create(const std::string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject)
+            create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
             {
-                return new MetricsMapT<MetricsType>(groupBy, retain, accept, reject);
+                return new MetricsMapI(mapPrefix, properties);
             }
         };
         return new Factory();
+    }
+
+    virtual MetricsMapFactoryPtr
+    newFactory(const std::map<std::string, MetricsMap MetricsType::*>& subMaps)
+    {
+        class Factory : public MetricsMapFactory
+        {
+        public:
+            Factory(std::map<std::string, MetricsMap MetricsType::*> subMaps) : _subMaps(subMaps)
+            {
+            }
+
+            virtual MetricsMapIPtr
+            create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
+            {
+                return new MetricsMapT<MetricsType>(mapPrefix, properties, _subMaps);
+            }
+
+        private:
+
+            std::map<std::string, MetricsMap MetricsType::*> _subMaps;
+        };
+        return new Factory(subMaps);
     }
 
 private:
