@@ -335,20 +335,17 @@ Slice::Gen::generate(const UnitPtr& p)
     C << _base << "." << _headerExtension << ">";
 
 
-    H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/Exception.h>";
     H << "\n#include <Ice/LocalObject.h>";
     H << "\n#include <Ice/StreamTraits.h>";
-
-    if(p->usesProxies())
-    {
-        H << "\n#include <Ice/Proxy.h>";
-    }
+    H << "\n#include <IceUtil/ScopedArray.h>";
+    H << "\n#include <IceUtil/Optional.h>";
 
     if(p->hasNonLocalClassDefs())
     {
+        H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/Object.h>";
         H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/OutgoingAsync.h>";
@@ -362,19 +359,11 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ObjectFactory.h>";
     }
-    else if(p->hasNonLocalClassDecls())
-    {
-
-        H << "\n#include <Ice/Object.h>";
-    }
 
     if(p->hasNonLocalDataOnlyClasses() || p->hasNonLocalExceptions())
     {
         H << "\n#include <Ice/FactoryTableInit.h>";
     }
-    
-    H << "\n#include <IceUtil/ScopedArray.h>";
-    H << "\n#include <IceUtil/Optional.h>";
 
     if(p->usesNonLocals())
     {
@@ -6189,16 +6178,19 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
-    string scoped = fixKwd(p->scoped());
-    H << nl << "template<>";
-    H << nl << "struct StreamTrait< " << scoped << ">";
-    H << sb;
-    H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeEnum;";
-    H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
-    H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << nl << "static const bool isVariableLength = true;";
-    H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeSize;";
-    H << eb << ";" << nl;
+    if(!p->isLocal())
+    {
+        string scoped = fixKwd(p->scoped());
+        H << nl << "template<>";
+        H << nl << "struct StreamTrait< " << scoped << ">";
+        H << sb;
+        H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeEnum;";
+        H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
+        H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
+        H << nl << "static const bool isVariableLength = true;";
+        H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeSize;";
+        H << eb << ";" << nl;
+    }
 }
 
 void

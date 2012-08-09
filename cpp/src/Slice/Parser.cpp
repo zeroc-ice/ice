@@ -5809,29 +5809,6 @@ Slice::Unit::findUsedBy(const ContainedPtr& contained) const
 }
 
 bool
-Slice::Unit::usesProxies() const
-{
-    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
-    {
-        for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-        {
-            ClassDeclPtr decl = ClassDeclPtr::dynamicCast(*q);
-            if(decl && !decl->isLocal())
-            {
-                return true;
-            }
-        }
-    }
-
-    // if(_builtins.find(Builtin::KindObjectProxy) != _builtins.end())
-    // {
-    //     return true;
-    // }
-
-    return false;
-}
-
-bool
 Slice::Unit::usesNonLocals() const
 {
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)

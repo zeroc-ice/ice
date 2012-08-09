@@ -23,4 +23,4 @@ Ice.Admin.InstanceName=client
 
 IceMX.MetricsView.Debug.GroupBy=id
 IceMX.MetricsView.OnParent.GroupBy=parent
-IceMX.MetricsView.PerOperation.Request.GroupBy=operation-mode
+IceMX.MetricsView.PerOperation.Invocation.GroupBy=operation-mode

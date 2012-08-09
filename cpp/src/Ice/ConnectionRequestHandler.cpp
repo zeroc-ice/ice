@@ -61,11 +61,11 @@ ConnectionRequestHandler::sendRequest(Outgoing* out)
 {
     if(!_connection->sendRequest(out, _compress, _response) || _response)
     {
-        return _connection.get(); // The request has been sent or we're expecting a response.
+        return _connection.get(); // The request hasn't been sent or we're expecting a response.
     }
     else
     {
-        return 0; // The request hasn't been sent yet.
+        return 0; // The request has been sent.
     }
 }
 

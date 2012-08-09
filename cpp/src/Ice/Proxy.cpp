@@ -1246,10 +1246,11 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
         {
             ex.ice_throw();
         }
-        
+
+        int interval;
         try
         {
-            return _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, sleep, cnt);
+            interval = _reference->getInstance()->proxyFactory()->checkRetryAfterException(ex, _reference, sleep, cnt);
         }
         catch(const CommunicatorDestroyedException&)
         {
@@ -1258,7 +1259,8 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
             //
             ex.ice_throw();
         }
-        observer.retry();
+        observer.retried();
+        return interval;
     }
     catch(const ::Ice::LocalException& ex)
     {
@@ -1288,7 +1290,7 @@ IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::I
     }
     else
     {
-        observer.retry();
+        observer.retried();
     }
 
     return 0;
@@ -1314,7 +1316,7 @@ IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Hand
                 _delegate = 0;
             }
         }
-        observer.retry();
+        observer.retried();
         return 0;
     }
 }

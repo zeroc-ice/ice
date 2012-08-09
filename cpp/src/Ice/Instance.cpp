@@ -133,7 +133,7 @@ public:
         _instance->serverThreadPool(false)->updateObservers();
         _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
         _instance->endpointHostResolver()->updateObserver();
-        theCollector->updateObserver(_instance->initializationData().observerResolver);
+        theCollector->updateObserver(_instance->initializationData().observer);
     }
 
 private:
@@ -785,12 +785,12 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
 }
 
 void
-IceInternal::Instance::setObserverResolver(const Ice::Instrumentation::ObserverResolverPtr& observerResolver)
+IceInternal::Instance::setObserver(const Ice::Instrumentation::CommunicatorObserverPtr& observer)
 {
     //
     // No locking, as it can only be called during plug-in loading
     //
-    _initData.observerResolver = observerResolver;
+    _initData.observer = observer;
 }
 
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
@@ -1076,7 +1076,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         // Register the metrics admin plugin only if the user didn't already set an
         // Ice observer resovler.
         //
-        if(!_initData.observerResolver)
+        if(!_initData.observer)
         {
             _adminFacets.insert(FacetMap::value_type("MetricsAdmin", new IceMX::MetricsAdminI(_initData)));
         }
@@ -1149,10 +1149,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     //
     // Set observer updater
     //
-    if(_initData.observerResolver)
+    if(_initData.observer)
     {
-        theCollector->updateObserver(_initData.observerResolver);
-        _initData.observerResolver->setObserverUpdater(new ObserverUpdaterI(this));
+        theCollector->updateObserver(_initData.observer);
+        _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
     }
 
     //

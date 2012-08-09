@@ -43,7 +43,7 @@ class ThreadPool : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mute
     {
     public:
         
-        EventHandlerThread(const ThreadPoolPtr&);
+        EventHandlerThread(const ThreadPoolPtr&, const std::string&);
         virtual void run();
 
         void updateObserver();
@@ -97,11 +97,14 @@ private:
     bool followerWait(ThreadPoolCurrent&);
 #endif
 
+    std::string nextThreadId();
+
     const InstancePtr _instance;
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;
     const std::string _prefix;
     Selector _selector;
+    int _nextThreadId;
 
     friend class EventHandlerThread;
     friend class ThreadPoolCurrent;

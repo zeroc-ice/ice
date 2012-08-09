@@ -513,12 +513,12 @@ Ice::ConnectionI::updateObserver()
         _info->adapterName = _adapter ? _adapter->getName() : string();
     }
 
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    assert(resolver);
-    ConnectionObserverPtr obsv = resolver->getConnectionObserver(info,
-                                                                 _endpoint->getInfo(),
-                                                                 connectionStateMap[static_cast<int>(_state)], 
-                                                                 _observer.get() ? _observer->get() : 0);
+    const CommunicatorObserverPtr& comObsv = _instance->initializationData().observer;
+    assert(comObsv);
+    ConnectionObserverPtr obsv = comObsv->getConnectionObserver(info,
+                                                                _endpoint->getInfo(),
+                                                                connectionStateMap[static_cast<int>(_state)], 
+                                                                _observer.get() ? _observer->get() : 0);
     if(obsv)
     {
         if(!_observer.get())
@@ -567,6 +567,7 @@ bool
 Ice::ConnectionI::sendRequest(Outgoing* out, bool compress, bool response)
 {
     BasicStream* os = out->os();
+    out->attachRemoteObserver(this);
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_exception.get())
@@ -2280,18 +2281,18 @@ Ice::ConnectionI::initialize(SocketOperation operation)
         return false;
     }
     
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& comObsv = _instance->initializationData().observer;
+    if(comObsv)
     {
         _info = _transceiver->getInfo();
         _info->connectionId = _endpoint->connectionId();
         _info->incoming = _connector == 0;
         _info->adapterName = _adapter ? _adapter->getName() : string();
 
-        ConnectionObserverPtr obsv = resolver->getConnectionObserver(_info,
-                                                                     _endpoint->getInfo(),
-                                                                     ConnectionStateValidating,
-                                                                     0);
+        ConnectionObserverPtr obsv = comObsv->getConnectionObserver(_info,
+                                                                    _endpoint->getInfo(),
+                                                                    ConnectionStateValidating,
+                                                                    0);
         if(obsv)
         {
             _observer.reset(new Observer(_readStream, _writeStream));

@@ -582,10 +582,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _current.ctx.insert(_current.ctx.end(), pr);
     }
 
-    const ObserverResolverPtr& resolver = _is->instance()->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& obsv = _is->instance()->initializationData().observer;
+    if(obsv)
     {
-        _observer.attach(resolver->getDispatchObserver(_current));
+        _observer.attach(obsv->getDispatchObserver(_current));
     }
 
     //

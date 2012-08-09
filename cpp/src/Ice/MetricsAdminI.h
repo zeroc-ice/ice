@@ -21,6 +21,7 @@ class Updater;
 typedef IceUtil::Handle<Updater> UpdaterPtr;
 
 class MetricsHelper;
+template<typename T> class MetricsHelperT;
 
 typedef std::map<std::string, std::string> NameValueDict;
 
@@ -36,14 +37,15 @@ public:
         {
         }
 
-        template<typename MetricsHelper, typename MetricsPtrType> MetricsPtrType 
-        attach(const MetricsHelper& helper)
+        template<typename MetricsType> IceInternal::Handle<MetricsType>
+        attach(const MetricsHelperT<MetricsType>& helper)
         {
             IceUtil::Mutex::Lock sync(*this);
             ++_object->total;
             ++_object->current;
 
-            MetricsPtrType obj = MetricsPtrType::dynamicCast(_object);
+            IceInternal::Handle<MetricsType> obj = IceInternal::Handle<MetricsType>::dynamicCast(_object);
+            assert(obj);
             helper.initMetrics(obj);
             return obj;
         }
@@ -160,7 +162,7 @@ public:
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
 
-    MetricsMapI::EntryPtr getMatching(const std::string&, const MetricsHelper&) const;
+    MetricsMapI::EntryPtr getMatching(const MetricsHelper&) const;
 
     std::vector<std::string> getMaps() const;
 
@@ -177,7 +179,7 @@ public:
 
     MetricsAdminI(::Ice::InitializationData&);
 
-    std::vector<MetricsMapI::EntryPtr> getMatching(const std::string&, const MetricsHelper&) const;
+    std::vector<MetricsMapI::EntryPtr> getMatching(const MetricsHelper&) const;
     void addUpdater(const std::string&, const UpdaterPtr&);
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);

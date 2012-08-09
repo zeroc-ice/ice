@@ -187,8 +187,13 @@ class InvocationMetrics extends Metrics
      * Number of retries.
      *
      **/
-    int retry;
+    int retry = 0;
 
+    /**
+     *
+     * Remote invocations metrics map.
+     *
+     **/
     MetricsMap remote;
 };
 

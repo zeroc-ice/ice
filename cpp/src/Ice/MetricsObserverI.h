@@ -28,6 +28,29 @@ public:
     virtual std::string operator()(const std::string&) const = 0;
 
     virtual MetricsPtr newMetrics(const std::string&) const = 0;
+
+    const std::string& 
+    getMapName() const 
+    {
+        return _name;
+    }
+
+    const std::string& 
+    getSubMapName() const
+    {
+        return _subName;
+    }
+
+protected:
+
+    MetricsHelper(const std::string& name, const std::string& subName) : _name(name), _subName(subName)
+    {
+    }
+    
+private:
+
+    std::string _name;
+    std::string _subName;
 };
 
 class Updater : public IceUtil::Shared
@@ -37,83 +60,6 @@ public:
     virtual void update() = 0;
 };
 typedef IceUtil::Handle<Updater> UpdaterPtr;
-
-template<class ObjectMetricsType> class ObserverT : virtual public Ice::Instrumentation::Observer
-{
-public:
-
-    typedef ObjectMetricsType Type;
-    typedef IceInternal::Handle<ObjectMetricsType> PtrType;
-    typedef std::vector<std::pair<PtrType, MetricsMapI::EntryPtr> > SeqType;
-
-    ObserverT()
-    {
-    }
-
-    virtual void 
-    attach()
-    {
-        _watch.start();
-    }
-
-    virtual void 
-    detach()
-    {
-        long lifetime = _watch.stop();
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
-        {
-            p->second->detach(lifetime);
-        }
-    }
-
-    virtual void
-    failed(const std::string& exceptionName)
-    {
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
-        {
-            p->second->failed(exceptionName);
-        }
-    }
-
-    template<typename Function> void
-    forEach(Function func)
-    {
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
-        {
-            p->second->execute(func, p->first);
-        }
-    }
-    
-    template<typename MetricsHelper> void
-    update(const MetricsHelper& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
-    {
-        std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin();
-        typename SeqType::iterator q = _objects.begin();
-        while(p != objects.end())
-        {
-            if(q == _objects.end() || *p < q->second) // New metrics object
-            {
-                q = _objects.insert(q, std::make_pair((*p)->attach<MetricsHelper, PtrType>(helper), *p));
-                ++p;
-                ++q;
-            }
-            else if(*p == q->second) // Same metrics object
-            {
-                ++p;
-                ++q;
-            }
-            else // Removed metrics object
-            {
-                q = _objects.erase(q);
-            }
-        }
-    }
-    
-private:
-
-    SeqType _objects;
-    IceUtilInternal::StopWatch _watch;
-};
 
 template<typename T> class MetricsHelperT : public MetricsHelper
 {
@@ -132,6 +78,10 @@ public:
     }
 
 protected:
+
+    MetricsHelperT(const std::string& name, const std::string& subName = std::string()) : MetricsHelper(name, subName)
+    {
+    }
 
     template<typename Helper> class AttributeResolverT
     {
@@ -304,7 +254,6 @@ protected:
 
         std::map<std::string, Resolver*> _attributes;
     };
-
 };
 
 template<typename T> class UpdaterT : public Updater
@@ -327,6 +276,83 @@ private:
     void (T::*_fn)();
 };
 
+template<class MetricsType> class ObserverT : virtual public Ice::Instrumentation::Observer
+{
+public:
+
+    typedef MetricsType Type;
+    typedef IceInternal::Handle<MetricsType> PtrType;
+    typedef std::vector<std::pair<PtrType, MetricsMapI::EntryPtr> > SeqType;
+
+    ObserverT()
+    {
+    }
+
+    virtual void 
+    attach()
+    {
+        _watch.start();
+    }
+
+    virtual void 
+    detach()
+    {
+        long lifetime = _watch.stop();
+        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        {
+            p->second->detach(lifetime);
+        }
+    }
+
+    virtual void
+    failed(const std::string& exceptionName)
+    {
+        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        {
+            p->second->failed(exceptionName);
+        }
+    }
+
+    template<typename Function> void
+    forEach(Function func)
+    {
+        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        {
+            p->second->execute(func, p->first);
+        }
+    }
+    
+    void
+    update(const MetricsHelperT<MetricsType>& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
+    {
+        std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin();
+        typename SeqType::iterator q = _objects.begin();
+        while(p != objects.end())
+        {
+            if(q == _objects.end() || *p < q->second) // New metrics object
+            {
+                q = _objects.insert(q, std::make_pair((*p)->attach(helper), *p));
+                ++p;
+                ++q;
+            }
+            else if(*p == q->second) // Same metrics object
+            {
+                ++p;
+                ++q;
+            }
+            else // Removed metrics object
+            {
+                q = _objects.erase(q);
+            }
+        }
+    }
+    
+private:
+
+    SeqType _objects;
+    IceUtilInternal::StopWatch _watch;
+};
+
 class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
 {
 };
@@ -344,21 +370,20 @@ newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 }
 
 template<typename ObserverImplType> 
-class ObserverResolverT
+class ObserverFactoryT
 {
 public:
 
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
 
-    ObserverResolverT(const std::string& name, const MetricsAdminIPtr& metrics) :
-        _name(name), _metrics(metrics)
+    ObserverFactoryT(const MetricsAdminIPtr& metrics) : _metrics(metrics)
     {
     }
 
     template<typename MetricsHelper> ObserverImplPtrType
     getObserver(const MetricsHelper& helper)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
         if(metricsObjects.empty())
         {
             return 0;
@@ -372,7 +397,7 @@ public:
     template<typename MetricsHelper, typename ObserverPtrType> ObserverImplPtrType
     getObserver(const MetricsHelper& helper, const ObserverPtrType& observer)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
         if(metricsObjects.empty())
         {
             return 0;

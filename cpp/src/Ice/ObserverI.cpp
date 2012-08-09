@@ -106,10 +106,8 @@ public:
     };
     static Attributes attributes;
     
-    ConnectionHelper(const ConnectionInfoPtr& con, 
-                     const EndpointInfoPtr& endpt,
-                     ConnectionState state) : 
-        _connection(con), _endpoint(endpt), _state(state)
+    ConnectionHelper(const ConnectionInfoPtr& con, const EndpointInfoPtr& endpt, ConnectionState state) : 
+        MetricsHelperT("Connection"), _connection(con), _endpoint(endpt), _state(state)
     {
     }
 
@@ -173,32 +171,32 @@ private:
 
 ConnectionHelper::Attributes ConnectionHelper::attributes;
 
-class DispatchRequestHelper : public MetricsHelperT<Metrics>
+class DispatchHelper : public MetricsHelperT<Metrics>
 {
 public:
 
-    class Attributes : public AttributeResolverT<DispatchRequestHelper>
+    class Attributes : public AttributeResolverT<DispatchHelper>
     {
     public:
         
         Attributes()
         {
-            add("parent", &DispatchRequestHelper::getParent);
-            add("id", &DispatchRequestHelper::getId);
+            add("parent", &DispatchHelper::getParent);
+            add("id", &DispatchHelper::getId);
 
-            addConnectionAttributes<DispatchRequestHelper>(*this);
+            addConnectionAttributes<DispatchHelper>(*this);
 
-            add("operation", &DispatchRequestHelper::getCurrent, &Current::operation);
-            add("identityCategory", &DispatchRequestHelper::getIdentity, &Identity::category);
-            add("identityName", &DispatchRequestHelper::getIdentity, &Identity::name);
-            add("facet", &DispatchRequestHelper::getCurrent, &Current::facet);
-            add("encoding", &DispatchRequestHelper::getCurrent, &Current::encoding);
-            add("mode", &DispatchRequestHelper::getMode);
+            add("operation", &DispatchHelper::getCurrent, &Current::operation);
+            add("identityCategory", &DispatchHelper::getIdentity, &Identity::category);
+            add("identityName", &DispatchHelper::getIdentity, &Identity::name);
+            add("facet", &DispatchHelper::getCurrent, &Current::facet);
+            add("encoding", &DispatchHelper::getCurrent, &Current::encoding);
+            add("mode", &DispatchHelper::getMode);
         }
     };
     static Attributes attributes;
     
-    DispatchRequestHelper(const Current& current) : _current(current)
+    DispatchHelper(const Current& current) : MetricsHelperT("Dispatch"), _current(current)
     {
     }
 
@@ -272,9 +270,9 @@ private:
     const Current& _current;
 };
 
-DispatchRequestHelper::Attributes DispatchRequestHelper::attributes;
+DispatchHelper::Attributes DispatchHelper::attributes;
 
-class InvocationHelper : public MetricsHelperT<Metrics>
+class InvocationHelper : public MetricsHelperT<InvocationMetrics>
 {
 public:
 
@@ -298,7 +296,7 @@ public:
     static Attributes attributes;
     
     InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = Ice::Context()) :
-        _proxy(proxy), _operation(op), _context(ctx)
+        MetricsHelperT("Invocation"), _proxy(proxy), _operation(op), _context(ctx)
     {
     }
 
@@ -406,7 +404,7 @@ public:
     static Attributes attributes;
     
     ThreadHelper(const string& parent, const string& id, ThreadState state) :
-        _parent(parent), _id(id), _state(state)
+        MetricsHelperT("Thread"), _parent(parent), _id(id), _state(state)
     {
     }
 
@@ -449,7 +447,7 @@ public:
     };
     static Attributes attributes;
     
-    ConnectHelper(const EndpointInfoPtr& endpt, const string& id) : _id(id), _endpoint(endpt)
+    ConnectHelper(const EndpointInfoPtr& endpt, const string& id) : MetricsHelperT("Connect"), _id(id), _endpoint(endpt)
     {
     }
 
@@ -550,6 +548,10 @@ ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
     forEach(StateChanged(oldState, newState));
 }
 
+InvocationObserverI::InvocationObserverI()
+{
+}
+
 void
 InvocationObserverI::retried()
 {
@@ -557,75 +559,75 @@ InvocationObserverI::retried()
 }
 
 ObserverPtr
-InvocationObserverI::getRemoteInvocationObserver(const Ice::ConnectionPtr&)
+InvocationObserverI::getRemoteObserver(const Ice::ConnectionPtr&)
 {
     return 0;
 }
 
-ObserverResolverI::ObserverResolverI(const MetricsAdminIPtr& metrics) : 
+CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) : 
     _metrics(metrics),
-    _connections("Connection", metrics),
-    _dispatch("Dispatch", metrics),
-    _invocations("Invocation", metrics),
-    _threads("Thread", metrics),
-    _connects("Connect", metrics),
-    _endpointResolves("EndpointResolve", metrics)
+    _connections(metrics),
+    _dispatch(metrics),
+    _invocations(metrics),
+    _threads(metrics),
+    _connects(metrics),
+    _endpointLookups(metrics)
 {
 }
 
 void
-ObserverResolverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
+CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 {
     _metrics->addUpdater("Connection", newUpdater(updater, &ObserverUpdater::updateConnectionObservers));
     _metrics->addUpdater("Thread", newUpdater(updater, &ObserverUpdater::updateThreadObservers));
 }
 
-Ice::Instrumentation::ObserverPtr
-ObserverResolverI::getConnectObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
+ObserverPtr
+CommunicatorObserverI::getConnectObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
 {
     return _connects.getObserver(ConnectHelper(endpt, connector));
 }
 
-Ice::Instrumentation::ObserverPtr
-ObserverResolverI::getEndpointResolveObserver(const Ice::EndpointInfoPtr& endpt, const string& endpoint)
+ObserverPtr
+CommunicatorObserverI::getEndpointLookupObserver(const Ice::EndpointInfoPtr& endpt, const string& endpoint)
 {
-    return _endpointResolves.getObserver(ConnectHelper(endpt, endpoint));
+    return _endpointLookups.getObserver(ConnectHelper(endpt, endpoint));
 }
 
 ConnectionObserverPtr 
-ObserverResolverI::getConnectionObserver(const ConnectionInfoPtr& con, 
-                                         const EndpointInfoPtr& endpt,
-                                         ConnectionState state, 
-                                         const ConnectionObserverPtr& observer)
+CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con, 
+                                             const EndpointInfoPtr& endpt,
+                                             ConnectionState state, 
+                                             const ConnectionObserverPtr& observer)
 {
     return _connections.getObserver(ConnectionHelper(con, endpt, state), observer);
 }
 
 ThreadObserverPtr 
-ObserverResolverI::getThreadObserver(const string& parent, 
-                                     const string& id,
-                                     Ice::Instrumentation::ThreadState state,
-                                     const Ice::Instrumentation::ThreadObserverPtr& observer)
+CommunicatorObserverI::getThreadObserver(const string& parent, 
+                                         const string& id,
+                                         ThreadState state,
+                                         const ThreadObserverPtr& observer)
 {
     return _threads.getObserver(ThreadHelper(parent, id, state), observer);
 }
 
 InvocationObserverPtr 
-ObserverResolverI::getInvocationObserver(const ObjectPrx& proxy, const string& op)
+CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const string& op)
 {
     return _invocations.getObserver(InvocationHelper(proxy, op));
 }
 
 InvocationObserverPtr 
-ObserverResolverI::getInvocationObserverWithContext(const ObjectPrx& proxy, 
-                                                    const string& op, 
-                                                    const Context& ctx)
+CommunicatorObserverI::getInvocationObserverWithContext(const ObjectPrx& proxy, 
+                                                        const string& op, 
+                                                        const Context& ctx)
 {
     return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
 }
 
 ObserverPtr 
-ObserverResolverI::getDispatchObserver(const Current& current)
+CommunicatorObserverI::getDispatchObserver(const Current& current)
 {
-    return _dispatch.getObserver(DispatchRequestHelper(current));
+    return _dispatch.getObserver(DispatchHelper(current));
 }

@@ -377,6 +377,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _destroyed(false),
     _prefix(prefix),
     _selector(instance),
+    _nextThreadId(0),
     _size(0),
     _sizeIO(0),
     _sizeMax(0),
@@ -499,7 +500,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     {
         for(int i = 0 ; i < _size ; ++i)
         {
-            EventHandlerThreadPtr thread = new EventHandlerThread(this);
+            EventHandlerThreadPtr thread = new EventHandlerThread(this, nextThreadId());
             if(_hasPriority)
             {
                 thread->start(_stackSize, _priority);
@@ -931,7 +932,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
             
                 try
                 {
-                    EventHandlerThreadPtr thread = new EventHandlerThread(this);
+                    EventHandlerThreadPtr thread = new EventHandlerThread(this, nextThreadId());
                     if(_hasPriority)
                     {
                         thread->start(_stackSize, _priority);
@@ -1106,8 +1107,16 @@ IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current)
 }
 #endif
 
-IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool) :
-    IceUtil::Thread(pool->_prefix + " thread"),
+string
+IceInternal::ThreadPool::nextThreadId()
+{
+    ostringstream os;
+    os << _prefix << "-" << _nextThreadId++; 
+    return os.str();
+}
+
+IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name) :
+    IceUtil::Thread(name),
     _pool(pool),
     _state(Ice::Instrumentation::ThreadStateIdle)
 {
@@ -1117,12 +1126,10 @@ IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPool
 void
 IceInternal::ThreadPool::EventHandlerThread::updateObserver()
 {
-    const ObserverResolverPtr& resolver = _pool->_instance->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& obsv = _pool->_instance->initializationData().observer;
+    if(obsv)
     {
-        ostringstream os;
-        os << _pool->_prefix << '-' << this;
-        _observer.attach(resolver->getThreadObserver(_pool->_prefix, os.str(), _state, _observer.get()));
+        _observer.attach(obsv->getThreadObserver(_pool->_prefix, name(), _state, _observer.get()));
     }
 }
 

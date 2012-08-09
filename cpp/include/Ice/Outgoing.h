@@ -138,6 +138,11 @@ public:
 
     void throwUserException();
 
+    void attachRemoteObserver(const Ice::ConnectionPtr& connection)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection));
+    }
+
 private:
 
     //
@@ -146,7 +151,8 @@ private:
     //
     RequestHandler* _handler;
     InvocationObserver& _observer;
-
+    ObserverHelperT<> _remoteObserver;
+    
     std::auto_ptr<Ice::LocalException> _exception;
 
     enum

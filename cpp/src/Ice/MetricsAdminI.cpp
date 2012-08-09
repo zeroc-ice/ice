@@ -240,11 +240,11 @@ MetricsViewI::getFailures(const string& mapName)
 }
 
 MetricsMapI::EntryPtr
-MetricsViewI::getMatching(const string& mapName, const MetricsHelper& helper) const
+MetricsViewI::getMatching(const MetricsHelper& helper) const
 {
     if(_enabled)
     {
-        map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+        map<string, MetricsMapIPtr>::const_iterator p = _maps.find(helper.getMapName());
         if(p != _maps.end())
         {
             return p->second->getMatching(helper);
@@ -272,16 +272,17 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
     defaultMaps.push_back("Connection");
     defaultMaps.push_back("Thread");
     defaultMaps.push_back("Request");
-    defaultMaps.push_back("LocatorQuery");
+    defaultMaps.push_back("Dispatch");
+    defaultMaps.push_back("Invocation");
     defaultMaps.push_back("Connect");
-    defaultMaps.push_back("EndpointResolve");
+    defaultMaps.push_back("EndpointLookups");
     
     PropertiesPtr properties = initData.properties;
 
     __setNoDelete(true);
 
-    assert(!initData.observerResolver);
-    initData.observerResolver = new ObserverResolverI(this);
+    assert(!initData.observer);
+    initData.observer = new CommunicatorObserverI(this);
 
     PropertyDict views = properties->getPropertiesForPrefix(viewsPrefix);
     for(PropertyDict::const_iterator p = views.begin(); p != views.end(); ++p)
@@ -350,13 +351,13 @@ MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
 }
 
 vector<MetricsMapI::EntryPtr>
-MetricsAdminI::getMatching(const string& mapName, const MetricsHelper& helper) const
+MetricsAdminI::getMatching(const MetricsHelper& helper) const
 {
     Lock sync(*this);
     vector<MetricsMapI::EntryPtr> objects;
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
+        MetricsMapI::EntryPtr e = p->second->getMatching(helper);
         if(e)
         {
             objects.push_back(e);

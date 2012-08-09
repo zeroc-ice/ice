@@ -28,30 +28,39 @@ public:
 
 class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, public ObserverT<ThreadMetrics>
 {
+public:
+
     virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
 };
 
 class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, public ObserverT<InvocationMetrics>
 {
+public:
+
+    InvocationObserverI();
+
     virtual void retried();
 
-    virtual Ice::Instrumentation::ObserverPtr getRemoteInvocationObserver(const Ice::ConnectionPtr&);
+    virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionPtr&);
+
+private:
+
 };
 
-class ObserverResolverI : public Ice::Instrumentation::ObserverResolver
+class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
-    ObserverResolverI(const MetricsAdminIPtr&);
+    CommunicatorObserverI(const MetricsAdminIPtr&);
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
     virtual Ice::Instrumentation::ObserverPtr getConnectObserver(const Ice::EndpointInfoPtr&, 
                                                                  const std::string&);
  
-    virtual Ice::Instrumentation::ObserverPtr getEndpointResolveObserver(const Ice::EndpointInfoPtr&, 
-                                                                         const std::string&);
- 
+    virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointInfoPtr&, 
+                                                                        const std::string&);
+    
     virtual Ice::Instrumentation::ConnectionObserverPtr 
     getConnectionObserver(const Ice::ConnectionInfoPtr&, 
                           const Ice::EndpointInfoPtr&,
@@ -75,13 +84,12 @@ private:
 
     const MetricsAdminIPtr _metrics;
 
-    ObserverResolverT<ConnectionObserverI> _connections;
-    ObserverResolverT<ObserverI> _dispatch;
-    ObserverResolverT<InvocationObserverI> _invocations;
-    ObserverResolverT<ThreadObserverI> _threads;
-    ObserverResolverT<ObserverI> _connects;
-    ObserverResolverT<ObserverI>  _endpointResolves;
-
+    ObserverFactoryT<ConnectionObserverI> _connections;
+    ObserverFactoryT<ObserverI> _dispatch;
+    ObserverFactoryT<InvocationObserverI> _invocations;
+    ObserverFactoryT<ThreadObserverI> _threads;
+    ObserverFactoryT<ObserverI> _connects;
+    ObserverFactoryT<ObserverI>  _endpointLookups;
 };
 
 };

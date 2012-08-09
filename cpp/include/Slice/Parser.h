@@ -1019,7 +1019,6 @@ public:
     ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
     ContainedList findUsedBy(const ContainedPtr&) const;
 
-    bool usesProxies() const;
     bool usesNonLocals() const;
     bool usesConsts() const;
 

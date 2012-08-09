@@ -17,27 +17,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void
-ObserverHelper::attach(const Ice::Instrumentation::ObserverPtr& observer)
-{
-    observer->attach();
-}
-
-void
-ObserverHelper::detach(const Ice::Instrumentation::ObserverPtr& observer)
-{
-    observer->attach();
-}
-
-void
-ObserverHelper::failed(const Ice::Instrumentation::ObserverPtr& observer, const std::string& exceptionName)
-{
-    observer->failed(exceptionName);
-}
-
 InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& operation, const Context* context)
 {
-    if(proxy->__reference()->getInstance()->initializationData().observerResolver)
+    if(proxy->__reference()->getInstance()->initializationData().observer)
     {
         attach(proxy, operation, context);
     }
@@ -50,23 +32,17 @@ InvocationObserver::InvocationObserver()
 void
 InvocationObserver::attach(IceProxy::Ice::Object* proxy, const string& operation, const Context* context)
 {
-    const Ice::Instrumentation::ObserverResolverPtr& resolver =
-        proxy->__reference()->getInstance()->initializationData().observerResolver;
-    if(resolver)
+    const Ice::Instrumentation::CommunicatorObserverPtr& obsv = 
+        proxy->__reference()->getInstance()->initializationData().observer;
+    if(obsv)
     {
         if(context)
         {
-            ObserverHelperT::attach(resolver->getInvocationObserverWithContext(proxy, operation, *context));
+            ObserverHelperT::attach(obsv->getInvocationObserverWithContext(proxy, operation, *context));
         }
         else
         {
-            ObserverHelperT::attach(resolver->getInvocationObserver(proxy, operation));
+            ObserverHelperT::attach(obsv->getInvocationObserver(proxy, operation));
         }
     }
-}
-
-void
-InvocationObserver::retryImpl()
-{
-    _observer->retried();
 }

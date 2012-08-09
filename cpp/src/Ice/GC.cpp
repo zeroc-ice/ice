@@ -390,9 +390,9 @@ IceInternal::GC::collectGarbage()
 }
 
 void
-IceInternal::GC::updateObserver(const ObserverResolverPtr& resolver)
+IceInternal::GC::updateObserver(const CommunicatorObserverPtr& observer)
 {
     Monitor<Mutex>::Lock sync(*this);
-    assert(resolver);
-    _observer.attach(resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+    assert(observer);
+    _observer.attach(observer->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
 }

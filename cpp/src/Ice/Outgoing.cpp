@@ -357,6 +357,11 @@ IceInternal::Outgoing::sent(bool notify)
         //
         _sent = true;
     }
+
+    if(_handler->getReference()->getMode() != Reference::ModeTwoway)
+    {
+        _remoteObserver.detach();
+    }
 }
 
 void
@@ -367,6 +372,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
     assert(_handler->getReference()->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
+    _remoteObserver.detach();
 
     _is.swap(is);
     Byte replyStatus;
@@ -518,6 +524,8 @@ IceInternal::Outgoing::finished(const LocalException& ex, bool sent)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(_state <= StateInProgress);
+    _remoteObserver.detach();
+
     _state = StateFailed;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
     _sent = sent;

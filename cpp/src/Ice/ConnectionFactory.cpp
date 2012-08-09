@@ -252,14 +252,14 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
     // Try to establish the connection to the connectors.
     //
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
+    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     vector<ConnectorInfo>::const_iterator q;
     for(q = connectors.begin(); q != connectors.end(); ++q)
     {
         ObserverPtr observer;
-        if(resolver)
+        if(obsv)
         {
-            observer = resolver->getConnectObserver(q->endpoint->getInfo(), q->connector->toString());
+            observer = obsv->getConnectObserver(q->endpoint->getInfo(), q->connector->toString());
             if(observer)
             {
                 observer->attach();
@@ -1160,10 +1160,10 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
     try
     {
 
-        const ObserverResolverPtr& resolver = _factory->_instance->initializationData().observerResolver;
-        if(resolver)
+        const CommunicatorObserverPtr& obsv = _factory->_instance->initializationData().observer;
+        if(obsv)
         {
-            _observer = resolver->getConnectObserver(_iter->endpoint->getInfo(), _iter->connector->toString());
+            _observer = obsv->getConnectObserver(_iter->endpoint->getInfo(), _iter->connector->toString());
             if(_observer)
             {
                 _observer->attach();

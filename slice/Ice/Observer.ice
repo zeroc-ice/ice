@@ -61,7 +61,7 @@ local interface Observer
  * states of Ice threads.
  *
  **/ 
-enum ThreadState
+local enum ThreadState
 {
     /**
      *
@@ -123,7 +123,7 @@ local interface ThreadObserver extends Observer
  * The state of an Ice connection.
  *
  **/ 
-enum ConnectionState
+local enum ConnectionState
 {
     /**
      *
@@ -222,10 +222,10 @@ local interface InvocationObserver extends Observer
 
     /**
      *
-     * Get a connection invocation observer for this invocation.
+     * Get a remote observer for this invocation.
      *
      **/
-    Observer getRemoteInvocationObserver(Ice::Connection con);
+    Observer getRemoteObserver(Ice::Connection con);
 };
 
 /**
@@ -271,15 +271,15 @@ local interface ObserverUpdater
 
 /**
  *
- * The observer resolver interface used by the Ice runtime to obtain
- * and update observers for its observeable objects. This interface
- * should be implemented by add-ins that wish to observe Ice objects
- * in order to collect statistics. An instance of this interface can
- * be provided to the Ice runtime through the Ice communicator
- * initialization data.
+ * The communicator observer interface used by the Ice runtime to
+ * obtain and update observers for its observeable objects. This
+ * interface should be implemented by add-ins that wish to observe Ice
+ * objects in order to collect statistics. An instance of this
+ * interface can be provided to the Ice runtime through the Ice
+ * communicator initialization data.
  *
  **/
-local interface ObserverResolver
+local interface CommunicatorObserver
 {
     /**
      *
@@ -307,7 +307,7 @@ local interface ObserverResolver
      * @param endpt The endpoint information.
      *
      **/
-    Observer getEndpointResolveObserver(EndpointInfo endpt, string endpoint);
+    Observer getEndpointLookupObserver(EndpointInfo endpt, string endpoint);
 
     /**
      * 

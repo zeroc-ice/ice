@@ -16,16 +16,7 @@
 namespace IceInternal
 {
 
-class ObserverHelper : public IceUtil::noncopyable
-{
-protected:
-
-    void attach(const Ice::Instrumentation::ObserverPtr&);
-    void detach(const Ice::Instrumentation::ObserverPtr&);
-    void failed(const Ice::Instrumentation::ObserverPtr&, const std::string&);
-};
-
-template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT : public ObserverHelper
+template<typename T = Ice::Instrumentation::Observer> class ObserverHelperT
 {
 public:
 
@@ -39,7 +30,7 @@ public:
     {
         if(_observer)
         {
-            ObserverHelper::detach(_observer);
+            _observer->detach();
         }
     }
 
@@ -58,12 +49,12 @@ public:
     {
         if(_observer)
         {
-            ObserverHelper::detach(_observer);
+            _observer->detach();
         }
         _observer = o;
         if(_observer)
         {
-            ObserverHelper::attach(_observer);
+            _observer->attach();
         }
     }
 
@@ -82,7 +73,7 @@ public:
     {
         if(_observer)
         {
-            ObserverHelper::detach(_observer);
+            _observer->detach();
             _observer = 0;
         }
     }
@@ -91,7 +82,7 @@ public:
     {
         if(_observer)
         {
-            ObserverHelper::failed(_observer, reason);
+            _observer->failed(reason);
         }
     }
 
@@ -109,17 +100,23 @@ public:
 
     void attach(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
 
-    void retry()
+    void retried()
     {
         if(_observer)
         {
-            InvocationObserver::retryImpl();
+            _observer->retried();
         }
     }
 
-private:
-
-    void retryImpl();
+    ::Ice::Instrumentation::ObserverPtr
+    getRemoteObserver(const Ice::ConnectionPtr& con)
+    {
+        if(_observer)
+        {
+            return _observer->getRemoteObserver(con);
+        }
+        return 0;
+    }
 };
 
 }

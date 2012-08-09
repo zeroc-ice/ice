@@ -36,7 +36,7 @@ public:
     virtual void run();
     void stop();
     void collectGarbage();
-    void updateObserver(const Ice::Instrumentation::ObserverResolverPtr&);
+    void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
 

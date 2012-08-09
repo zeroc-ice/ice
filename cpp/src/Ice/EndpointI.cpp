@@ -193,10 +193,10 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
 {
     vector<ConnectorPtr> connectors;
     ObserverHelperT<> observer;
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    if(obsv)
     {
-        observer.attach(resolver->getEndpointResolveObserver(endpoint->getInfo(), endpoint->toString()));
+        observer.attach(obsv->getEndpointLookupObserver(endpoint->getInfo(), endpoint->toString()));
     }
     
     try 
@@ -242,10 +242,10 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     entry.endpoint = endpoint;
     entry.callback = callback;
 
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    if(obsv)
     {
-        entry.observer = resolver->getEndpointResolveObserver(endpoint->getInfo(), endpoint->toString());
+        entry.observer = obsv->getEndpointLookupObserver(endpoint->getInfo(), endpoint->toString());
         if(entry.observer)
         {
             entry.observer->attach();
@@ -337,10 +337,10 @@ void
 IceInternal::EndpointHostResolver::updateObserver()
 {
     Lock sync(*this);
-    const ObserverResolverPtr& resolver = _instance->initializationData().observerResolver;
-    if(resolver)
+    const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
+    if(obsv)
     {
-        _observer.attach(resolver->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+        _observer.attach(obsv->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
     }
 }
 
