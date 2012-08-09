@@ -42,11 +42,7 @@ IceUtil::Cond::broadcast()
 
 IceUtilInternal::Semaphore::Semaphore(long initial)
 {
-#ifndef ICE_OS_WINRT
     _sem = CreateSemaphore(0, initial, 0x7fffffff, 0);
-#else
-    _sem = CreateSemaphoreExW(0, initial, 0x7fffffff, 0, 0, SEMAPHORE_ALL_ACCESS);
-#endif
     if(_sem == INVALID_HANDLE_VALUE)
     {
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -61,11 +57,7 @@ IceUtilInternal::Semaphore::~Semaphore()
 void
 IceUtilInternal::Semaphore::wait() const
 {
-#ifndef ICE_OS_WINRT
     DWORD rc = WaitForSingleObject(_sem, INFINITE);
-#else
-    DWORD rc = WaitForSingleObjectEx(_sem, INFINITE, true);
-#endif
     if(rc != WAIT_OBJECT_0)
     {
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -81,11 +73,7 @@ IceUtilInternal::Semaphore::timedWait(const IceUtil::Time& timeout) const
         throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
     } 
 
-#ifndef ICE_OS_WINRT
     DWORD rc = WaitForSingleObject(_sem, static_cast<DWORD>(msTimeout));
-#else
-    DWORD rc = WaitForSingleObjectEx(_sem, static_cast<DWORD>(msTimeout), true);
-#endif
     if(rc != WAIT_TIMEOUT && rc != WAIT_OBJECT_0)
     {
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
