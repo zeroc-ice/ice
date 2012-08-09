@@ -37,46 +37,22 @@ public:
         {
         }
 
-        template<typename MetricsType> IceInternal::Handle<MetricsType>
-        attach(const MetricsHelperT<MetricsType>& helper)
+        template<typename T> IceInternal::Handle<T>
+        attach(const MetricsHelperT<T>& helper)
         {
             IceUtil::Mutex::Lock sync(*this);
             ++_object->total;
             ++_object->current;
-
-            IceInternal::Handle<MetricsType> obj = IceInternal::Handle<MetricsType>::dynamicCast(_object);
+            IceInternal::Handle<T> obj = IceInternal::Handle<T>::dynamicCast(_object);
             assert(obj);
             helper.initMetrics(obj);
             return obj;
-        }
-        
-        void detach(long lifetime)
-        {
-            bool detached = false;
-            {
-                IceUtil::Mutex::Lock sync(*this);
-                detached = --_object->current == 0;
-
-                _object->totalLifetime += lifetime;
-            }
-            if(detached)
-            {
-                _map->detached(this);
-            }
         }
 
         void failed(const std::string& exceptionName)
         {
             IceUtil::Mutex::Lock sync(*this);
             ++_failures[exceptionName];
-        }
-
-        MetricsPtr
-        clone() const
-        {
-            IceUtil::Mutex::Lock sync(*this);
-            // TODO: Fix ice_clone to use a co-variant type.
-            return dynamic_cast<Metrics*>(_object->ice_clone().get());
         }
 
         MetricsFailures
@@ -96,6 +72,28 @@ public:
         {
             IceUtil::Mutex::Lock sync(*this);
             func(obj);
+        }
+        
+        void detach(long lifetime)
+        {
+            bool detached = false;
+            {
+                IceUtil::Mutex::Lock sync(*this);
+                detached = --_object->current == 0;
+                _object->totalLifetime += lifetime;
+            }
+            if(detached)
+            {
+                _map->detached(this);
+            }
+        }
+
+        MetricsPtr
+        clone() const
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            // TODO: Fix ice_clone to use a co-variant type.
+            return dynamic_cast<Metrics*>(_object->ice_clone().get());
         }
 
         const std::string& id() const
@@ -119,10 +117,13 @@ public:
 
     MetricsMapI(const std::string&, int, const NameValueDict&, const NameValueDict&);
 
-    MetricsMap getMetrics();
     MetricsFailuresSeq getFailures();
-
+    MetricsMap getMetrics();
     EntryPtr getMatching(const MetricsHelper&);
+
+protected:
+
+    virtual EntryPtr newEntry(MetricsMapI*, const MetricsPtr& object) = 0;
 
 private:
 
@@ -140,11 +141,50 @@ private:
 };
 typedef IceUtil::Handle<MetricsMapI> MetricsMapIPtr;
 
+class MetricsMapFactory : public IceUtil::Shared
+{
+public:
+
+    virtual MetricsMapIPtr create(const std::string&, int, const NameValueDict&, const NameValueDict&) = 0;
+};
+typedef IceUtil::Handle<MetricsMapFactory> MetricsMapFactoryPtr;
+
+template<class MetricsType> class MetricsMapT : public MetricsMapI
+{
+public:
+
+    typedef MetricsType T;
+    typedef IceInternal::Handle<MetricsType> TPtr;
+
+    class EntryT : public MetricsMapI::Entry
+    {
+    public:
+
+        EntryT(MetricsMapI* map, const TPtr& object) : Entry(map, object)
+        {
+        }
+
+    };
+    typedef IceUtil::Handle<EntryT> EntryTPtr;
+
+    MetricsMapT(const std::string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject) :
+        MetricsMapI(groupBy, retain, accept, reject)
+    {
+    }
+
+protected:
+
+    virtual EntryPtr newEntry(MetricsMapI* map, const MetricsPtr& object)
+    {
+        return new EntryT(map, TPtr::dynamicCast(object));
+    }
+};
+
 class MetricsViewI : public IceUtil::Shared
 {
 public:
     
-    MetricsViewI();
+    MetricsViewI(bool);
 
     void setEnabled(bool enabled)
     {
@@ -156,7 +196,7 @@ public:
         return _enabled;
     }
 
-    void add(const std::string&, const std::string&, int, const NameValueDict&, const NameValueDict&);
+    void add(const std::string&, const MetricsMapIPtr&);
     void remove(const std::string&);
 
     MetricsView getMetrics();
@@ -177,10 +217,12 @@ class MetricsAdminI : public MetricsAdmin, public IceUtil::Mutex
 {
 public:
 
-    MetricsAdminI(::Ice::InitializationData&);
+    MetricsAdminI(const ::Ice::PropertiesPtr&);
 
     std::vector<MetricsMapI::EntryPtr> getMatching(const MetricsHelper&) const;
+
     void addUpdater(const std::string&, const UpdaterPtr&);
+    void addFactory(const std::string&, const MetricsMapFactoryPtr&);
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
     virtual MetricsView getMetricsView(const std::string&, const ::Ice::Current&);
@@ -197,6 +239,9 @@ private:
 
     std::map<std::string, MetricsViewIPtr> _views;
     std::map<std::string, UpdaterPtr> _updaters;
+    std::map<std::string, MetricsMapFactoryPtr> _factories;
+
+    Ice::PropertiesPtr _properties;
 };
 typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 

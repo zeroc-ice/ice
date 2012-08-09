@@ -39,6 +39,7 @@
 #include <Ice/Observer.h>
 #include <Ice/GC.h>
 #include <Ice/MetricsAdminI.h>
+#include <Ice/ObserverI.h>
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
@@ -130,7 +131,11 @@ public:
     void updateThreadObservers()
     {
         _instance->clientThreadPool()->updateObservers();
-        _instance->serverThreadPool(false)->updateObservers();
+        ThreadPoolPtr serverThreadPool = _instance->serverThreadPool(false);
+        if(serverThreadPool)
+        {
+            serverThreadPool->updateObservers();
+        }
         _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
         _instance->endpointHostResolver()->updateObserver();
         theCollector->updateObserver(_instance->initializationData().observer);
@@ -1078,7 +1083,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         //
         if(!_initData.observer)
         {
-            _adminFacets.insert(FacetMap::value_type("MetricsAdmin", new IceMX::MetricsAdminI(_initData)));
+            IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties);
+            _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
+            _initData.observer = new IceMX::CommunicatorObserverI(admin);
         }
 
         __setNoDelete(false);

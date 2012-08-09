@@ -375,13 +375,14 @@ class ObserverFactoryT
 public:
 
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
+    typedef typename ObserverImplType::Type MetricsType;
 
     ObserverFactoryT(const MetricsAdminIPtr& metrics) : _metrics(metrics)
     {
     }
 
-    template<typename MetricsHelper> ObserverImplPtrType
-    getObserver(const MetricsHelper& helper)
+    ObserverImplPtrType
+    getObserver(const MetricsHelperT<MetricsType>& helper)
     {
         std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
         if(metricsObjects.empty())
@@ -394,8 +395,8 @@ public:
         return obsv;
     }
 
-    template<typename MetricsHelper, typename ObserverPtrType> ObserverImplPtrType
-    getObserver(const MetricsHelper& helper, const ObserverPtrType& observer)
+    template<typename ObserverPtrType> ObserverImplPtrType
+    getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
         std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
         if(metricsObjects.empty())
@@ -410,6 +411,22 @@ public:
         }
         obsv->update(helper, metricsObjects);
         return obsv;
+    }
+
+    virtual MetricsMapFactoryPtr
+    newFactory()
+    {
+        class Factory : public MetricsMapFactory
+        {
+        public:
+
+            virtual MetricsMapIPtr
+            create(const std::string& groupBy, int retain, const NameValueDict& accept, const NameValueDict& reject)
+            {
+                return new MetricsMapT<MetricsType>(groupBy, retain, accept, reject);
+            }
+        };
+        return new Factory();
     }
 
 private:

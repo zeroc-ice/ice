@@ -573,6 +573,12 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
     _connects(metrics),
     _endpointLookups(metrics)
 {
+    metrics->addFactory("Connection", _connections.newFactory());
+    metrics->addFactory("Thread", _threads.newFactory());
+    metrics->addFactory("Dispatch", _dispatch.newFactory());
+    metrics->addFactory("Invocation", _invocations.newFactory());
+    metrics->addFactory("Connect", _connects.newFactory());
+    metrics->addFactory("EndpointLookups", _endpointLookups.newFactory());
 }
 
 void

@@ -153,7 +153,7 @@ MetricsMapI::getMatching(const MetricsHelper& helper)
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
     if(p == _objects.end())
     {
-        p = _objects.insert(make_pair(key, new Entry(this, helper.newMetrics(key)))).first;
+        p = _objects.insert(make_pair(key, newEntry(this, helper.newMetrics(key)))).first;
     }
     return p->second;
 }
@@ -197,15 +197,14 @@ MetricsMapI::detached(Entry* entry)
     _detachedQueue.push_back(entry);
 }
     
-MetricsViewI::MetricsViewI()
+MetricsViewI::MetricsViewI(bool enabled) : _enabled(enabled)
 {
 }
 
 void
-MetricsViewI::add(const string& name, const string& groupBy, int retain, const NameValueDict& accept, 
-                  const NameValueDict& reject)
+MetricsViewI::add(const string& name, const MetricsMapIPtr& map)
 {
-    _maps.insert(make_pair(name, new MetricsMapI(groupBy, retain, accept, reject)));
+    _maps.insert(make_pair(name, map));
 }
 
 void
@@ -264,27 +263,26 @@ MetricsViewI::getMaps() const
     return maps;
 }
 
-MetricsAdminI::MetricsAdminI(InitializationData& initData)
+MetricsAdminI::MetricsAdminI(const Ice::PropertiesPtr& properties) : _properties(properties)
 {
+}
+
+void
+MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
+{
+    _updaters.insert(make_pair(mapName, updater));
+}
+
+void
+MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& factory)
+{
+    _factories[mapName] = factory;
+
+    //
+    // Add maps to views configured with the given map name.
+    //
     const string viewsPrefix = "IceMX.MetricsView.";
-    
-    vector<string> defaultMaps;
-    defaultMaps.push_back("Connection");
-    defaultMaps.push_back("Thread");
-    defaultMaps.push_back("Request");
-    defaultMaps.push_back("Dispatch");
-    defaultMaps.push_back("Invocation");
-    defaultMaps.push_back("Connect");
-    defaultMaps.push_back("EndpointLookups");
-    
-    PropertiesPtr properties = initData.properties;
-
-    __setNoDelete(true);
-
-    assert(!initData.observer);
-    initData.observer = new CommunicatorObserverI(this);
-
-    PropertyDict views = properties->getPropertiesForPrefix(viewsPrefix);
+    PropertyDict views = _properties->getPropertiesForPrefix(viewsPrefix);
     for(PropertyDict::const_iterator p = views.begin(); p != views.end(); ++p)
     {
         string viewName = p->first.substr(viewsPrefix.size());
@@ -294,60 +292,33 @@ MetricsAdminI::MetricsAdminI(InitializationData& initData)
             viewName = viewName.substr(0, dotPos);
         }
         
-        MetricsViewIPtr view = new MetricsViewI();
-        _views.insert(make_pair(viewName, view));
-
-        view->setEnabled(properties->getPropertyAsIntWithDefault(viewsPrefix + viewName, 1) > 0);
+        map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
+        if(q == _views.end())
+        {
+            bool enabled = _properties->getPropertyAsIntWithDefault(viewsPrefix + viewName, 1) > 0;
+            q = _views.insert(make_pair(viewName, new MetricsViewI(enabled))).first;
+        }
+        MetricsViewIPtr view = q->second;
         
-        int mapsCount = 0;
-        const string mapsPrefix = viewsPrefix + viewName + '.';
-        PropertyDict maps = properties->getPropertiesForPrefix(mapsPrefix);
-        for(PropertyDict::const_iterator q = maps.begin(); q != maps.end(); ++q)
+        const string mapsPrefix = viewsPrefix + viewName + ".Map.";
+        string mapPrefix = mapsPrefix + mapName;
+        if(_properties->getPropertiesForPrefix(mapPrefix).empty() && 
+           _properties->getPropertiesForPrefix(mapsPrefix).empty())
         {
-            string mapName = q->first.substr(mapsPrefix.size());
-            dotPos = mapName.find('.');
-            if(dotPos != string::npos)
-            {
-                mapName = mapName.substr(0, dotPos);
-            }
-            
-            if(mapName == "GroupBy" || mapName == "Accept" || mapName == "Reject" || mapName == "RetainDetached")
-            {
-                continue; // Those aren't maps.
-            }
-            
-            ++mapsCount;
-            
-            string groupBy = properties->getProperty(mapsPrefix + mapName + ".GroupBy");
-            int retain = properties->getPropertyAsIntWithDefault(mapsPrefix + mapName + ".RetainDetached", 10);
-            NameValueDict accept = parseRule(properties, mapsPrefix + mapName + ".Accept");
-            NameValueDict reject = parseRule(properties, mapsPrefix + mapName + ".Reject");
-            addMapToView(viewName, mapName, groupBy, retain, accept, reject);
+            mapPrefix = viewsPrefix + viewName;
+        }
+        else
+        {
+            continue; // This map isn't configured for this view.
         }
 
-        //
-        // If no maps were defined explicitly, add default maps.
-        //
-        if(mapsCount == 0)
-        {
-            string groupBy = properties->getProperty(viewsPrefix + viewName + ".GroupBy");
-            int retain = properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".RetainDetached", 10);
-            NameValueDict accept = parseRule(properties, viewsPrefix + viewName + ".Accept");
-            NameValueDict reject = parseRule(properties, viewsPrefix + viewName + ".Reject");
-            for(vector<string>::const_iterator p = defaultMaps.begin(); p != defaultMaps.end(); ++p)
-            {
-                addMapToView(viewName, *p, groupBy, retain, accept, reject);
-            }
-        }
+        string groupBy = _properties->getProperty(mapPrefix + ".GroupBy");
+        int retain = _properties->getPropertyAsIntWithDefault(mapPrefix + ".RetainDetached", 10);
+        NameValueDict accept = parseRule(_properties, mapPrefix + ".Accept");
+        NameValueDict reject = parseRule(_properties, mapPrefix + ".Reject");
+
+        view->add(mapName, factory->create(groupBy, retain, accept, reject));
     }
-
-    __setNoDelete(false);
-}
-
-void
-MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
-{
-    _updaters.insert(make_pair(mapName, updater));
 }
 
 vector<MetricsMapI::EntryPtr>
@@ -419,9 +390,9 @@ MetricsAdminI::addMapToView(const string& view,
         map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
         if(p == _views.end())
         {
-            p = _views.insert(make_pair(view, new MetricsViewI())).first;
+            p = _views.insert(make_pair(view, new MetricsViewI(true))).first;
         }
-        p->second->add(mapName, groupBy, retain, accept, reject);
+        p->second->add(mapName, _factories[mapName]->create(groupBy, retain, accept, reject));
 
         map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
         if(q != _updaters.end())
