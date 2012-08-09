@@ -129,6 +129,7 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
 RES_FILE	= Ice.res
 
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) Ice.res

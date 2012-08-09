@@ -15,6 +15,31 @@
 
 #ifdef _WIN32
 
+#   ifdef ICE_HAS_WIN32_CONDVAR
+
+IceUtil::Cond::Cond()
+{
+    InitializeConditionVariable(&_cond);
+}
+
+IceUtil::Cond::~Cond()
+{
+}
+
+void
+IceUtil::Cond::signal()
+{
+    WakeConditionVariable(&_cond);
+}
+
+void
+IceUtil::Cond::broadcast()
+{
+    WakeAllConditionVariable(&_cond);
+}
+
+#   else
+
 IceUtilInternal::Semaphore::Semaphore(long initial)
 {
 #ifndef ICE_OS_WINRT
@@ -304,6 +329,8 @@ IceUtil::Cond::timedDowait(const Time& timeout) const
         throw;
     }
 }
+
+#    endif // ICE_HAS_WIN32_CONDVAR
 
 #else
 

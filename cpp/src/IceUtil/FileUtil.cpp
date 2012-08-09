@@ -208,7 +208,13 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     overlaped.InternalHigh = 0;
     overlaped.Offset = 0;
     overlaped.OffsetHigh = 0;
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
     overlaped.hEvent = nullptr;
+#else
+    overlaped.hEvent = 0;
+#endif
+
     if(::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
@@ -216,8 +222,8 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     }
 #endif
     //
-    // In Windows implementation we don't write the process pid to the file, as is 
-    // not posible to read the file from other process while it is locked here.
+    // In Windows implementation we don't write the process pid to the file, as it is 
+    // not possible to read the file from other process while it is locked here.
     //
 }
 

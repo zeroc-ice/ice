@@ -17,14 +17,6 @@
 #  include <netinet/in.h>
 #endif
 
-//
-// The following is required for the Vista PSDK to bring in
-// the definitions of the IN6_IS_ADDR_* macros.
-//
-#if defined(_WIN32) && !defined(_WIN32_WINNT) && WINAPI_FAMILY != 0x02
-#       define _WIN32_WINNT 0x0501
-#endif
-
 #include <Ice/Network.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Unicode.h>

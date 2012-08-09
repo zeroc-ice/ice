@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#define _WIN32_WINNT 0x0500
 #define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated
 
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
-
 
 #include <Aclapi.h>
 #include <Sddl.h>

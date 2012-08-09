@@ -85,6 +85,9 @@ private:
 #ifdef _WIN32
     struct LockState
     {
+#   ifdef ICE_HAS_WIN32_CONDVAR
+	CRITICAL_SECTION* mutex;
+#   endif 
     };
 #else
     struct LockState
@@ -175,6 +178,18 @@ Mutex::unlock() const
     LeaveCriticalSection(&_mutex);
 }
 
+#  ifdef ICE_HAS_WIN32_CONDVAR
+inline void
+Mutex::unlock(LockState& state) const
+{
+    state.mutex = &_mutex;
+}
+
+inline void
+Mutex::lock(LockState&) const
+{
+}
+#  else
 inline void
 Mutex::unlock(LockState&) const
 {
@@ -186,6 +201,7 @@ Mutex::lock(LockState&) const
 {
     EnterCriticalSection(&_mutex);
 }
+#   endif
 
 #else
 

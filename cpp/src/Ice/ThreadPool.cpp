@@ -7,14 +7,6 @@
 //
 // **********************************************************************
 
-//
-// The following is required to bring in some definitions. Don't
-// define with Metro Style apps.
-//
-#if defined(_WIN32) && !defined(_WIN32_WINNT) && WINAPI_FAMILY != 0x02
-#       define _WIN32_WINNT 0x0501
-#endif
-
 #include <Ice/ThreadPool.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/EventHandler.h>
