@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include <IceUtil/Config.h> // Required by generated Scanners.
+
 //
 // COMPILERFIX: VC compilers does not provide stdint.h header until VC100
 // the header must be included before that macros for integral types

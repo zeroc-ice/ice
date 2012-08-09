@@ -85,7 +85,6 @@ $(ADMIN): $(AOBJS) IceStormAdmin.res
 Scanner.cpp: Scanner.l
 	flex Scanner.l
 	del /q $@
-	echo #include "IceUtil/Config.h" > Scanner.cpp
 	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
 	type lex.yy.c >> Scanner.cpp
 	del /q lex.yy.c

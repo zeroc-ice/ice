@@ -1,4 +1,3 @@
-#include <IceUtil/Config.h>
 #include <IceUtil/ScannerConfig.h>
 #line 2 "lex.yy.c"
 
