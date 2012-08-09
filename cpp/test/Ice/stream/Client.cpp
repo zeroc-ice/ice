@@ -11,15 +11,6 @@
 #include <TestCommon.h>
 #include <Test.h>
 
-//
-// We disable deprecation warning here, to allow clean compilation of
-// test cases that uses the old stream api.  Once the old stream API
-// is gone this could be removed.
-//
-#ifdef _MSC_VER
-#   pragma warning( disable : 4996 )
-#endif
-
 DEFINE_TEST("client")
 
 using namespace std;
@@ -165,7 +156,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     vector<Ice::Byte> data;
 
     //
-    // Test the new stream api.
+    // Test the stream api.
     //
     cout << "testing primitive types... " << flush;
 

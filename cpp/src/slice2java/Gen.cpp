@@ -21,19 +21,8 @@
 
 using namespace std;
 using namespace Slice;
-
-//
-// Don't use "using namespace IceUtil", or VC++ 6.0 complains
-// about ambiguous symbols for constructs like
-// "IceUtil::constMemFun(&Slice::Exception::isLocal)".
-//
-using IceUtilInternal::Output;
-using IceUtilInternal::nl;
-using IceUtilInternal::sp;
-using IceUtilInternal::sb;
-using IceUtilInternal::eb;
-using IceUtilInternal::spar;
-using IceUtilInternal::epar;
+using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static string
 sliceModeToIceMode(Operation::Mode opMode)
@@ -830,7 +819,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -840,7 +829,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = ::IceUtilInternal::distance(firstIter, scopedIter);
 
     out << sp << nl << "public static final String[] __ids =";
     out << sb;
@@ -1298,7 +1287,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     if(!allOps.empty())
     {
         StringList allOpNames;
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -3102,11 +3091,11 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
         else
         {
-            IceUtil::Int64 v = 0;
+            Int64 v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-                if(!IceUtilInternal::stringToInt64(serialVersionUID, v)) // conversion error
+                if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for class `" << p->scoped()
@@ -3874,11 +3863,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         else
         {
-            IceUtil::Int64 v = 0;
+            Int64 v = 0;
             serialVersionUID = serialVersionUID.substr(pos);
             if(serialVersionUID != "0")
             {
-                if(!IceUtilInternal::stringToInt64(serialVersionUID, v)) // conversion error
+                if(!stringToInt64(serialVersionUID, v)) // conversion error
                 {
                     ostringstream os;
                     os << "ignoring invalid serialVersionUID for struct `" << p->scoped()
@@ -4943,7 +4932,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -4953,7 +4942,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    StringList::difference_type scopedPos = IceUtilInternal::distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos = ::IceUtilInternal::distance(firstIter, scopedIter);
 
     out << sp << nl << "public static final String[] __ids =";
     out << sb;

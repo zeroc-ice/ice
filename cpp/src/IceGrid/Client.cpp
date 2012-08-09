@@ -34,7 +34,7 @@
 #endif
 
 using namespace std;
-//using namespace Ice; // COMPILERFIX: VC6 reports compilation error because of ambiguous Locator symbol.
+using namespace Ice;
 using namespace IceGrid;
 
 class Client;
@@ -92,7 +92,7 @@ public:
             {
                 _session->keepAlive();
             }
-            catch(const Ice::Exception&)
+            catch(const Exception&)
             {
                 break;
             }
@@ -115,40 +115,40 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
-class ReuseConnectionRouter : public Ice::Router
+class ReuseConnectionRouter : public Router
 {
 public:
     
-    ReuseConnectionRouter(const Ice::ObjectPrx& proxy) : _clientProxy(proxy)
+    ReuseConnectionRouter(const ObjectPrx& proxy) : _clientProxy(proxy)
     {
     }
 
-    virtual Ice::ObjectPrx 
-    getClientProxy(const Ice::Current&) const
+    virtual ObjectPrx 
+    getClientProxy(const Current&) const
     {
         return _clientProxy;
     }
 
-    virtual Ice::ObjectPrx 
-    getServerProxy(const Ice::Current&) const
+    virtual ObjectPrx 
+    getServerProxy(const Current&) const
     {
         return 0;
     }
 
     virtual void
-    addProxy(const Ice::ObjectPrx&, const Ice::Current&)
+    addProxy(const ObjectPrx&, const Current&)
     {
     }
 
-    virtual Ice::ObjectProxySeq 
-    addProxies(const Ice::ObjectProxySeq&, const Ice::Current&)
+    virtual ObjectProxySeq 
+    addProxies(const ObjectProxySeq&, const Current&)
     {
-        return Ice::ObjectProxySeq();
+        return ObjectProxySeq();
     }
     
 private:
 
-    const Ice::ObjectPrx _clientProxy;
+    const ObjectPrx _clientProxy;
 };
 
 class Client : public IceUtil::Monitor<IceUtil::Mutex>
@@ -156,11 +156,11 @@ class Client : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     void usage();
-    int main(Ice::StringSeq& args);
-    int run(Ice::StringSeq& args);
+    int main(StringSeq& args);
+    int run(StringSeq& args);
     void interrupted();
 
-    Ice::CommunicatorPtr communicator() const { return _communicator; }
+    CommunicatorPtr communicator() const { return _communicator; }
     const string& appName() const { return _appName; }
 
     string getPassword(const string&);
@@ -168,7 +168,7 @@ public:
 private:
 
     IceUtil::CtrlCHandler _ctrlCHandler;
-    Ice::CommunicatorPtr _communicator;
+    CommunicatorPtr _communicator;
     string _appName;
     ParserPtr _parser;
 };
@@ -196,7 +196,7 @@ main(int argc, char* argv[])
 #endif
 {
     Client app;
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    StringSeq args = argsToStringSeq(argc, argv);
     return app.main(args);
 }
 
@@ -220,22 +220,22 @@ Client::usage()
 
 
 int
-Client::main(Ice::StringSeq& args)
+Client::main(StringSeq& args)
 {
     int status = EXIT_SUCCESS;
 
     try
     {
         _appName = args[0];
-        Ice::InitializationData id;
-        id.properties = Ice::createProperties(args);
+        InitializationData id;
+        id.properties = createProperties(args);
         //
         // We don't want to load DB plug-ins with icegridadmin, as this will
         // cause FileLock issues when run with the same configuration file
         // used by the service.
         //
         id.properties->setProperty("Ice.Plugin.DB", "");
-        _communicator = Ice::initialize(id);
+        _communicator = initialize(id);
 
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_staticMutex);
@@ -247,7 +247,7 @@ Client::main(Ice::StringSeq& args)
         {
             status = run(args);
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch(const CommunicatorDestroyedException&)
         {
             // Expected if the client is interrupted during the initialization.
         }
@@ -284,10 +284,10 @@ Client::main(Ice::StringSeq& args)
         {
             _communicator->destroy();
         }
-        catch(const Ice::CommunicatorDestroyedException&)
+        catch(const CommunicatorDestroyedException&)
         {
         }
-        catch(const Ice::Exception& ex)
+        catch(const Exception& ex)
         {
             cerr << ex << endl;
             status = EXIT_FAILURE;
@@ -322,14 +322,14 @@ Client::interrupted()
         {
             _communicator->destroy();
         }
-        catch(const Ice::Exception&)
+        catch(const Exception&)
         {
         }
     }
 }
 
 int
-Client::run(Ice::StringSeq& originalArgs)
+Client::run(StringSeq& originalArgs)
 {
     string commands;
     bool debug;
@@ -376,10 +376,10 @@ Client::run(Ice::StringSeq& originalArgs)
 
     if(opts.isSet("server"))
     {
-        Ice::ObjectAdapterPtr adapter = 
+        ObjectAdapterPtr adapter = 
             communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
         adapter->activate();
-        Ice::ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
+        ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
         cout << proxy << endl;
 
         communicator()->waitForShutdown();
@@ -413,7 +413,7 @@ Client::run(Ice::StringSeq& originalArgs)
         password = opts.optArg("password");
     }
 
-    Ice::PropertiesPtr properties = communicator()->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
     string replica = properties->getProperty("IceGridAdmin.Replica");
     if(!opts.optArg("replica").empty())
     {
@@ -439,7 +439,7 @@ Client::run(Ice::StringSeq& originalArgs)
                     return EXIT_FAILURE;
                 }
             }
-            catch(const Ice::LocalException& ex)
+            catch(const LocalException& ex)
             {
                 cerr << _appName << ": could not contact the default router:" << endl << ex << endl;
                 return EXIT_FAILURE;                
@@ -501,7 +501,7 @@ Client::run(Ice::StringSeq& originalArgs)
             //
             // Create the identity of the registry to connect to.
             //
-            Ice::Identity registryId;
+            Identity registryId;
             registryId.category = communicator()->getDefaultLocator()->ice_getIdentity().category;
             registryId.name = "Registry";
             if(!replica.empty() && replica != "Master")
@@ -526,7 +526,7 @@ Client::run(Ice::StringSeq& originalArgs)
                 }
                 localRegistry = locator->getLocalRegistry();
             }
-            catch(const Ice::LocalException& ex)
+            catch(const LocalException& ex)
             {
                 cerr << _appName << ": could not contact the default locator:" << endl << ex << endl;
                 return EXIT_FAILURE;                    
@@ -552,12 +552,12 @@ Client::run(Ice::StringSeq& originalArgs)
                         cerr << _appName << ": could not contact an IceGrid registry" << endl;
                     }
                 }
-                catch(const Ice::NotRegisteredException&)
+                catch(const NotRegisteredException&)
                 {
                     cerr << _appName << ": no active registry replica named `" << replica << "'" << endl;
                     return EXIT_FAILURE;            
                 }
-                catch(const Ice::LocalException& ex)
+                catch(const LocalException& ex)
                 {
                     if(!replica.empty())
                     {
@@ -591,10 +591,10 @@ Client::run(Ice::StringSeq& originalArgs)
             if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
                 properties->setProperty("CollocInternal.AdapterId", IceUtil::generateUUID());
-                Ice::ObjectAdapterPtr colloc = communicator()->createObjectAdapter("CollocInternal");
+                ObjectAdapterPtr colloc = communicator()->createObjectAdapter("CollocInternal");
                 colloc->setLocator(0);
-                Ice::ObjectPrx router = colloc->addWithUUID(new ReuseConnectionRouter(locator));
-                communicator()->setDefaultRouter(Ice::RouterPrx::uncheckedCast(router));
+                ObjectPrx router = colloc->addWithUUID(new ReuseConnectionRouter(locator));
+                communicator()->setDefaultRouter(RouterPrx::uncheckedCast(router));
                 registry = registry->ice_router(communicator()->getDefaultRouter());
             }
 
@@ -654,8 +654,8 @@ Client::run(Ice::StringSeq& originalArgs)
 
         AdminPrx admin = session->getAdmin();
 
-        Ice::SliceChecksumDict serverChecksums = admin->getSliceChecksums();
-        Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+        SliceChecksumDict serverChecksums = admin->getSliceChecksums();
+        SliceChecksumDict localChecksums = sliceChecksums();
 
         //
         // The following slice types are only used by the admin CLI.
@@ -663,9 +663,9 @@ Client::run(Ice::StringSeq& originalArgs)
         localChecksums.erase("::IceGrid::FileParser");
         localChecksums.erase("::IceGrid::ParseException");
                          
-        for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
+        for(SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
         {
-            Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
+            SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
             if(r == serverChecksums.end())
             {
                 cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
@@ -734,7 +734,7 @@ Client::run(Ice::StringSeq& originalArgs)
                 session->destroy();
             }
         }
-        catch(const Ice::Exception&)
+        catch(const Exception&)
         {
         }
         throw;
@@ -759,7 +759,7 @@ Client::run(Ice::StringSeq& originalArgs)
                 session->destroy();
             }
         }
-        catch(const Ice::Exception&)
+        catch(const Exception&)
         {
             // Ignore. If the registry has been shutdown this will cause
             // an exception.

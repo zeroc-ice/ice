@@ -271,11 +271,8 @@ IceSSL::EndpointI::toString() const
     return s.str();
 }
 
-//
-// COMPILERFIX: VC6 complains about an ambiguous "EndpointInfo" symbol when this class is defined inside
-//              getInfo(). Moving the definition into an anonymous namespace works around it.
-//
-namespace
+Ice::EndpointInfoPtr
+IceSSL::EndpointI::getInfo() const
 {
     class InfoI : public IceSSL::EndpointInfo
     {
@@ -304,11 +301,6 @@ namespace
             return true;
         }
     };
-}
-
-Ice::EndpointInfoPtr
-IceSSL::EndpointI::getInfo() const
-{
     return new InfoI(_protocol, _encoding, _timeout, _compress, _host, _port);
 }
 
