@@ -54,6 +54,7 @@ SDK_HEADERS =	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FacetMap.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FactoryTable.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FactoryTableInit.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Format.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Functional.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\GCCountMap.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\GCShared.h \
@@ -108,13 +109,17 @@ SDK_HEADERS =	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ServantManagerF.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SliceChecksumDict.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SliceChecksums.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SlicedData.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\SlicedDataF.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stats.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StatsF.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Stream.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamF.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StreamTraits.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StringConverter.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UndefSysMacros.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UserExceptionFactory.h
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UserExceptionFactory.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Version.h
 
 all:: $(SDK_HEADERS)
 !endif
