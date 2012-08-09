@@ -965,7 +965,13 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
                     while(bytesLeft > 0)
                     {
                         ByteSeq bytes(min(bytesLeft, 1024u*1024));
-                        if(_read(fd, &bytes[0], static_cast<unsigned int>(bytes.size())) == -1)
+                        if(
+#if defined(_MSC_VER)
+                            _read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
+#else
+                            read(fd, &bytes[0], static_cast<unsigned int>(bytes.size()))
+#endif
+                            == -1)
                         {
                             if(doCompress)
                             {

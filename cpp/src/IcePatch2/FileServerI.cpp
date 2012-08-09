@@ -105,7 +105,13 @@ IcePatch2::FileServerI::getFileCompressed_async(const AMD_FileServer_getFileComp
         return;
     }
 
-    if(_lseek(fd, static_cast<off_t>(pos), SEEK_SET) != static_cast<off_t>(pos))
+    if(
+#if defined(_MSC_VER)
+        _lseek(fd, static_cast<off_t>(pos), SEEK_SET)
+#else
+        lseek(fd, static_cast<off_t>(pos), SEEK_SET)
+#endif
+        != static_cast<off_t>(pos))
     {
         IceUtilInternal::close(fd);
 
