@@ -357,7 +357,7 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP) $(SLICEPARSERLIB)
 	flex $(FLEXFLAGS) $<
 	rm -f $@
 	echo '#include <IceUtil/Config.h>' > $@
-	echo '#include <stdint.h>' >> $@
+	echo '#include <IceUtil/ScannerConfig.h>' >> $@
 	cat lex.yy.c >> $@
 	rm -f lex.yy.c
 
