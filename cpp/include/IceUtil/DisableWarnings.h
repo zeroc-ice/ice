@@ -22,4 +22,6 @@
 #if defined(_MSC_VER)
 #    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated/
 #    pragma warning( 4 : 4996 ) // C4996 'std::<function>' was declared deprecated
+#    pragma warning( 4 : 4800 ) // C4800 forcing value to bool 'true' or 'false' (performance warning)
+
 #endif

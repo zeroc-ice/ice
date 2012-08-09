@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Object.h>
 #include <Ice/ConnectionI.h>

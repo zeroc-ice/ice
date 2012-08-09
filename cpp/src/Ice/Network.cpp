@@ -17,6 +17,7 @@
 #  include <netinet/in.h>
 #endif
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Network.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Unicode.h>

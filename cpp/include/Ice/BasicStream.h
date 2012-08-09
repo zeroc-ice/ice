@@ -603,7 +603,7 @@ public:
         {
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
-        v = *i++;
+        v = (0 != *i++);
     }
     void read(std::vector<bool>&);
     bool* read(std::pair<const bool*, const bool*>&);

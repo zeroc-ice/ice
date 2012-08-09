@@ -7,8 +7,7 @@
 //
 // **********************************************************************
 
-#define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated
-
+#include <IceUtil/DisableWarnings.h>
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>

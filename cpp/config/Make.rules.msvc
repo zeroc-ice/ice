@@ -102,7 +102,13 @@ ICE_OS_LIBS     = kernel32.lib user32.lib
 !else
 ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
 BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
+
+!if "$(CPP_COMPILER)" == "VC110"
+DB_LIBS         = libdb53$(LIBSUFFIX).lib
+!else
 DB_LIBS         = libdb48$(LIBSUFFIX).lib
+!endif
+
 MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
 ICONV_LIB       = libiconv.lib
 !endif
