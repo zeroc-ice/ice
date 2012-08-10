@@ -402,6 +402,28 @@ struct StreamHelper<std::pair<T, T>, StreamTraitTypeSequence>
     }
 };
 
+template<>
+struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
+                               ::std::vector<bool>::const_iterator>, StreamTraitTypeSequence>
+{
+    template<class S> static inline void 
+    write(S* stream, const std::pair< ::std::vector<bool>::const_iterator,
+                                      ::std::vector<bool>::const_iterator>& v)
+    {
+        stream->writeSize(static_cast< ::Ice::Int>(IceUtilInternal::distance(v.first, v.second)));
+        for(::std::vector<bool>::const_iterator p = v.first; p != v.second; ++p)
+        {
+            stream->write(static_cast<bool>(*p));
+        }
+    }
+
+    template<class S> static inline void 
+    read(S* stream, std::pair< ::std::vector<bool>::const_iterator, ::std::vector<bool>::const_iterator>&)
+    {
+         assert(false); // Only used for marshaling.
+    }
+};
+
 // Helper for zero-copy array sequence parameters
 template<typename T>
 struct StreamHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >, StreamTraitTypeSequence>

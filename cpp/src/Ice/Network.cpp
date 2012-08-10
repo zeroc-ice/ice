@@ -1631,7 +1631,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         size = 0; // Keep the compiler happy.
     }
 
-    if(bind(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
+    if(::bind(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
         SocketException ex(__FILE__, __LINE__);

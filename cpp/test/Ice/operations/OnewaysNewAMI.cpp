@@ -85,7 +85,7 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(proxy->ice_oneway());
 
     {
-	CallbackPtr cb = new Callback;
+        CallbackPtr cb = new Callback;
         Ice::Callback_Object_ice_pingPtr callback =
             Ice::newCallback_Object_ice_ping(cb, &Callback::noException, &Callback::sent);
         p->begin_ice_ping(callback);
@@ -159,4 +159,81 @@ onewaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         {
         }
     }
+#ifdef ICE_CPP11
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_ping(nullptr, 
+                          [=](const Ice::Exception& ex){ cb->noException(ex); },
+                          [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        try
+        {
+            p->begin_ice_isA(Test::MyClass::ice_staticId(), [=](bool){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_id([=](const string&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+    
+    {
+        try
+        {
+            p->begin_ice_ids([=](const Ice::StringSeq&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opVoid(nullptr, 
+                        [=](const Ice::Exception& ex){ cb->noException(ex); },
+                        [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opIdempotent(nullptr, 
+                              [=](const Ice::Exception& ex){ cb->noException(ex); },
+                              [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opNonmutating(nullptr, 
+                               [=](const Ice::Exception& ex){ cb->noException(ex); },
+                               [=](bool sent){ cb->sent(sent); });
+        cb->check();
+    }
+
+    {
+        try
+        {
+            p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), [=](const Ice::Byte&, const Ice::Byte&){ test(false); });
+            test(false);
+        }
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+    }
+#endif
 }

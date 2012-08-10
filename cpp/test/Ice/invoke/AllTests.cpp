@@ -155,6 +155,26 @@ public:
             test(false);
         }
     }
+    
+    void opStringPairNC(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)
+    {
+        if(ok)
+        {
+            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
+            string s;
+            in->read(s);
+            test(s == testString);
+            in->read(s);
+            test(s == testString);
+            in->endEncapsulation();
+            called();
+        }
+        else
+        {
+            test(false);
+        }
+    }
 
     void opStringWC(bool ok, const Ice::ByteSeq& outParams, const CookiePtr& cookie)
     {
@@ -177,6 +197,32 @@ public:
     }
 
     void opExceptionNC(bool ok, const Ice::ByteSeq& outParams)
+    {
+        if(ok)
+        {
+            test(false);
+        }
+        else
+        {
+            Ice::InputStreamPtr in = Ice::createInputStream(_communicator, outParams);
+            in->startEncapsulation();
+            try
+            {
+                in->throwException();
+            }
+            catch(const Test::MyException&)
+            {
+                in->endEncapsulation();
+                called();
+            }
+            catch(...)
+            {
+                test(false);
+            }
+        }
+    }
+    
+    void opExceptionPairNC(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)
     {
         if(ok)
         {
@@ -479,6 +525,59 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
+#ifdef ICE_CPP11
+        cout << "testing asynchronous ice_invoke with C++11 style callbacks... " << flush;
 
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+        Ice::OutputStreamPtr out = Ice::createOutputStream(communicator);
+        out->startEncapsulation();
+        out->write(testString);
+        out->endEncapsulation();
+        out->finished(inEncaps);
+
+        CallbackPtr cb = new Callback(communicator, false);
+        Ice::Context ctx;
+        cl->begin_ice_invoke("opString", Ice::Normal, inEncaps, ctx,
+                             [=](bool ret, const vector< ::Ice::Byte>& args)
+                                {
+                                    cb->opStringNC(ret, args);
+                                });
+        cb->check();
+
+        cb = new Callback(communicator, false);
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(&inEncaps[0], &inEncaps[0] + inEncaps.size());
+        cl->begin_ice_invoke("opString", Ice::Normal, inPair, 
+                             [=](bool ret, const pair<const Ice::Byte*, const Ice::Byte*>& args)
+                                {
+                                    cb->opStringPairNC(ret, args);
+                                });
+        cb->check();
+    }
+
+    {
+        Ice::ByteSeq inEncaps, outEncaps;
+
+        CallbackPtr cb = new Callback(communicator, false);
+        cl->begin_ice_invoke("opException", Ice::Normal, inEncaps,
+                             [=](bool ret, const vector< ::Ice::Byte>& args)
+                                {
+                                    cb->opExceptionNC(ret, args);
+                                }
+        );
+        cb->check();
+
+        pair<const ::Ice::Byte*, const ::Ice::Byte*> inPair(static_cast< ::Ice::Byte*>(0), static_cast< ::Ice::Byte*>(0));
+        cb = new Callback(communicator, false);
+        cl->begin_ice_invoke("opException", Ice::Normal, inPair,
+                             [=](bool ret, const pair<const Ice::Byte*, const Ice::Byte*>& args)
+                                {
+                                    cb->opExceptionPairNC(ret, args);
+                                });
+        cb->check();
+    }
+
+    cout << "ok" << endl;
+#endif
     return cl;
 }

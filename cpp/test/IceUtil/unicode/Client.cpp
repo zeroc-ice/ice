@@ -13,6 +13,8 @@
 
 #ifdef _WIN32
 #   include <io.h>
+#else
+#   include <unistd.h>
 #endif
 
 using namespace IceUtil;
@@ -209,9 +211,9 @@ main(int argc, char* argv[])
         test(fd > 0);
 #if defined(_MSC_VER)
         test(_close(fd) == 0);
-#else
-        test(close(fd) == 0);
-#endif
+#   else
+        test(::close(fd) == 0);
+#   endif
 
         FILE* f = IceUtilInternal::fopen(filepath, "r");
         test(f != 0);

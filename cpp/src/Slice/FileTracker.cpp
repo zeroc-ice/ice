@@ -9,12 +9,10 @@
 
 #include <Slice/FileTracker.h>
 
-#ifdef __sun
-#   include <unistd.h>
-#endif
-
 #ifdef _WIN32
 #   include <direct.h>
+#else
+#   include <unistd.h>
 #endif
 
 using namespace std;

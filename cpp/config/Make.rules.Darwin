@@ -16,8 +16,7 @@ ifeq ($(DEVELOPER_PATH),)
 endif
 
 TOOLCHAIN_BIN_DIR	= $(DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/bin
-CXX			= $(TOOLCHAIN_BIN_DIR)/clang++
-
+CXX					= $(TOOLCHAIN_BIN_DIR)/clang++
 #CXX	                = g++
 
 CXXFLAGS		= -Wall -D_REENTRANT
@@ -35,6 +34,12 @@ else
      CXXFLAGS		:= $(CXXARCHFLAGS) -g $(CXXFLAGS)
 endif
 
+ifeq ($(CPP11), yes)
+ifeq ($(CXX), $(TOOLCHAIN_BIN_DIR)/clang++)
+    CPPFLAGS += --std=c++11
+    CXXFLAGS += --stdlib=libc++
+endif
+endif
 
 #
 # C++ run-time libraries, necessary for linking some shared libraries.

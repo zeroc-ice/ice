@@ -89,6 +89,17 @@
 #endif
 
 //
+// Check for C++ 11 support
+//
+
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && \
+                                              defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
+    (defined(__clang__) && (__clang_major__ >= 4) && __cplusplus >= 201103) || \
+    (defined(_MSC_VER) && (_MSC_VER >= 1600))
+#   define ICE_CPP11 1
+#endif
+
+//
 // Let's use these extensions with IceUtil:
 //
 #ifdef ICE_UTIL_API_EXPORTS

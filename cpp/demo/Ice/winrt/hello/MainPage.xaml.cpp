@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.cpp
-// Implementation of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #include "pch.h"
 #include "MainPage.xaml.h"
@@ -22,105 +26,29 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 
-class DispatcherI : virtual public Ice::Dispatcher
-{
-public:
-
-    DispatcherI(CoreDispatcher^ dispatcher) :
-        _dispatcher(dispatcher)
-    {
-    }
-
-    virtual void dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
-    {
-        _dispatcher->RunAsync(CoreDispatcherPriority::Normal, 
-                              ref new DispatchedHandler([=]()
-                                    {
-                                        call->run();
-                                    }, CallbackContext::Any));
-    }
-
-private:
-
-    CoreDispatcher^ _dispatcher;
-};
-
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 MainPage::MainPage()
 {
     InitializeComponent();
     mode->SelectedIndex = 0;
     Ice::InitializationData id;
-    id.dispatcher = new DispatcherI(this->Dispatcher);  
+    id.dispatcher = Ice::newDispatcher(
+        [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
+            {
+                this->Dispatcher->RunAsync(
+                    CoreDispatcherPriority::Normal, ref new DispatchedHandler([=]()
+                        {
+                            call->run();
+                        }, CallbackContext::Any));
+            });
     _communicator = Ice::initialize(id);
-}
-
-/// <summary>
-/// Invoked when this page is about to be displayed in a Frame.
-/// </summary>
-/// <param name="e">Event data that describes how this page was reached.  The Parameter
-/// property is typically used to configure the page.</param>
-void MainPage::OnNavigatedTo(NavigationEventArgs^ e)
-{
-    (void) e; // Unused parameter
-}
-
-HelloCallback::HelloCallback(MainPage^ page) :
-    _page(page)
-{
-}
-
-void 
-HelloCallback::helloSent(bool sent)
-{
-    _page->helloSent(sent);
-}
-
-void 
-HelloCallback::helloSuccess()
-{
-    _page->helloSuccess();
-}
-
-void
-HelloCallback::helloFailure(const Ice::Exception& ex)
-{
-    _page->helloFailure(ex);
-}
-
-void 
-hello::MainPage::helloSuccess()
-{
-    print("Ready.");
-}
-
-void
-hello::MainPage::helloFailure(const Ice::Exception& ex)
-{
-    ostringstream os;
-    os << ex;
-    print(os.str());
-}
-
-void
-hello::MainPage::helloSent(bool)
-{
-    if(mode->SelectedIndex == 0 || mode->SelectedIndex == 1)
-    {
-        print("Waiting for response.");
-    }
-    else
-    {
-        print("Ready.");
-    }
 }
 
 Demo::HelloPrx
 hello::MainPage::proxy()
 {
     string h = IceUtil::wstringToString(hostname->Text->Data());
-    Ice::ObjectPrx prx = _communicator->stringToProxy("hello:tcp -h " + h + " -p 10000:ssl -h " + h + " -p 10001:udp -h " + h + " -p 10000");
+    Ice::ObjectPrx prx = _communicator->stringToProxy("hello:tcp -h " + h + " -p 10000:ssl -h " + h + 
+                                                      " -p 10001:udp -h " + h + " -p 10000");
     switch(mode->SelectedIndex)
     {
         case 0:
@@ -196,16 +124,52 @@ hello::MainPage::hello_Click(Platform::Object^ sender, Windows::UI::Xaml::Routed
         if(!isBatch())
         {
             print("Sending sayHello request.");
-            Demo::Callback_Hello_sayHelloPtr cb = 
-                Demo::newCallback_Hello_sayHello(new HelloCallback(this), 
-                                                 &HelloCallback::helloSuccess,
-                                                 &HelloCallback::helloFailure, 
-                                                 &HelloCallback::helloSent);
-            prx->begin_sayHello(static_cast<int>(delay->Value * 1000), cb);
+            _response = false;
+            hello->IsEnabled = false;
+            int deliveryMode = mode->SelectedIndex;
+            Ice::AsyncResultPtr result = prx->begin_sayHello(static_cast<int>(delay->Value * 1000),
+                                        [=]()
+                                            {
+                                                hello->IsEnabled = true;
+                                                this->_response = true;
+                                                print("Ready.");
+                                            },
+                                        [=](const Ice::Exception& ex)
+                                            {
+                                                hello->IsEnabled = true;
+                                                this->_response = true;
+                                                ostringstream os;
+                                                os << ex;
+                                                print(os.str());
+                                            },
+                                        [=](bool sentSynchronously)
+                                            {
+                                                if(this->_response)
+                                                {
+                                                    return; // Response was received already.
+                                                }
+                                                if(deliveryMode <= 1)
+                                                {
+                                                    print("Waiting for response.");
+                                                }
+                                                else if(!sentSynchronously)
+                                                {
+                                                    print("Ready.");
+                                                }
+                                            });
+            
+            if(!result->sentSynchronously())
+            {
+                print("Sending request");
+            }
+            else if(deliveryMode > 1)
+            {
+                print("Ready");
+            }
         }
         else
         {
-            print("Queued sayHello request.");
+            print("Queued hello request.");
             prx->sayHello((int)(delay->Value * 1000));
             flush->IsEnabled = true;
         }
@@ -243,10 +207,16 @@ void hello::MainPage::flush_Click(Platform::Object^ sender, Windows::UI::Xaml::R
     try
     {
         flush->IsEnabled = false;
-        Ice::Callback_Communicator_flushBatchRequestsPtr cb = 
-            Ice::newCallback_Communicator_flushBatchRequests(new HelloCallback(this), &HelloCallback::helloFailure);
-        _communicator->begin_flushBatchRequests(cb);
-        print("Flushed batch requests.");
+        _communicator->begin_flushBatchRequests([=](const Ice::Exception& ex)
+                                                    {
+                                                        ostringstream os;
+                                                        os << ex;
+                                                        print(os.str());
+                                                    },
+                                                [=](bool)
+                                                    {
+                                                        print("Flushed batch requests.");
+                                                    });
     }
     catch(const Ice::Exception& ex)
     {

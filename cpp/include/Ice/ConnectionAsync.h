@@ -42,10 +42,39 @@ public:
         catch(::Ice::Exception& ex)
         {
             ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-            return;
         }
     }
 };
+
+#ifdef ICE_CPP11
+class Cpp11FnCallbackNC_Connection_flushBatchRequests : virtual public ::IceInternal::Cpp11FnCallbackNC
+{
+public:
+    
+    Cpp11FnCallbackNC_Connection_flushBatchRequests(const ::IceInternal::Function<void (const ::Ice::Exception&)>& excb,
+                            const ::IceInternal::Function<void (bool)>& sentcb) :
+        ::IceInternal::Cpp11FnCallbackNC(excb, sentcb)
+    {
+        CallbackBase::checkCallback(true, excb != nullptr);
+    }
+    
+    virtual void
+    __completed(const ::Ice::AsyncResultPtr& __result) const
+    {
+        ::Ice::ConnectionPtr __con = __result->getConnection();
+        assert(__con);
+        try
+        {
+            __con->end_flushBatchRequests(__result);
+            assert(false);
+        }
+        catch(::Ice::Exception& ex)
+        {
+            ::IceInternal::Cpp11FnCallbackNC::__exception(__result, ex);
+        }
+    }
+};
+#endif
 
 template<class T> Callback_Connection_flushBatchRequestsPtr
 newCallback_Connection_flushBatchRequests(const IceUtil::Handle<T>& instance,
@@ -90,7 +119,6 @@ public:
         catch(::Ice::Exception& ex)
         {
             ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-            return;
         }
     }
 };

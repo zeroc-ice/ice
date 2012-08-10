@@ -24,17 +24,21 @@ endif
 # Default compiler is c++ (aka g++).
 #
 ifeq ($(CXX),)
-   CXX			= c++
-endif
-
-ifeq ($(CXX),g++)
-   CXX			= c++
+   CXX			= g++
 endif
 
 ifeq ($(CXX),c++)
+   CXX			= g++
+endif
+
+ifeq ($(CXX),g++)
 
     ifneq ($(SUSE_i586),)
         CXXARCHFLAGS	+= -march=i586
+    endif
+
+    ifeq ($(CPP11), yes)
+        CPPFLAGS += -std=c++0x
     endif
 
    ifeq ($(MACHINE),sparc64)

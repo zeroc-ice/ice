@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.h
-// Declaration of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #pragma once
 
@@ -12,44 +16,38 @@
 
 namespace bidir
 {
-    ref class MainPage;
+ref class MainPage;
 
-    class CallbackReceiverI : public Demo::CallbackReceiver
+class CallbackReceiverI : public Demo::CallbackReceiver
+{
+public:
+
+    CallbackReceiverI(MainPage^ page) : _page(page)
     {
-    public:
+    }
 
-        CallbackReceiverI(MainPage^ page) : _page(page)
-        {
-        }
-
-        virtual void
-        callback(Ice::Int, const Ice::Current&);
+    virtual void
+    callback(Ice::Int, const Ice::Current&);
     
-    private:
+private:
         
-        MainPage^ _page;
-    };
+    MainPage^ _page;
+};
 
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public ref class MainPage sealed
-    {
-    public:
-        MainPage();
+public ref class MainPage sealed
+{
+public:
+    MainPage();
 
-    protected:
+private:
 
-        virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
+    friend class CallbackReceiverI;
 
-    private:
+    void callback(Ice::Int, const Ice::Current&);
+    void print(const std::string&);
+    void startClient_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    void stopClient_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    Ice::CommunicatorPtr _communicator;
+};
 
-        friend class CallbackReceiverI;
-
-        void callback(Ice::Int, const Ice::Current&);
-        void print(const std::string&);
-        void startClient_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-        void stopClient_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-        Ice::CommunicatorPtr _communicator;
-    };
 }

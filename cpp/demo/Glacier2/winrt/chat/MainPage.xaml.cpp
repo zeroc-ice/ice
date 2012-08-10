@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.cpp
-// Implementation of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #include "pch.h"
 #include "MainPage.xaml.h"
@@ -24,31 +28,7 @@ using namespace Windows::UI::Xaml::Interop;
 
 using namespace std;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 MainPage^ MainPage::_instance = nullptr;
-
-class DispatcherI : virtual public Ice::Dispatcher
-{
-public:
-
-    DispatcherI(CoreDispatcher^ dispatcher) :
-        _dispatcher(dispatcher)
-    {
-    }
-
-    virtual void dispatch(const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
-    {
-        _dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([=]()
-            {
-                call->run();
-            }, CallbackContext::Any));
-    }
-
-private:
-
-    CoreDispatcher^ _dispatcher;
-};
 
 Coordinator::Coordinator(CoreDispatcher^ dispatcher) :
     _dispatcher(dispatcher)
@@ -56,12 +36,20 @@ Coordinator::Coordinator(CoreDispatcher^ dispatcher) :
 }
 
 void
-Coordinator::signIn(LoginData loginData)
+Coordinator::signIn(const LoginData& loginData)
 {
     _loginData = loginData;
     Ice::InitializationData id;
     id.properties = Ice::createProperties();
-    id.dispatcher = new DispatcherI(_dispatcher);
+    id.dispatcher = Ice::newDispatcher(
+        [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr&)
+            {
+                this->_dispatcher->RunAsync(
+                    CoreDispatcherPriority::Normal, ref new DispatchedHandler([=]()
+                        {
+                            call->run();
+                        }, CallbackContext::Any));
+            });
     Glacier2::SessionFactoryHelperPtr factory = new Glacier2::SessionFactoryHelper(id, this);
     Ice::Identity identity;
     identity.name = "router";
@@ -82,9 +70,12 @@ Coordinator::say(const std::string& msg)
 {
     try
     {
-        Demo::Callback_ChatSession_sayPtr cb = Demo::newCallback_ChatSession_say(this, &Coordinator::sayCallbackSuccess, 
-                                                                                       &Coordinator::sayCallbackError);
-        _chat->begin_say(msg, cb);
+        _chat->begin_say(msg, nullptr, [](const Ice::Exception& ex)
+                                            {
+                                                ostringstream os;
+                                                os << "Connect failed:\n" << ex << endl; 
+                                                MainPage::instance()->setError(os.str());
+                                            });
     }
     catch(const Ice::CommunicatorDestroyedException& ex)
     {
@@ -95,35 +86,8 @@ Coordinator::say(const std::string& msg)
 }
 
 void
-Coordinator::sayCallbackSuccess()
-{
-}
-
-void 
-Coordinator::sayCallbackError(const Ice::Exception& ex)
-{
-    ostringstream os;
-    os << "Connect failed:\n" << ex << endl; 
-    MainPage::instance()->setError(os.str());
-}
-
-void
 Coordinator::createdCommunicator(const Glacier2::SessionHelperPtr&)
 {
-}
-
-void
-Coordinator::setCallbackSuccess()
-{
-    MainPage::instance()->setConnected(true);
-}
-
-void
-Coordinator::setCallbackError(const Ice::Exception& ex)
-{
-    ostringstream os;
-    os << "Connect failed:\n" << ex << endl; 
-    MainPage::instance()->setError(os.str());
 }
 
 void
@@ -136,9 +100,17 @@ Coordinator::connected(const Glacier2::SessionHelperPtr& session)
     try
     {
         _chat = Demo::ChatSessionPrx::uncheckedCast(session->session());
-        Demo::Callback_ChatSession_setCallbackPtr cb = 
-            Demo::newCallback_ChatSession_setCallback(this, &Coordinator::setCallbackSuccess, &Coordinator::setCallbackError);
-        _chat->begin_setCallback(Demo::ChatCallbackPrx::uncheckedCast(_session->addWithUUID(this)), cb);
+        _chat->begin_setCallback(Demo::ChatCallbackPrx::uncheckedCast(_session->addWithUUID(this)),
+                                 []()
+                                    {
+                                         MainPage::instance()->setConnected(true);
+                                    },
+                                 [](const Ice::Exception& ex)
+                                    {
+                                        ostringstream os;
+                                        os << "Connect failed:\n" << ex << endl; 
+                                        MainPage::instance()->setError(os.str());
+                                    });
     }
     catch(const Ice::CommunicatorDestroyedException& ex)
     {
@@ -167,7 +139,7 @@ Coordinator::message(const string& msg, const Ice::Current&)
 {
     try
     {
-        MainPage::instance()->_chatView->appendMessage(ref new String(IceUtil::stringToWstring(msg).c_str()));
+        MainPage::instance()->appendMessage(ref new String(IceUtil::stringToWstring(msg).c_str()));
     }
     catch(const Ice::CommunicatorDestroyedException& ex)
     {
@@ -195,6 +167,12 @@ MainPage::MainPage()
     setConnected(false);
 }
 
+void
+MainPage::appendMessage(String^ message)
+{
+    _chatView->appendMessage(message);
+}
+
 MainPage^
 MainPage::instance()
 {
@@ -217,7 +195,7 @@ MainPage::setConnected(bool connected)
     }
     TypeName page = {pageName, TypeKind::Custom};
     main->Navigate(page, this);
-    _loginView->signin->IsEnabled = true;
+    _loginView->signinCompleted();
 }
 
 void
@@ -225,16 +203,6 @@ MainPage::setError(const std::string& err)
 {
     setConnected(false);
     _loginView->setError(ref new String(IceUtil::stringToWstring(err).c_str()));
-}
-
-/// <summary>
-/// Invoked when this page is about to be displayed in a Frame.
-/// </summary>
-/// <param name="e">Event data that describes how this page was reached.  The Parameter
-/// property is typically used to configure the page.</param>
-void MainPage::OnNavigatedTo(NavigationEventArgs^ e)
-{
-    (void) e; // Unused parameter
 }
 
 void chat::MainPage::signoutClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)

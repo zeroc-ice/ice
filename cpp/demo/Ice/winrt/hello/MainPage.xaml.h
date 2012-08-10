@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.h
-// Declaration of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #pragma once
 
@@ -12,56 +16,25 @@
 
 namespace hello
 {
-    ref class MainPage;
 
-    class HelloCallback : virtual public IceUtil::Shared
-    {
-    public:
+public ref class MainPage sealed
+{
+public:
 
-        HelloCallback(MainPage^);
+    MainPage();
 
-        void helloSent(bool);
+private:
 
-        void helloSuccess();
+    Demo::HelloPrx proxy();
+    bool isBatch();
+    void print(const std::string&);
 
-        void helloFailure(const Ice::Exception&);
-        
-    private:
+    void hello_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    void shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+    void flush_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 
-        MainPage^ _page;
-    };
-    typedef IceUtil::Handle<HelloCallback> HelloCallbackPtr;
+    Ice::CommunicatorPtr _communicator;
+    bool _response;
+};
 
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public ref class MainPage sealed
-    {
-    public:
-
-        MainPage();
-
-    protected:
-
-        virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
-        
-
-    private:
-
-        friend class HelloCallback;
-
-        Demo::HelloPrx proxy();
-        bool isBatch();
-
-        void helloSuccess();
-        void helloFailure(const Ice::Exception& ex);
-        void helloSent(bool);
-        void print(const std::string&);
-
-        void hello_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-        void shutdown_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-        void flush_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-
-        Ice::CommunicatorPtr _communicator;
-    };
 }

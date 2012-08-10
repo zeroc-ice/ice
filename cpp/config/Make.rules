@@ -255,12 +255,11 @@ endif
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 ifeq ($(ice_dir), /usr) 
-    CPPFLAGS		= 
     LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS)
 else
     ifeq ($(MinGW), yes)
 		includedir_win  = $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(includedir))
-		CPPFLAGS	= -I"$(includedir_win)"
+		CPPFLAGS	+= -I"$(includedir_win)"
 		ice_dir_win	= $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(ice_dir))
 		ifdef ice_src_dist
 			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
@@ -268,7 +267,7 @@ else
 			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L"$(ice_dir_win)\$(binsubdir)"
 	    endif
     else
-		CPPFLAGS	= -I$(includedir)
+		CPPFLAGS	+= -I$(includedir)
 		ifdef ice_src_dist
 			LDFLAGS		= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 	    else

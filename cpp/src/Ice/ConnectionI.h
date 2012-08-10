@@ -29,6 +29,7 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Dispatcher.h>
+#include <Ice/ConnectionAsync.h>
 
 #include <deque>
 #include <memory>
@@ -103,6 +104,15 @@ public:
     void abortBatchRequest();
 
     virtual void flushBatchRequests(); // From Connection.
+    
+#ifdef ICE_CPP11
+    virtual ::Ice::AsyncResultPtr begin_flushBatchRequests(
+                            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, 
+                            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+    {
+        return begin_flushBatchRequestsInternal(new Cpp11FnCallbackNC_Connection_flushBatchRequests(exception, sent), 0);
+    }
+#endif
 
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);

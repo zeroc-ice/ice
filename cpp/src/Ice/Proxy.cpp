@@ -70,6 +70,26 @@ IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& 
     return 0;
 }
 
+#ifdef ICE_CPP11
+void
+IceInternal::Cpp11FnOnewayCallbackNC::__completed(const ::Ice::AsyncResultPtr& result) const
+{
+    try
+    {
+        result->getProxy()->__end(result, result->getOperation());
+    }
+    catch(const ::Ice::Exception& ex)
+    {
+        Cpp11FnCallbackNC::__exception(result, ex);
+        return;
+    }
+    if(_cb != nullptr)
+    {
+        _cb();
+    }
+}
+#endif
+
 bool
 IceProxy::Ice::Object::operator==(const Object& r) const
 {

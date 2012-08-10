@@ -14,6 +14,7 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
+#include <Ice/CommunicatorAsync.h>
 
 namespace Ice
 {
@@ -58,6 +59,15 @@ public:
     virtual PluginManagerPtr getPluginManager() const;
 
     virtual void flushBatchRequests();
+
+#ifdef ICE_CPP11
+    virtual ::Ice::AsyncResultPtr begin_flushBatchRequests(
+                            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+    {
+        return begin_flushBatchRequestsInternal(new Cpp11FnCallbackNC_Communicator_flushBatchRequests(exception, sent), 0);
+    }
+#endif
 
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);

@@ -209,10 +209,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <SDKReference Include="IceWinRT, Version=3.4" />
+    <Text Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="README.txt" />
+    <SDKReference Include="IceWinRT, Version=3.4" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
