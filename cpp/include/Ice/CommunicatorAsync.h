@@ -41,11 +41,7 @@ public:
         }
         catch(::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::CallbackNC<T>::__exception(__result, ex);
-#endif
             return;
         }
     }
@@ -93,11 +89,7 @@ public:
         }
         catch(::Ice::Exception& ex)
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-            __exception(__result, ex);
-#else
             ::IceInternal::Callback<T, CT>::__exception(__result, ex);
-#endif
             return;
         }
     }

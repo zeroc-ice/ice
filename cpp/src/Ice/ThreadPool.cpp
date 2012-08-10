@@ -7,14 +7,6 @@
 //
 // **********************************************************************
 
-//
-// The following is required to bring in some definitions. Don't
-// define with Metro Style apps.
-//
-#if defined(_WIN32) && !defined(_WIN32_WINNT) && WINAPI_FAMILY != 0x02
-#       define _WIN32_WINNT 0x0501
-#endif
-
 #include <Ice/ThreadPool.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/EventHandler.h>
@@ -334,13 +326,7 @@ void
 IceInternal::ThreadPoolWorkQueue::postMessage()
 {
 #if defined(ICE_USE_IOCP)
-    if(!PostQueuedCompletionStatus(_selector.getIOCPHandle(), 0, reinterpret_cast<ULONG_PTR>(this),
-#   if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
-                                   reinterpret_cast<LPOVERLAPPED>(&_info)
-#   else
-                                   &_info
-#   endif
-                                   ))
+    if(!PostQueuedCompletionStatus(_selector.getIOCPHandle(), 0, reinterpret_cast<ULONG_PTR>(this), &_info))
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = GetLastError();

@@ -13,12 +13,8 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
 
-#ifdef _WIN32
-#    include <IceUtil/Mutex.h>
-#endif
-
-
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_HAS_WIN32_CONDVAR)
+#   include <IceUtil/Mutex.h>
 
 namespace IceUtilInternal
 {
@@ -125,7 +121,7 @@ private:
     //
     // The Monitor implementation uses waitImpl & timedWaitImpl.
     //
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(ICE_HAS_WIN32_CONDVAR)
 
     template <typename M> void
     waitImpl(const M& mutex) const
@@ -179,6 +175,9 @@ private:
 #endif
 
 #ifdef _WIN32
+#  ifdef ICE_HAS_WIN32_CONDVAR
+    mutable CONDITION_VARIABLE _cond;   
+#  else
     ICE_UTIL_API void wake(bool);
     ICE_UTIL_API void preWait() const;
     ICE_UTIL_API void postWait(bool) const;
@@ -197,13 +196,65 @@ private:
         StateBroadcast
     };
     mutable State _state;
+#  endif
 #else
     mutable pthread_cond_t _cond;
 #endif
 
 };
 
-#ifndef _WIN32
+#ifdef _WIN32
+
+#   ifdef ICE_HAS_WIN32_CONDVAR
+
+template <typename M> inline void
+Cond::waitImpl(const M& mutex) const
+{
+    typedef typename M::LockState LockState;
+    
+    LockState state;
+    mutex.unlock(state);
+    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, INFINITE);  
+    mutex.lock(state);
+    
+    if(!ok)
+    {
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+}
+
+template <typename M> inline bool
+Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
+{
+    IceUtil::Int64 msTimeout = timeout.toMilliSeconds();
+    if(msTimeout < 0 || msTimeout > 0x7FFFFFFF)
+    {
+        throw IceUtil::InvalidTimeoutException(__FILE__, __LINE__, timeout);
+    } 
+
+    typedef typename M::LockState LockState;
+
+    LockState state;
+    mutex.unlock(state);
+    BOOL ok = SleepConditionVariableCS(&_cond, state.mutex, static_cast<DWORD>(msTimeout));  
+    mutex.lock(state);
+   
+    if(!ok)
+    {
+	DWORD err = GetLastError();
+	
+	if(err != ERROR_TIMEOUT)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, err);
+	}
+	return false;
+    }
+    return true;
+}
+
+#   endif
+
+#else
 template <typename M> inline void
 Cond::waitImpl(const M& mutex) const
 {
@@ -233,16 +284,16 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     LockState state;
     mutex.unlock(state);
     
-#ifdef __APPLE__
+#   ifdef __APPLE__
     //
     // The monotonic time is based on mach_absolute_time and pthread
     // condition variables require time from gettimeofday  so we get
     // the realtime time.
     //
     timeval tv = Time::now(Time::Realtime) + timeout;
-#else
+#   else
     timeval tv = Time::now(Time::Monotonic) + timeout;
-#endif
+#   endif
     timespec ts;
     ts.tv_sec = tv.tv_sec;
     ts.tv_nsec = tv.tv_usec * 1000;

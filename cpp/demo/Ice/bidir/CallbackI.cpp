@@ -10,6 +10,10 @@
 #include <Ice/Ice.h>
 #include <CallbackI.h>
 
+#if defined(_MSC_VER) && (_MSC_VER < 1700)
+#    pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace Demo;

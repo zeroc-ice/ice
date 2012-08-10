@@ -165,28 +165,6 @@ TransientTopicImpl::getNonReplicatedPublisher(const Ice::Current&) const
     return _publisherPrx;
 }
 
-//
-// COMPILERFIX: For some reason with VC6 find reports an error.
-//
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-namespace
-{
-static vector<SubscriberPtr>::iterator
-find(vector<SubscriberPtr>::iterator start, vector<SubscriberPtr>::iterator end, const Ice::Identity& ident)
-{
-    while(start != end)
-    {
-        if(*start == ident)
-        {
-            return start;
-        }
-        ++start;
-    }
-    return end;
-}
-}
-#endif
-
 void
 TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, const Ice::Current&)
 {

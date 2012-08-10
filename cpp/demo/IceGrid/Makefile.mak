@@ -15,12 +15,8 @@ SUBDIRS		= allocate \
 		  sessionActivation \
 		  simple \
 		  replication \
-		  secure
-
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
+		  secure \
 		  icebox
-!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

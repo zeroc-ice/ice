@@ -79,12 +79,6 @@ main(int argc, char* argv[])
     }
 
 #if defined(_WIN32)
-
-    //
-    // COMPILERFIX: Unicode environments don't work well with VC6 applications,
-    // for some reasons, the wstring returned by _wgetenv are incorrect.
-    //
-#if (!defined(_MSC_VER) || _MSC_VER >= 1300)
     wchar_t* value2 = _wgetenv(L"MY_ENV_UNICODE_VARIABLE");
     test(value2 != 0 && wstring(value2) == IceUtil::stringToWstring(unicodeVar));
 
@@ -94,7 +88,6 @@ main(int argc, char* argv[])
     // Environment variables are case insensitive on Windows.
     wchar_t* value4 = _wgetenv(IceUtil::stringToWstring(varname1).c_str());
     test(value4 != 0 && wstring(value4) == L"2");
-#endif
 
     char* value5 = getenv("MY_WINDOWS_COMPOSED_VARIABLE");
     test(value5 != 0 && string(value5) == "BAR;12");

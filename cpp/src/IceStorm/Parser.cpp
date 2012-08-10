@@ -372,7 +372,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2011 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2012 ZeroC, Inc." << endl;
 }
 
 void
@@ -386,12 +386,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
         }
         else
         {
-#if defined(_MSC_VER) && _MSC_VER < 1500 && !defined(_STLP_MSVC)
-            // COMPILERBUG: Visual C++ defines min and max as macros
-            result = _MIN(maxSize, static_cast<int>(_commands.length()));
-#else
             result = min(maxSize, static_cast<int>(_commands.length()));
-#endif
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
             if(_commands.empty())

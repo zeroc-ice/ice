@@ -839,11 +839,7 @@ FreezeScript::IntegerData::toString(Ice::Long value)
 {
     char buf[64];
 #ifdef _WIN32
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
     sprintf_s(buf, "%I64d", value);
-#else
-    sprintf(buf, "%I64d", value);
-#endif
 #elif defined(ICE_64)
     sprintf(buf, "%ld", value);
 #else

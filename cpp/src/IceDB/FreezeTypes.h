@@ -108,17 +108,13 @@ public:
         try
         {
             std::map<Key, Value> m;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-            for(Dict::const_iterator p = _dict.begin(); p != _dict.end(); ++p)
-#else
             for(typename Dict::const_iterator p = _dict.begin(); p != _dict.end(); ++p)
-#endif
             {
 #ifdef __SUNPRO_CC             
                 std::map<Key, Value>::value_type v(p->first, p->second);
                 m.insert(v);
 #else
-		m.insert(*p);
+                m.insert(*p);
 #endif
             }
             return m;
@@ -135,11 +131,7 @@ public:
     {
         try
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-            _dict.put(Dict::value_type(key, data));
-#else
             _dict.put(typename Dict::value_type(key, data));
-#endif
         }
         catch(const Freeze::DatabaseException& ex)
         {
@@ -153,11 +145,7 @@ public:
     {
         try
         {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-	    Dict::const_iterator p = _dict.find(key);
-#else
             typename Dict::const_iterator p = _dict.find(key);
-#endif
             if(p == _dict.end())
             {
                 throw NotFoundException(__FILE__, __LINE__);

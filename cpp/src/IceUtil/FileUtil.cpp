@@ -170,7 +170,7 @@ IceUtilInternal::unlink(const string& path)
 int
 IceUtilInternal::close(int fd)
 {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400) || defined(__MINGW32__)
+#ifdef __MINGW32__
         return _close(fd);
 #else
         return ::close(fd);
@@ -208,7 +208,13 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     overlaped.InternalHigh = 0;
     overlaped.Offset = 0;
     overlaped.OffsetHigh = 0;
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
     overlaped.hEvent = nullptr;
+#else
+    overlaped.hEvent = 0;
+#endif
+
     if(::LockFileEx(_fd, LOCKFILE_EXCLUSIVE_LOCK | LOCKFILE_FAIL_IMMEDIATELY, 0, 0, 0, &overlaped) == 0)
     {
         ::CloseHandle(_fd);
@@ -216,8 +222,8 @@ IceUtilInternal::FileLock::FileLock(const std::string& path) :
     }
 #endif
     //
-    // In Windows implementation we don't write the process pid to the file, as is 
-    // not posible to read the file from other process while it is locked here.
+    // In Windows implementation we don't write the process pid to the file, as it is 
+    // not possible to read the file from other process while it is locked here.
     //
 }
 
@@ -228,94 +234,9 @@ IceUtilInternal::FileLock::~FileLock()
     unlink(_path);
 }
 
-#ifdef _STLP_BEGIN_NAMESPACE
-namespace
-{
-int
-toFileFlags(ios_base::openmode mode)
-{
-    int flags = 0;
-    if(mode & ios_base::app)
-    {
-        flags |= _O_APPEND;
-    }
-    if(mode & ios_base::trunc)
-    {
-        flags |= _O_TRUNC;
-    }
-    if(mode & ios_base::binary)
-    {
-        flags |= _O_BINARY;
-    }
-    if((mode & ios_base::in) && !(mode & ios_base::out))
-    {
-        flags |= _O_RDONLY;
-    }
-    else if((mode & ios_base::out) && !(mode & ios_base::in))
-    {
-        flags |= _O_WRONLY | _O_CREAT;
-    }
-    else 
-    {
-        flags |= _O_RDWR;
-        if(mode & ios_base::trunc)
-        {
-            flags |= _O_CREAT;
-        }
-    }
-    return flags;
-}
-}
-#endif
-
 IceUtilInternal::ifstream::ifstream()
-#ifdef _STLP_BEGIN_NAMESPACE
-    : _fd(-1)
-#endif
 {
 }
-
-#ifdef _STLP_BEGIN_NAMESPACE
-
-IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : _fd(-1)
-{
-    open(path, mode);
-}
-
-IceUtilInternal::ifstream::~ifstream()
-{
-    close();
-}
-
-void
-IceUtilInternal::ifstream::close()
-{
-    if(!rdbuf()->close())
-    {
-        setstate(ios_base::failbit);
-    }
-    if(_fd >= 0)
-    {
-        _close(_fd);
-    }
-}
-
-void
-IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
-{
-    mode |= ifstream::in;
-    _fd = IceUtilInternal::open(path, toFileFlags(mode));
-    if(_fd < 0 || !rdbuf()->open(_fd, mode))
-    {
-        setstate(ios_base::failbit);
-    }
-    if(mode & (ios_base::ate || ios_base::app))
-    {
-        seekg(ios_base::end);
-    }
-}
-
-#else
 
 IceUtilInternal::ifstream::ifstream(const string& path, ios_base::openmode mode) : 
 #ifdef  __MINGW32__
@@ -336,56 +257,9 @@ IceUtilInternal::ifstream::open(const string& path, ios_base::openmode mode)
 #endif
 }
 
-#endif
-
 IceUtilInternal::ofstream::ofstream()
-#ifdef _STLP_BEGIN_NAMESPACE
-    : _fd(-1)
-#endif
 {
 }
-
-#ifdef _STLP_BEGIN_NAMESPACE
-
-IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : _fd(-1)
-{
-    open(path, mode);
-}
-
-IceUtilInternal::ofstream::~ofstream()
-{
-    close();
-}
-
-void
-IceUtilInternal::ofstream::close()
-{
-    if(!rdbuf()->close())
-    {
-        setstate(ios_base::failbit);
-    }
-    if(_fd >= 0)
-    {
-        _close(_fd);
-    }
-}
-
-void
-IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
-{
-    mode |= ofstream::out;
-    _fd = IceUtilInternal::open(path, toFileFlags(mode));
-    if(_fd < 0 || !rdbuf()->open(_fd, mode))
-    {
-        setstate(ios_base::failbit);
-    }
-    if(mode & (ios_base::ate || ios_base::app))
-    {
-        seekp(ios_base::end);
-    }
-}
-
-#else
 
 IceUtilInternal::ofstream::ofstream(const string& path, ios_base::openmode mode) : 
 #ifdef __MINGW32__
@@ -406,7 +280,6 @@ IceUtilInternal::ofstream::open(const string& path, ios_base::openmode mode)
 #endif
 }
 
-#endif
 
 #else
 

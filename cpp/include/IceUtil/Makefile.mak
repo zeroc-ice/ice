@@ -44,6 +44,7 @@ SDK_HEADERS	= $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\AbstractMutex.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MutexProtocol.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MutexPtrLock.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\MutexPtrTryLock.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Optional.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Options.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutputUtil.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Random.h \

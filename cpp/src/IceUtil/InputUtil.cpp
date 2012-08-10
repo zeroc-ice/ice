@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#if (defined(_MSC_VER) && (_MSC_VER < 1300) ) || (__MINGW32__)
+#ifdef __MINGW32__
 #include <limits.h>
 #endif
 
@@ -26,10 +26,10 @@ namespace IceUtilInternal
 {
 
 
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#ifdef __MINGW32__
 
 //
-// The VC60 runtime does not include _strtoi64, so we provide our own implementation
+// The MINGW runtime does not include _strtoi64, so we provide our own implementation
 //
 
 static const string allDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -179,7 +179,7 @@ Int64
 strToInt64(const char* s, char** endptr, int base)
 {
 #if defined(_WIN32)
-#   if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#   ifdef __MINGW32__
     return strToInt64Impl(s, endptr, base);
 #   else
     return _strtoi64(s, endptr, base);

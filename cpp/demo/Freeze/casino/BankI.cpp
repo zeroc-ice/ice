@@ -101,14 +101,7 @@ BankI::checkAllChips(const Ice::Current& current) const
 Casino::BetPrx
 BankI::createBet(int amount, int lifetime, const Ice::Current&)
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    Ice::Identity ident;
-    ident.name =  IceUtil::generateUUID();
-    ident.category = "bet";
-#else
     Ice::Identity ident = { IceUtil::generateUUID(), "bet" };
-#endif
-
     Ice::Long closeTime = IceUtil::Time::now().toMilliSeconds() + lifetime;
 
     outstandingChips += amount;

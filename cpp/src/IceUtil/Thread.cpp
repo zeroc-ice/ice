@@ -181,11 +181,7 @@ WINAPI startHook(void* arg)
         {
             cerr << thread->name() << " terminating" << endl;
         }
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        terminate();
-#else
         std::terminate();
-#endif
     }
 
     thread->_done();

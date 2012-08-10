@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/LocalException.h>

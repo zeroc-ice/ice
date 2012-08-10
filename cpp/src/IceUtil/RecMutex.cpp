@@ -79,6 +79,21 @@ IceUtil::RecMutex::unlock() const
     }
 }
 
+#   ifdef ICE_HAS_WIN32_CONDVAR
+void
+IceUtil::RecMutex::unlock(LockState& state) const
+{
+    state.mutex = &_mutex;
+    state.count = _count;
+    _count = 0;
+}
+
+void
+IceUtil::RecMutex::lock(LockState& state) const
+{
+    _count = state.count;
+}
+#   else
 void
 IceUtil::RecMutex::unlock(LockState& state) const
 {
@@ -93,6 +108,7 @@ IceUtil::RecMutex::lock(LockState& state) const
     EnterCriticalSection(&_mutex);
     _count = state.count;
 }
+#   endif
 
 #else
 

@@ -13,10 +13,7 @@ top_srcdir	= ..\..
 
 
 SUBDIRS		= simple \
-		  admin
-
-!if "$(BCPLUSPLUS)" != "yes" && "$(CPP_COMPILER)" != "VC60"
-SUBDIRS		= $(SUBDIRS) \
+		  admin \
 		  activation \
 		  allocation \
 		  deployer \
@@ -25,7 +22,6 @@ SUBDIRS		= $(SUBDIRS) \
 		  replication \
 		  session \
 		  update
-!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

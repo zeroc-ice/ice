@@ -47,13 +47,8 @@ TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-TRES_FILE        = ,, TransformDB.res
-DRES_FILE        = ,, DumpDB.res
-!else
 TRES_FILE        = TransformDB.res
 DRES_FILE        = DumpDB.res
-!endif
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS) TransformDB.res
 	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(SETARGV) $(PREOUT)$@ \
@@ -70,8 +65,7 @@ $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS) DumpDB.res
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@
-	echo #include "IceUtil/Config.h" > Scanner.cpp
-	echo #include "stdint.h" >> Scanner.cpp
+	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
 	type lex.yy.c >> Scanner.cpp
 	del /q lex.yy.c
 
@@ -91,14 +85,7 @@ install:: all
 	copy $(TRANSFORMDB) "$(install_bindir)"
 	copy $(DUMPDB) "$(install_bindir)"
 
-
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(TRANSFORMDB:.exe=.tds) "$(install_bindir)"
-	copy $(DUMPDB:.exe=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.pdb) "$(install_bindir)"

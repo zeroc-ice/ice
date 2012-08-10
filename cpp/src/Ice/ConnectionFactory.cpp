@@ -50,15 +50,9 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 template <typename K, typename V> void
 remove(multimap<K, V>& m, K k, V v)
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    pair<multimap<K, V>::iterator, multimap<K, V>::iterator> pr = m.equal_range(k);
-    assert(pr.first != pr.second);
-    for(multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
-#else
     pair<typename multimap<K, V>::iterator, typename multimap<K, V>::iterator> pr = m.equal_range(k);
     assert(pr.first != pr.second);
     for(typename multimap<K, V>::iterator q = pr.first; q != pr.second; ++q)
-#endif
     {
         if(q->second.get() == v.get())
         {
@@ -74,15 +68,9 @@ find(const multimap<K,::IceInternal::Handle<V> >& m,
      K k, 
      const ::IceUtilInternal::ConstMemFun<bool, V, ::IceInternal::Handle<V> >& predicate)
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    pair<multimap<K, ::IceInternal::Handle<V> >::const_iterator, 
-         multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
-    for(multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
-#else
     pair<typename multimap<K, ::IceInternal::Handle<V> >::const_iterator, 
          typename multimap<K, ::IceInternal::Handle<V> >::const_iterator> pr = m.equal_range(k);
     for(typename multimap<K, ::IceInternal::Handle<V> >::const_iterator q = pr.first; q != pr.second; ++q)
-#endif
     {
         if(predicate(q->second))
         {
@@ -109,17 +97,10 @@ IceInternal::OutgoingConnectionFactory::destroy()
     {
         return;
     }
-
-#ifdef _STLP_BEGIN_NAMESPACE
-    // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
-    for_each(_connections.begin(), _connections.end(),
-             voidbind2nd(Ice::secondVoidMemFun1<ConnectorPtr, ConnectionI, ConnectionI::DestructionReason>
-                         (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
-#else
+    
     for_each(_connections.begin(), _connections.end(),
              bind2nd(Ice::secondVoidMemFun1<const ConnectorPtr, ConnectionI, ConnectionI::DestructionReason>
                      (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
-#endif
 
     _destroyed = true;
     _communicator = 0;
@@ -1736,15 +1717,8 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 _acceptor->close();
             }
 #endif
-
-#ifdef _STLP_BEGIN_NAMESPACE
-            // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
-            for_each(_connections.begin(), _connections.end(),
-                     voidbind2nd(Ice::voidMemFun1(&ConnectionI::destroy), ConnectionI::ObjectAdapterDeactivated));
-#else
             for_each(_connections.begin(), _connections.end(),
                      bind2nd(Ice::voidMemFun1(&ConnectionI::destroy), ConnectionI::ObjectAdapterDeactivated));
-#endif
             break;
         }
 

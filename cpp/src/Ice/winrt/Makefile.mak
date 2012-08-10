@@ -87,6 +87,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ServantManager.obj \
 		  $(ARCH)\$(CONFIG)\SliceChecksumDict.obj \
 		  $(ARCH)\$(CONFIG)\SliceChecksums.obj \
+		  $(ARCH)\$(CONFIG)\SlicedData.obj \
 		  $(ARCH)\$(CONFIG)\Stats.obj \
 		  $(ARCH)\$(CONFIG)\StreamI.obj \
 		  $(ARCH)\$(CONFIG)\Stream.obj \
@@ -97,7 +98,8 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Transceiver.obj \
 		  $(ARCH)\$(CONFIG)\UdpConnector.obj \
 		  $(ARCH)\$(CONFIG)\UdpEndpointI.obj \
-		  $(ARCH)\$(CONFIG)\UdpTransceiver.obj
+		  $(ARCH)\$(CONFIG)\UdpTransceiver.obj \
+		  $(ARCH)\$(CONFIG)\Version.obj
 
 LOCAL_OBJS	= $(ARCH)\$(CONFIG)\StreamAcceptor.obj \
 		  $(ARCH)\$(CONFIG)\StreamConnector.obj \
@@ -140,7 +142,8 @@ SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\ServantLocator.ice \
 		  $(slicedir)\Ice\SliceChecksumDict.ice \
 		  $(slicedir)\Ice\StatsF.ice \
-		  $(slicedir)\Ice\Stats.ice
+		  $(slicedir)\Ice\Stats.ice \
+		  $(slicedir)\Ice\Version.ice
 
 SLICE_SSL_SRCS	= $(slicedir)\IceSSL\EndpointInfo.ice \
 		  $(slicedir)\IceSSL\ConnectionInfo.ice

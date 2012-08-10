@@ -1192,11 +1192,7 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     int i = 0;
     for(vector<string>::const_iterator p = args.begin(); p != args.end(); ++p)
     {
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
        argv[i++] = _strdup(p->c_str());
-#else
-       argv[i++] = strdup(p->c_str());
-#endif
     }
 
     //

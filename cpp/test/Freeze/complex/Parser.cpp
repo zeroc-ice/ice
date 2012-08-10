@@ -69,12 +69,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
 {
     if(!_buf.empty())
     {
-#if defined(_MSC_VER) && _MSC_VER < 1500 && !defined(_STLP_MSVC)
-        // COMPILERBUG: Visual C++ defines min and max as macros
-        result = _MIN(maxSize, static_cast<int>(_buf.length()));
-#else
         result = min(maxSize, static_cast<int>(_buf.length()));
-#endif
         strncpy(buf, _buf.c_str(), result);
         _buf.erase(0, result);
     }

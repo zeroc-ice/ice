@@ -81,6 +81,9 @@ private:
 #ifdef _WIN32
     struct LockState
     {
+#   ifdef ICE_HAS_WIN32_CONDVAR
+        CRITICAL_SECTION* mutex;
+#   endif
         int count;
     };
 #else

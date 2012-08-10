@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Object.h>
 #include <Ice/ConnectionI.h>
@@ -524,11 +525,7 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
 void
 IceInternal::OutgoingAsync::__sent()
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    AsyncResult::__sent();
-#else
     ::Ice::AsyncResult::__sent();
-#endif
     if(!_proxy->ice_isTwoway())
     {
         _observer.detach();
@@ -901,11 +898,7 @@ IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
 void
 IceInternal::BatchOutgoingAsync::__sent()
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    AsyncResult::__sent();
-#else
     ::Ice::AsyncResult::__sent();
-#endif
 }
 
 void

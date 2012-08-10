@@ -38,7 +38,7 @@ ICE_UTIL_API bool directoryExists(const std::string&);
 
 #ifdef _WIN32
 
-#if defined(__MINGW32__) || (defined(_MSC_VER) && (_MSC_VER < 1300))
+#if defined(__MINGW32__)
 typedef struct _stat structstat;
 #else
 typedef struct _stat64i32 structstat;
@@ -118,10 +118,6 @@ public:
 
     ifstream();
     ifstream(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
-#ifdef _STLP_BEGIN_NAMESPACE
-    ~ifstream();
-    void close();
-#endif
     void open(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
 
 private:
@@ -129,10 +125,6 @@ private:
     // Hide const char* definitions since they shouldn't be used.
     ifstream(const char*);
     void open(const char*, std::ios_base::openmode mode = std::ios_base::in);
-    
-#ifdef _STLP_BEGIN_NAMESPACE
-    int _fd;
-#endif
 };
 
 class ICE_UTIL_API ofstream : public std::ofstream
@@ -141,10 +133,6 @@ public:
 
     ofstream();
     ofstream(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
-#ifdef _STLP_BEGIN_NAMESPACE
-    ~ofstream();
-    void close();
-#endif
     void open(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
 
 private:
@@ -152,10 +140,6 @@ private:
     // Hide const char* definitions since they shouldn't be used.
     ofstream(const char*);
     void open(const char*, std::ios_base::openmode mode = std::ios_base::out);
-
-#ifdef _STLP_BEGIN_NAMESPACE
-    int _fd;
-#endif
 };
 
 }

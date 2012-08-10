@@ -266,11 +266,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
 
     switch(sysInfo.wProcessorArchitecture)
     {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    case 9: // PROCESSOR_ARCHITECTURE_AMD64
-#else
     case PROCESSOR_ARCHITECTURE_AMD64:
-#endif
         _machine = "x64";
         break;
     case PROCESSOR_ARCHITECTURE_IA64:

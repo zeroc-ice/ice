@@ -28,20 +28,8 @@
 
 using namespace std;
 using namespace Slice;
-
-//
-// Don't use "using namespace IceUtil", or VC++ 6.0 complains about
-// ambigious symbols for constructs like
-// "IceUtil::constMemFun(&Slice::Exception::isLocal)".
-//
-using IceUtilInternal::Output;
-using IceUtilInternal::nl;
-using IceUtilInternal::sp;
-using IceUtilInternal::sb;
-using IceUtilInternal::eb;
-using IceUtilInternal::spar;
-using IceUtilInternal::epar;
-using IceUtilInternal::trim;
+using namespace IceUtil;
+using namespace IceUtilInternal;
 
 static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(Operation::Mode opMode)
@@ -189,9 +177,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     // when inlining is on. The code below issues a warning: better
     // than an error!
     //
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun<string,ClassDef>(&Contained::scoped));
 #else
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&Contained::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), constMemFun(&Contained::scoped));
 #endif
 
     StringList other;
@@ -615,9 +603,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         //
         // See comment for transform above
         //
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun<string,Operation>(&Contained::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun<string,Operation>(&Contained::name));
 #else
-        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::constMemFun(&Contained::name));
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), constMemFun(&Contained::name));
 #endif
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
@@ -2026,7 +2014,7 @@ Slice::Gen::generateChecksums(const UnitPtr& u)
     ChecksumMap map = createChecksums(u);
     if(!map.empty())
     {
-        string className = "X" + IceUtil::generateUUID();
+        string className = "X" + generateUUID();
         for(string::size_type pos = 1; pos < className.size(); ++pos)
         {
             if(!isalnum(static_cast<unsigned char>(className[pos])))

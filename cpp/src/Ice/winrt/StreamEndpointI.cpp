@@ -32,8 +32,9 @@ template<class T> class InfoI : public T
 {
 public:
     
-    InfoI(Ice::Short type, Ice::Int to, bool comp, const string& host, Ice::Int port) :
-        T(to, comp, host, port), _type(type)
+    InfoI(const ProtocolVersion& pv, const EncodingVersion& ev, Ice::Short type, Ice::Int to, bool comp, 
+           const string& host, Ice::Int port) :
+        T(pv, ev, to, comp, host, port), _type(type)
     {
     }
     
@@ -202,9 +203,7 @@ IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::
 
             default:
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "unknown option `" + option + "' in `" + typeToString(_type) + " " + str + "'";
-                throw ex;
+                parseOption(option, argument, typeToString(_type), str);
             }
         }
     }
@@ -240,6 +239,16 @@ IceInternal::StreamEndpointI::StreamEndpointI(BasicStream* s, Ice::Short type) :
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
+    if(s->getReadEncoding() > Ice::Encoding_1_0)
+    {
+        const_cast<Ice::ProtocolVersion&>(_protocol).__read(s);
+        const_cast<Ice::EncodingVersion&>(_encoding).__read(s);
+    }
+    else
+    {
+        const_cast<ProtocolVersion&>(_protocol) = Ice::Protocol_1_0;
+        const_cast<EncodingVersion&>(_encoding) = Ice::Encoding_1_0;
+    }
     s->endReadEncaps();
 }
 
@@ -252,6 +261,11 @@ IceInternal::StreamEndpointI::streamWrite(BasicStream* s) const
     s->write(_port);
     s->write(_timeout);
     s->write(_compress);
+    if(s->getWriteEncoding() > Ice::Encoding_1_0)
+    {
+        _protocol.__write(s);
+        _encoding.__write(s);
+    }
     s->endWriteEncaps();
 }
 
@@ -268,6 +282,16 @@ IceInternal::StreamEndpointI::toString() const
     ostringstream s;
     s << "" + typeToString(_type) + "";
 
+    if(_protocol != Ice::Protocol_1_0)
+    {
+        s << " -v " << _protocol;
+    }
+
+    if(_encoding != Ice::Encoding_1_0)
+    {
+        s << " -e " << _encoding;
+    }
+    
     if(!_host.empty())
     {
         s << " -h ";
@@ -301,9 +325,9 @@ IceInternal::StreamEndpointI::getInfo() const
     switch(_type)
     {
     case TCPEndpointType:
-        return new InfoI<Ice::TCPEndpointInfo>(_type, _timeout, _compress, _host, _port);
+        return new InfoI<Ice::TCPEndpointInfo>(_protocol, _encoding, _type, _timeout, _compress, _host, _port);
     case IceSSL::EndpointType:
-        return new InfoI<IceSSL::EndpointInfo>(_type, _timeout, _compress, _host, _port);
+        return new InfoI<IceSSL::EndpointInfo>(_protocol, _encoding, _type, _timeout, _compress, _host, _port);
     default:
         assert(false);
         return 0;
@@ -578,7 +602,7 @@ IceInternal::StreamEndpointI::connectors(const vector<Address>& addresses) const
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new StreamConnector(_instance, _type, addresses[i], _timeout, _connectionId));
+        connectors.push_back(new StreamConnector(_instance, _type, addresses[i], _timeout, _protocol, _encoding, _connectionId));
     }
     return connectors;
 }

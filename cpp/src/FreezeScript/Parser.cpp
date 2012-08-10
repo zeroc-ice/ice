@@ -166,11 +166,7 @@ FreezeScript::EvaluateException::ice_name() const
 void
 FreezeScript::EvaluateException::ice_print(ostream& out) const
 {
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    Exception::ice_print(out);
-#else
     Ice::Exception::ice_print(out);
-#endif
     out << ":\nerror occurred while evaluating expression";
     if(!_reason.empty())
     {

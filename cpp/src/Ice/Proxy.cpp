@@ -47,14 +47,6 @@ const string ice_flushBatchRequests_name = "ice_flushBatchRequests";
 ::Ice::ObjectPrx
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)
 {
-//
-// COMPILERBUG: Without this work-around, release VC7.0 and VC7.1
-// build crash when FacetNotExistException is raised
-//
-#if defined(_MSC_VER) && (_MSC_VER >= 1300) && (_MSC_VER <= 1310)
-    ObjectPrx fooBar;
-#endif
-
     if(b)
     {
         ObjectPrx bb = b->ice_facet(f);

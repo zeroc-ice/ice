@@ -41,11 +41,7 @@ CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DSLICE_API_EXPORTS  -DWIN32_LEAN_AND
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(BCPLUSPLUS)" == "yes"
-RES_FILE        = ,, Slice.res
-!else
 RES_FILE        = Slice.res
-!endif
 
 !if "$(STATICLIBS)" == "yes"
 
@@ -71,8 +67,7 @@ $(DLLNAME): $(OBJS) Slice.res
 Scanner.cpp : Scanner.l
 	flex Scanner.l
 	del /q $@
-	echo #include "IceUtil/Config.h" > Scanner.cpp
-	echo #include "stdint.h" >> Scanner.cpp
+	echo #include "IceUtil/ScannerConfig.h" >> Scanner.cpp
 	type lex.yy.c >> Scanner.cpp
 	del /q lex.yy.c
 
@@ -91,12 +86,7 @@ install:: all
 	copy $(DLLNAME) "$(install_bindir)"
 
 
-!if "$(BCPLUSPLUS)" == "yes" && "$(OPTIMIZE)" != "yes"
-
-install:: all
-	copy $(DLLNAME:.dll=.tds) "$(install_bindir)"
-
-!elseif "$(GENERATE_PDB)" == "yes"
+!if "$(GENERATE_PDB)" == "yes"
 
 install:: all
 	copy $(DLLNAME:.dll=.pdb) "$(install_bindir)"

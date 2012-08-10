@@ -68,11 +68,7 @@ public:
             T item = _func();
 
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(staticMutex);
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-            pair<ItemSet::iterator, bool> ok = _itemSet.insert(item);
-#else
             pair<typename ItemSet::iterator, bool> ok = _itemSet.insert(item);
-#endif
             if(!ok.second)
             {
                 cerr << "******* iteration " << i << endl;

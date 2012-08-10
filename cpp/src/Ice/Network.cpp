@@ -17,14 +17,7 @@
 #  include <netinet/in.h>
 #endif
 
-//
-// The following is required for the Vista PSDK to bring in
-// the definitions of the IN6_IS_ADDR_* macros.
-//
-#if defined(_WIN32) && !defined(_WIN32_WINNT) && WINAPI_FAMILY != 0x02
-#       define _WIN32_WINNT 0x0501
-#endif
-
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/Network.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Unicode.h>
@@ -2237,11 +2230,7 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, AsyncInfo& info)
     }        
 
     if(!ConnectEx(fd, reinterpret_cast<const struct sockaddr*>(&addr), size, 0, 0, 0, 
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // COMPILER FIX: VC60
-                  reinterpret_cast<LPOVERLAPPED>(&info)
-#else
                   &info
-#endif
                   ))
     {
         if(!connectInProgress())

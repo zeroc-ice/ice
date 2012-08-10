@@ -527,28 +527,6 @@ TopicImpl::getNonReplicatedPublisher() const
     }
 }
 
-//
-// COMPILERFIX: For some reason with VC6 find reports an error.
-//
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-namespace
-{
-vector<SubscriberPtr>::iterator
-find(vector<SubscriberPtr>::iterator start, vector<SubscriberPtr>::iterator end, const Ice::Identity& ident)
-{
-    while(start != end)
-    {
-        if(*start == ident)
-        {
-            return start;
-        }
-        ++start;
-    }
-    return end;
-}
-}
-#endif
-
 namespace
 {
 void

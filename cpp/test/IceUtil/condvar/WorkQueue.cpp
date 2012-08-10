@@ -262,7 +262,7 @@ main(int argc, char** argv)
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(cd, signalQ, i % 2);
+        TestThreadPtr p = new TestThread(cd, signalQ, i % 2 != 0);
         p->start();
         testThreads.push_back(p);
     }
@@ -275,7 +275,7 @@ main(int argc, char** argv)
 
     for(i = 0; i < 100; i++)
     {
-        TestThreadPtr p = new TestThread(cd, broadcastQ, i % 2);
+        TestThreadPtr p = new TestThread(cd, broadcastQ, i % 2 != 0);
         p->start();
         testThreads.push_back(p);
     }

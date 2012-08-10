@@ -7,25 +7,13 @@
 //
 // **********************************************************************
 
-#define _WIN32_WINNT 0x0500
-
-#if defined(_MSC_VER) && _MSC_VER >= 1400
-#    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated
-#endif
-
+#include <IceUtil/DisableWarnings.h>
 #include <ServiceInstaller.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 
-
 #include <Aclapi.h>
-
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-//
-// The VC6 headers don't include Sddl.h
-//
 #include <Sddl.h>
-#endif
 
 using namespace std;
 using namespace Ice;
@@ -475,13 +463,10 @@ IceServiceInstaller::initializeSid(const string& name)
     if(_debug)
     {
         Trace trace(_communicator->getLogger(), "IceServiceInstaller");
-
-#if defined(_MSC_VER) && _MSC_VER >= 1300
         wchar_t* sidString = 0;
         ConvertSidToStringSidW(_sid.get(), &sidString);
         trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
         LocalFree(sidString);
-#endif
         trace << "Full name: " << _sidName;
     }
 }

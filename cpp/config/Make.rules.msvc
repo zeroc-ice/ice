@@ -28,7 +28,7 @@ GENERATE_PDB	= yes
 !endif
 
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc
-ARFLAGS	= $(ARFLAGS) -nologo -WX 
+ARFLAGS	        = $(ARFLAGS) -nologo -WX 
 
 !if "$(WINRT)" == "yes"
 CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
@@ -42,27 +42,18 @@ ARFLAGS	= $(ARFLAGS) /ignore:4264 /ignore:4221
 CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE
 !endif
 
-!if "$(CPP_COMPILER)" != "VC60"
 CPPFLAGS        = $(CPPFLAGS) -MP
-!endif
 
 !if "$(OPTIMIZE)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
-ARFLAGS	= $(ARFLAGS) /LTCG
+ARFLAGS	        = $(ARFLAGS) /LTCG
 CONFIG		= Retail	
 
 !else
 
-CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd
+CPPFLAGS	= $(CPPFLAGS) -Zi -Od -D_DEBUG -MDd -RTC1
 CONFIG		= Debug
-
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = $(CPPFLAGS) -GZ -Gm
-!else
-CPPFLAGS        = $(CPPFLAGS) -RTC1
-!endif
-
 !endif
 
 !if "$(STATICLIBS)" == "yes"
@@ -90,9 +81,6 @@ LDFLAGS		= $(LDFLAGS) /FIXED:no
 !if "$(OPTIMIZE)" != "yes"
 
 LDFLAGS		= $(LDFLAGS) /debug
-!if "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC100_EXPRESS" 
-LDFLAGS         = $(LDFLAGS) /incremental:yes
-!endif
 
 !else
 
@@ -114,7 +102,13 @@ ICE_OS_LIBS     = kernel32.lib user32.lib
 !else
 ICE_OS_LIBS     = rpcrt4.lib advapi32.lib
 BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
+
+!if "$(CPP_COMPILER)" == "VC110"
+DB_LIBS         = libdb53$(LIBSUFFIX).lib
+!else
 DB_LIBS         = libdb48$(LIBSUFFIX).lib
+!endif
+
 MCPP_LIBS       = mcpp$(LIBSUFFIX).lib
 ICONV_LIB       = libiconv.lib
 !endif
@@ -129,18 +123,18 @@ LIBS		= ice.lib $(BASELIBS)
 
 !if "$(WINRT)" == "yes"
 
-SDK_VERSION			= $(SHORT_VERSION)
-SDK_NAME				= IceWinRT
-SDK_REG_FILE			= $(SDK_NAME).reg
-SDK_MANIFEST			= SDKManifest.xml
-SDK_BASE_PATH			= $(top_srcdir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
-SDK_INCLUDE_PATH		= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include
-SDK_LIBRARY_PATH		= $(SDK_BASE_PATH)\DesignTime\$(CONFIG)\$(ARCH)
+SDK_VERSION		= $(SHORT_VERSION)
+SDK_NAME		= IceWinRT
+SDK_REG_FILE		= $(SDK_NAME).reg
+SDK_MANIFEST		= SDKManifest.xml
+SDK_BASE_PATH		= $(top_srcdir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
+SDK_INCLUDE_PATH	= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral\include
+SDK_LIBRARY_PATH	= $(SDK_BASE_PATH)\DesignTime\$(CONFIG)\$(ARCH)
 SDK_REFERENCES_PATH	= $(SDK_BASE_PATH)\References\$(CONFIG)\$(ARCH)
 SDK_REDIST_PATH		= $(SDK_BASE_PATH)\Redist\$(CONFIG)\$(ARCH)
 SDK_PROPS_PATH		= $(SDK_BASE_PATH)\DesignTime\CommonConfiguration\Neutral
-SDK_PROPS_FILE			= $(SDK_NAME).props
-SDK_LICENSE			= $(SDK_BASE_PATH)\LICENSE.txt
+SDK_PROPS_FILE		= $(SDK_NAME).props
+SDK_LICENSE		= $(SDK_BASE_PATH)\LICENSE.txt
 SDK_ICE_LICENSE		= $(SDK_BASE_PATH)\ICE_LICENSE.txt
 
 

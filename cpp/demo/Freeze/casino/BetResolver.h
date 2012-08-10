@@ -30,17 +30,10 @@ public:
 
     int getBetCount() const;
 
-#if (!defined(_MSC_VER) || (_MSC_VER >= 1300))
-//
-// Some compilers don't let local classes access private members
-//
 private:
-#endif
 
     void decrementBetCount();
-
-private:
-
+    
     int _betCount;
     IceUtil::Mutex _mutex;
     std::vector<IceUtil::TimerPtr> _timers;

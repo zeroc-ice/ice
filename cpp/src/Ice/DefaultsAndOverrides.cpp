@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
 #include <Ice/Network.h>
