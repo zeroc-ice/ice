@@ -51,7 +51,6 @@ SRCS		= Acceptor.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
 		  Instance.cs \
-		  LocalObject.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
