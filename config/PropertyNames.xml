@@ -297,6 +297,7 @@ generated from the section label.
 
     <class name="mx" prefix-only="false">
         <suffix name="GroupBy" />
+        <suffix name="Map" />
         <suffix name="RetainDetached" />
         <suffix name="Accept" />
         <suffix name="Reject" />
@@ -387,7 +388,7 @@ generated from the section label.
     </section>
 
     <section name="IceMX">
-        <property name="MetricsView.[any]" class="mx" />
+        <property name="Metrics.[any]" class="mx" />
     </section>
 
     <section name="IceBox">

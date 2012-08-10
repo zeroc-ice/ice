@@ -308,7 +308,7 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
         if(q == _views.end())
         {
             bool disabled = _properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0;
-            q = _views.insert(make_pair(viewName, new MetricsViewI(disabled))).first;
+            q = _views.insert(make_pair(viewName, new MetricsViewI(!disabled))).first;
         }
         MetricsViewIPtr view = q->second;
         
