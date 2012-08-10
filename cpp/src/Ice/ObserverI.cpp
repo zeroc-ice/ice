@@ -36,8 +36,29 @@ getConnectionStateMetric(ConnectionState s)
         return &ConnectionMetrics::closing;
     case ConnectionStateClosed:
         return &ConnectionMetrics::closed;
+    default:
+        assert(false);
+        return 0;
     }
 }    
+
+struct ConnectionStateChanged 
+{
+    ConnectionStateChanged(ConnectionState oldState, ConnectionState newState) : 
+        oldState(oldState), newState(newState)
+    {
+    }
+
+    void operator()(const ConnectionMetricsPtr& v)
+    {
+        --(v.get()->*getConnectionStateMetric(oldState));
+        ++(v.get()->*getConnectionStateMetric(newState));
+    }
+
+
+    ConnectionState oldState;
+    ConnectionState newState;
+};
 
 int ThreadMetrics::*
 getThreadStateMetric(ThreadState s)
@@ -52,8 +73,34 @@ getThreadStateMetric(ThreadState s)
         return &ThreadMetrics::inUseForUser;
     case ThreadStateInUseForOther:
         return &ThreadMetrics::inUseForOther;
+    default:
+        assert(false);
+        return 0;
     }
 }    
+
+struct ThreadStateChanged 
+{
+    ThreadStateChanged(ThreadState oldState, ThreadState newState) : oldState(oldState), newState(newState)
+    {
+    }
+    
+    void operator()(const ThreadMetricsPtr& v)
+    {
+        if(oldState != ThreadStateIdle)
+        {
+            --(v.get()->*getThreadStateMetric(oldState));
+        }
+        if(newState != ThreadStateIdle)
+        {
+            ++(v.get()->*getThreadStateMetric(newState));
+        }
+    }
+    
+
+    ThreadState oldState;
+    ThreadState newState;
+};
 
 template<typename Helper>
 void addEndpointAttributes(typename Helper::Attributes& attrs)
@@ -107,7 +154,7 @@ public:
     static Attributes attributes;
     
     ConnectionHelper(const ConnectionInfoPtr& con, const EndpointInfoPtr& endpt, ConnectionState state) : 
-        MetricsHelperT("Connection"), _connection(con), _endpoint(endpt), _state(state)
+        MetricsHelperT<ConnectionMetrics>("Connection"), _connection(con), _endpoint(endpt), _state(state)
     {
     }
 
@@ -196,7 +243,7 @@ public:
     };
     static Attributes attributes;
     
-    DispatchHelper(const Current& current) : MetricsHelperT("Dispatch"), _current(current)
+    DispatchHelper(const Current& current) : MetricsHelperT<Metrics>("Dispatch"), _current(current)
     {
     }
 
@@ -297,7 +344,7 @@ public:
     static Attributes attributes;
     
     InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = Ice::Context()) :
-        MetricsHelperT("Invocation"), _proxy(proxy), _operation(op), _context(ctx)
+        MetricsHelperT<InvocationMetrics>("Invocation"), _proxy(proxy), _operation(op), _context(ctx)
     {
     }
 
@@ -400,7 +447,7 @@ public:
     };
     static Attributes attributes;
     
-    RemoteInvocationHelper(const ConnectionPtr& con) : MetricsHelperT("Remote"), _connection(con)
+    RemoteInvocationHelper(const ConnectionPtr& con) : MetricsHelperT<Metrics>("Remote"), _connection(con)
     {
     }
 
@@ -474,7 +521,7 @@ public:
     static Attributes attributes;
     
     ThreadHelper(const string& parent, const string& id, ThreadState state) :
-        MetricsHelperT("Thread"), _parent(parent), _id(id), _state(state)
+        MetricsHelperT<ThreadMetrics>("Thread"), _parent(parent), _id(id), _state(state)
     {
     }
 
@@ -519,7 +566,7 @@ public:
     
     EndpointHelper(const string& mapName, 
                    const EndpointInfoPtr& endpt, 
-                   const string& id) : MetricsHelperT(mapName), _id(id), _endpoint(endpt)
+                   const string& id) : MetricsHelperT<Metrics>(mapName), _id(id), _endpoint(endpt)
     {
     }
 
@@ -560,24 +607,7 @@ ConnectionObserverI::detach()
 void
 ConnectionObserverI::stateChanged(ConnectionState oldState, ConnectionState newState)
 {
-    struct StateChanged 
-    {
-        StateChanged(ConnectionState oldState, ConnectionState newState) : 
-            oldState(oldState), newState(newState)
-        {
-        }
-
-        void operator()(const ConnectionMetricsPtr& v)
-        {
-            --(v.get()->*getConnectionStateMetric(oldState));
-            ++(v.get()->*getConnectionStateMetric(newState));
-        }
-
-
-        ConnectionState oldState;
-        ConnectionState newState;
-    };
-    forEach(StateChanged(oldState, newState));
+    forEach(ConnectionStateChanged(oldState, newState));
 }
 
 void 
@@ -595,29 +625,7 @@ ConnectionObserverI::receivedBytes(Int num, Long duration)
 void
 ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
 {
-    struct StateChanged 
-    {
-        StateChanged(ThreadState oldState, ThreadState newState) : oldState(oldState), newState(newState)
-        {
-        }
-
-        void operator()(const ThreadMetricsPtr& v)
-        {
-            if(oldState != ThreadStateIdle)
-            {
-                --(v.get()->*getThreadStateMetric(oldState));
-            }
-            if(newState != ThreadStateIdle)
-            {
-                ++(v.get()->*getThreadStateMetric(newState));
-            }
-        }
-
-
-        ThreadState oldState;
-        ThreadState newState;
-    };
-    forEach(StateChanged(oldState, newState));
+    forEach(ThreadStateChanged(oldState, newState));
 }
 
 InvocationObserverI::InvocationObserverI()

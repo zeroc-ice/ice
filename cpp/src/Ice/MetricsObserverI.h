@@ -314,7 +314,7 @@ public:
     }
 
     template<typename Function> void
-    forEach(Function func)
+    forEach(const Function& func)
     {
         for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {

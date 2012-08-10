@@ -18,7 +18,7 @@ endif
 TOOLCHAIN_BIN_DIR	= $(DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/bin
 CXX			= $(TOOLCHAIN_BIN_DIR)/clang++
 
-#CXX	                = g++
+CXX	                = g++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 

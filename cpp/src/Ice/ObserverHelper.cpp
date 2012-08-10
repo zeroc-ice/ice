@@ -38,11 +38,13 @@ InvocationObserver::attach(IceProxy::Ice::Object* proxy, const string& operation
     {
         if(context)
         {
-            ObserverHelperT::attach(obsv->getInvocationObserverWithContext(proxy, operation, *context));
+            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
+                obsv->getInvocationObserverWithContext(proxy, operation, *context));
         }
         else
         {
-            ObserverHelperT::attach(obsv->getInvocationObserver(proxy, operation));
+            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
+                obsv->getInvocationObserver(proxy, operation));
         }
     }
 }
