@@ -60,6 +60,9 @@ OBJS		= Acceptor.obj \
 		  LoggerI.obj \
 		  Logger.obj \
 		  LoggerUtil.obj \
+		  Metrics.obj \
+		  MetricsAdminI.obj \
+		  MetricsObserverI.obj \
 		  Network.obj \
 		  ObjectAdapterFactory.obj \
 		  ObjectAdapterI.obj \
@@ -67,6 +70,9 @@ OBJS		= Acceptor.obj \
 		  ObjectFactoryManager.obj \
 		  ObjectFactory.obj \
 		  Object.obj \
+		  Observer.obj \
+		  ObserverHelper.obj \
+		  ObserverI.obj \
 		  OpaqueEndpointI.obj \
 		  OutgoingAsync.obj \
 		  Outgoing.obj \
@@ -171,8 +177,11 @@ clean::
 	-del /q Locator.cpp $(HDIR)\Locator.h
 	-del /q LoggerF.cpp $(HDIR)\LoggerF.h
 	-del /q Logger.cpp $(HDIR)\Logger.h
+	-del /q Metrics.cpp $(HDIR)\Metrics.h
 	-del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
 	-del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
+	-del /q Observer.cpp $(HDIR)\Observer.h
+	-del /q ObserverF.cpp $(HDIR)\ObserverF.h
 	-del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
 	-del /q ObjectFactory.cpp $(HDIR)\ObjectFactory.h
 	-del /q PluginF.cpp $(HDIR)\PluginF.h

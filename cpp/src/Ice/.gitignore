@@ -19,10 +19,13 @@ LocatorF.cpp
 Locator.cpp
 LoggerF.cpp
 Logger.cpp
+Metrics.cpp
 ObjectAdapterF.cpp
 ObjectAdapter.cpp
 ObjectFactoryF.cpp
 ObjectFactory.cpp
+ObserverF.cpp
+Observer.cpp
 PluginF.cpp
 Plugin.cpp
 ProcessF.cpp

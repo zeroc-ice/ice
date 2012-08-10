@@ -10,6 +10,8 @@
 #pragma once
 
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Monitor.h>
+#include <IceUtil/Mutex.h>
 
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>

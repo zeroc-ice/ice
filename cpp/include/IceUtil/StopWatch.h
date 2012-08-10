@@ -15,7 +15,7 @@
 namespace IceUtilInternal
 {
 
-class ICE_UTIL_API StopWatch
+class StopWatch
 {
 public:
 
@@ -26,10 +26,10 @@ public:
         _s = IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
     
-    long stop()
+    IceUtil::Int64 stop()
     {
         assert(isStarted());
-        long d = (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
+        IceUtil::Int64 d = (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
         _s = IceUtil::Time();
         return d;
     }

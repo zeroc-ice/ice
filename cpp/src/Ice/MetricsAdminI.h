@@ -75,7 +75,7 @@ public:
         }
         
         void 
-        detach(long lifetime)
+        detach(Ice::Long lifetime)
         {
             bool detached = false;
             {
@@ -273,17 +273,7 @@ class MetricsViewI : public IceUtil::Shared
 {
 public:
     
-    MetricsViewI(bool);
-
-    void setEnabled(bool enabled)
-    {
-        _enabled = enabled;
-    }
-
-    bool isEnabled() const 
-    {
-        return _enabled;
-    }
+    MetricsViewI();
 
     void add(const std::string&, const MetricsMapIPtr&);
     void remove(const std::string&);
@@ -298,7 +288,6 @@ public:
 private:
 
     std::map<std::string, MetricsMapIPtr> _maps;
-    bool _enabled;
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 

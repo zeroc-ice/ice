@@ -1335,21 +1335,24 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             unscheduleTimeout(current.operation);
             if(current.operation & SocketOperationWrite && !_writeStream.b.empty())
             {
-                if(_observer.get() && _writeStream.i != _writeStream.b.end())
+                if(_writeStream.i != _writeStream.b.end())
                 {
-                    _observer->startWrite();
-                }
-
-                if(_writeStream.i != _writeStream.b.end() && !_transceiver->write(_writeStream))
-                {
-                    assert(!_writeStream.b.empty());
-                    scheduleTimeout(SocketOperationWrite, _endpoint->timeout());
-                    return;
-                }
-
-                if(_observer.get())
-                {
-                    _observer->finishWrite();
+                    if(_observer.get())
+                    {
+                        _observer->startWrite();
+                    }
+                    
+                    if(!_transceiver->write(_writeStream))
+                    {
+                        assert(!_writeStream.b.empty());
+                        scheduleTimeout(SocketOperationWrite, _endpoint->timeout());
+                        return;
+                    }
+                    
+                    if(_observer.get())
+                    {
+                        _observer->finishWrite();
+                    }
                 }
                 assert(_writeStream.i == _writeStream.b.end());
             }

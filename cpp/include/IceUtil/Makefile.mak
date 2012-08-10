@@ -49,16 +49,18 @@ SDK_HEADERS	= $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\AbstractMutex.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutputUtil.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Random.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\RecMutex.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ScannerConfig.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ScopedArray.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Shared.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StringUtil.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\StopWatch.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Thread.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ThreadException.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Time.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Timer.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UUID.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Unicode.h
-	
+
 all::	$(SDK_HEADERS)
 
 !endif

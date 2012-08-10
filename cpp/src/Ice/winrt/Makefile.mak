@@ -56,6 +56,9 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\LoggerI.obj \
 		  $(ARCH)\$(CONFIG)\Logger.obj \
 		  $(ARCH)\$(CONFIG)\LoggerUtil.obj \
+		  $(ARCH)\$(CONFIG)\Metrics.obj \
+		  $(ARCH)\$(CONFIG)\MetricsAdminI.obj \
+		  $(ARCH)\$(CONFIG)\MetricsObserverI.obj \
 		  $(ARCH)\$(CONFIG)\Network.obj \
 		  $(ARCH)\$(CONFIG)\ObjectAdapterFactory.obj \
 		  $(ARCH)\$(CONFIG)\ObjectAdapterI.obj \
@@ -63,6 +66,9 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj \
 		  $(ARCH)\$(CONFIG)\ObjectFactory.obj \
 		  $(ARCH)\$(CONFIG)\Object.obj \
+		  $(ARCH)\$(CONFIG)\Observer.obj \
+		  $(ARCH)\$(CONFIG)\ObserverHelper.obj \
+		  $(ARCH)\$(CONFIG)\ObserverI.obj \
 		  $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\OutgoingAsync.obj \
 		  $(ARCH)\$(CONFIG)\Outgoing.obj \
@@ -251,6 +257,9 @@ clean::
 	-del /q $(SOURCE_DIR)\Locator.cpp $(HDIR)\Locator.h
 	-del /q $(SOURCE_DIR)\LoggerF.cpp $(HDIR)\LoggerF.h
 	-del /q $(SOURCE_DIR)\Logger.cpp $(HDIR)\Logger.h
+	-del /q $(SOURCE_DIR)\Metrics.cpp $(HDIR)\Metrics.h
+	-del /q $(SOURCE_DIR)\Observer.cpp $(HDIR)\Observer.h
+	-del /q $(SOURCE_DIR)\ObserverF.cpp $(HDIR)\ObserverF.h
 	-del /q $(SOURCE_DIR)\ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
 	-del /q $(SOURCE_DIR)\ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
 	-del /q $(SOURCE_DIR)\ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h

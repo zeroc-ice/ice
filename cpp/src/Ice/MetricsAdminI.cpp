@@ -179,7 +179,7 @@ MetricsMapI::detached(Entry* entry)
         return;
     }
 
-    assert(_detachedQueue.size() <= _retain);
+    assert(static_cast<int>(_detachedQueue.size()) <= _retain);
 
     deque<Entry*>::iterator p = _detachedQueue.begin();
     while(p != _detachedQueue.end())
@@ -209,7 +209,7 @@ MetricsMapI::detached(Entry* entry)
     _detachedQueue.push_back(entry);
 }
     
-MetricsViewI::MetricsViewI(bool enabled) : _enabled(enabled)
+MetricsViewI::MetricsViewI()
 {
 }
 
@@ -229,12 +229,9 @@ MetricsView
 MetricsViewI::getMetrics()
 {
     MetricsView metrics;
-    if(_enabled)
+    for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
     {
-        for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
-        {
-            metrics.insert(make_pair(p->first, p->second->getMetrics()));
-        }
+        metrics.insert(make_pair(p->first, p->second->getMetrics()));
     }
     return metrics;
 }
@@ -253,13 +250,10 @@ MetricsViewI::getFailures(const string& mapName)
 MetricsMapI::EntryPtr
 MetricsViewI::getMatching(const MetricsHelper& helper) const
 {
-    if(_enabled)
+    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(helper.getMapName());
+    if(p != _maps.end())
     {
-        map<string, MetricsMapIPtr>::const_iterator p = _maps.find(helper.getMapName());
-        if(p != _maps.end())
-        {
-            return p->second->getMatching(helper);
-        }
+        return p->second->getMatching(helper);
     }
     return 0;
 }
@@ -303,12 +297,16 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
         {
             viewName = viewName.substr(0, dotPos);
         }
+
+        if(_properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
+        {
+            continue; // The view is disabled
+        }
         
         map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
         if(q == _views.end())
         {
-            bool disabled = _properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0;
-            q = _views.insert(make_pair(viewName, new MetricsViewI(!disabled))).first;
+            q = _views.insert(make_pair(viewName, new MetricsViewI())).first;
         }
         MetricsViewIPtr view = q->second;
         
@@ -439,25 +437,4 @@ MetricsAdminI::removeMapFromView(const string& view, const string& mapName, cons
         updater->update();
     }
 }
-
-void
-MetricsAdminI::setViewEnabled(const string& view, bool enabled)
-{
-    vector<string> maps;
-    {
-        Lock sync(*this);
-        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-        if(p == _views.end())
-        {
-            throw UnknownMetricsView();
-        }
-        p->second->setEnabled(enabled);
-        maps = p->second->getMaps();
-    }
-    for(vector<string>::const_iterator p = maps.begin(); p != maps.end(); ++p)
-    {
-        _updaters[*p]->update();
-    }
-}
-
 

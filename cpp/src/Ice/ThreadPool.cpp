@@ -762,7 +762,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         }
     }
 #else
-    ThreadPoolCurrent current(_instance, this);
+    ThreadPoolCurrent current(_instance, this, thread);
     while(true)
     {
         try

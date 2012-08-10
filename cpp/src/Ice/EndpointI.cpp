@@ -360,6 +360,12 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
 {
 }
 
+vector<ConnectorPtr>
+IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
+{
+    return endpoint->connectors();
+}
+
 void
 IceInternal::EndpointHostResolver::resolve(const string&, int,
                                            const EndpointIPtr& endpoint, 

@@ -91,7 +91,7 @@ protected:
     TPtr _observer;
 };
 
-class InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
+class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
 {
 public:
 

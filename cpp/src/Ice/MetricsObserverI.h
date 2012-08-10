@@ -297,7 +297,7 @@ public:
     virtual void 
     detach()
     {
-        long lifetime = _watch.stop();
+        Ice::Long lifetime = _watch.stop();
         for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             p->second->detach(lifetime);
