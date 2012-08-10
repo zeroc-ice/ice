@@ -22,6 +22,6 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 Ice.Admin.Endpoints=tcp -p 12000
 Ice.Admin.InstanceName=server 
 
-IceMX.MetricsView.Debug.GroupBy=id
-IceMX.MetricsView.OnParent.GroupBy=parent
-IceMX.MetricsView.PerOperation.Dispatch.GroupBy=operation  
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.OnParent.GroupBy=parent
+IceMX.Metrics.PerOperation.Dispatch.GroupBy=operation  

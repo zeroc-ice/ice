@@ -51,17 +51,3 @@ IceSSL.KeyFile=s_rsa1024_priv.pem
 # client certificates (such as a Metro Style App client for example).
 #
 #IceSSL.VerifyPeer=0
-
-
-Ice.Admin.Endpoints=tcp -p 12000
-Ice.Admin.InstanceName=server 
-
-IceMX.MetricsView.Debug.GroupBy=id
-
-IceMX.MetricsView.Global=1
-
-IceMX.MetricsView.OnParent.GroupBy=parent
-
-IceMX.MetricsView.PerOperation.Request.GroupBy=operation  
-
-IceMX.MetricsView.PerHost.Connection.GroupBy=remoteHost

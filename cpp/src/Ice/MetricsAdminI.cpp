@@ -293,7 +293,7 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
     //
     // Add maps to views configured with the given map.
     //
-    const string viewsPrefix = "IceMX.MetricsView.";
+    const string viewsPrefix = "IceMX.Metrics.";
     PropertyDict views = _properties->getPropertiesForPrefix(viewsPrefix);
     for(PropertyDict::const_iterator p = views.begin(); p != views.end(); ++p)
     {
@@ -307,14 +307,14 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
         map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
         if(q == _views.end())
         {
-            bool enabled = _properties->getPropertyAsIntWithDefault(viewsPrefix + viewName, 1) > 0;
-            q = _views.insert(make_pair(viewName, new MetricsViewI(enabled))).first;
+            bool disabled = _properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0;
+            q = _views.insert(make_pair(viewName, new MetricsViewI(disabled))).first;
         }
         MetricsViewIPtr view = q->second;
         
         const string mapsPrefix = viewsPrefix + viewName + ".Map.";
         string mapPrefix = mapsPrefix + mapName;
-        if(_properties->getPropertyAsInt(mapPrefix) == 0 || _properties->getPropertiesForPrefix(mapPrefix).empty())
+        if(_properties->getPropertiesForPrefix(mapPrefix).empty())
         {
             if(_properties->getPropertiesForPrefix(mapsPrefix).empty())
             {

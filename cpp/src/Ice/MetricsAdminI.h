@@ -231,8 +231,7 @@ public:
         {
             const std::string subMapsPrefix = mapPrefix + ".Map.";
             std::string subMapPrefix = subMapsPrefix + p->first;
-            if(properties->getPropertyAsInt(subMapPrefix) == 0 || 
-               properties->getPropertiesForPrefix(subMapPrefix).empty())
+            if(properties->getPropertiesForPrefix(subMapPrefix).empty())
             {
                 if(properties->getPropertiesForPrefix(subMapsPrefix).empty())
                 {
