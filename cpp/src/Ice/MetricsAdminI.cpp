@@ -23,24 +23,52 @@ using namespace IceMX;
 namespace 
 {
 
-NameValueDict
+vector<MetricsMapI::RegExpPtr>
 parseRule(const ::Ice::PropertiesPtr& properties, const string& name)
 {
-    NameValueDict dict;
+    vector<MetricsMapI::RegExpPtr> regexps;
     PropertyDict rules = properties->getPropertiesForPrefix(name + '.');
     for(PropertyDict::const_iterator p = rules.begin(); p != rules.end(); ++p)
     {
-        dict.insert(make_pair(p->first.substr(name.size() + 1), p->second));
+        regexps.push_back(new MetricsMapI::RegExp(p->first.substr(name.length() + 1), p->second));
     }
-    return dict;
+    return regexps;
+}
+
+}
+
+MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _attribute(attribute)
+{
+#ifndef ICE_CPP11_REGEXP
+    if(regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
+    {
+        throw Ice::SyscallException(__FILE__, __LINE__); 
+    }
+#else
+    _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
+#endif
+}
+
+MetricsMapI::RegExp::~RegExp()
+{
+#ifndef ICE_CPP11_REGEXP
+    regfree(&_preg);
+#endif
 }
 
 bool
-match(const string& value, const string& expr)
+MetricsMapI::RegExp::match(const MetricsHelper& helper)
 {
-    return true; // TODO
-}
-
+    string value = helper(_attribute);
+#ifndef ICE_CPP11_REGEXP
+    if(regexec(&_preg, value.c_str(), 0, 0, 0) == 0)
+    {
+        return true;
+    }
+    return false;
+#else
+    return regex_match(value, _regex);
+#endif
 }
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const Ice::PropertiesPtr& properties) :
@@ -132,17 +160,17 @@ MetricsMapI::getFailures()
 MetricsMapI::EntryPtr
 MetricsMapI::getMatching(const MetricsHelper& helper)
 {
-    for(map<string, string>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
+    for(vector<RegExpPtr>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
     {
-        if(!match(helper(p->first), p->second))
+        if(!(*p)->match(helper))
         {
             return 0;
         }
     }
     
-    for(map<string, string>::const_iterator p = _reject.begin(); p != _reject.end(); ++p)
+    for(vector<RegExpPtr>::const_iterator p = _reject.begin(); p != _reject.end(); ++p)
     {
-        if(match(helper(p->first), p->second))
+        if((*p)->match(helper))
         {
             return 0;
         }
@@ -380,61 +408,3 @@ MetricsAdminI::getMetricsFailures(const string& view, const string& map, const :
     }
     return p->second->getFailures(map);
 }
-
-void
-MetricsAdminI::addMapToView(const string& view, 
-                            const string& mapName, 
-                            const string& groupBy,
-                            int retain,
-                            const NameValueDict& accept, 
-                            const NameValueDict& reject,
-                            const ::Ice::Current&)
-{
-    UpdaterPtr updater;
-    {
-        // TODO: XXX
-        // Lock sync(*this);
-        // map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-        // if(p == _views.end())
-        // {
-        //     p = _views.insert(make_pair(view, new MetricsViewI(true))).first;
-        // }
-        // p->second->add(mapName, _factories[mapName]->create());
-
-        // map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
-        // if(q != _updaters.end())
-        // {
-        //     updater = q->second;
-        // }
-    }
-    if(updater)
-    {
-        updater->update();
-    }
-}
-
-void
-MetricsAdminI::removeMapFromView(const string& view, const string& mapName, const ::Ice::Current&)
-{
-    UpdaterPtr updater;
-    {
-        Lock sync(*this);
-        map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-        if(p == _views.end())
-        {
-            throw UnknownMetricsView();
-        }
-        p->second->remove(mapName);
-
-        map<string, UpdaterPtr>::const_iterator q = _updaters.find(mapName);
-        if(q != _updaters.end())
-        {
-            updater = q->second;
-        }
-    }
-    if(updater)
-    {
-        updater->update();
-    }
-}
-

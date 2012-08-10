@@ -21,6 +21,7 @@ IceSSL.KeyFile=c_rsa1024_priv.pem
 Ice.Admin.Endpoints=tcp -p 12001
 Ice.Admin.InstanceName=client 
 
-IceMX.Metrics.Debug.GroupBy=id
 IceMX.Metrics.OnParent.GroupBy=parent
 IceMX.Metrics.PerOperation.Map.Invocation.GroupBy=id
+IceMX.Metrics.Debug.GroupBy=id
+IceMX.Metrics.Debug.Reject.parent=Ice\.Admin

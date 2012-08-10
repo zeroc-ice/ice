@@ -14,6 +14,16 @@
 #include <Ice/Properties.h>
 #include <Ice/Initialize.h>
 
+#ifdef _MSC_VER
+#  define ICE_CPP11_REGEXP
+#endif
+
+#ifdef ICE_CPP11_REGEXP
+#  include <regex>
+#else
+#  include <regex.h>
+#endif
+
 namespace IceMX
 {
 
@@ -23,11 +33,28 @@ typedef IceUtil::Handle<Updater> UpdaterPtr;
 class MetricsHelper;
 template<typename T> class MetricsHelperT;
 
-typedef std::map<std::string, std::string> NameValueDict;
-
 class MetricsMapI : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
+
+    class RegExp : public IceUtil::Shared
+    {
+    public:
+        
+        RegExp(const std::string&, const std::string&);
+        ~RegExp();
+
+        bool match(const MetricsHelper&);
+
+    private:
+        const std::string _attribute;
+#ifdef ICE_CPP11_REGEXP
+        std::regex _regex;
+#else
+        regex_t _preg;
+#endif        
+    };
+    typedef IceUtil::Handle<RegExp> RegExpPtr;
 
     class Entry : public Ice::LocalObject, public IceUtil::Mutex
     {
@@ -149,8 +176,8 @@ private:
     std::vector<std::string> _groupByAttributes;
     std::vector<std::string> _groupBySeparators;
     const int _retain;
-    const NameValueDict _accept;
-    const NameValueDict _reject;
+    const std::vector<RegExpPtr> _accept;
+    const std::vector<RegExpPtr> _reject;
 
     std::map<std::string, EntryPtr> _objects;
     std::deque<Entry*> _detachedQueue;
@@ -307,13 +334,6 @@ public:
     virtual MetricsFailuresSeq getMetricsFailures(const std::string&, const std::string&, const ::Ice::Current&);
 
 private:
-
-    virtual void addMapToView(const std::string&, const std::string&, const std::string&, int, const NameValueDict&, 
-                                const NameValueDict&, const ::Ice::Current& = ::Ice::Current());
-
-    virtual void removeMapFromView(const std::string&, const std::string&, const ::Ice::Current&);
-
-    void setViewEnabled(const std::string&, bool);
 
     std::map<std::string, MetricsViewIPtr> _views;
     std::map<std::string, UpdaterPtr> _updaters;
