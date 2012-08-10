@@ -361,31 +361,23 @@ namespace IceInternal
                 return 0;
             }
 
-	    public override bool Equals(object o)
-	    {
-		Token t = null;
+            public override bool Equals(object o)
+            {
+                if(object.ReferenceEquals(this, o))
+                {
+                    return true;
+                }
+                Token t = o as Token;
+                return t == null ? false : CompareTo(t) == 0;
+            }
 
-		try
-		{
-		    t = (Token)o;
-		}
-		catch(InvalidCastException)
-		{
-		    return false;
-		}
-
-	        if(this == t)
-		{
-		    return true;
-		}
-
-		return CompareTo(t) == 0;
-	    }
-
-	    public override int GetHashCode()
-	    {
-	        return id ^ (int)scheduledTime;
-	    }
+            public override int GetHashCode()
+            {
+                int h = 5381;
+                IceInternal.HashUtil.hashAdd(ref h, id);
+                IceInternal.HashUtil.hashAdd(ref h, scheduledTime);
+                return h;
+            }
 
             public long scheduledTime;
             public int id; // Since we can't compare references, we need to use another id.

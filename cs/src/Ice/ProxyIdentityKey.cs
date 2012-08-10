@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+using System;
 using System.Globalization;
 
 namespace Ice
@@ -25,7 +26,9 @@ namespace Ice
         /// <returns>The hash value for the proxy based on the identity.</returns>
         public int GetHashCode(object obj)
         {
-            return ((Ice.ObjectPrx)obj).ice_getIdentity().GetHashCode();
+            int h = 5381;
+            IceInternal.HashUtil.hashAdd(ref h, ((Ice.ObjectPrx)obj).ice_getIdentity());
+            return h;
         }
 
         /// Compares two proxies for equality.
@@ -84,7 +87,10 @@ namespace Ice
             Ice.ObjectPrx o = (Ice.ObjectPrx)obj;
             Ice.Identity identity = o.ice_getIdentity();
             string facet = o.ice_getFacet();
-            return 5 * identity.GetHashCode() + facet.GetHashCode();
+            int h = 5381;
+            IceInternal.HashUtil.hashAdd(ref h, identity);
+            IceInternal.HashUtil.hashAdd(ref h, facet);
+            return h;
         }
 
         /// Compares two proxies for equality.

@@ -9,6 +9,7 @@
 
 using System;
 using System.Threading;
+using System.Collections;
 using System.Text;
 using System.Globalization;
 
@@ -600,6 +601,84 @@ namespace Ice
 
 namespace IceInternal
 {
+    public sealed class HashUtil
+    {
+        public static void hashAdd(ref int hashCode, bool value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
+        }
+
+        public static void hashAdd(ref int hashCode, short value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
+        }
+
+        public static void hashAdd(ref int hashCode, byte value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
+        }
+
+        public static void hashAdd(ref int hashCode, int value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ (int)(2654435761 * value));
+        }
+
+        public static void hashAdd(ref int hashCode, long value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
+        }
+
+        public static void hashAdd(ref int hashCode, float value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
+        }
+
+        public static void hashAdd(ref int hashCode, double value)
+        {
+            hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
+        }
+
+        public static void hashAdd(ref int hashCode, object value)
+        {
+            if(value != null)
+            {
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ value.GetHashCode());
+            }
+        }
+
+        public static void hashAdd(ref int hashCode, object[] arr)
+        {
+            if(arr != null)
+            {
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
+            }
+        }
+
+        public static void hashAdd(ref int hashCode, Array arr)
+        {
+            if(arr != null)
+            {
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Arrays.GetHashCode(arr));
+            }
+        }
+
+        public static void hashAdd(ref int hashCode, IEnumerable s)
+        {
+            if(s != null)
+            {
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.SequenceGetHashCode(s));
+            }
+        }
+
+        public static void hashAdd(ref int hashCode, IDictionary d)
+        {
+            if(d != null)
+            {
+                hashCode = unchecked(((hashCode << 5) + hashCode) ^ IceUtilInternal.Collections.DictionaryGetHashCode(d));
+            }
+        }
+    }
+
     public sealed class Util
     {
         public static Instance getInstance(Ice.Communicator communicator)

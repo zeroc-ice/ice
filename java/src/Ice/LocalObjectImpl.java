@@ -19,10 +19,4 @@ public abstract class LocalObjectImpl implements LocalObject, java.lang.Cloneabl
     {
         return super.clone();
     }
-
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
 }

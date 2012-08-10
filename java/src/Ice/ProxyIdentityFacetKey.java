@@ -17,6 +17,7 @@ package Ice;
  * @see ProxyIdentityAndFacetCompare
  * @see ProxyIdentityCompare
  * @see ProxyIdentityKey
+ *
  **/
 public class ProxyIdentityFacetKey
 {
@@ -35,8 +36,9 @@ public class ProxyIdentityFacetKey
         //
         _identity = proxy.ice_getIdentity();
         _facet = proxy.ice_getFacet();
-        int h = _identity.hashCode();
-        h = 5 * h + _facet.hashCode();
+        int h = 5381;
+        h = IceInternal.HashUtil.hashAdd(h, _identity);
+        h = IceInternal.HashUtil.hashAdd(h, _facet);
         _hashCode = h;
     }
 

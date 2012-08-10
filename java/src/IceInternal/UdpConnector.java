@@ -56,13 +56,14 @@ final class UdpConnector implements Connector
         _encoding = encoding;
         _connectionId = connectionId;
 
-        _hashCode = _addr.getAddress().getHostAddress().hashCode();
-        _hashCode = 5 * _hashCode + _addr.getPort();
-        _hashCode = 5 * _hashCode + _mcastInterface.hashCode();
-        _hashCode = 5 * _hashCode + _protocol.hashCode();
-        _hashCode = 5 * _hashCode + _encoding.hashCode();
-        _hashCode = 5 * _hashCode + _mcastTtl;
-        _hashCode = 5 * _hashCode + _connectionId.hashCode();
+        _hashCode = 5381;
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastInterface);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _protocol);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _encoding);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastTtl);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
     public boolean

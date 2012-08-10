@@ -196,6 +196,9 @@
       <Filter>Tests</Filter>
     </None>
     <None Include="key.pfx" />
+    <None Include="..\..\Ice\hash\Ice_hash_client.dll">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

@@ -554,13 +554,16 @@ final class EndpointI extends IceInternal.EndpointI
     private void
     calcHashValue()
     {
-        _hashCode = _host.hashCode();
-        _hashCode = 5 * _hashCode + _port;
-        _hashCode = 5 * _hashCode + _timeout;
-        _hashCode = 5 * _hashCode + _protocol.hashCode();
-        _hashCode = 5 * _hashCode + _encoding.hashCode();
-        _hashCode = 5 * _hashCode + _connectionId.hashCode();
-        _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
+        int h = 5381;
+        h = IceInternal.HashUtil.hashAdd(h, EndpointType.value);
+        h = IceInternal.HashUtil.hashAdd(h, _host);
+        h = IceInternal.HashUtil.hashAdd(h, _port);
+        h = IceInternal.HashUtil.hashAdd(h, _timeout);
+        h = IceInternal.HashUtil.hashAdd(h, _protocol);
+        h = IceInternal.HashUtil.hashAdd(h, _encoding);
+        h = IceInternal.HashUtil.hashAdd(h, _connectionId);
+        h = IceInternal.HashUtil.hashAdd(h, _compress);
+        _hashCode = h;
     }
 
     private Instance _instance;

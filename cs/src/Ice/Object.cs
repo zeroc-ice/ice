@@ -65,12 +65,6 @@ namespace Ice
     public interface Object :    System.ICloneable
     {
         /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        int ice_hash();
-
-        /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
         ///
@@ -179,15 +173,6 @@ namespace Ice
         /// </summary>
         public ObjectImpl()
         {
-        }
-
-        /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        public virtual int ice_hash()
-        {
-            return GetHashCode();
         }
 
         /// <summary>

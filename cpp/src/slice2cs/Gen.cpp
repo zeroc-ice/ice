@@ -2844,8 +2844,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     else
     {
-        _out << nl << "int h__ = 0;";
+        _out << nl << "int h__ = 5381;";
     }
+    _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, \"" << p->scoped() << "\");";
     writeMemberHashCode(dataMembers, DotNet::Exception);
     _out << nl << "return h__;";
     _out << eb;
@@ -3252,7 +3253,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public override int GetHashCode()";
     _out << sb;
-    _out << nl << "int h__ = 0;";
+    _out << nl << "int h__ = 5381;";
+    _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, \"" << p->scoped() << "\");";
     writeMemberHashCode(dataMembers, isClass ? DotNet::ICloneable : 0);
     _out << nl << "return h__;";
     _out << eb;
@@ -3678,73 +3680,7 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name(), baseTypes);
-        TypePtr memberType = (*q)->type();
-        bool isValue = isValueType(memberType);
-        if(!isValue)
-        {
-            _out << nl << "if(" << memberName << " != null)";
-            _out << sb;
-        }
-        SequencePtr seq = SequencePtr::dynamicCast(memberType);
-        if(seq)
-        {
-            string meta;
-            bool isSerializable = seq->findMetaData("clr:serializable", meta);
-            bool isGeneric = seq->findMetaData("clr:generic:", meta);
-            bool isArray = !isSerializable && !isGeneric && !seq->hasMetaData("clr:collection");
-            if(isArray)
-            {
-                //
-                // GetHashCode() for native arrays does not have value semantics.
-                //
-                _out << nl << "h__ = 5 * h__ + IceUtilInternal.Arrays.GetHashCode(" << memberName << ");";
-            }
-            else if(isGeneric)
-            {
-                //
-                // GetHashCode() for generic types does not have value semantics.
-                //
-                _out << nl << "h__ = 5 * h__ + IceUtilInternal.Collections.SequenceGetHashCode(" << memberName << ");";
-            }
-            else
-            {
-                //
-                // GetHashCode() for CollectionBase has value semantics.
-                //
-                _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
-            }
-        }
-        else
-        {
-            DictionaryPtr dict = DictionaryPtr::dynamicCast(memberType);
-            if(dict)
-            {
-                if(dict->hasMetaData("clr:collection"))
-                {
-                    //
-                    // GetHashCode() for DictionaryBase has value semantics.
-                    //
-                    _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
-                }
-                else
-                {
-                    //
-                    // GetHashCode() for generic types does not have value semantics.
-                    //
-                    _out << nl << "h__ = 5 * h__ + IceUtilInternal.Collections.DictionaryGetHashCode(" << memberName
-                         << ");";
-                }
-            }
-            else
-            {
-                _out << nl << "h__ = 5 * h__ + " << memberName << ".GetHashCode();";
-            }
-        }
-        if(!isValue)
-        {
-            _out << eb;
-        }
+        _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, " << fixId((*q)->name(), baseTypes) << ");";
     }
 }
 

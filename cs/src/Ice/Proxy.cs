@@ -84,12 +84,6 @@ namespace Ice
     public interface ObjectPrx
     {
         /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        int ice_getHash();
-
-        /// <summary>
         /// Returns the communicator that created this proxy.
         /// </summary>
         /// <returns>The communicator that created this proxy.</returns>
@@ -751,15 +745,6 @@ namespace Ice
         /// </summary>
         /// <returns>The hash code.</returns>
         public override int GetHashCode()
-        {
-            return _reference.GetHashCode();
-        }
-
-        /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        public int ice_getHash()
         {
             return _reference.GetHashCode();
         }

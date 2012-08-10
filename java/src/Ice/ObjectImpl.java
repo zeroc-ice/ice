@@ -43,15 +43,6 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
         return o;
     }
 
-    /**
-     * @deprecated
-     **/
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
-
     public final static String[] __ids =
     {
         "::Ice::Object"

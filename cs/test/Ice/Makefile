@@ -19,6 +19,7 @@ SUBDIRS		= application \
 		  info \
 		  inheritance \
 		  invoke \
+		  hash \
 		  hold \
 		  location \
 		  objects \

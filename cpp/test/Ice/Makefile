@@ -24,6 +24,7 @@ SUBDIRS		= proxy \
 		  adapterDeactivation \
 		  slicing \
 		  gc \
+		  hash \
 		  checksum \
 		  stream \
 		  dispatcher \

@@ -197,25 +197,21 @@ namespace IceInternal
                 {
                     return hashValue_;
                 }
-
-                int h = (int)mode_;
-
-                h = 5 * h + identity_.GetHashCode();
-
-                foreach(KeyValuePair<string, string> p in context_)
+                int h = 5381;
+                IceInternal.HashUtil.hashAdd(ref h, mode_);
+                IceInternal.HashUtil.hashAdd(ref h, secure_);
+                IceInternal.HashUtil.hashAdd(ref h, identity_);
+                IceInternal.HashUtil.hashAdd(ref h, context_);
+                IceInternal.HashUtil.hashAdd(ref h, facet_);
+                IceInternal.HashUtil.hashAdd(ref h, overrideCompress_);
+                if(overrideCompress_)
                 {
-                    h = 5 * h + p.Key.GetHashCode();
-                    h = 5 * h + p.Value.GetHashCode();
+                    IceInternal.HashUtil.hashAdd(ref h, compress_);
                 }
-
-                h = 5 * h + facet_.GetHashCode();
-
-                h = 5 * h + (secure_ ? 1 : 0);
-
+                IceInternal.HashUtil.hashAdd(ref h, encoding_);
                 hashValue_ = h;
                 hashInitialized_ = true;
-
-                return h;
+                return hashValue_;
             }
         }
 
@@ -1043,10 +1039,9 @@ namespace IceInternal
             {
                 if(!hashInitialized_)
                 {
-                    base.GetHashCode(); // Initializes hashValue_.
-
-                    // Add hash of adapter ID to base hash.
-                    hashValue_ = 5 * hashValue_ + _adapterId.GetHashCode();
+                    int h = base.GetHashCode(); // Initializes hashValue_.
+                    IceInternal.HashUtil.hashAdd(ref h, _adapterId);
+                    hashValue_ = h;
                 }
                 return hashValue_;
             }

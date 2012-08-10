@@ -53,7 +53,10 @@ namespace IceInternal
 
         public override int GetHashCode()
         {
-            return 5 * protocol_.GetHashCode() + encoding_.GetHashCode();
+            int h = 5381;
+            IceInternal.HashUtil.hashAdd(ref h, protocol_);
+            IceInternal.HashUtil.hashAdd(ref h, encoding_);
+            return h;
         }
 
         public virtual int CompareTo(EndpointI p)

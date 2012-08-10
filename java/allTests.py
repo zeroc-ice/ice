@@ -64,6 +64,7 @@ tests = [
     ("Ice/classLoader", ["core"]),
     ("Ice/invoke", ["core"]),
     ("Ice/properties", ["once"]),
+    ("Ice/hash", ["once"]),
     ("Ice/optional", ["once"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),

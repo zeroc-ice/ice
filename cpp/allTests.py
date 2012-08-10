@@ -66,6 +66,7 @@ tests = [
     ("Ice/defaultServant", ["core"]),
     ("Ice/defaultValue", ["core"]),
     ("Ice/invoke", ["core", "novc6"]),
+    ("Ice/hash", ["once"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw"]),
     ("Freeze/dbmap", ["once", "novc6", "nomingw"]),

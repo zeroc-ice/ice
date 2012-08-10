@@ -17,6 +17,7 @@ package Ice;
  * @see ProxyIdentityCompare
  * @see ProxyIdentityAndFacetCompare
  * @see ProxyIdentityFacetKey
+ *
  **/
 public class ProxyIdentityKey
 {
@@ -34,7 +35,9 @@ public class ProxyIdentityKey
         // Cache the identity and its hash code.
         //
         _identity = proxy.ice_getIdentity();
-        _hashCode = _identity.hashCode();
+        int h = 5381;
+        h = IceInternal.HashUtil.hashAdd(h, _identity);
+        _hashCode = h;
     }
 
     /**

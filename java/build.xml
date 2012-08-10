@@ -434,6 +434,9 @@
             <fileset dir="test/Ice/faultTolerance">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/hash">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/hold">
                 <include name="Test.ice" />
             </fileset>

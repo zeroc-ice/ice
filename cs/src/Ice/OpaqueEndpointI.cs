@@ -417,12 +417,11 @@ namespace IceInternal
         
         private void calcHashValue()
         {
-            _hashCode = _type;
-            _hashCode = 5 * _hashCode + _rawEncoding.GetHashCode();
-            for(int i = 0; i < _rawBytes.Length; i++)
-            {
-                _hashCode = 5 * _hashCode + _rawBytes[i];
-            }
+            int h = 5381;
+            IceInternal.HashUtil.hashAdd(ref h, _type);
+            IceInternal.HashUtil.hashAdd(ref h, _rawEncoding);
+            IceInternal.HashUtil.hashAdd(ref h, _rawBytes);
+            _hashCode = h;
         }
         
         private short _type;

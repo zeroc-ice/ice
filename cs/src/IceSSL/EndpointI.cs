@@ -551,13 +551,16 @@ namespace IceSSL
 
         private void calcHashValue()
         {
-            _hashCode = _host.GetHashCode();
-            _hashCode = 5 * _hashCode + _port;
-            _hashCode = 5 * _hashCode + _timeout;
-            _hashCode = 5 * _hashCode + protocol_.GetHashCode();
-            _hashCode = 5 * _hashCode + encoding_.GetHashCode();
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
-            _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
+            int h = 5381;
+            IceInternal.HashUtil.hashAdd(ref h, EndpointType.value);
+            IceInternal.HashUtil.hashAdd(ref h, _host);
+            IceInternal.HashUtil.hashAdd(ref h, _port);
+            IceInternal.HashUtil.hashAdd(ref h, _timeout);
+            IceInternal.HashUtil.hashAdd(ref h, protocol_);
+            IceInternal.HashUtil.hashAdd(ref h, encoding_);
+            IceInternal.HashUtil.hashAdd(ref h, _connectionId);
+            IceInternal.HashUtil.hashAdd(ref h, _compress);
+            _hashCode = h;
         }
 
         private Instance _instance;

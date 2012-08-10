@@ -26,15 +26,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * @deprecated
-     **/
-    public final int
-    ice_getHash()
-    {
-        return _reference.hashCode();
-    }
-
-    /**
      * Returns the communicator that created this proxy.
      *
      * @return The communicator that created this proxy.

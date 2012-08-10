@@ -20,6 +20,7 @@ SUBDIRS		= proxy \
 		  objects \
 		  location \
 		  adapterDeactivation \
+		  hash \
 		  ami \
 		  invoke \
 		  dispatcher \
@@ -28,7 +29,7 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  udp \
-		  stream \
+		  stream
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \

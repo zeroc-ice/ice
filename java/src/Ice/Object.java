@@ -22,11 +22,6 @@ public interface Object
      **/
     java.lang.Object clone() throws java.lang.CloneNotSupportedException;
 
-     /**
-      * @deprecated This method is deprecated, use hashCode instead.
-      **/
-    int ice_hash();
-
     /**
      * Tests whether this object supports a specific Slice interface.
      *

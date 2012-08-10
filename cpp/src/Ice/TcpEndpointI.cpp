@@ -547,10 +547,15 @@ IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
 Ice::Int
 IceInternal::TcpEndpointI::hashInit() const
 {
-    Ice::Int h = 0;
+    Ice::Int h = 5381;
+    hashAdd(h, TCPEndpointType);
     hashAdd(h, _host);
     hashAdd(h, _port);
     hashAdd(h, _timeout);
+    hashAdd(h, _protocol.major);
+    hashAdd(h, _protocol.minor);
+    hashAdd(h, _encoding.major);
+    hashAdd(h, _encoding.minor);
     hashAdd(h, _connectionId);
     hashAdd(h, _compress);
     return h;
