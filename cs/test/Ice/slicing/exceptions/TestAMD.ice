@@ -32,7 +32,35 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 };
 
-["amd"] interface TestIntf
+["preserve-slice"]
+exception KnownPreserved extends Base
+{
+    string kp;
+};
+
+exception KnownPreservedDerived extends KnownPreserved
+{
+    string kpd;
+};
+
+["preserve-slice"]
+class BaseClass
+{
+    string bc;
+};
+
+["format:sliced"]
+interface Relay
+{
+    void knownPreservedAsBase() throws Base;
+    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void unknownPreservedAsBase() throws Base;
+    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+};
+
+["ami", "amd", "format:sliced"]
+interface TestIntf
 {
     void baseAsBase() throws Base;
     void unknownDerivedAsBase() throws Base;
@@ -49,6 +77,20 @@ exception KnownMostDerived extends KnownIntermediate
     void unknownMostDerived1AsBase() throws Base;
     void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
     void unknownMostDerived2AsBase() throws Base;
+
+    ["format:compact"] void unknownMostDerived2AsBaseCompact() throws Base;
+
+    void knownPreservedAsBase() throws Base;
+    void knownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void relayKnownPreservedAsBase(Relay* r) throws Base;
+    void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
+
+    void unknownPreservedAsBase() throws Base;
+    void unknownPreservedAsKnownPreserved() throws KnownPreserved;
+
+    void relayUnknownPreservedAsBase(Relay* r) throws Base;
+    void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
 
     void shutdown();
 };

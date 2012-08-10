@@ -155,19 +155,63 @@ namespace Ice
             _is.readObject(new Patcher<Ice.Object>(cb));
         }
 
-        public string readTypeId()
+        public int readEnum(int limit)
         {
-            return _is.readTypeId();
+            return _is.readEnum(limit);
         }
 
         public void throwException()
         {
-            _is.throwException();
+            _is.throwException(null);
         }
 
-        public void startSlice()
+        internal class UserExceptionFactoryI : IceInternal.UserExceptionFactory
         {
-            _is.startReadSlice();
+            internal UserExceptionFactoryI(UserExceptionReaderFactory factory)
+            {
+                _factory = factory;
+            }
+
+            public void createAndThrow(string id)
+            {
+                _factory.createAndThrow(id);
+            }
+
+            public void destroy()
+            {
+            }
+
+            private UserExceptionReaderFactory _factory;
+        }
+
+        public void throwException(UserExceptionReaderFactory factory)
+        {
+            _is.throwException(new UserExceptionFactoryI(factory));
+        }
+
+        public void startObject()
+        {
+            _is.startReadObject();
+        }
+
+        public SlicedData endObject(bool preserve)
+        {
+            return _is.endReadObject(preserve);
+        }
+
+        public void startException()
+        {
+            _is.startReadException();
+        }
+
+        public SlicedData endException(bool preserve)
+        {
+            return _is.endReadException(preserve);
+        }
+
+        public string startSlice()
+        {
+            return _is.startReadSlice();
         }
 
         public void endSlice()
@@ -180,9 +224,9 @@ namespace Ice
             _is.skipSlice();
         }
 
-        public void startEncapsulation()
+        public EncodingVersion startEncapsulation()
         {
-            _is.startReadEncaps();
+            return _is.startReadEncaps();
         }
 
         public void endEncapsulation()
@@ -190,19 +234,14 @@ namespace Ice
             _is.endReadEncapsChecked();
         }
 
-        public void skipEncapsulation()
+        public EncodingVersion skipEncapsulation()
         {
-            _is.skipEncaps();
+            return _is.skipEncaps();
         }
 
-        public int getEncapsulationSize()
+        public EncodingVersion getEncoding()
         {
-            return _is.getReadEncapsSize();
-        }
-
-        public byte[] readBlob(int sz)
-        {
-            return _is.readBlob(sz);
+            return _is.getReadEncoding();
         }
 
         public void readPendingObjects()
@@ -214,6 +253,26 @@ namespace Ice
         {
             _is.clear();
             _is.getBuffer().b.position(0);
+        }
+
+        public void skip(int sz)
+        {
+            _is.skip(sz);
+        }
+
+        public void skipSize()
+        {
+            _is.skipSize();
+        }
+
+        public bool readOptional(int tag, OptionalType type)
+        {
+            return _is.readOpt(tag, type);
+        }
+
+        public int pos()
+        {
+            return _is.pos();
         }
 
         public void destroy()
@@ -356,9 +415,9 @@ namespace Ice
             _os.writeObject(v);
         }
 
-        public void writeTypeId(string id)
+        public void writeEnum(int v, int limit)
         {
-            _os.writeTypeId(id);
+            _os.writeEnum(v, limit);
         }
 
         public void writeException(UserException v)
@@ -366,14 +425,39 @@ namespace Ice
             _os.writeUserException(v);
         }
 
-        public void startSlice()
+        public void startObject(SlicedData slicedData)
         {
-            _os.startWriteSlice();
+            _os.startWriteObject(slicedData);
+        }
+
+        public void endObject()
+        {
+            _os.endWriteObject();
+        }
+
+        public void startException(SlicedData slicedData)
+        {
+            _os.startWriteException(slicedData);
+        }
+
+        public void endException()
+        {
+            _os.endWriteException();
+        }
+
+        public void startSlice(string typeId, bool last)
+        {
+            _os.startWriteSlice(typeId, last);
         }
 
         public void endSlice()
         {
             _os.endWriteSlice();
+        }
+
+        public void startEncapsulation(EncodingVersion encoding, FormatType format)
+        {
+            _os.startWriteEncaps(encoding, format);
         }
 
         public void startEncapsulation()
@@ -386,14 +470,39 @@ namespace Ice
             _os.endWriteEncapsChecked();
         }
 
-        public void writeBlob(byte[] data)
+        public EncodingVersion getEncoding()
         {
-            _os.writeBlob(data);
+            return _os.getWriteEncoding();
         }
 
         public void writePendingObjects()
         {
             _os.writePendingObjects();
+        }
+
+        public bool writeOptional(int tag, OptionalType type)
+        {
+            return _os.writeOpt(tag, type);
+        }
+
+        public int pos()
+        {
+            return _os.pos();
+        }
+
+        public void rewrite(int sz, int pos)
+        {
+            _os.rewriteInt(sz, pos);
+        }
+
+        public void startSize()
+        {
+            _os.startSize();
+        }
+
+        public void endSize()
+        {
+            _os.endSize();
         }
 
         public byte[] finished()

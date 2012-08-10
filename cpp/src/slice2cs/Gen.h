@@ -24,6 +24,11 @@ public:
 
 protected:
 
+    void writeMarshalDataMember(const DataMemberPtr&, const std::string&);
+    void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
+    void writeStreamMarshalDataMember(const DataMemberPtr&, const std::string&);
+    void writeStreamUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
+
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatchAndMarshalling(const ClassDefPtr&, bool);
     virtual std::vector<std::string> getParams(const OperationPtr&);

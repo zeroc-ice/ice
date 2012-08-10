@@ -7,13 +7,15 @@
 //
 // **********************************************************************
 
-namespace IceInternal
+namespace Ice
 {
-
-    public interface UserExceptionFactory
+    /// <summary>
+    /// This enumeration describes the possible formats for classes and exceptions.
+    /// </summary>
+    public enum FormatType
     {
-        void createAndThrow(string typeId);
-        void destroy();
+        DefaultFormat,
+        CompactFormat,
+        SlicedFormat
     }
-
 }

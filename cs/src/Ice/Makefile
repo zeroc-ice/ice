@@ -46,6 +46,7 @@ SRCS		= Acceptor.cs \
 		  EndpointHostResolver.cs \
 		  EventHandler.cs \
 		  Exception.cs \
+		  FormatType.cs \
 		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
@@ -60,6 +61,7 @@ SRCS		= Acceptor.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
 		  OpaqueEndpointI.cs \
+		  OptionalType.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
@@ -84,6 +86,7 @@ SRCS		= Acceptor.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \
 		  SliceChecksums.cs \
+		  SlicedData.cs \
 		  SocketOperation.cs \
 		  Stream.cs \
 		  StreamI.cs \
@@ -105,6 +108,7 @@ SRCS		= Acceptor.cs \
 		  UdpEndpointI.cs \
 		  UdpConnector.cs \
 		  UdpTransceiver.cs \
+		  UnknownSlicedObject.cs \
 		  UserExceptionFactory.cs \
 		  Util.cs \
 		  ValueWriter.cs

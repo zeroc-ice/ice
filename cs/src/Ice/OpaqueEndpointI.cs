@@ -165,7 +165,7 @@ namespace IceInternal
         public override void streamWrite(BasicStream s)
         {
             s.writeShort(_type);
-            s.startWriteEncaps(_rawEncoding);
+            s.startWriteEncaps(_rawEncoding, Ice.FormatType.DefaultFormat);
             s.writeBlob(_rawBytes);
             s.endWriteEncaps();
         }

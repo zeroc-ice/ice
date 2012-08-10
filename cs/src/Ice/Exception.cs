@@ -159,21 +159,18 @@ namespace Ice
         public UserException(System.Exception ex) : base(ex) {}
 
         public abstract void write__(IceInternal.BasicStream os__);
-        public abstract void read__(IceInternal.BasicStream is__, bool rid__);
+        public abstract void writeImpl__(IceInternal.BasicStream os__);
+        public abstract void read__(IceInternal.BasicStream is__);
+        public abstract void readImpl__(IceInternal.BasicStream is__);
 
         public virtual void write__(Ice.OutputStream outS__)
         {
             Debug.Assert(false);
         }
 
-        public virtual void read__(Ice.InputStream inS__, bool rid__)
+        public virtual void read__(Ice.InputStream inS__)
         {
             Debug.Assert(false);
-        }
-
-        public virtual bool usesClasses__()
-        {
-            return false;
         }
     }
 

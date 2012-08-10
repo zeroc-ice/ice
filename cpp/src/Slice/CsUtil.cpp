@@ -609,21 +609,11 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
                 out << eb;
             }
-            out << nl << stream << '.' << func << '(' << cast << param;
-            if(!streamingAPI)
-            {
-                out << ", " << sz;
-            }
-            out << ");";
+            out << nl << stream << ".writeEnum((int)" << param << ", " << sz << ");";
         }
         else
         {
-            out << nl << param << " = " << cast << stream << '.' << func << "(";
-            if(!streamingAPI)
-            {
-                out << sz;
-            }
-            out << ")" << ';';
+            out << nl << param << " = (" << fixId(en->scoped()) << ')' << stream << ".readEnum(" << sz << ");";
             if(streamingAPI)
             {
                 out << nl << "if((int)" << param << " < 0 || (int)" << param << " >= " << sz << ")";

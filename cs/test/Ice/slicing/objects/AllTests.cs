@@ -102,15 +102,27 @@ public class AllTests : TestCommon.TestApp
             callback.called();
         }
 
-        public void response_SUnknownAsObject(Ice.Object o)
+        public void response_SUnknownAsObject1(Ice.Object o)
         {
             AllTests.test(false);
         }
 
-        public void exception_SUnknownAsObject(Ice.Exception exc)
+        public void exception_SUnknownAsObject1(Ice.Exception exc)
         {
             AllTests.test(exc.GetType().FullName.Equals("Ice.NoObjectFactoryException"));
             callback.called();
+        }
+
+        public void response_SUnknownAsObject2(Ice.Object o)
+        {
+            AllTests.test(o is Ice.UnknownSlicedObject);
+            AllTests.test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
+            callback.called();
+        }
+
+        public void exception_SUnknownAsObject2(Ice.Exception exc)
+        {
+            AllTests.test(false);
         }
 
         public void response_oneElementCycle(B b)
@@ -281,7 +293,7 @@ public class AllTests : TestCommon.TestApp
             callback.called();
         }
 
-        public void response_sequenceTest(SS ss)
+        public void response_sequenceTest(SS3 ss)
         {
             rss = ss;
             callback.called();
@@ -380,6 +392,62 @@ public class AllTests : TestCommon.TestApp
             callback.called();
         }
 
+        public void response_exchangePBase1(PBase r)
+        {
+            PDerived p2 = (PDerived)r;
+            AllTests.test(p2.pi == 3);
+            AllTests.test(p2.ps.Equals("preserved"));
+            AllTests.test(p2.pb == p2);
+            callback.called();
+        }
+
+        public void response_exchangePBase2(PBase r)
+        {
+            AllTests.test(!(r is PCUnknown));
+            AllTests.test(r.pi == 3);
+            callback.called();
+        }
+
+        public void response_exchangePBase3(PBase r)
+        {
+            AllTests.test(!(r is PCDerived));
+            AllTests.test(r.pi == 3);
+            callback.called();
+        }
+
+        public void response_exchangePBase4(PBase r)
+        {
+            PCDerived p2 = r as PCDerived;
+            AllTests.test(p2.pi == 3);
+            AllTests.test(p2.pbs[0] == p2);
+            callback.called();
+        }
+
+        public void response_exchangePBase5(PBase r)
+        {
+            AllTests.test(!(r is PCDerived3));
+            AllTests.test(r is Preserved);
+            AllTests.test(r.pi == 3);
+            callback.called();
+        }
+
+        public void response_exchangePBase6(PBase r)
+        {
+            PCDerived3 p3 = r as PCDerived3;
+            AllTests.test(p3.pi == 3);
+            for(int i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                test(p2.pi == i);
+                test(p2.pbs.Length == 1);
+                test(p2.pbs[0] == null);
+                test(p2.pcd2 == i);
+            }
+            test(p3.pcd2 == p3.pi);
+            test(p3.pcd3 == p3.pbs[10]);
+            callback.called();
+        }
+
         public void response()
         {
             AllTests.test(false);
@@ -396,11 +464,63 @@ public class AllTests : TestCommon.TestApp
         }
 
         public B rb;
-        public SS rss;
+        public SS3 rss;
         public Dictionary<int, B> rbdict;
         public Dictionary<int, B> obdict;
 
         private Callback callback = new Callback();
+    }
+
+    private class PNodeI : PNode
+    {
+        public PNodeI()
+        {
+            ++counter;
+        }
+
+        internal static int counter = 0;
+    }
+
+    private class NodeFactoryI : Ice.ObjectFactory
+    {
+        public Ice.Object create(string id)
+        {
+            if(id.Equals(PNode.ice_staticId()))
+            {
+                return new PNodeI();
+            }
+            return null;
+        }
+
+        public void destroy()
+        {
+        }
+    }
+
+    private class PreservedI : Preserved
+    {
+        public PreservedI()
+        {
+            ++counter;
+        }
+
+        internal static int counter = 0;
+    }
+
+    private class PreservedFactoryI : Ice.ObjectFactory
+    {
+        public Ice.Object create(string id)
+        {
+            if(id.Equals(Preserved.ice_staticId()))
+            {
+                return new PreservedI();
+            }
+            return null;
+        }
+
+        public void destroy()
+        {
+        }
     }
 
 #if SILVERLIGHT
@@ -420,8 +540,7 @@ public class AllTests : TestCommon.TestApp
     {
         Write("testing stringToProxy... ");
         Flush();
-        string r = "Test:default -p 12010 -t 2000";
-        Ice.ObjectPrx basePrx = communicator.stringToProxy(r);
+        Ice.ObjectPrx basePrx = communicator.stringToProxy("Test:default -p 12010 -t 2000");
         test(basePrx != null);
         WriteLine("ok");
 
@@ -573,11 +692,15 @@ public class AllTests : TestCommon.TestApp
         {
             try
             {
-                testPrx.SUnknownAsObject();
-                test(false);
+                Ice.Object o = testPrx.SUnknownAsObject();
+                test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(o is Ice.UnknownSlicedObject);
+                test((o as Ice.UnknownSlicedObject).getUnknownTypeId().Equals("::Test::SUnknown"));
+                testPrx.checkSUnknown(o);
             }
             catch(Ice.NoObjectFactoryException)
             {
+                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
             catch(Exception)
             {
@@ -592,8 +715,16 @@ public class AllTests : TestCommon.TestApp
             try
             {
                 AsyncCallback cb = new AsyncCallback();
-                testPrx.begin_SUnknownAsObject().whenCompleted(
-                        cb.response_SUnknownAsObject, cb.exception_SUnknownAsObject);
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    testPrx.begin_SUnknownAsObject().whenCompleted(
+                            cb.response_SUnknownAsObject1, cb.exception_SUnknownAsObject1);
+                }
+                else
+                {
+                    testPrx.begin_SUnknownAsObject().whenCompleted(
+                            cb.response_SUnknownAsObject2, cb.exception_SUnknownAsObject2);
+                }
                 cb.check();
             }
             catch(Exception)
@@ -1323,7 +1454,7 @@ public class AllTests : TestCommon.TestApp
         {
             try
             {
-                SS ss;
+                SS3 ss;
                 {
                     B ss1b = new B();
                     ss1b.sb = "B.sb";
@@ -1411,7 +1542,7 @@ public class AllTests : TestCommon.TestApp
         Write("sequence slicing (AMI)... ");
         Flush();
         {
-            SS ss;
+            SS3 ss;
             {
                 B ss1b = new B();
                 ss1b.sb = "B.sb";
@@ -1764,6 +1895,323 @@ public class AllTests : TestCommon.TestApp
             testPrx.begin_useForward().whenCompleted(cb.response_useForward, cb.exception);
             cb.check();
         }
+        WriteLine("ok");
+
+        Write("preserved classes... ");
+        Flush();
+
+        //
+        // Register a factory in order to substitute our own subclass of Preserved. This provides
+        // an easy way to determine how many unmarshaled instances currently exist.
+        //
+        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
+        // the Ice run time will install its own internal factory for Preserved upon receiving the
+        // first instance.
+        //
+        communicator.addObjectFactory(new PreservedFactoryI(), Preserved.ice_staticId());
+
+        {
+            //
+            // Server knows the most-derived class PDerived.
+            //
+            PDerived pd = new PDerived();
+            pd.pi = 3;
+            pd.ps = "preserved";
+            pd.pb = pd;
+
+            PBase r = testPrx.exchangePBase(pd);
+            PDerived p2 = r as PDerived;
+            test(p2.pi == 3);
+            test(p2.ps.Equals("preserved"));
+            test(p2.pb == p2);
+        }
+
+        {
+            //
+            // Server only knows the base (non-preserved) type, so the object is sliced.
+            //
+            PCUnknown pu = new PCUnknown();
+            pu.pi = 3;
+            pu.pu = "preserved";
+
+            PBase r = testPrx.exchangePBase(pu);
+            test(!(r is PCUnknown));
+            test(r.pi == 3);
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            PCDerived pcd = new PCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            PBase r = testPrx.exchangePBase(pcd);
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r is PCDerived));
+                test(r.pi == 3);
+            }
+            else
+            {
+                PCDerived p2 = r as PCDerived;
+                test(p2.pi == 3);
+                test(p2.pbs[0] == p2);
+            }
+        }
+
+        {
+            //
+            // Send an object that will have multiple preserved slices in the server.
+            // The object will be sliced to Preserved for the 1.0 encoding.
+            //
+            PCDerived3 pcd = new PCDerived3();
+            pcd.pi = 3;
+            //
+            // Sending more than 254 objects exercises the encoding for object ids.
+            //
+            pcd.pbs = new PBase[300];
+            int i;
+            for(i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = new PCDerived2();
+                p2.pi = i;
+                p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs[i] = p2;
+            }
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs[10];
+
+            PBase r = testPrx.exchangePBase(pcd);
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                test(!(r is PCDerived3));
+                test(r is Preserved);
+                test(r.pi == 3);
+            }
+            else
+            {
+                PCDerived3 p3 = r as PCDerived3;
+                test(p3.pi == 3);
+                for(i = 0; i < 300; ++i)
+                {
+                    PCDerived2 p2 = p3.pbs[i] as PCDerived2;
+                    test(p2.pi == i);
+                    test(p2.pbs.Length == 1);
+                    test(p2.pbs[0] == null);
+                    test(p2.pcd2 == i);
+                }
+                test(p3.pcd2 == p3.pi);
+                test(p3.pcd3 == p3.pbs[10]);
+            }
+        }
+
+        {
+            //
+            // Obtain an object with preserved slices and send it back to the server.
+            // The preserved slices should be excluded for the 1.0 encoding, otherwise
+            // they should be included.
+            //
+            Preserved p = testPrx.PBSUnknownAsPreserved();
+            testPrx.checkPBSUnknown(p);
+            if(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+            }
+        }
+
+        WriteLine("ok");
+
+        Write("preserved classes (AMI)... ");
+        Flush();
+        {
+            //
+            // Server knows the most-derived class PDerived.
+            //
+            PDerived pd = new PDerived();
+            pd.pi = 3;
+            pd.ps = "preserved";
+            pd.pb = pd;
+
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_exchangePBase(pd).whenCompleted(cb.response_exchangePBase1, cb.exception);
+            cb.check();
+        }
+
+        {
+            //
+            // Server only knows the base (non-preserved) type, so the object is sliced.
+            //
+            PCUnknown pu = new PCUnknown();
+            pu.pi = 3;
+            pu.pu = "preserved";
+
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_exchangePBase(pu).whenCompleted(cb.response_exchangePBase2, cb.exception);
+            cb.check();
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            PCDerived pcd = new PCDerived();
+            pcd.pi = 3;
+            pcd.pbs = new PBase[] { pcd };
+
+            AsyncCallback cb = new AsyncCallback();
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase3, cb.exception);
+            }
+            else
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase4, cb.exception);
+            }
+            cb.check();
+        }
+
+        {
+            //
+            // Send an object that will have multiple preserved slices in the server.
+            // The object will be sliced to Preserved for the 1.0 encoding.
+            //
+            PCDerived3 pcd = new PCDerived3();
+            pcd.pi = 3;
+            //
+            // Sending more than 254 objects exercises the encoding for object ids.
+            //
+            pcd.pbs = new PBase[300];
+            int i;
+            for(i = 0; i < 300; ++i)
+            {
+                PCDerived2 p2 = new PCDerived2();
+                p2.pi = i;
+                p2.pbs = new PBase[] { null }; // Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs[i] = p2;
+            }
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs[10];
+
+            AsyncCallback cb = new AsyncCallback();
+            if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase5, cb.exception);
+            }
+            else
+            {
+                testPrx.begin_exchangePBase(pcd).whenCompleted(cb.response_exchangePBase6, cb.exception);
+            }
+            cb.check();
+        }
+
+        {
+            //
+            // Obtain an object with preserved slices and send it back to the server.
+            // The preserved slices should be excluded for the 1.0 encoding, otherwise
+            // they should be included.
+            //
+            Preserved p = testPrx.PBSUnknownAsPreserved();
+            testPrx.checkPBSUnknown(p);
+            if(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+            {
+                (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+            }
+        }
+
+        WriteLine("ok");
+
+        Write("garbage collection for preserved classes... ");
+        Flush();
+        {
+            //
+            // Register a factory in order to substitute our own subclass of PNode. This provides
+            // an easy way to determine how many unmarshaled instances currently exist.
+            //
+            communicator.addObjectFactory(new NodeFactoryI(), PNode.ice_staticId());
+
+            //
+            // Relay a graph through the server.
+            //
+            {
+                PNode c = new PNode();
+                c.next = new PNode();
+                c.next.next = new PNode();
+                c.next.next.next = c;
+
+                test(PNodeI.counter == 0);
+                PNode n = testPrx.exchangePNode(c);
+
+                test(PNodeI.counter == 3);
+                PNodeI.counter = 0;
+                n.next = null;
+            }
+
+            //
+            // Obtain a preserved object from the server where the most-derived
+            // type is unknown. The preserved slice refers to a graph of PNode
+            // objects.
+            //
+            {
+                test(PNodeI.counter == 0);
+                Preserved p = testPrx.PBSUnknownAsPreservedWithGraph();
+                testPrx.checkPBSUnknownWithGraph(p);
+                test(PNodeI.counter == 3);
+                PNodeI.counter = 0;
+            }
+
+            //
+            // Obtain a preserved object from the server where the most-derived
+            // type is unknown. A data member in the preserved slice refers to the
+            // outer object, so the chain of references looks like this:
+            //
+            // outer.slicedData.outer
+            //
+            {
+                PreservedI.counter = 0;
+                Preserved p = testPrx.PBSUnknown2AsPreservedWithGraph();
+                testPrx.checkPBSUnknown2WithGraph(p);
+                test(PreservedI.counter == 1);
+                PreservedI.counter = 0;
+            }
+
+            //
+            // Throw a preserved exception where the most-derived type is unknown.
+            // The preserved exception slice contains a class data member. This
+            // object is also preserved, and its most-derived type is also unknown.
+            // The preserved slice of the object contains a class data member that
+            // refers to itself.
+            //
+            // The chain of references looks like this:
+            //
+            // ex.slicedData.obj.slicedData.obj
+            //
+            try
+            {
+                test(PreservedI.counter == 0);
+
+                try
+                {
+                    testPrx.throwPreservedException();
+                }
+                catch(PreservedException)
+                {
+                    test(PreservedI.counter == 1);
+                }
+
+                PreservedI.counter = 0;
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+        }
+
         WriteLine("ok");
 
 #if SILVERLIGHT
