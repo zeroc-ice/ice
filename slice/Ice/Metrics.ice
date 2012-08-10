@@ -49,6 +49,13 @@ class Metrics
      *
      **/
     long totalLifetime = 0;
+
+    /**
+     *
+     * The number of failures observed.
+     *
+     **/
+    int failures;
 };
 
 struct MetricsFailures
@@ -126,7 +133,7 @@ interface MetricsAdmin
 
     /**
      *
-     * Get the metrics failure associated with the given view and map.
+     * Get the metrics failures associated with the given view and map.
      *
      * @throws UnknownMetricsView Raised if the metrics view can't be
      * found.
@@ -138,7 +145,26 @@ interface MetricsAdmin
      * @return The metrics failures associated with the map.
      *
      **/
-    MetricsFailuresSeq getMetricsFailures(string view, string map)
+    MetricsFailuresSeq getMapMetricsFailures(string view, string map)
+        throws UnknownMetricsView;
+
+    /**
+     *
+     * Get the metrics failure associated for the given metrics
+     *
+     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * found.
+     *
+     * @param view The name of the metrics view.
+     *
+     * @param map The name of the metrics map.
+     *
+     * @param map The ID of the metrics.
+     *
+     * @return The metrics failures associated with the metrics.
+     *
+     **/
+    MetricsFailures getMetricsFailures(string view, string map, string id)
         throws UnknownMetricsView;
 };
 

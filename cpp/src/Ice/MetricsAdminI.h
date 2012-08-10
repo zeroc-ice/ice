@@ -80,6 +80,7 @@ public:
         failed(const std::string& exceptionName)
         {
             IceUtil::Mutex::Lock sync(*this);
+            ++_object->failures;
             ++_failures[exceptionName];
         }
 
@@ -158,6 +159,7 @@ public:
     MetricsMapI(const MetricsMapI&);
 
     MetricsFailuresSeq getFailures();
+    MetricsFailures getFailures(const std::string&);
     MetricsMap getMetrics() const;
     EntryPtr getMatching(const MetricsHelper&);
 
@@ -307,6 +309,7 @@ public:
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
+    MetricsFailures getFailures(const std::string&, const std::string&);
 
     MetricsMapI::EntryPtr getMatching(const MetricsHelper&) const;
 
@@ -331,7 +334,9 @@ public:
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
     virtual MetricsView getMetricsView(const std::string&, const ::Ice::Current&);
-    virtual MetricsFailuresSeq getMetricsFailures(const std::string&, const std::string&, const ::Ice::Current&);
+    virtual MetricsFailuresSeq getMapMetricsFailures(const std::string&, const std::string&, const ::Ice::Current&);
+    virtual MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,
+                                               const ::Ice::Current&);
 
 private:
 

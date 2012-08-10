@@ -157,6 +157,18 @@ MetricsMapI::getFailures()
     return failures;
 }
 
+MetricsFailures
+MetricsMapI::getFailures(const string& id)
+{
+    Lock sync(*this);
+    map<string, EntryPtr>::const_iterator p = _objects.begin();
+    if(p != _objects.end())
+    {
+        return p->second->getFailures();
+    }
+    return MetricsFailures();
+}
+
 MetricsMapI::EntryPtr
 MetricsMapI::getMatching(const MetricsHelper& helper)
 {
@@ -273,6 +285,17 @@ MetricsViewI::getFailures(const string& mapName)
         return p->second->getFailures();
     }
     return MetricsFailuresSeq();
+}
+
+MetricsFailures
+MetricsViewI::getFailures(const string& mapName, const string& id)
+{
+    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    if(p != _maps.end())
+    {
+        return p->second->getFailures(id);
+    }
+    return MetricsFailures();
 }
 
 MetricsMapI::EntryPtr
@@ -398,7 +421,7 @@ MetricsAdminI::getMetricsView(const string& view, const ::Ice::Current&)
 }
 
 MetricsFailuresSeq
-MetricsAdminI::getMetricsFailures(const string& view, const string& map, const ::Ice::Current&)
+MetricsAdminI::getMapMetricsFailures(const string& view, const string& map, const ::Ice::Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -407,4 +430,16 @@ MetricsAdminI::getMetricsFailures(const string& view, const string& map, const :
         throw UnknownMetricsView();
     }
     return p->second->getFailures(map);
+}
+
+MetricsFailures
+MetricsAdminI::getMetricsFailures(const string& view, const string& map, const string& id, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
+    if(p == _views.end())
+    {
+        throw UnknownMetricsView();
+    }
+    return p->second->getFailures(map, id);
 }
