@@ -45,9 +45,19 @@
 #   define ICE_32
 #endif
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1700)
 //
-// Visual Studio 2012 and later
+// Check for C++ 11 support
+//
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
+    (defined(__clang__) && (__clang_major__ >= 4) && __cplusplus >= 201103) || \
+    (defined(_MSC_VER) && (_MSC_VER >= 1600))
+#   define ICE_CPP11
+#endif
+
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1700) // Visual Studio 2012 or later
+//
+// Check if building for WinRT
 //
 #   include <winapifamily.h>
 #   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
@@ -80,25 +90,6 @@
 #   define ICE_DECLSPEC_IMPORT /**/
 #endif
 
-#if defined(_MSC_VER)
-#   define ICE_DEPRECATED_API __declspec(deprecated)
-#elif defined(__GNUC__)
-#   define ICE_DEPRECATED_API __attribute__((deprecated))
-#else
-#   define ICE_DEPRECATED_API /**/
-#endif
-
-//
-// Check for C++ 11 support
-//
-
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5)) && \
-                                              defined(__GXX_EXPERIMENTAL_CXX0X__)) || \
-    (defined(__clang__) && (__clang_major__ >= 4) && __cplusplus >= 201103) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1600))
-#   define ICE_CPP11 1
-#endif
-
 //
 // Let's use these extensions with IceUtil:
 //
@@ -109,22 +100,20 @@
 #endif
 
 
-#ifdef _WIN32
+#if defined(_MSC_VER)
+#   define ICE_DEPRECATED_API __declspec(deprecated)
+#elif defined(__GNUC__)
+#   define ICE_DEPRECATED_API __attribute__((deprecated))
+#else
+#   define ICE_DEPRECATED_API /**/
+#endif
 
+#ifdef _WIN32
 #   if !defined(ICE_STATIC_LIBS) && defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
 #   include <windows.h>
-
-#   ifdef _MSC_VER
-//     ... : inherits ... via dominance
-#      pragma warning( disable : 4250 )
-//     class ... needs to have dll-interface to be used by clients of class ...
-#      pragma warning( disable : 4251 )
-//     non dll-interface class ... used as base for dll-interface class ...
-#      pragma warning( disable : 4275 )
-#   endif
 #endif
 
 //
@@ -139,6 +128,13 @@
 #   include <errno.h>
 #endif
 
+#ifdef _MSC_VER
+//
+// Move some warnings to level 4
+//
+#   pragma warning( 4 : 4250 ) // ... : inherits ... via dominance
+#   pragma warning( 4 : 4251 ) // class ... needs to have dll-interface to be used by clients of class ..
+#endif
 
 namespace IceUtil
 {
@@ -146,7 +142,7 @@ namespace IceUtil
 //
 // By deriving from this class, other classes are made non-copyable.
 //
-class noncopyable
+class ICE_UTIL_API noncopyable
 {
 protected:
 

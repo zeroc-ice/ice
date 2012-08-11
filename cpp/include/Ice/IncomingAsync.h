@@ -15,7 +15,7 @@
 namespace Ice
 {
 
-class AMDCallback : virtual public IceUtil::Shared
+class ICE_API AMDCallback : virtual public IceUtil::Shared
 {
 public:
 
