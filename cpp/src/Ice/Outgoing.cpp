@@ -25,13 +25,13 @@ using namespace IceInternal;
 IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalException& ex, bool r) :
     _retry(r)
 {
-    _ex.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _ex.reset(ex.ice_clone());
 }
 
 IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalExceptionWrapper& ex) :
     _retry(ex._retry)
 {
-    _ex.reset(dynamic_cast<LocalException*>(ex.get()->ice_clone()));
+    _ex.reset(ex.get()->ice_clone());
 }
 
 void
@@ -511,7 +511,7 @@ IceInternal::Outgoing::finished(const LocalException& ex, bool sent)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(_state <= StateInProgress);
     _state = StateFailed;
-    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _exception.reset(ex.ice_clone());
     _sent = sent;
     _monitor.notify();
 }
@@ -585,6 +585,6 @@ void
 IceInternal::BatchOutgoing::finished(const Ice::LocalException& ex, bool)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-    _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+    _exception.reset(ex.ice_clone());
     _monitor.notify();
 }

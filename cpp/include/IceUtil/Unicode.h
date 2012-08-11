@@ -46,7 +46,7 @@ public:
     UTFConversionException(const char*, int, ConversionError);
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual UTFConversionException* ice_clone() const;
     virtual void ice_throw() const;
 
     ConversionError conversionError() const;

@@ -55,7 +55,7 @@ public:
     AsynchronousException(const IceInternal::InstancePtr& instance,
                           const Ice::AsyncResultPtr& result,
                           const Ice::Exception& ex) :
-        DispatchWorkItem(instance), _result(result), _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
+        DispatchWorkItem(instance), _result(result), _exception(ex.ice_clone())
     {
     }
 

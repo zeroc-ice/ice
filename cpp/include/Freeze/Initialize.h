@@ -75,7 +75,7 @@ public:
     virtual ~TransactionalEvictorDeadlockException() throw();
 
     virtual std::string ice_name() const;
-    virtual Ice::Exception* ice_clone() const;
+    virtual TransactionalEvictorDeadlockException* ice_clone() const;
     virtual void ice_throw() const;
 
     TransactionPtr tx;

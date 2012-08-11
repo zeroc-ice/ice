@@ -66,7 +66,7 @@ public:
     virtual void usesClasses(bool) = 0;
 
     virtual ::std::string ice_name() const = 0;
-    virtual Exception* ice_clone() const = 0;
+    virtual UserExceptionReader* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
     virtual void __write(IceInternal::BasicStream*) const;
@@ -422,7 +422,7 @@ public:
     virtual bool usesClasses() const = 0;
 
     virtual ::std::string ice_name() const = 0;
-    virtual Exception* ice_clone() const = 0;
+    virtual UserExceptionWriter* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
     virtual void __write(IceInternal::BasicStream*) const;

@@ -140,7 +140,7 @@ Glacier2::RestartSessionException::ice_name() const
     return "RestartSessionException";
 }
 
-Exception*
+Glacier2::RestartSessionException*
 Glacier2::RestartSessionException::ice_clone() const
 {
     return new RestartSessionException(*this);

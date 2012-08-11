@@ -1689,7 +1689,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             }
             catch(const LocalException& ex)
             {
-                exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+                exception.reset(ex.ice_clone());
             }
         }
 
@@ -1801,7 +1801,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             {
                 if(!_exception.get())
                 {
-                    _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+                    _exception.reset(ex.ice_clone());
                 }
                 
                 if(++_i == _endpoints.size())

@@ -40,7 +40,7 @@ CertificateReadException::ice_name() const
     return _name;
 }
 
-Exception* 
+CertificateReadException* 
 CertificateReadException::ice_clone() const
 {
     return new CertificateReadException(*this);
@@ -70,7 +70,7 @@ CertificateEncodingException::ice_name() const
     return _name;
 }
 
-Exception* 
+CertificateEncodingException* 
 CertificateEncodingException::ice_clone() const
 {
     return new CertificateEncodingException(*this);
@@ -269,7 +269,7 @@ ParseException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception* 
+ParseException* 
 ParseException::ice_clone() const
 {
     return new ParseException(*this);

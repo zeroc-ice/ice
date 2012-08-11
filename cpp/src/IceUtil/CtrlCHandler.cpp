@@ -68,7 +68,7 @@ CtrlCHandlerException::ice_name() const
     return ctrlCHandlerName;
 }
 
-Exception*
+CtrlCHandlerException*
 CtrlCHandlerException::ice_clone() const
 {
     return new CtrlCHandlerException(*this);

@@ -42,7 +42,7 @@ Slice::FileException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-IceUtil::Exception*
+Slice::FileException*
 Slice::FileException::ice_clone() const
 {
     return new FileException(*this);

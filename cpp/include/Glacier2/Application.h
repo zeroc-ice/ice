@@ -27,7 +27,7 @@ class GLACIER2_API RestartSessionException : public IceUtil::Exception
 public:
 
     virtual std::string ice_name() const;
-    virtual IceUtil::Exception* ice_clone() const;
+    virtual RestartSessionException* ice_clone() const;
     virtual void ice_throw() const;
 };
 

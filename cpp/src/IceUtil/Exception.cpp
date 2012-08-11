@@ -300,7 +300,7 @@ IceUtil::NullHandleException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::NullHandleException*
 IceUtil::NullHandleException::ice_clone() const
 {
     return new NullHandleException(*this);
@@ -342,7 +342,7 @@ IceUtil::IllegalArgumentException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-IceUtil::Exception*
+IceUtil::IllegalArgumentException*
 IceUtil::IllegalArgumentException::ice_clone() const
 {
     return new IllegalArgumentException(*this);
@@ -384,7 +384,7 @@ IceUtil::SyscallException::ice_print(ostream& os) const
     }
 }
 
-IceUtil::Exception*
+IceUtil::SyscallException*
 IceUtil::SyscallException::ice_clone() const
 {
     return new SyscallException(*this);
@@ -433,7 +433,7 @@ IceUtil::FileLockException::ice_print(ostream& os) const
     }
 }
 
-IceUtil::Exception*
+IceUtil::FileLockException*
 IceUtil::FileLockException::ice_clone() const
 {
     return new FileLockException(*this);
@@ -472,7 +472,7 @@ IceUtil::OptionalNotSetException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::OptionalNotSetException*
 IceUtil::OptionalNotSetException::ice_clone() const
 {
     return new OptionalNotSetException(*this);

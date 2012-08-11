@@ -825,8 +825,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
 
-    H << nl << "virtual ::Ice::Exception* ice_clone() const;";
-    C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::ice_clone() const";
+    H << nl << "virtual " << name << "* ice_clone() const;";
+    C << sp << nl << scoped.substr(2) << "*" << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
     C << nl << "return new " << name << "(*this);";
     C << eb;
@@ -3559,27 +3559,37 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
-
         C << sp << nl
 	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
 	  << "::Ice::Object* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
 
-        C << sp;
-        C << nl << "::Ice::ObjectPtr";
-        C << nl << scoped.substr(2) << "::ice_clone() const";
-        C << sb;
-        if(!p->isAbstract())
-        {
-            C << nl << fixKwd(p->scope()) << p->name() << "Ptr __p = new " << scoped << "(*this);";
-            C << nl << "return __p;";
-        }
-        else
-        {
-            C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
-            C << nl << "return 0; // to avoid a warning with some compilers";
-        }
-        C << eb;
+	//
+	// It would make sense to provide a covariant ice_clone(); unfortunately many compilers
+	// (including VS2010) generate bad code for covariant types that use virtual inheritance 
+	//
+
+	if(!p->isInterface())
+	{
+	    H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
+	   
+	    C << nl << "::Ice::ObjectPtr";
+	    C << nl << scoped.substr(2) << "::ice_clone() const";
+	    C << sb;
+	    if(!p->isAbstract())
+	    {
+		C << nl << "::Ice::Object* __p = new " << name << "(*this);";
+		C << nl << "return __p;";
+	    }
+	    else
+	    {
+		//
+		// We need this ice_clone for abstract classes derived from concrete classes
+		//
+		C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
+		C << nl << "return 0; // to avoid a warning with some compilers";
+	    }
+	    C << eb;
+	}
 
         ClassList allBases = p->allBases();
         StringList ids;

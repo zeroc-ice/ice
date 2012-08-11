@@ -24,7 +24,7 @@ IceUtil::ThreadSyscallException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::ThreadSyscallException*
 IceUtil::ThreadSyscallException::ice_clone() const
 {
     return new ThreadSyscallException(*this);
@@ -49,7 +49,7 @@ IceUtil::ThreadLockedException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::ThreadLockedException*
 IceUtil::ThreadLockedException::ice_clone() const
 {
     return new ThreadLockedException(*this);
@@ -74,7 +74,7 @@ IceUtil::ThreadStartedException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::ThreadStartedException*
 IceUtil::ThreadStartedException::ice_clone() const
 {
     return new ThreadStartedException(*this);
@@ -99,7 +99,7 @@ IceUtil::ThreadNotStartedException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::ThreadNotStartedException*
 IceUtil::ThreadNotStartedException::ice_clone() const
 {
     return new ThreadNotStartedException(*this);
@@ -125,7 +125,7 @@ IceUtil::BadThreadControlException::ice_name() const
     return _name;
 }
 
-IceUtil::Exception*
+IceUtil::BadThreadControlException*
 IceUtil::BadThreadControlException::ice_clone() const
 {
     return new BadThreadControlException(*this);
@@ -159,7 +159,7 @@ IceUtil::InvalidTimeoutException::ice_print(ostream& os) const
     os << ":\ninvalid timeout: " << _timeout << " seconds";
 }
 
-IceUtil::Exception*
+IceUtil::InvalidTimeoutException*
 IceUtil::InvalidTimeoutException::ice_clone() const
 {
     return new InvalidTimeoutException(*this);

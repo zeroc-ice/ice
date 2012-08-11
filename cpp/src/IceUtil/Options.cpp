@@ -42,7 +42,7 @@ IceUtilInternal::APIException::ice_print(ostream& out) const
     }
 }
 
-IceUtil::Exception*
+IceUtilInternal::APIException*
 IceUtilInternal::APIException::ice_clone() const
 {
     return new APIException(*this);
@@ -88,7 +88,7 @@ IceUtilInternal::BadOptException::ice_print(ostream& out) const
     }
 }
 
-IceUtil::Exception*
+IceUtilInternal::BadOptException*
 IceUtilInternal::BadOptException::ice_clone() const
 {
     return new BadOptException(*this);

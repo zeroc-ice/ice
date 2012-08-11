@@ -51,7 +51,7 @@ public:
     NullHandleException(const char*, int);
     virtual ~NullHandleException() throw();
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual NullHandleException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -68,7 +68,7 @@ public:
     virtual ~IllegalArgumentException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual IllegalArgumentException* ice_clone() const;
     virtual void ice_throw() const;
 
     std::string reason() const;
@@ -86,7 +86,7 @@ public:
     SyscallException(const char*, int, int);
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual SyscallException* ice_clone() const;
     virtual void ice_throw() const;
 
     int error() const;
@@ -105,7 +105,7 @@ public:
     virtual ~FileLockException() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual FileLockException* ice_clone() const;
     virtual void ice_throw() const;
 
     std::string path() const;
@@ -125,7 +125,7 @@ public:
     OptionalNotSetException(const char*, int);
     virtual ~OptionalNotSetException() throw();
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual OptionalNotSetException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:

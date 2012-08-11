@@ -39,7 +39,7 @@ Freeze::TransactionalEvictorDeadlockException::ice_name() const
     return "Freeze::TransactionalEvictorDeadlockException";
 }
 
-Ice::Exception*
+Freeze::TransactionalEvictorDeadlockException*
 Freeze::TransactionalEvictorDeadlockException::ice_clone() const
 {
     return new TransactionalEvictorDeadlockException(*this);
@@ -197,7 +197,7 @@ Freeze::TransactionalEvictorContext::exception(const std::exception& ex)
 
     if(dx != 0 && _owner == IceUtil::ThreadControl())
     {
-        _deadlockException.reset(dynamic_cast<DeadlockException*>(dx->ice_clone()));
+        _deadlockException.reset(dx->ice_clone());
         return false;
     }
 
@@ -205,7 +205,7 @@ Freeze::TransactionalEvictorContext::exception(const std::exception& ex)
         dynamic_cast<const TransactionalEvictorDeadlockException*>(&ex);
     if(edx != 0 && _owner == IceUtil::ThreadControl())
     {
-        _nestedCallDeadlockException.reset(dynamic_cast<TransactionalEvictorDeadlockException*>(edx->ice_clone()));
+        _nestedCallDeadlockException.reset(edx->ice_clone());
         return false;
     }
 

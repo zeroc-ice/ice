@@ -13,6 +13,10 @@
 #include <Test.h>
 #include <Wstring.h>
 
+#ifdef _MSC_VER
+#   pragma warning( 4 : 4503 ) // C4503: ... : decorated name length exceeded, name was truncated
+#endif
+
 using namespace std;
 
 namespace

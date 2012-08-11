@@ -1866,7 +1866,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
         //
         assert(_state != StateClosed);
 
-        _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+        _exception.reset(ex.ice_clone());
 
         if(_warn)
         {

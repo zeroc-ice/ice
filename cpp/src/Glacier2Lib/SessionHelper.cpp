@@ -517,7 +517,7 @@ public:
         _callback(callback),
         _session(session)
     {
-        _ex.reset(dynamic_cast<Ice::Exception*>(ex.ice_clone()));
+        _ex.reset(ex.ice_clone());
     }
     
     virtual void

@@ -55,7 +55,7 @@ IceXML::ParserException::ice_print(std::ostream& out) const
     }
 }
 
-IceUtil::Exception*
+IceXML::ParserException*
 IceXML::ParserException::ice_clone() const
 {
     return new ParserException(*this);
