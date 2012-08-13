@@ -1058,7 +1058,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void writeImpl__(Ice.OutputStream outS__)";
+        _out << nl << "public " << (base ? "override" : "virtual") << " void writeImpl__(Ice.OutputStream outS__)";
         _out << sb;
         _out << nl << "outS__.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
         for(d = members.begin(); d != members.end(); ++d)
@@ -1096,7 +1096,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void readImpl__(Ice.InputStream inS__)";
+        _out << nl << "public " << (base ? "override" : "virtual") << " void readImpl__(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "inS__.startSlice();";
         classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -3282,7 +3282,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public override void writeImpl__(Ice.OutputStream outS__)";
+            _out << nl << "public " << (base ? "override" : "virtual") << " void writeImpl__(Ice.OutputStream outS__)";
             _out << sb;
             _out << nl << "outS__.startSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3314,7 +3314,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public override void readImpl__(Ice.InputStream inS__)";
+            _out << nl << "public " << (base ? "override" : "virtual") << " void readImpl__(Ice.InputStream inS__)";
             _out << sb;
             _out << nl << "inS__.startSlice();";
             classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
