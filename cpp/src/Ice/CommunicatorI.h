@@ -65,7 +65,7 @@ public:
                             const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
                             const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
     {
-        return begin_flushBatchRequestsInternal(new Cpp11FnCallbackNC_Communicator_flushBatchRequests(exception, sent), 0);
+        return __begin_flushBatchRequests(new Cpp11FnCallbackNC_Communicator_flushBatchRequests(exception, sent), 0);
     }
 #endif
 
@@ -95,7 +95,7 @@ private:
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
-    AsyncResultPtr begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+    AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     const ::IceInternal::InstancePtr _instance;
 

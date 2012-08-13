@@ -826,7 +826,7 @@ Ice::ConnectionI::flushBatchRequests()
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests()
 {
-    return begin_flushBatchRequestsInternal(__dummyCallback, 0);
+    return __begin_flushBatchRequests(__dummyCallback, 0);
 }
 
 namespace
@@ -839,18 +839,18 @@ const ::std::string __flushBatchRequests_name = "flushBatchRequests";
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests(const CallbackPtr& cb, const LocalObjectPtr& cookie)
 {
-    return begin_flushBatchRequestsInternal(cb, cookie);
+    return __begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
 Ice::ConnectionI::begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr& cb,
                                            const LocalObjectPtr& cookie)
 {
-    return begin_flushBatchRequestsInternal(cb, cookie);
+    return __begin_flushBatchRequests(cb, cookie);
 }
 
 AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequestsInternal(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
+Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
 {
     ConnectionBatchOutgoingAsyncPtr result =
         new ConnectionBatchOutgoingAsync(this, _communicator, _instance, __flushBatchRequests_name, cb, cookie);
