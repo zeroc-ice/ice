@@ -22,29 +22,6 @@ public class SessionHelper
 {
     private class SessionRefreshThread
     {
-        private class RefreshI : Glacier2.AMI_Router_refreshSession
-        {
-            public
-            RefreshI(SessionHelper helper, SessionRefreshThread thread)
-            {
-                _thread = thread;
-                _helper = helper;
-            }
-
-            public override void ice_response()
-            {
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                _thread.done();
-                _helper.destroy();
-            }
-
-            SessionRefreshThread _thread;
-            SessionHelper _helper;
-        }
-
         public SessionRefreshThread(SessionHelper session, Glacier2.RouterPrx router, int period)
         {
             _session = session;
@@ -63,7 +40,12 @@ public class SessionHelper
                 {
                     try
                     {
-                        _router.refreshSession_async(new RefreshI(_session, this));
+                        _router.begin_refreshSession().whenCompleted(
+                                            (Ice.Exception ex) => 
+                                                        {
+                                                            this.done();
+                                                            _session.destroy();
+                                                        });
                     }
                     catch(Ice.CommunicatorDestroyedException)
                     {

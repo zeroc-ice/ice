@@ -33,7 +33,7 @@ interface Router
      * @return The router's client proxy.
      *
      **/
-    ["ami", "nonmutating", "cpp:const"] idempotent Object* getClientProxy();
+    ["nonmutating", "cpp:const"] idempotent Object* getClientProxy();
 
     /**
      *
@@ -67,7 +67,7 @@ interface Router
      * @return Proxies discarded by the router.
      *
      **/
-    ["ami"] idempotent ObjectProxySeq addProxies(ObjectProxySeq proxies);
+    idempotent ObjectProxySeq addProxies(ObjectProxySeq proxies);
 };
 
 };

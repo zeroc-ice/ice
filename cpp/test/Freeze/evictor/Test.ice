@@ -62,7 +62,7 @@ sequence<Ice::Identity> AccountIdSeq;
 
     idempotent void setValue(int value);
 
-    ["ami", "amd"] void setValueAsync(int value);
+    ["amd"] void setValueAsync(int value);
     ["freeze:read", "cpp:const"] void releaseAsync();
 
     ["freeze:read", "cpp:const"] void addFacet(string name, string data) throws AlreadyRegisteredException;

@@ -15,82 +15,6 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
-namespace
-{
-
-class AMI_ReplicaObserver_createTopicI : public AMI_ReplicaObserver_createTopic, public AMICall
-{
-public:
-
-    virtual void ice_response() { response(); }
-    virtual void ice_exception(const Ice::Exception& e) { exception(e); }
-};
-typedef IceUtil::Handle<AMI_ReplicaObserver_createTopicI> AMI_ReplicaObserver_createTopicIPtr;
-
-class AMI_ReplicaObserver_addSubscriberI : public AMI_ReplicaObserver_addSubscriber, public AMICall
-{
-public:
-
-    virtual void ice_response() { response(); }
-    virtual void ice_exception(const Ice::Exception& e) { exception(e); }
-};
-typedef IceUtil::Handle<AMI_ReplicaObserver_addSubscriberI> AMI_ReplicaObserver_addSubscriberIPtr;
-
-class AMI_ReplicaObserver_removeSubscriberI : public AMI_ReplicaObserver_removeSubscriber, public AMICall
-{
-public:
-
-    virtual void ice_response() { response(); }
-    virtual void ice_exception(const Ice::Exception& e) { exception(e); }
-};
-typedef IceUtil::Handle<AMI_ReplicaObserver_removeSubscriberI> AMI_ReplicaObserver_removeSubscriberIPtr;
-
-class AMI_ReplicaObserver_destroyTopicI : public AMI_ReplicaObserver_destroyTopic, public AMICall
-{
-public:
-
-    virtual void ice_response() { response(); }
-    virtual void ice_exception(const Ice::Exception& e) { exception(e); }
-};
-typedef IceUtil::Handle<AMI_ReplicaObserver_destroyTopicI> AMI_ReplicaObserver_destroyTopicIPtr;
-
-}
-
-AMICall::AMICall() :
-    _response(false)
-{
-}
-
-void
-AMICall::response()
-{
-    Lock sync(*this);
-    _response = true;
-    notify();
-}
-void
-AMICall::exception(const IceUtil::Exception& e)
-{
-    Lock sync(*this);
-    _response = true;
-    _ex.reset(e.ice_clone());
-    notify();
-}
-
-void
-AMICall::waitResponse()
-{
-    Lock sync(*this);
-    while(!_response)
-    {
-        wait();
-    }
-    if(_ex.get())
-    {
-        _ex->ice_throw();
-    }
-}
-
 Observers::Observers(const InstancePtr& instance) :
     _traceLevels(instance->traceLevels()),
     _majority(0)
@@ -194,9 +118,7 @@ Observers::createTopic(const LogUpdate& llu, const string& name)
     Lock sync(*this);
     for(vector<ObserverInfo>::iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-        AMI_ReplicaObserver_createTopicIPtr cb = new AMI_ReplicaObserver_createTopicI;
-        p->call = cb;
-        p->observer->createTopic_async(cb, llu, name);
+        p->result = p->observer->begin_createTopic(llu, name);
     }
     wait("createTopic");
 }
@@ -207,9 +129,7 @@ Observers::destroyTopic(const LogUpdate& llu, const string& id)
     Lock sync(*this);
     for(vector<ObserverInfo>::iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-        AMI_ReplicaObserver_destroyTopicIPtr cb = new AMI_ReplicaObserver_destroyTopicI;
-        p->call = cb;
-        p->observer->destroyTopic_async(cb, llu, id);
+        p->result = p->observer->begin_destroyTopic(llu, id);
     }
     wait("destroyTopic");
 }
@@ -221,9 +141,7 @@ Observers::addSubscriber(const LogUpdate& llu, const string& name, const Subscri
     Lock sync(*this);
     for(vector<ObserverInfo>::iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-        AMI_ReplicaObserver_addSubscriberIPtr cb = new AMI_ReplicaObserver_addSubscriberI;
-        p->call = cb;
-        p->observer->addSubscriber_async(cb, llu, name, rec);
+        p->result = p->observer->begin_addSubscriber(llu, name, rec);
     }
     wait("addSubscriber");
 }
@@ -234,9 +152,7 @@ Observers::removeSubscriber(const LogUpdate& llu, const string& name, const Ice:
     Lock sync(*this);
     for(vector<ObserverInfo>::iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-        AMI_ReplicaObserver_removeSubscriberIPtr cb = new AMI_ReplicaObserver_removeSubscriberI;
-        p->call = cb;
-        p->observer->removeSubscriber_async(cb, llu, name, id);
+        p->result = p->observer->begin_removeSubscriber(llu, name, id);
     }
     wait("removeSubscriber");
 }
@@ -249,7 +165,8 @@ Observers::wait(const string& op)
     {
         try
         {
-            p->call->waitResponse();
+            p->result->waitForCompleted();
+            p->result->throwLocalException();
         }
         catch(const Ice::Exception& ex)
         {
@@ -261,11 +178,8 @@ Observers::wait(const string& op)
             int id = p->id;
             p = _observers.erase(p);
 
-            // COMPILERFIX: Just using following causes double unlock with C++Builder 2007
-            //IceUtil::Mutex::Lock sync(_reapedMutex);
-            _reapedMutex.lock();
+            IceUtil::Mutex::Lock sync(_reapedMutex);
             _reaped.push_back(id);
-            _reapedMutex.unlock();
             continue;
         }
         ++p;

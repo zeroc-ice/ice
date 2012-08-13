@@ -85,9 +85,9 @@ class WriteMessageDialog extends JDialog
                         final String prefix = "Writing message to server '" + _target + "'...";
                         c.getStatusBar().setText(prefix);
 
-                        Ice.AMI_Process_writeMessage cb = new Ice.AMI_Process_writeMessage()
+                        Ice.Callback_Process_writeMessage cb = new Ice.Callback_Process_writeMessage()
                             {
-                                public void ice_response()
+                                public void response()
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
@@ -98,7 +98,7 @@ class WriteMessageDialog extends JDialog
                                         });
                                 }
 
-                                public void ice_exception(final Ice.LocalException e)
+                                public void exception(final Ice.LocalException e)
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
@@ -123,7 +123,7 @@ class WriteMessageDialog extends JDialog
 
                         try
                         {
-                            process.writeMessage_async(cb, _message.getText(), _stdOut.isSelected() ? 1 : 2);
+                            process.begin_writeMessage(_message.getText(), _stdOut.isSelected() ? 1 : 2, cb);
                         }
                         catch(Ice.LocalException ex)
                         {

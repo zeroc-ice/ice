@@ -22,22 +22,22 @@ namespace IceGrid
 //
 // Callback from asynchronous call to adapter->getDirectProxy() invoked in LocatorI::findAdapterById_async().
 //
-class AMI_Adapter_getDirectProxyI : public AMI_Adapter_getDirectProxy
+class AdapterGetDirectProxyCallback : virtual public IceUtil::Shared
 {
 public:
 
-    AMI_Adapter_getDirectProxyI(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
+    AdapterGetDirectProxyCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
         _locator(locator), _adapter(adapter)
     {
     }
 
-    virtual void ice_response(const ::Ice::ObjectPrx& obj)
+    virtual void response(const ::Ice::ObjectPrx& obj)
     {
         assert(obj);
         _locator->getDirectProxyResponse(_adapter, obj);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& e)
+    virtual void exception(const ::Ice::Exception& e)
     { 
         _locator->getDirectProxyException(_adapter, e);
     }
@@ -48,21 +48,21 @@ private:
     const LocatorAdapterInfo _adapter;
 };
 
-class AMI_Adapter_activateI : public AMI_Adapter_activate
+class AdapterActivateCallback : virtual public IceUtil::Shared
 {
 public:
 
-    AMI_Adapter_activateI(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
+    AdapterActivateCallback(const LocatorIPtr& locator, const LocatorAdapterInfo& adapter) : 
         _locator(locator), _adapter(adapter)
     {
     }
 
-    virtual void ice_response(const ::Ice::ObjectPrx& obj)
+    virtual void response(const ::Ice::ObjectPrx& obj)
     {
         _locator->getDirectProxyResponse(_adapter, obj);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    virtual void exception(const ::Ice::Exception& ex)
     {
         _locator->getDirectProxyException(_adapter, ex);
     }
@@ -936,8 +936,10 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const RequestPtr& re
         requests.push_back(request);
         _pendingRequests.insert(make_pair(adapter.id, requests));
     }
-
-    adapter.proxy->getDirectProxy_async(new AMI_Adapter_getDirectProxyI(this, adapter));
+    adapter.proxy->begin_getDirectProxy(newCallback_Adapter_getDirectProxy(
+                                            new AdapterGetDirectProxyCallback(this, adapter),
+                                            &AdapterGetDirectProxyCallback::response, 
+                                            &AdapterGetDirectProxyCallback::exception));
     return false;
 }
 
@@ -1011,9 +1013,11 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, const Ice::
             (*q)->activating(adapter.id);
         }
 
-        AMI_Adapter_activatePtr amiCB = new AMI_Adapter_activateI(this, adapter);
         int timeout = adapter.activationTimeout + adapter.deactivationTimeout;
-        AdapterPrx::uncheckedCast(adapter.proxy->ice_timeout(timeout * 1000))->activate_async(amiCB);
+        AdapterPrx::uncheckedCast(adapter.proxy->ice_timeout(timeout * 1000))->begin_activate(
+            newCallback_Adapter_activate(new AdapterActivateCallback(this, adapter),
+                                         &AdapterActivateCallback::response, 
+                                         &AdapterActivateCallback::exception));
     }
     else
     {

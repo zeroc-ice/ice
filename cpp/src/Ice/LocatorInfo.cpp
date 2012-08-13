@@ -31,7 +31,7 @@ IceUtil::Shared* IceInternal::upCast(LocatorTable* p) { return p; }
 namespace
 {
 
-class ObjectRequest : public LocatorInfo::Request, public Ice::AMI_Locator_findObjectById
+class ObjectRequest : public LocatorInfo::Request
 {
 public:
     
@@ -40,37 +40,31 @@ public:
         assert(ref->isWellKnown());
     }
 
-    virtual void ice_response(const Ice::ObjectPrx& proxy)
-    {
-        response(proxy);
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-        exception(ex);
-    }
-
     virtual void send(bool async)
     {
         try
         {
             if(async)
             {
-                _locatorInfo->getLocator()->findObjectById_async(this, _ref->getIdentity());
+                _locatorInfo->getLocator()->begin_findObjectById(
+                    _ref->getIdentity(), 
+                    newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
+                                                       &LocatorInfo::Request::response, 
+                                                       &LocatorInfo::Request::exception));
             }
             else
             {
-                ice_response(_locatorInfo->getLocator()->findObjectById(_ref->getIdentity()));
+                response(_locatorInfo->getLocator()->findObjectById(_ref->getIdentity()));
             }
         }
         catch(const Ice::Exception& ex)
         {
-            ice_exception(ex);
+            exception(ex);
         }
     }
 };
 
-class AdapterRequest : public LocatorInfo::Request, public Ice::AMI_Locator_findAdapterById
+class AdapterRequest : public LocatorInfo::Request
 {
 public:
     
@@ -79,32 +73,26 @@ public:
         assert(ref->isIndirect() && !ref->isWellKnown());
     }
     
-    virtual void ice_response(const Ice::ObjectPrx& proxy)
-    {
-        response(proxy);
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-        exception(ex);
-    }
-
     virtual void send(bool async)
     {
         try
         {
             if(async)
             {
-                _locatorInfo->getLocator()->findAdapterById_async(this, _ref->getAdapterId());
+                _locatorInfo->getLocator()->begin_findAdapterById(
+                    _ref->getAdapterId(),
+                    newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
+                                                        &LocatorInfo::Request::response, 
+                                                        &LocatorInfo::Request::exception));
             }
             else
             {
-                ice_response(_locatorInfo->getLocator()->findAdapterById(_ref->getAdapterId()));
+                response(_locatorInfo->getLocator()->findAdapterById(_ref->getAdapterId()));
             }
         }
         catch(const Ice::Exception& ex)
         {
-            ice_exception(ex);
+            exception(ex);
         }
     }
 };

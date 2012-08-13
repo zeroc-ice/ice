@@ -59,7 +59,7 @@ interface TopicLink
      * @param events The events to forward.
      *
      **/
-    ["ami"] void forward(EventDataSeq events);
+    void forward(EventDataSeq events);
 };
 
 /** Thrown if the reap call would block. */
@@ -94,7 +94,7 @@ interface TopicInternal extends Topic
      * @throws ReapWouldBlock Raised if the reap call would block.
      *
      **/
-    ["ami"] void reap(Ice::IdentitySeq id) throws ReapWouldBlock;
+    void reap(Ice::IdentitySeq id) throws ReapWouldBlock;
 };
 
 /**

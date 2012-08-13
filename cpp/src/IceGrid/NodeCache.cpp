@@ -178,7 +178,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
     int _iceVersion;
 };
 
-class LoadCB : public AMI_Node_loadServer
+class LoadCB : virtual public IceUtil::Shared
 {
 public:
 
@@ -191,7 +191,7 @@ public:
     }
 
     void
-    ice_response(const ServerPrx& server, const AdapterPrxDict& adapters, int at, int dt)
+    response(const ServerPrx& server, const AdapterPrxDict& adapters, int at, int dt)
     {
         if(_traceLevels && _traceLevels->server > 1)
         {
@@ -207,7 +207,7 @@ public:
     }
 
     void
-    ice_exception(const Ice::Exception& ex)
+    exception(const Ice::Exception& ex)
     {
         try
         {
@@ -248,7 +248,7 @@ private:
     const int _timeout;
 };
 
-class DestroyCB : public AMI_Node_destroyServer
+class DestroyCB : virtual public IceUtil::Shared
 {
 public:
 
@@ -258,7 +258,7 @@ public:
     }
 
     void
-    ice_response()
+    response()
     {
         if(_traceLevels && _traceLevels->server > 1)
         {
@@ -269,7 +269,7 @@ public:
     }
 
     void
-    ice_exception(const Ice::Exception& ex)
+    exception(const Ice::Exception& ex)
     {
         try
         {
@@ -308,31 +308,7 @@ private:
     const string _node;
 };
 
-class RegisterCB : public AMI_Node_registerWithReplica
-{
-public:
-
-    RegisterCB(const NodeEntryPtr& node) : _node(node)
-    {
-    }
-
-    void
-    ice_response()
-    {
-        _node->finishedRegistration();
-    }
-
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-        _node->finishedRegistration(ex);
-    }
-
-private:
-    const NodeEntryPtr _node;
-};
-
-};
+}
 
 NodeCache::NodeCache(const Ice::CommunicatorPtr& communicator, ReplicaCache& replicaCache, const string& replicaName) :
     _communicator(communicator),
@@ -625,8 +601,11 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             }
         }
         
-        AMI_Node_loadServerPtr amiCB = new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout);
-        node->loadServer_async(amiCB, desc, _cache.getReplicaName());
+        node->begin_loadServer(desc, _cache.getReplicaName(),
+                               newCallback_Node_loadServer(
+                                   new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
+                                   &LoadCB::response, 
+                                   &LoadCB::exception));
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -663,8 +642,10 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
             out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";       
         }
 
-        AMI_Node_destroyServerPtr amiCB = new DestroyCB(_cache.getTraceLevels(), entry, _name);
-        node->destroyServer_async(amiCB, info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName());
+        node->begin_destroyServer(info.descriptor->id, info.uuid, info.revision, _cache.getReplicaName(),
+                                  newCallback_Node_destroyServer(new DestroyCB(_cache.getTraceLevels(), entry, _name),
+                                                                 &DestroyCB::response, 
+                                                                 &DestroyCB::exception));
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -794,7 +775,10 @@ NodeEntry::checkSession() const
         //
         _registering = true; 
         NodeEntry* self = const_cast<NodeEntry*>(this);
-        _proxy->registerWithReplica_async(new RegisterCB(self), _cache.getReplicaCache().getInternalRegistry());
+        _proxy->begin_registerWithReplica(_cache.getReplicaCache().getInternalRegistry(), 
+                                          newCallback_Node_registerWithReplica(self, 
+                                                                               &NodeEntry::finishedRegistration, 
+                                                                               &NodeEntry::finishedRegistration));
         _proxy = 0; // Registration with the proxy is only attempted once.
     }
 

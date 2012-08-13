@@ -14,7 +14,7 @@ module Test
 
 interface TestIntf
 {
-    ["ami"] string getAdapterName();
+    string getAdapterName();
 };
 
 interface RemoteObjectAdapter

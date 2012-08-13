@@ -108,13 +108,13 @@ public:
 
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
         std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
+        
+        void response(const Ice::ObjectPrx&);
+        void exception(const Ice::Exception&);
 
     protected:
 
         Request(const LocatorInfoPtr&, const ReferencePtr&);
-
-        void response(const Ice::ObjectPrx&);
-        void exception(const Ice::Exception&);
 
         virtual void send(bool) = 0;
 

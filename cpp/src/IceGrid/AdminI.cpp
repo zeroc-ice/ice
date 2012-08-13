@@ -394,50 +394,101 @@ AdminI::getServerAdmin(const string& id, const Current& current) const
     return current.adapter->createProxy(adminId);
 }
 
+namespace
+{
+
+class StartCB : virtual public IceUtil::Shared
+{
+public:
+
+    StartCB(const ServerProxyWrapper& proxy, const AMD_Admin_startServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
+    {
+    }
+
+    virtual void
+    response()
+    {
+        _amdCB->ice_response();
+    }
+
+    virtual void
+    exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            _proxy.handleException(ex);
+            assert(false);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            _amdCB->ice_exception(ex);
+        }
+    }
+
+private:
+
+    const ServerProxyWrapper _proxy;
+    const AMD_Admin_startServerPtr _amdCB;
+};
+
+}
+
+
 void
 AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& id, const Current&)
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useActivationTimeout();
 
-    class StartCB : public AMI_Server_start
-    {
-    public:
-
-        StartCB(const ServerProxyWrapper& proxy, const AMD_Admin_startServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
-        {
-        }
-
-        virtual void
-        ice_response()
-        {
-            _amdCB->ice_response();
-        }
-
-        virtual void
-        ice_exception(const Ice::Exception& ex)
-        {
-            try
-            {
-                _proxy.handleException(ex);
-                assert(false);
-            }
-            catch(const Ice::Exception& ex)
-            {
-                _amdCB->ice_exception(ex);
-            }
-        }
-
-    private:
-
-        const ServerProxyWrapper _proxy;
-        const AMD_Admin_startServerPtr _amdCB;
-    };
-    
     //
     // Since the server might take a while to be activated, we use AMI.
     // 
-    proxy->start_async(new StartCB(proxy, amdCB));
+    proxy->begin_start(newCallback_Server_start(new StartCB(proxy, amdCB), 
+                                                &StartCB::response, 
+                                                &StartCB::exception));
+}
+
+namespace
+{
+
+class StopCB : virtual public IceUtil::Shared
+{
+public:
+
+    StopCB(const ServerProxyWrapper& proxy, const AMD_Admin_stopServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
+    {
+    }
+
+    virtual void
+    response()
+    {
+        _amdCB->ice_response();
+    }
+
+    virtual void
+    exception(const Ice::Exception& ex)
+    {
+        try
+        {
+            _proxy.handleException(ex);
+            assert(false);
+        }
+        catch(const Ice::TimeoutException&)
+        {
+            _amdCB->ice_response();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            _amdCB->ice_exception(ex);
+        }
+    }
+
+private:
+
+    const ServerProxyWrapper _proxy;
+    const AMD_Admin_stopServerPtr _amdCB;
+};
+
 }
 
 void
@@ -445,49 +496,13 @@ AdminI::stopServer_async(const AMD_Admin_stopServerPtr& amdCB, const string& id,
 {
     ServerProxyWrapper proxy(_database, id);
     proxy.useDeactivationTimeout();
-
-    class StopCB : public AMI_Server_stop
-    {
-    public:
-
-        StopCB(const ServerProxyWrapper& proxy, const AMD_Admin_stopServerPtr& amdCB) : _proxy(proxy), _amdCB(amdCB)
-        {
-        }
-
-        virtual void
-        ice_response()
-        {
-            _amdCB->ice_response();
-        }
-
-        virtual void
-        ice_exception(const Ice::Exception& ex)
-        {
-            try
-            {
-                _proxy.handleException(ex);
-                assert(false);
-            }
-            catch(const Ice::TimeoutException&)
-            {
-                _amdCB->ice_response();
-            }
-            catch(const Ice::Exception& ex)
-            {
-                _amdCB->ice_exception(ex);
-            }
-        }
-
-    private:
-
-        const ServerProxyWrapper _proxy;
-        const AMD_Admin_stopServerPtr _amdCB;
-    };
     
     //
     // Since the server might take a while to be deactivated, we use AMI.
     // 
-    proxy->stop_async(new StopCB(proxy, amdCB));
+    proxy->begin_stop(newCallback_Server_stop(new StopCB(proxy, amdCB), 
+                                              &StopCB::response, 
+                                              &StopCB::exception));
 }
 
 void

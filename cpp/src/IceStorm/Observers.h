@@ -25,23 +25,6 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 namespace IceStormElection
 {
 
-class AMICall : virtual public IceUtil::Shared,
-                virtual public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    AMICall();
-
-    void response();
-    void exception(const IceUtil::Exception& e);
-    void waitResponse();
-
-private:
-    bool _response;
-    std::auto_ptr<IceUtil::Exception> _ex;
-};
-typedef IceUtil::Handle<AMICall> AMICallPtr;
-
 class Observers : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
@@ -72,7 +55,7 @@ private:
             id(i), observer(o) {}
         int id;
         ReplicaObserverPrx observer;
-        AMICallPtr call;
+        ::Ice::AsyncResultPtr result;
     };
     std::vector<ObserverInfo> _observers;
     IceUtil::Mutex _reapedMutex;

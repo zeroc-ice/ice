@@ -22,6 +22,27 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _logger = _communicator.getLogger();
         _argv = args;
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _observerCompletedCB = new Ice.Callback()
+            {
+                public void completed(Ice.AsyncResult result)
+                {
+                    try
+                    {
+                        result.throwLocalException();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
+                        synchronized(ServiceManagerI.this)
+                        {
+                            if(_observers.remove(observer))
+                            {
+                                observerRemoved(observer, ex);
+                            }
+                        }
+                    }
+                }
+            };
     }
 
     public java.util.Map<String, String>
@@ -207,23 +228,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         if(activeServices.size() > 0)
         {
-            AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
-                {
-                    public void ice_response()
-                    {
-                        // ok, success
-                    }
-
-                    public void ice_exception(Ice.LocalException ex)
-                    {
-                        //
-                        // Drop this observer
-                        //
-                        removeObserver(observer, ex);
-                    }
-                };
-
-            observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
+            observer.begin_servicesStarted(activeServices.toArray(new String[0]), _observerCompletedCB);
         }
     }
 
@@ -794,23 +799,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
-                    {
-                        public void ice_response()
-                        {
-                            // ok, success
-                        }
-
-                        public void ice_exception(Ice.LocalException ex)
-                        {
-                            //
-                            // Drop this observer
-                            //
-                            removeObserver(observer, ex);
-                        }
-                    };
-
-                observer.servicesStarted_async(cb, servicesArray);
+                observer.begin_servicesStarted(servicesArray, _observerCompletedCB);
             }
         }
     }
@@ -824,33 +813,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                AMI_ServiceObserver_servicesStopped cb = new AMI_ServiceObserver_servicesStopped()
-                    {
-                        public void ice_response()
-                        {
-                            // ok, success
-                        }
-
-                        public void ice_exception(Ice.LocalException ex)
-                        {
-                            //
-                            // Drop this observer
-                            //
-                            removeObserver(observer, ex);
-                        }
-                    };
-
-                observer.servicesStopped_async(cb, servicesArray);
+                observer.begin_servicesStopped(servicesArray, _observerCompletedCB);
             }
-        }
-    }
-
-    private synchronized void
-    removeObserver(ServiceObserverPrx observer, Ice.LocalException ex)
-    {
-        if(_observers.remove(observer))
-        {
-            observerRemoved(observer, ex);
         }
     }
 
@@ -1004,7 +968,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
     private boolean _pendingStatusChanges = false;
-
+    private Ice.Callback _observerCompletedCB;
     java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
     int _traceServiceObserver = 0;
 }

@@ -92,7 +92,7 @@ interface Locator
      * be found.
      *
      **/
-    ["ami", "amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
+    ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
         throws ObjectNotFoundException;
 
     /**
@@ -108,7 +108,7 @@ interface Locator
      * found.
      *
      **/
-    ["ami", "amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
+    ["amd", "nonmutating", "cpp:const"] idempotent Object* findAdapterById(string id)
         throws AdapterNotFoundException;
 
     /**
@@ -153,7 +153,7 @@ interface LocatorRegistry
      * id is already active.
      *
      **/
-    ["amd", "ami"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
+    ["amd"] idempotent void setAdapterDirectProxy(string id, Object* proxy)
         throws AdapterNotFoundException, AdapterAlreadyActiveException;
 
     /**
@@ -181,7 +181,7 @@ interface LocatorRegistry
      * locator registry for this object adapter.
      *
      **/
-    ["amd", "ami"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
+    ["amd"] idempotent void setReplicatedAdapterDirectProxy(string adapterId, string replicaGroupId, Object* p)
         throws AdapterNotFoundException, AdapterAlreadyActiveException, InvalidReplicaGroupIdException;
 
     /**

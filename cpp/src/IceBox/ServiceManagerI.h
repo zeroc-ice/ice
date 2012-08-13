@@ -39,7 +39,7 @@ public:
     bool start();
     void stop();
 
-    void removeObserver(const ServiceObserverPrx&, const Ice::Exception&);
+    void observerCompleted(const Ice::AsyncResultPtr&);
 
 private:
 
@@ -80,6 +80,7 @@ private:
 
     std::set<ServiceObserverPrx> _observers;
     int _traceServiceObserver;
+    ::Ice::CallbackPtr _observerCompletedCB;
 };
 
 typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;

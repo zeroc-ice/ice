@@ -99,16 +99,16 @@ public final class RouterInfo
             return;
         }
         
-        _router.getClientProxy_async(new Ice.AMI_Router_getClientProxy()
+        _router.begin_getClientProxy(new Ice.Callback_Router_getClientProxy()
             {
                 public void
-                ice_response(Ice.ObjectPrx clientProxy)
+                response(Ice.ObjectPrx clientProxy)
                 {
                     callback.setEndpoints(setClientEndpoints(clientProxy));
                 }
                 
                 public void
-                ice_exception(Ice.LocalException ex)
+                exception(Ice.LocalException ex)
                 {
                     if(ex instanceof Ice.CollocationOptimizationException)
                     {
@@ -176,17 +176,18 @@ public final class RouterInfo
             }
         }
 
-        _router.addProxies_async(new Ice.AMI_Router_addProxies()
+        _router.begin_addProxies(new Ice.ObjectPrx[] { proxy },
+            new Ice.Callback_Router_addProxies()
             {
                 public void
-                ice_response(Ice.ObjectPrx[] evictedProxies)
+                response(Ice.ObjectPrx[] evictedProxies)
                 {
                     addAndEvictProxies(proxy, evictedProxies);
                     callback.addedProxy();
                 }
                 
                 public void
-                ice_exception(Ice.LocalException ex)
+                exception(Ice.LocalException ex)
                 {
                     if(ex instanceof Ice.CollocationOptimizationException)
                     {
@@ -205,8 +206,7 @@ public final class RouterInfo
                         callback.setException(ex);
                     }
                 }
-            },
-            new Ice.ObjectPrx[] { proxy });
+            });
 
         return false;
     }

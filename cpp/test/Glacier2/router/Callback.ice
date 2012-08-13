@@ -22,16 +22,16 @@ exception CallbackException
 
 interface CallbackReceiver
 {
-    ["ami"] void callback();
+    void callback();
 
-    ["ami"] void callbackEx()
+    void callbackEx()
         throws CallbackException;
 
-    ["amd", "ami"] int concurrentCallback(int number);
+    ["amd"] int concurrentCallback(int number);
 
-    ["ami"] void waitCallback();
+    void waitCallback();
 
-    ["ami"] void callbackWithPayload(Ice::ByteSeq payload);
+    void callbackWithPayload(Ice::ByteSeq payload);
 };
 
 interface Callback
@@ -41,7 +41,7 @@ interface Callback
     ["amd"] void initiateCallbackEx(CallbackReceiver* proxy)
         throws CallbackException;
 
-    ["amd", "ami"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
+    ["amd"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
 
     ["amd"] void initiateWaitCallback(CallbackReceiver* proxy);
 

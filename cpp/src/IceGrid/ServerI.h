@@ -71,6 +71,8 @@ public:
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);
     virtual ~ServerI();
 
+    void waitForApplicationUpdateCompleted(const Ice::AsyncResultPtr&);
+
     virtual void start_async(const AMD_Server_startPtr&, const ::Ice::Current& = Ice::Current());
     virtual void stop_async(const AMD_Server_stopPtr&, const ::Ice::Current& = Ice::Current());
     virtual void sendSignal(const std::string&, const ::Ice::Current&);

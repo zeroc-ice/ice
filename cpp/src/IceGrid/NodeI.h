@@ -40,6 +40,7 @@ typedef IceUtil::Handle<NodeI> NodeIPtr;
 class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
+
     class Update : virtual public IceUtil::Shared
     {
     public:
@@ -50,6 +51,8 @@ public:
         virtual bool send() = 0;
 
         void finished(bool);
+        
+        void completed(const Ice::AsyncResultPtr&);
 
     protected:
 

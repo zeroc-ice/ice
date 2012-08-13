@@ -22,59 +22,6 @@ namespace IceBox
 //
 class ServiceManagerI : ServiceManagerDisp_
 {
-    class AMIServicesStartedCallback : AMI_ServiceObserver_servicesStarted
-    {
-        public AMIServicesStartedCallback(ServiceManagerI serviceManager, ServiceObserverPrx observer)
-        {
-            _serviceManager = serviceManager;
-            _observer = observer;
-        }
-
-        public override void ice_response()
-        {
-            // ok, success
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            //
-            // Drop this observer
-            //
-            _serviceManager.removeObserver(_observer, ex);
-        }
-
-        private ServiceManagerI _serviceManager;
-        private ServiceObserverPrx _observer;
-    }
-
-    //
-    // TODO: would be nice to avoid the duplication AMIServicesStartedCallback/AMIServicesStoppedCallback
-    //
-    class AMIServicesStoppedCallback : AMI_ServiceObserver_servicesStopped
-    {
-        public AMIServicesStoppedCallback(ServiceManagerI serviceManager, ServiceObserverPrx observer)
-        {
-            _serviceManager = serviceManager;
-            _observer = observer;
-        }
-
-        public override void ice_response()
-        {
-            // ok, success
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            //
-            // Drop this observer
-            //
-            _serviceManager.removeObserver(_observer, ex);
-        }
-
-        private ServiceManagerI _serviceManager;
-        private ServiceObserverPrx _observer;
-    }
-
     public ServiceManagerI(Ice.Communicator communicator, string[] args)
     {
         _communicator = communicator;
@@ -299,8 +246,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
         if(activeServices.Count > 0)
         {
-            observer.servicesStarted_async(new AMIServicesStartedCallback(this, observer),
-                                           activeServices.ToArray());
+            observer.begin_servicesStarted(activeServices.ToArray(), this.observerCompleted, null);
         }
     }
 
@@ -904,8 +850,7 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                AMI_ServiceObserver_servicesStarted cb = new AMIServicesStartedCallback(this, observer);
-                observer.servicesStarted_async(cb, servicesArray);
+                observer.begin_servicesStarted(servicesArray, this.observerCompleted, null);
             }
         }
     }
@@ -923,26 +868,33 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                AMI_ServiceObserver_servicesStopped cb = new AMIServicesStoppedCallback(this, observer);
-                observer.servicesStopped_async(cb, servicesArray);
+                observer.begin_servicesStopped(servicesArray, this.observerCompleted, null);
             }
         }
     }
 
     private void
-    removeObserver(ServiceObserverPrx observer, Ice.Exception ex)
+    observerCompleted(Ice.AsyncResult result)
     {
-        _m.Lock();
         try
         {
-            if(_observers.Remove(observer))
-            {
-                observerRemoved(observer, ex);
-            }
+            result.throwLocalException();
         }
-        finally
+        catch(Ice.LocalException ex)
         {
-            _m.Unlock();
+            _m.Lock();
+            try
+            {
+                ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
+                if(_observers.Remove(observer))
+                {
+                    observerRemoved(observer, ex);
+                }
+            }
+            finally
+            {
+                _m.Unlock();
+            }
         }
     }
 

@@ -76,7 +76,7 @@ interface FileServer
      * files in the specified partition.
      *
      **/
-    ["ami", "nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
+    ["nonmutating", "cpp:const"] idempotent FileInfoSeq getFileInfoSeq(int partition)
         throws PartitionOutOfRangeException;
 
     /**
@@ -119,7 +119,7 @@ interface FileServer
      * @return A sequence containing the compressed file contents.
      *
      **/
-    ["ami", "amd", "nonmutating", "cpp:const", "cpp:array"] 
+    ["amd", "nonmutating", "cpp:const", "cpp:array"] 
     idempotent Ice::ByteSeq getFileCompressed(string path, int pos, int num)
         throws FileAccessException;
 };

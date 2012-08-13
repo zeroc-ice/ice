@@ -421,9 +421,9 @@ public class Root extends ListTreeNode
                                 final String prefix = "Updating application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
 
-                                AMI_Admin_updateApplication cb = new AMI_Admin_updateApplication()
+                                Callback_Admin_updateApplication cb = new Callback_Admin_updateApplication()
                                     {
-                                        public void ice_response()
+                                        public void response()
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -442,7 +442,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.UserException e)
+                                        public void exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -462,7 +462,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.LocalException e)
+                                        public void exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -489,7 +489,7 @@ public class Root extends ListTreeNode
                                                                      _id);
                                 }
 
-                                _coordinator.getAdmin().updateApplication_async(cb, updateDescriptor);
+                                _coordinator.getAdmin().begin_updateApplication(updateDescriptor, cb);
                                 asyncRelease = true;
 
                                 //
@@ -517,9 +517,9 @@ public class Root extends ListTreeNode
                                 final String prefix = "Adding application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
 
-                                AMI_Admin_addApplication cb = new AMI_Admin_addApplication()
+                                Callback_Admin_addApplication cb = new Callback_Admin_addApplication()
                                     {
-                                        public void ice_response()
+                                        public void response()
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -540,7 +540,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.UserException e)
+                                        public void exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -559,7 +559,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.LocalException e)
+                                        public void exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -584,7 +584,7 @@ public class Root extends ListTreeNode
                                     _coordinator.traceSaveToRegistry("sending addApplication for application " + _id);
                                 }
 
-                                _coordinator.getAdmin().addApplication_async(cb, _descriptor);
+                                _coordinator.getAdmin().begin_addApplication(_descriptor, cb);
                                 asyncRelease = true;
                             }
                             else
@@ -592,9 +592,9 @@ public class Root extends ListTreeNode
                                 final String prefix = "Synchronizing application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
 
-                                AMI_Admin_syncApplication cb = new AMI_Admin_syncApplication()
+                                Callback_Admin_syncApplication cb = new Callback_Admin_syncApplication()
                                     {
-                                        public void ice_response()
+                                        public void response()
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -637,7 +637,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.UserException e)
+                                        public void exception(final Ice.UserException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -661,7 +661,7 @@ public class Root extends ListTreeNode
                                                 });
                                         }
 
-                                        public void ice_exception(final Ice.LocalException e)
+                                        public void exception(final Ice.LocalException e)
                                         {
                                             if(_traceSaveToRegistry)
                                             {
@@ -691,7 +691,7 @@ public class Root extends ListTreeNode
                                     _coordinator.traceSaveToRegistry("sending syncApplication for application " + _id);
                                 }
 
-                                _coordinator.getAdmin().syncApplication_async(cb, _descriptor);
+                                _coordinator.getAdmin().begin_syncApplication(_descriptor, cb);
                                 asyncRelease = true;
                                 if(_live)
                                 {

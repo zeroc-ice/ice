@@ -43,8 +43,8 @@ public:
     void destroy();
 
     // To be called by the AMI callbacks only.
+    void completed(const Ice::AsyncResultPtr&);
     void error(bool, const Ice::Exception&);
-    void response();
 
     void shutdown();
 

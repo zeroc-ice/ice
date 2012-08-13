@@ -51,6 +51,8 @@ public:
     void unexpectedCreateSessionException(const Ice::Exception&);
 
     void exception(const Ice::Exception&);
+    
+    void createException(const Ice::Exception&);
 
     virtual void authorize() = 0;
     virtual void createSession() = 0;
@@ -110,6 +112,7 @@ public:
 private:
 
     void sessionPingException(const Ice::Exception&, const ::Ice::ConnectionPtr&);
+    void sessionDestroyException(const Ice::Exception&);
 
     bool startCreateSession(const CreateSessionPtr&, const Ice::ConnectionPtr&);
     void finishCreateSession(const Ice::ConnectionPtr&, const RouterIPtr&);
@@ -153,6 +156,7 @@ private:
     std::map<Ice::ConnectionPtr, CreateSessionPtr> _pending;
     
     Ice::Callback_Object_ice_pingPtr _sessionPingCallback;
+    Callback_Session_destroyPtr _sessionDestroyCallback;
     
     bool _destroy;
 };

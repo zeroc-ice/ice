@@ -2589,7 +2589,8 @@ newCallback_Object_ice_invoke(T* instance,
                               void (T::*excb)(const ::Ice::Exception&),
                               void (T::*sentcb)(bool) = 0)
 {
-    return new CallbackNC_Object_ice_invoke<T>(instance, 0, excb, sentcb);
+    return new CallbackNC_Object_ice_invoke<T>(
+        instance, static_cast<void (T::*)(bool, const std::vector<Ice::Byte>&)>(0), excb, sentcb);
 }
 
 template<class T, typename CT> Callback_Object_ice_invokePtr
@@ -2597,7 +2598,8 @@ newCallback_Object_ice_invoke(T* instance,
                               void (T::*excb)(const ::Ice::Exception&, const CT&),
                               void (T::*sentcb)(bool, const CT&) = 0)
 {
-    return new Callback_Object_ice_invoke<T, CT>(instance, 0, excb, sentcb);
+    return new Callback_Object_ice_invoke<T, CT>(
+        instance, static_cast<void (T::*)(bool, const std::vector<Ice::Byte>&, const CT&)>(0), excb, sentcb);
 }
 
 template<class T> Callback_Object_ice_flushBatchRequestsPtr

@@ -149,7 +149,7 @@ interface Adapter
      * adapter direct proxy it's active.
      *
      **/
-    ["ami", "amd"] Object* activate();    
+    ["amd"] Object* activate();    
 
     /**
      *
@@ -161,7 +161,7 @@ interface Adapter
      * endpoints if the adapter is already active.
      *
      **/
-    ["ami", "nonmutating", "cpp:const"] idempotent Object* getDirectProxy()
+    ["nonmutating", "cpp:const"] idempotent Object* getDirectProxy()
         throws AdapterNotActiveException;
 
     /**
@@ -177,7 +177,7 @@ interface Adapter
      * active adapter.
      *
      **/
-    ["ami"] void setDirectProxy(Object* proxy)
+    void setDirectProxy(Object* proxy)
         throws AdapterActiveException;
 };
 
@@ -224,7 +224,7 @@ interface Server extends FileReader
      * otherwise.
      *
      **/
-    ["amd", "ami"] void start()
+    ["amd"] void start()
         throws ServerStartException;
 
     /**
@@ -234,7 +234,7 @@ interface Server extends FileReader
      * amount of time, it will be killed.
      *
      **/
-    ["amd", "ami"] void stop()
+    ["amd"] void stop()
         throws ServerStopException;
     
     /**
@@ -292,7 +292,7 @@ interface Server extends FileReader
      * Set the process proxy.
      *
      **/
-    ["ami", "amd"] void setProcess(Ice::Process* proc);
+    ["amd"] void setProcess(Ice::Process* proc);
 };
 
 interface InternalRegistry;
@@ -350,7 +350,7 @@ interface Node extends FileReader, ReplicaObserver
      * they will be created.
      *
      **/
-    ["amd", "ami"] idempotent Server* loadServer(InternalServerDescriptor svr,
+    ["amd"] idempotent Server* loadServer(InternalServerDescriptor svr,
                                                  string replicaName,
                                                  out AdapterPrxDict adapters, 
                                                  out int actTimeout, 
@@ -362,7 +362,7 @@ interface Node extends FileReader, ReplicaObserver
      * Destroy the given server.
      *
      **/
-    ["amd", "ami"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
+    ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
         throws DeploymentException;
 
     /**
@@ -386,7 +386,7 @@ interface Node extends FileReader, ReplicaObserver
      * replicaAdded below).
      * 
      **/
-    ["ami"] void registerWithReplica(InternalRegistry* replica);
+    void registerWithReplica(InternalRegistry* replica);
 
     /**
      *
@@ -492,7 +492,7 @@ interface NodeSession
      * of the server.
      *
      **/
-    ["amd", "ami", "cpp:const"] void waitForApplicationUpdate(string application, int revision);
+    ["amd", "cpp:const"] void waitForApplicationUpdate(string application, int revision);
 
     /**
      *
@@ -572,7 +572,7 @@ interface ReplicaSession
      * the locator registry interface.
      *
      **/
-    ["ami"] idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
+    idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
         throws AdapterNotExistException, AdapterExistsException;
 
     /**

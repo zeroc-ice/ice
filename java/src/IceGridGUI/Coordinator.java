@@ -905,9 +905,9 @@ public class Coordinator
                         boolean asyncRelease = false;
 
                         final String prefix = "Deleting application '" + name + "'...";
-                        AMI_Admin_removeApplication cb = new AMI_Admin_removeApplication()
+                        Callback_Admin_removeApplication cb = new Callback_Admin_removeApplication()
                             {
-                                public void ice_response()
+                                public void response()
                                 {
                                     if(_traceSaveToRegistry)
                                     {
@@ -924,7 +924,7 @@ public class Coordinator
                                         });
                                 }
 
-                                public void ice_exception(final Ice.UserException e)
+                                public void exception(final Ice.UserException e)
                                 {
                                     if(_traceSaveToRegistry)
                                     {
@@ -942,7 +942,7 @@ public class Coordinator
                                         });
                                 }
 
-                                public void ice_exception(final Ice.LocalException e)
+                                public void exception(final Ice.LocalException e)
                                 {
                                     if(_traceSaveToRegistry)
                                     {
@@ -967,7 +967,7 @@ public class Coordinator
 
                         try
                         {
-                            _sessionKeeper.getAdmin().removeApplication_async(cb, name);
+                            _sessionKeeper.getAdmin().begin_removeApplication(name, cb);
                             asyncRelease = true;
                         }
                         catch(Ice.LocalException e)
@@ -1527,22 +1527,22 @@ public class Coordinator
             {
                 Glacier2.RouterPrx gr = Glacier2.RouterPrxHelper.uncheckedCast(router);
 
-                Glacier2.AMI_Router_destroySession cb = new Glacier2.AMI_Router_destroySession()
+                Glacier2.Callback_Router_destroySession cb = new Glacier2.Callback_Router_destroySession()
                     {
-                        public void ice_response()
+                        public void response()
                         {
                         }
 
-                        public void ice_exception(Ice.LocalException ex)
+                        public void exception(Ice.LocalException ex)
                         {
                         }
 
-                        public void ice_exception(Ice.UserException ex)
+                        public void exception(Ice.UserException ex)
                         {
                         }
                     };
 
-                gr.destroySession_async(cb);
+                gr.begin_destroySession(cb);
             }
         }
         catch(Ice.LocalException e)

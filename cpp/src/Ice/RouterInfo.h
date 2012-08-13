@@ -47,7 +47,7 @@ class RouterInfo : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
-    class GetClientEndpointsCallback : virtual public IceUtil::Shared
+    class GetClientEndpointsCallback : virtual public Ice::LocalObject
     {
     public:
         
@@ -74,9 +74,41 @@ public:
     bool operator<(const RouterInfo&) const;
 
     Ice::RouterPrx getRouter() const;
+    void getClientProxyResponse(const Ice::ObjectPrx&, const GetClientEndpointsCallbackPtr&);
+    void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();
     void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getServerEndpoints();
+    
+    class AddProxyCookie : public Ice::LocalObject
+    {
+    public:
+        
+        AddProxyCookie(const AddProxyCallbackPtr cb, const Ice::ObjectPrx& proxy) :
+            _cb(cb),
+            _proxy(proxy)
+        {
+        }
+        
+        AddProxyCallbackPtr cb() const
+        {
+            return _cb;
+        }
+        
+        Ice::ObjectPrx proxy() const
+        {
+            return _proxy;
+        }
+        
+    private:
+        
+        const AddProxyCallbackPtr _cb;
+        const Ice::ObjectPrx _proxy;
+    };
+    typedef IceUtil::Handle<AddProxyCookie> AddProxyCookiePtr;
+    
+    void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
+    void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
     void addProxy(const Ice::ObjectPrx&);
     bool addProxy(const Ice::ObjectPrx&, const AddProxyCallbackPtr&);
 

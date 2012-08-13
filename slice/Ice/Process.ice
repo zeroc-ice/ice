@@ -35,7 +35,7 @@ interface Process
      * @see Communicator#shutdown
      *
      **/
-    ["ami"] void shutdown();
+    void shutdown();
 
 
     /**
@@ -47,7 +47,7 @@ interface Process
      * @param fd 1 for stdout, 2 for stderr.
      *
      **/
-    ["ami"] void writeMessage(string message, int fd);
+    void writeMessage(string message, int fd);
 };
 
 };

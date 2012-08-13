@@ -68,7 +68,7 @@ interface ReplicaObserver
      * inconsisency was detected.
      *
      **/ 
-    ["ami"] void createTopic(LogUpdate llu, string name)
+    void createTopic(LogUpdate llu, string name)
         throws ObserverInconsistencyException;
 
     /**
@@ -83,7 +83,7 @@ interface ReplicaObserver
      * inconsisency was detected.
      *
      **/ 
-    ["ami"] void destroyTopic(LogUpdate llu, string name)
+    void destroyTopic(LogUpdate llu, string name)
         throws ObserverInconsistencyException;
 
     /**
@@ -100,7 +100,7 @@ interface ReplicaObserver
      * inconsisency was detected.
      *
      **/ 
-    ["ami"] void addSubscriber(LogUpdate llu, string topic, IceStorm::SubscriberRecord record)
+    void addSubscriber(LogUpdate llu, string topic, IceStorm::SubscriberRecord record)
         throws ObserverInconsistencyException;
 
     /**
@@ -117,7 +117,7 @@ interface ReplicaObserver
      * inconsisency was detected.
      *
      **/ 
-    ["ami"] void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
+    void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
         throws ObserverInconsistencyException;
 };
 

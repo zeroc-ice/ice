@@ -25,35 +25,6 @@ typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 namespace 
 {
 
-template<class T>
-class AMICallbackT : public T
-{
-public:
-    
-    AMICallbackT(const ServiceManagerIPtr& serviceManager, const ServiceObserverPrx& observer) :
-        _serviceManager(serviceManager),
-        _observer(observer)
-    {
-    }
-    
-    virtual void ice_response()
-    {
-        // ok, success
-    }
-    
-    virtual void ice_exception(const Ice::Exception& ex)
-    {
-        //
-        // Drop this observer
-        //
-        _serviceManager->removeObserver(_observer, ex);
-    }
-    
-private:
-    ServiceManagerIPtr _serviceManager;
-    ServiceObserverPrx _observer;
-};
-
 class PropertiesAdminI : public PropertiesAdmin
 {
 public:
@@ -127,7 +98,8 @@ struct StartServiceInfo
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
     _communicator(communicator),
     _pendingStatusChanges(false),
-    _traceServiceObserver(0)
+    _traceServiceObserver(0),
+    _observerCompletedCB(newCallback(this, &ServiceManagerI::observerCompleted))
 { 
     _logger = _communicator->getLogger();
     _traceServiceObserver = _communicator->getProperties()->getPropertyAsInt("IceBox.Trace.ServiceObserver");
@@ -332,30 +304,10 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
        
         if(activeServices.size() > 0)
         {
-            observer->servicesStarted_async(new AMICallbackT<AMI_ServiceObserver_servicesStarted>(this, observer),
-                                            activeServices);
+            observer->begin_servicesStarted(activeServices, _observerCompletedCB);
         }
     }
 }
-
-void
-IceBox::ServiceManagerI::removeObserver(const ServiceObserverPrx& observer, const Ice::Exception& ex)
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-    //
-    // It's possible to remove several times the same observer, e.g. multiple concurrent
-    // requests that fail
-    //
-    
-    set<ServiceObserverPrx>::iterator p = _observers.find(observer);
-    if(p != _observers.end())
-    {
-        ServiceObserverPrx observer = *p;
-        _observers.erase(p);
-        observerRemoved(observer, ex);
-    }
-} 
 
 void
 IceBox::ServiceManagerI::shutdown(const Current&)
@@ -933,6 +885,8 @@ IceBox::ServiceManagerI::stopAll()
     _services.clear();
 
     servicesStopped(stoppedServices, _observers);
+
+    _observerCompletedCB = 0; // Break cyclic reference count.
 }
 
 void
@@ -942,9 +896,7 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
-            ServiceObserverPrx observer = *p;
-            observer->servicesStarted_async(new AMICallbackT<AMI_ServiceObserver_servicesStarted>(this, observer),
-                                            services);
+            (*p)->begin_servicesStarted(services, _observerCompletedCB);
         }
     }
 }
@@ -956,9 +908,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
     {
         for(set<ServiceObserverPrx>::const_iterator p = observers.begin(); p != observers.end(); ++p)
         {
-            ServiceObserverPrx observer = *p;
-            observer->servicesStopped_async(new AMICallbackT<AMI_ServiceObserver_servicesStopped>(this, observer),
-                                            services);
+            (*p)->begin_servicesStopped(services, _observerCompletedCB);
         }
     }
 }
@@ -1007,4 +957,30 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
         properties->setProperty("Ice.ProgramName", programName + "-" + service);
     }
     return properties;
+}
+
+void
+ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
+{
+     try 
+     {
+         result->throwLocalException();
+     }
+     catch(const Ice::LocalException& ex)
+     {
+        ServiceObserverPrx observer = ServiceObserverPrx::uncheckedCast(result->getProxy());
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+        //
+        // It's possible to remove several times the same observer, e.g. multiple concurrent
+        // requests that fail
+        //        
+        set<ServiceObserverPrx>::iterator p = _observers.find(observer);
+        if(p != _observers.end())
+        {
+            ServiceObserverPrx observer = *p;
+            _observers.erase(p);
+            observerRemoved(observer, ex);
+        }
+     }
 }

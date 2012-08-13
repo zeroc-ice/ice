@@ -20,7 +20,7 @@ namespace IceGrid
 {
 
 template<class AmdCB>
-class SetDirectProxyCB : public AMI_Adapter_setDirectProxy
+class SetDirectProxyCB : public LocatorRegistryI::AdapterSetDirectProxyCB
 {
 public:
 
@@ -32,7 +32,7 @@ public:
     {
     }
 
-    virtual void ice_response()
+    virtual void response()
     {
         if(_traceLevels->locator > 1)
         {
@@ -43,7 +43,7 @@ public:
         _cb->ice_response();
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    virtual void exception(const ::Ice::Exception& ex)
     {
         if(_traceLevels->locator > 1)
         {
@@ -88,14 +88,14 @@ newSetDirectProxyCB(const AmdCB& cb, const TraceLevelsPtr& traceLevels, const st
     return new SetDirectProxyCB<AmdCB>(cb, traceLevels, id, p);
 }
 
-class AMI_Server_setProcessI : public AMI_Server_setProcess
+class ServerSetProcessCB : virtual public IceUtil::Shared
 {
 public:
 
-    AMI_Server_setProcessI(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
-                           const TraceLevelsPtr& traceLevels,
-                           const string& id,
-                           const Ice::ObjectPrx& proxy) : 
+    ServerSetProcessCB(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr& cb,
+                       const TraceLevelsPtr& traceLevels,
+                       const string& id,
+                       const Ice::ObjectPrx& proxy) : 
         _cb(cb), _traceLevels(traceLevels), _id(id), _proxy(proxy)
     {
     }
@@ -145,13 +145,14 @@ private:
     const string _id;
     const Ice::ObjectPrx _proxy;
 };
+typedef IceUtil::Handle<ServerSetProcessCB> ServerSetProcessCBPtr;
 
 class SetAdapterDirectProxyCallback : public SynchronizationCallback
 {
 public:
 
     SetAdapterDirectProxyCallback(const LocatorRegistryIPtr& registry, 
-                                  const AMI_Adapter_setDirectProxyPtr& amiCB,
+                                  const LocatorRegistryI::AdapterSetDirectProxyCBPtr& amiCB,
                                   const string& adapterId, 
                                   const string& replicaGroupId,
                                   const Ice::ObjectPrx& proxy) : 
@@ -168,7 +169,7 @@ public:
         }
         catch(const Ice::Exception& ex)
         {
-            _amiCB->ice_exception(ex);
+            _amiCB->exception(ex);
         }
     }
 
@@ -181,14 +182,14 @@ public:
         }
         catch(const Ice::Exception& ex)
         {
-            _amiCB->ice_exception(ex);
+            _amiCB->exception(ex);
         }
     }
 
 private:
 
     const LocatorRegistryIPtr _registry;
-    const AMI_Adapter_setDirectProxyPtr _amiCB;
+    const LocatorRegistryI::AdapterSetDirectProxyCBPtr _amiCB;
     const string _adapterId;
     const string _replicaGroupId;
     const Ice::ObjectPrx _proxy;
@@ -322,8 +323,10 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
             }
         }
 
-        AMI_Server_setProcessPtr amiCB = new AMI_Server_setProcessI(cb, _database->getTraceLevels(), id, proxy);
-        server->setProcess_async(amiCB, proxy);
+        server->begin_setProcess(proxy, IceGrid::newCallback_Server_setProcess(
+                                                new ServerSetProcessCB(cb, _database->getTraceLevels(), id, proxy), 
+                                                &ServerSetProcessCB::ice_response, 
+                                                &ServerSetProcessCB::ice_exception));
     }
     catch(const ServerNotExistException&)
     {
@@ -342,7 +345,7 @@ LocatorRegistryI::setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_set
 }
 
 void
-LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& amiCB,
+LocatorRegistryI::setAdapterDirectProxy(const LocatorRegistryI::AdapterSetDirectProxyCBPtr& amiCB,
                                         const string& adapterId, 
                                         const string& replicaGroupId,
                                         const Ice::ObjectPrx& proxy)
@@ -352,7 +355,7 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
     //
     if(adapterId.empty())
     {
-        amiCB->ice_response();
+        amiCB->response();
         return;
     }
 
@@ -386,7 +389,9 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
                 }
             }
 
-            adapter->setDirectProxy_async(amiCB, proxy);
+            adapter->begin_setDirectProxy(proxy, IceGrid::newCallback_Adapter_setDirectProxy(amiCB, 
+                                                        &LocatorRegistryI::AdapterSetDirectProxyCB::response, 
+                                                        &LocatorRegistryI::AdapterSetDirectProxyCB::exception));
             return;
         }
         catch(const AdapterNotExistException&)
@@ -413,7 +418,7 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
             try
             {
                 _database->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
-                amiCB->ice_response();
+                amiCB->response();
                 return;
             }
             catch(const AdapterExistsException&)
@@ -439,7 +444,7 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
             try
             {
                 session->setAdapterDirectProxy(adapterId, replicaGroupId, proxy);
-                amiCB->ice_response();
+                amiCB->response();
                 return;
             }
             catch(const AdapterExistsException&)

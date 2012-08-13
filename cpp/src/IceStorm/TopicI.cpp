@@ -1147,20 +1147,16 @@ TopicImpl::proxy() const
 namespace
 {
 
-class TopicInternal_reapI : public AMI_TopicInternal_reap
+class TopicInternalReapCB : public IceUtil::Shared
 {
 public:
 
-    TopicInternal_reapI(const InstancePtr& instance, Ice::Long generation) :
+    TopicInternalReapCB(const InstancePtr& instance, Ice::Long generation) :
         _instance(instance), _generation(generation)
     {
     }
 
-    virtual void ice_response()
-    {
-    }
-
-    virtual void ice_exception(const Ice::Exception& ex)
+    virtual void exception(const Ice::Exception& ex)
     {
         TraceLevelsPtr traceLevels = _instance->traceLevels();
         if(traceLevels->topic > 0)
@@ -1236,7 +1232,8 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
     // call may raise an exception in the caller (that is directly
     // call ice_exception) which calls recover() on the node which
     // would result in a deadlock since the node is locked.
-    masterInternal->reap_async(new TopicInternal_reapI(_instance, generation), reap);
+    masterInternal->begin_reap(reap, newCallback_TopicInternal_reap(new TopicInternalReapCB(_instance, generation),
+                                                                    &TopicInternalReapCB::exception));
 }
 
 void

@@ -21,8 +21,8 @@ interface ChatCallback
 
 interface ChatSession extends Glacier2::Session
 {
-    ["ami"] void setCallback(ChatCallback* callback);
-    ["ami"] void say(string data);
+    void setCallback(ChatCallback* callback);
+    void say(string data);
 };
 
 };
