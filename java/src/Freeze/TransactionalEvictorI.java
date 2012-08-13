@@ -350,6 +350,11 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
                 int operationAttributes = sample.ice_operationAttributes(current.operation);
 
+		if(operationAttributes < 0)
+		{
+		    throw new Ice.OperationNotExistException();
+		}
+
                 boolean readOnly = (operationAttributes & 0x1) == 0;
 
                 int txMode = (operationAttributes & 0x6) >> 1;
@@ -394,6 +399,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                     default:
                     {
                         assert false;
+			throw new Ice.OperationNotExistException();
                     }
                 }
 

@@ -422,7 +422,12 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
     assert(sample != 0);
 
     int operationAttributes = sample->ice_operationAttributes(current.operation);
-                
+   
+    if(operationAttributes < 0)
+    {
+	throw OperationNotExistException(__FILE__, __LINE__);
+    }
+             
     bool readOnly = (operationAttributes & 0x1) == 0;
                 
     int txMode = (operationAttributes & 0x6) >> 1;
@@ -467,6 +472,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         default:
         {
             assert(0);
+	    throw OperationNotExistException(__FILE__, __LINE__);
         }
     }
     
