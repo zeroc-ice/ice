@@ -582,24 +582,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        string func;
-        string cast;
         size_t sz = en->getEnumerators().size();
-        if(sz <= 0x7f)
-        {
-            func = marshal ? "writeByte" : "readByte";
-            cast = marshal ? string("(byte)") : "(" + fixId(en->scoped()) + ")";
-        }
-        else if(sz <= 0x7fff)
-        {
-            func = marshal ? "writeShort" : "readShort";
-            cast = marshal ? string("(short)") : "(" + fixId(en->scoped()) + ")";
-        }
-        else
-        {
-            func = marshal ? "writeInt" : "readInt";
-            cast = marshal ? string("(int)") : "(" + fixId(en->scoped()) + ")";
-        }
         if(marshal)
         {
             if(streamingAPI)
@@ -1236,23 +1219,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     if(en)
     {
         size_t sz = en->getEnumerators().size();
-        string dataType;
-        string func = marshal ? "write" : "read";
-        if(sz <= 0x7f)
-        {
-            func += "Byte";
-            dataType = "byte";
-        }
-        else if(sz <= 0x7fff)
-        {
-            func += "Short";
-            dataType = "short";
-        }
-        else
-        {
-            func += "Int";
-            dataType = "int";
-        }
         if(marshal)
         {
             out << nl << "if(" << param << " == null)";
@@ -1272,12 +1238,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
                     out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
                     out << sb;
-                    out << nl << stream << '.' << func << "((" << dataType << ")" << param << "_tmp[ix__]";
-                    if(!streamingAPI)
-                    {
-                        out << ", " << sz;
-                    }
-                    out << ");";
+                    out << nl << stream << ".writeEnum((int)" << param << "_tmp[ix__], " << sz << ");";
                     out << eb;
                 }
                 else
@@ -1286,12 +1247,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         << "> e__ = " << param << ".GetEnumerator();";
                     out << nl << "while(e__.MoveNext())";
                     out << sb;
-                    out << nl << stream << '.' << func << "((" << dataType << ")e__.Current";
-                    if(!streamingAPI)
-                    {
-                        out << ", " << sz;
-                    }
-                    out << ");";
+                    out << nl << stream << ".writeEnum((int)e__.Current, " << sz << ");";
                     out << eb;
                 }
             }
@@ -1299,12 +1255,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                 out << sb;
-                out << nl << stream << '.' << func << "((" << dataType << ")" << param << "[ix__]";
-                if(!streamingAPI)
-                {
-                    out << ", " << sz;
-                }
-                out << ");";
+                out << nl << stream << ".writeEnum((int)" << param << "[ix__], " << sz << ");";
                 out << eb;
             }
             out << eb;
@@ -1340,21 +1291,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             if(isArray)
             {
-                out << nl << param << "[ix__] = (" << typeS << ')' << stream << "." << func << "(";
-                if(!streamingAPI)
-                {
-                    out << sz;
-                }
-                out << ");";
+                out << nl << param << "[ix__] = (" << typeS << ')' << stream << ".readEnum(" << sz << ");";
             }
             else
             {
-                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << "." << func << "(";
-                if(!streamingAPI)
-                {
-                    out << sz;
-                }
-                out << "));";
+                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << ".readEnum(" << sz << "));";
             }
             out << eb;
             out << eb;
