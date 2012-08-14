@@ -85,7 +85,7 @@ createIceStorm(CommunicatorPtr communicator)
 }
 
 ServicePtr
-Service::create(const CommunicatorPtr& communicator,
+IceStormInternal::Service::create(const CommunicatorPtr& communicator,
                           const ObjectAdapterPtr& topicAdapter,
                           const ObjectAdapterPtr& publishAdapter,
                           const string& name,

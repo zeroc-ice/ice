@@ -9,7 +9,12 @@
 
 #pragma once
 
+#include <IceUtil/Config.h>
 #include <Ice/Ice.h>
+
+#ifdef _WIN32
+#   include <winsvc.h>
+#endif
 
 namespace Ice
 {
@@ -109,6 +114,12 @@ public:
     // The return value is an exit status code: EXIT_FAILURE or
     // EXIT_SUCCESS.
     //
+#ifdef _WIN32
+    
+    int run(int&, wchar_t*[], const InitializationData& = InitializationData());
+    
+#endif
+
     int run(int&, char*[], const InitializationData& = InitializationData());
 
 #ifdef _WIN32
@@ -122,7 +133,7 @@ public:
     //
     // Installs a Win32 service.
     //
-    int installService(bool, const std::string&, const std::string&, const std::string&,
+    int installService(bool, const Ice::StringConverterPtr&, const std::string&, const std::string&, const std::string&,
                        const std::vector<std::string>&);
 
     //
@@ -246,7 +257,7 @@ private:
 
 public:
 
-    void serviceMain(int, char*[]);
+    void serviceMain(int, wchar_t*[]);
     void control(int);
 
 #else
