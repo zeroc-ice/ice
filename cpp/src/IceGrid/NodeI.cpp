@@ -360,7 +360,7 @@ NodeI::Update::completed(const Ice::AsyncResultPtr& result)
         result->throwLocalException();
         finished(true);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
         finished(false);
     }
