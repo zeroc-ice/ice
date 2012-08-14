@@ -60,7 +60,7 @@ $(LIBNAME): $(OBJS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS) IceUtil.res
-	$(LINK) $(BASE):0x20000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS) \
+	$(LINK) $(BASE):0x20000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS) $(ICEUTIL_OS_LIBS) \
 	    $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \

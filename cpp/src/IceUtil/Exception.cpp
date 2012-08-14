@@ -17,7 +17,17 @@
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
 #  include <execinfo.h>
 #  include <cxxabi.h>
+#  define ICE_STACK_TRACES
+#  define ICE_GCC_STACK_TRACES
 #endif
+
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(ICE_OS_WINRT)
+#  include <DbgHelp.h>
+#  include <iomanip>
+#  define ICE_STACK_TRACES
+#  define ICE_WIN32_STACK_TRACES
+#endif
+
 
 using namespace std;
 
@@ -34,6 +44,10 @@ namespace
 
 IceUtil::Mutex* globalMutex = 0;
 
+#ifdef ICE_WIN32_STACK_TRACES
+HANDLE process = 0;
+#endif
+
 class Init
 {
 public:
@@ -47,21 +61,101 @@ public:
     {
         delete globalMutex;
         globalMutex = 0;
+#ifdef ICE_WIN32_STACK_TRACES
+	if(process != 0)
+	{
+	    SymCleanup(process);
+	    process = 0;
+	}
+#endif
     }
 };
 
 Init init;
 
-#if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
+#ifdef ICE_STACK_TRACES
 string
 getStackTrace()
 {
-    string stackTrace;
-
     if(!IceUtilInternal::printStackTraces)
     {
-        return stackTrace;
+        return "";
     }
+
+    string stackTrace;
+
+#  ifdef ICE_WIN32_STACK_TRACES
+    //
+    // Note: the Sym functions are not thread-safe
+    //
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    if(process == 0)
+    {
+	process = GetCurrentProcess();
+	SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
+	BOOL ok = SymInitialize(process, 0, TRUE);
+	if(!ok)
+	{
+	    process = 0;
+	    return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
+	}
+    }
+    lock.release();
+
+    const int stackSize = 61;
+    void* stack[stackSize];
+    
+    //
+    // 1: skip the first frame (the call to getStackTrace)
+    // 1 + stackSize < 63 on XP according to the documentation for CaptureStackBackTrace
+    //
+    USHORT frames = CaptureStackBackTrace(1, stackSize, stack, 0);
+
+    if(frames > 0)
+    {
+	char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+	SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
+	symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+	symbol->MaxNameLen = MAX_SYM_NAME;
+
+	IMAGEHLP_LINE64 line = {};
+	line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+	DWORD displacement = 0;
+
+	lock.acquire();
+	for(int i = 0; i < frames; i++)
+	{
+	    if(!stackTrace.empty())
+	    {
+		stackTrace += "\n";
+	    }
+
+	    stringstream s;
+	    s << setw(3) << i << " ";
+
+	    DWORD64 address = reinterpret_cast<DWORD64>(stack[i]);
+
+	    BOOL ok = SymFromAddr(process, address, 0, symbol);
+	    if(ok)
+	    {
+   		s << symbol->Name;
+
+		ok = SymGetLineFromAddr64(process, address, &displacement, &line);
+		if(ok)
+		{
+		    s << " at line " << line.LineNumber << " in " <<  line.FileName;
+		}
+	    }
+	    else
+	    {
+		s << hex << "0x" << address;
+	    }
+	    stackTrace += s.str();
+	}
+	lock.release();
+    }
+
+#   elif defined(ICE_GCC_STACK_TRACES)    
 
     const size_t maxDepth = 100;
     void *stackAddrs[maxDepth];
@@ -174,6 +268,7 @@ getStackTrace()
     }
     free(stackStrings);
 
+#   endif
     return stackTrace;
 }
 #endif
@@ -183,7 +278,7 @@ getStackTrace()
 IceUtil::Exception::Exception() :
     _file(0),
     _line(0)
-#if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
+#ifdef ICE_STACK_TRACES
     , _stackTrace(getStackTrace())
 #endif
 {
@@ -192,7 +287,7 @@ IceUtil::Exception::Exception() :
 IceUtil::Exception::Exception(const char* file, int line) :
     _file(file),
     _line(line)
-#if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
+#ifdef ICE_STACK_TRACES
     , _stackTrace(getStackTrace())
 #endif
 {
