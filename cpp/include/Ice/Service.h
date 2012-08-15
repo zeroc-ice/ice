@@ -45,10 +45,6 @@ public:
     //
     // Win32:
     //
-    // --install NAME [--display DISP] [--executable EXEC]
-    // --uninstall NAME
-    // --start NAME [args ...]
-    // --stop NAME
     // --service NAME
     //
     // Unix:
@@ -129,28 +125,6 @@ public:
     // given name.
     //
     void configureService(const std::string&);
-
-    //
-    // Installs a Win32 service.
-    //
-    int installService(bool, const Ice::StringConverterPtr&, const std::string&, const std::string&, const std::string&,
-                       const std::vector<std::string>&);
-
-    //
-    // Uninstalls a Win32 service.
-    //
-    int uninstallService(bool, const std::string&);
-
-    //
-    // Starts a Win32 service. The argument vector is passed to the
-    // service at startup.
-    //
-    int startService(const std::string&, const std::vector<std::string>&);
-
-    //
-    // Stops a running Win32 service.
-    //
-    int stopService(const std::string&);
 
     static void setModuleHandle(HMODULE);
 
