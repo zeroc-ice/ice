@@ -22,6 +22,8 @@
 #endif
 
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(ICE_OS_WINRT)
+#  include <IceUtil/Unicode.h>
+#  define DBGHELP_TRANSLATE_TCHAR
 #  include <DbgHelp.h>
 #  include <iomanip>
 #  define ICE_STACK_TRACES
@@ -138,12 +140,12 @@ getStackTrace()
 	    BOOL ok = SymFromAddr(process, address, 0, symbol);
 	    if(ok)
 	    {
-   		s << symbol->Name;
+   		s << IceUtil::wstringToString(symbol->Name);
 
 		ok = SymGetLineFromAddr64(process, address, &displacement, &line);
 		if(ok)
 		{
-		    s << " at line " << line.LineNumber << " in " <<  line.FileName;
+		    s << " at line " << line.LineNumber << " in " << IceUtil::wstringToString(line.FileName);
 		}
 	    }
 	    else
