@@ -206,7 +206,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         }
         catch(const Ice::LocalException& ex)
         {
-            exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+            exception.reset(ex.ice_clone());
             handleException(ex, hasMore || p != endpoints.end() - 1);
         }
     }
@@ -276,7 +276,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
                 observer->failed(ex.ice_name());
                 observer->detach();
             }
-            exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+            exception.reset(ex.ice_clone());
             handleConnectionException(*exception.get(), hasMore || q != connectors.end() - 1);
             connection = 0;
             break; // No need to continue
@@ -288,7 +288,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
                 observer->failed(ex.ice_name());
                 observer->detach();
             }
-            exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+            exception.reset(ex.ice_clone());
             handleConnectionException(*exception.get(), hasMore || q != connectors.end() - 1);
             connection = 0;
         }

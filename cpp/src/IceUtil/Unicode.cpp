@@ -165,7 +165,7 @@ IceUtil::UTFConversionException::ice_print(ostream& os) const
     };
 }
 
-IceUtil::Exception*
+IceUtil::UTFConversionException*
 IceUtil::UTFConversionException::ice_clone() const
 {
     return new UTFConversionException(*this);

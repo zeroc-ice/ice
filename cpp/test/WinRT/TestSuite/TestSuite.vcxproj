@@ -227,6 +227,9 @@
     <None Include="..\..\Ice\facets\Ice_facets_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="..\..\Ice\hash\Ice_hash_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="..\..\Ice\hold\Ice_hold_client.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>

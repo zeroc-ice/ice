@@ -91,13 +91,13 @@ namespace IceInternal
             inc.connection_ = null;
         }
 
-        public BasicStream startWriteParams__()
+        public BasicStream startWriteParams__(Ice.FormatType format)
         {
             if(response_)
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
                 os_.writeByte((byte)0);
-                os_.startWriteEncaps(current_.encoding);
+                os_.startWriteEncaps(current_.encoding, format);
             }
             
             //
@@ -147,6 +147,13 @@ namespace IceInternal
                     os_.writeEncaps(v);
                 }
             }
+        }
+
+        public void writeUserException__(Ice.UserException ex, Ice.FormatType format)
+        {
+            BasicStream os__ = startWriteParams__(format);
+            os__.writeUserException(ex);
+            endWriteParams__(false);
         }
         
         //
@@ -612,7 +619,7 @@ namespace IceInternal
                             if(response_)
                             {
                                 os_.writeByte(ReplyStatus.replyUserException);
-                                os_.startWriteEncaps(encoding);
+                                os_.startWriteEncaps(encoding, Ice.FormatType.DefaultFormat);
                                 os_.writeUserException(ex);
                                 os_.endWriteEncaps();
                                 connection_.sendResponse(os_, compress_);

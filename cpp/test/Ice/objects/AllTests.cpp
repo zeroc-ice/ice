@@ -14,6 +14,14 @@
 using namespace std;
 using namespace Test;
 
+class AbstractBaseI : public AbstractBase
+{
+public:
+    
+    virtual void op(const Ice::Current&) 
+    {}
+};
+
 void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
@@ -79,6 +87,23 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(bp1->theS.str == "hello");
     test(bp1->str == "hi");
 
+    cout << "ok" << endl;
+
+    cout << "testing ice_clone..." << flush;
+
+    BasePtr bp2 = BasePtr::dynamicCast(bp1->ice_clone());
+    test(bp1->theS.str == bp2->theS.str);
+    test(bp1->str == bp2->str);
+    
+    AbstractBasePtr abp1 = new AbstractBaseI;
+    try
+    {
+	abp1->ice_clone();
+	test(false);
+    }
+    catch(const Ice::CloneNotImplementedException&)
+    {
+    }
     cout << "ok" << endl;
 
     cout << "getting B1... " << flush;

@@ -74,22 +74,22 @@ class Server extends ListArrayTreeNode
         final String prefix = "Starting server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_startServer cb = new AMI_Admin_startServer()
+        Callback_Admin_startServer cb = new Callback_Admin_startServer()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to start " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to start " + _id, e.toString());
                 }
@@ -98,7 +98,7 @@ class Server extends ListArrayTreeNode
         try
         {
             getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().startServer_async(cb, _id);
+            getCoordinator().getAdmin().begin_startServer(_id, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -115,22 +115,22 @@ class Server extends ListArrayTreeNode
         final String prefix = "Stopping server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_stopServer cb = new AMI_Admin_stopServer()
+        Callback_Admin_stopServer cb = new Callback_Admin_stopServer()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to stop " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to stop " + _id, e.toString());
                 }
@@ -139,7 +139,7 @@ class Server extends ListArrayTreeNode
         try
         {
             getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().stopServer_async(cb, _id);
+            getCoordinator().getAdmin().begin_stopServer(_id, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -262,22 +262,22 @@ class Server extends ListArrayTreeNode
         final String prefix = "Sending '" + s + "' to server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_sendSignal cb = new AMI_Admin_sendSignal()
+        Callback_Admin_sendSignal cb = new Callback_Admin_sendSignal()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to deliver signal " + s + " to " + _id, e.toString());
                 }
@@ -285,7 +285,7 @@ class Server extends ListArrayTreeNode
 
         try
         {
-            getCoordinator().getAdmin().sendSignal_async(cb, _id, s);
+            getCoordinator().getAdmin().begin_sendSignal(_id, s, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -316,22 +316,22 @@ class Server extends ListArrayTreeNode
         final String prefix = "Patching server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_patchServer cb = new AMI_Admin_patchServer()
+        Callback_Admin_patchServer cb = new Callback_Admin_patchServer()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to patch " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to patch " + _id, e.toString());
                 }
@@ -340,7 +340,7 @@ class Server extends ListArrayTreeNode
         try
         {
             getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().patchServer_async(cb, _id, shutdown == JOptionPane.YES_OPTION);
+            getCoordinator().getAdmin().begin_patchServer(_id, shutdown == JOptionPane.YES_OPTION, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -360,22 +360,22 @@ class Server extends ListArrayTreeNode
 
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_enableServer cb = new AMI_Admin_enableServer()
+        Callback_Admin_enableServer cb = new Callback_Admin_enableServer()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to " + action + " " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to " + action + " " + _id, e.toString());
                 }
@@ -384,7 +384,7 @@ class Server extends ListArrayTreeNode
         try
         {
             getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-            getCoordinator().getAdmin().enableServer_async(cb, _id, enable);
+            getCoordinator().getAdmin().begin_enableServer(_id, enable, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -406,9 +406,9 @@ class Server extends ListArrayTreeNode
         }
         else
         {
-            Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
+            Ice.Callback_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.Callback_PropertiesAdmin_getPropertiesForPrefix()
                 {
-                    public void ice_response(final java.util.Map<String, String> properties)
+                    public void response(final java.util.Map<String, String> properties)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
@@ -420,7 +420,7 @@ class Server extends ListArrayTreeNode
                             });
                     }
 
-                    public void ice_exception(final Ice.LocalException e)
+                    public void exception(final Ice.LocalException e)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
@@ -451,7 +451,7 @@ class Server extends ListArrayTreeNode
             {
                 Ice.PropertiesAdminPrx propAdmin =
                     Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("Properties"));
-                propAdmin.getPropertiesForPrefix_async(cb, "");
+                propAdmin.begin_getPropertiesForPrefix("", cb);
             }
             catch(Ice.LocalException e)
             {
@@ -891,14 +891,14 @@ class Server extends ListArrayTreeNode
                         // Note that duplicate registrations are ignored
                         //
 
-                        IceBox.AMI_ServiceManager_addObserver cb = new IceBox.AMI_ServiceManager_addObserver()
+                        IceBox.Callback_ServiceManager_addObserver cb = new IceBox.Callback_ServiceManager_addObserver()
                             {
-                                public void ice_response()
+                                public void response()
                                 {
                                     // all is good
                                 }
 
-                                public void ice_exception(Ice.LocalException e)
+                                public void exception(Ice.LocalException e)
                                 {
                                     JOptionPane.showMessageDialog(
                                         getCoordinator().getMainFrame(),
@@ -917,7 +917,7 @@ class Server extends ListArrayTreeNode
 
                             try
                             {
-                                serviceManager.addObserver_async(cb, _serviceObserver);
+                                serviceManager.begin_addObserver(_serviceObserver, cb);
                             }
                             catch(Ice.LocalException ex)
                             {

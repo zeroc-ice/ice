@@ -323,6 +323,49 @@ public class AllTests : TestCommon.TestApp
         private Callback callback = new Callback();
     }
 
+    private class RelayI : RelayDisp_
+    {
+        public override void knownPreservedAsBase(Ice.Current current)
+        {
+            KnownPreservedDerived ex = new KnownPreservedDerived();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            throw ex;
+        }
+
+        public override void knownPreservedAsKnownPreserved(Ice.Current current)
+        {
+            KnownPreservedDerived ex = new KnownPreservedDerived();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            throw ex;
+        }
+
+        public override void unknownPreservedAsBase(Ice.Current current)
+        {
+            Preserved2 ex = new Preserved2();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            ex.p1 = new PreservedClass("bc", "pc");
+            ex.p2 = ex.p1;
+            throw ex;
+        }
+
+        public override void unknownPreservedAsKnownPreserved(Ice.Current current)
+        {
+            Preserved2 ex = new Preserved2();
+            ex.b = "base";
+            ex.kp = "preserved";
+            ex.kpd = "derived";
+            ex.p1 = new PreservedClass("bc", "pc");
+            ex.p2 = ex.p1;
+            throw ex;
+        }
+    }
+
 #if SILVERLIGHT
     public override Ice.InitializationData initData()
     {
@@ -332,8 +375,7 @@ public class AllTests : TestCommon.TestApp
         return initData;
     }
 
-    override
-    public void run(Ice.Communicator communicator)
+    public override void run(Ice.Communicator communicator)
 #else
     public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
 #endif
@@ -746,10 +788,168 @@ public class AllTests : TestCommon.TestApp
         {
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_unknownMostDerived2AsBase().whenCompleted(
-                        cb.response, cb.exception_unknownMostDerived2AsBase);
+                cb.response, cb.exception_unknownMostDerived2AsBase);
             cb.check();
         }
         WriteLine("ok");
+
+        Write("unknown most derived in compact format... ");
+        Flush();
+        {
+            try
+            {
+                testPrx.unknownMostDerived2AsBaseCompact();
+                test(false);
+            }
+            catch(Base)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to Base.
+                //
+                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+            }
+            catch(Ice.MarshalException)
+            {
+                //
+                // A MarshalException is raised for the compact format because the
+                // most-derived type is unknown and the exception cannot be sliced.
+                //
+                test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+        }
+        WriteLine("ok");
+
+        Write("preserved exceptions... ");
+        Flush();
+        {
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+            RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
+            adapter.activate();
+
+            try
+            {
+                testPrx.relayKnownPreservedAsBase(relay);
+                test(false);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+            }
+            catch(Exception ex)
+            {
+Write("\n\n*** Caught: " + ex);
+                test(false);
+            }
+
+            try
+            {
+                testPrx.relayKnownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+            }
+            /*
+            catch(Exception)
+            {
+                test(false);
+            }
+            */
+            catch(Exception ex)
+            {
+Write("\n\n*** Caught: " + ex);
+                test(false);
+            }
+
+            try
+            {
+                testPrx.relayUnknownPreservedAsBase(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = ex.p1 as PreservedClass;
+                test(pc.bc.Equals("bc"));
+                test(pc.pc.Equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+            }
+            /*
+            catch(Exception)
+            {
+                test(false);
+            }
+            */
+            catch(Exception ex)
+            {
+Write("\n\n*** Caught: " + ex);
+                test(false);
+            }
+
+            try
+            {
+                testPrx.relayUnknownPreservedAsKnownPreserved(relay);
+                test(false);
+            }
+            catch(Preserved2 ex)
+            {
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+                test(ex.p1.ice_id().Equals(PreservedClass.ice_staticId()));
+                PreservedClass pc = ex.p1 as PreservedClass;
+                test(pc.bc.Equals("bc"));
+                test(pc.pc.Equals("pc"));
+                test(ex.p2 == ex.p1);
+            }
+            catch(KnownPreservedDerived ex)
+            {
+                //
+                // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+                //
+                test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
+                test(ex.b.Equals("base"));
+                test(ex.kp.Equals("preserved"));
+                test(ex.kpd.Equals("derived"));
+            }
+            /*
+            catch(Exception)
+            {
+                test(false);
+            }
+            */
+            catch(Exception ex)
+            {
+Write("\n\n*** Caught: " + ex);
+                test(false);
+            }
+
+            adapter.destroy();
+        }
+        WriteLine("ok");
+
 #if SILVERLIGHT
         testPrx.shutdown();
 #else

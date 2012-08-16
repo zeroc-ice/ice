@@ -186,6 +186,12 @@ namespace IceInternal
             return this;
         }
 
+        public ByteBuffer put(int pos, byte b)
+        {
+            System.Buffer.SetByte(_bytes, pos, b);
+            return this;
+        }
+
         public ByteBuffer put(byte[] b)
         {
             return put(b, 0, System.Buffer.ByteLength(b));

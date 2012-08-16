@@ -32,7 +32,7 @@ public:
             const FilterManagerPtr&, const Ice::Context&);
             
     virtual ~RouterI();
-    void destroy(const AMI_Session_destroyPtr&);
+    void destroy(const Callback_Session_destroyPtr&);
 
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current& = Ice::Current()) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current& = Ice::Current()) const;

@@ -16,6 +16,7 @@ S_SRCS		= Server.cs TestI.cs
 SAMD_SRCS	= Server.cs TestAMDI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_C_SRCS	= $(SDIR)/ClientPrivate.ice
 SLICE_S_SRCS	= $(SDIR)/ServerPrivate.ice
 SLICE_AMD_SRCS	= $(SDIR)/TestAMD.ice
 SLICE_SAMD_SRCS	= $(SDIR)/ServerPrivateAMD.ice
@@ -30,7 +31,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 
-client.exe: $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(GEN_SRCS) $(CGEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS) $(SGEN_SRCS)

@@ -12,7 +12,7 @@ namespace IceInternal
 
     public interface UserExceptionFactory
     {
-        void createAndThrow();
+        void createAndThrow(string typeId);
         void destroy();
     }
 

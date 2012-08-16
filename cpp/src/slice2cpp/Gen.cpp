@@ -814,8 +814,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "virtual void ice_print(::std::ostream&) const;";
     }
 
-    H << nl << "virtual ::Ice::Exception* ice_clone() const;";
-    C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::ice_clone() const";
+    H << nl << "virtual " << name << "* ice_clone() const;";
+    C << sp << nl << scoped.substr(2) << "*" << nl << scoped.substr(2) << "::ice_clone() const";
     C << sb;
     C << nl << "return new " << name << "(*this);";
     C << eb;
@@ -1763,6 +1763,38 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
+namespace
+{
+
+bool
+usePrivateEnd(const OperationPtr& p)
+{
+    TypePtr ret = p->returnType();
+    bool retIsOpt = p->returnIsOptional();
+    string retSEnd = returnTypeToString(ret, retIsOpt, p->getMetaData(), TypeContextAMIEnd);
+    string retSPrivateEnd = returnTypeToString(ret, retIsOpt, p->getMetaData(), TypeContextAMIPrivateEnd);
+        
+    ParamDeclList outParams;
+    vector<string> outDeclsEnd;
+    vector<string> outDeclsPrivateEnd;
+
+    ParamDeclList paramList = p->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+        if((*q)->isOutParam())
+        {
+            outDeclsEnd.push_back(outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), 
+                                                     TypeContextAMIEnd));
+            outDeclsPrivateEnd.push_back(outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
+                                                            TypeContextAMIPrivateEnd));
+        }
+    }
+    
+    return retSEnd != retSPrivateEnd || outDeclsEnd != outDeclsPrivateEnd;
+}
+
+}
+
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
@@ -1771,14 +1803,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string scope = fixKwd(p->scope());
 
     TypePtr ret = p->returnType();
+
     bool retIsOpt = p->returnIsOptional();
     string retS = returnTypeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextAMIEnd);
     string retSEndAMI = returnTypeToString(ret, retIsOpt, p->getMetaData(), _useWstring | TypeContextAMIPrivateEnd);
+    string retInS = retS != "void" ? inputTypeToString(ret, retIsOpt, p->getMetaData(), _useWstring) : "";
 
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    string clName = cl->name();
     string clScope = fixKwd(cl->scope());
-    string delName = "Callback_" + cl->name() + "_" + name;
+    string delName = "Callback_" + clName + "_" + name;
     string delNameScoped = clScope + delName;
 
     vector<string> params;
@@ -1789,12 +1824,18 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     vector<string> paramsDeclAMI;
     vector<string> argsAMI;
     vector<string> outParamsAMI;
+    vector<string> outParamNamesAMI;
     vector<string> outParamsDeclAMI;
     vector<string> outParamsDeclEndAMI;
-
+    vector<string> outDecls;
+    
     ParamDeclList paramList = p->parameters();
     ParamDeclList inParams;
     ParamDeclList outParams;
+    
+    
+    vector<string> outEndArgs;
+    
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string paramName = fixKwd((*q)->name());
@@ -1827,9 +1868,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         else
         {
             outParamsAMI.push_back(typeString);
+            outParamNamesAMI.push_back(paramName);
             outParamsDeclAMI.push_back(typeString + ' ' + paramName);
             outParamsDeclEndAMI.push_back(typeStringEndAMI + ' ' + paramName);
             outParams.push_back(*q);
+            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring));
+            outEndArgs.push_back(getEndArg((*q)->type(), (*q)->getMetaData(), outParamNamesAMI.back()));
         }
     }
 
@@ -1873,6 +1917,201 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << fixKwd(name) << spar << args << "&__ctx" << epar << ';';
     H << eb;
+    
+    H.zeroIndent();
+    H << nl << "#ifdef ICE_CPP11";
+    H.restoreIndent();
+    
+    string retEndArg = getEndArg(ret, p->getMetaData(), "__ret");
+    
+    H << nl << "::Ice::AsyncResultPtr";
+    H << nl << "begin_" << name << spar << paramsDeclAMI
+      << "const ::IceInternal::Function<void " << spar;
+    if(!retInS.empty())
+    {
+        H << retInS;
+    }
+    H << outDecls << epar << ">& response, "
+      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = "
+         "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
+      << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar;
+      
+    H << sb;
+    if(p->returnsData())
+    {
+        H << nl << "return __begin_" << name << spar << argsAMI << "0, response, exception, sent" << epar << ";";
+    }
+    else
+    {
+        H << nl << "return begin_" << name << spar << argsAMI 
+          << "0, new ::IceInternal::Cpp11FnOnewayCallbackNC(response, exception, sent)" << epar << ";";
+          
+    }
+    H << eb;
+    
+    H << nl << "::Ice::AsyncResultPtr";
+    H << nl << "begin_" << name << spar << paramsDeclAMI 
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = "
+         "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
+    H << sb;
+    H << nl << "return begin_" << name << spar << argsAMI << "0, ::Ice::newCallback(completed, sent), 0" << epar << ";";
+    H << eb;
+    
+    
+    H << nl << "::Ice::AsyncResultPtr";
+    H << nl << "begin_" << name << spar << paramsDeclAMI << "const ::Ice::Context& ctx"
+      << "const ::IceInternal::Function<void " << spar;
+    if(!retInS.empty())
+    {
+        H << retInS;
+    }
+    H << outDecls << epar << ">& response, "
+      << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception = "
+         "::IceInternal::Function<void (const ::Ice::Exception&)>(), "
+      << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar;
+      
+    H << sb;
+    if(p->returnsData())
+    {
+        H << nl << "return __begin_" << name << spar << argsAMI << "&ctx, response, exception, sent" << epar << ";";
+    }
+    else
+    {
+        H << nl << "return begin_" << name << spar << argsAMI
+          << "&ctx, new ::IceInternal::Cpp11FnOnewayCallbackNC(response, exception, sent), 0" << epar << ";";
+    }
+    H << eb;
+    
+    H << nl << "::Ice::AsyncResultPtr";
+    H << nl << "begin_" << name << spar << paramsDeclAMI 
+      << "const ::Ice::Context& ctx"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed"
+      << "const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = "
+         "::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>()" << epar;
+    H << sb;
+    H << nl << "return begin_" << name << spar << argsAMI << "&ctx, ::Ice::newCallback(completed, sent)" << epar << ";";
+    H << eb;
+    
+    if(p->returnsData())
+    {
+        H << nl;
+        H.dec();
+        H << nl << "private:";
+        H.inc();
+        
+        
+        H << sp << nl << "::Ice::AsyncResultPtr __begin_" << name << spar << paramsDeclAMI
+          << "const ::Ice::Context* ctx" << "const ::IceInternal::Function<void " << spar;
+                
+
+        if(!retInS.empty())
+        {
+            H << retInS;
+        }
+        H << outDecls;
+
+        H << epar << ">& response, "
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception, "
+          << "const ::IceInternal::Function<void (bool)>& sent" << epar;
+        H << sb;
+        H << nl << "class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC";
+        H << sb;
+        H.dec();
+        H << nl << "public:";
+        H.inc();
+        H << sp << nl << "Cpp11CB" << spar << "const ::std::function<void " << spar;
+        if(!retInS.empty())
+        {
+            H << retInS;
+        }
+        H << outDecls;
+        H << epar << ">& responseFunc, "
+          << "const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, "
+          << "const ::std::function<void (bool)>& sentFunc" << epar << " :";
+        H.inc();
+        H << nl << "::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),";
+        H << nl << "_response(responseFunc)";
+        H.dec();
+        H << sb;
+        H << nl << "CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);";
+        H << eb;
+        
+        //
+        // completed.
+        //
+        H << sp << nl << "virtual void __completed(const ::Ice::AsyncResultPtr& __result) const";
+        H << sb;
+        H << nl << clScope << clName << "Prx __proxy = " << clScope << clName 
+          << "Prx::uncheckedCast(__result->getProxy());";
+        writeAllocateCode(H, outParams, p, _useWstring | TypeContextInParam | TypeContextAMICallPrivateEnd);
+        H << nl << "try";
+        H << sb;
+        H << nl;
+        if(!usePrivateEnd(p))
+        {
+            if(ret)
+            {
+                H << retEndArg << " = ";
+            }
+            H << "__proxy->end_" << p->name() << spar << outEndArgs << "__result" << epar << ';';
+        }
+        else
+        {
+            H << "__proxy->___end_" << p->name() << spar << outEndArgs;
+            if(ret)
+            {
+                H << retEndArg;
+            }
+            H << "__result" << epar << ';';
+        }
+        writeEndCode(H, outParams, p);
+        H << eb;
+        H << nl << "catch(::Ice::Exception& ex)";
+        H << sb;
+        H << nl << "Cpp11FnCallbackNC::__exception(__result, ex);";
+        H << nl << "return;";
+        H << eb;
+        H << nl << "if(_response != nullptr)";
+        H << sb;
+        H << nl << "_response" << spar;
+        if(ret)
+        {
+            H << "__ret";
+        }
+        H << outParamNamesAMI;
+        H << epar << ';';
+        H << eb;
+        H << eb;
+        
+        H.dec();
+        H << nl << nl << "private:";
+        H.inc();
+        H << nl;
+        H << nl << "::std::function<void " << spar;
+
+        if(!retInS.empty())
+        {
+            H << retInS;
+        }
+        H << outDecls;
+
+        H << epar << "> _response;";
+        
+        H << eb << ';';
+        
+        H << nl << "return begin_" << name << spar << argsAMI << "ctx" << "new Cpp11CB(response, exception, sent)" 
+          << epar << ';';
+        H << eb;
+        H << nl;
+        H.dec();
+        H << nl << "public:";
+        H.inc();
+    }
+    
+    H.zeroIndent();
+    H << nl << "#endif";
+    H.restoreIndent();
 
     H << sp << nl << "::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar;
     H << sb;
@@ -1921,7 +2160,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
       << "const ::Ice::AsyncResultPtr&" << epar << ';';
     if(generatePrivateEnd)
     {
-        H << sp << nl << "void ___end_" << name << spar << outParamsDeclEndAMI;
+        H << sp << nl << _dllExport << " void ___end_" << name << spar << outParamsDeclEndAMI;
         H << "const ::Ice::AsyncResultPtr&" << epar << ';';
     }
 
@@ -1938,7 +2177,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "public:";
     H.inc();
-
+    
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
     C << nl << "::IceInternal::InvocationObserver __observer(this, " << p->flattenedScope() << p->name() 
@@ -3316,27 +3555,37 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
-
         C << sp << nl
 	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
 	  << "::Ice::Object* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
 
-        C << sp;
-        C << nl << "::Ice::ObjectPtr";
-        C << nl << scoped.substr(2) << "::ice_clone() const";
-        C << sb;
-        if(!p->isAbstract())
-        {
-            C << nl << fixKwd(p->scope()) << p->name() << "Ptr __p = new " << scoped << "(*this);";
-            C << nl << "return __p;";
-        }
-        else
-        {
-            C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
-            C << nl << "return 0; // to avoid a warning with some compilers";
-        }
-        C << eb;
+	//
+	// It would make sense to provide a covariant ice_clone(); unfortunately many compilers
+	// (including VS2010) generate bad code for covariant types that use virtual inheritance 
+	//
+
+	if(!p->isInterface())
+	{
+	    H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
+	   
+	    C << nl << "::Ice::ObjectPtr";
+	    C << nl << scoped.substr(2) << "::ice_clone() const";
+	    C << sb;
+	    if(!p->isAbstract())
+	    {
+		C << nl << "::Ice::Object* __p = new " << name << "(*this);";
+		C << nl << "return __p;";
+	    }
+	    else
+	    {
+		//
+		// We need this ice_clone for abstract classes derived from concrete classes
+		//
+		C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
+		C << nl << "return 0; // to avoid a warning with some compilers";
+	    }
+	    C << eb;
+	}
 
         ClassList allBases = p->allBases();
         StringList ids;
@@ -3967,6 +4216,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList inParams;
     ParamDeclList outParams;
     ParamDeclList paramList = p->parameters();
+    vector< string> outDecls;
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string paramName = fixKwd((*q)->name());
@@ -4007,6 +4257,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             paramsDeclAMD += ", ";
             argsAMD += paramName;
             argsAMD += ", ";
+        }
+        else
+        {
+            outDecls.push_back(inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring));
         }
     }
 
@@ -4198,6 +4452,18 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 outParamsDeclAMI.push_back(typeString + ' ' + paramName);
             }
         }
+        
+        H.zeroIndent();
+        H << nl << "#ifdef ICE_CPP11";
+        H.restoreIndent();
+        
+        H << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI
+          << "const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception"
+          << "const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>()" << epar << " = 0;";
+
+        H.zeroIndent();
+        H << nl << "#endif";
+        H.restoreIndent();
 
         H << sp << nl << "virtual ::Ice::AsyncResultPtr begin_" << name << spar << paramsDeclAMI << epar << " = 0;";
 
@@ -4724,38 +4990,6 @@ void
 Slice::Gen::AsyncCallbackTemplateVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     _useWstring = resetUseWstring(_useWstringHist);
-}
-
-namespace
-{
-
-bool
-usePrivateEnd(const OperationPtr& p)
-{
-    TypePtr ret = p->returnType();
-    bool retIsOpt = p->returnIsOptional();
-    string retSEnd = returnTypeToString(ret, retIsOpt, p->getMetaData(), TypeContextAMIEnd);
-    string retSPrivateEnd = returnTypeToString(ret, retIsOpt, p->getMetaData(), TypeContextAMIPrivateEnd);
-        
-    ParamDeclList outParams;
-    vector<string> outDeclsEnd;
-    vector<string> outDeclsPrivateEnd;
-
-    ParamDeclList paramList = p->parameters();
-    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-    {
-        if((*q)->isOutParam())
-        {
-            outDeclsEnd.push_back(outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), 
-                                                     TypeContextAMIEnd));
-            outDeclsPrivateEnd.push_back(outputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(),
-                                                            TypeContextAMIPrivateEnd));
-        }
-    }
-    
-    return retSEnd != retSPrivateEnd || outDeclsEnd != outDeclsPrivateEnd;
-}
-
 }
 
 void

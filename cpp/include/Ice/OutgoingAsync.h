@@ -24,6 +24,9 @@
 #include <Ice/ObserverHelper.h>
 
 #include <memory>
+#ifdef ICE_CPP11
+#   include <functional> // for std::function
+#endif
 
 namespace IceInternal
 {
@@ -415,6 +418,125 @@ public:
     Callback sent;
 };
 
+#ifdef ICE_CPP11
+
+template<typename T> struct callback_type
+{
+    static const int value = 1;
+};
+
+template<> struct callback_type<void(const ::Ice::AsyncResultPtr&)>
+{
+    static const int value = 2;
+};
+
+template<> struct callback_type<void(const ::Ice::Exception&)>
+{
+    static const int value = 3;
+};
+
+template<typename Callable, typename = void> struct callable_type
+{
+    static const int value = 1;
+};
+
+template<class Callable> struct callable_type<Callable, typename ::std::enable_if< ::std::is_class<Callable>::value && 
+                                                                                   !::std::is_bind_expression<Callable>::value>::type>
+{
+    template<typename T, T> struct TypeCheck;
+    template<typename T> struct AsyncResultCallback
+    {
+        typedef void (T::*ok)(const ::Ice::AsyncResultPtr&) const;
+    };
+    template<typename T> struct ExceptionCallback
+    {
+        typedef void (T::*ok)(const ::Ice::Exception&) const;
+    };
+
+    typedef char (&other)[1];
+    typedef char (&asyncResult)[2];
+    typedef char (&exception)[3];
+
+    template<typename T> static other check(...);
+    template<typename T> static asyncResult check(TypeCheck<typename AsyncResultCallback<T>::ok, &T::operator()>*);
+    template<typename T> static exception check(TypeCheck<typename ExceptionCallback<T>::ok, &T::operator()>*);
+
+    enum { value = sizeof(check<Callable>(0)) };
+};
+
+template<> struct callable_type<void(*)(const ::Ice::AsyncResultPtr&)> 
+{
+    static const int value = 2;
+};
+
+template<> struct callable_type<void(*)(const ::Ice::Exception&)>
+{
+    static const int value = 3;
+};
+
+template<typename Callable, typename Callback> struct is_callable
+{
+    static const bool value = callable_type<Callable>::value == callback_type<Callback>::value;
+};
+
+template<class S> class Function : public std::function<S>
+{
+
+public:
+
+    template<typename T> Function(T f, typename ::std::enable_if<is_callable<T, S>::value>::type* = 0) : std::function<S>(f)
+    {
+    }
+    
+    Function()
+    {
+    }
+    
+    Function(::std::nullptr_t) : ::std::function<S>(nullptr)
+    {
+    }
+};
+
+class Cpp11AsyncCallback : public GenericCallbackBase
+{
+public:
+
+    Cpp11AsyncCallback(const ::std::function<void (const ::Ice::AsyncResultPtr&)>& completed,
+                       const ::std::function<void (const ::Ice::AsyncResultPtr&)>& sent) :
+        _completed(completed), 
+        _sent(sent)
+    {
+        checkCallback(true, completed != nullptr);
+    }
+
+    virtual void __completed(const ::Ice::AsyncResultPtr& result) const
+    {
+        _completed(result);
+    }
+
+    virtual CallbackBasePtr __verify(::Ice::LocalObjectPtr&)
+    {
+        return this; // Nothing to do, the cookie is not type-safe.
+    }
+
+    virtual void __sent(const ::Ice::AsyncResultPtr& result) const
+    {
+        if(_sent != nullptr)
+        {
+            _sent(result);
+        }
+    }
+    
+    virtual bool __hasSentCallback() const
+    {
+        return _sent != nullptr;
+    }
+    
+    ::std::function< void (const ::Ice::AsyncResultPtr&)> _completed;
+    ::std::function< void (const ::Ice::AsyncResultPtr&)> _sent;
+};
+#endif
+
 }
 
 namespace Ice
@@ -437,6 +559,16 @@ newCallback(T* instance,
 {
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
+
+#ifdef ICE_CPP11
+inline CallbackPtr
+newCallback(const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& completed,
+            const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& sent = 
+                  ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+{
+    return new ::IceInternal::Cpp11AsyncCallback(completed, sent);
+}
+#endif
 
 //
 // Operation callbacks are specified in Proxy.h

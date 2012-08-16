@@ -28,7 +28,7 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
 #ifndef ICE_OS_WINRT
-#include <Ice/Application.h>
+#   include <Ice/Application.h>
 #endif
 #include <Ice/Connection.h>
 #include <Ice/ConnectionAsync.h>
@@ -39,7 +39,9 @@
 #include <Ice/Router.h>
 #include <Ice/DispatchInterceptor.h>
 #include <Ice/Plugin.h>
-
+#ifndef ICE_OS_WINRT
+#   include <Ice/Service.h>
+#endif
 #ifndef _WIN32
-#include <Ice/IconvStringConverter.h>
+#   include <Ice/IconvStringConverter.h>
 #endif

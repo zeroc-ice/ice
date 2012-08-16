@@ -201,20 +201,23 @@ public abstract class Reference implements Cloneable
             return _hashValue;
         }
         
-        int h = _mode;
-
-        h = 5 * h + _identity.hashCode();
-
-        h = 5 * h + _context.hashCode();
-
-        h = 5 * h + _facet.hashCode();
-
-        h = 5 * h + (_secure ? 1 : 0);
+        int h = 5381;
+        h = IceInternal.HashUtil.hashAdd(h, _mode);
+        h = IceInternal.HashUtil.hashAdd(h, _secure);
+        h = IceInternal.HashUtil.hashAdd(h, _identity);
+        h = IceInternal.HashUtil.hashAdd(h, _context);
+        h = IceInternal.HashUtil.hashAdd(h, _facet);
+        h = IceInternal.HashUtil.hashAdd(h, _overrideCompress);
+        if(_overrideCompress)
+        {
+            h = IceInternal.HashUtil.hashAdd(h, _compress);
+        }
+        h = IceInternal.HashUtil.hashAdd(h, _encoding);
 
         _hashValue = h;
         _hashInitialized = true;
 
-        return h;
+        return _hashValue;
     }
 
     //

@@ -18,7 +18,7 @@ $(warning ===================================================================)
 # This file is included by Make.rules when uname is FreeBSD
 #
 
-CXX			= c++
+CXX			= g++
 
 CXXFLAGS		= -Wall -D_REENTRANT -D_THREAD_SAFE
 

@@ -83,43 +83,6 @@ namespace IceInternal
             return setClientEndpoints(_router.getClientProxy());
         }
 
-        private class GetClientProxyCallback : Ice.AMI_Router_getClientProxy
-        {
-            internal GetClientProxyCallback(RouterInfo info, GetClientEndpointsCallback callback)
-            {
-                _info = info;
-                _callback = callback;
-            }
-
-            public override void ice_response(Ice.ObjectPrx clientProxy)
-            {
-                _callback.setEndpoints(_info.setClientEndpoints(clientProxy));
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                if(ex is Ice.CollocationOptimizationException)
-                {
-                    try
-                    {
-                        _callback.setEndpoints(_info.getClientEndpoints());
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        _callback.setException(e);
-                    }
-                }
-                else
-                {
-                    Debug.Assert(ex is Ice.LocalException);
-                    _callback.setException((Ice.LocalException)ex);
-                }
-            }
-
-            private RouterInfo _info;
-            private GetClientEndpointsCallback _callback;
-        }
-
         public void getClientEndpoints(GetClientEndpointsCallback callback)
         {
             EndpointI[] clientEndpoints = null;
@@ -134,7 +97,30 @@ namespace IceInternal
                 return;
             }
 
-            _router.getClientProxy_async(new GetClientProxyCallback(this, callback));
+            _router.begin_getClientProxy().whenCompleted(
+                (Ice.ObjectPrx proxy) => 
+                {
+                    callback.setEndpoints(setClientEndpoints(proxy));
+                },
+                (Ice.Exception ex) => 
+                {
+                    if(ex is Ice.CollocationOptimizationException)
+                    {
+                        try
+                        {
+                            callback.setEndpoints(getClientEndpoints());
+                        }
+                        catch(Ice.LocalException e)
+                        {
+                            callback.setException(e);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(ex is Ice.LocalException);
+                        callback.setException((Ice.LocalException)ex);
+                    }
+                });
         }
 
         public EndpointI[] getServerEndpoints()
@@ -168,47 +154,6 @@ namespace IceInternal
             addAndEvictProxies(proxy, _router.addProxies(new Ice.ObjectPrx[] { proxy }));
         }
 
-        private class AddProxiesCallback : Ice.AMI_Router_addProxies
-        {
-            internal AddProxiesCallback(RouterInfo info, Ice.ObjectPrx prx, AddProxyCallback callback)
-            {
-                _info = info;
-                _prx = prx;
-                _callback = callback;
-            }
-
-            public override void ice_response(Ice.ObjectPrx[] evictedProxies)
-            {
-                _info.addAndEvictProxies(_prx, evictedProxies);
-                _callback.addedProxy();
-            }
-
-            public override void ice_exception(Ice.Exception ex)
-            {
-                if(ex is Ice.CollocationOptimizationException)
-                {
-                    try
-                    {
-                        _info.addProxy(_prx);
-                        _callback.addedProxy();
-                    }
-                    catch(Ice.LocalException e)
-                    {
-                        _callback.setException(e);
-                    }
-                }
-                else
-                {
-                    Debug.Assert(ex is Ice.LocalException);
-                    _callback.setException((Ice.LocalException)ex);
-                }
-            }
-
-            private RouterInfo _info;
-            private Ice.ObjectPrx _prx;
-            private AddProxyCallback _callback;
-        }
-
         public bool addProxy(Ice.ObjectPrx proxy, AddProxyCallback callback)
         {
             Debug.Assert(proxy != null);
@@ -222,8 +167,33 @@ namespace IceInternal
                     return true;
                 }
             }
-
-            _router.addProxies_async(new AddProxiesCallback(this, proxy, callback), new Ice.ObjectPrx[] { proxy });
+            _router.begin_addProxies(new Ice.ObjectPrx[] { proxy }).whenCompleted(
+                (Ice.ObjectPrx[] evictedProxies) => 
+                {
+                    addAndEvictProxies(proxy, evictedProxies);
+                    callback.addedProxy();
+                },
+                (Ice.Exception ex) => 
+                {
+                    if(ex is Ice.CollocationOptimizationException)
+                    {
+                        try
+                        {
+                            addProxy(proxy);
+                            callback.addedProxy();
+                        }
+                        catch(Ice.LocalException e)
+                        {
+                            callback.setException(e);
+                        }
+                    }
+                    else
+                    {
+                        Debug.Assert(ex is Ice.LocalException);
+                        callback.setException((Ice.LocalException)ex);
+                    }
+                });
+            
             return false;
         }
 

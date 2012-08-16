@@ -250,7 +250,7 @@ interface PropertiesAdmin
      * @return The property value.
      *
      **/
-    ["ami"] string getProperty(string key);
+    string getProperty(string key);
 
     /**
      *
@@ -263,7 +263,7 @@ interface PropertiesAdmin
      * @return The matching property set.
      *
      **/
-    ["ami", "java:type:java.util.TreeMap<String, String>"] PropertyDict getPropertiesForPrefix(string prefix);
+    ["java:type:java.util.TreeMap<String, String>"] PropertyDict getPropertiesForPrefix(string prefix);
 };
 
 };

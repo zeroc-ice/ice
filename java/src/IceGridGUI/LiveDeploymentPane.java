@@ -223,7 +223,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
             new JScrollPane(tree,
                             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        leftScroll.setBorder(Borders.EMPTY_BORDER);
+        leftScroll.setBorder(Borders.EMPTY);
 
         _leftPane = new SimpleInternalFrame("Runtime Components");
         _leftPane.setContent(leftScroll);

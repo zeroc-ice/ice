@@ -248,31 +248,6 @@ private:
     const TraceLevelsPtr _traceLevels;
 };
 
-class WaitForApplicationUpdateCB : public AMI_NodeSession_waitForApplicationUpdate
-{
-public:
-
-    WaitForApplicationUpdateCB(const ServerIPtr& server) : _server(server)
-    {
-    }
-
-    virtual void
-    ice_response()
-    {
-        _server->activate();
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception&)
-    {
-        _server->activate();
-    }
-
-private:
-    
-    const ServerIPtr _server;
-};
-
 struct EnvironmentEval : std::unary_function<string, string>
 {
     
@@ -694,6 +669,12 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
 
 ServerI::~ServerI()
 {
+}
+
+void
+ServerI::waitForApplicationUpdateCompleted(const Ice::AsyncResultPtr&)
+{
+    activate();
 }
 
 void
@@ -1406,8 +1387,8 @@ ServerI::activate()
             NodeSessionPrx session = _node->getMasterNodeSession();
             if(session)
             {
-                AMI_NodeSession_waitForApplicationUpdatePtr cb = new WaitForApplicationUpdateCB(this);
-                _node->getMasterNodeSession()->waitForApplicationUpdate_async(cb, desc->uuid, desc->revision);
+                _node->getMasterNodeSession()->begin_waitForApplicationUpdate(
+                    desc->uuid, desc->revision, ::Ice::newCallback(this, &ServerI::waitForApplicationUpdateCompleted));
                 return;
             }
         }

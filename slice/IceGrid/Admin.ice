@@ -398,7 +398,7 @@ interface Admin
      * failed.
      *
      **/
-    ["ami"] void addApplication(ApplicationDescriptor descriptor)
+    void addApplication(ApplicationDescriptor descriptor)
         throws AccessDeniedException, DeploymentException;
 
     /**
@@ -420,7 +420,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void syncApplication(ApplicationDescriptor descriptor)
+    void syncApplication(ApplicationDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -441,7 +441,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void updateApplication(ApplicationUpdateDescriptor descriptor)
+    void updateApplication(ApplicationUpdateDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -458,7 +458,7 @@ interface Admin
      * doesn't exist.
      *
      **/
-    ["ami"] void removeApplication(string name)
+    void removeApplication(string name)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
@@ -502,7 +502,7 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    ["ami", "amd"] void patchApplication(string name, bool shutdown)
+    ["amd"] void patchApplication(string name, bool shutdown)
         throws ApplicationNotExistException, PatchException;
 
     /**
@@ -648,7 +648,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami"] idempotent void enableServer(string id, bool enabled)
+    idempotent void enableServer(string id, bool enabled)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -689,7 +689,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami", "amd"] void startServer(string id)
+    ["amd"] void startServer(string id)
         throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -711,7 +711,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-    ["ami", "amd"] void stopServer(string id)
+    ["amd"] void stopServer(string id)
         throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
     /**
@@ -735,7 +735,7 @@ interface Admin
      * @throws PatchException Raised if the patch failed.
      *
      **/
-    ["ami", "amd"] void patchServer(string id, bool shutdown)
+    ["amd"] void patchServer(string id, bool shutdown)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
 
     /**
@@ -759,7 +759,7 @@ interface Admin
      * by the target server.
      *
      **/
-    ["ami"] void sendSignal(string id, string signal)
+    void sendSignal(string id, string signal)
        throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
     /**
@@ -784,7 +784,7 @@ interface Admin
      * deployed on the node.
      *
      **/
-     ["ami","deprecate:writeMessage is deprecated, use instead the Process facet of the server Admin object."]
+     ["deprecate:writeMessage is deprecated, use instead the Process facet of the server Admin object."]
      void writeMessage(string id, string message, int fd)
          throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
@@ -826,7 +826,7 @@ interface Admin
      * exist.
      *
      **/
-    ["ami"] void removeAdapter(string id)
+    void removeAdapter(string id)
         throws AdapterNotExistException, DeploymentException;
 
     /**
@@ -854,7 +854,7 @@ interface Admin
      * get the object type failed.
      *
      **/
-    ["ami"] void addObject(Object* obj)
+    void addObject(Object* obj)
         throws ObjectExistsException, DeploymentException;
 
     /**
@@ -890,7 +890,7 @@ interface Admin
      * registered.
      *
      **/
-    ["ami"] void addObjectWithType(Object* obj, string type)
+    void addObjectWithType(Object* obj, string type)
         throws ObjectExistsException, DeploymentException;
 
     /**
@@ -911,7 +911,7 @@ interface Admin
      * deployment descriptor.
      *
      **/
-    ["ami"] void removeObject(Ice::Identity id) 
+    void removeObject(Ice::Identity id) 
         throws ObjectNotRegisteredException, DeploymentException;
 
     /**
@@ -984,7 +984,7 @@ interface Admin
      * reached.
      *
      **/
-    ["ami", "nonmutating", "cpp:const"] idempotent LoadInfo getNodeLoad(string name)
+    ["nonmutating", "cpp:const"] idempotent LoadInfo getNodeLoad(string name)
         throws NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -1040,7 +1040,7 @@ interface Admin
      * reached.
      *
      **/
-    ["ami"] void shutdownNode(string name)
+    void shutdownNode(string name)
         throws NodeNotExistException, NodeUnreachableException;
 
     /**
@@ -1112,7 +1112,7 @@ interface Admin
      * reached.
      *
      **/
-    ["ami"] idempotent void shutdownRegistry(string name)
+    idempotent void shutdownRegistry(string name)
         throws RegistryNotExistException, RegistryUnreachableException;
 
     /**

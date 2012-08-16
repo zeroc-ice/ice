@@ -188,7 +188,7 @@ private:
     string _dest;
 };
 
-class NodeUp : public NodeI::Update, public AMI_NodeObserver_nodeUp
+class NodeUp : public NodeI::Update
 {
 public:
 
@@ -202,7 +202,7 @@ public:
     {
         try
         {
-            _observer->nodeUp_async(this, _info);
+            _observer->begin_nodeUp(_info, newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
         catch(const Ice::LocalException&)
         {
@@ -210,25 +210,13 @@ public:
         }
         return true;
     }
-
-    virtual void
-    ice_response()
-    {
-        finished(true);
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception&)
-    {
-        finished(false);
-    }
     
 private:
     
     NodeDynamicInfo _info;
 };
 
-class UpdateServer : public NodeI::Update, public AMI_NodeObserver_updateServer
+class UpdateServer : public NodeI::Update
 {
 public:
 
@@ -242,7 +230,9 @@ public:
     {
         try
         {
-            _observer->updateServer_async(this, _node->getName(), _info);
+            _observer->begin_updateServer(_node->getName(), 
+                                          _info,
+                                          newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
         catch(const Ice::LocalException&)
         {
@@ -250,25 +240,13 @@ public:
         }
         return true;
     }
-
-    virtual void
-    ice_response()
-    {
-        finished(true);
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception&)
-    {
-        finished(false);
-    }
     
 private:
     
     ServerDynamicInfo _info;
 };
 
-class UpdateAdapter : public NodeI::Update, public AMI_NodeObserver_updateAdapter
+class UpdateAdapter : public NodeI::Update
 {
 public:
 
@@ -282,25 +260,15 @@ public:
     {
         try
         {
-            _observer->updateAdapter_async(this, _node->getName(), _info);
+            _observer->begin_updateAdapter(_node->getName(), 
+                                           _info,
+                                           newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
         catch(const Ice::LocalException&)
         {
             return false;
         }
         return true;
-    }
-
-    virtual void
-    ice_response()
-    {
-        finished(true);
-    }
-
-    virtual void
-    ice_exception(const Ice::Exception&)
-    {
-        finished(false);
     }
     
 private:
@@ -381,6 +349,20 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
         {
             _propertiesOverride.push_back(createProperty(q->first, q->second));
         }
+    }
+}
+
+void
+NodeI::Update::completed(const Ice::AsyncResultPtr& result)
+{
+    try
+    {
+        result->throwLocalException();
+        finished(true);
+    }
+    catch(const Ice::LocalException&)
+    {
+        finished(false);
     }
 }
 

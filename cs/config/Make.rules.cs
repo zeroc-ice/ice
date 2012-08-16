@@ -133,6 +133,7 @@ endif
 MCS			= gmcs
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
+
 ifeq ($(DEBUG),yes)
     MCSFLAGS := $(MCSFLAGS) -debug -define:DEBUG
 endif

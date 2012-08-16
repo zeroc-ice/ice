@@ -70,7 +70,6 @@ public:
     
 private:
     
-    const Glacier2::Callback_Router_refreshSessionPtr _cb;
     const Glacier2::SessionHelperPtr _session;
     const Glacier2::RouterPrx _router;
     Ice::Long _period;
@@ -130,8 +129,6 @@ typedef IceUtil::Handle<SessionHelperI> SessionHelperIPtr;
 
 SessionRefreshThread::SessionRefreshThread(const Glacier2::SessionHelperPtr& session, 
                                            const Glacier2::RouterPrx& router, Ice::Long period) :
-    _cb(Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshThread::success, 
-                                                    &SessionRefreshThread::failure)),
     _session(session),
     _router(router),
     _period(period),
@@ -142,12 +139,14 @@ SessionRefreshThread::SessionRefreshThread(const Glacier2::SessionHelperPtr& ses
 void
 SessionRefreshThread::run()
 {
+    Glacier2::Callback_Router_refreshSessionPtr cb = 
+        Glacier2::newCallback_Router_refreshSession(this, &SessionRefreshThread::failure);
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
     while(true)
     {
         try
         {
-            _router->begin_refreshSession(_cb);
+            _router->begin_refreshSession(cb);
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {
@@ -178,11 +177,6 @@ SessionRefreshThread::done()
         _done = true;
         _monitor.notify();
     }
-}
-
-void
-SessionRefreshThread::success()
-{
 }
 
 void
@@ -517,7 +511,7 @@ public:
         _callback(callback),
         _session(session)
     {
-        _ex.reset(dynamic_cast<Ice::Exception*>(ex.ice_clone()));
+        _ex.reset(ex.ice_clone());
     }
     
     virtual void

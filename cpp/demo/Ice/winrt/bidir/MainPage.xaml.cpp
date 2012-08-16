@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.cpp
-// Implementation of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #include "pch.h"
 #include "MainPage.xaml.h"
@@ -29,21 +33,9 @@ CallbackReceiverI::callback(Ice::Int num, const Ice::Current& current)
     _page->callback(num, current);
 }
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 MainPage::MainPage()
 {
     InitializeComponent();
-}
-
-/// <summary>
-/// Invoked when this page is about to be displayed in a Frame.
-/// </summary>
-/// <param name="e">Event data that describes how this page was reached.  The Parameter
-/// property is typically used to configure the page.</param>
-void MainPage::OnNavigatedTo(NavigationEventArgs^ e)
-{
-    (void) e;	// Unused parameter
 }
 
 void bidir::MainPage::startClient_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
@@ -58,7 +50,8 @@ void bidir::MainPage::startClient_Click(Platform::Object^ sender, Windows::UI::X
         _communicator = Ice::initialize(initData);
 
         CallbackSenderPrx server = CallbackSenderPrx::checkedCast(
-            _communicator->stringToProxy("sender:tcp -h " + IceUtil::wstringToString(hostname->Text->Data()) + " -p 10000"));
+            _communicator->stringToProxy("sender:tcp -h " + IceUtil::wstringToString(hostname->Text->Data()) + 
+                                         " -p 10000"));
 
         if(!server)
         {
@@ -75,7 +68,14 @@ void bidir::MainPage::startClient_Click(Platform::Object^ sender, Windows::UI::X
         adapter->add(cr, ident);
         adapter->activate();
         server->ice_getConnection()->setAdapter(adapter);
-        server->addClient(ident);
+        server->begin_addClient(ident, nullptr, [=](const Ice::Exception& ex)
+                                                    {
+                                                        ostringstream os;
+                                                        os << ex << endl;
+                                                        print(os.str());
+                                                        startClient->IsEnabled = true;
+                                                        stopClient->IsEnabled = false;
+                                                    });
     }
     catch(const Ice::Exception& ex)
     {
@@ -121,10 +121,13 @@ bidir::MainPage::callback(Ice::Int num, const Ice::Current&)
 void 
 bidir::MainPage::print(const std::string& message)
 {
-    this->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler([=] ()
-        {
-            output->Text += ref new String(IceUtil::stringToWstring(message).c_str());
-            output->UpdateLayout();
-            scroller->ScrollToVerticalOffset(scroller->ScrollableHeight);
-        }, CallbackContext::Any));
+    this->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, 
+                    ref new DispatchedHandler(
+                            [=] ()
+                                {
+                                    output->Text += ref new String(IceUtil::stringToWstring(message).c_str());
+                                    output->UpdateLayout();
+                                    scroller->ScrollToVerticalOffset(scroller->ScrollableHeight);
+                                }, 
+                            CallbackContext::Any));
 }

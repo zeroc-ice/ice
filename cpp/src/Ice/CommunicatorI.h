@@ -14,6 +14,7 @@
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
+#include <Ice/CommunicatorAsync.h>
 
 namespace Ice
 {
@@ -60,6 +61,15 @@ public:
 
     virtual void flushBatchRequests();
 
+#ifdef ICE_CPP11
+    virtual ::Ice::AsyncResultPtr begin_flushBatchRequests(
+                            const ::IceInternal::Function<void (const ::Ice::Exception&)>& exception,
+                            const ::IceInternal::Function<void (bool)>& sent = ::IceInternal::Function<void (bool)>())
+    {
+        return __begin_flushBatchRequests(new Cpp11FnCallbackNC_Communicator_flushBatchRequests(exception, sent), 0);
+    }
+#endif
+
     virtual AsyncResultPtr begin_flushBatchRequests();
     virtual AsyncResultPtr begin_flushBatchRequests(const CallbackPtr&, const LocalObjectPtr& = 0);
     virtual AsyncResultPtr begin_flushBatchRequests(const Callback_Communicator_flushBatchRequestsPtr&,
@@ -86,7 +96,7 @@ private:
     friend ICE_API CommunicatorPtr initialize(const InitializationData&, Int);
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
-    AsyncResultPtr begin_flushBatchRequestsInternal(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
+    AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     const ::IceInternal::InstancePtr _instance;
 

@@ -219,36 +219,6 @@ public abstract class Application : Ice.Application
             _done = false;
         }
 
-        private class AMI_Router_refreshSessionI : Glacier2.AMI_Router_refreshSession
-        {
-            public AMI_Router_refreshSessionI(Application app, SessionPingThread ping)
-            {
-                _app = app;
-                _ping = ping;
-            }
-
-            public override void
-            ice_response()
-            {
-            }
-
-            public override void
-            ice_exception(Ice.Exception ex)
-            {
-                //
-                // Here the session has gone. The thread
-                // terminates, and we notify the
-                // application that the session has been
-                // destroyed.
-                //
-                _ping.done();
-                _app.sessionDestroyed();
-            }
-            
-            private SessionPingThread _ping;
-            private Application _app;
-        }
-
         public void
         run()
         {
@@ -259,7 +229,12 @@ public abstract class Application : Ice.Application
                 {
                     try
                     {
-                        _router.refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+                        _router.begin_refreshSession().whenCompleted(
+                                                    (Ice.Exception ex) => 
+                                                        {
+                                                            this.done();
+                                                            _app.sessionDestroyed();
+                                                        });
                     }
                     catch(Ice.CommunicatorDestroyedException)
                     {

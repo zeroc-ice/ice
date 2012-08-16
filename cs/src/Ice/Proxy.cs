@@ -84,12 +84,6 @@ namespace Ice
     public interface ObjectPrx
     {
         /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        int ice_getHash();
-
-        /// <summary>
         /// Returns the communicator that created this proxy.
         /// </summary>
         /// <returns>The communicator that created this proxy.</returns>
@@ -374,7 +368,7 @@ namespace Ice
         /// <param name="mode">The operation mode (normal or idempotent).</param>
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <returns>An asynchronous result object.</returns>
-        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
+        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode,
                                                                     byte[] inEncaps);
 
         /// <summary>
@@ -385,7 +379,7 @@ namespace Ice
         /// <param name="inEncaps">The encoded in-parameters for the operation.</param>
         /// <param name="context__">The context dictionary for the invocation.</param>
         /// <returns>An asynchronous result object.</returns>
-        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode, 
+        AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, OperationMode mode,
                                                                     byte[] inEncaps,
                                                                     Dictionary<string, string> context__);
 
@@ -756,15 +750,6 @@ namespace Ice
         }
 
         /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        public int ice_getHash()
-        {
-            return _reference.GetHashCode();
-        }
-
-        /// <summary>
         /// Returns the communicator that created this proxy.
         /// </summary>
         /// <returns>The communicator that created this proxy.</returns>
@@ -888,12 +873,11 @@ namespace Ice
         }
 
         private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__,
-                                                                      bool explicitContext__, 
-                                                                      Ice.AsyncCallback cb__, 
-                                                                      object cookie__)
+                                                                   bool explicitContext__, Ice.AsyncCallback cb__,
+                                                                   object cookie__)
         {
-            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA> result__ = 
-                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA>(this, __ice_isA_name, ice_isA_completed__, 
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA> result__ =
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_isA>(this, __ice_isA_name, ice_isA_completed__,
                                                                              cookie__);
             if(cb__ != null)
             {
@@ -904,7 +888,7 @@ namespace Ice
             try
             {
                 result__.prepare__(__ice_isA_name, OperationMode.Nonmutating, context__, explicitContext__);
-                IceInternal.BasicStream os__ = result__.startWriteParams__();
+                IceInternal.BasicStream os__ = result__.startWriteParams__(FormatType.DefaultFormat);
                 os__.writeString(id);
                 result__.endWriteParams__();
                 result__.send__(true);
@@ -1009,13 +993,13 @@ namespace Ice
             end__(r__, __ice_ping_name);
         }
 
-        private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__, 
+        private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context__,
                                                                  bool explicitContext__,
-                                                                 Ice.AsyncCallback cb__, 
+                                                                 Ice.AsyncCallback cb__,
                                                                  object cookie__)
         {
-            IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping> result__ = 
-                new IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping>(this, __ice_ping_name, 
+            IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping> result__ =
+                new IceInternal.OnewayOutgoingAsync<Callback_Object_ice_ping>(this, __ice_ping_name,
                                                                               ice_ping_completed__, cookie__);
             if(cb__ != null)
             {
@@ -1137,10 +1121,10 @@ namespace Ice
 
         private AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__,
                                                                       bool explicitContext__,
-                                                                      Ice.AsyncCallback cb__, 
+                                                                      Ice.AsyncCallback cb__,
                                                                       object cookie__)
         {
-            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids> result__ = 
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids> result__ =
                 new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_ids>(this, __ice_ids_name, ice_ids_completed__,
                                                                              cookie__);
             if(cb__ != null)
@@ -1273,13 +1257,13 @@ namespace Ice
             return ret__;
         }
 
-        private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__, 
+        private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__,
                                                                     bool explicitContext__,
-                                                                    Ice.AsyncCallback cb__, 
+                                                                    Ice.AsyncCallback cb__,
                                                                     object cookie__)
         {
-            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id> result__ = 
-                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id>(this, __ice_id_name, ice_id_completed__, 
+            IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id> result__ =
+                new IceInternal.TwowayOutgoingAsync<Callback_Object_ice_id>(this, __ice_id_name, ice_id_completed__,
                                                                             cookie__);
             if(cb__ != null)
             {
@@ -1445,8 +1429,8 @@ namespace Ice
             return begin_ice_invoke(operation, mode, inEncaps, null, false, null, null);
         }
 
-        public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
-                                                                           OperationMode mode, 
+        public AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
+                                                                           OperationMode mode,
                                                                            byte[] inEncaps,
                                                                            Dictionary<string, string> context__)
         {
@@ -1483,12 +1467,12 @@ namespace Ice
             return ok;
         }
 
-        private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation, 
+        private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
                                                                          OperationMode mode,
                                                                          byte[] inEncaps,
                                                                          Dictionary<string, string> context__,
                                                                          bool explicitContext__,
-                                                                         Ice.AsyncCallback cb__, 
+                                                                         Ice.AsyncCallback cb__,
                                                                          object cookie__)
         {
             IceInternal.TwowayOutgoingAsync<Callback_Object_ice_invoke> result__ =
@@ -1512,7 +1496,7 @@ namespace Ice
             return result__;
         }
 
-        private void ice_invoke_completed__(AsyncResult r__, 
+        private void ice_invoke_completed__(AsyncResult r__,
                                             Callback_Object_ice_invoke cb__,
                                             Ice.ExceptionCallback excb__)
         {
@@ -2975,7 +2959,7 @@ namespace Ice
             {
                 try
                 {
-                    IceInternal.BasicStream os__ = og__.startWriteParams();
+                    IceInternal.BasicStream os__ = og__.startWriteParams(FormatType.DefaultFormat);
                     os__.writeString(id__);
                     og__.endWriteParams();
                 }

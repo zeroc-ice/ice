@@ -34,7 +34,7 @@ public:
                                const Ice::LocalException& ex) :
         DispatchWorkItem(instance),
         _handler(handler),
-        _exception(dynamic_cast<Ice::LocalException*>(ex.ice_clone()))
+        _exception(ex.ice_clone())
     {
     }
     
@@ -328,7 +328,7 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
     assert(!_initialized && !_exception.get());
     assert(_updateRequestHandler || _requests.empty());
 
-    _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+    _exception.reset(ex.ice_clone());
     _proxy = 0; // Break cyclic reference count.
     _delegate = 0; // Break cyclic reference count.
 
@@ -451,7 +451,7 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
-        _exception.reset(dynamic_cast<Ice::LocalException*>(ex.get()->ice_clone()));
+        _exception.reset(ex.get()->ice_clone());
         const InstancePtr instance = _reference->getInstance();
         instance->clientThreadPool()->execute(new FlushRequestsWithExceptionWrapper(instance, this, ex));
     }
@@ -459,7 +459,7 @@ ConnectRequestHandler::flushRequests()
     {
         Lock sync(*this);
         assert(!_exception.get() && !_requests.empty());
-        _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+        _exception.reset(ex.ice_clone());
         const InstancePtr instance = _reference->getInstance();
         instance->clientThreadPool()->execute(new FlushRequestsWithException(instance, this, ex));
     }

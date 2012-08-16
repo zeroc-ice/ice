@@ -120,6 +120,7 @@ generate_policies   = yes
 MCS			= csc -nologo
 
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
+
 !if "$(DEBUG)" == "yes"
 !if "$(OPTIMIZE)" == "yes"
 MCSFLAGS 		= $(MCSFLAGS) -debug:pdbonly

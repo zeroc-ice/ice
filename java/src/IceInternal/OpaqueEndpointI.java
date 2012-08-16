@@ -433,13 +433,11 @@ final class OpaqueEndpointI extends EndpointI
     private void
     calcHashValue()
     {
-        _hashCode = _type;
-        _hashCode = 5 * _hashCode + _rawEncoding.major;
-        _hashCode = 5 * _hashCode + _rawEncoding.minor;
-        for(int i = 0; i < _rawBytes.length; i++)
-        {
-            _hashCode = 5 * _hashCode + _rawBytes[i];
-        }
+        int h = 5381;
+        h = IceInternal.HashUtil.hashAdd(h, _type);
+        h = IceInternal.HashUtil.hashAdd(h, _rawEncoding);
+        h = IceInternal.HashUtil.hashAdd(h, _rawBytes);
+        _hashCode = h;
     }
 
     private short _type;

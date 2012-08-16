@@ -26,122 +26,10 @@ const string clientTraceRequest = "Glacier2.Client.Trace.Request";
 const string serverTraceOverride = "Glacier2.Server.Trace.Override";
 const string clientTraceOverride = "Glacier2.Client.Trace.Override";
 
-class AMI_Array_Object_ice_invokeTwowayI : public AMI_Array_Object_ice_invoke
-{
-public:
-
-    AMI_Array_Object_ice_invokeTwowayI(const AMD_Object_ice_invokePtr& amdCB,
-                                       const InstancePtr& instance,
-                                       const ConnectionPtr& connection) :
-        _amdCB(amdCB),
-        _instance(instance),
-        _connection(connection)
-    {
-    }
-
-    virtual void
-    ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
-    {
-        _amdCB->ice_response(ok, outParams);
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-        //
-        // If the connection has been lost, destroy the session.
-        //
-        if(_connection)
-        {
-            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
-               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
-               dynamic_cast<const Ice::ProtocolException*>(&ex))
-            {
-                try
-                {
-                    _instance->sessionRouter()->destroySession(_connection);
-                }
-                catch(const Exception&)
-                {
-                }
-            }
-        }
-
-        _amdCB->ice_exception(ex);
-    }
-
-private:
-
-    const AMD_Object_ice_invokePtr _amdCB;
-    const InstancePtr _instance;
-    const ConnectionPtr _connection;
-};
-
-class AMI_Array_Object_ice_invokeOnewayI : public AMI_Array_Object_ice_invoke, public Ice::AMISentCallback
-{
-public:
-
-    AMI_Array_Object_ice_invokeOnewayI(const AMD_Object_ice_invokePtr& amdCB,
-                                       const InstancePtr& instance,
-                                       const ConnectionPtr& connection) :
-        _amdCB(amdCB),
-        _instance(instance),
-        _connection(connection)
-    {
-    }
-
-    virtual void
-    ice_response(bool, const pair<const Byte*, const Byte*>&)
-    {
-        assert(false);
-    }
-
-    virtual void
-    ice_sent()
-    {
-#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
-#else
-        _amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
-#endif
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-        //
-        // If the connection has been lost, destroy the session.
-        //
-        if(_connection)
-        {
-            if(dynamic_cast<const Ice::SocketException*>(&ex) ||
-               dynamic_cast<const Ice::TimeoutException*>(&ex) ||
-               dynamic_cast<const Ice::ProtocolException*>(&ex))
-            {
-                try
-                {
-                    _instance->sessionRouter()->destroySession(_connection);
-                }
-                catch(const Exception&)
-                {
-                }
-            }
-        }
-
-        _amdCB->ice_exception(ex);
-    }
-
-private:
-
-    const AMD_Object_ice_invokePtr _amdCB;
-    const InstancePtr _instance;
-    const ConnectionPtr _connection;
-};
-
 }
 
 Glacier2::Blobject::Blobject(const InstancePtr& instance, const ConnectionPtr& reverseConnection,
-                             const Ice::Context& context) :
+                             const Context& context) :
     _instance(instance),
     _reverseConnection(reverseConnection),
     _forwardContext(_reverseConnection ?
@@ -180,8 +68,52 @@ Glacier2::Blobject::destroy()
 }
 
 void
+Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>& outParams,
+                                   const InvokeCookiePtr& cookie)
+{
+    cookie->cb()->ice_response(ok, outParams);
+}
+
+void
+Glacier2::Blobject::invokeSent(bool sent, const InvokeCookiePtr& cookie)
+{
+    if(sent)
+    {
+#if (defined(_MSC_VER) && (_MSC_VER >= 1600))
+        cookie->cb()->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+#else
+        cookie->cb()->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+#endif
+    }
+}
+
+void
+Glacier2::Blobject::invokeException(const Exception& ex, const InvokeCookiePtr& cookie)
+{
+    //
+    // If the connection has been lost, destroy the session.
+    //
+    if(_reverseConnection)
+    {
+        if(dynamic_cast<const SocketException*>(&ex) ||
+            dynamic_cast<const TimeoutException*>(&ex) ||
+            dynamic_cast<const ProtocolException*>(&ex))
+        {
+            try
+            {
+                _instance->sessionRouter()->destroySession(_reverseConnection);
+            }
+            catch(const Exception&)
+            {
+            }
+        }
+    }
+    cookie->cb()->ice_exception(ex);
+}
+
+void
 Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, 
-                           const std::pair<const Ice::Byte*, const Ice::Byte*>& inParams, const Current& current)
+                           const std::pair<const Byte*, const Byte*>& inParams, const Current& current)
 {
     //
     // Set the correct facet on the proxy.
@@ -398,49 +330,43 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 
         try
         {
-            AMI_Array_Object_ice_invokePtr amiCB;
-            Ice::AMISentCallback* sentCB = 0;
+            Callback_Object_ice_invokePtr amiCB;
             if(proxy->ice_isTwoway())
             {
-                amiCB = new AMI_Array_Object_ice_invokeTwowayI(amdCB, _instance, _reverseConnection);
+                amiCB = newCallback_Object_ice_invoke(this, &Blobject::invokeResponse, &Blobject::invokeException);
             }
             else
             {
-                AMI_Array_Object_ice_invokeOnewayI* cb = 
-                    new AMI_Array_Object_ice_invokeOnewayI(amdCB, _instance, _reverseConnection);
-                amiCB = cb;
-                sentCB = cb;
+                amiCB = newCallback_Object_ice_invoke(this, &Blobject::invokeException, &Blobject::invokeSent);
             }
 
-            bool sent;
             if(_forwardContext)
             {
                 if(_context.size() > 0)
                 {
-                    Ice::Context ctx = current.ctx;
+                    Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, ctx);
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, ctx, amiCB,
+                                            new InvokeCookie(amdCB));
                 }
                 else
                 {
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCB,
+                                            new InvokeCookie(amdCB));
                 }
             }
             else
             {
                 if(_context.size() > 0)
                 {
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, _context);
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, _context, amiCB, 
+                                            new InvokeCookie(amdCB));
                 }
                 else
                 {
-                    sent = proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, amiCB, 
+                                            new InvokeCookie(amdCB));
                 }
-            }
-
-            if(sent && sentCB)
-            {
-                sentCB->ice_sent();
             }
         }
         catch(const LocalException& ex)

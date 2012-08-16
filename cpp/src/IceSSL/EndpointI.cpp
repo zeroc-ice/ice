@@ -543,10 +543,15 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 Ice::Int
 IceSSL::EndpointI::hashInit() const
 {
-    Int h = 0;
+    Int h = 5381;
+    IceInternal::hashAdd(h, EndpointType);
     IceInternal::hashAdd(h, _host);
     IceInternal::hashAdd(h, _port);
     IceInternal::hashAdd(h, _timeout);
+    IceInternal::hashAdd(h, _protocol.major);
+    IceInternal::hashAdd(h, _protocol.minor);
+    IceInternal::hashAdd(h, _encoding.major);
+    IceInternal::hashAdd(h, _encoding.minor);
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
     return h;

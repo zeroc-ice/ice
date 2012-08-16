@@ -16,7 +16,7 @@ namespace Ice
     /// <summary>
     /// Indicates the status of operation dispatch.
     /// </summary>
-    public enum DispatchStatus 
+    public enum DispatchStatus
     {
         /// <summary>
         /// Indicates that an operation was dispatched synchronously and successfully.
@@ -64,12 +64,6 @@ namespace Ice
     /// </summary>
     public interface Object :    System.ICloneable
     {
-        /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        int ice_hash();
-
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
@@ -163,10 +157,12 @@ namespace Ice
         DispatchStatus collocDispatch__(IceInternal.Direct request);
 
         void write__(IceInternal.BasicStream os__);
-        void read__(IceInternal.BasicStream is__, bool rid__);
+        void writeImpl__(IceInternal.BasicStream os__);
+        void read__(IceInternal.BasicStream is__);
+        void readImpl__(IceInternal.BasicStream is__);
 
         void write__(OutputStream outS__);
-        void read__(InputStream inS__, bool rid__);
+        void read__(InputStream inS__);
     }
 
     /// <summary>
@@ -179,15 +175,6 @@ namespace Ice
         /// </summary>
         public ObjectImpl()
         {
-        }
-
-        /// <summary>
-        /// This method is deprecated. Use GetHashCode instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use GetHashCode instead.")]
-        public virtual int ice_hash()
-        {
-            return GetHashCode();
         }
 
         /// <summary>
@@ -204,7 +191,7 @@ namespace Ice
         {
             "::Ice::Object"
         };
-        
+
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
@@ -225,19 +212,19 @@ namespace Ice
         {
             return s.Equals(ids__[0]);
         }
-        
+
         public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             IceInternal.BasicStream is__ = inS__.startReadParams();
             string __id = is__.readString();
             inS__.endReadParams();
             bool __ret = __obj.ice_isA(__id, __current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeBool(__ret);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
-        
+
         /// <summary>
         /// Tests whether this object can be reached.
         /// </summary>
@@ -254,7 +241,7 @@ namespace Ice
         {
             // Nothing to do.
         }
-        
+
         public static DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
@@ -262,7 +249,7 @@ namespace Ice
             inS__.writeEmptyParams__();
             return DispatchStatus.DispatchOK;
         }
-        
+
         /// <summary>
         /// Returns the Slice type IDs of the interfaces supported by this object.
         /// </summary>
@@ -281,17 +268,17 @@ namespace Ice
         {
             return ids__;
         }
-        
+
         public static DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
             string[] ret__ = __obj.ice_ids(__current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeStringSeq(ret__);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
-        
+
         /// <summary>
         /// Returns the Slice type ID of the most-derived interface supported by this object.
         /// </summary>
@@ -310,17 +297,17 @@ namespace Ice
         {
             return ids__[0];
         }
-        
+
         public static DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__, Current __current)
         {
             inS__.readEmptyParams();
             string __ret = __obj.ice_id(__current);
-            IceInternal.BasicStream os__ = inS__.startWriteParams__();
+            IceInternal.BasicStream os__ = inS__.startWriteParams__(FormatType.DefaultFormat);
             os__.writeString(__ret);
             inS__.endWriteParams__(true);
             return DispatchStatus.DispatchOK;
         }
-        
+
         /// <summary>
         /// Returns the Slice type ID of the interface supported by this object.
         /// </summary>
@@ -329,7 +316,7 @@ namespace Ice
         {
             return ids__[0];
         }
-        
+
         /// <summary>
         /// The Ice run time invokes this method prior to marshaling an object's data members. This allows a subclass
         /// to override this method in order to validate its data members.
@@ -350,7 +337,7 @@ namespace Ice
         {
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
-        
+
         /// <summary>
         /// Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
         /// to a servant (or to another interceptor).
@@ -405,27 +392,27 @@ namespace Ice
             {
                 throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
             }
-            
+
             switch(pos)
             {
-                case 0: 
+                case 0:
                 {
                     return ice_id___(this, inc, current);
                 }
-                case 1: 
+                case 1:
                 {
                     return ice_ids___(this, inc, current);
                 }
-                case 2: 
+                case 2:
                 {
                     return ice_isA___(this, inc, current);
                 }
-                case 3: 
+                case 3:
                 {
                     return ice_ping___(this, inc, current);
                 }
             }
-            
+
             Debug.Assert(false);
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
@@ -437,61 +424,29 @@ namespace Ice
 
         public virtual void write__(IceInternal.BasicStream os__)
         {
-            os__.writeTypeId(ice_staticId());
-            os__.startWriteSlice();
-            os__.writeSize(0); // For compatibility with the old AFM.  
-            os__.endWriteSlice();
         }
-        
-        public virtual void read__(IceInternal.BasicStream is__, bool rid__)
-        {
 
-            if(rid__)
-            {
-                /* string myId = */ is__.readTypeId();
-            }
-            
-            is__.startReadSlice();
-            
-            // For compatibility with the old AFM.
-            int sz = is__.readSize();
-            if(sz != 0)
-            {
-                throw new MarshalException();
-            }
-            
-            is__.endReadSlice();
+        public virtual void writeImpl__(IceInternal.BasicStream os__)
+        {
+        }
+
+        public virtual void read__(IceInternal.BasicStream is__)
+        {
+        }
+
+        public virtual void readImpl__(IceInternal.BasicStream is__)
+        {
         }
 
         public virtual void write__(OutputStream outS__)
         {
-            outS__.writeTypeId(ice_staticId());
-            outS__.startSlice();
-            outS__.writeSize(0); // For compatibility with the old AFM.
-            outS__.endSlice();
         }
 
-        public virtual void read__(InputStream inS__, bool rid__)
+        public virtual void read__(InputStream inS__)
         {
-            if(rid__)
-            {
-                /* string myId = */ inS__.readTypeId();
-            }
-
-            inS__.startSlice();
-
-            // For compatibility with the old AFM.
-            int sz = inS__.readSize();
-            if(sz != 0)
-            {
-                throw new MarshalException();
-            }
-
-            inS__.endSlice();
         }
 
-        private static string
-        operationModeToString(OperationMode mode)
+        private static string operationModeToString(OperationMode mode)
         {
             if(mode == Ice.OperationMode.Normal)
             {
@@ -510,29 +465,27 @@ namespace Ice
             return "???";
         }
 
-        protected static void
-        checkMode__(OperationMode expected, OperationMode received)
+        protected static void checkMode__(OperationMode expected, OperationMode received)
         {
             if(expected != received)
             {
-                if(expected == OperationMode.Idempotent 
-                   && received == OperationMode.Nonmutating)
+                if(expected == OperationMode.Idempotent && received == OperationMode.Nonmutating)
                 {
                     //
-                    // Fine: typically an old client still using the 
+                    // Fine: typically an old client still using the
                     // deprecated nonmutating keyword
                     //
                 }
                 else
                 {
                     Ice.MarshalException ex = new Ice.MarshalException();
-                    ex.reason = "unexpected operation mode. expected = "
-                        + operationModeToString(expected) + " received = "
-                        + operationModeToString(received);
+                    ex.reason = "unexpected operation mode. expected = " + operationModeToString(expected) +
+                        " received = " + operationModeToString(received);
                     throw ex;
                 }
             }
         }
+
         public static Ice.Current defaultCurrent = new Ice.Current();
     }
 
@@ -556,7 +509,7 @@ namespace Ice
         /// must contain the encoded user exception. If the operation raises an
         /// Ice run-time exception, it must throw it directly.</returns>
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
-        
+
         public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
         {
             byte[] inEncaps = inS__.readParamEncaps();
@@ -577,7 +530,7 @@ namespace Ice
     public abstract class BlobjectAsync : Ice.ObjectImpl
     {
         public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current);
-        
+
         public override DispatchStatus dispatch__(IceInternal.Incoming inS__, Current current)
         {
             byte[] inEncaps = inS__.readParamEncaps();
@@ -593,5 +546,4 @@ namespace Ice
             return DispatchStatus.DispatchAsync;
         }
     }
-
 }

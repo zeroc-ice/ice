@@ -44,12 +44,13 @@ namespace IceInternal
             _encoding = encoding;
             _connectionId = connectionId;
 
-            _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
-            _hashCode = 5 * _hashCode + _protocol.GetHashCode();
-            _hashCode = 5 * _hashCode + _encoding.GetHashCode();
-            _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+            _hashCode = 5381;
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastInterface);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _protocol);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _encoding);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastTtl);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)

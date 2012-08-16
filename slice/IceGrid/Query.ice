@@ -55,7 +55,7 @@ enum LoadSample
  * Ice clients who wish to look up well-known objects.
  *
  **/
-["ami"] interface Query
+interface Query
 {
     /**
      *

@@ -608,7 +608,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
     {
     }
 
-   
+    //
+    // Call an operation that does not exist on the servant
+    //    
+    try
+    {
+	int balance = Test::AccountPrx::uncheckedCast(servants[0])->getBalance();
+	test(false);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+  
     //
     // Remove all facets
     //

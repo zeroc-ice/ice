@@ -21,7 +21,7 @@ public:
 
     ThreadSyscallException(const char*, int, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual ThreadSyscallException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -35,7 +35,7 @@ public:
 
     ThreadLockedException(const char*, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual ThreadLockedException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -49,7 +49,7 @@ public:
 
     ThreadStartedException(const char*, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual ThreadStartedException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -63,7 +63,7 @@ public:
 
     ThreadNotStartedException(const char*, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual ThreadNotStartedException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -77,7 +77,7 @@ public:
 
     BadThreadControlException(const char*, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual BadThreadControlException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -92,7 +92,7 @@ public:
     InvalidTimeoutException(const char*, int, const Time&);
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
+    virtual InvalidTimeoutException* ice_clone() const;
     virtual void ice_throw() const;
 
 private:

@@ -29,7 +29,7 @@ public:
     virtual ~APIException() throw();
     virtual ::std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual APIException* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string reason;
@@ -49,7 +49,7 @@ public:
     virtual ~BadOptException() throw();
     virtual ::std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
-    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual BadOptException* ice_clone() const;
     virtual void ice_throw() const;
 
     ::std::string reason;

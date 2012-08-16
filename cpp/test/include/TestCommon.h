@@ -188,7 +188,7 @@ public:
         return "::TestFailedException";
     }
 
-    virtual ::Ice::Exception* ice_clone() const
+    virtual TestFailedException* ice_clone() const
     {
         return new TestFailedException(*this);
     }

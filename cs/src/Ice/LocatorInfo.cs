@@ -259,28 +259,6 @@ namespace IceInternal
 
         private class ObjectRequest : Request
         {
-            private class AMICallback : Ice.AMI_Locator_findObjectById
-            {
-                public AMICallback(Request request)
-                {
-                    _request = request;
-                }
-
-                override public void
-                ice_response(Ice.ObjectPrx proxy)
-                {
-                    _request.response(proxy);
-                }
-
-                override public void
-                ice_exception(Ice.Exception ex)
-                {
-                    _request.exception(ex);
-                }
-
-                private readonly Request _request;
-            }
-
             public ObjectRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
             {
             }
@@ -292,7 +270,8 @@ namespace IceInternal
                 {
                     if(async)
                     {
-                        _locatorInfo.getLocator().findObjectById_async(new AMICallback(this), _ref.getIdentity());
+                        _locatorInfo.getLocator().begin_findObjectById(_ref.getIdentity()).whenCompleted(
+                            this.response, this.exception);
                     }
                     else
                     {
@@ -308,28 +287,6 @@ namespace IceInternal
 
         private class AdapterRequest : Request
         {
-            private class AMICallback : Ice.AMI_Locator_findAdapterById
-            {
-                public AMICallback(Request request)
-                {
-                    _request = request;
-                }
-
-                override public void
-                ice_response(Ice.ObjectPrx proxy)
-                {
-                    _request.response(proxy);
-                }
-
-                override public void
-                ice_exception(Ice.Exception ex)
-                {
-                    _request.exception(ex);
-                }
-
-                private readonly Request _request;
-            }
-
             public AdapterRequest(LocatorInfo locatorInfo, Reference @ref) : base(locatorInfo, @ref)
             {
             }
@@ -341,7 +298,8 @@ namespace IceInternal
                 {
                     if(async)
                     {
-                        _locatorInfo.getLocator().findAdapterById_async(new AMICallback(this), _ref.getAdapterId());
+                        _locatorInfo.getLocator().begin_findAdapterById(_ref.getAdapterId()).whenCompleted(
+                            this.response, this.exception);
                     }
                     else
                     {

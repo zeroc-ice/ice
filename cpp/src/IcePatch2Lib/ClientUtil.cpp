@@ -241,66 +241,6 @@ private:
     const PatcherFeedbackPtr _feedback;
 };
 
-class AMIGetFileInfoSeq : public AMI_FileServer_getFileInfoSeq, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    AMIGetFileInfoSeq() :
-        _done(false)
-    {
-    }
-
-    FileInfoSeq
-    getFileInfoSeq()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-        while(!_done)
-        {
-            wait();
-        }
-
-        _done = false;
-
-        if(_exception.get())
-        {
-            auto_ptr<Exception> ex = _exception;
-            _fileInfoSeq.clear();
-            ex->ice_throw();
-        }
-
-        FileInfoSeq fileInfoSeq;
-        fileInfoSeq.swap(_fileInfoSeq);
-        return fileInfoSeq;
-    }
-
-    virtual void
-    ice_response(const FileInfoSeq& fileInfoSeq)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        _fileInfoSeq = fileInfoSeq;
-        _done = true;
-        notify();
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        _exception.reset(ex.ice_clone());
-        _done = true;
-        notify();
-    }
-
-private:
-
-    bool _done;
-    FileInfoSeq _fileInfoSeq;
-    auto_ptr<Exception> _exception;
-};
-
-typedef IceUtil::Handle<AMIGetFileInfoSeq> AMIGetFileInfoSeqPtr;
-
 }
 
 bool
@@ -363,8 +303,8 @@ IcePatch2::Patcher::prepare()
             throw string("server returned illegal value");
         }
         
-        AMIGetFileInfoSeqPtr curCB;
-        AMIGetFileInfoSeqPtr nxtCB;
+        AsyncResultPtr curCB;
+        AsyncResultPtr nxtCB;
 
         for(int node0 = 0; node0 < 256; ++node0)
         {
@@ -373,9 +313,7 @@ IcePatch2::Patcher::prepare()
                 if(!curCB)
                 {
                     assert(!nxtCB);
-                    curCB = new AMIGetFileInfoSeq;
-                    nxtCB = new AMIGetFileInfoSeq;
-                    _serverCompress->getFileInfoSeq_async(curCB, node0);
+                    curCB = _serverCompress->begin_getFileInfoSeq(node0);
                 }
                 else
                 {
@@ -393,10 +331,10 @@ IcePatch2::Patcher::prepare()
 
                 if(node0Nxt < 256)
                 {
-                    _serverCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
+                    nxtCB = _serverCompress->begin_getFileInfoSeq(node0Nxt);
                 }
 
-                FileInfoSeq files = curCB->getFileInfoSeq();
+                FileInfoSeq files = _serverCompress->end_getFileInfoSeq(curCB);
                 
                 sort(files.begin(), files.end(), FileInfoLess());
                 files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
@@ -733,71 +671,6 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
     return result;
 }
 
-namespace
-{
-
-class AMIGetFileCompressed : public AMI_FileServer_getFileCompressed, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    AMIGetFileCompressed() :
-        _done(false)
-    {
-    }
-
-    ByteSeq
-    getFileCompressed()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-        while(!_done)
-        {
-            wait();
-        }
-
-        _done = false;
-
-        if(_exception.get())
-        {
-            auto_ptr<Exception> ex = _exception;
-            _bytes.clear();
-            ex->ice_throw();
-        }
-
-        ByteSeq bytes;
-        bytes.swap(_bytes);
-        return bytes;
-    }
-
-    virtual void
-    ice_response(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        ByteSeq(bytes.first, bytes.second).swap(_bytes);
-        _done = true;
-        notify();
-    }
-
-    virtual void
-    ice_exception(const Exception& ex)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        _exception.reset(ex.ice_clone());
-        _done = true;
-        notify();
-    }
-
-private:
-
-    bool _done;
-    ByteSeq _bytes;
-    auto_ptr<Exception> _exception;
-};
-
-typedef IceUtil::Handle<AMIGetFileCompressed> AMIGetFileCompressedPtr;
-
-}
-
 bool
 IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
 {
@@ -814,8 +687,8 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
         }
     }
     
-    AMIGetFileCompressedPtr curCB;
-    AMIGetFileCompressedPtr nxtCB;
+    AsyncResultPtr curCB;
+    AsyncResultPtr nxtCB;
 
     for(p = files.begin(); p != files.end(); ++p)
     {
@@ -877,9 +750,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
                         if(!curCB)
                         {
                             assert(!nxtCB);
-                            curCB = new AMIGetFileCompressed;
-                            nxtCB = new AMIGetFileCompressed;
-                            _serverNoCompress->getFileCompressed_async(curCB, p->path, pos, _chunkSize);
+                            curCB = _serverNoCompress->begin_getFileCompressed(p->path, pos, _chunkSize);
                         }
                         else
                         {
@@ -889,7 +760,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                         if(pos + _chunkSize < p->size)
                         {
-                            _serverNoCompress->getFileCompressed_async(nxtCB, p->path, pos + _chunkSize, _chunkSize);
+                            nxtCB = _serverNoCompress->begin_getFileCompressed(p->path, pos + _chunkSize, _chunkSize);
                         }
                         else
                         {
@@ -902,7 +773,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                             if(q != files.end())
                             {
-                                _serverNoCompress->getFileCompressed_async(nxtCB, q->path, 0, _chunkSize);
+                                nxtCB = _serverNoCompress->begin_getFileCompressed(q->path, 0, _chunkSize);
                             }
                         }
 
@@ -910,7 +781,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
                         try
                         {
-                            bytes = curCB->getFileCompressed();
+                            bytes = _serverNoCompress->end_getFileCompressed(curCB);
                         }
                         catch(const FileAccessException& ex)
                         {

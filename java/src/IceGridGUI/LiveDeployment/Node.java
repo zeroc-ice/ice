@@ -79,22 +79,22 @@ class Node extends ListTreeNode
         final String prefix = "Shutting down node '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
-        AMI_Admin_shutdownNode cb = new AMI_Admin_shutdownNode()
+        Callback_Admin_shutdownNode cb = new Callback_Admin_shutdownNode()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id, e);
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to shutdown " + _id,
                                e.toString());
@@ -106,7 +106,7 @@ class Node extends ListTreeNode
             getCoordinator().getMainFrame().setCursor(
                 Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            getCoordinator().getAdmin().shutdownNode_async(cb, _id);
+            getCoordinator().getAdmin().begin_shutdownNode(_id, cb);
         }
         catch(Ice.LocalException e)
         {
@@ -664,9 +664,9 @@ class Node extends ListTreeNode
 
     void showLoad()
     {
-        AMI_Admin_getNodeLoad cb = new AMI_Admin_getNodeLoad()
+        Callback_Admin_getNodeLoad cb = new Callback_Admin_getNodeLoad()
             {
-                public void ice_response(LoadInfo loadInfo)
+                public void response(LoadInfo loadInfo)
                 {
                     NumberFormat format;
                     if(_windows)
@@ -696,7 +696,7 @@ class Node extends ListTreeNode
                         });
                 }
 
-                public void ice_exception(final Ice.UserException e)
+                public void exception(final Ice.UserException e)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
@@ -720,7 +720,7 @@ class Node extends ListTreeNode
                         });
                 }
 
-                public void ice_exception(final Ice.LocalException e)
+                public void exception(final Ice.LocalException e)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
@@ -744,7 +744,7 @@ class Node extends ListTreeNode
             }
             else
             {
-                admin.getNodeLoad_async(cb, _id);
+                admin.begin_getNodeLoad(_id, cb);
             }
         }
         catch(Ice.LocalException e)

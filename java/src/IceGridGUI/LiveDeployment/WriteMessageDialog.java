@@ -33,8 +33,8 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -85,9 +85,9 @@ class WriteMessageDialog extends JDialog
                         final String prefix = "Writing message to server '" + _target + "'...";
                         c.getStatusBar().setText(prefix);
 
-                        Ice.AMI_Process_writeMessage cb = new Ice.AMI_Process_writeMessage()
+                        Ice.Callback_Process_writeMessage cb = new Ice.Callback_Process_writeMessage()
                             {
-                                public void ice_response()
+                                public void response()
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
@@ -98,7 +98,7 @@ class WriteMessageDialog extends JDialog
                                         });
                                 }
 
-                                public void ice_exception(final Ice.LocalException e)
+                                public void exception(final Ice.LocalException e)
                                 {
                                     SwingUtilities.invokeLater(new Runnable()
                                         {
@@ -123,7 +123,7 @@ class WriteMessageDialog extends JDialog
 
                         try
                         {
-                            process.writeMessage_async(cb, _message.getText(), _stdOut.isSelected() ? 1 : 2);
+                            process.begin_writeMessage(_message.getText(), _stdOut.isSelected() ? 1 : 2, cb);
                         }
                         catch(Ice.LocalException ex)
                         {
@@ -156,9 +156,9 @@ class WriteMessageDialog extends JDialog
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.setDefaultDialogBorder();
-        builder.setRowGroupingEnabled(true);
-        builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+        builder.border(Borders.DIALOG);
+        builder.rowGroupingEnabled(true);
+        builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
         _message.setLineWrap(true);
         JScrollPane scrollPane = new JScrollPane(_message,
@@ -169,8 +169,9 @@ class WriteMessageDialog extends JDialog
         builder.append(_stdOut);
         builder.append(stdErr);
         builder.nextLine();
-        JComponent buttonBar = ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-        buttonBar.setBorder(Borders.DIALOG_BORDER);
+
+        JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+        buttonBar.setBorder(Borders.DIALOG);
 
         Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));

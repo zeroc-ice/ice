@@ -465,110 +465,6 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& package, const Excep
 }
 
 void
-Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string& name, int& iter,
-                                  const StringList& metaData)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindLong:
-            {
-                out << nl << "__h = 5 * __h + (int)" << name << ';';
-                break;
-            }
-            case Builtin::KindBool:
-            {
-                out << nl << "__h = 5 * __h + (" << name << " ? 1 : 0);";
-                break;
-            }
-            case Builtin::KindInt:
-            {
-                out << nl << "__h = 5 * __h + " << name << ';';
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                out << nl << "__h = 5 * __h + java.lang.Float.floatToIntBits(" << name << ");";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                out << nl << "__h = 5 * __h + (int)java.lang.Double.doubleToLongBits(" << name << ");";
-                break;
-            }
-            case Builtin::KindString:
-            {
-                out << nl << "if(" << name << " != null)";
-                out << sb;
-                out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-                out << eb;
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            {
-                out << nl << "if(" << name << " != null)";
-                out << sb;
-                out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-                out << eb;
-                break;
-            }
-        }
-        return;
-    }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    if(prx || cl || dict)
-    {
-        out << nl << "if(" << name << " != null)";
-        out << sb;
-        out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-        out << eb;
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        bool customType = hasTypeMetaData(seq, metaData);
-
-        out << nl << "if(" << name << " != null)";
-        out << sb;
-        if(customType)
-        {
-            out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-        }
-        else
-        {
-            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << name << ".length; __i" << iter
-                << "++)";
-            out << sb;
-            ostringstream elem;
-            elem << name << "[__i" << iter << ']';
-            iter++;
-            writeHashCode(out, seq->type(), elem.str(), iter);
-            out << eb;
-        }
-        out << eb;
-        return;
-    }
-
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    assert(constructed);
-    out << nl << "if(" << name << " != null)";
-    out << sb;
-    out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-    out << eb;
-}
-
-void
 Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, const DataMemberPtr& member, int& iter)
 {
     if(!member->optional())
@@ -2528,14 +2424,6 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->isLocal())
     {
-        out << sp << nl << "/**";
-        out << nl << " * @deprecated This method is deprecated, use hashCode instead.";
-        out << nl << " **/";
-        out << nl << "public int" << nl << "ice_hash()";
-        out << sb;
-        out << nl << "return hashCode();";
-        out << eb;
-
         out << sp << nl << "public java.lang.Object" << nl << "clone()";
         out.inc();
         out << nl << "throws java.lang.CloneNotSupportedException";
@@ -3772,13 +3660,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     out << sp << nl << "public int" << nl << "hashCode()";
     out << sb;
-    out << nl << "int __h = 0;";
+    out << nl << "int __h = 5381;";
+    out << nl << "__h = IceInternal.HashUtil.hashAdd(__h, \"" << p->scoped() << "\");";
     iter = 0;
     for(d = members.begin(); d != members.end(); ++d)
     {
         string memberName = fixKwd((*d)->name());
-        StringList metaData = (*d)->getMetaData();
-        writeHashCode(out, (*d)->type(), memberName, iter, metaData);
+        out << nl << "__h = IceInternal.HashUtil.hashAdd(__h, " << memberName << ");";
     }
     out << nl << "return __h;";
     out << eb;

@@ -50,7 +50,16 @@ main(int argc, char* argv[])
     {
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
+#ifdef ICE_CPP11
+        Ice::DispatcherPtr dispatcher = new Dispatcher();
+        initData.dispatcher = Ice::newDispatcher(
+            [=](const Ice::DispatcherCallPtr& call, const Ice::ConnectionPtr& conn)
+                {
+                    dispatcher->dispatch(call, conn);
+                });
+#else
         initData.dispatcher = new Dispatcher();
+#endif
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

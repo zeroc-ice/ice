@@ -15,13 +15,13 @@ namespace IceInternal
 inline void
 hashAdd(Ice::Int& hashCode, Ice::Int value)
 {
-    hashCode = hashCode * 5 + value;
+    hashCode = ((hashCode << 5) + hashCode) ^ (2654435761u * value);
 }
 
 inline void
 hashAdd(Ice::Int& hashCode, bool value)
 {
-    hashCode = hashCode * 5 + static_cast<Ice::Int>(value);
+    hashCode = ((hashCode << 5) + hashCode) ^ (value ? 1 : 0);
 }
 
 inline void
@@ -29,7 +29,7 @@ hashAdd(Ice::Int& hashCode, const std::string& value)
 {
     for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)
     {
-        hashCode = 5 * hashCode + *p;
+        hashCode = ((hashCode << 5) + hashCode) ^ *p;
     }    
 }
 
@@ -51,6 +51,5 @@ hashAdd(Ice::Int& hashCode, const std::map<K, V>& map)
         hashAdd(hashCode, p->second);
     }
 }
-
 
 }

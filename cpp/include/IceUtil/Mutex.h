@@ -32,7 +32,7 @@ class Cond;
 // `IceUtil::noncopyable' inaccessible in `IceInternal::Outgoing' due
 // to ambiguity
 //
-class Mutex
+class ICE_UTIL_API Mutex
 {
 public:
 

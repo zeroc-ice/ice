@@ -545,7 +545,9 @@ public class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         public int
         hashCode()
         {
-            return envName.hashCode() ^ communicator.hashCode();
+            int h = 5381;
+            h = IceInternal.HashUtil.hashAdd(h, envName);
+            return IceInternal.HashUtil.hashAdd(h, communicator);
         }
     }
 

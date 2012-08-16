@@ -86,7 +86,7 @@ Ice::Object::ice_staticId()
     return __Ice__Object_ids[0];
 }
 
-ObjectPtr
+Ice::ObjectPtr
 Ice::Object::ice_clone() const
 {
     throw CloneNotImplementedException(__FILE__, __LINE__);

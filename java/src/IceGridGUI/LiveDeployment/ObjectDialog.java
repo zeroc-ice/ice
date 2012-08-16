@@ -29,8 +29,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -60,9 +60,9 @@ class ObjectDialog extends JDialog
 
         FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.setDefaultDialogBorder();
-        builder.setRowGroupingEnabled(true);
-        builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+        builder.border(Borders.DIALOG);
+        builder.rowGroupingEnabled(true);
+        builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
         builder.append("Proxy");
         builder.nextLine();
@@ -127,11 +127,10 @@ class ObjectDialog extends JDialog
                     }
                 };
             cancelButton.addActionListener(cancelListener);
-
-            JComponent buttonBar =
-                ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-            buttonBar.setBorder(Borders.DIALOG_BORDER);
-
+            
+            JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            buttonBar.setBorder(Borders.DIALOG);
+            
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(builder.getPanel());
             contentPane.add(buttonBar);

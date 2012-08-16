@@ -60,7 +60,7 @@ public:
  
     CtrlCHandlerException(const char*, int);
     virtual std::string ice_name() const;
-    virtual Exception* ice_clone() const;
+    virtual CtrlCHandlerException* ice_clone() const;
     virtual void ice_throw() const;
 };
 

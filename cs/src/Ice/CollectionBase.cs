@@ -304,13 +304,13 @@ namespace Ice
 
         public override int GetHashCode()
         {
-            int hash = 0;
+            int h = 5381;
             for(int i = 0; i < Count; ++i)
             {
                 T v__ = list_[i];
-                hash = 5 * hash + v__.GetHashCode();
+                IceInternal.HashUtil.hashAdd(ref h, v__);
             }
-            return hash;
+            return h;
         }
 
         public override bool Equals(object other)

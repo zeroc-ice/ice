@@ -84,10 +84,10 @@ public class AllTests : TestCommon.TestApp
 
     private class TestObjectReader : Ice.ObjectReader
     {
-        public override void read(Ice.InputStream @in, bool rid)
+        public override void read(Ice.InputStream @in)
         {
             obj = new Test.MyClass();
-            obj.read__(@in, rid);
+            obj.read__(@in);
             called = true;
         }
 

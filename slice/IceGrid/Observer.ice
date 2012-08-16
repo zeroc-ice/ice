@@ -134,7 +134,7 @@ sequence<NodeDynamicInfo> NodeDynamicInfoSeq;
  * nodes.
  * 
  **/
-["ami"] interface NodeObserver
+interface NodeObserver
 {
     /**
      *
@@ -213,7 +213,7 @@ interface ApplicationObserver
      * the registry.
      *
      **/
-    ["ami"] void applicationInit(int serial, ApplicationInfoSeq applications);
+    void applicationInit(int serial, ApplicationInfoSeq applications);
 
     /**
      * 
@@ -269,7 +269,7 @@ interface AdapterObserver
      * with the registry (not through the deployment mechanism).
      *
      **/
-    ["ami"] void adapterInit(AdapterInfoSeq adpts);
+    void adapterInit(AdapterInfoSeq adpts);
 
     /**
      *
@@ -317,7 +317,7 @@ interface ObjectObserver
      * interface (not through the deployment mechanism).
      *
      **/
-    ["ami"] void objectInit(ObjectInfoSeq objects);
+    void objectInit(ObjectInfoSeq objects);
 
     /**
      *
@@ -366,7 +366,7 @@ interface RegistryObserver
      * @param registries The current state of the registries.
      *
      **/
-    ["ami"] void registryInit(RegistryInfoSeq registries);
+    void registryInit(RegistryInfoSeq registries);
 
     /**
      *

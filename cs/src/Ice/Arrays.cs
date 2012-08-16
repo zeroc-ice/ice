@@ -90,11 +90,15 @@ namespace IceUtilInternal
 
         public static int GetHashCode(object[] arr)
         {
-            int h = 0;
+            int h = 5381;
 
             for(int i = 0; i < arr.Length; i++)
             {
-                h = 5 * h + arr[i].GetHashCode();
+                object o = arr[i];
+                if(o != null)
+                {
+                    IceInternal.HashUtil.hashAdd(ref h, o);
+                }
             }
 
             return h;           
@@ -106,7 +110,10 @@ namespace IceUtilInternal
 
             foreach(object o in arr)
             {
-                h = 5 * h + o.GetHashCode();
+                if(o != null)
+                {
+                    IceInternal.HashUtil.hashAdd(ref h, o);
+                }
             }
 
             return h;           

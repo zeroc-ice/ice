@@ -24,6 +24,7 @@ SUBDIRS		= proxy \
 		  adapterDeactivation \
 		  slicing \
 		  gc \
+		  hash \
 		  checksum \
 		  stream \
 		  dispatcher \
@@ -41,7 +42,8 @@ SUBDIRS		= proxy \
 		  defaultValue \
 		  threadPoolPriority \
 		  invoke \
-		  properties
+		  properties \
+		  plugin
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

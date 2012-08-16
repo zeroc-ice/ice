@@ -15,11 +15,6 @@ package Ice;
 public interface ObjectPrx
 {
     /**
-     * @deprecated This method is deprecated, use hashCode instead.
-     **/
-    int ice_getHash();
-
-    /**
      * Returns the communicator that created this proxy.
      *
      * @return The communicator that created this proxy.

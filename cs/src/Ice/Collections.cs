@@ -94,17 +94,12 @@ namespace IceUtilInternal
 
         public static int SequenceGetHashCode(IEnumerable seq)
         {
-            int h = 0;
-
+            int h = 5381;
             IEnumerator e = seq.GetEnumerator();
             while(e.MoveNext())
             {
-                if(e.Current != null)
-                {
-                    h = 5 * h + e.Current.GetHashCode();
-                }
+                IceInternal.HashUtil.hashAdd(ref h, e.Current);
             }
-
             return h;           
         }
 
@@ -152,18 +147,13 @@ namespace IceUtilInternal
 
         public static int DictionaryGetHashCode(IDictionary d)
         {
-            int h = 0;
-
+            int h = 5381;
             IDictionaryEnumerator e = d.GetEnumerator();
             while(e.MoveNext())
             {
-                h = 5 * h + e.Key.GetHashCode();
-                if(e.Value != null)
-                {
-                    h = 5 * h + e.Key.GetHashCode();
-                }
+                IceInternal.HashUtil.hashAdd(ref h, e.Key);
+                IceInternal.HashUtil.hashAdd(ref h, e.Value);
             }
-
             return h;           
         }
     }

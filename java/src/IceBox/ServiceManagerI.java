@@ -22,6 +22,27 @@ public class ServiceManagerI extends _ServiceManagerDisp
         _logger = _communicator.getLogger();
         _argv = args;
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _observerCompletedCB = new Ice.Callback()
+            {
+                public void completed(Ice.AsyncResult result)
+                {
+                    try
+                    {
+                        result.throwLocalException();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
+                        synchronized(ServiceManagerI.this)
+                        {
+                            if(_observers.remove(observer))
+                            {
+                                observerRemoved(observer, ex);
+                            }
+                        }
+                    }
+                }
+            };
     }
 
     public java.util.Map<String, String>
@@ -193,7 +214,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
                                   "Added service observer " + _communicator.proxyToString(observer));
                 }
 
-
                 for(ServiceInfo info: _services)
                 {
                     if(info.status == StatusStarted)
@@ -201,29 +221,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
                         activeServices.add(info.name);
                     }
                 }
-
             }
         }
 
         if(activeServices.size() > 0)
         {
-            AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
-                {
-                    public void ice_response()
-                    {
-                        // ok, success
-                    }
-
-                    public void ice_exception(Ice.LocalException ex)
-                    {
-                        //
-                        // Drop this observer
-                        //
-                        removeObserver(observer, ex);
-                    }
-                };
-
-            observer.servicesStarted_async(cb, activeServices.toArray(new String[0]));
+            observer.begin_servicesStarted(activeServices.toArray(new String[0]), _observerCompletedCB);
         }
     }
 
@@ -350,7 +353,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(StartServiceInfo s : servicesInfo)
             {
-                start(s.name, s.className, s.args);
+                start(s.name, s.className, s.classDir, s.absolutePath, s.args);
             }
 
             //
@@ -457,7 +460,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
     }
 
     synchronized private void
-    start(String service, String className, String[] args)
+    start(String service, String className, String classDir, boolean absolutePath, String[] args)
         throws FailureException
     {
         //
@@ -470,12 +473,74 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
         try
         {
-            Class<?> c = IceInternal.Util.findClass(className, null);
+            Class<?> c = null;
+
+            //
+            // Use a class loader if the user specified a JAR file or class directory.
+            //
+            if(classDir != null)
+            {
+                try
+                {
+                    if(!absolutePath)
+                    {
+                        classDir = new java.io.File(System.getProperty("user.dir") + java.io.File.separator +
+                                                    classDir).getCanonicalPath();
+                    }
+
+                    if(!classDir.endsWith(java.io.File.separator) && !classDir.endsWith(".jar"))
+                    {
+                        classDir += java.io.File.separator;
+                    }
+
+                    //
+                    // Reuse an existing class loader if we have already loaded a plug-in with
+                    // the same value for classDir, otherwise create a new one.
+                    //
+                    ClassLoader cl = null;
+
+                    if(_classLoaders == null)
+                    {
+                        _classLoaders = new java.util.HashMap<String, ClassLoader>();
+                    }
+                    else
+                    {
+                        cl = _classLoaders.get(classDir);
+                    }
+
+                    if(cl == null)
+                    {
+                        final java.net.URL[] url = new java.net.URL[] { new java.net.URL("file:///" + classDir) };
+
+                        cl = new java.net.URLClassLoader(url);
+
+                        _classLoaders.put(classDir, cl);
+                    }
+
+                    c = cl.loadClass(className);
+                }
+                catch(java.net.MalformedURLException ex)
+                {
+                    throw new FailureException("ServiceManager: invalid entry point format `" + classDir + "'", ex);
+                }
+                catch(java.io.IOException ex)
+                {
+                    throw new FailureException("ServiceManager: invalid path in plug-in entry point `" + classDir +
+                                               "'", ex);
+                }
+                catch(java.lang.ClassNotFoundException ex)
+                {
+                    // Ignored
+                }
+            }
+            else
+            {
+                c = IceInternal.Util.findClass(className, null);
+            }
+
             if(c == null)
             {
-                FailureException e = new FailureException();
-                e.reason = "ServiceManager: class " + className + " not found";
-                throw e;
+                throw new FailureException("ServiceManager: class " + className + " not found");
             }
 
             //
@@ -794,23 +859,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                AMI_ServiceObserver_servicesStarted cb = new AMI_ServiceObserver_servicesStarted()
-                    {
-                        public void ice_response()
-                        {
-                            // ok, success
-                        }
-
-                        public void ice_exception(Ice.LocalException ex)
-                        {
-                            //
-                            // Drop this observer
-                            //
-                            removeObserver(observer, ex);
-                        }
-                    };
-
-                observer.servicesStarted_async(cb, servicesArray);
+                observer.begin_servicesStarted(servicesArray, _observerCompletedCB);
             }
         }
     }
@@ -824,33 +873,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
 
             for(final ServiceObserverPrx observer: observers)
             {
-                AMI_ServiceObserver_servicesStopped cb = new AMI_ServiceObserver_servicesStopped()
-                    {
-                        public void ice_response()
-                        {
-                            // ok, success
-                        }
-
-                        public void ice_exception(Ice.LocalException ex)
-                        {
-                            //
-                            // Drop this observer
-                            //
-                            removeObserver(observer, ex);
-                        }
-                    };
-
-                observer.servicesStopped_async(cb, servicesArray);
+                observer.begin_servicesStopped(servicesArray, _observerCompletedCB);
             }
-        }
-    }
-
-    private synchronized void
-    removeObserver(ServiceObserverPrx observer, Ice.LocalException ex)
-    {
-        if(_observers.remove(observer))
-        {
-            observerRemoved(observer, ex);
         }
     }
 
@@ -929,28 +953,85 @@ public class ServiceManagerI extends _ServiceManagerDisp
             name = service;
 
             //
-            // Separate the entry point from the arguments.
+            // We support the following formats:
             //
-            int pos = IceUtilInternal.StringUtil.findFirstOf(value, " \t\n");
-            if(pos == -1)
+            // <class-name> [args]
+            // <jar-file>:<class-name> [args]
+            // <class-dir>:<class-name> [args]
+            // "<path with spaces>":<class-name> [args]
+            // "<path with spaces>:<class-name>" [args]
+            //
+
+            try
             {
-                className = value;
-                args = new String[0];
+                args = IceUtilInternal.Options.split(value);
+            }
+            catch(IceUtilInternal.Options.BadQuote ex)
+            {
+                throw new FailureException("ServiceManager: invalid arguments for service `" + name + "':\n" +
+                                           ex.getMessage());
+            }
+
+            assert(args.length > 0);
+
+            final String entryPoint = args[0];
+
+            final boolean isWindows = System.getProperty("os.name").startsWith("Windows");
+            absolutePath = false;
+
+            //
+            // Find first ':' that isn't part of the file path.
+            //
+            int pos = entryPoint.indexOf(':');
+            if(isWindows)
+            {
+                final String driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                if(pos == 1 && entryPoint.length() > 2 && driveLetters.indexOf(entryPoint.charAt(0)) != -1 &&
+                   (entryPoint.charAt(2) == '\\' || entryPoint.charAt(2) == '/'))
+                {
+                    absolutePath = true;
+                    pos = entryPoint.indexOf(':', pos + 1);
+                }
+                if(!absolutePath)
+                {
+                    absolutePath = entryPoint.startsWith("\\\\");
+                }
             }
             else
             {
-                className = value.substring(0, pos);
-                try
-                {
-                    args = IceUtilInternal.Options.split(value.substring(pos));
-                }
-                catch(IceUtilInternal.Options.BadQuote ex)
-                {
-                    FailureException e = new FailureException();
-                    e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.toString();
-                    throw e;
-                }
+                absolutePath = entryPoint.startsWith("/");
             }
+
+            if((pos == -1 && absolutePath) || (pos != -1 && entryPoint.length() <= pos + 1))
+            {
+                //
+                // Class name is missing.
+                //
+                throw new FailureException("ServiceManager: invalid entry point for service `" + name + "':\n" +
+                                           entryPoint);
+            }
+
+            //
+            // Extract the JAR file or subdirectory, if any.
+            //
+            classDir = null; // Path name of JAR file or subdirectory.
+
+            if(pos == -1)
+            {
+                className = entryPoint;
+            }
+            else
+            {
+                classDir = entryPoint.substring(0, pos).trim();
+                className = entryPoint.substring(pos + 1).trim();
+            }
+
+            //
+            // Shift the arguments.
+            //
+            String[] tmp = new String[args.length - 1];
+            System.arraycopy(args, 1, tmp, 0, args.length - 1);
+            args = tmp;
 
             if(serverArgs.length > 0)
             {
@@ -969,6 +1050,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
         String name;
         String[] args;
         String className;
+        String classDir;
+        boolean absolutePath;
     }
 
     private Ice.Properties
@@ -1004,7 +1087,8 @@ public class ServiceManagerI extends _ServiceManagerDisp
     private String[] _argv; // Filtered server argument vector
     private java.util.List<ServiceInfo> _services = new java.util.LinkedList<ServiceInfo>();
     private boolean _pendingStatusChanges = false;
-
-    java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
-    int _traceServiceObserver = 0;
+    private Ice.Callback _observerCompletedCB;
+    private java.util.HashSet<ServiceObserverPrx> _observers = new java.util.HashSet<ServiceObserverPrx>();
+    private int _traceServiceObserver = 0;
+    private java.util.Map<String, ClassLoader> _classLoaders;
 }

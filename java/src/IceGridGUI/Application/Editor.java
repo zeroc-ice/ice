@@ -28,8 +28,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -106,8 +106,8 @@ public class Editor extends EditorBase
     protected void buildPropertiesPanel()
     {
         super.buildPropertiesPanel();
-        JComponent buttonBar = ButtonBarFactory.buildRightAlignedBar(_applyButton, _discardButton);
-        buttonBar.setBorder(Borders.DIALOG_BORDER);
+        JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(_applyButton, _discardButton).build();
+        buttonBar.setBorder(Borders.DIALOG);
         _propertiesPanel.add(buttonBar, BorderLayout.SOUTH);
     }
 

@@ -126,8 +126,8 @@ local interface Service
  **/
 interface ServiceObserver
 {
-    ["ami"] void servicesStarted(Ice::StringSeq services);
-    ["ami"] void servicesStopped(Ice::StringSeq services);
+    void servicesStarted(Ice::StringSeq services);
+    void servicesStopped(Ice::StringSeq services);
 };
 
 
@@ -156,7 +156,7 @@ interface ServiceManager
      * @param service The service name.
      *
      **/
-    ["ami"] void startService(string service)
+    void startService(string service)
         throws AlreadyStartedException, NoSuchServiceException;
 
     /**
@@ -166,7 +166,7 @@ interface ServiceManager
      * @param service The service name.
      *
      **/
-    ["ami"] void stopService(string service)
+    void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
 
     
@@ -177,7 +177,7 @@ interface ServiceManager
      * @param observer The new observer
      *
      **/
-    ["ami"] void addObserver(ServiceObserver* observer);
+    void addObserver(ServiceObserver* observer);
 
 
     /**

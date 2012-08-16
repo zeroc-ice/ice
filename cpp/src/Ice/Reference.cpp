@@ -483,12 +483,20 @@ IceInternal::Reference::Reference(const Reference& r) :
 int
 IceInternal::Reference::hashInit() const
 {
-    Int h = static_cast<Int>(_mode);
+    Int h = 5381;
+    hashAdd(h, static_cast<Int>(_mode));
+    hashAdd(h, _secure);
     hashAdd(h, _identity.name);
     hashAdd(h, _identity.category);
     hashAdd(h, _context->getValue());
     hashAdd(h, _facet);
-    hashAdd(h, _secure);
+    hashAdd(h, _overrideCompress);
+    if(_overrideCompress)
+    {
+        hashAdd(h, _compress);
+    }
+    hashAdd(h, _encoding.major);
+    hashAdd(h, _encoding.minor);
     return h;
 }
 
@@ -1681,7 +1689,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             }
             catch(const LocalException& ex)
             {
-                exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
+                exception.reset(ex.ice_clone());
             }
         }
 
@@ -1793,7 +1801,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             {
                 if(!_exception.get())
                 {
-                    _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+                    _exception.reset(ex.ice_clone());
                 }
                 
                 if(++_i == _endpoints.size())

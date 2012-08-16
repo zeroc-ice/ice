@@ -137,13 +137,13 @@ namespace Ice
 
         public override int GetHashCode()
         {
-            int hash = 0;
+            int h = 5381;
             foreach(KeyValuePair<KT, VT> kvp in dict_)
             {
-                hash = 5 * hash + kvp.Key.GetHashCode();
-                hash = 5 * hash + kvp.Value.GetHashCode();
+                IceInternal.HashUtil.hashAdd(ref h, kvp.Key);
+                IceInternal.HashUtil.hashAdd(ref h, kvp.Value);
             }
-            return hash;
+            return h;
         }
 
         public class CEnumerator : System.Collections.IDictionaryEnumerator

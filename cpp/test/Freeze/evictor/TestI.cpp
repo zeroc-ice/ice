@@ -88,7 +88,7 @@ public:
     void exception(const Ice::UserException& e)
     {
         Lock sync(*this);
-        _exception.reset(dynamic_cast<Ice::UserException*>(e.ice_clone()));
+        _exception.reset(e.ice_clone());
         notify();
     }
 

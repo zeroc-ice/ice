@@ -23,51 +23,7 @@ string Glacier2::Application::_category;
 namespace
 {
 
-class SessionPingThread : virtual public IceUtil::Shared
-{
-    
-public:
-    
-    virtual void done() = 0;
-};
-typedef IceUtil::Handle<SessionPingThread> SessionPingThreadPtr;
-
-class AMI_Router_refreshSessionI : public Glacier2::AMI_Router_refreshSession
-{
-
-public:
-
-    AMI_Router_refreshSessionI(Glacier2::Application* app, const SessionPingThreadPtr& pinger) :
-        _app(app),
-        _pinger(pinger)
-    {
-    }
-    
-    void
-    ice_response()
-    {
-    }
-
-    void
-    ice_exception(const Ice::Exception& ex)
-    {
-        //
-        // Here the session has gone. The thread
-        // terminates, and we notify the
-        // application that the session has been
-        // destroyed.
-        //
-        _pinger->done();
-        _app->sessionDestroyed();
-    }
-
-private:
-        
-    Glacier2::Application* _app;
-    SessionPingThreadPtr _pinger;
-};
-
-class SessionPingThreadI : virtual public IceUtil::Thread, virtual public SessionPingThread
+class SessionPingThreadI : virtual public IceUtil::Thread
 {
     
 public:
@@ -82,14 +38,29 @@ public:
     }
 
     void
+    exception(const Ice::Exception& ex)
+    {
+        //
+        // Here the session has been destroyed. The thread terminates,
+        // and we notify the application that the session has been
+        // destroyed.
+        //
+        done();
+        _app->sessionDestroyed();
+    }
+
+    void
     run()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
+
+        Glacier2::Callback_Router_refreshSessionPtr callback = 
+            Glacier2::newCallback_Router_refreshSession(this, &SessionPingThreadI::exception);
         while(true)
         {
             try
             {
-                _router->refreshSession_async(new AMI_Router_refreshSessionI(_app, this));
+                _router->begin_refreshSession(callback);
             }
             catch(const Ice::CommunicatorDestroyedException&)
             {
@@ -140,7 +111,7 @@ Glacier2::RestartSessionException::ice_name() const
     return "RestartSessionException";
 }
 
-Exception*
+Glacier2::RestartSessionException*
 Glacier2::RestartSessionException::ice_clone() const
 {
     return new RestartSessionException(*this);

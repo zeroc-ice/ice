@@ -59,6 +59,8 @@ tests = [
     ("Ice/defaultValue", ["core"]),
     ("Ice/threadPoolPriority", ["core", "nomono", "nosilverlight"]),
     ("Ice/invoke", ["core"]),
+    ("Ice/hash", ["once"]),
+    ("Ice/plugin", ["core"]),
     ("IceBox/configuration", ["core", "noipv6", "nosilverlight"]),
     ("Glacier2/router", ["service", "nosilverlight"]),
     ("Glacier2/sessionHelper", ["service", "nosilverlight"]),

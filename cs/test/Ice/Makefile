@@ -19,6 +19,7 @@ SUBDIRS		= application \
 		  info \
 		  inheritance \
 		  invoke \
+		  hash \
 		  hold \
 		  location \
 		  objects \
@@ -41,7 +42,8 @@ SUBDIRS		= application \
 		  udp \
 		  defaultServant \
 		  defaultValue \
-		  threadPoolPriority
+		  threadPoolPriority \
+		  plugin
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -323,3 +323,11 @@ IceInternal::getInstance(const CommunicatorPtr& communicator)
     assert(p);
     return p->_instance;
 }
+
+#ifdef ICE_CPP11
+void
+IceInternal::Cpp11Dispatcher::dispatch(const ::Ice::DispatcherCallPtr& call, const ::Ice::ConnectionPtr& conn)
+{
+    _cb(call, conn);
+}
+#endif

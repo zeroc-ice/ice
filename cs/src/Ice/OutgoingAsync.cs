@@ -500,7 +500,7 @@ namespace IceInternal
             try
             {
                 is_.startReadEncaps();
-                is_.throwException();
+                is_.throwException(null);
             }
             catch(Ice.UserException)
             {
@@ -1172,9 +1172,9 @@ namespace IceInternal
             return is_.readEncaps(out _encoding);
         }
 
-        public BasicStream startWriteParams__()
+        public BasicStream startWriteParams__(Ice.FormatType format)
         {
-            os_.startWriteEncaps(_encoding);
+            os_.startWriteEncaps(_encoding, format);
             return os_;
         }
 

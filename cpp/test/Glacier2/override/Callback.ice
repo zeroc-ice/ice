@@ -16,9 +16,9 @@ module Test
 
 interface CallbackReceiver
 {
-    ["ami"] void callback(int token);
+    void callback(int token);
 
-    ["ami"] void callbackWithPayload(Ice::ByteSeq payload);
+    void callbackWithPayload(Ice::ByteSeq payload);
 };
 
 interface Callback

@@ -369,9 +369,7 @@ public class RoutableReference extends Reference
         if(!_hashInitialized)
         {
             super.hashCode(); // Initializes _hashValue.
-
-            // Add hash of adapter ID to base hash.
-            _hashValue = 5 * _hashValue + _adapterId.hashCode();
+            _hashValue = IceInternal.HashUtil.hashAdd(_hashValue, _adapterId);
         }
         return _hashValue;
     }

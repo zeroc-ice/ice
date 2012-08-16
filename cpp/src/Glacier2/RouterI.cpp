@@ -65,7 +65,7 @@ Glacier2::RouterI::~RouterI()
 }
 
 void
-Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
+Glacier2::RouterI::destroy(const Callback_Session_destroyPtr& asyncCB)
 {
     if(_session)
     {
@@ -91,11 +91,11 @@ Glacier2::RouterI::destroy(const AMI_Session_destroyPtr& amiCB)
 
         if(_context.size() > 0)
         {
-            _session->destroy_async(amiCB, _context);
+            _session->begin_destroy(_context, asyncCB);
         }
         else
         {
-            _session->destroy_async(amiCB);
+            _session->begin_destroy(asyncCB);
         }
     }
 

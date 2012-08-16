@@ -1,7 +1,11 @@
-﻿//
-// MainPage.xaml.h
-// Declaration of the MainPage class.
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #pragma once
 
@@ -14,89 +18,80 @@
 
 namespace chat
 {
-    struct LoginData
-    {
-        std::string hostname;
-        std::string username;
-        std::string password;
-    };
+struct LoginData
+{
+    std::string hostname;
+    std::string username;
+    std::string password;
+};
     
-    class Coordinator : virtual public Glacier2::SessionCallback,
-                        virtual public Demo::ChatCallback
-    {
-    public:
+class Coordinator : virtual public Glacier2::SessionCallback,
+                    virtual public Demo::ChatCallback
+{
+public:
 
-        Coordinator(Windows::UI::Core::CoreDispatcher^);
+    Coordinator(Windows::UI::Core::CoreDispatcher^);
 
-        void signIn(LoginData);
-        LoginData loginData();
+    void signIn(const LoginData&);
+    LoginData loginData();
         
-        //
-        //  Session callback
-        //
-        virtual void createdCommunicator(const Glacier2::SessionHelperPtr& session);
-        virtual void connected(const Glacier2::SessionHelperPtr&);
-        virtual void disconnected(const Glacier2::SessionHelperPtr&);
-        virtual void connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception&);
+    //
+    //  Session callback
+    //
+    virtual void createdCommunicator(const Glacier2::SessionHelperPtr&);
+    virtual void connected(const Glacier2::SessionHelperPtr&);
+    virtual void disconnected(const Glacier2::SessionHelperPtr&);
+    virtual void connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception&);
     
-        //
-        // Chat callback
-        //
-        virtual void message(const std::string& data, const Ice::Current&);
+    //
+    // Chat callback
+    //
+    virtual void message(const std::string& data, const Ice::Current&);
 
-        void setCallbackSuccess();
-        void setCallbackError(const Ice::Exception&);
+    //
+    // Chat session.
+    //
+    void say(const std::string&);
+    void destroy();
 
-        void say(const std::string&);
-        void sayCallbackSuccess();
-        void sayCallbackError(const Ice::Exception&);
+private:
 
-        void destroy();
+    Demo::ChatSessionPrx _chat;
+    Glacier2::SessionHelperPtr _session;
+    Windows::UI::Core::CoreDispatcher^ _dispatcher;
+    LoginData _loginData;
+};
+typedef IceUtil::Handle<Coordinator> CoordinatorPtr;
 
-    private:
+public ref class MainPage sealed
+{
+public:
 
-        Demo::ChatSessionPrx _chat;
-        Glacier2::SessionHelperPtr _session;
-        Windows::UI::Core::CoreDispatcher^ _dispatcher;
-        LoginData _loginData;
-    };
-    typedef IceUtil::Handle<Coordinator> CoordinatorPtr;
+    MainPage();
 
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public ref class MainPage sealed
-    {
-    public:
+    static MainPage^ instance();
+    void setConnected(bool);
+    void appendMessage(Platform::String^);
 
-        MainPage();
-
-        static MainPage^ instance();
-
-        void setConnected(bool);
-
-    protected:
-
-        virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
-
-    private:
+private:
         
-        virtual void setError(const std::string&);
+    virtual void setError(const std::string&);
 
-        CoordinatorPtr coordinator()
-        {
-            return _coordinator;
-        }    
-        CoordinatorPtr _coordinator;
+    CoordinatorPtr coordinator()
+    {
+        return _coordinator;
+    }    
+    CoordinatorPtr _coordinator;
 
-        static MainPage^ _instance;
+    static MainPage^ _instance;
 
-        friend ref class LoginView;
-        friend ref class ChatView;
-        friend class Coordinator;
+    friend ref class LoginView;
+    friend ref class ChatView;
+    friend class Coordinator;
 
-        LoginView^ _loginView;
-        ChatView^ _chatView;
-        void signoutClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-    };
+    LoginView^ _loginView;
+    ChatView^ _chatView;
+    void signoutClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
+};
+
 }

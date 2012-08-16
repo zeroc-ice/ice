@@ -1,7 +1,11 @@
-﻿//
-// LoginView.xaml.cpp
-// Implementation of the LoginView class
+﻿// **********************************************************************
 //
+// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #include "pch.h"
 #include "LoginView.xaml.h"
@@ -20,8 +24,6 @@ using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
-
 LoginView::LoginView()
 {
     InitializeComponent();
@@ -36,12 +38,7 @@ LoginView::setError(String^ err)
     error->Text = err;
 }
 
-/// <summary>
-/// Invoked when this page is about to be displayed in a Frame.
-/// </summary>
-/// <param name="e">Event data that describes how this page was reached.  The Parameter
-/// property is typically used to configure the page.</param>
-void LoginView::OnNavigatedTo(NavigationEventArgs^ e)
+void LoginView::OnNavigatedTo(NavigationEventArgs^)
 {
     LoginData loginData = MainPage::instance()->coordinator()->loginData();
     if(!loginData.hostname.empty())
@@ -56,7 +53,6 @@ void LoginView::OnNavigatedTo(NavigationEventArgs^ e)
     {
         password->Password = ref new String(IceUtil::stringToWstring(loginData.password).c_str());
     }
-    (void) e;	// Unused parameter
 }
 
 void chat::LoginView::signinClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)

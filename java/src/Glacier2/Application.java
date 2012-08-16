@@ -247,15 +247,15 @@ public abstract class Application extends Ice.Application
             {
                 try
                 {
-                    _router.refreshSession_async(new Glacier2.AMI_Router_refreshSession()
+                    _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
                         {
                             public void
-                            ice_response()
+                            response()
                             {
                             }
 
                             public void
-                            ice_exception(Ice.LocalException ex)
+                            exception(Ice.LocalException ex)
                             {
                                 //
                                 // Here the session has gone. The thread terminates, and we notify the
@@ -266,7 +266,7 @@ public abstract class Application extends Ice.Application
                             }
 
                             public void
-                            ice_exception(Ice.UserException ex)
+                            exception(Ice.UserException ex)
                             {
                                 //
                                 // Here the session has gone. The thread terminates, and we notify the

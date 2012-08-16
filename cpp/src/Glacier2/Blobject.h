@@ -25,6 +25,31 @@ public:
 
     void destroy();
 
+    class InvokeCookie : public Ice::LocalObject
+    {
+    public:
+        
+        InvokeCookie(const Ice::AMD_Object_ice_invokePtr& cb) :
+            _cb(cb)
+        {
+        }
+        
+        Ice::AMD_Object_ice_invokePtr cb()
+        {
+            return _cb;
+        }
+        
+    private:
+        
+        Ice::AMD_Object_ice_invokePtr _cb;
+    };
+    typedef IceUtil::Handle<InvokeCookie> InvokeCookiePtr;
+    
+    void invokeResponse(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                        const InvokeCookiePtr&);
+    void invokeSent(bool, const InvokeCookiePtr&);
+    void invokeException(const Ice::Exception&, const InvokeCookiePtr&);
+
 protected:
 
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, 

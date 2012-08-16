@@ -60,7 +60,7 @@ interface Session extends Glacier2::Session
      * @see #releaseObject
      *
      **/
-    ["ami", "amd"] Object* allocateObjectById(Ice::Identity id)
+    ["amd"] Object* allocateObjectById(Ice::Identity id)
         throws ObjectNotRegisteredException, AllocationException;
     
     /**
@@ -81,7 +81,7 @@ interface Session extends Glacier2::Session
      * @see #releaseObject
      *
      **/
-    ["ami", "amd"] Object* allocateObjectByType(string type)
+    ["amd"] Object* allocateObjectByType(string type)
         throws AllocationException;
     
     /**

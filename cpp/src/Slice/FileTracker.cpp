@@ -9,12 +9,10 @@
 
 #include <Slice/FileTracker.h>
 
-#ifdef __sun
-#   include <unistd.h>
-#endif
-
 #ifdef _WIN32
 #   include <direct.h>
+#else
+#   include <unistd.h>
 #endif
 
 using namespace std;
@@ -44,7 +42,7 @@ Slice::FileException::ice_print(ostream& out) const
     out << ": " << _reason;
 }
 
-IceUtil::Exception*
+Slice::FileException*
 Slice::FileException::ice_clone() const
 {
     return new FileException(*this);

@@ -53,7 +53,7 @@ public:
             }
             catch(const Ice::LocalException& ex)
             {
-                _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+                _exception.reset(ex.ice_clone());
             }
             catch(...)
             {

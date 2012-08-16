@@ -151,7 +151,6 @@ public final class Util
 
     private static Class<?>
     loadClass(String className, ClassLoader cl)
-        throws LinkageError
     {
         if(cl != null)
         {

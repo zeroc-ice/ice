@@ -22,6 +22,12 @@ struct GroupNodeInfo
     GroupNodeInfo(int i, LogUpdate l, const Ice::ObjectPrx& o = Ice::ObjectPrx());
     bool operator<(const GroupNodeInfo& rhs) const;
     bool operator==(const GroupNodeInfo& rhs) const;
+    //
+    // COMPILER FIX: Clang using libc++ requires to define operator=
+    //
+#if defined(__clang__) && defined(_LIBCPP_VERSION)
+	GroupNodeInfo& operator=(const GroupNodeInfo&);
+#endif
     const int id;
     const LogUpdate llu;
     const Ice::ObjectPrx observer;

@@ -556,23 +556,11 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
     }
 
     {
-        Ice::Double d = 1278312346.0 / 13.0;
-        Test::DoubleS ds(5, d);
         CallbackPtr cb = new Callback;
         Test::Callback_MyClass_opBytePtr callback = Test::newCallback_MyClass_opByte(cb,
                                                                                      &Callback::opByte,
                                                                                      &Callback::exCB);
         p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), callback);
-        cb->check();
-    }
-
-
-    {
-        CallbackPtr cb = new Callback;
-        Test::Callback_MyClass_opVoidPtr callback = Test::newCallback_MyClass_opVoid(cb,
-                                                                                     &Callback::opVoid,
-                                                                                     &Callback::exCB);
-        p->begin_opVoid(callback);
         cb->check();
     }
 
@@ -1067,4 +1055,497 @@ twowaysNewAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& 
         derived->begin_opDerived(callback);
         cb->check();
     }
+#ifdef ICE_CPP11
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_ping([=](){ cb->ping(); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_isA(Test::MyClass::ice_staticId(), [=](bool isA){ cb->isA(isA); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_id([=](const string& id){ cb->id(id); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_ice_ids([=](const Ice::StringSeq& ids){ cb->ids(ids); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opVoid([=](){ cb->opVoid(); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opByte(Ice::Byte(0xff), Ice::Byte(0x0f), 
+                        [=](const Ice::Byte& p1, const Ice::Byte& p2){ cb->opByte(p1, p2); }, 
+                        [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opBoolPtr callback = Test::newCallback_MyClass_opBool(cb,
+                                                                                     &Callback::opBool,
+                                                                                     &Callback::exCB);
+        p->begin_opBool(true, false, [=](bool p1, bool p2){ cb->opBool(p1, p2); }, [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opShortIntLong(10, 11, 12, 
+                                [=](Ice::Long p1, Ice::Short p2, Ice::Int p3, Ice::Long p4){ cb->opShortIntLong(p1, p2, p3, p4); },
+                                [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opFloatDouble(Ice::Float(3.14), Ice::Double(1.1E10), 
+                               [=](Ice::Double p1, Ice::Float p2, Ice::Double p3){ cb->opFloatDouble(p1, p2, p3); },
+                               [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opString("hello", "world", 
+                          [=](const string& p1, const string& p2){ cb->opString(p1, p2); },
+                          [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opMyEnum(Test::enum2,
+                          [=](Test::MyEnum p1, Test::MyEnum p2){ cb->opMyEnum(p1, p2); },
+                          [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback(communicator);
+        p->begin_opMyClass(p,
+                        [=](const Test::MyClassPrx& p1, const Test::MyClassPrx p2, const Test::MyClassPrx p3)
+                            {
+                                cb->opMyClass(p1, p2, p3); 
+                            },
+                        [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::Structure si1;
+        si1.p = p;
+        si1.e = Test::enum3;
+        si1.s.s = "abc";
+        Test::Structure si2;
+        si2.p = 0;
+        si2.e = Test::enum2;
+        si2.s.s = "def";
+
+        CallbackPtr cb = new Callback(communicator);
+        p->begin_opStruct(si1, si2,
+                            [=](const Test::Structure& p1, const Test::Structure& p2)
+                                {
+                                    cb->opStruct(p1, p2);
+                                },
+                            [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::ByteS bsi1;
+        Test::ByteS bsi2;
+
+        bsi1.push_back(Ice::Byte(0x01));
+        bsi1.push_back(Ice::Byte(0x11));
+        bsi1.push_back(Ice::Byte(0x12));
+        bsi1.push_back(Ice::Byte(0x22));
+
+        bsi2.push_back(Ice::Byte(0xf1));
+        bsi2.push_back(Ice::Byte(0xf2));
+        bsi2.push_back(Ice::Byte(0xf3));
+        bsi2.push_back(Ice::Byte(0xf4));
+
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opByteSPtr callback = Test::newCallback_MyClass_opByteS(cb,
+                                                                                       &Callback::opByteS,
+                                                                                       &Callback::exCB);
+        p->begin_opByteS(bsi1, bsi2, 
+                        [=](const Test::ByteS& p1, const Test::ByteS& p2)
+                            {
+                                cb->opByteS(p1, p2);
+                            },
+                        [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::BoolS bsi1;
+        Test::BoolS bsi2;
+
+        bsi1.push_back(true);
+        bsi1.push_back(true);
+        bsi1.push_back(false);
+
+        bsi2.push_back(false);
+
+        CallbackPtr cb = new Callback;
+        p->begin_opBoolS(bsi1, bsi2,
+                            [=](const Test::BoolS& p1, const Test::BoolS& p2)
+                                {
+                                    cb->opBoolS(p1, p2);
+                                },
+                            [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::ShortS ssi;
+        Test::IntS isi;
+        Test::LongS lsi;
+
+        ssi.push_back(1);
+        ssi.push_back(2);
+        ssi.push_back(3);
+
+        isi.push_back(5);
+        isi.push_back(6);
+        isi.push_back(7);
+        isi.push_back(8);
+
+        lsi.push_back(10);
+        lsi.push_back(30);
+        lsi.push_back(20);
+
+        CallbackPtr cb = new Callback;
+        p->begin_opShortIntLongS(ssi, isi, lsi,
+                                [=](const Test::LongS& p1, const Test::ShortS& p2, const Test::IntS& p3, const Test::LongS& p4)
+                                    {
+                                        cb->opShortIntLongS(p1, p2, p3, p4);
+                                    },
+                                [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::FloatS fsi;
+        Test::DoubleS dsi;
+
+        fsi.push_back(Ice::Float(3.14));
+        fsi.push_back(Ice::Float(1.11));
+
+        dsi.push_back(Ice::Double(1.1E10));
+        dsi.push_back(Ice::Double(1.2E10));
+        dsi.push_back(Ice::Double(1.3E10));
+
+        CallbackPtr cb = new Callback;
+        p->begin_opFloatDoubleS(fsi, dsi,
+                                [=](const Test::DoubleS& p1, const Test::FloatS& p2, const Test::DoubleS& p3)
+                                    {
+                                        cb->opFloatDoubleS(p1, p2, p3);
+                                    },
+                                [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::StringS ssi1;
+        Test::StringS ssi2;
+
+        ssi1.push_back("abc");
+        ssi1.push_back("de");
+        ssi1.push_back("fghi");
+
+        ssi2.push_back("xyz");
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringS(ssi1, ssi2,
+                            [=](const Test::StringS& p1, const Test::StringS& p2)
+                                {
+                                    cb->opStringS(p1, p2);
+                                },
+                            [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::ByteSS bsi1;
+        bsi1.resize(2);
+        Test::ByteSS bsi2;
+        bsi2.resize(2);
+
+        bsi1[0].push_back(Ice::Byte(0x01));
+        bsi1[0].push_back(Ice::Byte(0x11));
+        bsi1[0].push_back(Ice::Byte(0x12));
+        bsi1[1].push_back(Ice::Byte(0xff));
+
+        bsi2[0].push_back(Ice::Byte(0x0e));
+        bsi2[1].push_back(Ice::Byte(0xf2));
+        bsi2[1].push_back(Ice::Byte(0xf1));
+
+        CallbackPtr cb = new Callback;
+        p->begin_opByteSS(bsi1, bsi2, 
+                            [=](const Test::ByteSS& p1, const Test::ByteSS& p2)
+                                {
+                                    cb->opByteSS(p1, p2);
+                                },
+                            [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::FloatSS fsi;
+        fsi.resize(3);
+        Test::DoubleSS dsi;
+        dsi.resize(1);
+
+        fsi[0].push_back(Ice::Float(3.14));
+        fsi[1].push_back(Ice::Float(1.11));
+
+        dsi[0].push_back(Ice::Double(1.1E10));
+        dsi[0].push_back(Ice::Double(1.2E10));
+        dsi[0].push_back(Ice::Double(1.3E10));
+
+        CallbackPtr cb = new Callback;
+        p->begin_opFloatDoubleSS(fsi, dsi,
+                                    [=](const Test::DoubleSS& p1, const Test::FloatSS& p2, const Test::DoubleSS& p3)
+                                        {
+                                            cb->opFloatDoubleSS(p1, p2, p3);
+                                        },
+                                    [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::StringSS ssi1;
+        ssi1.resize(2);
+        Test::StringSS ssi2;
+        ssi2.resize(3);
+
+        ssi1[0].push_back("abc");
+        ssi1[1].push_back("de");
+        ssi1[1].push_back("fghi");
+
+        ssi2[2].push_back("xyz");
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringSS(ssi1, ssi2,
+                                [=](const Test::StringSS& p1, const Test::StringSS& p2)
+                                    {
+                                        cb->opStringSS(p1, p2);
+                                    },
+                                [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::ByteBoolD di1;
+        di1[10] = true;
+        di1[100] = false;
+        Test::ByteBoolD di2;
+        di2[10] = true;
+        di2[11] = false;
+        di2[101] = true;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opByteBoolD(di1, di2, 
+                                [=](const Test::ByteBoolD& p1, const Test::ByteBoolD& p2)
+                                    {
+                                        cb->opByteBoolD(p1, p2);
+                                    },
+                                [=](const Ice::Exception& ex)
+                                    {
+                                        cb->exCB(ex);
+                                    });
+        cb->check();
+    }
+
+    {
+        Test::ShortIntD di1;
+        di1[110] = -1;
+        di1[1100] = 123123;
+        Test::ShortIntD di2;
+        di2[110] = -1;
+        di2[111] = -100;
+        di2[1101] = 0;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opShortIntD(di1, di2,
+                                [=](const Test::ShortIntD& p1, const Test::ShortIntD& p2)
+                                    {
+                                        cb->opShortIntD(p1, p2);
+                                    },
+                                [=](const Ice::Exception& ex)
+                                    {
+                                        cb->exCB(ex);
+                                    });
+        cb->check();
+    }
+
+    {
+        Test::LongFloatD di1;
+        di1[999999110] = Ice::Float(-1.1);
+        di1[999999111] = Ice::Float(123123.2);
+        Test::LongFloatD di2;
+        di2[999999110] = Ice::Float(-1.1);
+        di2[999999120] = Ice::Float(-100.4);
+        di2[999999130] = Ice::Float(0.5);
+
+        CallbackPtr cb = new Callback;
+        p->begin_opLongFloatD(di1, di2,
+                                [=](const Test::LongFloatD& p1, const Test::LongFloatD& p2)
+                                    {
+                                        cb->opLongFloatD(p1, p2);
+                                    },
+                                [=](const Ice::Exception& ex)
+                                    {
+                                        cb->exCB(ex);
+                                    });
+        cb->check();
+    }
+
+    {
+        Test::StringStringD di1;
+        di1["foo"] = "abc -1.1";
+        di1["bar"] = "abc 123123.2";
+        Test::StringStringD di2;
+        di2["foo"] = "abc -1.1";
+        di2["FOO"] = "abc -100.4";
+        di2["BAR"] = "abc 0.5";
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringStringD(di1, di2,
+                                    [=](const Test::StringStringD& p1, const Test::StringStringD& p2)
+                                        {
+                                            cb->opStringStringD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::StringMyEnumD di1;
+        di1["abc"] = Test::enum1;
+        di1[""] = Test::enum2;
+        Test::StringMyEnumD di2;
+        di2["abc"] = Test::enum1;
+        di2["qwerty"] = Test::enum3;
+        di2["Hello!!"] = Test::enum2;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opStringMyEnumD(di1, di2,
+                                    [=](const Test::StringMyEnumD& p1, const Test::StringMyEnumD& p2)
+                                        {
+                                            cb->opStringMyEnumD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        Test::MyStruct s11 = { 1, 1 };
+        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStructMyEnumD di1;
+        di1[s11] = Test::enum1;
+        di1[s12] = Test::enum2;
+
+        Test::MyStruct s22 = { 2, 2 };
+        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStructMyEnumD di2;
+        di2[s11] = Test::enum1;
+        di2[s22] = Test::enum3;
+        di2[s23] = Test::enum2;
+
+        CallbackPtr cb = new Callback;
+        p->begin_opMyStructMyEnumD(di1, di2,
+                                    [=](const Test::MyStructMyEnumD& p1, const Test::MyStructMyEnumD& p2)
+                                        {
+                                            cb->opMyStructMyEnumD(p1, p2);
+                                        },
+                                    [=](const Ice::Exception& ex)
+                                        {
+                                            cb->exCB(ex);
+                                        });
+        cb->check();
+    }
+
+    {
+        const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+        for(unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        {
+            Test::IntS s;
+            for(int i = 0; i < lengths[l]; ++i)
+            {
+                s.push_back(i);
+            }
+            CallbackPtr cb = new Callback;
+            p->begin_opIntS(s, 
+                            [=](const Test::IntS& p1)
+                                {
+                                    cb->opIntS(p1);
+                                },
+                            [=](const Ice::Exception& ex)
+                                {
+                                    cb->exCB(ex);
+                                });
+            cb->check();
+        }
+    }
+
+    {
+        Ice::Double d = 1278312346.0 / 13.0;
+        Test::DoubleS ds(5, d);
+        CallbackPtr cb = new Callback;
+        p->begin_opDoubleMarshaling(d, ds,
+                                    [=](){ cb->opDoubleMarshaling(); },
+                                    [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        Test::Callback_MyClass_opIdempotentPtr callback =
+            Test::newCallback_MyClass_opIdempotent(cb, &Callback::opIdempotent, &Callback::exCB);
+        p->begin_opIdempotent([=](){ cb->opIdempotent(); },
+                              [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        CallbackPtr cb = new Callback;
+        p->begin_opNonmutating([=](){ cb->opNonmutating(); },
+                               [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+
+    {
+        Test::MyDerivedClassPrx derived = Test::MyDerivedClassPrx::checkedCast(p);
+        test(derived);
+        CallbackPtr cb = new Callback;
+        derived->begin_opDerived([=](){ cb->opDerived(); },
+                                 [=](const Ice::Exception& ex){ cb->exCB(ex); });
+        cb->check();
+    }
+#endif
 }

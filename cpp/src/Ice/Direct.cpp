@@ -107,7 +107,7 @@ IceInternal::Direct::throwUserException()
 void 
 IceInternal::Direct::setUserException(const Ice::UserException& ue)
 {
-    _userException.reset(dynamic_cast<Ice::UserException*>(ue.ice_clone()));
+    _userException.reset(ue.ice_clone());
 }
 
 void

@@ -13,30 +13,34 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    public TestI()
+    private static void test(bool b)
     {
+        if(!b)
+        {
+            throw new System.Exception();
+        }
     }
-    
+
     public override void shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
-    
+
     public override void SBaseAsObject_async(AMD_TestIntf_SBaseAsObject cb, Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         cb.ice_response(sb);
     }
-    
+
     public override void SBaseAsSBase_async(AMD_TestIntf_SBaseAsSBase cb, Ice.Current current)
     {
         SBase sb = new SBase();
         sb.sb = "SBase.sb";
         cb.ice_response(sb);
     }
-    
+
     public override void SBSKnownDerivedAsSBase_async(AMD_TestIntf_SBSKnownDerivedAsSBase cb, Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
@@ -44,15 +48,16 @@ public sealed class TestI : TestIntfDisp_
         sbskd.sbskd = "SBSKnownDerived.sbskd";
         cb.ice_response(sbskd);
     }
-    
-    public override void SBSKnownDerivedAsSBSKnownDerived_async(AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived cb, Ice.Current current)
+
+    public override void SBSKnownDerivedAsSBSKnownDerived_async(AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerived cb,
+                                                                Ice.Current current)
     {
         SBSKnownDerived sbskd = new SBSKnownDerived();
         sbskd.sb = "SBSKnownDerived.sb";
         sbskd.sbskd = "SBSKnownDerived.sbskd";
         cb.ice_response(sbskd);
     }
-    
+
     public override void SBSUnknownDerivedAsSBase_async(AMD_TestIntf_SBSUnknownDerivedAsSBase cb, Ice.Current current)
     {
         SBSUnknownDerived sbsud = new SBSUnknownDerived();
@@ -60,14 +65,37 @@ public sealed class TestI : TestIntfDisp_
         sbsud.sbsud = "SBSUnknownDerived.sbsud";
         cb.ice_response(sbsud);
     }
-    
+
+    public override void SBSUnknownDerivedAsSBaseCompact_async(AMD_TestIntf_SBSUnknownDerivedAsSBaseCompact cb,
+                                                               Ice.Current current)
+    {
+        SBSUnknownDerived sbsud = new SBSUnknownDerived();
+        sbsud.sb = "SBSUnknownDerived.sb";
+        sbsud.sbsud = "SBSUnknownDerived.sbsud";
+        cb.ice_response(sbsud);
+    }
+
     public override void SUnknownAsObject_async(AMD_TestIntf_SUnknownAsObject cb, Ice.Current current)
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
         cb.ice_response(su);
     }
-    
+
+    public override void checkSUnknown_async(AMD_TestIntf_checkSUnknown cb, Ice.Object obj, Ice.Current current)
+    {
+        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(obj is SUnknown));
+        }
+        else
+        {
+            SUnknown su = obj as SUnknown;
+            test(su.su.Equals("SUnknown.su"));
+        }
+        cb.ice_response();
+    }
+
     public override void oneElementCycle_async(AMD_TestIntf_oneElementCycle cb, Ice.Current current)
     {
         B b = new B();
@@ -75,7 +103,7 @@ public sealed class TestI : TestIntfDisp_
         b.pb = b;
         cb.ice_response(b);
     }
-    
+
     public override void twoElementCycle_async(AMD_TestIntf_twoElementCycle cb, Ice.Current current)
     {
         B b1 = new B();
@@ -86,7 +114,7 @@ public sealed class TestI : TestIntfDisp_
         b1.pb = b2;
         cb.ice_response(b1);
     }
-    
+
     public override void D1AsB_async(AMD_TestIntf_D1AsB cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -101,7 +129,7 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d1);
     }
-    
+
     public override void D1AsD1_async(AMD_TestIntf_D1AsD1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -116,7 +144,7 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d1);
     }
-    
+
     public override void D2AsB_async(AMD_TestIntf_D2AsB cb, Ice.Current current)
     {
         D2 d2 = new D2();
@@ -131,7 +159,7 @@ public sealed class TestI : TestIntfDisp_
         d2.pd2 = d1;
         cb.ice_response(d2);
     }
-    
+
     public override void paramTest1_async(AMD_TestIntf_paramTest1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -146,7 +174,7 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d1, d2);
     }
-    
+
     public override void paramTest2_async(AMD_TestIntf_paramTest2 cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -161,26 +189,26 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d2, d1);
     }
-    
+
     public override void paramTest3_async(AMD_TestIntf_paramTest3 cb, Ice.Current current)
     {
         D2 d2 = new D2();
         d2.sb = "D2.sb (p1 1)";
         d2.pb = null;
         d2.sd2 = "D2.sd2 (p1 1)";
-        
+
         D1 d1 = new D1();
         d1.sb = "D1.sb (p1 2)";
         d1.pb = null;
         d1.sd1 = "D1.sd2 (p1 2)";
         d1.pd1 = null;
         d2.pd2 = d1;
-        
+
         D2 d4 = new D2();
         d4.sb = "D2.sb (p2 1)";
         d4.pb = null;
         d4.sd2 = "D2.sd2 (p2 1)";
-        
+
         D1 d3 = new D1();
         d3.sb = "D1.sb (p2 2)";
         d3.pb = null;
@@ -189,7 +217,7 @@ public sealed class TestI : TestIntfDisp_
         d4.pd2 = d3;
         cb.ice_response(d3, d2, d4);
     }
-    
+
     public override void paramTest4_async(AMD_TestIntf_paramTest4 cb, Ice.Current current)
     {
         D4 d4 = new D4();
@@ -201,7 +229,7 @@ public sealed class TestI : TestIntfDisp_
         d4.p2.sb = "B.sb (2)";
         cb.ice_response(d4.p2, d4);
     }
-    
+
     public override void returnTest1_async(AMD_TestIntf_returnTest1 cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -216,7 +244,7 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d2, d2, d1);
     }
-    
+
     public override void returnTest2_async(AMD_TestIntf_returnTest2 cb, Ice.Current current)
     {
         D1 d1 = new D1();
@@ -231,20 +259,20 @@ public sealed class TestI : TestIntfDisp_
         d1.pd1 = d2;
         cb.ice_response(d1, d1, d2);
     }
-    
+
     public override void returnTest3_async(AMD_TestIntf_returnTest3 cb, B p1, B p2, Ice.Current current)
     {
         cb.ice_response(p1);
     }
-    
+
     public override void sequenceTest_async(AMD_TestIntf_sequenceTest cb, SS1 p1, SS2 p2, Ice.Current current)
     {
-        SS ss = new SS();
+        SS3 ss = new SS3();
         ss.c1 = p1;
         ss.c2 = p2;
         cb.ice_response(ss);
     }
-    
+
     public override void dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, Dictionary<int, B> bin,
                                               Ice.Current current)
     {
@@ -273,7 +301,124 @@ public sealed class TestI : TestIntfDisp_
         }
         cb.ice_response(r, bout);
     }
-    
+
+    public override void exchangePBase_async(AMD_TestIntf_exchangePBase cb, PBase pb, Ice.Current current)
+    {
+        cb.ice_response(pb);
+    }
+
+    public override void PBSUnknownAsPreserved_async(AMD_TestIntf_PBSUnknownAsPreserved cb, Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        r.graph = null;
+        if(!current.encoding.Equals(Ice.Util.Encoding_1_0))
+        {
+            //
+            // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
+            // from unread slice.
+            //
+            r.cl = new MyClass(15);
+        }
+        cb.ice_response(r);
+    }
+
+    public override void checkPBSUnknown_async(AMD_TestIntf_checkPBSUnknown cb, Preserved p, Ice.Current current)
+    {
+        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p is PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.Equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = p as PSUnknown;
+            test(pu.pi == 5);
+            test(pu.ps.Equals("preserved"));
+            test(pu.psu.Equals("unknown"));
+            test(pu.graph == null);
+            test(pu.cl != null && pu.cl.i == 15);
+        }
+        cb.ice_response();
+    }
+
+    public override void PBSUnknownAsPreservedWithGraph_async(AMD_TestIntf_PBSUnknownAsPreservedWithGraph cb,
+                                                              Ice.Current current)
+    {
+        PSUnknown r = new PSUnknown();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.psu = "unknown";
+        r.graph = new PNode();
+        r.graph.next = new PNode();
+        r.graph.next.next = new PNode();
+        r.graph.next.next.next = r.graph;
+        cb.ice_response(r);
+        r.graph.next.next.next = null; // Break the cycle.
+    }
+
+    public override void checkPBSUnknownWithGraph_async(AMD_TestIntf_checkPBSUnknownWithGraph cb,
+                                                        Preserved p, Ice.Current current)
+    {
+        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p is PSUnknown));
+            test(p.pi == 5);
+            test(p.ps.Equals("preserved"));
+        }
+        else
+        {
+            PSUnknown pu = p as PSUnknown;
+            test(pu.pi == 5);
+            test(pu.ps.Equals("preserved"));
+            test(pu.psu.Equals("unknown"));
+            test(pu.graph != pu.graph.next);
+            test(pu.graph.next != pu.graph.next.next);
+            test(pu.graph.next.next.next == pu.graph);
+            pu.graph.next.next.next = null;          // Break the cycle.
+        }
+        cb.ice_response();
+    }
+
+    public override void PBSUnknown2AsPreservedWithGraph_async(AMD_TestIntf_PBSUnknown2AsPreservedWithGraph cb,
+                                                               Ice.Current current)
+    {
+        PSUnknown2 r = new PSUnknown2();
+        r.pi = 5;
+        r.ps = "preserved";
+        r.pb = r;
+        cb.ice_response(r);
+        r.pb = null; // Break the cycle.
+    }
+
+    public override void checkPBSUnknown2WithGraph_async(AMD_TestIntf_checkPBSUnknown2WithGraph cb, Preserved p,
+                                                         Ice.Current current)
+    {
+        if(current.encoding.Equals(Ice.Util.Encoding_1_0))
+        {
+            test(!(p is PSUnknown2));
+            test(p.pi == 5);
+            test(p.ps.Equals("preserved"));
+        }
+        else
+        {
+            PSUnknown2 pu = p as PSUnknown2;
+            test(pu.pi == 5);
+            test(pu.ps.Equals("preserved"));
+            test(pu.pb == pu);
+            pu.pb = null; // Break the cycle.
+        }
+        cb.ice_response();
+    }
+
+    public override void exchangePNode_async(AMD_TestIntf_exchangePNode cb, PNode pn, Ice.Current current)
+    {
+        cb.ice_response(pn);
+    }
+
     public override void throwBaseAsBase_async(AMD_TestIntf_throwBaseAsBase cb, Ice.Current current)
     {
         BaseException be = new BaseException();
@@ -283,7 +428,7 @@ public sealed class TestI : TestIntfDisp_
         be.pb.pb = be.pb;
         cb.ice_exception(be);
     }
-    
+
     public override void throwDerivedAsBase_async(AMD_TestIntf_throwDerivedAsBase cb, Ice.Current current)
     {
         DerivedException de = new DerivedException();
@@ -299,7 +444,7 @@ public sealed class TestI : TestIntfDisp_
         de.pd1.pd1 = de.pd1;
         cb.ice_exception(de);
     }
-    
+
     public override void throwDerivedAsDerived_async(AMD_TestIntf_throwDerivedAsDerived cb, Ice.Current current)
     {
         DerivedException de = new DerivedException();
@@ -315,7 +460,7 @@ public sealed class TestI : TestIntfDisp_
         de.pd1.pd1 = de.pd1;
         cb.ice_exception(de);
     }
-    
+
     public override void throwUnknownDerivedAsBase_async(AMD_TestIntf_throwUnknownDerivedAsBase cb, Ice.Current current)
     {
         D2 d2 = new D2();
@@ -323,7 +468,7 @@ public sealed class TestI : TestIntfDisp_
         d2.pb = d2;
         d2.sd2 = "sd2 d2";
         d2.pd2 = d2;
-        
+
         UnknownDerivedException ude = new UnknownDerivedException();
         ude.sbe = "sbe";
         ude.pb = d2;
@@ -331,7 +476,18 @@ public sealed class TestI : TestIntfDisp_
         ude.pd2 = d2;
         cb.ice_exception(ude);
     }
-    
+
+    public override void throwPreservedException_async(AMD_TestIntf_throwPreservedException cb, Ice.Current current)
+    {
+        PSUnknownException ue = new PSUnknownException();
+        ue.p = new PSUnknown2();
+        ue.p.pi = 5;
+        ue.p.ps = "preserved";
+        ue.p.pb = ue.p;
+        cb.ice_exception(ue);
+        ue.p.pb = null; // Break the cycle.
+    }
+
     public override void useForward_async(AMD_TestIntf_useForward cb, Ice.Current current)
     {
         Forward f = new Forward();

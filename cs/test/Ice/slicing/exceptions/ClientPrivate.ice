@@ -7,16 +7,26 @@
 //
 // **********************************************************************
 
-package Ice;
+#pragma once
 
- /**
-  * @deprecated This interface is deprecated; you should use a plain java.lang.Object
-  **/
-public interface LocalObject
+#include <Test.ice>
+
+module Test
 {
-    boolean equals(java.lang.Object rhs);
 
-    java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+class PreservedClass extends BaseClass
+{
+    string pc;
+};
 
-    int ice_hash();
-}
+exception Preserved1 extends KnownPreservedDerived
+{
+    BaseClass p1;
+};
+
+exception Preserved2 extends Preserved1
+{
+    BaseClass p2;
+};
+
+};

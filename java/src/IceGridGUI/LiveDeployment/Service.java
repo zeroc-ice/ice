@@ -64,17 +64,17 @@ public class Service extends ListArrayTreeNode
             final String prefix = "Starting service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
 
-            IceBox.AMI_ServiceManager_startService cb = new IceBox.AMI_ServiceManager_startService()
+            IceBox.Callback_ServiceManager_startService cb = new IceBox.Callback_ServiceManager_startService()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStartedException)
                     {
@@ -86,7 +86,7 @@ public class Service extends ListArrayTreeNode
                     }
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to start service " + _id, e.toString());
                 }
@@ -97,7 +97,7 @@ public class Service extends ListArrayTreeNode
 
             try
             {
-                serviceManager.startService_async(cb, _id);
+                serviceManager.begin_startService(_id, cb);
             }
             catch(Ice.LocalException e)
             {
@@ -115,17 +115,17 @@ public class Service extends ListArrayTreeNode
             final String prefix = "Stopping service '" + _id + "'...";
             getCoordinator().getStatusBar().setText(prefix);
 
-            IceBox.AMI_ServiceManager_stopService cb = new IceBox.AMI_ServiceManager_stopService()
+            IceBox.Callback_ServiceManager_stopService cb = new IceBox.Callback_ServiceManager_stopService()
             {
                 //
                 // Called by another thread!
                 //
-                public void ice_response()
+                public void response()
                 {
                     amiSuccess(prefix);
                 }
 
-                public void ice_exception(Ice.UserException e)
+                public void exception(Ice.UserException e)
                 {
                     if(e instanceof IceBox.AlreadyStoppedException)
                     {
@@ -137,7 +137,7 @@ public class Service extends ListArrayTreeNode
                     }
                 }
 
-                public void ice_exception(Ice.LocalException e)
+                public void exception(Ice.LocalException e)
                 {
                     amiFailure(prefix, "Failed to stop service " + _id, e.toString());
                 }
@@ -148,7 +148,7 @@ public class Service extends ListArrayTreeNode
 
             try
             {
-                serviceManager.stopService_async(cb, _id);
+                serviceManager.begin_stopService(_id, cb);
             }
             catch(Ice.LocalException e)
             {
@@ -354,9 +354,9 @@ public class Service extends ListArrayTreeNode
         }
         else
         {
-            Ice.AMI_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.AMI_PropertiesAdmin_getPropertiesForPrefix()
+            Ice.Callback_PropertiesAdmin_getPropertiesForPrefix cb = new Ice.Callback_PropertiesAdmin_getPropertiesForPrefix()
                 {
-                    public void ice_response(final java.util.Map<String, String> properties)
+                    public void response(final java.util.Map<String, String> properties)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
@@ -368,7 +368,7 @@ public class Service extends ListArrayTreeNode
                             });
                     }
 
-                    public void ice_exception(final Ice.LocalException e)
+                    public void exception(final Ice.LocalException e)
                     {
                         SwingUtilities.invokeLater(new Runnable()
                             {
@@ -397,7 +397,7 @@ public class Service extends ListArrayTreeNode
                 Ice.PropertiesAdminPrx propAdmin =
                     Ice.PropertiesAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
                         ".Properties"));
-                propAdmin.getPropertiesForPrefix_async(cb, "");
+                propAdmin.begin_getPropertiesForPrefix("", cb);
             }
             catch(Ice.LocalException e)
             {

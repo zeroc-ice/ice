@@ -22,59 +22,6 @@ namespace IceBox
 //
 class ServiceManagerI : ServiceManagerDisp_
 {
-    class AMIServicesStartedCallback : AMI_ServiceObserver_servicesStarted
-    {
-        public AMIServicesStartedCallback(ServiceManagerI serviceManager, ServiceObserverPrx observer)
-        {
-            _serviceManager = serviceManager;
-            _observer = observer;
-        }
-
-        public override void ice_response()
-        {
-            // ok, success
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            //
-            // Drop this observer
-            //
-            _serviceManager.removeObserver(_observer, ex);
-        }
-
-        private ServiceManagerI _serviceManager;
-        private ServiceObserverPrx _observer;
-    }
-
-    //
-    // TODO: would be nice to avoid the duplication AMIServicesStartedCallback/AMIServicesStoppedCallback
-    //
-    class AMIServicesStoppedCallback : AMI_ServiceObserver_servicesStopped
-    {
-        public AMIServicesStoppedCallback(ServiceManagerI serviceManager, ServiceObserverPrx observer)
-        {
-            _serviceManager = serviceManager;
-            _observer = observer;
-        }
-
-        public override void ice_response()
-        {
-            // ok, success
-        }
-
-        public override void ice_exception(Ice.Exception ex)
-        {
-            //
-            // Drop this observer
-            //
-            _serviceManager.removeObserver(_observer, ex);
-        }
-
-        private ServiceManagerI _serviceManager;
-        private ServiceObserverPrx _observer;
-    }
-
     public ServiceManagerI(Ice.Communicator communicator, string[] args)
     {
         _communicator = communicator;
@@ -83,14 +30,12 @@ class ServiceManagerI : ServiceManagerDisp_
         _traceServiceObserver = _communicator.getProperties().getPropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
-    public override Dictionary<string, string>
-    getSliceChecksums(Ice.Current current)
+    public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
     {
         return Ice.SliceChecksums.checksums;
     }
 
-    public override void
-    startService(string name, Ice.Current current)
+    public override void startService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
         _m.Lock();
@@ -172,8 +117,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    public override void
-    stopService(string name, Ice.Current current)
+    public override void stopService(string name, Ice.Current current)
     {
         ServiceInfo info = new ServiceInfo();
         _m.Lock();
@@ -254,8 +198,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    public override void
-    addObserver(ServiceObserverPrx observer, Ice.Current current)
+    public override void addObserver(ServiceObserverPrx observer, Ice.Current current)
     {
         List<string> activeServices = new List<string>();
 
@@ -299,19 +242,16 @@ class ServiceManagerI : ServiceManagerDisp_
 
         if(activeServices.Count > 0)
         {
-            observer.servicesStarted_async(new AMIServicesStartedCallback(this, observer),
-                                           activeServices.ToArray());
+            observer.begin_servicesStarted(activeServices.ToArray(), this.observerCompleted, null);
         }
     }
 
-    public override void
-    shutdown(Ice.Current current)
+    public override void shutdown(Ice.Current current)
     {
         _communicator.shutdown();
     }
 
-    public int
-    run()
+    public int run()
     {
         try
         {
@@ -520,8 +460,7 @@ class ServiceManagerI : ServiceManagerDisp_
         return 0;
     }
 
-    private void
-    startService(string service, string entryPoint, string[] args)
+    private void startService(string service, string entryPoint, string[] args)
     {
         _m.Lock();
         try
@@ -532,15 +471,16 @@ class ServiceManagerI : ServiceManagerDisp_
             info.args = args;
 
             //
-            // Retrieve the assembly name and the type.
+            // Extract the assembly name and the class name.
             //
             string err = "ServiceManager: unable to load service '" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
-            if(sepPos != -1)
+            if(sepPos != -1 && IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
             {
+                const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if(entryPoint.Length > 3 &&
                    sepPos == 1 &&
-                   System.Char.IsLetter(entryPoint[0]) &&
+                   driveLetters.IndexOf(entryPoint[0]) != -1 &&
                    (entryPoint[2] == '\\' || entryPoint[2] == '/'))
                 {
                     sepPos = entryPoint.IndexOf(':', 3);
@@ -549,19 +489,21 @@ class ServiceManagerI : ServiceManagerDisp_
             if(sepPos == -1)
             {
                 FailureException e = new FailureException();
-                e.reason = err + "invalid entry point format: " + entryPoint;
+                e.reason = err + "invalid entry point format";
                 throw e;
             }
 
             System.Reflection.Assembly serviceAssembly = null;
             string assemblyName = entryPoint.Substring(0, sepPos);
+            string className = entryPoint.Substring(sepPos + 1);
+
             try
             {
                 //
-                // First try to load the assemby using Assembly.Load which will succeed
-                // if full name is configured or partial name has been qualified in config.
-                // If that fails, try Assembly.LoadFrom() which will succeed if a file name
-                // is configured or partial name is configured and DEVPATH is used.
+                // First try to load the assembly using Assembly.Load, which will succeed
+                // if a fully-qualified name is provided or if a partial name has been qualified
+                // in configuration. If that fails, try Assembly.LoadFrom(), which will succeed
+                // if a file name is configured or a partial name is configured and DEVPATH is used.
                 //
                 try
                 {
@@ -589,7 +531,6 @@ class ServiceManagerI : ServiceManagerDisp_
             //
             // Instantiate the class.
             //
-            string className = entryPoint.Substring(sepPos + 1);
             System.Type c = null;
             try
             {
@@ -668,7 +609,7 @@ class ServiceManagerI : ServiceManagerDisp_
                 else
                 {
                     FailureException e = new FailureException(ex.InnerException);
-                    e.reason = "ServiceManager: exception in service constructor for " + className;
+                    e.reason = err + "exception in service constructor for " + className;
                     throw e;
                 }
             }
@@ -792,8 +733,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    private void
-    stopAll()
+    private void stopAll()
     {
         _m.Lock();
         try
@@ -891,8 +831,7 @@ class ServiceManagerI : ServiceManagerDisp_
         }
     }
 
-    private void
-    servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
+    private void servicesStarted(List<String> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
         //
         // Must be called with 'this' unlocked
@@ -904,14 +843,12 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                AMI_ServiceObserver_servicesStarted cb = new AMIServicesStartedCallback(this, observer);
-                observer.servicesStarted_async(cb, servicesArray);
+                observer.begin_servicesStarted(servicesArray, this.observerCompleted, null);
             }
         }
     }
 
-    private void
-    servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
+    private void servicesStopped(List<string> services, Dictionary<ServiceObserverPrx, bool>.KeyCollection observers)
     {
         //
         // Must be called with 'this' unlocked
@@ -923,31 +860,37 @@ class ServiceManagerI : ServiceManagerDisp_
 
             foreach(ServiceObserverPrx observer in observers)
             {
-                AMI_ServiceObserver_servicesStopped cb = new AMIServicesStoppedCallback(this, observer);
-                observer.servicesStopped_async(cb, servicesArray);
+                observer.begin_servicesStopped(servicesArray, this.observerCompleted, null);
             }
         }
     }
 
     private void
-    removeObserver(ServiceObserverPrx observer, Ice.Exception ex)
+    observerCompleted(Ice.AsyncResult result)
     {
-        _m.Lock();
         try
         {
-            if(_observers.Remove(observer))
-            {
-                observerRemoved(observer, ex);
-            }
+            result.throwLocalException();
         }
-        finally
+        catch(Ice.LocalException ex)
         {
-            _m.Unlock();
+            _m.Lock();
+            try
+            {
+                ServiceObserverPrx observer = ServiceObserverPrxHelper.uncheckedCast(result.getProxy());
+                if(_observers.Remove(observer))
+                {
+                    observerRemoved(observer, ex);
+                }
+            }
+            finally
+            {
+                _m.Unlock();
+            }
         }
     }
 
-    private void
-    observerRemoved(ServiceObserverPrx observer, System.Exception ex)
+    private void observerRemoved(ServiceObserverPrx observer, System.Exception ex)
     {
         if(_traceServiceObserver >= 1)
         {
@@ -990,50 +933,28 @@ class ServiceManagerI : ServiceManagerDisp_
             // Separate the entry point from the arguments.
             //
             name = service;
-            entryPoint = value;
-            args = new string[0];
 
-            int start = value.IndexOf(':');
-            if(start != -1)
+            try
             {
-                if(value.Length > 3 &&
-                   start == 1 &&
-                   System.Char.IsLetter(value[0]) &&
-                   (value[2] == '\\' || value[2] == '/'))
-                {
-                    start = value.IndexOf(':', 3);
-                }
+                args = IceUtilInternal.Options.split(value);
+            }
+            catch(IceUtilInternal.Options.BadQuote ex)
+            {
+                FailureException e = new FailureException();
+                e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.Message;
+                throw e;
             }
 
-            if(start != -1)
-            {
-                //
-                // Find the whitespace.
-                //
-                int pos = value.IndexOf(' ', start);
-                if(pos == -1)
-                {
-                    pos = value.IndexOf('\t', start);
-                }
-                if(pos == -1)
-                {
-                    pos = value.IndexOf('\n', start);
-                }
-                if(pos != -1)
-                {
-                    entryPoint = value.Substring(0, pos);
-                    try
-                    {
-                        args = IceUtilInternal.Options.split(value.Substring(pos));
-                    }
-                    catch(IceUtilInternal.Options.BadQuote ex)
-                    {
-                        FailureException e = new FailureException(ex);
-                        e.reason = "ServiceManager: invalid arguments for service `" + name + "'";
-                        throw e;
-                    }
-                }
-            }
+            Debug.Assert(args.Length > 0);
+
+            entryPoint = args[0];
+
+            //
+            // Shift the arguments.
+            //
+            string[] tmp = new string[args.Length - 1];
+            Array.Copy(args, 1, tmp, 0, args.Length - 1);
+            args = tmp;
 
             if(serverArgs.Length > 0)
             {
@@ -1065,14 +986,12 @@ class ServiceManagerI : ServiceManagerDisp_
             _properties = properties;
         }
 
-        public override string
-        getProperty(string name, Ice.Current current)
+        public override string getProperty(string name, Ice.Current current)
         {
             return _properties.getProperty(name);
         }
 
-        public override Dictionary<string, string>
-        getPropertiesForPrefix(string name, Ice.Current current)
+        public override Dictionary<string, string> getPropertiesForPrefix(string name, Ice.Current current)
         {
             return _properties.getPropertiesForPrefix(name);
         }
@@ -1080,8 +999,7 @@ class ServiceManagerI : ServiceManagerDisp_
         private Ice.Properties _properties;
     }
 
-    private Ice.Properties
-    createServiceProperties(String service)
+    private Ice.Properties createServiceProperties(String service)
     {
         Ice.Properties properties;
         Ice.Properties communicatorProperties = _communicator.getProperties();

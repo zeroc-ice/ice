@@ -30,19 +30,19 @@ public class SessionHelper
             {
                 try
                 {
-                    _router.refreshSession_async(new Glacier2.AMI_Router_refreshSession()
+                    _router.begin_refreshSession(new Glacier2.Callback_Router_refreshSession()
                     {
-                        public void ice_response()
+                        public void response()
                         {
                         }
 
-                        public void ice_exception(Ice.LocalException ex)
+                        public void exception(Ice.LocalException ex)
                         {
                             done();
                             SessionHelper.this.destroy();
                         }
 
-                        public void ice_exception(Ice.UserException ex)
+                        public void exception(Ice.UserException ex)
                         {
                             done();
                             SessionHelper.this.destroy();

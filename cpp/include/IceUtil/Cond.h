@@ -54,12 +54,12 @@ class Mutex;
 // Condition variable implementation. Conforms to the same semantics
 // as a POSIX threads condition variable.
 //
-class Cond : private noncopyable
+class ICE_UTIL_API Cond : private noncopyable
 {
 public:
 
-    ICE_UTIL_API Cond();
-    ICE_UTIL_API ~Cond();
+    Cond();
+    ~Cond();
 
     //
     // signal restarts one of the threads that are waiting on the
@@ -67,14 +67,14 @@ public:
     // nothing happens. If several threads are waiting on cond,
     // exactly one is restarted, but it is not specified which.
     //
-    ICE_UTIL_API void signal();
+    void signal();
 
     //
     // broadcast restarts all the threads that are waiting on the
     // condition variable cond. Nothing happens if no threads are
     // waiting on cond.
     //
-    ICE_UTIL_API void broadcast();
+    void broadcast();
 
     //
     // MSVC doesn't support out-of-class definitions of member
@@ -178,11 +178,11 @@ private:
 #  ifdef ICE_HAS_WIN32_CONDVAR
     mutable CONDITION_VARIABLE _cond;   
 #  else
-    ICE_UTIL_API void wake(bool);
-    ICE_UTIL_API void preWait() const;
-    ICE_UTIL_API void postWait(bool) const;
-    ICE_UTIL_API bool timedDowait(const Time&) const;
-    ICE_UTIL_API void dowait() const;
+    void wake(bool);
+    void preWait() const;
+    void postWait(bool) const;
+    bool timedDowait(const Time&) const;
+    void dowait() const;
 
     Mutex _internal;
     IceUtilInternal::Semaphore _gate;

@@ -166,6 +166,32 @@ IceInternal::RouterInfo::getClientEndpoints()
 }
 
 void
+IceInternal::RouterInfo::getClientProxyResponse(const Ice::ObjectPrx& proxy, const GetClientEndpointsCallbackPtr& callback)
+{
+    callback->setEndpoints(setClientEndpoints(proxy));
+}
+
+void
+IceInternal::RouterInfo::getClientProxyException(const Ice::Exception& ex, const GetClientEndpointsCallbackPtr& callback)
+{
+    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+    {
+        try
+        {
+            callback->setEndpoints(getClientEndpoints());
+        }
+        catch(const Ice::LocalException& e)
+        {
+            callback->setException(e);
+        }
+    }
+    else
+    {
+        callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
+    }
+}
+
+void
 IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr& callback)
 {
     vector<EndpointIPtr> clientEndpoints;
@@ -180,48 +206,10 @@ IceInternal::RouterInfo::getClientEndpoints(const GetClientEndpointsCallbackPtr&
         return;
     }
 
-    class Callback : public AMI_Router_getClientProxy
-    {
-    public:
-
-        virtual void
-        ice_response(const Ice::ObjectPrx& clientProxy)
-        {
-            _callback->setEndpoints(_routerInfo->setClientEndpoints(clientProxy));
-        }
-
-        virtual void
-        ice_exception(const Ice::Exception& ex)
-        {
-            if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
-            {
-                try
-                {
-                    _callback->setEndpoints(_routerInfo->getClientEndpoints());
-                }
-                catch(const Ice::LocalException& e)
-                {
-                    _callback->setException(e);
-                }
-            }
-            else
-            {
-                _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
-            }
-        }
-
-        Callback(const RouterInfoPtr& routerInfo, const GetClientEndpointsCallbackPtr& callback) :
-            _routerInfo(routerInfo), _callback(callback)
-        {
-        }
-
-    private:
-
-        const RouterInfoPtr _routerInfo;
-        const GetClientEndpointsCallbackPtr _callback;
-    };
-
-    _router->getClientProxy_async(new Callback(this, callback));
+    _router->begin_getClientProxy(newCallback_Router_getClientProxy(this, 
+                                                                    &RouterInfo::getClientProxyResponse, 
+                                                                    &RouterInfo::getClientProxyException),
+                                  callback);
 }
 
 vector<EndpointIPtr>
@@ -259,6 +247,34 @@ IceInternal::RouterInfo::addProxy(const ObjectPrx& proxy)
     addAndEvictProxies(proxy, _router->addProxies(proxies));
 }
 
+void
+IceInternal::RouterInfo::addProxyResponse(const Ice::ObjectProxySeq& proxies, const AddProxyCookiePtr& cookie)
+{
+    addAndEvictProxies(cookie->proxy(), proxies);
+    cookie->cb()->addedProxy();
+}
+
+void
+IceInternal::RouterInfo::addProxyException(const Ice::Exception& ex, const AddProxyCookiePtr& cookie)
+{
+    if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
+    {
+        try
+        {
+            addProxy(cookie->proxy());
+            cookie->cb()->addedProxy();
+        }
+        catch(const Ice::LocalException& e)
+        {
+            cookie->cb()->setException(e);
+        }
+    }
+    else
+    {
+        cookie->cb()->setException(dynamic_cast<const Ice::LocalException&>(ex));
+    }
+}
+
 bool
 IceInternal::RouterInfo::addProxy(const Ice::ObjectPrx& proxy, const AddProxyCallbackPtr& callback)
 {
@@ -274,53 +290,15 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrx& proxy, const AddProxyCal
         }
     }
 
-    class Callback : public AMI_Router_addProxies
-    {
-    public:
-        
-        virtual void
-        ice_response(const Ice::ObjectProxySeq& evictedProxies)
-        {
-            _routerInfo->addAndEvictProxies(_proxy, evictedProxies);
-            _callback->addedProxy();
-        }
-
-        virtual void
-        ice_exception(const Ice::Exception& ex)
-        {
-            if(dynamic_cast<const Ice::CollocationOptimizationException*>(&ex))
-            {
-                try
-                {
-                    _routerInfo->addProxy(_proxy);
-                    _callback->addedProxy();
-                }
-                catch(const Ice::LocalException& e)
-                {
-                    _callback->setException(e);
-                }
-            }
-            else
-            {
-                _callback->setException(dynamic_cast<const Ice::LocalException&>(ex));
-            }
-        }
-
-        Callback(const RouterInfoPtr& routerInfo, const Ice::ObjectPrx& proxy, const AddProxyCallbackPtr& callback) :
-            _routerInfo(routerInfo), _proxy(proxy), _callback(callback)
-        {
-        }
-        
-    private:
-        
-        const RouterInfoPtr _routerInfo;
-        const Ice::ObjectPrx _proxy;
-        const AddProxyCallbackPtr _callback;
-    };
 
     Ice::ObjectProxySeq proxies;
     proxies.push_back(proxy);
-    _router->addProxies_async(new Callback(this, proxy, callback), proxies);
+    AddProxyCookiePtr cookie = new AddProxyCookie(callback, proxy);
+    _router->begin_addProxies(proxies,
+                              newCallback_Router_addProxies(this, 
+                                                            &RouterInfo::addProxyResponse, 
+                                                            &RouterInfo::addProxyException), 
+                              cookie);
     return false;
 }
 

@@ -107,6 +107,21 @@ GroupNodeInfo::operator==(const GroupNodeInfo& rhs) const
     return id == rhs.id;
 }
 
+//
+// COMPILER FIX: Clang using libc++ requires to define operator=
+//
+#if defined(__clang__) && defined(_LIBCPP_VERSION)
+GroupNodeInfo&
+GroupNodeInfo::operator=(const GroupNodeInfo& other)
+    
+{
+    const_cast<int&>(this->id) = other.id;
+    const_cast<LogUpdate&>(this->llu) = other.llu;
+    const_cast<Ice::ObjectPrx&>(this->observer) = other.observer;
+    return *this;
+}
+#endif
+
 Replica::~Replica()
 {
     //cout << "~Replica" << endl;

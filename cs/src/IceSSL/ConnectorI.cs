@@ -88,11 +88,12 @@ namespace IceSSL
             _encoding = encoding;
             _connectionId = connectionId;
 
-            _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _timeout;
-            _hashCode = 5 * _hashCode + _protocol.GetHashCode();
-            _hashCode = 5 * _hashCode + _encoding.GetHashCode();
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+            _hashCode = 5381;
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _timeout);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _protocol);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _encoding);
+            IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
         public override bool Equals(object obj)

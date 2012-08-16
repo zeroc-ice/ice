@@ -56,7 +56,7 @@ interface Session
      * {@link Router} is destroyed.
      *
      **/
-    ["ami"] void destroy();
+    void destroy();
 };
 
 /**
@@ -198,7 +198,7 @@ interface SessionControl
      * Destroy the associated session.
      *
      **/
-    ["ami"] void destroy();
+    void destroy();
 };
 
 /**
@@ -229,7 +229,7 @@ interface SessionManager
      * cannot be created.
      *
      **/
-    ["ami"] Session* create(string userId, SessionControl* control)
+    Session* create(string userId, SessionControl* control)
         throws CannotCreateSessionException;
 };
 
@@ -261,7 +261,7 @@ interface SSLSessionManager
      * cannot be created.
      *
      **/
-    ["ami"] Session* create(SSLInfo info, SessionControl* control)
+    Session* create(SSLInfo info, SessionControl* control)
         throws CannotCreateSessionException;
 };
 

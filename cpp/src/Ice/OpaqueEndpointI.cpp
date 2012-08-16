@@ -433,7 +433,8 @@ IceInternal::OpaqueEndpointI::operator<(const LocalObject& r) const
 Ice::Int
 IceInternal::OpaqueEndpointI::hashInit() const
 {
-    Ice::Int h = _type;
+    Ice::Int h = 5381;
+    hashAdd(h, _type);
     hashAdd(h, _rawEncoding.major);
     hashAdd(h, _rawEncoding.minor);
     hashAdd(h, _rawBytes);

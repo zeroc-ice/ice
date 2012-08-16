@@ -20,6 +20,7 @@ SUBDIRS         = application \
                   inheritance \
 		  invoke \
                   hold \
+		  hash \
                   location \
                   objects \
                   binding \
@@ -41,7 +42,8 @@ SUBDIRS         = application \
                   udp \
                   defaultServant \
                   defaultValue \
-                  threadPoolPriority
+                  threadPoolPriority \
+		  plugin
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
