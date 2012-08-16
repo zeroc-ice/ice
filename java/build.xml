@@ -77,6 +77,8 @@
                 <include name="Stats.ice" />
                 <include name="Connection.ice" />
                 <include name="Version.ice" />
+                <include name="Observer.ice" />
+                <include name="Metrics.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />

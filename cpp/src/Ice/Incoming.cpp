@@ -23,6 +23,7 @@
 #include <Ice/ReplyStatus.h>
 #include <Ice/Observer.h>
 #include <IceUtil/StringUtil.h>
+#include <typeinfo>
 
 using namespace std;
 using namespace Ice;

@@ -230,8 +230,8 @@ local interface InvocationObserver extends Observer
 
 /**
  *
- * The ObserverUpdater interface is implemented by the Ice runtime and
- * an instance of this interface is provided by the Ice communictor on
+ * The ObserverUpdater interface is implemented by the Ice run-time and
+ * an instance of this interface is provided by the Ice communicator on
  * initialization to the ObserverResolver object set with the
  * communicator initialization data.
  *
@@ -271,11 +271,11 @@ local interface ObserverUpdater
 
 /**
  *
- * The communicator observer interface used by the Ice runtime to
+ * The communicator observer interface used by the Ice run-time to
  * obtain and update observers for its observeable objects. This
  * interface should be implemented by add-ins that wish to observe Ice
  * objects in order to collect statistics. An instance of this
- * interface can be provided to the Ice runtime through the Ice
+ * interface can be provided to the Ice run-time through the Ice
  * communicator initialization data.
  *
  **/
@@ -284,7 +284,7 @@ local interface CommunicatorObserver
     /**
      *
      * This method should return an observer for the given endpoint
-     * information and connector. The Ice runtime calls this method
+     * information and connector. The Ice run-time calls this method
      * for each connection establishment attempt.
      *
      * @param endpt The endpoint information.
@@ -298,7 +298,7 @@ local interface CommunicatorObserver
     /**
      *
      * This method should return an observer for the given endpoint
-     * information. The Ice runtime calls this method to resolve an
+     * information. The Ice run-time calls this method to resolve an
      * endpoint and obtain the list of connectors. 
      *
      * For IP endpoints, this typically involves doing a DNS lookup to
@@ -312,7 +312,7 @@ local interface CommunicatorObserver
     /**
      * 
      * This method should return a connection observer for the given
-     * connection. The Ice runtime calls this method for each new
+     * connection. The Ice run-time calls this method for each new
      * connection and for all the Ice communicator connections when
      * ObserverUpdater::updateConnections is called.
      *
@@ -334,7 +334,7 @@ local interface CommunicatorObserver
     /**
      * 
      * This method should return a thread observer for the given
-     * thread. The Ice runtime calls this method for each new thread
+     * thread. The Ice run-time calls this method for each new thread
      * and for all the Ice communicator threads when
      * ObserverUpdater::updateThreads is called.
      *
@@ -353,7 +353,7 @@ local interface CommunicatorObserver
     /**
      * 
      * This method should return an invocation observer for the given
-     * invocation. The Ice runtime calls this method for each new
+     * invocation. The Ice run-time calls this method for each new
      * invocation on a proxy.
      *
      * @param prx The proxy used for the invocation
@@ -368,7 +368,7 @@ local interface CommunicatorObserver
     /**
      * 
      * This method should return an invocation observer for the given
-     * invocation. The Ice runtime calls this method for each new
+     * invocation. The Ice run-time calls this method for each new
      * invocation on a proxy if a context is provided.
      *
      * @param prx The proxy used for the invocation
@@ -385,7 +385,7 @@ local interface CommunicatorObserver
     /**
      * 
      * This method should return a dispatch observer for the given
-     * dispatch. The Ice runtime calls this method each time it
+     * dispatch. The Ice run-time calls this method each time it
      * receives an incoming invocation to be dispatched for an Ice
      * object.
      *
@@ -399,9 +399,9 @@ local interface CommunicatorObserver
 
     /**
      *
-     * The Ice runtime calls this method when the communicator is
+     * The Ice run-time calls this method when the communicator is
      * initialized. The add-in implementing this interface can use
-     * this object to get the Ice runtime to re-obtain observers for
+     * this object to get the Ice run-time to re-obtain observers for
      * observed objects.
      *
      * @param updater The observer updater object.

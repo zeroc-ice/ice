@@ -139,6 +139,11 @@ public final class CommunicatorI implements Communicator
         return _instance.initializationData().stats;
     }
 
+    public Ice.Instrumentation.CommunicatorObserver getObserver()
+    {
+         return _instance.initializationData().observer;
+    }
+
     public RouterPrx
     getDefaultRouter()
     {
