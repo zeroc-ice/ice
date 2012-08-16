@@ -21,8 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -93,9 +93,9 @@ class ShowLogPrefsDialog extends JDialog
 
         FormLayout layout = new FormLayout("left:pref, 3dlu, fill:pref:grow", "");
         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-        builder.setDefaultDialogBorder();
-        builder.setRowGroupingEnabled(true);
-        builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+        builder.border(Borders.DIALOG);
+        builder.rowGroupingEnabled(true);
+        builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
         builder.append("Max lines in buffer", maxLinesField);
         builder.nextLine();
@@ -108,9 +108,8 @@ class ShowLogPrefsDialog extends JDialog
         builder.append("Poll period (seconds)", periodField);
         builder.nextLine();
 
-        JComponent buttonBar =
-            ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-        buttonBar.setBorder(Borders.DIALOG_BORDER);
+        JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+        buttonBar.setBorder(Borders.DIALOG);
 
         java.awt.Container contentPane = getContentPane();
         contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));

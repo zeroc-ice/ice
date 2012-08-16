@@ -28,8 +28,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemListener;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
+import com.jgoodies.forms.builder.ButtonBarBuilder;
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.ButtonBarFactory;
 import com.jgoodies.forms.factories.DefaultComponentFactory;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
@@ -759,9 +759,9 @@ class SessionKeeper
                 FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
 
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.setDefaultDialogBorder();
-                builder.setRowGroupingEnabled(true);
-                builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
                 _registryUsernameLabel = builder.append("Username", _registryUsername);
                 builder.nextLine();
@@ -786,9 +786,9 @@ class SessionKeeper
                 FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
 
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.setDefaultDialogBorder();
-                builder.setRowGroupingEnabled(true);
-                builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
                 _routerUsernameLabel = builder.append("Username", _routerUsername);
                 builder.nextLine();
@@ -808,7 +808,7 @@ class SessionKeeper
 
             _mainPane.addTab("Direct", null, directPanel, "Log directly into the IceGrid registry");
             _mainPane.addTab("Routed", null, routedPanel, "Log into the IceGrid registry through a Glacier2 router");
-            _mainPane.setBorder(Borders.DIALOG_BORDER);
+            _mainPane.setBorder(Borders.DIALOG);
 
             _mainPane.addChangeListener(new javax.swing.event.ChangeListener()
                 {
@@ -830,9 +830,9 @@ class SessionKeeper
                 FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
 
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.setDefaultDialogBorder();
-                builder.setRowGroupingEnabled(true);
-                builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
                 builder.appendSeparator("Keystore");
                 builder.append("File", _keystore);
@@ -850,9 +850,9 @@ class SessionKeeper
                 FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
 
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.setDefaultDialogBorder();
-                builder.setRowGroupingEnabled(true);
-                builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
                 builder.appendSeparator("Keystore");
                 builder.append("File", _advancedKeystore);
@@ -881,11 +881,11 @@ class SessionKeeper
 
             _sslPane.addTab("Basic", basicSSLPanel);
             _sslPane.addTab("Advanced", advancedSSLPanel);
-            TitledBorder titledBorder = BorderFactory.createTitledBorder(Borders.DIALOG_BORDER, "SSL Configuration");
+            TitledBorder titledBorder = BorderFactory.createTitledBorder(Borders.DIALOG, "SSL Configuration");
             _sslPane.setBorder(titledBorder);
 
-            JComponent buttonBar = ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-            buttonBar.setBorder(Borders.DIALOG_BORDER);
+            JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
+            buttonBar.setBorder(Borders.DIALOG);
 
             Container contentPane = getContentPane();
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
