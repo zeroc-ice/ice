@@ -82,7 +82,6 @@ public class Client
                                 continue; // Same endpoint
                             }
                             ++endpointCollisions;
-                            System.out.println(endpoint.toString() + " == " + seenEndpoint.get(endpoint.hashCode()).toString() + " == " + endpoint.hashCode());
                         }
                         else
                         {
