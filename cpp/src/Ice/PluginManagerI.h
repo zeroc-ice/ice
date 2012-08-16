@@ -41,17 +41,25 @@ private:
 
     PluginManagerI(const CommunicatorPtr&, const IceInternal::DynamicLibraryListPtr&);
     friend class IceInternal::Instance;
-    friend void IceInternal::loadPlugin(const Ice::CommunicatorPtr&, const std::string&, const std::string&, 
+    friend void IceInternal::loadPlugin(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
                                         Ice::StringSeq&);
 
     void loadPlugins(int&, char*[]);
     void loadPlugin(const std::string&, const std::string&, StringSeq&);
 
+    PluginPtr findPlugin(const std::string&) const;
+
     CommunicatorPtr _communicator;
     IceInternal::DynamicLibraryListPtr _libraries;
 
-    std::map<std::string, PluginPtr> _plugins;
-    std::vector<PluginPtr> _initOrder;
+    struct PluginInfo
+    {
+        std::string name;
+        PluginPtr plugin;
+    };
+    typedef std::vector<PluginInfo> PluginInfoList;
+
+    PluginInfoList _plugins;
     bool _initialized;
     static const char * const _kindOfObject;
 };

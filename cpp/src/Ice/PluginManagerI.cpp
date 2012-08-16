@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/Communicator.h>
@@ -40,10 +41,10 @@ Ice::PluginManagerI::initializePlugins()
     vector<PluginPtr> initializedPlugins;
     try
     {
-        for(vector<PluginPtr>::iterator p = _initOrder.begin(); p != _initOrder.end(); ++p)
+        for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
         {
-            (*p)->initialize();
-            initializedPlugins.push_back(*p);
+            p->plugin->initialize();
+            initializedPlugins.push_back(p->plugin);
         }
     }
     catch(...)
@@ -75,10 +76,9 @@ Ice::PluginManagerI::getPlugins()
     IceUtil::Mutex::Lock sync(*this);
 
     StringSeq names;
-    map<string, PluginPtr>::iterator r;
-    for(r = _plugins.begin(); r != _plugins.end(); ++r)
+    for(PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
     {
-        names.push_back((*r).first);
+        names.push_back(p->name);
     }
     return names;
 }
@@ -93,10 +93,10 @@ Ice::PluginManagerI::getPlugin(const string& name)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    map<string, PluginPtr>::const_iterator r = _plugins.find(name);
-    if(r != _plugins.end())
+    PluginPtr p = findPlugin(name);
+    if(p)
     {
-        return (*r).second;
+        return p;
     }
 
     NotRegisteredException ex(__FILE__, __LINE__);
@@ -115,15 +115,18 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    map<string, PluginPtr>::const_iterator r = _plugins.find(name);
-    if(r != _plugins.end())
+    if(findPlugin(name))
     {
         AlreadyRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = _kindOfObject;
         ex.id = name;
         throw ex;
     }
-    _plugins[name] = plugin;
+
+    PluginInfo info;
+    info.name = name;
+    info.plugin = plugin;
+    _plugins.push_back(info);
 }
 
 void
@@ -135,40 +138,44 @@ Ice::PluginManagerI::destroy()
     {
         if(_initialized)
         {
-            map<string, PluginPtr>::iterator r;
-            for(r = _plugins.begin(); r != _plugins.end(); ++r)
+
+            //
+            // Destroy the plug-ins that have been successfully initialized, in the
+            // reverse order.
+            //
+            for(PluginInfoList::reverse_iterator p = _plugins.rbegin(); p != _plugins.rend(); ++p)
             {
                 try
                 {
-                    r->second->destroy();
-                    r->second = 0;
+                    p->plugin->destroy();
                 }
                 catch(const std::exception& ex)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << ex.what();
+                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << ex.what();
                 }
                 catch(const std::string& str)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << str;
+                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << str;
                 }
                 catch(const char* msg)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << r->first << "' destruction:\n" << msg;
+                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << msg;
                 }
                 catch(...)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `"    << r->first << "' destruction";
+                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction";
                 }
             }
         }
-        
+
         _communicator = 0;
     }
 
+    _plugins.clear();
     _libraries = 0;
 }
 
@@ -206,7 +213,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     {
         string name = *p;
 
-        if(_plugins.find(name) != _plugins.end())
+        if(findPlugin(name))
         {
             PluginInitializationException ex(__FILE__, __LINE__);
             ex.reason = "plug-in `" + name + "' already loaded";
@@ -239,7 +246,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     //
     // Load any remaining plug-ins that weren't specified in PluginLoadOrder.
     //
-   
+
     while(!plugins.empty())
     {
         PropertyDict::iterator p = plugins.begin();
@@ -262,7 +269,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
                 name = name.substr(0, dotPos);
                 loadPlugin(name, p->second, cmdArgs);
                 plugins.erase(p);
-                
+
                 plugins.erase("Ice.Plugin." + name);
             }
             else
@@ -273,7 +280,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
                 dotPos = string::npos;
             }
         }
-       
+
         if(dotPos == string::npos)
         {
             //
@@ -299,35 +306,28 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
 {
     assert(_communicator);
     //
-    // Separate the entry point from the arguments.
+    // Split the entire property value into arguments. An entry point containing spaces
+    // must be enclosed in quotes.
     //
-    string entryPoint;
     StringSeq args;
-    const string delim = " \t\n";
-    string::size_type pos = pluginSpec.find_first_of(delim);
-    if(pos == string::npos)
+    try
     {
-        entryPoint = pluginSpec;
+        args = IceUtilInternal::Options::split(pluginSpec);
     }
-    else
+    catch(const IceUtilInternal::BadOptException& ex)
     {
-        entryPoint = pluginSpec.substr(0, pos);
-        string::size_type beg = pluginSpec.find_first_not_of(delim, pos);
-        while(beg != string::npos)
-        {
-            string::size_type end = pluginSpec.find_first_of(delim, beg);
-            if(end == string::npos)
-            {
-                args.push_back(pluginSpec.substr(beg));
-                beg = end;
-            }
-            else
-            {
-                args.push_back(pluginSpec.substr(beg, end - beg));
-                beg = pluginSpec.find_first_not_of(delim, end);
-            }
-        }
+        PluginInitializationException e(__FILE__, __LINE__);
+        e.reason = "invalid arguments for plug-in `" + name + "':\n" + ex.reason;
+        throw e;
     }
+
+    assert(!args.empty());
+
+    //
+    // Shift the arguments.
+    //
+    const string entryPoint = args[0];
+    args.erase(args.begin());
 
     //
     // Convert command-line options into properties. First we
@@ -373,15 +373,30 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         throw e;
     }
 
-    _plugins[name] = plugin;
-    _initOrder.push_back(plugin);
+    PluginInfo info;
+    info.name = name;
+    info.plugin = plugin;
+    _plugins.push_back(info);
 
     _libraries->add(library);
 }
 
+Ice::PluginPtr
+Ice::PluginManagerI::findPlugin(const string& name) const
+{
+    for(PluginInfoList::const_iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    {
+        if(name == p->name)
+        {
+            return p->plugin;
+        }
+    }
+    return 0;
+}
+
 void
-IceInternal::loadPlugin(const Ice::CommunicatorPtr& communicator, 
-                        const string& name, 
+IceInternal::loadPlugin(const Ice::CommunicatorPtr& communicator,
+                        const string& name,
                         const string& pluginSpec,
                         Ice::StringSeq& cmdArgs)
 {

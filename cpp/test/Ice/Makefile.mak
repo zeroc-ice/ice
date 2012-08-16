@@ -29,6 +29,7 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  udp \
+		  plugin \
 		  stream
 
 !if "$(WINRT)" != "yes"

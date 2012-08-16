@@ -50,7 +50,28 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 IceInternal::DynamicLibrary::symbol_type
 IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIceVersion)
 {
+
+#ifdef _WIN32
+    bool isFilePath = entryPoint.find('\\') != string::npos || entryPoint.find('/') != string::npos;
+#else
+    bool isFilePath = entryPoint.find('/') != string::npos;
+#endif
+
     string::size_type colon = entryPoint.rfind(':');
+
+#ifdef _WIN32
+    const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if(colon == 1 && driveLetters.find(entryPoint[0]) != string::npos &&
+       (entryPoint[2] == '\\' || entryPoint[2] == '/'))
+    {
+        //
+        // The only colon we found is in the drive specification, as in "C:\MyDir".
+        // This means the function name is missing.
+        //
+        colon = string::npos;
+    }
+#endif
+
     string::size_type comma = entryPoint.find(',');
     if(colon == string::npos || colon == entryPoint.size() - 1 ||
         (comma != string::npos && (comma > colon || comma == colon - 1)))
@@ -58,9 +79,22 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         _err = "invalid entry point format `" + entryPoint + "'";
         return 0;
     }
+
     string libSpec = entryPoint.substr(0, colon);
     string funcName = entryPoint.substr(colon + 1);
-    string libName, version, debug;
+    string libPath, libName, version, debug;
+
+    if(isFilePath)
+    {
+#ifdef _WIN32
+        string::size_type separator = entryPoint.find_last_of("/\\");
+#else
+        string::size_type separator = entryPoint.rfind('/');
+#endif
+        libPath = libSpec.substr(0, separator + 1);
+        libSpec = libSpec.substr(separator + 1);
+    }
+
     if(comma == string::npos)
     {
         libName = libSpec;
@@ -70,7 +104,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
             ostringstream os;
             os << majorVersion * 10 + minorVersion;
-            
+
             int patchVersion = ICE_INT_VERSION % 100;
             if(patchVersion > 50)
             {
@@ -89,10 +123,10 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         version = libSpec.substr(comma + 1);
     }
 
-    string lib;
+    string lib = libPath;
 
 #ifdef _WIN32
-    lib = libName;
+    lib += libName;
 
 #   ifdef COMPSUFFIX
     //
@@ -114,13 +148,13 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
     lib += ".dll";
 #elif defined(__APPLE__)
-    lib = "lib" + libName;
-    if(!version.empty()) 
+    lib += "lib" + libName;
+    if(!version.empty())
     {
         lib += "." + version;
     }
 #elif defined(__hpux)
-    lib = "lib" + libName;
+    lib += "lib" + libName;
     if(!version.empty())
     {
         lib += "." + version;
@@ -130,14 +164,14 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         lib += ".sl";
     }
 #elif defined(_AIX)
-    lib = "lib" + libName + ".a(lib" + libName + ".so";
+    lib += "lib" + libName + ".a(lib" + libName + ".so";
     if(!version.empty())
     {
         lib += "." + version;
     }
     lib += ")";
 #else
-    lib = "lib" + libName + ".so";
+    lib += "lib" + libName + ".so";
     if(!version.empty())
     {
         lib += "." + version;
@@ -217,16 +251,16 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
 #else
     symbol_type result = dlsym(_hnd, name.c_str());
 #endif
-	
+
     if(result == 0)
     {
         //
         // Remember the most recent error in _err.
         //
 #ifdef _WIN32
-	_err = IceUtilInternal::lastErrorToString();
+        _err = IceUtilInternal::lastErrorToString();
 #else
-	const char* err = dlerror();
+        const char* err = dlerror();
         if(err)
         {
             _err = err;

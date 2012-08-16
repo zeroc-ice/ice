@@ -640,10 +640,20 @@
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
+    
+    <target name="test-plugins-jar" depends="test-compile,freeze-jar">
+        <jar jarfile="${lib.dir}/IceTestPlugins.jar" basedir="${lib.dir}">
+            <include name="test/Ice/plugin/plugins/**"/>
+            <manifest>
+                <attribute name="Built-By" value="ZeroC, Inc."/>
+            </manifest>
+        </jar>
+    </target>
 
     <target name="test-jar" depends="test-compile, ice-jar, freeze-jar, glacier2-jar, icebox-jar, icestorm-jar, icegrid-jar">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
+            <exclude name="test/Ice/plugin/plugins/**"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="Ice.jar"/>

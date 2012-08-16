@@ -301,7 +301,8 @@ static const TestCase allTest[] =
     {"Ice\\stream", "Ice_stream_", "client.dll", 0, 0, 0},
     {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0 },
     {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0 },
-    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0}
+    {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0},
+    {"Ice\\plugin", "Ice_plugin_", "client.dll", 0, 0, 0}
 };
 
 class TestRunner : public IceUtil::Thread

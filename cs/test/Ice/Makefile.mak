@@ -42,7 +42,8 @@ SUBDIRS         = application \
                   udp \
                   defaultServant \
                   defaultValue \
-                  threadPoolPriority
+                  threadPoolPriority \
+		  plugin
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

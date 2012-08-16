@@ -22,18 +22,18 @@ using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
-namespace 
+namespace
 {
 
 class PropertiesAdminI : public PropertiesAdmin
 {
 public:
-    
+
     PropertiesAdminI(const PropertiesPtr& properties) :
         _properties(properties)
     {
     }
-    
+
     virtual string getProperty(const string& name, const Current&)
     {
         return _properties->getProperty(name);
@@ -43,10 +43,10 @@ public:
     {
         return _properties->getPropertiesForPrefix(prefix);
     }
-    
+
 private:
 
-    const PropertiesPtr _properties; 
+    const PropertiesPtr _properties;
 };
 
 struct StartServiceInfo
@@ -56,27 +56,27 @@ struct StartServiceInfo
         name = service;
 
         //
-        // Separate the entry point from the arguments.
+        // Split the entire property value into arguments. An entry point containing spaces
+        // must be enclosed in quotes.
         //
-        string::size_type pos = value.find_first_of(" \t\n");
-        if(pos == string::npos)
+        try
         {
-            entryPoint = value;
+            args = IceUtilInternal::Options::split(value);
         }
-        else
+        catch(const IceUtilInternal::BadOptException& ex)
         {
-            entryPoint = value.substr(0, pos);
-            try
-            {
-                args = IceUtilInternal::Options::split(value.substr(pos + 1));
-            }
-            catch(const IceUtilInternal::BadOptException& ex)
-            {
-                FailureException e(__FILE__, __LINE__);
-                e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason;
-                throw e;        
-            }
+            PluginInitializationException e(__FILE__, __LINE__);
+            e.reason = "invalid arguments for service `" + name + "':\n" + ex.reason;
+            throw e;
         }
+
+        assert(!args.empty());
+
+        //
+        // Shift the arguments.
+        //
+        entryPoint = args[0];
+        args.erase(args.begin());
 
         for(Ice::StringSeq::const_iterator p = serverArgs.begin(); p != serverArgs.end(); ++p)
         {
@@ -92,10 +92,9 @@ struct StartServiceInfo
     Ice::StringSeq args;
 };
 
-
 }
 
-IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) : 
+IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[]) :
     _communicator(communicator),
     _pendingStatusChanges(false),
     _traceServiceObserver(0),
@@ -169,7 +168,7 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         Warning out(_logger);
         out << "ServiceManager: unknown exception in start for service " << info.name;
     }
-    
+
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -290,7 +289,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
         {
             Trace out(_logger, "IceBox.ServiceObserver");
             out << "Added service observer " << _communicator->proxyToString(observer);
-        } 
+        }
 
         vector<string> activeServices;
         for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
@@ -301,7 +300,7 @@ IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const I
                 activeServices.push_back(info.name);
             }
         }
-       
+
         if(activeServices.size() > 0)
         {
             observer->begin_servicesStarted(activeServices, _observerCompletedCB);
@@ -345,7 +344,7 @@ IceBox::ServiceManagerI::start()
         //
         // IceBox.Service.Foo=entry_point [args]
         //
-        // We parse the service properties specified in IceBox.LoadOrder 
+        // We parse the service properties specified in IceBox.LoadOrder
         // first, then the ones from remaining services.
         //
         const string prefix = "IceBox.Service.";
@@ -369,7 +368,7 @@ IceBox::ServiceManagerI::start()
         {
             servicesInfo.push_back(StartServiceInfo(p->first.substr(prefix.size()), p->second, _argv));
         }
-        
+
         //
         // Check if some services are using the shared communicator in which
         // case we create the shared communicator now with a property set which
@@ -416,12 +415,12 @@ IceBox::ServiceManagerI::start()
                 {
                     initData.properties->setProperty(r->first, r->second);
                 }
-            
+
                 //
-                // Parse <service>.* command line options (the Ice command line options 
+                // Parse <service>.* command line options (the Ice command line options
                 // were parsed by the createProperties above)
                 //
-                q->args = initData.properties->parseCommandLineOptions(q->name, q->args);                
+                q->args = initData.properties->parseCommandLineOptions(q->name, q->args);
             }
             _sharedCommunicator = initialize(initData);
         }
@@ -462,7 +461,7 @@ IceBox::ServiceManagerI::start()
 
             //
             // Add a Properties facet for each service
-            // 
+            //
             for(vector<ServiceInfo>::iterator r = _services.begin(); r != _services.end(); ++r)
             {
                 const ServiceInfo& info = *r;
@@ -470,7 +469,7 @@ IceBox::ServiceManagerI::start()
                 _communicator->addAdminFacet(new PropertiesAdminI(communicator->getProperties()),
                                              "IceBox.Service." + info.name + ".Properties");
             }
-          
+
             _communicator->getAdmin();
         }
         catch(const ObjectAdapterDeactivatedException&)
@@ -611,7 +610,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             communicator = _sharedCommunicator;
         }
         else
-        {       
+        {
             //
             // Create the service properties. We use the communicator properties as the default
             // properties if IceBox.InheritProperties is set.
@@ -627,25 +626,25 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 initData.properties = createProperties(info.args, initData.properties);
 
                 //
-                // Next, parse the service "<service>.*" command line options (the Ice command 
+                // Next, parse the service "<service>.*" command line options (the Ice command
                 // line options were parsed by the createProperties above)
                 //
                 info.args = initData.properties->parseCommandLineOptions(service, info.args);
             }
-            
+
             //
             // Clone the logger to assign a new prefix.
             //
             initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
-            
+
             //
-            // Remaining command line options are passed to the communicator. This is 
+            // Remaining command line options are passed to the communicator. This is
             // necessary for Ice plug-in properties (e.g.: IceSSL).
             //
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
         }
-        
+
         //
         // Start the service.
         //
@@ -656,8 +655,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 
             //
             // There is no need to notify the observers since the 'start all'
-            // (that indirectly calls this function) occurs before the creation of 
-            // the Server Admin object, and before the activation of the main 
+            // (that indirectly calls this function) occurs before the creation of
+            // the Server Admin object, and before the activation of the main
             // object adapter (so before any observer can be registered)
             //
         }
@@ -750,7 +749,7 @@ IceBox::ServiceManagerI::stopAll()
     vector<string> stoppedServices;
 
     //
-    // First, for each service, we call stop on the service and flush its database environment to 
+    // First, for each service, we call stop on the service and flush its database environment to
     // the disk.
     //
     for(p = _services.rbegin(); p != _services.rend(); ++p)
@@ -782,7 +781,7 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
-        
+
         try
         {
             _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
@@ -815,9 +814,9 @@ IceBox::ServiceManagerI::stopAll()
         }
 
         //
-        // Release the service, the service communicator and then the library. The order is important, 
+        // Release the service, the service communicator and then the library. The order is important,
         // the service must be released before destroying the communicator so that the communicator
-        // leak detector doesn't report potential leaks, and the communicator must be destroyed before 
+        // leak detector doesn't report potential leaks, and the communicator must be destroyed before
         // the library is released since the library will destroy its global state.
         //
         try
@@ -850,7 +849,7 @@ IceBox::ServiceManagerI::stopAll()
                 out << ex;
             }
         }
-        
+
         try
         {
             info.library = 0;
@@ -915,7 +914,7 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 
 void
 IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, const std::exception& ex)
-{ 
+{
     if(_traceServiceObserver >= 1)
     {
         //
@@ -929,8 +928,8 @@ IceBox::ServiceManagerI::observerRemoved(const ServiceObserverPrx& observer, con
             out << "Removed service observer " << _communicator->proxyToString(observer)
                 << "\nafter catching " << ex.what();
         }
-    } 
-} 
+    }
+}
 
 Ice::PropertiesPtr
 IceBox::ServiceManagerI::createServiceProperties(const string& service)
@@ -946,7 +945,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
     {
         properties = createProperties();
     }
-    
+
     string programName = communicatorProperties->getProperty("Ice.ProgramName");
     if(programName.empty())
     {

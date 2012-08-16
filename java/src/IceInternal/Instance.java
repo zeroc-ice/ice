@@ -684,7 +684,7 @@ public final class Instance
             EndpointFactory udpEndpointFactory = new UdpEndpointFactory(this);
             _endpointFactoryManager.add(udpEndpointFactory);
 
-            _pluginManager = new Ice.PluginManagerI(communicator);
+            _pluginManager = new Ice.PluginManagerI(communicator, this);
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(communicator, this);
 
