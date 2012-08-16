@@ -12,7 +12,9 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/StringUtil.h>
 #include <ostream>
+#include <iomanip>
 #include <cstdlib>
+
 
 #if defined(__GNUC__) && !defined(__sun) && !defined(__FreeBSD__) && !defined(__MINGW32__)
 #  include <execinfo.h>
@@ -25,7 +27,6 @@
 #  include <IceUtil/Unicode.h>
 #  define DBGHELP_TRANSLATE_TCHAR
 #  include <DbgHelp.h>
-#  include <iomanip>
 #  define ICE_STACK_TRACES
 #  define ICE_WIN32_STACK_TRACES
 #endif
@@ -64,11 +65,11 @@ public:
         delete globalMutex;
         globalMutex = 0;
 #ifdef ICE_WIN32_STACK_TRACES
-	if(process != 0)
-	{
-	    SymCleanup(process);
-	    process = 0;
-	}
+        if(process != 0)
+        {
+            SymCleanup(process);
+            process = 0;
+        }
 #endif
     }
 };
@@ -93,14 +94,14 @@ getStackTrace()
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-	process = GetCurrentProcess();
-	SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
-	BOOL ok = SymInitialize(process, 0, TRUE);
-	if(!ok)
-	{
-	    process = 0;
-	    return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
-	}
+        process = GetCurrentProcess();
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_UNDNAME);
+        BOOL ok = SymInitialize(process, 0, TRUE);
+        if(!ok)
+        {
+            process = 0;
+            return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
+        }
     }
     lock.release();
 
@@ -115,46 +116,46 @@ getStackTrace()
 
     if(frames > 0)
     {
-	char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-	SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
-	symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-	symbol->MaxNameLen = MAX_SYM_NAME;
+        char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+        SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        symbol->MaxNameLen = MAX_SYM_NAME;
 
-	IMAGEHLP_LINE64 line = {};
-	line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
-	DWORD displacement = 0;
+        IMAGEHLP_LINE64 line = {};
+        line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+        DWORD displacement = 0;
 
-	lock.acquire();
-	for(int i = 0; i < frames; i++)
-	{
-	    if(!stackTrace.empty())
-	    {
-		stackTrace += "\n";
-	    }
+        lock.acquire();
+        for(int i = 0; i < frames; i++)
+        {
+            if(!stackTrace.empty())
+            {
+                stackTrace += "\n";
+            }
 
-	    stringstream s;
-	    s << setw(3) << i << " ";
+            stringstream s;
+            s << setw(3) << i << " ";
 
-	    DWORD64 address = reinterpret_cast<DWORD64>(stack[i]);
+            DWORD64 address = reinterpret_cast<DWORD64>(stack[i]);
 
-	    BOOL ok = SymFromAddr(process, address, 0, symbol);
-	    if(ok)
-	    {
-   		s << IceUtil::wstringToString(symbol->Name);
+            BOOL ok = SymFromAddr(process, address, 0, symbol);
+            if(ok)
+            {
+                s << IceUtil::wstringToString(symbol->Name);
 
-		ok = SymGetLineFromAddr64(process, address, &displacement, &line);
-		if(ok)
-		{
-		    s << " at line " << line.LineNumber << " in " << IceUtil::wstringToString(line.FileName);
-		}
-	    }
-	    else
-	    {
-		s << hex << "0x" << address;
-	    }
-	    stackTrace += s.str();
-	}
-	lock.release();
+                ok = SymGetLineFromAddr64(process, address, &displacement, &line);
+                if(ok)
+                {
+                    s << " at line " << line.LineNumber << " in " << IceUtil::wstringToString(line.FileName);
+                }
+            }
+            else
+            {
+                s << hex << "0x" << address;
+            }
+            stackTrace += s.str();
+        }
+        lock.release();
     }
 
 #   elif defined(ICE_GCC_STACK_TRACES)    
@@ -165,37 +166,27 @@ getStackTrace()
     size_t stackDepth = backtrace(stackAddrs, maxDepth);
     char **stackStrings = backtrace_symbols(stackAddrs, stackDepth);
 
-    bool checkException = true;
+    //
+    // Start at 1 to skip the top frame (== call to this function)
+    //
     for (size_t i = 1; i < stackDepth; i++)
     {
         string line(stackStrings[i]);
 
-        //
-        // Don't add the traces for the Exception constructors.
-        //
-        if(checkException)
-        {
-            if(line.find("ExceptionC") != string::npos)
-            {
-                continue;
-            }
-            else
-            {
-                checkException = false;
-            }
-        }
-        else
+        if(i > 1)
         {
             stackTrace += "\n";
         }
 
-        stackTrace += "  ";
+        stringstream s;
+        s << setw(3) << i - 1 << " ";
         
         //
         // For each line attempt to parse the mangled function name as well
         // as the source library/executable.
         //
         string mangled;
+        string source;
         string::size_type openParen = line.find_first_of('(');
         if(openParen != string::npos)
         {
@@ -211,7 +202,7 @@ getStackTrace()
                 {
                     mangled = tmp.substr(0 , plus);
 
-                    stackTrace += line.substr(0, openParen); 
+                    source = line.substr(0, openParen); 
                 }
             }
         }
@@ -221,9 +212,9 @@ getStackTrace()
             // Format: "1    libIce.3.3.1.dylib   0x000933a1 _ZN7IceUtil9ExceptionC2EPKci + 71"
             //
             string::size_type plus = line.find_last_of('+');
-	    if(plus != string::npos)
-    	    {
-	        string tmp = line.substr(0, plus - 1);
+            if(plus != string::npos)
+            {
+                string tmp = line.substr(0, plus - 1);
                 string::size_type space = tmp.find_last_of(" \t");
                 if(space != string::npos)
                 {
@@ -237,16 +228,14 @@ getStackTrace()
                         {
                             mangled = tmp;
 
-                            stackTrace += line.substr(start, finish - start);
+                            source = line.substr(start, finish - start);
                         }
                     }
                 }
-	    }
+            }
         }
         if(mangled.size() != 0)
         {
-            stackTrace += ": ";
-
             //
             // Unmangle the function name
             //
@@ -254,19 +243,26 @@ getStackTrace()
             char* unmangled = abi::__cxa_demangle(mangled.c_str(), 0, 0, &status);
             if(unmangled)
             {
-                stackTrace += unmangled;
+                s << unmangled;
                 free(unmangled);
             }
             else
             {
-                stackTrace += mangled;
-                stackTrace += "()";
+                s << mangled << "()";
+            }
+            
+            if(!source.empty())
+            {
+                s << " in " << source;
             }
         }
         else
         {
-            stackTrace += line;
+            s << line;
         }
+
+        stackTrace += s.str();
+
     }
     free(stackStrings);
 
