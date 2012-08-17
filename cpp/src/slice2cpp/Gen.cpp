@@ -3397,11 +3397,18 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:" << sp;
     H.inc();
 
-    if(!p->isLocal())
+    //
+    // In C++, a nested type cannot have the same name as the enclosing type
+    //
+    if(!p->isLocal() && p->name() != "ProxyType")
     {
         H << nl << "typedef " << p->name() << "Prx ProxyType;";
     }
-    H << nl << "typedef " << p->name() << "Ptr PointerType;";
+
+    if(p->name() != "PointerType")
+    {
+	H << nl << "typedef " << p->name() << "Ptr PointerType;";
+    }
 
     vector<string> params;
     vector<string> allTypes;
