@@ -48,7 +48,7 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     string seqType = findMetaData(metaData, typeCtx);
     if(!seqType.empty())
     {
-        if(seqType == "array" || seqType == "range:array")
+        if(seqType == "%array" || seqType == "%range:array")
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
             if(typeCtx & TypeContextAMIPrivateEnd)
@@ -77,12 +77,12 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
             string s = typeToString(seq->type(), seq->typeMetaData(), inWstringModule(seq) ? TypeContextUseWstring : 0);
             return "::std::pair<const " + s + "*, const " + s + "*>";
         }
-        else if(seqType.find("range") == 0)
+        else if(seqType.find("%range") == 0)
         {
             string s;
-            if(seqType.find("range:") == 0)
+            if(seqType.find("%range:") == 0)
             {
-                s = seqType.substr(strlen("range:"));
+                s = seqType.substr(strlen("%range:"));
             }
             else
             {
@@ -151,16 +151,16 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
         }
 
         string s;
-        if(seqType == "array" || seqType == "range:array")
+        if(seqType == "%array" || seqType == "%range:array")
         {
             s = typeToString(seq, metaData, TypeContextAMIPrivateEnd);
         }
-        else if(seqType.find("range") == 0)
+        else if(seqType.find("%range") == 0)
         {
             StringList md;
-            if(seqType.find("range:") == 0)
+            if(seqType.find("%range:") == 0)
             {
-                md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+                md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
             }
             s = typeToString(seq, md);
         }
@@ -190,7 +190,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
         }
         if(!protobuf)
         {
-            if(seqType == "array" || seqType == "range:array")
+            if(seqType == "%array" || seqType == "%range:array")
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin && 
@@ -234,7 +234,7 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
                     }
                 }
             }
-            else if(seqType.find("range") == 0)
+            else if(seqType.find("%range") == 0)
             {
                 if(optional)
                 {
@@ -449,7 +449,7 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        if(findMetaData(st->getMetaData()) == "class")
+        if(findMetaData(st->getMetaData()) == "%class")
         {
             return fixKwd(st->scoped() + "Ptr");
         }
@@ -567,7 +567,7 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        if(findMetaData(st->getMetaData()) == "class")
+        if(findMetaData(st->getMetaData()) == "%class")
         {
             return "const " + fixKwd(st->scoped() + "Ptr&");
         }
@@ -654,7 +654,7 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        if(findMetaData(st->getMetaData()) == "class")
+        if(findMetaData(st->getMetaData()) == "%class")
         {
             return fixKwd(st->scoped() + "Ptr&");
         }
@@ -867,7 +867,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
         if(seq && !(typeCtx & TypeContextAMIPrivateEnd))
         {
             string seqType = findMetaData(metaData, typeCtx);
-            if(seqType == "array" || seqType == "range:array")
+            if(seqType == "%array" || seqType == "%range:array")
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin && builtin->kind() == Builtin::KindByte)
@@ -880,7 +880,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, bool optional
                 writeParamEndCode(out, seq, optional, param, metaData);
                 return;
             }
-            else if(seqType.find("range") == 0)
+            else if(seqType.find("%range") == 0)
             {
                 out << nl << func << "___" << param << ");";
                 writeParamEndCode(out, seq, optional, param, metaData);
@@ -932,7 +932,7 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
         }
         if(!protobuf)
         {
-            if(seqType == "array" || seqType == "range:array")
+            if(seqType == "%array" || seqType == "%range:array")
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
                 if(builtin && 
@@ -948,12 +948,12 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
                     endArg = "___" + endArg;
                 }
             }
-            else if(seqType.find("range") == 0)
+            else if(seqType.find("%range") == 0)
             {
                 StringList md;
-                if(seqType.find("range:") == 0)
+                if(seqType.find("%range:") == 0)
                 {
-                    md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+                    md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
                 }
                 endArg = "___" + endArg;
             }
@@ -1002,8 +1002,9 @@ Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool& is
 
             //
             // If the form is cpp:type:<...> the data after cpp:type:
-            // is returned.  If the form is cpp:range:<...> (and this
-            // is an inParam) the data after cpp: is returned.
+            // is returned.
+	    // If the form is cpp:range[:<...>], cpp:array or cpp:class,
+	    // the return value is % followed by the string after cpp:.
             //
             if(ss.find("protobuf") == 0 || pos != string::npos)
             {
@@ -1028,11 +1029,11 @@ Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool& is
                 else if((typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) &&
                         !(typeCtx & TypeContextAMIEnd) && ss.find("range:") == 0)
                 {
-                    return str.substr(prefix.size());
+                    return string("%") + str.substr(prefix.size());
                 }
                 else if((typeCtx & TypeContextAMIPrivateEnd) && ss == "range:array")
                 {
-                    return str.substr(prefix.size());
+                    return "%range:array";
                 }
             }
             //
@@ -1043,11 +1044,11 @@ Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool& is
             {
                 if(ss == "array")
                 {
-                    return ss;
+                    return "%array";
                 }
                 else if((typeCtx & TypeContextInParam) && ss == "range")
                 {
-                    return ss;
+                    return "%range";
                 }
             }
             //
@@ -1057,7 +1058,7 @@ Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool& is
             {
                 if(ss == "class")
                 {
-                    return ss;
+                    return "%class";
                 }
             }
         }
@@ -1077,11 +1078,13 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
         if(str.find(prefix) == 0)
         {
             string::size_type pos = str.find(':', prefix.size());
-            //
+
+	    //
             // If the form is cpp:type:<...> the data after cpp:type:
-            // is returned.  If the form is cpp:range:<...> the data
-            // after cpp: is returned.
-            //
+            // is returned.
+	    // If the form is cpp:range[:<...>], cpp:array or cpp:class,
+	    // the return value is % followed by the string after cpp:.
+	    //
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
@@ -1092,11 +1095,11 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 else if((typeCtx & (TypeContextInParam  | TypeContextAMIPrivateEnd)) && 
                         !(typeCtx & TypeContextAMIEnd) && ss.find("range:") == 0)
                 {
-                    return str.substr(prefix.size());
+                    return string("%") + str.substr(prefix.size());
                 }
                 else if((typeCtx & TypeContextAMIPrivateEnd) && ss == "range:array")
                 {
-                    return str.substr(prefix.size());
+                    return "%range:array";
                 }
             }
             else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd) && !(typeCtx & TypeContextAMIEnd))
@@ -1104,11 +1107,11 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 string ss = str.substr(prefix.size());
                 if(ss == "array")
                 {
-                    return ss;
+                    return "%array";
                 }
                 else if((typeCtx & TypeContextInParam) && ss == "range")
                 {
-                    return ss;
+                    return "%range";
                 }
             }
             //
@@ -1119,7 +1122,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
                 string ss = str.substr(prefix.size());
                 if(ss == "class")
                 {
-                    return ss;
+                    return "%class";
                 }
             }
         }
