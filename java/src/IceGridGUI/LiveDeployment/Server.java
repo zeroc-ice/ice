@@ -82,6 +82,7 @@ class Server extends ListArrayTreeNode
                 public void response()
                 {
                     amiSuccess(prefix);
+                    fetchMetricsViewNames();
                 }
 
                 public void exception(Ice.UserException e)
@@ -112,6 +113,7 @@ class Server extends ListArrayTreeNode
 
     public void stop()
     {
+        _metrics.clear();
         final String prefix = "Stopping server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
@@ -123,6 +125,7 @@ class Server extends ListArrayTreeNode
                 public void response()
                 {
                     amiSuccess(prefix);
+                    rebuild(Server.this);
                 }
 
                 public void exception(Ice.UserException e)
@@ -396,6 +399,66 @@ class Server extends ListArrayTreeNode
         }
     }
 
+    void fetchMetricsViewNames()
+    {
+        Ice.ObjectPrx admin = getServerAdmin();
+        if(admin == null)
+        {
+            return;
+        }
+        IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
+            {
+                public void response(final String[] names)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                _metricsNames = names;
+                                createMetrics();
+                                rebuild(Server.this);
+                            }
+                        });
+                }
+
+                public void exception(final Ice.LocalException e)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                if(e instanceof Ice.ObjectNotExistException)
+                                {
+                                    // Server is down.
+                                }
+                                else if(e instanceof Ice.FacetNotExistException)
+                                {
+                                    // MetricsAdmin facet not present. Old server version?
+                                }
+                                else
+                                {
+                                    e.printStackTrace();
+                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                                                  "Error: " + e.toString(), "Error",
+                                                                  JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                        });
+                }
+            };
+        try
+        {
+            IceMX.MetricsAdminPrx metricsAdmin = 
+                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
+            metricsAdmin.begin_getMetricsViewNames(cb);
+        }
+        catch(Ice.LocalException e)
+        {
+            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     void showRuntimeProperties()
     {
         Ice.ObjectPrx serverAdmin = getServerAdmin();
@@ -627,7 +690,7 @@ class Server extends ListArrayTreeNode
            ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
            boolean enabled)
     {
-        super(parent, serverId, 3);
+        super(parent, serverId, 4);
         _resolver = resolver;
 
         _instanceDescriptor = instanceDescriptor;
@@ -637,12 +700,14 @@ class Server extends ListArrayTreeNode
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
+        _childrenArray[3] = _metrics;
 
         update(state, pid, enabled, false);
 
         createAdapters();
         createDbEnvs();
         createServices();
+        fetchMetricsViewNames();
     }
 
     ApplicationDescriptor getApplication()
@@ -719,10 +784,12 @@ class Server extends ListArrayTreeNode
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
         _services = server._services;
+        _metrics = server._metrics;
 
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
+        _childrenArray[3] = _metrics;
 
         //
         // Need to re-parent all the children
@@ -740,6 +807,11 @@ class Server extends ListArrayTreeNode
         for(Service service: _services)
         {
             service.reparent(this);
+        }
+
+        for(MetricsView metrics: _metrics)
+        {
+            metrics.reparent(this);
         }
 
         updateServices();
@@ -778,6 +850,8 @@ class Server extends ListArrayTreeNode
             createServices();
             updateServices();
 
+            _metrics.clear();
+            createMetrics();
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
         else if(serviceTemplates != null && serviceTemplates.size() > 0 &&
@@ -1035,6 +1109,17 @@ class Server extends ListArrayTreeNode
         return Utils.getIntVersion(Utils.substitute(_serverDescriptor.iceVersion, _resolver));
     }
 
+    private void createMetrics()
+    {
+        if(_metricsNames != null)
+        {
+            for(String name : _metricsNames)
+            {
+                insertSortedChild(new MetricsView(Server.this, name), _metrics, null);
+            }
+        }
+    }
+
     private void createAdapters()
     {
         for(AdapterDescriptor p : _serverDescriptor.adapters)
@@ -1122,11 +1207,6 @@ class Server extends ListArrayTreeNode
 
     Ice.ObjectPrx getServerAdmin()
     {
-        if(_state != ServerState.Active)
-        {
-            return null;
-        }
-
         AdminPrx admin = getCoordinator().getAdmin();
         if(admin == null)
         {
@@ -1166,8 +1246,10 @@ class Server extends ListArrayTreeNode
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
     private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
     private java.util.List<Service> _services = new java.util.LinkedList<Service>();
+    private java.util.List<MetricsView> _metrics = new java.util.LinkedList<MetricsView>();
 
     private java.util.Set<String> _startedServices = new java.util.HashSet<String>();
+    private String[] _metricsNames;
 
     private ServerState _state;
     private boolean _enabled;

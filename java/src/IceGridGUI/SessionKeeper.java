@@ -50,7 +50,7 @@ class SessionKeeper
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long keepAliveperiod, boolean routed, Component parent)
+        Session(AdminSessionPrx session, Component parent)
         {
             _session = session;
 
@@ -68,7 +68,10 @@ class SessionKeeper
                     JOptionPane.ERROR_MESSAGE);
                 throw e;
             }
+        }
 
+        public void init(long keepAliveperiod, boolean routed, Component parent)
+        {
             try
             {
                 if(!routed)
@@ -1348,7 +1351,8 @@ class SessionKeeper
 
             try
             {
-                _session = new Session(session, keepAlivePeriodHolder.value, _loginInfo.routed, parent);
+                _session = new Session(session, parent);
+                _session.init(keepAlivePeriodHolder.value, _loginInfo.routed, parent);
             }
             catch(Ice.LocalException e)
             {
@@ -1389,7 +1393,7 @@ class SessionKeeper
     }
 
     AdminPrx getAdmin()
-    {
+    {         
         return _session == null ? null : _session.getAdmin();
     }
 

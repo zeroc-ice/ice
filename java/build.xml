@@ -192,12 +192,15 @@
     <target name="ice-compile" depends="generate" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir="${generated.dir}/Ice:${src.dir}/Ice:${src.dir}/IceUtil:${src.dir}/IceUtilInternal:${src.dir}/IceInternal:${generated.dir}/IceSSL:${src.dir}/IceSSL" destdir="${lib.dir}" cache="${cache.dir}"/>
+        <depend srcdir="${generated.dir}/Ice:${src.dir}/Ice:${generated.dir}/IceMX:${src.dir}/IceUtil:${src.dir}/IceUtilInternal:${src.dir}/IceInternal:${generated.dir}/IceSSL:${src.dir}/IceSSL" 
+                destdir="${lib.dir}" cache="${cache.dir}"/>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>
             <include name="Ice/*.java"/>
+            <include name="IceMX/*.java"/>
+            <include name="Ice/Instrumentation/*.java"/>
             <include name="IceInternal/*.java"/>
             <include name="IceSSL/*.java"/>
             <include name="IceUtil/*.java"/>
@@ -208,6 +211,8 @@
     <target name="ice-jar" depends="ice-compile" unless="ice.bin.dist">
         <jar jarfile="${lib.dir}/Ice.jar" basedir="${lib.dir}">
             <include name="Ice/*.class"/>
+            <include name="IceMX/*.class"/>
+            <include name="Ice/Instrumentation/*.class"/>
             <include name="IceUtil/*.class"/>
             <include name="IceInternal/*.class"/>
             <include name="IceUtilInternal/*.class"/>
@@ -225,6 +230,7 @@
         </jar>
         <jar jarfile="${lib.dir}/Ice.jar" basedir="${generated.dir}" update="yes">
             <include name="Ice/*.java"/>
+            <include name="IceMX/*.java"/>
             <include name="IceSSL/*.java"/>
         </jar>
     </target>

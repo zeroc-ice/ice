@@ -63,6 +63,7 @@ public:
     {
         MetricsPtr t = new T();
         t->id = id;
+        t->failures = 0;
         return t;
     }
 
