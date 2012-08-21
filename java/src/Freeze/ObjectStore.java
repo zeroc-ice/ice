@@ -321,7 +321,15 @@ class ObjectStore implements IceUtil.Store
         IceInternal.BasicStream os =
             new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
         os.startWriteEncaps();
-        v.__write(os);
+
+	if(encoding == Ice.Util.Encoding_1_0)
+	{
+	    v.__write(os);
+	}
+	else
+	{
+	    os.writeObject(v.servant);
+	}
         os.writePendingObjects();
         os.endWriteEncaps();
         IceInternal.Buffer buf = os.prepareWrite();
@@ -341,10 +349,20 @@ class ObjectStore implements IceUtil.Store
         buf.b.position(0);
         buf.b.put(b);
         buf.b.position(0);
-        ObjectRecord rec= new ObjectRecord();
+        ObjectRecord rec = new ObjectRecord();
         is.startReadEncaps();
-        rec.__read(is);
-        is.readPendingObjects();
+	if(encoding.equals(Ice.Util.Encoding_1_0))
+	{
+	    rec.__read(is);
+	    is.readPendingObjects();
+	}
+	else
+	{
+	    Ice.ObjectHolder holder = new Ice.ObjectHolder();
+	    is.readObject(holder);
+	    is.readPendingObjects();
+	    rec.servant = holder.value;
+	}
         is.endReadEncaps();
         return rec;
     }

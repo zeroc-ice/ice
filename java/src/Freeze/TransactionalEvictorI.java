@@ -61,9 +61,18 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         _deactivateController.lock();
         try
         {
-            long currentTime = IceInternal.Time.currentMonotonicTimeMillis();
+            long currentTime = 0;
+	    ObjectRecord rec;
 
-            ObjectRecord rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
+	    if(_encoding.equals(Ice.Util.Encoding_1_0))
+	    {
+		currentTime = IceInternal.Time.currentMonotonicTimeMillis();
+		rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
+	    }
+	    else
+	    {
+		rec = new ObjectRecord(servant, null);
+	    }
 
             ObjectStore store = findStore(facet, _createDb);
             if(store == null)
@@ -75,7 +84,10 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
             TransactionI tx = beforeQuery();
 
-            updateStats(rec.stats, currentTime);
+	    if(_encoding.equals(Ice.Util.Encoding_1_0))
+	    {
+		updateStats(rec.stats, currentTime);
+	    }
 
             if(!store.insert(ident, rec, tx))
             {

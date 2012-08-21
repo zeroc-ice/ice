@@ -301,10 +301,12 @@ Freeze::BackgroundSaveEvictorI::addFacet(const ObjectPtr& servant, const Identit
                     ObjectRecord& rec = element->rec;
 
                     rec.servant = servant;
-                    rec.stats.creationTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
-                    rec.stats.lastSaveTime = 0;
-                    rec.stats.avgSaveTime = 0;
-
+		    if(_encoding == Ice::Encoding_1_0)
+		    {
+			rec.stats.creationTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+			rec.stats.lastSaveTime = 0;
+			rec.stats.avgSaveTime = 0;
+		    }
                     addToModifiedQueue(element);
                     break;
                 }
@@ -932,7 +934,11 @@ Freeze::BackgroundSaveEvictorI::run()
             
             deque<StreamedObject> streamedObjectQueue;
             
-            Long streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+            Long streamStart = 0;
+	    if(_encoding == Ice::Encoding_1_0 || _trace >= 1)
+	    {
+		streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+	    }
             
             //
             // Stream each element
@@ -1114,7 +1120,12 @@ Freeze::BackgroundSaveEvictorI::run()
                         txSize = streamedObjectQueue.size();
                     }
                     
-                    Long saveStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+                    Long saveStart = 0;
+		    if(_encoding == Ice::Encoding_1_0 || _trace >= 1)
+		    {
+			saveStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+		    }
+
                     try
                     {
                         DbTxn* tx = 0;
@@ -1399,7 +1410,10 @@ Freeze::BackgroundSaveEvictorI::stream(const BackgroundSaveEvictorElementPtr& el
 
     if(element->status != destroyed)
     {
-        EvictorIBase::updateStats(element->rec.stats, streamStart);
+	if(_encoding == Ice::Encoding_1_0)
+	{
+	    EvictorIBase::updateStats(element->rec.stats, streamStart);
+	}
         ObjectStoreBase::marshal(element->rec, obj.value, _communicator, _encoding);
     }
 }
@@ -1422,6 +1436,8 @@ Freeze::BackgroundSaveEvictorElement::BackgroundSaveEvictorElement(ObjectStore<B
     stale(true),
     status(clean)
 {
+    const Statistics cleanStats = { 0 };
+    rec.stats = cleanStats;
 }
 
 Freeze::BackgroundSaveEvictorElement::~BackgroundSaveEvictorElement()

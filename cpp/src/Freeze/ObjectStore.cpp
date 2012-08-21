@@ -353,7 +353,15 @@ Freeze::ObjectStoreBase::marshal(const ObjectRecord& v,
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
     stream.startWriteEncaps();
-    v.__write(&stream);
+    if(encoding == Ice::Encoding_1_0)
+    {
+	v.__write(&stream);
+    }
+    else
+    {
+	stream.write(v.servant);
+    }
+
     stream.writePendingObjects();
     stream.endWriteEncaps();
     vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
@@ -372,7 +380,16 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
     memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
     stream.startReadEncaps();
-    v.__read(&stream);
+    
+    if(encoding == Ice::Encoding_1_0)
+    {
+	v.__read(&stream);
+    }
+    else
+    {
+	stream.read(v.servant);
+    }
+    
     stream.readPendingObjects();
     stream.endReadEncaps();
 }

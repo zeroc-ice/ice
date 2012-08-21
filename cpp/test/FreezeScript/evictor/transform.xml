@@ -1,7 +1,15 @@
 <transformdb>
+
+    <database key="::Ice::Identity" value="Object">
+	<record/>
+    </database>
+
+<!--
     <database key="::Ice::Identity" value="::Freeze::ObjectRecord">
 	<record/>
     </database>
+-->
+
     
     <!-- enum ::Test::E -->
     <transform type="::Test::E"/>

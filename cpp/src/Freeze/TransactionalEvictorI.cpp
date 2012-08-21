@@ -139,12 +139,15 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
     checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
-    Ice::Long currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+    Ice::Long currentTime = 0;
+
+    if(_encoding == Ice::Encoding_1_0)
+    {
+	currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+    }
 
     Statistics stats = { currentTime };
-    ObjectRecord rec;
-    rec.servant = servant;
-    rec.stats = stats;
+    ObjectRecord rec = { servant, stats };
    
     ObjectStore<TransactionalEvictorElement>* store = findStore(facet, _createDb);
     
@@ -156,7 +159,10 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
      
     TransactionIPtr tx = beforeQuery();
         
-    updateStats(rec.stats, currentTime);
+    if(_encoding == Ice::Encoding_1_0)
+    {
+	updateStats(rec.stats, currentTime);
+    }
 
     if(!store->insert(ident, rec, tx))
     {

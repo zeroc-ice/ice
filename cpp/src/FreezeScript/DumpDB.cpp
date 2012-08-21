@@ -106,6 +106,7 @@ usage(const string& n)
         "--select EXPR         Dump a record only if EXPR is true.\n"
         "-c, --catalog         Display information about the databases in an\n"
         "                      environment, or about a particular database.\n"
+	"--encoding VERSION    Sets the encoding version for the database environment.\n"
         ;
 }
 
@@ -158,6 +159,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     opts.addOpt("", "value", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "select", IceUtilInternal::Options::NeedArg);
     opts.addOpt("c", "catalog");
+    opts.addOpt("", "encoding", IceUtilInternal::Options::NeedArg);
 
     vector<string> args;
     try
@@ -170,6 +172,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         usage(appName);
         return EXIT_FAILURE;
     }
+
+    Ice::EncodingVersion encoding = Ice::currentEncoding;
 
     //
     // Freeze creates a lock file by default to prevent multiple processes from opening
@@ -189,6 +193,9 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         {
             props->setProperty(prefix + ".LockFile", "0");
         }
+
+	encoding = Ice::stringToEncodingVersion(
+	    props->getPropertyWithDefault(prefix + ".Encoding", Ice::encodingVersionToString(encoding)));
     }
 
     if(opts.isSet("h"))
@@ -314,6 +321,16 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     {
         selectExpr = opts.optArg("select");
     }
+    if(opts.isSet("encoding"))
+    {
+	encoding = Ice::stringToEncodingVersion(opts.optArg("encoding"));
+    }
+
+    if(!IceInternal::isSupported(encoding, Ice::currentEncoding))
+    {
+	cerr << appName << ": " << "unsupported encoding" << endl;
+	return EXIT_FAILURE;
+    }
 
     if(outputFile.empty() && args.size() != 2)
     {
@@ -357,7 +374,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     if(inputFile.empty())
     {
         const string evictorKeyTypeName = "::Ice::Identity";
-        const string evictorValueTypeName = "::Freeze::ObjectRecord";
+	const string evictorValueTypeName = (encoding == Ice::Encoding_1_0) ? "::Freeze::ObjectRecord" : "Object";
 
         if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty()))
         {

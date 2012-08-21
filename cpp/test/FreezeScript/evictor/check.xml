@@ -1,10 +1,21 @@
 <transformdb>
+
+<!--
     <database key="::Ice::Identity" value="::Freeze::ObjectRecord">
 	<record>
             <fail test="newvalue.servant.ice_id == '::Test::DerivedMainObject'"/>
             <fail test="newvalue.servant.ice_id == '::Test::DerivedFacetObject'"/>
         </record>
     </database>
+-->
+
+    <database key="::Ice::Identity" value="Object">
+	<record>
+            <fail test="newvalue.ice_id == '::Test::DerivedMainObject'"/>
+            <fail test="newvalue.ice_id == '::Test::DerivedFacetObject'"/>
+        </record>
+    </database>
+
     
     <!-- enum ::Test::E -->
     <transform type="::Test::E"/>

@@ -83,6 +83,10 @@ usage(const std::string& n)
         "-p                    Purge objects whose types no longer exist.\n"
         "-c                    Use catastrophic recovery on the old database environment.\n"
         "-w                    Suppress duplicate warnings during migration.\n"
+	"--encoding VER[,VER]  Specifies the Ice encoding version for the database\n"
+	"                      environments. If the encoding version remains the same,\n"
+	"                      only one needs to be specified. Otherwise, the versions\n"
+	"                      are specified as old-version,new-version.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         ;
 }
@@ -232,6 +236,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     string valueTypeNames;
     string dbEnvName, dbName, dbEnvNameNew;
     bool allDb = false;
+    Ice::EncodingVersion oldEncoding = Ice::currentEncoding;
+    Ice::EncodingVersion newEncoding = Ice::currentEncoding;
 
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -245,6 +251,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     opts.addOpt("p");
     opts.addOpt("c");
     opts.addOpt("w");
+    opts.addOpt("", "encoding", IceUtilInternal::Options::NeedArg);
     opts.addOpt("f", "", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "include-old", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "include-new", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
@@ -308,6 +315,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     purgeObjects = opts.isSet("p");
     catastrophicRecover = opts.isSet("c");
     suppress = opts.isSet("w");
+
     if(opts.isSet("f"))
     {
         inputFile = opts.optArg("f");
@@ -432,6 +440,38 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         {
             props->setProperty(prefix + ".LockFile", "0");
         }
+
+	oldEncoding = Ice::stringToEncodingVersion(
+	    props->getPropertyWithDefault(prefix + ".Encoding", Ice::encodingVersionToString(oldEncoding)));
+    }
+
+    if(opts.isSet("encoding"))
+    {
+	string encodingList = opts.optArg("encoding");
+	string::size_type pos = encodingList.find(",");
+
+	if(pos == 0 || pos == encodingList.size())
+	{
+	    cerr << appName << ": " << "unsupported encoding" << endl;
+	    return EXIT_FAILURE;
+	}
+	if(pos == string::npos)
+	{
+	    oldEncoding = Ice::stringToEncodingVersion(encodingList);
+	    newEncoding = oldEncoding;
+	}
+	else
+	{
+	    oldEncoding = Ice::stringToEncodingVersion(encodingList.substr(0, pos));
+	    newEncoding = Ice::stringToEncodingVersion(encodingList.substr(pos + 1));
+	}
+    }
+
+    if(!IceInternal::isSupported(oldEncoding, Ice::currentEncoding) ||
+       !IceInternal::isSupported(newEncoding, Ice::currentEncoding))
+    {
+	cerr << appName << ": " << "unsupported encoding" << endl;
+	return EXIT_FAILURE;
     }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, underscore);
@@ -490,7 +530,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         FreezeScript::TransformAnalyzer analyzer(oldUnit, newUnit, ignoreTypeChanges, out, missingTypes, analyzeErrors);
 
         const string evictorKeyName = "::Ice::Identity";
-        const string evictorValueName = "::Freeze::ObjectRecord";
+	const string oldEvictorValueTypeName = (oldEncoding == Ice::Encoding_1_0) ? "::Freeze::ObjectRecord" : "Object";
+	const string newEvictorValueTypeName = (newEncoding == Ice::Encoding_1_0) ? "::Freeze::ObjectRecord" : "Object";
 
         if(allDb)
         {
@@ -504,7 +545,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                 if(p->second.evictor)
                 {
                     keyName = evictorKeyName;
-                    valueName = evictorValueName;
+                    valueName = oldEvictorValueTypeName;
                 }
                 else
                 {
@@ -533,7 +574,17 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                     cerr << appName << ": type `" << valueName << "' from database `" << p->first
                          << "' not found in old Slice definitions" << endl;
                 }
-                Slice::TypePtr newValueType = findType(newUnit, valueName);
+
+		Slice::TypePtr newValueType;
+		if(p->second.evictor)
+		{
+		    newValueType = findType(newUnit, newEvictorValueTypeName);
+		}
+		else
+		{
+		    newValueType = findType(newUnit, valueName);
+		}
+
                 if(!newValueType)
                 {
                     cerr << appName << ": type `" << valueName << "' from database `" << p->first
@@ -564,7 +615,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
             if(evictor)
             {
                 oldKeyName = newKeyName = evictorKeyName;
-                oldValueName = newValueName = evictorValueName;
+                oldValueName = oldEvictorValueTypeName;
+		newValueName = newEvictorValueTypeName;
             }
             else
             {
