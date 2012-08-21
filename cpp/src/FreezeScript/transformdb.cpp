@@ -83,8 +83,6 @@ usage(const std::string& n)
         "-p                    Purge objects whose types no longer exist.\n"
         "-c                    Use catastrophic recovery on the old database environment.\n"
         "-w                    Suppress duplicate warnings during migration.\n"
-	"--encoding VERSION    Set the Ice encoding version for the new database\n"
-	"                      environment.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
         ;
 }
@@ -186,8 +184,7 @@ transformDb(bool evictor,  const Ice::CommunicatorPtr& communicator,
         }
         
         Freeze::Catalog catalogNew(connectionNew, Freeze::catalogName());
-        Freeze::CatalogData catalogData;
-        catalogData.evictor = true;
+        Freeze::CatalogData catalogData = { true, "::Ice::Identity", "Object" };
         catalogNew.put(Freeze::Catalog::value_type(dbName, catalogData));
     }
     else
@@ -234,7 +231,6 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     string valueTypeNames;
     string dbEnvName, dbName, dbEnvNameNew;
     bool allDb = false;
-    Ice::EncodingVersion newEncoding = Ice::currentEncoding;
 
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -248,7 +244,6 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     opts.addOpt("p");
     opts.addOpt("c");
     opts.addOpt("w");
-    opts.addOpt("", "encoding", IceUtilInternal::Options::NeedArg);
     opts.addOpt("f", "", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "include-old", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "include-new", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
@@ -437,17 +432,6 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
         {
             props->setProperty(prefix + ".LockFile", "0");
         }
-    }
-
-    if(opts.isSet("encoding"))
-    {
-	newEncoding = Ice::stringToEncodingVersion(opts.optArg("encoding"));
-
-	if(!IceInternal::isSupported(newEncoding, Ice::currentEncoding))
-	{
-	    cerr << appName << ": " << "unsupported encoding" << endl;
-	    return EXIT_FAILURE;
-	}
     }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, underscore);
