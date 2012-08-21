@@ -275,7 +275,7 @@ Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
         {
             if(!_body.readOnly && !_body.removed)
             {
-		if(_body.store->encoding() == Ice::Encoding_1_0)
+		if(_body.store->keepStats())
 		{
 		    EvictorIBase::updateStats(_body.rec.stats, 
 					      IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds());

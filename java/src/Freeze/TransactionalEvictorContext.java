@@ -179,7 +179,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
                 {
                     if(!_readOnly && !_removed)
                     {
-			if(_store.encoding().equals(Ice.Util.Encoding_1_0))
+			if(_store.keepStats())
 			{
 			    EvictorI.updateStats(_rec.stats, IceInternal.Time.currentMonotonicTimeMillis());
 			}

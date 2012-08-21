@@ -61,10 +61,18 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         _deactivateController.lock();
         try
         {
+	    ObjectStore store = findStore(facet, _createDb);
+            if(store == null)
+            {
+                NotFoundException ex = new NotFoundException();
+                ex.message = _errorPrefix + "addFacet: could not open database for facet '" + facet + "'";
+                throw ex;
+            }
+
             long currentTime = 0;
 	    ObjectRecord rec;
 
-	    if(_encoding.equals(Ice.Util.Encoding_1_0))
+	    if(store.keepStats())
 	    {
 		currentTime = IceInternal.Time.currentMonotonicTimeMillis();
 		rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
@@ -74,17 +82,9 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 		rec = new ObjectRecord(servant, null);
 	    }
 
-            ObjectStore store = findStore(facet, _createDb);
-            if(store == null)
-            {
-                NotFoundException ex = new NotFoundException();
-                ex.message = _errorPrefix + "addFacet: could not open database for facet '" + facet + "'";
-                throw ex;
-            }
-
             TransactionI tx = beforeQuery();
 
-	    if(_encoding.equals(Ice.Util.Encoding_1_0))
+	    if(store.keepStats())
 	    {
 		updateStats(rec.stats, currentTime);
 	    }

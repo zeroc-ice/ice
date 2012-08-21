@@ -228,7 +228,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 element.status = dead;
                 element.rec = new ObjectRecord();
 
-		if(_encoding.equals(Ice.Util.Encoding_1_0))
+		if(store.keepStats())
 		{
 		    element.rec.stats = new Statistics();
 		}
@@ -281,7 +281,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                                 rec.servant = servant;
 				
-				if(_encoding.equals(Ice.Util.Encoding_1_0))
+				if(store.keepStats())
 				{
 				    rec.stats.creationTime = IceInternal.Time.currentMonotonicTimeMillis();
 				    rec.stats.lastSaveTime = 0;
@@ -1026,11 +1026,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
                 java.util.List<StreamedObject> streamedObjectQueue = new java.util.ArrayList<StreamedObject>();
 
-                long streamStart = 0;
-		if(_encoding.equals(Ice.Util.Encoding_1_0) || _trace >= 1)
-		{
-		    streamStart = IceInternal.Time.currentMonotonicTimeMillis();
-		}
+                long streamStart = IceInternal.Time.currentMonotonicTimeMillis();
 
                 //
                 // Stream each element
@@ -1470,11 +1466,13 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
 
         if(element.status != destroyed)
         {
-	    if(_encoding.equals(Ice.Util.Encoding_1_0))
+	    boolean keepStats = obj.store.keepStats();
+
+	    if(keepStats)
 	    {
 		updateStats(element.rec.stats, streamStart);
 	    }
-            obj.value = ObjectStore.marshalValue(element.rec, _communicator, _encoding);
+            obj.value = ObjectStore.marshalValue(element.rec, _communicator, _encoding, keepStats);
         }
         return obj;
     }

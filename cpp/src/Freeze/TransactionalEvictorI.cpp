@@ -139,27 +139,26 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
     checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
-    Ice::Long currentTime = 0;
-
-    if(_encoding == Ice::Encoding_1_0)
-    {
-	currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
-    }
-
-    Statistics stats = { currentTime };
-    ObjectRecord rec = { servant, stats };
-   
     ObjectStore<TransactionalEvictorElement>* store = findStore(facet, _createDb);
-    
     if(store == 0)
     {
         throw NotFoundException(__FILE__, __LINE__, "addFacet: could not open database for facet '"
                                 + facet + "'");
     }
      
+    Ice::Long currentTime = 0;
+
+    if(store->keepStats())
+    {
+	currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+    }
+
+    Statistics stats = { currentTime };
+    ObjectRecord rec = { servant, stats };
+  
     TransactionIPtr tx = beforeQuery();
         
-    if(_encoding == Ice::Encoding_1_0)
+    if(store->keepStats())
     {
 	updateStats(rec.stats, currentTime);
     }

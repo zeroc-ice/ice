@@ -301,7 +301,7 @@ Freeze::BackgroundSaveEvictorI::addFacet(const ObjectPtr& servant, const Identit
                     ObjectRecord& rec = element->rec;
 
                     rec.servant = servant;
-		    if(_encoding == Ice::Encoding_1_0)
+		    if(store->keepStats())
 		    {
 			rec.stats.creationTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
 			rec.stats.lastSaveTime = 0;
@@ -934,11 +934,7 @@ Freeze::BackgroundSaveEvictorI::run()
             
             deque<StreamedObject> streamedObjectQueue;
             
-            Long streamStart = 0;
-	    if(_encoding == Ice::Encoding_1_0 || _trace >= 1)
-	    {
-		streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
-	    }
+            Long streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
             
             //
             // Stream each element
@@ -1120,12 +1116,8 @@ Freeze::BackgroundSaveEvictorI::run()
                         txSize = streamedObjectQueue.size();
                     }
                     
-                    Long saveStart = 0;
-		    if(_encoding == Ice::Encoding_1_0 || _trace >= 1)
-		    {
-			saveStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
-		    }
-
+                    Long saveStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+		   
                     try
                     {
                         DbTxn* tx = 0;
@@ -1404,17 +1396,18 @@ Freeze::BackgroundSaveEvictorI::stream(const BackgroundSaveEvictorElementPtr& el
     
     obj.status = element->status;
     obj.store = &element->store;
-    
+
     const Identity& ident = element->cachePosition->first;
     ObjectStoreBase::marshal(ident, obj.key, _communicator, _encoding);
 
     if(element->status != destroyed)
     {
-	if(_encoding == Ice::Encoding_1_0)
+	bool keepStats = obj.store->keepStats();
+	if(keepStats)
 	{
 	    EvictorIBase::updateStats(element->rec.stats, streamStart);
 	}
-        ObjectStoreBase::marshal(element->rec, obj.value, _communicator, _encoding);
+        ObjectStoreBase::marshal(element->rec, obj.value, _communicator, _encoding, keepStats);
     }
 }
 

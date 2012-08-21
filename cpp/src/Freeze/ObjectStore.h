@@ -44,8 +44,8 @@ public:
 
     static void marshal(const Ice::Identity&, Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
     static void unmarshal(Ice::Identity&, const Key&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
-    static void marshal(const ObjectRecord&, Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
-    static void unmarshal(ObjectRecord&, const Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&);
+    static void marshal(const ObjectRecord&, Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, bool);
+    static void unmarshal(ObjectRecord&, const Value&, const Ice::CommunicatorPtr&, const Ice::EncodingVersion&, bool);
 
     bool load(const Ice::Identity&, const TransactionIPtr&, ObjectRecord&);
     void update(const Ice::Identity&, const ObjectRecord&, const TransactionIPtr&);
@@ -64,7 +64,8 @@ public:
     const Ice::CommunicatorPtr& communicator() const;
     const Ice::EncodingVersion& encoding() const;
     const std::string& facet() const;
-
+    bool keepStats() const;
+    
 protected:
 
     bool loadImpl(const Ice::Identity&, ObjectRecord&);
@@ -79,6 +80,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     Ice::EncodingVersion _encoding;
     Ice::ObjectPtr _sampleServant;
+    bool _keepStats;
 };
 
 
@@ -154,6 +156,12 @@ inline const std::string&
 ObjectStoreBase::facet() const
 {
     return _facet;
+}
+
+inline bool
+ObjectStoreBase::keepStats() const
+{
+    return _keepStats;
 }
 
 inline const Ice::ObjectPtr&
