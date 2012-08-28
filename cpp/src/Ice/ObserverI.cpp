@@ -96,7 +96,6 @@ struct ThreadStateChanged
             ++(v.get()->*getThreadStateMetric(newState));
         }
     }
-    
 
     ThreadState oldState;
     ThreadState newState;
@@ -175,7 +174,9 @@ public:
         IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection);
         if(info)
         {
-            os << info->localAddress << ':' << info->localPort << " -> " << info->remoteAddress << ':' << info->remotePort;
+            os << info->localAddress << ':' << info->localPort;
+            os << " -> ";
+            os << info->remoteAddress << ':' << info->remotePort;
         }
         else
         {
@@ -197,13 +198,13 @@ public:
         }
     }
     
-    ::Ice::ConnectionInfoPtr
+    ConnectionInfoPtr
     getConnectionInfo() const
     {
         return _connection;
     }
 
-    ::Ice::EndpointInfoPtr
+    EndpointInfoPtr
     getEndpointInfo() const
     {
         return _endpoint;
@@ -211,9 +212,9 @@ public:
     
 private:
 
-    ConnectionInfoPtr _connection;
-    EndpointInfoPtr _endpoint;
-    ConnectionState _state;
+    const ConnectionInfoPtr _connection;
+    const EndpointInfoPtr _endpoint;
+    const ConnectionState _state;
 };
 
 ConnectionHelper::Attributes ConnectionHelper::attributes;
@@ -288,13 +289,13 @@ public:
         return _current.adapter->getName();
     }
 
-    ::Ice::ConnectionInfoPtr
+    ConnectionInfoPtr
     getConnectionInfo() const
     {
         return _current.con->getInfo();
     }
 
-    ::Ice::EndpointInfoPtr
+    EndpointInfoPtr
     getEndpointInfo() const
     {
         return _current.con->getEndpoint()->getInfo();
@@ -424,7 +425,7 @@ public:
 private:
 
     const ObjectPrx& _proxy;
-    string _operation;
+    const string _operation;
     const Ice::Context& _context;
 };
 
@@ -485,13 +486,13 @@ public:
         }
     }
     
-    ::Ice::ConnectionInfoPtr
+    ConnectionInfoPtr
     getConnectionInfo() const
     {
         return _connection->getInfo();
     }
 
-    ::Ice::EndpointInfoPtr
+    EndpointInfoPtr
     getEndpointInfo() const
     {
         return _connection->getEndpoint()->getInfo();
@@ -499,7 +500,7 @@ public:
     
 private:
 
-    ConnectionPtr _connection;
+    const ConnectionPtr _connection;
 };
 
 RemoteInvocationHelper::Attributes RemoteInvocationHelper::attributes;
@@ -539,8 +540,8 @@ public:
 
 private:
     
-    const std::string _parent;
-    const std::string _id;
+    const string _parent;
+    const string _id;
     const ThreadState _state;
 };
 
@@ -572,13 +573,13 @@ public:
         return attributes(this, attribute);
     }
 
-    Ice::EndpointInfoPtr
+    EndpointInfoPtr
     getEndpointInfo() const
     {
         return _endpoint;
     }
 
-    std::string
+    string
     getParent() const
     {
         return "Communicator";
@@ -586,8 +587,8 @@ public:
 
 private:
     
-    const std::string _id;
-    const Ice::EndpointInfoPtr _endpoint;
+    const string _id;
+    const EndpointInfoPtr _endpoint;
 };
 
 EndpointHelper::Attributes EndpointHelper::attributes;
@@ -625,10 +626,6 @@ ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
     forEach(ThreadStateChanged(oldState, newState));
 }
 
-InvocationObserverI::InvocationObserverI()
-{
-}
-
 void
 InvocationObserverI::retried()
 {
@@ -636,7 +633,7 @@ InvocationObserverI::retried()
 }
 
 ObserverPtr
-InvocationObserverI::getRemoteObserver(const Ice::ConnectionPtr& connection)
+InvocationObserverI::getRemoteObserver(const ConnectionPtr& connection)
 {
     return getObserver<ObserverI>("Remote", RemoteInvocationHelper(connection));
 }
@@ -650,7 +647,7 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
     _connects(metrics, "ConnectionEstablishment"),
     _endpointLookups(metrics, "EndpointLookup")
 {
-    _invocations.registerSubMap("Remote", &InvocationMetrics::remotes);
+    _invocations.registerSubMap<Metrics>("Remote", &InvocationMetrics::remotes);
     _metrics->updateViews();
 }
 
@@ -662,13 +659,13 @@ CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 }
 
 ObserverPtr
-CommunicatorObserverI::getConnectionEstablishmentObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
+CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointInfoPtr& endpt, const string& connector)
 {
     return _connects.getObserver(EndpointHelper(endpt, connector));
 }
 
 ObserverPtr
-CommunicatorObserverI::getEndpointLookupObserver(const Ice::EndpointInfoPtr& endpt, const string& endpoint)
+CommunicatorObserverI::getEndpointLookupObserver(const EndpointInfoPtr& endpt, const string& endpoint)
 {
     return _endpointLookups.getObserver(EndpointHelper(endpt, endpoint));
 }

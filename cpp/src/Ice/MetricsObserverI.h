@@ -402,10 +402,10 @@ public:
         return obsv;
     }
 
-    void 
+    template<typename SubMapMetricsType> void 
     registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
     {
-        _metrics->registerSubMap<MetricsType>(_name, subMap, member);
+        _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
     }
 
 private:

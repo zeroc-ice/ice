@@ -130,28 +130,6 @@ template<typename T> struct Add
     T value;
 };
 
-template<typename Func1, typename Func2> struct Chain
-{
-    Chain(Func1 f1, Func2 f2) : func1(f1), func2(f2)
-    {
-    }
-
-    template<typename T>
-    void operator()(const T& v)
-    {
-        func1(v);
-        func2(v);
-    }
-
-    Func1 func1;
-    Func2 func2;
-};
-
-template<typename Func1, typename Func2> Chain<Func1, Func2> chain(Func1 f1, Func2 f2)
-{
-    return Chain<Func1, Func2>(f1, f2);
-}  
-
 template<class T, typename Y, typename F> ApplyOnMember<T, Y, F> applyOnMember(Y T::*member, F func)
 {
     return ApplyOnMember<T, Y, F>(member, func);

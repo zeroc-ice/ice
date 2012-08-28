@@ -37,8 +37,6 @@ class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, pub
 {
 public:
 
-    InvocationObserverI();
-
     virtual void retried();
 
     virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionPtr&);
