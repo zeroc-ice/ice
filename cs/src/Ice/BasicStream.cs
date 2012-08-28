@@ -825,15 +825,13 @@ namespace IceInternal
             _buf.b.put(v);
         }
 
-        /*
-        public void writeByte(int tag, Ice.ByteOptional v)
+        public void writeByte(int tag, Ice.Optional<byte> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeByte(tag, v.get());
+                writeByte(tag, v.Value);
             }
         }
-        */
 
         public void writeByte(int tag, byte v)
         {
@@ -920,21 +918,36 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeByteSeq(int tag, Ice.Optional<byte[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeByteSeq(tag, v.get());
+                writeByteSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeByteSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<byte>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeByteSeq(count, v.Value);
+            }
+        }
 
         public void writeByteSeq(int tag, byte[] v)
         {
             if(writeOpt(tag, Ice.OptionalType.VSize))
             {
                 writeByteSeq(v);
+            }
+        }
+
+        public void writeByteSeq(int tag, int count, IEnumerable<byte> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeByteSeq(count, v);
             }
         }
 
@@ -974,19 +987,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readByte(int tag, Ice.ByteOptional v)
+        public Ice.Optional<byte> readByte(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F1))
             {
-                v.set(readByte());
+                return new Ice.Optional<byte>(readByte());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<byte>();
             }
         }
-        */
+
+        public void readByte(int tag, out bool isset, out byte v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F1))
+            {
+                v = readByte();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public byte[] readByteSeq()
         {
@@ -1047,19 +1070,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readByteSeq(int tag, Ice.Optional<byte[]> v)
+        public Ice.Optional<byte[]> readByteSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
-                v.set(readByteSeq());
+                return new Ice.Optional<byte[]>(readByteSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<byte[]>();
             }
         }
-        */
+
+        public void readByteSeq(int tag, out bool isset, out byte[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                v = readByteSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public object readSerializable()
         {
@@ -1090,15 +1123,13 @@ namespace IceInternal
             _buf.b.put(v ? (byte)1 : (byte)0);
         }
 
-        /*
-        public void writeBool(int tag, Ice.BooleanOptional v)
+        public void writeBool(int tag, Ice.Optional<bool> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeBool(tag, v.get());
+                writeBool(tag, v.Value);
             }
         }
-        */
 
         public void writeBool(int tag, bool v)
         {
@@ -1185,21 +1216,36 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeBoolSeq(int tag, Ice.Optional<bool[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeBoolSeq(tag, v.get());
+                writeBoolSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeBoolSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<bool>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeBoolSeq(count, v.Value);
+            }
+        }
 
         public void writeBoolSeq(int tag, bool[] v)
         {
             if(writeOpt(tag, Ice.OptionalType.VSize))
             {
                 writeBoolSeq(v);
+            }
+        }
+
+        public void writeBoolSeq(int tag, int count, IEnumerable<bool> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeBoolSeq(count, v);
             }
         }
 
@@ -1215,19 +1261,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readBool(int tag, Ice.BooleanOptional v)
+        public Ice.Optional<bool> readBool(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F1))
             {
-                v.set(readBool());
+                return new Ice.Optional<bool>(readBool());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<bool>();
             }
         }
-        */
+
+        public void readBool(int tag, out bool isset, out bool v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F1))
+            {
+                v = readBool();
+            }
+            else
+            {
+                v = false;
+            }
+        }
 
         public bool[] readBoolSeq()
         {
@@ -1288,19 +1344,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readBoolSeq(int tag, Ice.Optional<bool[]> v)
+        public Ice.Optional<bool[]> readBoolSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
-                v.set(readBoolSeq());
+                return new Ice.Optional<bool[]>(readBoolSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<bool[]>();
             }
         }
-        */
+
+        public void readBoolSeq(int tag, out bool isset, out bool[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                v = readBoolSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeShort(short v)
         {
@@ -1308,15 +1374,13 @@ namespace IceInternal
             _buf.b.putShort(v);
         }
 
-        /*
-        public void writeShort(int tag, Ice.ShortOptional v)
+        public void writeShort(int tag, Ice.Optional<short> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeShort(tag, v.get());
+                writeShort(tag, v.Value);
             }
         }
-        */
 
         public void writeShort(int tag, short v)
         {
@@ -1398,15 +1462,23 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeShortSeq(int tag, Ice.Optional<short[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeShortSeq(tag, v.get());
+                writeShortSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeShortSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<short>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
+                writeShortSeq(count, v.Value);
+            }
+        }
 
         public void writeShortSeq(int tag, short[] v)
         {
@@ -1414,6 +1486,15 @@ namespace IceInternal
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
                 writeShortSeq(v);
+            }
+        }
+
+        public void writeShortSeq(int tag, int count, IEnumerable<short> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
+                writeShortSeq(count, v);
             }
         }
 
@@ -1429,19 +1510,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readShort(int tag, Ice.ShortOptional v)
+        public Ice.Optional<short> readShort(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F2))
             {
-                v.set(readShort());
+                return new Ice.Optional<short>(readShort());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<short>();
             }
         }
-        */
+
+        public void readShort(int tag, out bool isset, out short v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F2))
+            {
+                v = readShort();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public short[] readShortSeq()
         {
@@ -1502,20 +1593,31 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readShortSeq(int tag, Ice.Optional<short[]> v)
+        public Ice.Optional<short[]> readShortSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
                 skipSize();
-                v.set(readShortSeq());
+                return new Ice.Optional<short[]>(readShortSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<short[]>();
             }
         }
-        */
+
+        public void readShortSeq(int tag, out bool isset, out short[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                skipSize();
+                v = readShortSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeInt(int v)
         {
@@ -1523,15 +1625,13 @@ namespace IceInternal
             _buf.b.putInt(v);
         }
 
-        /*
-        public void writeInt(int tag, Ice.IntOptional v)
+        public void writeInt(int tag, Ice.Optional<int> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeInt(tag, v.get());
+                writeInt(tag, v.Value);
             }
         }
-        */
 
         public void writeInt(int tag, int v)
         {
@@ -1618,15 +1718,23 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeIntSeq(int tag, Ice.Optional<int[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeIntSeq(tag, v.get());
+                writeIntSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeIntSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<int>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeIntSeq(count, v.Value);
+            }
+        }
 
         public void writeIntSeq(int tag, int[] v)
         {
@@ -1634,6 +1742,15 @@ namespace IceInternal
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeIntSeq(v);
+            }
+        }
+
+        public void writeIntSeq(int tag, int count, IEnumerable<int> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeIntSeq(count, v);
             }
         }
 
@@ -1649,19 +1766,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readInt(int tag, Ice.IntOptional v)
+        public Ice.Optional<int> readInt(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F4))
             {
-                v.set(readInt());
+                return new Ice.Optional<int>(readInt());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<int>();
             }
         }
-        */
+
+        public void readInt(int tag, out bool isset, out int v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F4))
+            {
+                v = readInt();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public int[] readIntSeq()
         {
@@ -1742,20 +1869,31 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readIntSeq(int tag, Ice.Optional<int[]> v)
+        public Ice.Optional<int[]> readIntSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
                 skipSize();
-                v.set(readIntSeq());
+                return new Ice.Optional<int[]>(readIntSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<int[]>();
             }
         }
-        */
+
+        public void readIntSeq(int tag, out bool isset, out int[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                skipSize();
+                v = readIntSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeLong(long v)
         {
@@ -1763,15 +1901,13 @@ namespace IceInternal
             _buf.b.putLong(v);
         }
 
-        /*
-        public void writeLong(int tag, Ice.LongOptional v)
+        public void writeLong(int tag, Ice.Optional<long> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeLong(tag, v.get());
+                writeLong(tag, v.Value);
             }
         }
-        */
 
         public void writeLong(int tag, long v)
         {
@@ -1853,15 +1989,23 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeLongSeq(int tag, Ice.Optional<long[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeLongSeq(tag, v.get());
+                writeLongSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeLongSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<long>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeLongSeq(count, v.Value);
+            }
+        }
 
         public void writeLongSeq(int tag, long[] v)
         {
@@ -1869,6 +2013,15 @@ namespace IceInternal
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeLongSeq(v);
+            }
+        }
+
+        public void writeLongSeq(int tag, int count, IEnumerable<long> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeLongSeq(count, v);
             }
         }
 
@@ -1884,19 +2037,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readLong(int tag, Ice.LongOptional v)
+        public Ice.Optional<long> readLong(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F8))
             {
-                v.set(readLong());
+                return new Ice.Optional<long>(readLong());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<long>();
             }
         }
-        */
+
+        public void readLong(int tag, out bool isset, out long v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F8))
+            {
+                v = readLong();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public long[] readLongSeq()
         {
@@ -1977,20 +2140,31 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readLongSeq(int tag, Ice.Optional<long[]> v)
+        public Ice.Optional<long[]> readLongSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
                 skipSize();
-                v.set(readLongSeq());
+                return new Ice.Optional<long[]>(readLongSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<long[]>();
             }
         }
-        */
+
+        public void readLongSeq(int tag, out bool isset, out long[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                skipSize();
+                v = readLongSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeFloat(float v)
         {
@@ -1998,15 +2172,13 @@ namespace IceInternal
             _buf.b.putFloat(v);
         }
 
-        /*
-        public void writeFloat(int tag, Ice.FloatOptional v)
+        public void writeFloat(int tag, Ice.Optional<float> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeFloat(tag, v.get());
+                writeFloat(tag, v.Value);
             }
         }
-        */
 
         public void writeFloat(int tag, float v)
         {
@@ -2088,15 +2260,23 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeFloatSeq(int tag, Ice.Optional<float[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeFloatSeq(tag, v.get());
+                writeFloatSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeFloatSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<float>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeFloatSeq(count, v.Value);
+            }
+        }
 
         public void writeFloatSeq(int tag, float[] v)
         {
@@ -2104,6 +2284,15 @@ namespace IceInternal
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeFloatSeq(v);
+            }
+        }
+
+        public void writeFloatSeq(int tag, int count, IEnumerable<float> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeFloatSeq(count, v);
             }
         }
 
@@ -2119,19 +2308,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readFloat(int tag, Ice.FloatOptional v)
+        public Ice.Optional<float> readFloat(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F4))
             {
-                v.set(readFloat());
+                return new Ice.Optional<float>(readFloat());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<float>();
             }
         }
-        */
+
+        public void readFloat(int tag, out bool isset, out float v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F4))
+            {
+                v = readFloat();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public float[] readFloatSeq()
         {
@@ -2212,20 +2411,31 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readFloatSeq(int tag, Ice.Optional<float[]> v)
+        public Ice.Optional<float[]> readFloatSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
                 skipSize();
-                v.set(readFloatSeq());
+                return new Ice.Optional<float[]>(readFloatSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<float[]>();
             }
         }
-        */
+
+        public void readFloatSeq(int tag, out bool isset, out float[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                skipSize();
+                v = readFloatSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeDouble(double v)
         {
@@ -2233,15 +2443,13 @@ namespace IceInternal
             _buf.b.putDouble(v);
         }
 
-        /*
-        public void writeDouble(int tag, Ice.DoubleOptional v)
+        public void writeDouble(int tag, Ice.Optional<double> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeDouble(tag, v.get());
+                writeDouble(tag, v.Value);
             }
         }
-        */
 
         public void writeDouble(int tag, double v)
         {
@@ -2323,15 +2531,23 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeDoubleSeq(int tag, Ice.Optional<double[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeDoubleSeq(tag, v.get());
+                writeDoubleSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeDoubleSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<double>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeDoubleSeq(count, v.Value);
+            }
+        }
 
         public void writeDoubleSeq(int tag, double[] v)
         {
@@ -2339,6 +2555,15 @@ namespace IceInternal
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeDoubleSeq(v);
+            }
+        }
+
+        public void writeDoubleSeq(int tag, int count, IEnumerable<double> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.VSize))
+            {
+                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeDoubleSeq(count, v);
             }
         }
 
@@ -2354,19 +2579,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readDouble(int tag, Ice.DoubleOptional v)
+        public Ice.Optional<double> readDouble(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.F8))
             {
-                v.set(readDouble());
+                return new Ice.Optional<double>(readDouble());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<double>();
             }
         }
-        */
+
+        public void readDouble(int tag, out bool isset, out double v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.F8))
+            {
+                v = readDouble();
+            }
+            else
+            {
+                v = 0;
+            }
+        }
 
         public double[] readDoubleSeq()
         {
@@ -2447,20 +2682,31 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readDoubleSeq(int tag, Ice.Optional<double[]> v)
+        public Ice.Optional<double[]> readDoubleSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
                 skipSize();
-                v.set(readDoubleSeq());
+                return new Ice.Optional<double[]>(readDoubleSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<double[]>();
             }
         }
-        */
+
+        public void readDoubleSeq(int tag, out bool isset, out double[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                skipSize();
+                v = readDoubleSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
@@ -2477,15 +2723,13 @@ namespace IceInternal
             _buf.b.put(arr);
         }
 
-        /*
         public void writeString(int tag, Ice.Optional<string> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeString(tag, v.get());
+                writeString(tag, v.Value);
             }
         }
-        */
 
         public void writeString(int tag, string v)
         {
@@ -2523,15 +2767,24 @@ namespace IceInternal
             }
         }
 
-        /*
         public void writeStringSeq(int tag, Ice.Optional<String[]> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeStringSeq(tag, v.get());
+                writeStringSeq(tag, v.Value);
             }
         }
-        */
+
+        public void writeStringSeq<T>(int tag, int count, Ice.Optional<T> v)
+            where T : IEnumerable<string>
+        {
+            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.FSize))
+            {
+                startSize();
+                writeStringSeq(count, v.Value);
+                endSize();
+            }
+        }
 
         public void writeStringSeq(int tag, string[] v)
         {
@@ -2539,6 +2792,16 @@ namespace IceInternal
             {
                 startSize();
                 writeStringSeq(v);
+                endSize();
+            }
+        }
+
+        public void writeStringSeq(int tag, int count, IEnumerable<string> v)
+        {
+            if(writeOpt(tag, Ice.OptionalType.FSize))
+            {
+                startSize();
+                writeStringSeq(count, v);
                 endSize();
             }
         }
@@ -2583,19 +2846,29 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readString(int tag, Ice.Optional<string> v)
+        public Ice.Optional<string> readString(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.VSize))
             {
-                v.set(readString());
+                return new Ice.Optional<string>(readString());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<string>();
             }
         }
-        */
+
+        public void readString(int tag, out bool isset, out string v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            {
+                v = readString();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public string[] readStringSeq()
         {
@@ -2667,35 +2940,44 @@ namespace IceInternal
             }
         }
 
-        /*
-        public void readStringSeq(int tag, Ice.Optional<string[]> v)
+        public Ice.Optional<string[]> readStringSeq(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.FSize))
             {
                 skip(4);
-                v.set(readStringSeq());
+                return new Ice.Optional<string[]>(readStringSeq());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<string[]>();
             }
         }
-        */
+
+        public void readStringSeq(int tag, out bool isset, out string[] v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.FSize))
+            {
+                skip(4);
+                v = readStringSeq();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeProxy(Ice.ObjectPrx v)
         {
             instance_.proxyFactory().proxyToStream(v, this);
         }
 
-        /*
         public void writeProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeProxy(tag, v.get());
+                writeProxy(tag, v.Value);
             }
         }
-        */
 
         public void writeProxy(int tag, Ice.ObjectPrx v)
         {
@@ -2712,20 +2994,31 @@ namespace IceInternal
             return instance_.proxyFactory().streamToProxy(this);
         }
 
-        /*
-        public void readProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
+        public Ice.Optional<Ice.ObjectPrx> readProxy(int tag)
         {
             if(readOpt(tag, Ice.OptionalType.FSize))
             {
                 skip(4);
-                v.set(readProxy());
+                return new Ice.Optional<Ice.ObjectPrx>(readProxy());
             }
             else
             {
-                v.clear();
+                return new Ice.Optional<Ice.ObjectPrx>();
             }
         }
-        */
+
+        public void readProxy(int tag, out bool isset, out Ice.ObjectPrx v)
+        {
+            if(isset = readOpt(tag, Ice.OptionalType.FSize))
+            {
+                skip(4);
+                v = readProxy();
+            }
+            else
+            {
+                v = null;
+            }
+        }
 
         public void writeEnum(int v, int limit)
         {
@@ -2747,6 +3040,14 @@ namespace IceInternal
             else
             {
                 writeSize(v);
+            }
+        }
+
+        public void writeEnum(int tag, int v, int limit)
+        {
+            if(writeOpt(tag, Ice.OptionalType.Size))
+            {
+                writeEnum(v, limit);
             }
         }
 
@@ -2779,15 +3080,14 @@ namespace IceInternal
             _writeEncapsStack.encoder.writeObject(v);
         }
 
-        /*
-        public <T extends Ice.Object> void writeObject(int tag, Ice.Optional<T> v)
+        public void writeObject<T>(int tag, Ice.Optional<T> v)
+            where T : Ice.Object
         {
-            if(v != null && v.isSet())
+            if(v != null && v.HasValue)
             {
-                writeObject(tag, v.get());
+                writeObject(tag, v.Value);
             }
         }
-        */
 
         public void writeObject(int tag, Ice.Object v)
         {
@@ -2804,20 +3104,19 @@ namespace IceInternal
             _readEncapsStack.decoder.readObject(patcher);
         }
 
-        /*
-        public void readObject(int tag, Ice.Optional<Ice.Object> v)
+        public void readObject<T>(int tag, Ice.Optional<T> v, string type)
+            where T : Ice.Object
         {
             if(readOpt(tag, Ice.OptionalType.Size))
             {
-                Ice.OptionalObject opt = new Ice.OptionalObject(v, Ice.Object.class, Ice.ObjectImpl.ice_staticId());
+                Ice.OptionalObject<T> opt = new Ice.OptionalObject<T>(v, type);
                 readObject(opt);
             }
             else
             {
-                v.clear();
+                v.Clear();
             }
         }
-        */
 
         public void writeUserException(Ice.UserException v)
         {
@@ -2831,8 +3130,7 @@ namespace IceInternal
             _readEncapsStack.decoder.throwException(factory);
         }
 
-        public void
-        sliceObjects(bool b)
+        public void sliceObjects(bool b)
         {
             _sliceObjects = b;
         }

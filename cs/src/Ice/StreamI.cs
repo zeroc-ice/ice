@@ -135,7 +135,7 @@ namespace Ice
             return _is.readProxy();
         }
 
-        private class Patcher<T> : IceInternal.Patcher<T>
+        private class Patcher<T> : IceInternal.Patcher
         {
             public Patcher(ReadObjectCallback cb) : base("unknown")
             {

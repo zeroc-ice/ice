@@ -20,7 +20,7 @@ namespace IceInternal
         string type();
     }
 
-    public abstract class Patcher<T> : IPatcher, Ice.ReadObjectCallback
+    public abstract class Patcher : IPatcher, Ice.ReadObjectCallback
     {
         public Patcher(string type)
         {
@@ -42,7 +42,7 @@ namespace IceInternal
         private string _type;
     }
 
-    public sealed class ParamPatcher<T> : Patcher<T>
+    public sealed class ParamPatcher<T> : Patcher
     {
         public ParamPatcher(string type) : base(type)
         {
@@ -54,13 +54,13 @@ namespace IceInternal
             {
                 IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
-            value = v;
+            value = (T)v;
         }
 
-        public Ice.Object value;
+        public T value;
     }
 
-    public sealed class CustomSeqPatcher<T> : Patcher<T>
+    public sealed class CustomSeqPatcher<T> : Patcher
     {
         public CustomSeqPatcher(string type, IEnumerable<T> seq, int index) : base(type)
         {
@@ -210,7 +210,7 @@ namespace IceInternal
         private int _index; // The index at which to patch the sequence.
     }
 
-    public sealed class ArrayPatcher<T> : Patcher<T>
+    public sealed class ArrayPatcher<T> : Patcher
     {
         public ArrayPatcher(string type, T[] seq, int index) : base(type)
         {
@@ -232,7 +232,7 @@ namespace IceInternal
         private int _index; // The index at which to patch the array.
     }
 
-    public sealed class SequencePatcher<T> : Patcher<T>
+    public sealed class SequencePatcher<T> : Patcher
     {
         public SequencePatcher(string type, Ice.CollectionBase<T> seq, int index) : base(type)
         {
@@ -266,7 +266,7 @@ namespace IceInternal
         private int _index; // The index at which to patch the sequence.
     }
 
-    public sealed class ListPatcher<T> : Patcher<T>
+    public sealed class ListPatcher<T> : Patcher
     {
         public ListPatcher(string type, List<T> seq, int index) : base(type)
         {
