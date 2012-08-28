@@ -312,11 +312,9 @@ class MetricsViewEditor extends Editor
                     row[1] = Integer.toString(o.current);
                     row[2] = Long.toString(o.total);
                     row[3] = Long.toString(o.receivedBytes);
-                    row[4] = Long.toString(o.receivedTime);
-                    row[5] = Long.toString(o.sentBytes);
-                    row[6] = Long.toString(o.sentTime);
-                    row[7] = metricAvg(o, 1000000.0f);
-                    row[8] = failures(key, node, o);
+                    row[4] = Long.toString(o.sentBytes);
+                    row[5] = metricAvg(o, 1000000.0f);
+                    row[6] = failures(key, node, o);
                     _connections.addRow(row);
                 }
             }
@@ -565,8 +563,8 @@ class MetricsViewEditor extends Editor
     private Object[] _dispatColumnNames = new Object[]{"Identity", "Current", "Total", "Avg (ms)", "Failures"};
 
     private DefaultTableModel _connections = new TableModel();
-    private Object[] _connectionsColumnNames = new Object[]{"Identity", "Current", "Total", "RxBytes", "RxTime", 
-                                                            "TxBytes", "TxTime", "Avg (s)", "Failures"};
+    private Object[] _connectionsColumnNames = new Object[]{"Identity", "Current", "Total", "RxBytes",  
+                                                            "TxBytes", "Avg (s)", "Failures"};
 
     private DefaultTableModel _invocations = new TableModel();
     private Object[] _invocationsColumnNames = new Object[]{"Identity", "Current", "Total", "Retries", "Avg (ms)",

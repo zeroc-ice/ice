@@ -121,7 +121,6 @@ public:
         clone() const
         {
             IceUtil::Mutex::Lock sync(*this);
-            // TODO: Fix ice_clone to use a co-variant type.
             return dynamic_cast<Metrics*>(_object->ice_clone().get());
         }
 
@@ -163,18 +162,23 @@ public:
     MetricsMap getMetrics() const;
     EntryPtr getMatching(const MetricsHelper&);
 
+    const Ice::PropertyDict& getMapProperties() const
+    {
+        return _properties;
+    }
+
+    virtual MetricsMapI* clone() const = 0;
+
 protected:
 
-    virtual EntryPtr newEntry(const MetricsPtr& object)
-    {
-        return new Entry(this, object);
-    }
+    virtual EntryPtr newEntry(const std::string&) = 0;
 
 private:
 
     friend class Entry;
     void detached(Entry*);
-
+    
+    const Ice::PropertyDict _properties;
     std::vector<std::string> _groupByAttributes;
     std::vector<std::string> _groupBySeparators;
     const int _retain;
@@ -201,7 +205,7 @@ public:
     typedef MetricsType T;
     typedef IceInternal::Handle<MetricsType> TPtr;
 
-    typedef MetricsMap MetricsType::*SubMapMember;
+    typedef MetricsMap MetricsType::* SubMapMember;
 
     class EntryT : public MetricsMapI::Entry
     {
@@ -251,12 +255,13 @@ public:
     };
     typedef IceUtil::Handle<EntryT> EntryTPtr;
 
-    MetricsMapT(const std::string& mapPrefix, 
+    MetricsMapT(const std::string& mapPrefix,
                 const Ice::PropertiesPtr& properties,
-                const std::map<std::string, SubMapMember>& subMaps) : 
+                const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >& subMaps) : 
         MetricsMapI(mapPrefix, properties)
     {
-        for(typename std::map<std::string, SubMapMember>::const_iterator p = subMaps.begin(); p != subMaps.end(); ++p)
+        typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >::const_iterator p;
+        for(p = subMaps.begin(); p != subMaps.end(); ++p)
         {
             const std::string subMapsPrefix = mapPrefix + ".Map.";
             std::string subMapPrefix = subMapsPrefix + p->first;
@@ -272,51 +277,87 @@ public:
                 }
             }
             _subMaps.insert(std::make_pair(p->first, 
-                                           std::make_pair(new MetricsMapI(subMapPrefix, properties), p->second)));
+                                           std::make_pair(p->second.first, 
+                                                          p->second.second->create(subMapPrefix, properties))));
         }
+    }
+
+    MetricsMapT(const MetricsMapT& other) : MetricsMapI(other)
+    {
     }
 
     std::pair<MetricsMapIPtr, SubMapMember>
     createSubMap(const std::string& subMapName)
     {
-        typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
+        typename std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr> >::const_iterator p =
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
-            return std::make_pair(new MetricsMapI(*p->second.first), p->second.second);
+            return std::make_pair(p->second.second->clone(), p->second.first);
         }
         return std::make_pair(MetricsMapIPtr(), static_cast<SubMapMember>(0));
     }
 
 protected:
 
-    virtual EntryPtr newEntry(const MetricsPtr& object)
+    virtual EntryPtr newEntry(const std::string& id)
     {
-        return new EntryT(this, TPtr::dynamicCast(object));
+        TPtr t = new T();
+        t->id = id;
+        t->failures = 0;
+        return new EntryT(this, t);
     }
 
-    std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> > _subMaps;
+    virtual MetricsMapI* clone() const
+    {
+        return new MetricsMapT<MetricsType>(*this);
+    }
+
+    std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr> > _subMaps;
+};
+
+template<class MetricsType> class MetricsMapFactoryT : public MetricsMapFactory
+{
+public:
+
+    virtual MetricsMapIPtr
+    create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
+    {
+        return new MetricsMapT<MetricsType>(mapPrefix, properties, _subMaps);
+    }
+
+    template<class SubMapMetricsType> void
+    registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
+    {
+        _subMaps[subMap] = make_pair(member, new MetricsMapFactoryT<SubMapMetricsType>());
+    }
+
+private:
+
+    std::map<std::string, std::pair<MetricsMap MetricsType::*, MetricsMapFactoryPtr> > _subMaps;
 };
 
 class MetricsViewI : public IceUtil::Shared
 {
 public:
     
-    MetricsViewI();
+    MetricsViewI(const std::string&);
 
-    void add(const std::string&, const MetricsMapIPtr&);
-    void remove(const std::string&);
+    void update(const Ice::PropertiesPtr&, 
+                const std::map<std::string, MetricsMapFactoryPtr>&, 
+                std::set<std::string>&);
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
     MetricsFailures getFailures(const std::string&, const std::string&);
 
-    MetricsMapI::EntryPtr getMatching(const MetricsHelper&) const;
+    MetricsMapI::EntryPtr getMatching(const std::string&, const MetricsHelper&) const;
 
     std::vector<std::string> getMaps() const;
 
 private:
 
+    const std::string _name;
     std::map<std::string, MetricsMapIPtr> _maps;
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
@@ -327,10 +368,26 @@ public:
 
     MetricsAdminI(const ::Ice::PropertiesPtr&);
 
-    std::vector<MetricsMapI::EntryPtr> getMatching(const MetricsHelper&) const;
+    std::vector<MetricsMapI::EntryPtr> getMatching(const std::string&, const MetricsHelper&) const;
 
     void addUpdater(const std::string&, const UpdaterPtr&);
-    void addFactory(const std::string&, const MetricsMapFactoryPtr&);
+    void updateViews();
+
+    template<class MetricsType> void 
+    registerMap(const std::string& map)
+    {
+        _factories[map] = new MetricsMapFactoryT<MetricsType>();
+    }
+
+    template<class MemberMetricsType, class MetricsType> void
+    registerSubMap(const std::string& map, const std::string& subMap, MetricsMap MetricsType::* member)
+    {
+        std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
+        assert(p != _factories.end());
+
+        MetricsMapFactoryT<MetricsType>* factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
+        factory->template registerSubMap<MemberMetricsType>(subMap, member);
+    }
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
     virtual MetricsView getMetricsView(const std::string&, const ::Ice::Current&);

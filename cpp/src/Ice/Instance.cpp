@@ -1076,15 +1076,16 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+        IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties);
+        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
 
         //
-        // Register the metrics admin plugin only if the user didn't already set an
+        // Setup the communicator observer only the metrics admin plugin only if the user didn't already set an
         // Ice observer resovler.
         //
-        if(!_initData.observer)
+        if(!_initData.observer && 
+           (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()))
         {
-            IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties);
-            _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
             _initData.observer = new IceMX::CommunicatorObserverI(admin);
         }
 

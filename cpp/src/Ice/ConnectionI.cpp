@@ -137,9 +137,9 @@ IceInternal::ConnectionReaper::add(const ConnectionIPtr& connection)
 {
     Lock sync(*this);
     _connections.push_back(connection);
-    if(connection->_observer.get())
+    if(connection->_observer)
     {
-        connection->_observer.reset(0);
+        connection->_observer.detach();
     }
 }
 
@@ -150,47 +150,44 @@ IceInternal::ConnectionReaper::swapConnections(vector<ConnectionIPtr>& connectio
     _connections.swap(connections);
 }
 
-Ice::ConnectionI::Observer::Observer(const BasicStream& readStream, const BasicStream& writeStream) : 
-    _readStream(readStream), _writeStream(writeStream)
+Ice::ConnectionI::Observer::Observer() : _readStreamPos(0), _writeStreamPos(0)
 {
 }
 
 void
-Ice::ConnectionI::Observer::startRead()
+Ice::ConnectionI::Observer::startRead(Ice::Byte* i)
 {
-    if(_readWatch.isStarted())
+    if(_readStreamPos)
     {
-        assert(_readStream.i >= _readStreamPos);
-        _observer->receivedBytes(static_cast<int>(_readStream.i - _readStreamPos), _readWatch.stop());
+        _observer->receivedBytes(static_cast<int>(i - _readStreamPos));
     }
-    _readStreamPos = _readStream.i;
-    _readWatch.start();
+    _readStreamPos = i;
 }
 
 void 
-Ice::ConnectionI::Observer::finishRead()
+Ice::ConnectionI::Observer::finishRead(Ice::Byte* i)
 {
-    assert(_readStream.i >= _readStreamPos);
-    _observer->receivedBytes(static_cast<int>(_readStream.i - _readStreamPos), _readWatch.stop());
+    assert(i >= _readStreamPos);
+    _observer->receivedBytes(static_cast<int>(i - _readStreamPos));
+    _readStreamPos = 0;
 }
 
 void
-Ice::ConnectionI::Observer::startWrite()
+Ice::ConnectionI::Observer::startWrite(Ice::Byte* i)
 {
-    if(_writeWatch.isStarted())
+    if(_writeStreamPos)
     {
-        assert(_writeStream.i >= _writeStreamPos);
-        _observer->sentBytes(static_cast<int>(_writeStream.i - _writeStreamPos), _writeWatch.stop());
+        _observer->sentBytes(static_cast<int>(i - _writeStreamPos));
     }
-    _writeStreamPos = _writeStream.i;
-    _writeWatch.start();
+    _writeStreamPos = i;
 }
 
 void 
-Ice::ConnectionI::Observer::finishWrite()
+Ice::ConnectionI::Observer::finishWrite(Ice::Byte* i)
 {
-    assert(_writeStream.i >= _writeStreamPos);
-    _observer->sentBytes(static_cast<int>(_writeStream.i - _writeStreamPos), _writeWatch.stop());
+    assert(i >= _writeStreamPos);
+    _observer->sentBytes(static_cast<int>(i - _writeStreamPos));
+    _writeStreamPos = 0;
 }
 
 void
@@ -515,22 +512,10 @@ Ice::ConnectionI::updateObserver()
 
     const CommunicatorObserverPtr& comObsv = _instance->initializationData().observer;
     assert(comObsv);
-    ConnectionObserverPtr obsv = comObsv->getConnectionObserver(info,
-                                                                _endpoint->getInfo(),
-                                                                connectionStateMap[static_cast<int>(_state)], 
-                                                                _observer.get() ? _observer->get() : 0);
-    if(obsv)
-    {
-        if(!_observer.get())
-        {
-            _observer.reset(new Observer(_readStream, _writeStream));
-        }
-        _observer->attach(obsv);
-    }
-    else
-    {
-        _observer.reset(0);
-    }
+    _observer.attach(comObsv->getConnectionObserver(info,
+                                                    _endpoint->getInfo(), 
+                                                    connectionStateMap[static_cast<int>(_state)], 
+                                                    _observer.get()));
 }
 
 void
@@ -1243,9 +1228,9 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
     {
         if(operation & SocketOperationWrite)                
         {
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->startWrite();
+                _observer.startWrite(_writeStream.i);
             }
             
             if(_transceiver->startWrite(_writeStream) && !_sendStreams.empty())
@@ -1256,9 +1241,9 @@ Ice::ConnectionI::startAsync(SocketOperation operation)
         }
         else if(operation & SocketOperationRead)
         {
-            if(_observer.get() && !_readHeader)
+            if(_observer && !_readHeader)
             {
-                _observer->startRead();
+                _observer.startRead(_readStream.i);
             }
 
             _transceiver->startRead(_readStream);
@@ -1279,17 +1264,17 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
     {
         if(operation & SocketOperationWrite)
         {
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->finishWrite();
+                _observer.finishWrite(_writeStream.i);
             }
             _transceiver->finishWrite(_writeStream);
         }
         else if(operation & SocketOperationRead)
         {
-            if(_observer.get() && !_readHeader)
+            if(_observer && !_readHeader)
             {
-                _observer->finishRead();
+                _observer.finishRead(_readStream.i);
             }
             _transceiver->finishRead(_readStream);
         }
@@ -1337,9 +1322,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             {
                 if(_writeStream.i != _writeStream.b.end())
                 {
-                    if(_observer.get())
+                    if(_observer)
                     {
-                        _observer->startWrite();
+                        _observer.startWrite(_writeStream.i);
                     }
                     
                     if(!_transceiver->write(_writeStream))
@@ -1349,9 +1334,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         return;
                     }
                     
-                    if(_observer.get())
+                    if(_observer)
                     {
-                        _observer->finishWrite();
+                        _observer.finishWrite(_writeStream.i);
                     }
                 }
                 assert(_writeStream.i == _writeStream.b.end());
@@ -1367,13 +1352,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     assert(_readStream.i == _readStream.b.end());
                     _readHeader = false;
 
-                    if(_observer.get())
+                    if(_observer)
                     {
-                        //
-                        // We can't measure the time to receive the header as it would
-                        // include the wait time.
-                        //
-                        (*_observer)->receivedBytes(static_cast<int>(headerSize), 0);
+                        _observer->receivedBytes(static_cast<int>(headerSize));
                     }
                 
                     ptrdiff_t pos = _readStream.i - _readStream.b.begin();
@@ -1430,9 +1411,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     }
                     else
                     {
-                        if(_observer.get())
+                        if(_observer)
                         {
-                            _observer->startRead();
+                            _observer.startRead(_readStream.i);
                         }
 
                         if(!_transceiver->read(_readStream))
@@ -1442,9 +1423,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                             return;
                         }
 
-                        if(_observer.get())
+                        if(_observer)
                         {
-                            _observer->finishRead();
+                            _observer.finishRead(_readStream.i);
                         }
                         assert(_readStream.i == _readStream.b.end());
                     }
@@ -2192,19 +2173,24 @@ Ice::ConnectionI::setState(State state)
         }
     }
 
-    if(_observer.get())
+    if(_observer)
     {
         ConnectionState oldState = connectionStateMap[static_cast<int>(_state)];
         ConnectionState newState = connectionStateMap[static_cast<int>(state)];
         if(oldState != newState)
         {
-            (*_observer)->stateChanged(oldState, newState);
+            _observer->stateChanged(oldState, newState);
         }
         if(state == StateClosed && _exception.get())
         {
-            if(!dynamic_cast<CloseConnectionException*>(_exception.get()))
+            if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
+                 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
+                 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
+                 (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
             {
-                (*_observer)->failed(_exception->ice_name());
+                _observer->failed(_exception->ice_name());
             }
         }
     }
@@ -2292,15 +2278,10 @@ Ice::ConnectionI::initialize(SocketOperation operation)
         _info->incoming = _connector == 0;
         _info->adapterName = _adapter ? _adapter->getName() : string();
 
-        ConnectionObserverPtr obsv = comObsv->getConnectionObserver(_info,
-                                                                    _endpoint->getInfo(),
-                                                                    ConnectionStateValidating,
-                                                                    0);
-        if(obsv)
-        {
-            _observer.reset(new Observer(_readStream, _writeStream));
-            _observer->attach(obsv);
-        }
+        _observer.attach(comObsv->getConnectionObserver(_info,
+                                                        _endpoint->getInfo(),
+                                                        ConnectionStateValidating,
+                                                        0));
     }
 
     //
@@ -2333,9 +2314,9 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 traceSend(_writeStream, _logger, _traceLevels);
             }
 
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->startWrite();
+                _observer.startWrite(_writeStream.i);
             }
 
             if(_writeStream.i != _writeStream.b.end() && !_transceiver->write(_writeStream))
@@ -2345,9 +2326,9 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 return false;
             }
 
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->finishWrite();
+                _observer.finishWrite(_writeStream.i);
             }
         }
         else // The client side has the passive role for connection validation.
@@ -2358,9 +2339,9 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _readStream.i = _readStream.b.begin();
             }
 
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->startRead();
+                _observer.startRead(_readStream.i);
             }
 
             if(_readStream.i != _readStream.b.end() && !_transceiver->read(_readStream))
@@ -2370,9 +2351,9 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 return false;
             }
 
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->finishRead();
+                _observer.finishRead(_readStream.i);
             }
 
             assert(_readStream.i == _readStream.b.end());
@@ -2528,9 +2509,9 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
             //
             // Send the message.
             //
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->startWrite();
+                _observer.startWrite(_writeStream.i);
             }
             assert(_writeStream.i);
             if(_writeStream.i != _writeStream.b.end() && !_transceiver->write(_writeStream))
@@ -2539,9 +2520,9 @@ Ice::ConnectionI::sendNextMessage(vector<OutgoingAsyncMessageCallbackPtr>& callb
                 scheduleTimeout(SocketOperationWrite, _endpoint->timeout());
                 return;
             }
-            if(_observer.get())
+            if(_observer)
             {
-                _observer->finishWrite();
+                _observer.finishWrite(_writeStream.i);
             }
         }
     }
@@ -2611,8 +2592,17 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // Send the message without blocking.
         //
+        if(_observer)
+        {
+            _observer.startWrite(stream.i);
+        }
         if(_transceiver->write(stream))
         {
+            if(_observer)
+            {
+                _observer.finishWrite(stream.i);
+            }
+
             AsyncStatus status = AsyncStatusSent;
             if(message.sent(this, false))
             {
@@ -2664,8 +2654,16 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // Send the message without blocking.
         //
+        if(_observer)
+        {
+            _observer.startWrite(message.stream->i);
+        }
         if(_transceiver->write(*message.stream))
         {
+            if(_observer)
+            {
+                _observer.finishWrite(message.stream->i);
+            }
             AsyncStatus status = AsyncStatusSent;
             if(message.sent(this, false))
             {

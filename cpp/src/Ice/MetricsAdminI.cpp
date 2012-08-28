@@ -72,6 +72,7 @@ MetricsMapI::RegExp::match(const MetricsHelper& helper)
 }
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const Ice::PropertiesPtr& properties) :
+    _properties(properties->getPropertiesForPrefix(mapPrefix)),
     _retain(properties->getPropertyAsIntWithDefault(mapPrefix + ".RetainDetached", 10)),
     _accept(parseRule(properties, mapPrefix + ".Accept")),
     _reject(parseRule(properties, mapPrefix + ".Reject"))
@@ -205,7 +206,7 @@ MetricsMapI::getMatching(const MetricsHelper& helper)
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
     if(p == _objects.end())
     {
-        p = _objects.insert(make_pair(key, newEntry(helper.newMetrics(key)))).first;
+        p = _objects.insert(make_pair(key, newEntry(key))).first;
     }
     return p->second;
 }
@@ -249,20 +250,52 @@ MetricsMapI::detached(Entry* entry)
     _detachedQueue.push_back(entry);
 }
     
-MetricsViewI::MetricsViewI()
+MetricsViewI::MetricsViewI(const string& name) : _name(name)
 {
 }
 
 void
-MetricsViewI::add(const string& name, const MetricsMapIPtr& map)
+MetricsViewI::update(const Ice::PropertiesPtr& properties, 
+                     const map<string, MetricsMapFactoryPtr>& factories,
+                     set<string>& updatedMaps)
 {
-    _maps.insert(make_pair(name, map));
-}
+    //
+    // Add maps to views configured with the given map.
+    //
+    const string viewPrefix = "IceMX.Metrics." + _name;
+    const string mapsPrefix = viewPrefix + ".Map.";
+    bool hasMapsProperties = !properties->getPropertiesForPrefix(mapsPrefix).empty();
+    for(map<string, MetricsMapFactoryPtr>::const_iterator p = factories.begin(); p != factories.end(); ++p)
+    {
+        const string& mapName = p->first;
+        string mapPrefix;
+        PropertyDict mapProps;
+        if(hasMapsProperties)
+        {
+            mapPrefix = mapsPrefix + mapName;
+            mapProps = properties->getPropertiesForPrefix(mapPrefix);
+            if(mapProps.empty())
+            {
+                // This map isn't configured for this view.
+                updatedMaps.insert(mapName);
+                _maps.erase(mapName);
+                continue; 
+            }
+        }
+        else
+        {
+            mapPrefix = viewPrefix;
+            mapProps = properties->getPropertiesForPrefix(mapPrefix);
+        }
 
-void
-MetricsViewI::remove(const string& cl)
-{
-    _maps.erase(cl);
+        map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+        if(q != _maps.end() && q->second->getMapProperties() == mapProps)
+        {
+            continue; // The map configuration didn't change.
+        }
+        _maps.insert(make_pair(mapName, p->second->create(mapPrefix, properties)));
+        updatedMaps.insert(mapName);
+    }
 }
 
 MetricsView
@@ -299,9 +332,9 @@ MetricsViewI::getFailures(const string& mapName, const string& id)
 }
 
 MetricsMapI::EntryPtr
-MetricsViewI::getMatching(const MetricsHelper& helper) const
+MetricsViewI::getMatching(const string& mapName, const MetricsHelper& helper) const
 {
-    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(helper.getMapName());
+    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
     if(p != _maps.end())
     {
         return p->second->getMatching(helper);
@@ -331,15 +364,14 @@ MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
 }
 
 void
-MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& factory)
+MetricsAdminI::updateViews()
 {
-    _factories[mapName] = factory;
-
     //
     // Add maps to views configured with the given map.
     //
     const string viewsPrefix = "IceMX.Metrics.";
     PropertyDict views = _properties->getPropertiesForPrefix(viewsPrefix);
+    set<string> updatedMaps;
     for(PropertyDict::const_iterator p = views.begin(); p != views.end(); ++p)
     {
         string viewName = p->first.substr(viewsPrefix.size());
@@ -351,41 +383,37 @@ MetricsAdminI::addFactory(const string& mapName, const MetricsMapFactoryPtr& fac
 
         if(_properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
         {
-            continue; // The view is disabled
+            // The view is disabled
+            _views.erase(viewName);
+            continue;
         }
         
         map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
         if(q == _views.end())
         {
-            q = _views.insert(make_pair(viewName, new MetricsViewI())).first;
+            q = _views.insert(make_pair(viewName, new MetricsViewI(viewName))).first;
         }
-        MetricsViewIPtr view = q->second;
-        
-        const string mapsPrefix = viewsPrefix + viewName + ".Map.";
-        string mapPrefix = mapsPrefix + mapName;
-        if(_properties->getPropertiesForPrefix(mapPrefix).empty())
+        q->second->update(_properties, _factories, updatedMaps);
+    }
+
+    for(set<string>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
+    {
+        map<string, UpdaterPtr>::const_iterator q = _updaters.find(*p);
+        if(q != _updaters.end())
         {
-            if(_properties->getPropertiesForPrefix(mapsPrefix).empty())
-            {
-                mapPrefix = viewsPrefix + viewName;
-            }
-            else
-            {
-                continue; // This map isn't configured for this view.
-            }
+            q->second->update();
         }
-        view->add(mapName, factory->create(mapPrefix, _properties));
     }
 }
 
 vector<MetricsMapI::EntryPtr>
-MetricsAdminI::getMatching(const MetricsHelper& helper) const
+MetricsAdminI::getMatching(const string& mapName, const MetricsHelper& helper) const
 {
     Lock sync(*this);
     vector<MetricsMapI::EntryPtr> objects;
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        MetricsMapI::EntryPtr e = p->second->getMatching(helper);
+        MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
         if(e)
         {
             objects.push_back(e);

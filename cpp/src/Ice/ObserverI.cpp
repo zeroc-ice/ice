@@ -154,7 +154,7 @@ public:
     static Attributes attributes;
     
     ConnectionHelper(const ConnectionInfoPtr& con, const EndpointInfoPtr& endpt, ConnectionState state) : 
-        MetricsHelperT<ConnectionMetrics>("Connection"), _connection(con), _endpoint(endpt), _state(state)
+        _connection(con), _endpoint(endpt), _state(state)
     {
     }
 
@@ -243,7 +243,7 @@ public:
     };
     static Attributes attributes;
     
-    DispatchHelper(const Current& current) : MetricsHelperT<Metrics>("Dispatch"), _current(current)
+    DispatchHelper(const Current& current) : _current(current)
     {
     }
 
@@ -344,7 +344,7 @@ public:
     static Attributes attributes;
     
     InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = Ice::Context()) :
-        MetricsHelperT<InvocationMetrics>("Invocation"), _proxy(proxy), _operation(op), _context(ctx)
+        _proxy(proxy), _operation(op), _context(ctx)
     {
     }
 
@@ -447,7 +447,7 @@ public:
     };
     static Attributes attributes;
     
-    RemoteInvocationHelper(const ConnectionPtr& con) : MetricsHelperT<Metrics>("Remote"), _connection(con)
+    RemoteInvocationHelper(const ConnectionPtr& con) : _connection(con)
     {
     }
 
@@ -520,8 +520,7 @@ public:
     };
     static Attributes attributes;
     
-    ThreadHelper(const string& parent, const string& id, ThreadState state) :
-        MetricsHelperT<ThreadMetrics>("Thread"), _parent(parent), _id(id), _state(state)
+    ThreadHelper(const string& parent, const string& id, ThreadState state) : _parent(parent), _id(id), _state(state)
     {
     }
 
@@ -564,9 +563,7 @@ public:
     };
     static Attributes attributes;
     
-    EndpointHelper(const string& mapName, 
-                   const EndpointInfoPtr& endpt, 
-                   const string& id) : MetricsHelperT<Metrics>(mapName), _id(id), _endpoint(endpt)
+    EndpointHelper(const EndpointInfoPtr& endpt, const string& id) : _id(id), _endpoint(endpt)
     {
     }
 
@@ -611,15 +608,15 @@ ConnectionObserverI::stateChanged(ConnectionState oldState, ConnectionState newS
 }
 
 void 
-ConnectionObserverI::sentBytes(Int num, Long duration)
+ConnectionObserverI::sentBytes(Int num)
 {
-    forEach(chain(add(&ConnectionMetrics::sentBytes, num), add(&ConnectionMetrics::sentTime, duration)));
+    forEach(add(&ConnectionMetrics::sentBytes, num));
 }
 
 void 
-ConnectionObserverI::receivedBytes(Int num, Long duration)
+ConnectionObserverI::receivedBytes(Int num)
 {
-    forEach(chain(add(&ConnectionMetrics::receivedBytes, num), add(&ConnectionMetrics::receivedTime, duration)));
+    forEach(add(&ConnectionMetrics::receivedBytes, num));
 }
 
 void
@@ -641,27 +638,20 @@ InvocationObserverI::retried()
 ObserverPtr
 InvocationObserverI::getRemoteObserver(const Ice::ConnectionPtr& connection)
 {
-    return getObserver<ObserverI>(RemoteInvocationHelper(connection));
+    return getObserver<ObserverI>("Remote", RemoteInvocationHelper(connection));
 }
 
 CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) : 
     _metrics(metrics),
-    _connections(metrics),
-    _dispatch(metrics),
-    _invocations(metrics),
-    _threads(metrics),
-    _connects(metrics),
-    _endpointLookups(metrics)
+    _connections(metrics, "Connection"),
+    _dispatch(metrics, "Dispatch"),
+    _invocations(metrics, "Invocation"),
+    _threads(metrics, "Thread"),
+    _connects(metrics, "ConnectionEstablishment"),
+    _endpointLookups(metrics, "EndpointLookup")
 {
-    metrics->addFactory("Connection", _connections.newFactory());
-    metrics->addFactory("Thread", _threads.newFactory());
-    metrics->addFactory("Dispatch", _dispatch.newFactory());
-    metrics->addFactory("ConnectionEstablishment", _connects.newFactory());
-    metrics->addFactory("EndpointLookup", _endpointLookups.newFactory());
-
-    map<string, MetricsMap InvocationMetrics::*> subMaps;
-    subMaps["Remote"] = &InvocationMetrics::remotes;
-    metrics->addFactory("Invocation", _invocations.newFactory(subMaps));
+    _invocations.registerSubMap("Remote", &InvocationMetrics::remotes);
+    _metrics->updateViews();
 }
 
 void
@@ -674,13 +664,13 @@ CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 ObserverPtr
 CommunicatorObserverI::getConnectionEstablishmentObserver(const Ice::EndpointInfoPtr& endpt, const string& connector)
 {
-    return _connects.getObserver(EndpointHelper("ConnectionEstablishment", endpt, connector));
+    return _connects.getObserver(EndpointHelper(endpt, connector));
 }
 
 ObserverPtr
 CommunicatorObserverI::getEndpointLookupObserver(const Ice::EndpointInfoPtr& endpt, const string& endpoint)
 {
-    return _endpointLookups.getObserver(EndpointHelper("EndpointLookup", endpt, endpoint));
+    return _endpointLookups.getObserver(EndpointHelper(endpt, endpoint));
 }
 
 ConnectionObserverPtr 
@@ -708,9 +698,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
 }
 
 InvocationObserverPtr 
-CommunicatorObserverI::getInvocationObserverWithContext(const ObjectPrx& proxy, 
-                                                        const string& op, 
-                                                        const Context& ctx)
+CommunicatorObserverI::getInvocationObserverWithContext(const ObjectPrx& proxy, const string& op, const Context& ctx)
 {
     return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
 }

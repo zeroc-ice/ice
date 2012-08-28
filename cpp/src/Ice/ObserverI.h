@@ -22,8 +22,8 @@ public:
     virtual void detach();
 
     virtual void stateChanged(Ice::Instrumentation::ConnectionState, Ice::Instrumentation::ConnectionState);
-    virtual void sentBytes(Ice::Int, Ice::Long);
-    virtual void receivedBytes(Ice::Int, Ice::Long);
+    virtual void sentBytes(Ice::Int);
+    virtual void receivedBytes(Ice::Int);
 };
 
 class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, public ObserverT<ThreadMetrics>

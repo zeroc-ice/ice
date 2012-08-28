@@ -26,25 +26,6 @@ class MetricsHelper
 public:
 
     virtual std::string operator()(const std::string&) const = 0;
-
-    virtual MetricsPtr newMetrics(const std::string&) const = 0;
-
-    const std::string& 
-    getMapName() const 
-    {
-        return _name;
-    }
-
-protected:
-
-    MetricsHelper(const std::string& name, const std::string& subName) : _name(name), _subName(subName)
-    {
-    }
-    
-private:
-
-    std::string _name;
-    std::string _subName;
 };
 
 class Updater : public IceUtil::Shared
@@ -59,24 +40,12 @@ template<typename T> class MetricsHelperT : public MetricsHelper
 {
 public:
 
-    virtual MetricsPtr newMetrics(const std::string& id) const
-    {
-        MetricsPtr t = new T();
-        t->id = id;
-        t->failures = 0;
-        return t;
-    }
-
     virtual void initMetrics(const IceInternal::Handle<T>&) const
     {
         // To be overriden in specialization to initialize state attributes
     }
 
 protected:
-
-    MetricsHelperT(const std::string& name, const std::string& subName = std::string()) : MetricsHelper(name, subName)
-    {
-    }
 
     template<typename Helper> class AttributeResolverT
     {
@@ -349,12 +318,12 @@ public:
     }
 
     template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
-    getObserver(const MetricsHelperT<ObserverMetricsType>& helper)
+    getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
         std::vector<MetricsMapI::EntryPtr> metricsObjects;
         for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            MetricsMapI::EntryPtr e = p->second->getMatching(helper.getMapName(), helper);
+            MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
             if(e)
             {
                 metricsObjects.push_back(e);
@@ -396,14 +365,15 @@ public:
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
     typedef typename ObserverImplType::Type MetricsType;
 
-    ObserverFactoryT(const MetricsAdminIPtr& metrics) : _metrics(metrics)
+    ObserverFactoryT(const MetricsAdminIPtr& metrics, const std::string& name) : _metrics(metrics), _name(name)
     {
+        _metrics->registerMap<MetricsType>(name);
     }
 
     ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
         if(metricsObjects.empty())
         {
             return 0;
@@ -417,7 +387,7 @@ public:
     template<typename ObserverPtrType> ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(helper);
+        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
         if(metricsObjects.empty())
         {
             return 0;
@@ -432,49 +402,16 @@ public:
         return obsv;
     }
 
-    virtual MetricsMapFactoryPtr
-    newFactory()
+    void 
+    registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
     {
-        class Factory : public MetricsMapFactory
-        {
-        public:
-
-            virtual MetricsMapIPtr
-            create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
-            {
-                return new MetricsMapI(mapPrefix, properties);
-            }
-        };
-        return new Factory();
-    }
-
-    virtual MetricsMapFactoryPtr
-    newFactory(const std::map<std::string, MetricsMap MetricsType::*>& subMaps)
-    {
-        class Factory : public MetricsMapFactory
-        {
-        public:
-            Factory(std::map<std::string, MetricsMap MetricsType::*> subMaps) : _subMaps(subMaps)
-            {
-            }
-
-            virtual MetricsMapIPtr
-            create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
-            {
-                return new MetricsMapT<MetricsType>(mapPrefix, properties, _subMaps);
-            }
-
-        private:
-
-            std::map<std::string, MetricsMap MetricsType::*> _subMaps;
-        };
-        return new Factory(subMaps);
+        _metrics->registerSubMap<MetricsType>(_name, subMap, member);
     }
 
 private:
 
-    const std::string _name;
     const MetricsAdminIPtr _metrics;
+    const std::string _name;
 };
 
 }

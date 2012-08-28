@@ -189,10 +189,8 @@ local interface ConnectionObserver extends Observer
      *
      * @param num The number of bytes sent.
      * 
-     * @param duration The time required to send the bytes.
-     * 
      **/
-    void sentBytes(int num, long duration);
+    void sentBytes(int num);
 
     /**
      *
@@ -200,10 +198,8 @@ local interface ConnectionObserver extends Observer
      *
      * @param num The number of bytes received.
      * 
-     * @param duration The time required to received the bytes.
-     * 
      **/
-    void receivedBytes(int num, long duration);
+    void receivedBytes(int num);
 };
 
 /**

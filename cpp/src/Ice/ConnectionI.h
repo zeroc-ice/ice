@@ -69,22 +69,17 @@ class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
     {
     public:
 
-        Observer(const IceInternal::BasicStream&, const IceInternal::BasicStream&);
+        Observer();
 
-        void startRead();
-        void finishRead();
-        void startWrite();
-        void finishWrite();
+        void startRead(Ice::Byte*);
+        void finishRead(Ice::Byte*);
+        void startWrite(Ice::Byte*);
+        void finishWrite(Ice::Byte*);
 
     private:
 
-        Ice::Byte* _writeStreamPos;
-        IceUtilInternal::StopWatch _writeWatch;
         Ice::Byte* _readStreamPos;
-        IceUtilInternal::StopWatch _readWatch;
-        
-        const IceInternal::BasicStream& _readStream;
-        const IceInternal::BasicStream& _writeStream;
+        Ice::Byte* _writeStreamPos;
     };
 
 public:
@@ -363,7 +358,7 @@ private:
     bool _readHeader;
     IceInternal::BasicStream _writeStream;
 
-    std::auto_ptr<Observer> _observer;
+    Observer _observer;
 
     int _dispatchCount;
 

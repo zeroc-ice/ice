@@ -279,24 +279,10 @@ class ConnectionMetrics extends Metrics
 
     /**
      *
-     * The time spent receiving bytes.
-     *
-     **/
-    long receivedTime = 0;
-    
-    /**
-     *
      * The number of bytes sent by the connection.
      *
      **/
     long sentBytes = 0;
-
-    /**
-     *
-     * The time spent sending bytes.
-     *
-     **/
-    long sentTime = 0;
 };
 
 };
