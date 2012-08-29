@@ -93,13 +93,13 @@ public:
 
 }
 
-FreezeDatabaseCache::FreezeDatabaseCache(const Ice::CommunicatorPtr& communicator) :
-    FreezeDB::DatabaseCache(communicator, "Registry")
+FreezeConnectionPool::FreezeConnectionPool(const Ice::CommunicatorPtr& communicator) :
+    FreezeDB::ConnectionPool(communicator, "Registry")
 {
 }
 
 ApplicationsWrapperPtr
-FreezeDatabaseCache::getApplications(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getApplications(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     // COMPILERFIX: GCC 4.4 w/ -O2 emits strict aliasing warnings
@@ -109,21 +109,21 @@ FreezeDatabaseCache::getApplications(const IceDB::DatabaseConnectionPtr& connect
 }
 
 AdaptersWrapperPtr
-FreezeDatabaseCache::getAdapters(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getAdapters(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     return new FreezeAdaptersWrapper(c->freezeConnection(), "adapters");
 }
 
 ObjectsWrapperPtr
-FreezeDatabaseCache::getObjects(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getObjects(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     return new FreezeObjectsWrapper(c->freezeConnection(), "objects");
 }
 
 ObjectsWrapperPtr
-FreezeDatabaseCache::getInternalObjects(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getInternalObjects(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     return new FreezeObjectsWrapper(c->freezeConnection(), "internal-objects");
@@ -154,17 +154,17 @@ FreezeDBPlugin::FreezeDBPlugin(const Ice::CommunicatorPtr& communicator) : _comm
 void
 FreezeDBPlugin::initialize()
 {
-    _databaseCache = new FreezeDatabaseCache(_communicator);
+    _connectionPool = new FreezeConnectionPool(_communicator);
 }
 
 void
 FreezeDBPlugin::destroy()
 {
-    _databaseCache = 0;
+    _connectionPool = 0;
 }
 
-DatabaseCachePtr
-FreezeDBPlugin::getDatabaseCache()
+ConnectionPoolPtr
+FreezeDBPlugin::getConnectionPool()
 {
-    return _databaseCache;
+    return _connectionPool;
 }

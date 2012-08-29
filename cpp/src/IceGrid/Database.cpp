@@ -100,15 +100,15 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _objectCache(_communicator),
     _allocatableObjectCache(_communicator),
     _serverCache(_communicator, _instanceName, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
-    _databaseCache(plugin->getDatabaseCache()),
+    _connectionPool(plugin->getConnectionPool()),
     _databasePlugin(plugin),
     _lock(0), 
     _applicationSerial(0)
 {
     ServerEntrySeq entries;
 
-    DatabaseConnectionPtr connection = _databaseCache->getConnection();
-    ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+    DatabaseConnectionPtr connection = _connectionPool->getConnection();
+    ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
     map<string, ApplicationInfo> applications = applicationsWrapper->getMap();
     for(map<string, ApplicationInfo>::iterator p = applications.begin(); p != applications.end(); ++p)
     {
@@ -134,10 +134,10 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _registryObserverTopic = new RegistryObserverTopic(_topicManager);
     _applicationObserverTopic = new ApplicationObserverTopic(_topicManager, applications);
 
-    AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+    AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
     _adapterObserverTopic = new AdapterObserverTopic(_topicManager, adaptersWrapper->getMap());
     
-    ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+    ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
     _objectObserverTopic = new ObjectObserverTopic(_topicManager, objectsWrapper->getMap());
 
     _registryObserverTopic->registryUp(info);
@@ -149,7 +149,7 @@ Database::~Database()
     // Release first the cache and then the plugin. This must be done in this order
     // to make sure the plugin is destroyed after the database cache.
     //
-    _databaseCache = 0;
+    _connectionPool = 0;
     _databasePlugin = 0;
 }
 
@@ -239,11 +239,11 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications)
         map<string, ApplicationInfo> oldApplications;
         for(;;)
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             try
             {
                 TransactionHolder txHolder(connection);
-                ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+                ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
                 oldApplications = applicationsWrapper->getMap();
                 applicationsWrapper->clear();
                 for(ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
@@ -312,11 +312,11 @@ Database::syncAdapters(const AdapterInfoSeq& adapters)
         Lock sync(*this);
         for(;;)
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             try
             {
                 TransactionHolder txHolder(connection);
-                AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+                AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
                 adaptersWrapper->clear();
                 for(AdapterInfoSeq::const_iterator r = adapters.begin(); r != adapters.end(); ++r)
                 {
@@ -347,11 +347,11 @@ Database::syncObjects(const ObjectInfoSeq& objects)
         Lock sync(*this);
         for(;;)
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             try
             {
                 TransactionHolder txHolder(connection);
-                ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+                ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
                 objectsWrapper->clear();
                 for(ObjectInfoSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
                 {
@@ -385,10 +385,10 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
 
         waitForUpdate(info.descriptor.name);
 
-        DatabaseConnectionPtr connection = _databaseCache->getConnection();
+        DatabaseConnectionPtr connection = _connectionPool->getConnection();
         try
         {
-            ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+            ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
             applicationsWrapper->find(info.descriptor.name);
             throw DeploymentException("application `" + info.descriptor.name + "' already exists");
         }
@@ -431,7 +431,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
                 Lock sync(*this);
                 entries.clear();
                 unload(ApplicationHelper(_communicator, info.descriptor), entries);
-                removeApplication(info.descriptor.name, _databaseCache->getConnection());
+                removeApplication(info.descriptor.name, _connectionPool->getConnection());
             }
             catch(const DeploymentException& ex)
             {
@@ -479,8 +479,8 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, AdminSessionI* se
 
         waitForUpdate(update.descriptor.name);
 
-        DatabaseConnectionPtr connection = _databaseCache->getConnection();
-        ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+        DatabaseConnectionPtr connection = _connectionPool->getConnection();
+        ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
         try
         {
             oldApp = applicationsWrapper->find(update.descriptor.name);
@@ -533,8 +533,8 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminS
 
         waitForUpdate(newDesc.name);
 
-        DatabaseConnectionPtr connection = _databaseCache->getConnection();
-        ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+        DatabaseConnectionPtr connection = _connectionPool->getConnection();
+        ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
         try
         {
             oldApp = applicationsWrapper->find(newDesc.name);
@@ -591,8 +591,8 @@ Database::instantiateServer(const string& application,
 
         waitForUpdate(application);
 
-        DatabaseConnectionPtr connection = _databaseCache->getConnection();
-        ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+        DatabaseConnectionPtr connection = _connectionPool->getConnection();
+        ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
         try
         {
             oldApp = applicationsWrapper->find(application);
@@ -645,11 +645,11 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 
         waitForUpdate(name);
 
-        DatabaseConnectionPtr connection = _databaseCache->getConnection();
+        DatabaseConnectionPtr connection = _connectionPool->getConnection();
         ApplicationInfo appInfo;
         try
         {
-            ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+            ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
             appInfo = applicationsWrapper->find(name);
         }
         catch(const NotFoundException&)
@@ -714,10 +714,10 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 ApplicationInfo
 Database::getApplicationInfo(const std::string& name)
 {
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
     try
     {
-        ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+        ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
         return applicationsWrapper->find(name);
     }
     catch(const NotFoundException&)
@@ -729,8 +729,8 @@ Database::getApplicationInfo(const std::string& name)
 Ice::StringSeq
 Database::getAllApplications(const string& expression)
 {
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
     return getMatchingKeys<map<string, ApplicationInfo> >(applicationsWrapper->getMap(), expression);
 }
 
@@ -821,9 +821,9 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+                AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
                 try
                 {
                     adaptersWrapper->find(adapterId);
@@ -886,8 +886,8 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 Ice::ObjectPrx
 Database::getAdapterDirectProxy(const string& id)
 {
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
     try
     {
         return adaptersWrapper->find(id).proxy;
@@ -931,9 +931,9 @@ Database::removeAdapter(const string& adapterId)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+                AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
                 try
                 {
                     adaptersWrapper->find(adapterId);
@@ -1034,8 +1034,8 @@ Database::getAdapterInfo(const string& id)
     // Otherwise, we check the adapter endpoint table -- if there's an
     // entry the adapter is managed by the registry itself.
     //
-    DatabaseConnectionPtr connection = _databaseCache->getConnection();
-    AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+    DatabaseConnectionPtr connection = _connectionPool->getConnection();
+    AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
     AdapterInfoSeq infos;
     try
     {
@@ -1065,8 +1065,8 @@ Database::getAllAdapters(const string& expression)
     result.swap(ids);
     set<string> groups;
 
-    DatabaseConnectionPtr connection = _databaseCache->getConnection();
-    AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+    DatabaseConnectionPtr connection = _connectionPool->getConnection();
+    AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
     map<string, AdapterInfo> adapters = adaptersWrapper->getMap();
     for(map<string, AdapterInfo>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
@@ -1108,9 +1108,9 @@ Database::addObject(const ObjectInfo& info)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+                ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
                 try
                 {
                     objectsWrapper->find(id);
@@ -1162,9 +1162,9 @@ Database::addOrUpdateObject(const ObjectInfo& info)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+                ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
                 try
                 {
                     objectsWrapper->find(id);
@@ -1225,9 +1225,9 @@ Database::removeObject(const Ice::Identity& id)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+                ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
                 try
                 {
                     objectsWrapper->find(id);
@@ -1287,9 +1287,9 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->getConnection();
+                DatabaseConnectionPtr connection = _connectionPool->getConnection();
                 TransactionHolder txHolder(connection);
-                ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);                
+                ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);                
                 try
                 {
                     info = objectsWrapper->find(id);
@@ -1336,9 +1336,9 @@ Database::addOrUpdateObjectsInDatabase(const ObjectInfoSeq& objects)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             TransactionHolder txHolder(connection);
-            ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+            ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
             for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
             {
                 objectsWrapper->put(p->proxy->ice_getIdentity(), *p);
@@ -1368,9 +1368,9 @@ Database::removeObjectsInDatabase(const ObjectInfoSeq& objects)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             TransactionHolder txHolder(connection);
-            ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+            ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
             for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
             {
                 objectsWrapper->erase(p->proxy->ice_getIdentity());
@@ -1404,10 +1404,10 @@ Database::getObjectProxy(const Ice::Identity& id)
     {
     }
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
     try
     {
-        ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+        ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
         return objectsWrapper->find(id).proxy;
     }
     catch(const NotFoundException&)
@@ -1466,8 +1466,8 @@ Database::getObjectsByType(const string& type)
 {
     Ice::ObjectProxySeq proxies = _objectCache.getObjectsByType(type);
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
     vector<ObjectInfo> infos = objectsWrapper->findByType(type);
     for(unsigned int i = 0; i < infos.size(); ++i)
     {
@@ -1488,8 +1488,8 @@ Database::getObjectInfo(const Ice::Identity& id)
     {
     }
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
     try
     {
         return objectsWrapper->find(id);
@@ -1505,8 +1505,8 @@ Database::getAllObjectInfos(const string& expression)
 {
     ObjectInfoSeq infos = _objectCache.getAll(expression);
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
     map<Ice::Identity, ObjectInfo> objects = objectsWrapper->getMap();
     for(map<Ice::Identity, ObjectInfo>::const_iterator p = objects.begin(); p != objects.end(); ++p)
     {
@@ -1523,8 +1523,8 @@ Database::getObjectInfosByType(const string& type)
 {
     ObjectInfoSeq infos = _objectCache.getAllByType(type);
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
     ObjectInfoSeq dbInfos = objectsWrapper->findByType(type);
     for(unsigned int i = 0; i < dbInfos.size(); ++i)
     {
@@ -1543,9 +1543,9 @@ Database::addInternalObject(const ObjectInfo& info, bool replace)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             TransactionHolder txHolder(connection);
-            ObjectsWrapperPtr internalObjectsWrapper = _databaseCache->getInternalObjects(connection);
+            ObjectsWrapperPtr internalObjectsWrapper = _connectionPool->getInternalObjects(connection);
             if(!replace)
             {
                 try
@@ -1581,9 +1581,9 @@ Database::removeInternalObject(const Ice::Identity& id)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->getConnection();
+            DatabaseConnectionPtr connection = _connectionPool->getConnection();
             TransactionHolder txHolder(connection);
-            ObjectsWrapperPtr internalObjectsWrapper = _databaseCache->getInternalObjects(connection);
+            ObjectsWrapperPtr internalObjectsWrapper = _connectionPool->getInternalObjects(connection);
             try
             {
                 internalObjectsWrapper->find(id);
@@ -1614,8 +1614,8 @@ Database::getInternalObjectsByType(const string& type)
 {
     Ice::ObjectProxySeq proxies;
 
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
-    ObjectsWrapperPtr internalObjectsWrapper = _databaseCache->getInternalObjects(connection);
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
+    ObjectsWrapperPtr internalObjectsWrapper = _connectionPool->getInternalObjects(connection);
     vector<ObjectInfo> infos = internalObjectsWrapper->findByType(type);
     for(unsigned int i = 0; i < infos.size(); ++i)
     {
@@ -1636,7 +1636,7 @@ Database::checkForAddition(const ApplicationHelper& app, const DatabaseConnectio
     for_each(serverIds.begin(), serverIds.end(), objFunc(*this, &Database::checkServerForAddition));
     if(!adapterIds.empty())
     {
-        AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+        AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
         for(set<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
         {
             checkAdapterForAddition(*p, adaptersWrapper);
@@ -1644,7 +1644,7 @@ Database::checkForAddition(const ApplicationHelper& app, const DatabaseConnectio
     }
     if(!objectIds.empty())
     {
-        ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+        ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
         for(set<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
         {
             checkObjectForAddition(*p, objectsWrapper);
@@ -1677,7 +1677,7 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
     set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), back_inserter(addedAdpts));
     if(!addedAdpts.empty())
     {
-        AdaptersWrapperPtr adaptersWrapper = _databaseCache->getAdapters(connection);
+        AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
         for(Ice::StringSeq::const_iterator p = addedAdpts.begin(); p != addedAdpts.end(); ++p)
         {
             checkAdapterForAddition(*p, adaptersWrapper);
@@ -1688,7 +1688,7 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
     set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), back_inserter(addedObjs));
     if(!addedObjs.empty())
     {
-        ObjectsWrapperPtr objectsWrapper = _databaseCache->getObjects(connection);
+        ObjectsWrapperPtr objectsWrapper = _connectionPool->getObjects(connection);
         for(vector<Ice::Identity>::const_iterator p = addedObjs.begin(); p != addedObjs.end(); ++p)
         {
             checkObjectForAddition(*p, objectsWrapper);
@@ -2039,7 +2039,7 @@ Database::saveApplication(const ApplicationInfo& info, const DatabaseConnectionP
     {
         try
         {
-            ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+            ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
             TransactionHolder txHolder(connection);
             applicationsWrapper->put(info.descriptor.name, info);
             txHolder.commit();
@@ -2063,7 +2063,7 @@ Database::removeApplication(const string& name, const DatabaseConnectionPtr& con
     {
         try
         {
-            ApplicationsWrapperPtr applicationsWrapper = _databaseCache->getApplications(connection);
+            ApplicationsWrapperPtr applicationsWrapper = _connectionPool->getApplications(connection);
             TransactionHolder txHolder(connection);
             applicationsWrapper->erase(name);
             txHolder.commit();
@@ -2135,7 +2135,7 @@ Database::finishApplicationUpdate(ServerEntrySeq& entries,
 
                 ApplicationInfo info = oldApp;
                 info.revision = update.revision + 1;
-                saveApplication(info, _databaseCache->getConnection());
+                saveApplication(info, _connectionPool->getConnection());
                 reload(previous, helper, entries, info.uuid, info.revision);
 
                 newUpdate.updateTime = IceUtil::Time::now().toMilliSeconds();

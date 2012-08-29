@@ -23,9 +23,10 @@ public:
     virtual ~DatabaseException() throw();
 
     virtual void ice_print(::std::ostream&) const;
-    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual DatabaseException* ice_clone() const;
     virtual void ice_throw() const;
 
+private:
     std::string message;
 };
 
@@ -37,9 +38,10 @@ public:
     virtual ~DeadlockException() throw();
 
     virtual void ice_print(::std::ostream&) const;
-    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual DeadlockException* ice_clone() const;
     virtual void ice_throw() const;
 
+private:
     std::string message;
 };
 
@@ -50,13 +52,13 @@ public:
     NotFoundException(const char*, int);
     virtual ~NotFoundException() throw();
 
-    virtual ::IceUtil::Exception* ice_clone() const;
+    virtual NotFoundException* ice_clone() const;
     virtual void ice_throw() const;
 };
 
 void throwDatabaseException(const char*, int, const Freeze::DatabaseException&);
 
-class DatabaseConnection : public IceDB::DatabaseConnection
+class DatabaseConnection : public virtual IceDB::DatabaseConnection
 {
 public:
 
@@ -68,8 +70,7 @@ public:
     virtual void commitTransaction();
     virtual void rollbackTransaction();
 
-    Freeze::ConnectionPtr
-    freezeConnection()
+    Freeze::ConnectionPtr freezeConnection() const
     {
         return _connection;
     }
@@ -79,11 +80,11 @@ private:
     Freeze::ConnectionPtr _connection;
 };
 
-class DatabaseCache : virtual public IceDB::DatabaseCache
+class ConnectionPool : public virtual IceDB::ConnectionPool
 {
 public:
 
-    DatabaseCache(const Ice::CommunicatorPtr&, const std::string&);
+    ConnectionPool(const Ice::CommunicatorPtr&, const std::string&);
 
     virtual IceDB::DatabaseConnectionPtr getConnection();
     virtual IceDB::DatabaseConnectionPtr newConnection();
@@ -99,7 +100,8 @@ template<class Dict, class Key, class Value> class Wrapper : public virtual IceD
 {
 public:
 
-    Wrapper(const Freeze::ConnectionPtr& connection, const std::string& dbName) : _dict(connection, dbName)
+    Wrapper(const Freeze::ConnectionPtr& connection, const std::string& dbName) : 
+        _dict(connection, dbName)
     {
     }
 

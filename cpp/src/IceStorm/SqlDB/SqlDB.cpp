@@ -85,17 +85,17 @@ public:
 
 }
 
-SqlDatabaseCache::SqlDatabaseCache(const Ice::CommunicatorPtr& communicator, 
-                                   const string& databaseType,
-                                   const string& databaseName,
-                                   const string& hostname,
-                                   int port,
-                                   const string& username,
-                                   const string& password,
-                                   const string& tablePrefix,
-                                   const string& encoding) :
-    SqlDB::DatabaseCache(communicator, databaseType, databaseName, hostname, port, username, password, false,
-                         Ice::stringToEncodingVersion(encoding))
+SqlConnectionPool::SqlConnectionPool(const Ice::CommunicatorPtr& communicator, 
+                                     const string& databaseType,
+                                     const string& databaseName,
+                                     const string& hostname,
+                                     int port,
+                                     const string& username,
+                                     const string& password,
+                                     const string& tablePrefix,
+                                     const string& encoding) :
+    SqlDB::ConnectionPool(communicator, databaseType, databaseName, hostname, port, username, password, false,
+                          Ice::stringToEncodingVersion(encoding))
 {
     IceDB::DatabaseConnectionPtr connection = getConnection();
     IceDB::TransactionHolder txn(connection);
@@ -108,18 +108,18 @@ SqlDatabaseCache::SqlDatabaseCache(const Ice::CommunicatorPtr& communicator,
     txn.commit();
 }
 
-SqlDatabaseCache::~SqlDatabaseCache()
+SqlConnectionPool::~SqlConnectionPool()
 {
 }
 
 LLUWrapperPtr 
-SqlDatabaseCache::getLLU(const IceDB::DatabaseConnectionPtr& connection)
+SqlConnectionPool::getLLU(const IceDB::DatabaseConnectionPtr& connection)
 {
     return new SqlLLUWrapper(SqlDB::DatabaseConnectionPtr::dynamicCast(connection.get()), _llu);
 }
 
 SubscribersWrapperPtr 
-SqlDatabaseCache::getSubscribers(const IceDB::DatabaseConnectionPtr& connection)
+SqlConnectionPool::getSubscribers(const IceDB::DatabaseConnectionPtr& connection)
 {
     return new SqlSubscribersWrapper(SqlDB::DatabaseConnectionPtr::dynamicCast(connection.get()), _subscribers);
 }
@@ -161,12 +161,12 @@ SqlDBPlugin::destroy()
         SqlDB::ThreadHookPtr::dynamicCast(IceInternal::getInstance(_communicator)->initializationData().threadHook);
     if(threadHook)
     {
-        threadHook->setDatabaseCache(0);
+        threadHook->setConnectionPool(0);
     }
 }
 
-DatabaseCachePtr
-SqlDBPlugin::getDatabaseCache(const string& name)
+ConnectionPoolPtr
+SqlDBPlugin::getConnectionPool(const string& name)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
 
@@ -184,19 +184,25 @@ SqlDBPlugin::getDatabaseCache(const string& name)
     }
     tablePrefix += "_";
 
-    SqlDatabaseCachePtr databaseCache = new SqlDatabaseCache(_communicator, 
-                                                             properties->getProperty(name + ".SQL.DatabaseType"),
-                                                             properties->getProperty(name + ".SQL.DatabaseName"),
-                                                             properties->getProperty(name + ".SQL.HostName"),
-                                                             properties->getPropertyAsInt(name + ".SQL.Port"),
-                                                             properties->getProperty(name + ".SQL.UserName"),
-                                                             properties->getProperty(name + ".SQL.Password"),
-                                                             tablePrefix,
-                                                             properties->getProperty(name + ".SQL.EncodingVersion"));
+    
+    string encodingVersionString = 
+        properties->getPropertyWithDefault(name + ".SQL.EncodingVersion",
+                                           encodingVersionToString(Ice::currentEncoding));
+
+
+    SqlConnectionPoolPtr connectionPool = new SqlConnectionPool(_communicator, 
+                                                                properties->getProperty(name + ".SQL.DatabaseType"),
+                                                                properties->getProperty(name + ".SQL.DatabaseName"),
+                                                                properties->getProperty(name + ".SQL.HostName"),
+                                                                properties->getPropertyAsInt(name + ".SQL.Port"),
+                                                                properties->getProperty(name + ".SQL.UserName"),
+                                                                properties->getProperty(name + ".SQL.Password"),
+                                                                tablePrefix,
+                                                                encodingVersionString);
     
     SqlDB::ThreadHookPtr threadHook = 
         SqlDB::ThreadHookPtr::dynamicCast(IceInternal::getInstance(_communicator)->initializationData().threadHook);
     assert(threadHook);
-    threadHook->setDatabaseCache(databaseCache);
-    return databaseCache;
+    threadHook->setConnectionPool(connectionPool);
+    return connectionPool;
 }

@@ -36,7 +36,7 @@ DatabaseException::ice_print(ostream& out) const
     out << "\n  driver error: " << error.driverText().toUtf8().data();
 }
 
-::IceUtil::Exception*
+DatabaseException*
 DatabaseException::ice_clone() const
 {
     return new DatabaseException(*this);
@@ -66,7 +66,7 @@ DeadlockException::ice_print(ostream& out) const
     out << "\n  driver error: " << error.driverText().toUtf8().data();
 }
 
-::IceUtil::Exception*
+DeadlockException*
 DeadlockException::ice_clone() const
 {
     return new DeadlockException(*this);
@@ -87,7 +87,7 @@ NotFoundException::~NotFoundException() throw()
 {
 }
 
-::IceUtil::Exception*
+NotFoundException*
 NotFoundException::ice_clone() const
 {
     return new NotFoundException(*this);
@@ -167,7 +167,7 @@ DatabaseConnection::rollbackTransaction()
     }
 }
 
-DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator, 
+ConnectionPool::ConnectionPool(const Ice::CommunicatorPtr& communicator, 
                              const string& type,
                              const string& name,
                              const string& host,
@@ -211,7 +211,7 @@ DatabaseCache::DatabaseCache(const Ice::CommunicatorPtr& communicator,
     }
 }
 
-DatabaseCache::~DatabaseCache()
+ConnectionPool::~ConnectionPool()
 {
     //
     // QSqlDatabase references must be removed before calling removeDatabase.
@@ -230,9 +230,9 @@ DatabaseCache::~DatabaseCache()
 }
 
 IceDB::DatabaseConnectionPtr
-DatabaseCache::getConnection()
+ConnectionPool::getConnection()
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
     
     ThreadDatabaseMap::iterator p = _cache.find(IceUtil::ThreadControl().id());
     if(p != _cache.end())
@@ -323,15 +323,15 @@ DatabaseCache::getConnection()
 }
 
 IceDB::DatabaseConnectionPtr
-DatabaseCache::newConnection()
+ConnectionPool::newConnection()
 {
     return getConnection();
 }
 
 void
-DatabaseCache::threadStopped()
+ConnectionPool::threadStopped()
 {
-    IceUtil::Mutex::Lock lock(*this);
+    IceUtil::Mutex::Lock lock(_mutex);
 
     ThreadDatabaseMap::iterator p = _cache.find(IceUtil::ThreadControl().id());
     if(p != _cache.end())
@@ -350,9 +350,9 @@ ThreadHook::ThreadHook()
 }
 
 void
-ThreadHook::setDatabaseCache(const DatabaseCachePtr& cache)
+ThreadHook::setConnectionPool(const ConnectionPoolPtr& cache)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_mutex);
     _cache = cache;
 }
 
@@ -364,7 +364,7 @@ ThreadHook::start()
 void
 ThreadHook::stop()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_mutex);
     if(_cache)
     {
         _cache->threadStopped();

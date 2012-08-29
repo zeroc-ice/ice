@@ -25,8 +25,8 @@ namespace IceStorm
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-class DatabaseCache;
-typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+class ConnectionPool;
+typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
 
 class TopicImpl;
 typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
@@ -76,7 +76,7 @@ private:
                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());
 
     const InstancePtr _instance;
-    const DatabaseCachePtr _databaseCache;
+    const ConnectionPoolPtr _connectionPool;
 
     std::map<std::string, TopicImplPtr> _topics;
 

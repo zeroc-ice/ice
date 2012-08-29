@@ -400,7 +400,7 @@ TopicImpl::TopicImpl(
     _instance(instance),
     _name(name),
     _id(id),
-    _databaseCache(instance->databaseCache()),
+    _connectionPool(instance->connectionPool()),
     _destroyed(false)
 {
     try
@@ -640,17 +640,17 @@ TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
         {
             try
             {
-                DatabaseConnectionPtr connection = _databaseCache->newConnection();
+                DatabaseConnectionPtr connection = _connectionPool->newConnection();
                 TransactionHolder txn(connection);
 
                 SubscriberRecordKey key;
                 key.topic = _id;
                 key.id =  record.id;
 
-                SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+                SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
                 subscribersWrapper->erase(key);
 
-                LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+                LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
                 llu = lluWrapper->get();
                 llu.iteration++;
                 lluWrapper->put(llu);
@@ -677,18 +677,18 @@ TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = subscriber->id();
 
-            SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+            SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
             subscribersWrapper->put(key, record);
 
             // Update the LLU.
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             llu = lluWrapper->get();
             llu.iteration++;
             lluWrapper->put(llu);
@@ -762,17 +762,17 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = subscriber->id();
 
-            SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+            SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
             subscribersWrapper->put(key, record);
 
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             llu = lluWrapper->get();
             llu.iteration++;
             lluWrapper->put(llu);
@@ -886,17 +886,17 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = id;
 
-            SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+            SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
             subscribersWrapper->put(key, record);
 
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             llu = lluWrapper->get();
             llu.iteration++;
             lluWrapper->put(llu);
@@ -1282,18 +1282,18 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             SubscriberRecordKey key;
             key.topic = _id;
             key.id = subscriber->id();
 
-            SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+            SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
             subscribersWrapper->put(key, record);
 
             // Update the LLU.
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             lluWrapper->put(llu);
 
             txn.commit();
@@ -1351,7 +1351,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             for(Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
@@ -1360,11 +1360,11 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
                 key.topic = _id;
                 key.id = *id;
 
-                SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+                SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
                 subscribersWrapper->erase(key);
             }
 
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             lluWrapper->put(llu);
 
             txn.commit();
@@ -1427,15 +1427,15 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             // Erase all subscriber records and the topic record.
-            SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+            SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
             subscribersWrapper->eraseTopic(_id);
 
             // Update the LLU.
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             if(master)
             {
                 llu = lluWrapper->get();
@@ -1502,7 +1502,7 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
     {
         try
         {
-            DatabaseConnectionPtr connection = _databaseCache->newConnection();
+            DatabaseConnectionPtr connection = _connectionPool->newConnection();
             TransactionHolder txn(connection);
 
             for(Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
@@ -1511,11 +1511,11 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
                 key.topic = _id;
                 key.id = *id;
                 
-                SubscribersWrapperPtr subscribersWrapper = _databaseCache->getSubscribers(connection);
+                SubscribersWrapperPtr subscribersWrapper = _connectionPool->getSubscribers(connection);
                 subscribersWrapper->erase(key);
             }
 
-            LLUWrapperPtr lluWrapper = _databaseCache->getLLU(connection);
+            LLUWrapperPtr lluWrapper = _connectionPool->getLLU(connection);
             llu = lluWrapper->get();
             llu.iteration++;
             lluWrapper->put(llu);

@@ -183,7 +183,7 @@ private:
     AdapterObserverTopicPtr _adapterObserverTopic;
     ObjectObserverTopicPtr _objectObserverTopic;
 
-    DatabaseCachePtr _databaseCache;
+    ConnectionPoolPtr _connectionPool;
     DatabasePluginPtr _databasePlugin;
     
     AdminSessionI* _lock;

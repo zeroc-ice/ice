@@ -19,14 +19,14 @@
 namespace IceStorm
 {
 
-class SqlDatabaseCache : public SqlDB::DatabaseCache, public DatabaseCache
+class SqlConnectionPool : public SqlDB::ConnectionPool, public ConnectionPool
 {
 public:
 
-    SqlDatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
+    SqlConnectionPool(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
                      const std::string&, int, const std::string&, const std::string&, const std::string&, 
                      const std::string&);
-    virtual ~SqlDatabaseCache();
+    virtual ~SqlConnectionPool();
 
     virtual LLUWrapperPtr getLLU(const IceDB::DatabaseConnectionPtr&);
     virtual SubscribersWrapperPtr getSubscribers(const IceDB::DatabaseConnectionPtr&);
@@ -36,7 +36,7 @@ private:
     const SqlLLUPtr _llu;
     const SqlSubscriberMapPtr _subscribers;
 };
-typedef IceUtil::Handle<SqlDatabaseCache> SqlDatabaseCachePtr;
+typedef IceUtil::Handle<SqlConnectionPool> SqlConnectionPoolPtr;
 
 class SqlDBPlugin : public DatabasePlugin
 {
@@ -48,7 +48,7 @@ public:
     virtual void initialize();
     virtual void destroy();
     
-    DatabaseCachePtr getDatabaseCache(const std::string&);
+    ConnectionPoolPtr getConnectionPool(const std::string&);
 
 private:
 
