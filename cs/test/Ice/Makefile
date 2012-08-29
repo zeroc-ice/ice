@@ -43,7 +43,8 @@ SUBDIRS		= application \
 		  defaultServant \
 		  defaultValue \
 		  threadPoolPriority \
-		  plugin
+		  plugin \
+		  optional
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
