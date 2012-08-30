@@ -59,10 +59,12 @@ public class ApplicationPane extends JSplitPane implements Tab
         if(_root.isLive())
         {
             c.getSaveToRegistryAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
+            c.getSaveToRegistryWithoutRestartAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
         }
         else
         {
             c.getSaveToRegistryAction().setEnabled(c.connectedToMaster());
+            c.getSaveToRegistryWithoutRestartAction().setEnabled(c.connectedToMaster());
         }
         c.getSaveToFileAction().setEnabled(true);
 
@@ -270,11 +272,11 @@ public class ApplicationPane extends JSplitPane implements Tab
         }
     }
 
-    public void saveToRegistry()
+    public void saveToRegistry(boolean restart)
     {
         if(_currentEditor == null || _currentEditor.save(true))
         {
-            _root.saveToRegistry();
+            _root.saveToRegistry(restart);
         }
     }
 

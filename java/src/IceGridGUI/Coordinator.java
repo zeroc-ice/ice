@@ -376,6 +376,7 @@ public class Coordinator
             fileMenu.add(_save);
             fileMenu.add(_saveToFile);
             fileMenu.add(_saveToRegistry);
+            fileMenu.add(_saveToRegistryWithoutRestart);
             fileMenu.addSeparator();
             fileMenu.add(_discardUpdates);
             if(!System.getProperty("os.name").startsWith("Mac OS"))
@@ -568,6 +569,10 @@ public class Coordinator
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/save_to_registry.png"));
             add(button);
+            button = new JButton(_saveToRegistryWithoutRestart);
+            button.setText(null);
+            button.setIcon(Utils.getIcon("/icons/24x24/save_without_restart.png"));
+            add(button);
             button = new JButton(_saveToFile);
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/save_to_file.png"));
@@ -681,6 +686,11 @@ public class Coordinator
     public Action getSaveToRegistryAction()
     {
         return _saveToRegistry;
+    }
+
+    public Action getSaveToRegistryWithoutRestartAction()
+    {
+        return _saveToRegistryWithoutRestart;
     }
 
     public Action getSaveToFileAction()
@@ -1066,7 +1076,7 @@ public class Coordinator
         {
             if(_traceSaveToRegistry)
             {
-                traceSaveToRegistry("lastestSerial is " + _latestSerial);
+                traceSaveToRegistry("latestSerial is " + _latestSerial);
             }
 
             if(_writeSerial <= _latestSerial)
@@ -1226,6 +1236,7 @@ public class Coordinator
         _acquireExclusiveWriteAccess.setEnabled(false);
         _releaseExclusiveWriteAccess.setEnabled(false);
         _saveToRegistry.setEnabled(false);
+        _saveToRegistryWithoutRestart.setEnabled(false);
     }
 
     AdminSessionPrx login(SessionKeeper.LoginInfo info,
@@ -2240,15 +2251,26 @@ public class Coordinator
                        KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
         _save.putValue(Action.SHORT_DESCRIPTION, "Save");
 
-        _saveToRegistry = new AbstractAction("Save to Registry")
+        _saveToRegistry = new AbstractAction("Save to Registry (Servers may restart)")
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    getCurrentTab().saveToRegistry();
+                    getCurrentTab().saveToRegistry(true);
                 }
             };
         _saveToRegistry.setEnabled(false);
-        _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry");
+        _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry (servers may restart)");
+
+
+        _saveToRegistryWithoutRestart = new AbstractAction("Save to Registry (No server restart)")
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    getCurrentTab().saveToRegistry(false);
+                }
+            };
+        _saveToRegistryWithoutRestart.setEnabled(false);
+        _saveToRegistryWithoutRestart.putValue(Action.SHORT_DESCRIPTION, "Save to registry (no server restart)");
 
         _saveToFile = new AbstractAction("Save to File")
             {
@@ -2908,6 +2930,7 @@ public class Coordinator
     private Action _closeApplication;
     private Action _save;
     private Action _saveToRegistry;
+    private Action _saveToRegistryWithoutRestart;
     private Action _saveToFile;
     private Action _discardUpdates;
     private Action _exit;

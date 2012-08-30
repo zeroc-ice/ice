@@ -411,6 +411,9 @@
             <fileset dir="test/Ice/ami">
                 <include name="Test.ice" />
             </fileset>
+            <fileset dir="test/Ice/admin">
+                <include name="Test.ice" />
+            </fileset>
             <fileset dir="test/Ice/background">
                 <include name="Test.ice" />
             </fileset>
@@ -513,6 +516,9 @@
             <include name="Callback.ice" />
         </fileset>
 	    <fileset dir="test/IceGrid/simple/">
+                <include name="Test.ice" />
+            </fileset>
+            <fileset dir="test/IceBox/admin">
                 <include name="Test.ice" />
             </fileset>
 	    <fileset dir="test/IceBox/configuration/">

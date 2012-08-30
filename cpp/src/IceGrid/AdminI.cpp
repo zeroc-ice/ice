@@ -187,7 +187,7 @@ void
 AdminI::syncApplication(const ApplicationDescriptor& descriptor, const Current&)
 {
     checkIsReadOnly();
-    _database->syncApplicationDescriptor(descriptor, _session.get());
+    _database->syncApplicationDescriptor(descriptor, false, _session.get());
 }
 
 void
@@ -200,7 +200,27 @@ AdminI::updateApplication(const ApplicationUpdateDescriptor& descriptor, const C
     update.updateUser = _session->getId();
     update.descriptor = descriptor;
     update.revision = -1; // The database will set it.
-    _database->updateApplication(update, _session.get());
+    _database->updateApplication(update, false, _session.get());
+}
+
+void
+AdminI::syncApplicationWithoutRestart(const ApplicationDescriptor& descriptor, const Current&)
+{
+    checkIsReadOnly();
+    _database->syncApplicationDescriptor(descriptor, true, _session.get());
+}
+
+void
+AdminI::updateApplicationWithoutRestart(const ApplicationUpdateDescriptor& descriptor, const Current&)
+{
+    checkIsReadOnly();
+
+    ApplicationUpdateInfo update;
+    update.updateTime = IceUtil::Time::now().toMilliSeconds();
+    update.updateUser = _session->getId();
+    update.descriptor = descriptor;
+    update.revision = -1; // The database will set it.
+    _database->updateApplication(update, true, _session.get());
 }
 
 void

@@ -94,7 +94,8 @@ public:
     bool dependsOnApplicationDistrib() const;
 
     void start(ServerActivation, const AMD_Server_startPtr& = AMD_Server_startPtr());
-    ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&);
+    ServerCommandPtr load(const AMD_Node_loadServerPtr&, const InternalServerDescriptorPtr&, const std::string&, bool);
+    bool checkUpdate(const InternalServerDescriptorPtr&, bool, const Ice::Current&);
     ServerCommandPtr destroy(const AMD_Node_destroyServerPtr&, const std::string&, int, const std::string&);
     bool startPatch(bool);
     bool waitForPatch();
@@ -117,10 +118,17 @@ public:
     //
     Ice::ObjectPrx getProcess() const;
 
+    PropertyDescriptorSeqDict getProperties(const InternalServerDescriptorPtr&);
+
+    void updateRuntimePropertiesCallback(const InternalServerDescriptorPtr&);
+    void updateRuntimePropertiesCallback(const Ice::Exception&, const InternalServerDescriptorPtr&);
+
 private:
     
     void updateImpl(const InternalServerDescriptorPtr&);
     void checkRevision(const std::string&, const std::string&, int) const;
+    void checkNoRestart(const InternalServerDescriptorPtr&);
+    void checkAndUpdateUser(const InternalServerDescriptorPtr&, bool);
     void updateRevision(const std::string&, int);
     bool checkActivation();
     void checkDestroyed() const;
@@ -299,7 +307,7 @@ class LoadCommand : public ServerCommand
 {
 public:
 
-    LoadCommand(const ServerIPtr&);
+    LoadCommand(const ServerIPtr&, const InternalServerDescriptorPtr&, const TraceLevelsPtr&);
 
     bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
@@ -309,6 +317,8 @@ public:
     bool clearDir() const;
     InternalServerDescriptorPtr getInternalServerDescriptor() const;
     void addCallback(const AMD_Node_loadServerPtr&);
+    void startRuntimePropertiesUpdate(const Ice::ObjectPrx&);
+    bool finishRuntimePropertiesUpdate(const InternalServerDescriptorPtr&, const Ice::ObjectPrx&);
     void failed(const Ice::Exception&);
     void finished(const ServerPrx&, const AdapterPrxDict&, int, int);
 
@@ -317,6 +327,9 @@ private:
     std::vector<AMD_Node_loadServerPtr> _loadCB;
     bool _clearDir;
     InternalServerDescriptorPtr _desc;
+    InternalServerDescriptorPtr _runtime;
+    bool _updating;
+    TraceLevelsPtr _traceLevels;
     std::auto_ptr<DeploymentException> _exception;
 };
 

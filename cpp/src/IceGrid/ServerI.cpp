@@ -121,12 +121,16 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
 #endif
 
 static bool
-descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const InternalServerDescriptorPtr& rhs)
+descriptorUpdated(const InternalServerDescriptorPtr& lhs, const InternalServerDescriptorPtr& rhs, bool noProps = false)
 {
+    if(lhs->uuid == rhs->uuid && lhs->revision == rhs->revision)
+    {
+        return false;
+    }
+
     if(lhs->id != rhs->id ||
        lhs->application != rhs->application ||
        lhs->uuid != rhs->uuid ||
-//       lhs->revision != rhs->revision ||
        lhs->sessionId != rhs->sessionId ||
        lhs->exe != rhs->exe || 
        lhs->pwd != rhs->pwd ||
@@ -140,25 +144,25 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
        lhs->envs != rhs->envs ||
        lhs->logs != rhs->logs)
     {
-        return false;
+        return true;
     }
 
     if((!lhs->distrib && rhs->distrib) || (lhs->distrib && !rhs->distrib))
     {
-        return false;
+        return true;
     }
     else if(lhs->distrib && rhs->distrib)
     {
         if(lhs->distrib->icepatch != rhs->distrib->icepatch ||
            lhs->distrib->directories != rhs->distrib->directories)
         {
-            return false;
+            return true;
         }
     }
 
     if(lhs->adapters.size() != rhs->adapters.size())
     {
-        return false;
+        return true;
     }
     else
     {
@@ -167,14 +171,14 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
         {
             if((*p)->id != (*q)->id || (*p)->serverLifetime != (*q)->serverLifetime)
             {
-                return false;
+                return true;
             }
         }
     }
     
     if(lhs->dbEnvs.size() != rhs->dbEnvs.size())
     {
-        return false;
+        return true;
     }
     else
     {
@@ -183,17 +187,40 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
         {
             if((*p)->name != (*q)->name || (*p)->properties != (*q)->properties)
             {
-                return false;
+                return true;
             }
         }
     }
 
-    if(lhs->properties != rhs->properties)
+    if(!noProps && lhs->properties != rhs->properties)
     {
-        return false;
+        return true;
     }
 
-    return true;
+    return false;
+}
+
+Ice::PropertyDict
+toPropertyDict(const PropertyDescriptorSeq& seq)
+{
+    Ice::PropertyDict props;
+    for(PropertyDescriptorSeq::const_iterator q = seq.begin(); q != seq.end(); ++q)
+    {
+        if(q->value.empty() && q->name.find('#') == 0)
+        {
+            continue; // Ignore comments.
+        }
+        
+        if(q->value.empty())
+        {
+            props.erase(q->name);
+        }
+        else
+        {
+            props[q->name] = q->value;
+        }
+    }
+    return props;
 }
 
 class CommandTimeoutTimerTask : public IceUtil::TimerTask
@@ -248,6 +275,109 @@ private:
     const TraceLevelsPtr _traceLevels;
 };
 
+class ResetPropertiesCB : public IceUtil::Shared
+{
+public:
+
+    ResetPropertiesCB(const ServerIPtr& server, 
+                      const Ice::ObjectPrx admin, 
+                      const InternalServerDescriptorPtr& desc,
+                      const InternalServerDescriptorPtr& old,
+                      const TraceLevelsPtr& traceLevels) :
+        _server(server), 
+        _admin(admin), 
+        _desc(desc),
+        _traceLevels(traceLevels),
+        _properties(server->getProperties(desc)),
+        _oldProperties(server->getProperties(old)), 
+        _p(_properties.begin())
+    {
+    }
+
+    void
+    execute()
+    {
+        assert(_p != _properties.end());
+        next();
+    }
+
+private:
+
+    void
+    next()
+    {
+        while(_p != _properties.end() && _p->second == _oldProperties[_p->first])
+        {
+            ++_p;
+        }
+        if(_p == _properties.end())
+        {
+            _server->updateRuntimePropertiesCallback(_desc);
+            return;
+        }
+
+        Ice::PropertyDict oldProps = toPropertyDict(_oldProperties[_p->first]);
+        Ice::PropertyDict props = toPropertyDict(_p->second);
+        for(Ice::PropertyDict::const_iterator q = oldProps.begin(); q != oldProps.end(); ++q)
+        {
+            if(props.find(q->first) == props.end())
+            {
+                props[q->first] = "";
+            }
+        }
+
+        string facet;
+        if(_p->first == "config")
+        {
+            facet = "Properties";
+            if(_traceLevels->server > 1)
+            {
+                const string id = _server->getId();
+                Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+                out << "updating runtime properties for server `" << id << "'";
+            }
+        }
+        else
+        {
+            assert(_p->first.find("config_") == 0);
+            const string service = _p->first.substr(7);
+            facet = "IceBox.Service." + service + ".Properties";
+            if(_traceLevels->server > 1)
+            {
+                const string id = _server->getId();
+                Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+                out << "updating runtime properties for service `" << service << "' from server `" + id + "'";
+            }
+        }
+
+        //
+        // Increment the iterator *before* invoking setProperties_async to avoid a
+        // race condition.
+        //
+        ++_p;
+
+        Ice::PropertiesAdminPrx p = Ice::PropertiesAdminPrx::uncheckedCast(_admin, facet);
+        p->begin_setProperties(props, Ice::newCallback_PropertiesAdmin_setProperties(this, 
+                                                                                     &ResetPropertiesCB::next, 
+                                                                                     &ResetPropertiesCB::exception));
+    }
+    
+    void
+    exception(const Ice::Exception& ex)
+    {
+        _server->updateRuntimePropertiesCallback(ex, _desc);
+    }
+    
+    const ServerIPtr _server;
+    const Ice::ObjectPrx _admin;
+    const InternalServerDescriptorPtr _desc;
+    const TraceLevelsPtr _traceLevels;
+    const PropertyDescriptorSeqDict _properties;
+    PropertyDescriptorSeqDict _oldProperties;
+    PropertyDescriptorSeqDict::const_iterator _p;
+};
+typedef IceUtil::Handle<ResetPropertiesCB> ResetPropertiesCBPtr;
+
 struct EnvironmentEval : std::unary_function<string, string>
 {
     
@@ -275,7 +405,8 @@ struct EnvironmentEval : std::unary_function<string, string>
                 break;
             }
             string variable = v.substr(beg + 1, end - beg - 1);
-            DWORD ret = GetEnvironmentVariableW(IceUtil::stringToWstring(variable).c_str(), &buf[0], static_cast<DWORD>(buf.size()));
+            DWORD ret = GetEnvironmentVariableW(IceUtil::stringToWstring(variable).c_str(), &buf[0], 
+                                                static_cast<DWORD>(buf.size()));
             string valstr = (ret > 0 && ret < buf.size()) ? IceUtil::wstringToString(&buf[0]) : string("");
             v.replace(beg, end - beg + 1, valstr);
             beg += valstr.size();
@@ -354,8 +485,10 @@ TimedServerCommand::stopTimer()
     }
 }
 
-LoadCommand::LoadCommand(const ServerIPtr& server) : 
-    ServerCommand(server)
+LoadCommand::LoadCommand(const ServerIPtr& server, 
+                         const InternalServerDescriptorPtr& runtime, 
+                         const TraceLevelsPtr& traceLevels) : 
+    ServerCommand(server), _runtime(runtime), _updating(false), _traceLevels(traceLevels)
 {
 }
 
@@ -403,12 +536,50 @@ LoadCommand::addCallback(const AMD_Node_loadServerPtr& amdCB)
 }
 
 void
+LoadCommand::startRuntimePropertiesUpdate(const Ice::ObjectPrx& process)
+{
+    if(_updating)
+    {
+        return;
+    }
+    assert(_desc != _runtime);
+    _updating = true;
+    
+    ResetPropertiesCBPtr cb = new ResetPropertiesCB(_server, process, _desc, _runtime, _traceLevels);
+    cb->execute();
+}
+
+bool
+LoadCommand::finishRuntimePropertiesUpdate(const InternalServerDescriptorPtr& runtime, const Ice::ObjectPrx& process)
+{
+    _updating = false;
+    _runtime = runtime; // The new runtime server descriptor.
+
+    if(_traceLevels->server > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
+        out << "updated runtime properties for server `" << _server->getId() << "'";
+    }
+
+    if(_desc != _runtime)
+    {
+        startRuntimePropertiesUpdate(process);
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
+void
 LoadCommand::failed(const Ice::Exception& ex)
 {
     for(vector<AMD_Node_loadServerPtr>::const_iterator p = _loadCB.begin(); p != _loadCB.end(); ++p)
     {
         (*p)->ice_exception(ex);
     }   
+    _loadCB.clear();
 }
 
 void
@@ -418,6 +589,7 @@ LoadCommand::finished(const ServerPrx& proxy, const AdapterPrxDict& adapters, in
     {
         (*p)->ice_response(proxy, adapters, at, dt);
     }
+    _loadCB.clear();
 }
 
 DestroyCommand::DestroyCommand(const ServerIPtr& server, bool loadFailure, bool clearDir) : 
@@ -659,7 +831,7 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _disableOnFailure(0),
     _state(ServerI::Inactive),
     _activation(ServerI::Disabled),
-    _failureTime(IceUtil::Time::now(IceUtil::Time::Monotonic)), // Ensure that _activation gets initialized in updateImpl().
+    _failureTime(IceUtil::Time::now(IceUtil::Time::Monotonic)), // Ensure that _activation is init. in updateImpl().
     _pid(0)
 {
     assert(_node->getActivator());
@@ -1040,7 +1212,8 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
 }
 
 ServerCommandPtr
-ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescriptorPtr& desc, const string& replicaName)
+ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescriptorPtr& desc, const string& replicaName, 
+              bool noRestart)
 {
     Lock sync(*this);
     checkDestroyed();
@@ -1056,12 +1229,10 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
     // we don't re-load the server. We just return the server
     // proxy and the proxies of its adapters.
     // 
-    if(_desc &&
-       (replicaName != "Master" || _desc->sessionId == desc->sessionId) &&
-       ((_desc->uuid == desc->uuid && _desc->revision == desc->revision) ||
-		descriptorWithoutRevisionEqual(_desc, desc)))
+    InternalServerDescriptorPtr d = _load ? _load->getInternalServerDescriptor() : _desc;
+    if(d && (replicaName != "Master" || d->sessionId == desc->sessionId) && !descriptorUpdated(d, desc))
     {
-        if(_desc->revision != desc->revision)
+        if(d->revision != desc->revision)
         {
             updateRevision(desc->uuid, desc->revision);
         }
@@ -1078,13 +1249,27 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
         return 0;
     }
 
-    if(!StopCommand::isStopped(_state) && !_stop)
+    if(!StopCommand::isStopped(_state) && !_stop) // Server is running and no stop is scheduled
     {
-        _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
+        assert(_desc);
+        if(noRestart)
+        {
+            //
+            // If the server is not inactive, we have to make sure the update doesn't require
+            // a restart. If it requires a restart, we throw. Otherwise we update its properties
+            // now.
+            //
+            checkNoRestart(desc);
+        }
+        else
+        {
+            _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
+        }
     }
+    
     if(!_load)
     {
-        _load = new LoadCommand(this);
+        _load = new LoadCommand(this, _desc, _node->getTraceLevels());
     }
     _load->setUpdate(desc, _destroy);
     if(_destroy && _state != Destroying)
@@ -1092,11 +1277,62 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
         _destroy->finished();
         _destroy = 0;
     }
+
     if(amdCB)
     {
         _load->addCallback(amdCB);
     }
+
+    if(!_stop && _state == Active) // Must be done after adding the AMD callback.
+    {
+        updateRevision(desc->uuid, desc->revision);
+        _load->startRuntimePropertiesUpdate(_process);
+    }
     return nextCommand();
+}
+
+bool
+ServerI::checkUpdate(const InternalServerDescriptorPtr& desc, bool noRestart, const Ice::Current&)
+{
+    Lock sync(*this);
+    checkDestroyed();
+
+    if(!_desc)
+    {
+        throw DeploymentException("server not loaded");
+    }
+
+    InternalServerDescriptorPtr d = _load ? _load->getInternalServerDescriptor() : _desc;
+    if(!descriptorUpdated(d, desc))
+    {
+        return StopCommand::isStopped(_state);
+    }
+
+    if(noRestart)
+    {
+        checkNoRestart(desc);
+    }
+
+    try
+    {
+        checkAndUpdateUser(desc, false); // false = don't update the user, just check.
+    }
+    catch(const Ice::Exception& ex)
+    {
+        ostringstream os;
+        os << ex;
+        throw DeploymentException(os.str());
+    }
+    catch(const string& msg)
+    {
+        throw DeploymentException(msg);
+    }
+    catch(const char* msg)
+    {
+        throw DeploymentException(msg);
+    }
+
+    return StopCommand::isStopped(_state);
 }
 
 ServerCommandPtr
@@ -1785,6 +2021,12 @@ ServerI::update()
                     _node->removeServer(this, oldDescriptor->application);
                     _node->addServer(this, _desc->application);
                 }
+
+                if(_node->getTraceLevels()->server > 0)
+                {
+                    Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+                    out << "updated configuration for server `" << _id << "'";
+                }
             }
             else
             {
@@ -1948,116 +2190,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         _timerTask = 0;
     }   
 
-#ifndef _WIN32
-    _uid = getuid();
-    _gid = getgid();
-#endif
-
-    //
-    // Don't change the user if the server has the session activation
-    // mode and if it's not currently owned by a session.
-    //
-    string user;
-    if(_desc->activation != "session" || !_desc->sessionId.empty())
-    {
-        user = _desc->user;
-#ifndef _WIN32
-        //
-        // Check if the node is running as root, if that's the case we
-        // make sure that a user is set for the process.
-        //
-        if(_uid == 0 && user.empty())
-        {
-            //
-            // If no user is configured and if this server is owned by
-            // a session we set the user to the session id, otherwise
-            // we set it to "nobody".
-            //
-            user = !_desc->sessionId.empty() ? _desc->sessionId : "nobody";
-        }
-#endif
-    }
-
-    if(!user.empty())
-    {
-        UserAccountMapperPrx mapper = _node->getUserAccountMapper();
-        if(mapper)
-        {
-            try
-            {
-                user = mapper->getUserAccount(user);
-            }
-            catch(const UserAccountNotFoundException&)
-            {
-                throw "couldn't find user account for user `" + user + "'";
-            }
-            catch(const Ice::LocalException& ex)
-            {
-                ostringstream os;
-                os << "unexpected exception while trying to find user account for user `" << user << "':\n" << ex;
-                throw os.str();
-            }
-        }
-
-#ifdef _WIN32
-        //
-        // Windows doesn't support running processes under another
-        // account (at least not easily, see the CreateProcessAsUser
-        // documentation). So if a user is specified, we just check
-        // that the node is running under the same user account as the
-        // one which is specified.
-        //      
-        vector<char> buf(256);
-        buf.resize(256);
-        DWORD size = static_cast<DWORD>(buf.size());
-        bool success = GetUserName(&buf[0], &size);
-        if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
-        {
-            buf.resize(size);
-            success = GetUserName(&buf[0], &size);
-        }
-        if(!success)
-        {
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSystemErrno();
-            throw ex;
-        }
-        if(user != string(&buf[0]))
-        {
-            throw "couldn't load server under user account `" + user + "': feature not supported on Windows";
-        }
-#else
-        //
-        // Get the uid/gid associated with the given user.
-        //
-        struct passwd* pw = getpwnam(user.c_str());
-        if(!pw)
-        {
-            throw "unknown user account `" + user + "'";
-        }
-
-        //
-        // If the node isn't running as root and if the uid of the
-        // configured user is different from the uid of the userr
-        // running the node we throw, a regular user can't run a
-        // process as another user.
-        //
-        if(_uid != 0 && pw->pw_uid != _uid)
-        {
-            throw "node has insufficient privileges to load server under user account `" + user + "'";
-        }
-
-
-	if(pw->pw_uid == 0 &&
-	   _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") == 0)
-	{
-	    throw "running server as `root' is not allowed";
-	}
-
-        _uid = pw->pw_uid;
-        _gid = pw->pw_gid;
-#endif
-    }
+    checkAndUpdateUser(_desc, true); // we pass true to update _uid/_gid.
 
     istringstream at(_desc->activationTimeout);
     if(!(at >> _activationTimeout) || !at.eof() || _activationTimeout == 0)
@@ -2088,58 +2221,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     }
     sort(_logs.begin(), _logs.begin());
     
-    //
-    // Copy the descriptor properties. We shouldn't modify the
-    // descriptor since it's used for the comparison when the server
-    // needs to be updated.
-    //
-    PropertyDescriptorSeqDict properties = _desc->properties;
+    PropertyDescriptorSeqDict properties = getProperties(_desc);
     PropertyDescriptorSeq& props = properties["config"];
-    
-    //
-    // Cache the path of the stderr/stdout file, first check if the
-    // node OutputDir property is set and then we check the server
-    // configuration file for the Ice.StdErr and Ice.StdOut
-    // properties.
-    //
     _stdErrFile = getProperty(props, "Ice.StdErr");
     _stdOutFile = getProperty(props, "Ice.StdOut");
-    string outputDir = _node->getOutputDir();
-    if(!outputDir.empty())
-    {
-        if(_stdErrFile.empty())
-        {
-            _stdErrFile = outputDir + "/" + _id + (_node->getRedirectErrToOut() ? ".out" : ".err");
-            props.push_back(createProperty("Ice.StdErr", _stdErrFile));
-        }
-        if(_stdOutFile.empty())
-        {
-            _stdOutFile = outputDir + "/" + _id + ".out";
-            props.push_back(createProperty("Ice.StdOut", _stdOutFile));
-        }
-    }
-
-    //
-    // Add the locator proxy property and the node properties override
-    //
-    {
-        const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
-        {
-            if(getProperty(p->second, "Ice.Default.Locator").empty())
-            {
-                p->second.push_back(
-                    createProperty("Ice.Default.Locator",
-                                   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
-            }
-            
-            if(!overrides.empty())
-            {
-                p->second.push_back(createProperty("# Node properties override"));
-                p->second.insert(p->second.end(), overrides.begin(), overrides.end());
-            }
-        }
-    }
 
     //
     // If the server is a session server and it wasn't udpated but
@@ -2298,7 +2383,12 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
 
     string descUUID;
     int descRevision;
-    if(_desc)
+    if(_load)
+    {
+        descUUID = _load->getInternalServerDescriptor()->uuid;
+        descRevision = _load->getInternalServerDescriptor()->revision;
+    }
+    else if(_desc)
     {
         descUUID = _desc->uuid;
         descRevision = _desc->revision;
@@ -2338,10 +2428,156 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
 }
 
 void
+ServerI::checkNoRestart(const InternalServerDescriptorPtr& desc)
+{
+    assert(_desc);
+
+    if(_desc->sessionId != desc->sessionId)
+    {
+        throw DeploymentException("server allocated by another session");
+    }
+
+    if(descriptorUpdated(_desc, desc, true)) // true = ignore properties
+    {
+        throw DeploymentException("update requires server to be stopped");
+    }
+}
+
+void
+ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool update)
+{
+#ifndef _WIN32
+    uid_t uid = getuid();
+    uid_t gid = getgid();
+#endif
+
+    //
+    // Don't change the user if the server has the session activation
+    // mode and if it's not currently owned by a session.
+    //
+    string user;
+    if(desc->activation != "session" || !desc->sessionId.empty())
+    {
+        user = desc->user;
+#ifndef _WIN32
+        //
+        // Check if the node is running as root, if that's the case we
+        // make sure that a user is set for the process.
+        //
+        if(uid == 0 && user.empty())
+        {
+            //
+            // If no user is configured and if this server is owned by
+            // a session we set the user to the session id, otherwise
+            // we set it to "nobody".
+            //
+            user = !desc->sessionId.empty() ? desc->sessionId : "nobody";
+        }
+#endif
+    }
+
+    if(!user.empty())
+    {
+        UserAccountMapperPrx mapper = _node->getUserAccountMapper();
+        if(mapper)
+        {
+            try
+            {
+                user = mapper->getUserAccount(user);
+            }
+            catch(const UserAccountNotFoundException&)
+            {
+                throw "couldn't find user account for user `" + user + "'";
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                ostringstream os;
+                os << "unexpected exception while trying to find user account for user `" << user << "':\n" << ex;
+                throw os.str();
+            }
+        }
+
+#ifdef _WIN32
+        //
+        // Windows doesn't support running processes under another
+        // account (at least not easily, see the CreateProcessAsUser
+        // documentation). So if a user is specified, we just check
+        // that the node is running under the same user account as the
+        // one which is specified.
+        //      
+        vector<char> buf(256);
+        buf.resize(256);
+        DWORD size = static_cast<DWORD>(buf.size());
+        bool success = GetUserName(&buf[0], &size);
+        if(!success && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+        {
+            buf.resize(size);
+            success = GetUserName(&buf[0], &size);
+        }
+        if(!success)
+        {
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = IceInternal::getSystemErrno();
+            throw ex;
+        }
+        if(user != string(&buf[0]))
+        {
+            throw "couldn't load server under user account `" + user + "': feature not supported on Windows";
+        }
+    }
+#else
+        //
+        // Get the uid/gid associated with the given user.
+        //
+        struct passwd* pw = getpwnam(user.c_str());
+        if(!pw)
+        {
+            throw "unknown user account `" + user + "'";
+        }
+
+        //
+        // If the node isn't running as root and if the uid of the
+        // configured user is different from the uid of the userr
+        // running the node we throw, a regular user can't run a
+        // process as another user.
+        //
+        if(uid != 0 && pw->pw_uid != uid)
+        {
+            throw "node has insufficient privileges to load server under user account `" + user + "'";
+        }
+
+
+	if(pw->pw_uid == 0 &&
+	   _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") == 0)
+	{
+	    throw "running server as `root' is not allowed";
+	}
+
+        if(update)
+        {
+            _uid = pw->pw_uid;
+            _gid = pw->pw_gid;
+        }
+    }
+    else if(update)
+    {
+        _uid = uid;
+        _gid = gid;
+    }
+#endif
+}
+
+void
 ServerI::updateRevision(const string& uuid, int revision)
 {
     _desc->uuid = uuid;
     _desc->revision = revision;
+
+    if(_load)
+    {
+        _load->getInternalServerDescriptor()->uuid = uuid;
+        _load->getInternalServerDescriptor()->revision = revision;
+    }
 
     string idFilePath = _serverDir + "/revision";
     IceUtilInternal::ofstream os(idFilePath); // idFilePath is a UTF-8 string
@@ -2352,6 +2588,41 @@ ServerI::updateRevision(const string& uuid, int revision)
         os << "#" << endl;
         os << "uuid: " << _desc->uuid << endl;
         os << "revision: " << _desc->revision << endl;
+    }
+}
+
+void
+ServerI::updateRuntimePropertiesCallback(const InternalServerDescriptorPtr& desc)
+{
+    Lock sync(*this);
+    if(_state != Active || !_load)
+    {
+        return;
+    }
+
+    if(_load->finishRuntimePropertiesUpdate(desc, _process))
+    {
+        AdapterPrxDict adapters;
+        for(ServerAdapterDict::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+        {
+            adapters.insert(make_pair(p->first, p->second->getProxy()));
+        }
+        _load->finished(_this, adapters, _activationTimeout, _deactivationTimeout);
+    }
+}
+
+void
+ServerI::updateRuntimePropertiesCallback(const Ice::Exception& ex, const InternalServerDescriptorPtr& desc)
+{
+    Lock sync(*this);
+    if(_state != Active || !_load)
+    {
+        return;
+    }
+
+    if(_load->finishRuntimePropertiesUpdate(desc, _process))
+    {
+        _load->failed(ex);
     }
 }
 
@@ -2469,7 +2740,6 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     //
     InternalServerState previous = _state;
     _state = st;
-
    
     //
     // Check if some commands are done.
@@ -2617,6 +2887,14 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             }
         }
     }
+    else if(_state == Active && _load)
+    {
+        //
+        // If there's a pending load command, it's time to update the
+        // runtime properties of the server now that it's active.
+        //
+        _load->startRuntimePropertiesUpdate(_process);
+    }
 
     //
     // Don't send the server update if the state didn't change or if
@@ -2641,8 +2919,11 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         }
         else if(_state == ServerI::Inactive)
         {
-            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-            out << "changed server `" << _id << "' state to `Inactive'";
+            if(_node->getTraceLevels()->server != 2 && !(previous == ServerI::Loading || previous == ServerI::Patching))
+            {
+                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
+                out << "changed server `" << _id << "' state to `Inactive'";
+            }
         }
         else if(_state == ServerI::Destroyed)
         {
@@ -2819,3 +3100,59 @@ ServerI::getFilePath(const string& filename) const
     }
 }
 
+PropertyDescriptorSeqDict
+ServerI::getProperties(const InternalServerDescriptorPtr& desc)
+{
+    //
+    // Copy the descriptor properties.
+    //
+    PropertyDescriptorSeqDict properties = desc->properties;
+    PropertyDescriptorSeq& props = properties["config"];
+    
+    //
+    // Cache the path of the stderr/stdout file, first check if the
+    // node OutputDir property is set and then we check the server
+    // configuration file for the Ice.StdErr and Ice.StdOut
+    // properties.
+    //
+    string stdErrFile = getProperty(props, "Ice.StdErr");
+    string stdOutFile = getProperty(props, "Ice.StdOut");
+    string outputDir = _node->getOutputDir();
+    if(!outputDir.empty())
+    {
+        if(stdErrFile.empty())
+        {
+            stdErrFile = outputDir + "/" + _id + (_node->getRedirectErrToOut() ? ".out" : ".err");
+            props.push_back(createProperty("Ice.StdErr", stdErrFile));
+        }
+        if(stdOutFile.empty())
+        {
+            stdOutFile = outputDir + "/" + _id + ".out";
+            props.push_back(createProperty("Ice.StdOut", stdOutFile));
+        }
+    }
+
+    //
+    // Add the locator proxy property and the node properties override
+    //
+    {
+        const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
+        for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
+        {
+            if(getProperty(p->second, "Ice.Default.Locator").empty())
+            {
+                p->second.push_back(
+                    createProperty("Ice.Default.Locator",
+                                   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+            }
+            
+            if(!overrides.empty())
+            {
+                p->second.push_back(createProperty("# Node properties override"));
+                p->second.insert(p->second.end(), overrides.begin(), overrides.end());
+            }
+        }
+    }
+
+    return properties;
+}

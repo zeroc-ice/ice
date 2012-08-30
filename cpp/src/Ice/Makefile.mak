@@ -79,6 +79,7 @@ OBJS		= Acceptor.obj \
 		  PluginManagerI.obj \
 		  Plugin.obj \
 		  Process.obj \
+		  PropertiesAdminI.obj \
 		  PropertiesI.obj \
 		  Properties.obj \
 		  PropertyNames.obj \

@@ -49,7 +49,7 @@ local interface Observer
      *
      * Notification of a failure.
      *
-     * @param The name of the exception.
+     * @param exceptionName The name of the exception.
      *
      **/
     void failed(string exceptionName);
@@ -302,6 +302,8 @@ local interface CommunicatorObserver
      *
      * @param endpt The endpoint information.
      *
+     * @param endpoint The stringified endpoint.
+     *
      **/
     Observer getEndpointLookupObserver(EndpointInfo endpt, string endpoint);
 
@@ -334,7 +336,9 @@ local interface CommunicatorObserver
      * and for all the Ice communicator threads when
      * ObserverUpdater::updateThreads is called.
      *
-     * @param con The thread to observe
+     * @param parent The parent of the thread.
+     *
+     * @param id The ID of the thread to observe
      *
      * @param s The state of the thread
      *
@@ -385,7 +389,7 @@ local interface CommunicatorObserver
      * receives an incoming invocation to be dispatched for an Ice
      * object.
      *
-     * @param current The Ice::Current object as provided to the Ice
+     * @param c The Ice::Current object as provided to the Ice
      * servant dispatching the invocation.
      *
      * @return The observer object.

@@ -56,6 +56,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         c.getCloseApplicationAction().setEnabled(false);
         c.getSaveAction().setEnabled(false);
         c.getSaveToRegistryAction().setEnabled(false);
+        c.getSaveToRegistryWithoutRestartAction().setEnabled(false);
         c.getSaveToFileAction().setEnabled(false);
         c.getDiscardUpdatesAction().setEnabled(false);
 
@@ -177,7 +178,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         assert false;
     }
 
-    public void saveToRegistry()
+    public void saveToRegistry(boolean restart)
     {
         assert false;
     }

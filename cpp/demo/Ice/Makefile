@@ -26,7 +26,8 @@ SUBDIRS		= minimal \
 		  multicast \
 		  nrvo \
 		  plugin \
-		  interleaved
+		  interleaved \
+		  properties
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

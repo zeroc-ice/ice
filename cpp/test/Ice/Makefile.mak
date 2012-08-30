@@ -29,6 +29,7 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  udp \
+		  admin \
 		  plugin \
 		  stream
 
@@ -48,6 +49,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  interceptor \
 		  defaultValue \
 !endif
+
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

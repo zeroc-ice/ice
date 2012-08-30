@@ -85,6 +85,7 @@ public:
     Ice::ObjectPrx getAdmin();
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
+    Ice::ObjectPtr findAdminFacet(const std::string&);
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {

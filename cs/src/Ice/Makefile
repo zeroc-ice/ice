@@ -125,8 +125,10 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/Logger.ice \
+		  $(SDIR)/Metrics.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/Observer.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/Process.ice \
 		  $(SDIR)/Properties.ice \

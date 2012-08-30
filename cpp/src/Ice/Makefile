@@ -85,6 +85,7 @@ OBJS		= Acceptor.o \
 		  PluginManagerI.o \
 		  Plugin.o \
 		  Process.o \
+		  PropertiesAdminI.o \
 		  PropertiesI.o \
 		  Properties.o \
 		  PropertyNames.o \

@@ -68,8 +68,10 @@ tests = [
     ("Ice/invoke", ["core", "novc6"]),
     ("Ice/plugin", ["core"]),
     ("Ice/hash", ["once"]),
+    ("Ice/admin", ["core"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw"]),
+    ("IceBox/admin", ["core", "noipv6", "novc6", "nomingw"]),
     ("Freeze/dbmap", ["once", "novc6", "nomingw"]),
     ("Freeze/complex", ["once", "novc6", "nomingw"]),
     ("Freeze/evictor", ["core", "novc6", "nomingw"]),
@@ -88,6 +90,7 @@ tests = [
     ("IceGrid/deployer", ["service", "novc6", "nomingw"]),
     ("IceGrid/session", ["service", "novc6", "nomingw"]),
     ("IceGrid/update", ["service", "novc6", "nomingw"]),
+    ("IceGrid/noRestartUpdate", ["service", "novc6", "nomingw"]),
     ("IceGrid/activation", ["service", "novc6", "nomingw"]),
     ("IceGrid/replicaGroup", ["service", "novc6", "nomingw"]),
     ("IceGrid/replication", ["service", "novc6", "nomingw"]),

@@ -43,7 +43,8 @@ SUBDIRS		= proxy \
 		  threadPoolPriority \
 		  invoke \
 		  properties \
-		  plugin
+		  plugin \
+		  admin
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

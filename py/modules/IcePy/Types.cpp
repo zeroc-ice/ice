@@ -2871,7 +2871,7 @@ IcePy::ExceptionWriter::ice_name() const
     return _info->id;
 }
 
-Ice::Exception*
+ExceptionWriter*
 IcePy::ExceptionWriter::ice_clone() const
 {
     return new ExceptionWriter(*this);
@@ -2931,7 +2931,7 @@ IcePy::ExceptionReader::ice_name() const
     return _info->id;
 }
 
-Ice::Exception*
+ExceptionReader*
 IcePy::ExceptionReader::ice_clone() const
 {
     assert(false);

@@ -34,6 +34,7 @@ demos = [
     "Ice/multicast",
     "Ice/nested",
     "Ice/plugin",
+    "Ice/properties",
     "Ice/serialize",
     "Ice/session",
     "Ice/throughput",

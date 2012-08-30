@@ -124,6 +124,11 @@ namespace Ice
             return instance_.initializationData().stats;
         }
 
+        public Ice.Instrumentation.CommunicatorObserver getObserver()
+        {
+            return null; // TODO: XXX
+        }
+
         public RouterPrx getDefaultRouter()
         {
             return instance_.referenceFactory().getDefaultRouter();
@@ -220,6 +225,12 @@ namespace Ice
         removeAdminFacet(string facet)
         {
             return instance_.removeAdminFacet(facet);
+        }
+
+        public Ice.Object
+        findAdminFacet(string facet)
+        {
+            return instance_.findAdminFacet(facet);
         }
 
 

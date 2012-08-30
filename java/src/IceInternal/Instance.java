@@ -463,10 +463,10 @@ public final class Instance
         }
 
         Ice.Object result = null;
+
         if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
             result = _adminFacets.remove(facet);
-
             if(result == null)
             {
                 throw new Ice.NotRegisteredException("facet", facet);
@@ -476,6 +476,29 @@ public final class Instance
         {
             result = _adminAdapter.removeFacet(_adminIdentity, facet);
         }
+
+        return result;
+    }
+
+    public synchronized Ice.Object
+    findAdminFacet(String facet)
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+
+        Ice.Object result = null;
+
+        if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
+        {
+            result = _adminFacets.get(facet);
+        }
+        else
+        {
+            result = _adminAdapter.findFacet(_adminIdentity, facet);
+        }
+
         return result;
     }
 
@@ -703,7 +726,7 @@ public final class Instance
                 _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
             }
 
-            _adminFacets.put("Properties", new PropertiesAdminI(_initData.properties));
+            _adminFacets.put("Properties", new PropertiesAdminI("Properties", _initData.properties, _initData.logger));
             _adminFacets.put("Process", new ProcessI(communicator));
 
         }

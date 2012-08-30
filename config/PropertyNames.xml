@@ -363,6 +363,7 @@ generated from the section label.
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
+        <property name="Trace.Admin.Properties" />
         <property name="Trace.GC" />
         <property name="Trace.Location" deprecated="true" deprecatedBy="Ice.Trace.Locator" />
         <property name="Trace.Locator" />

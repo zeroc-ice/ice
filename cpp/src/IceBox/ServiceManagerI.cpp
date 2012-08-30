@@ -14,6 +14,7 @@
 #include <Ice/SliceChecksums.h>
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
+#include <Ice/PropertiesAdminI.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
@@ -24,30 +25,6 @@ typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
 namespace
 {
-
-class PropertiesAdminI : public PropertiesAdmin
-{
-public:
-
-    PropertiesAdminI(const PropertiesPtr& properties) :
-        _properties(properties)
-    {
-    }
-
-    virtual string getProperty(const string& name, const Current&)
-    {
-        return _properties->getProperty(name);
-    }
-
-    virtual PropertyDict getPropertiesForPrefix(const string& prefix, const Current&)
-    {
-        return _properties->getPropertiesForPrefix(prefix);
-    }
-
-private:
-
-    const PropertiesPtr _properties;
-};
 
 struct StartServiceInfo
 {
@@ -65,8 +42,8 @@ struct StartServiceInfo
         }
         catch(const IceUtilInternal::BadOptException& ex)
         {
-            PluginInitializationException e(__FILE__, __LINE__);
-            e.reason = "invalid arguments for service `" + name + "':\n" + ex.reason;
+            FailureException e(__FILE__, __LINE__);
+            e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason;
             throw e;
         }
 
@@ -157,7 +134,7 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
         info.service->start(name, info.communicator == 0 ? _sharedCommunicator : info.communicator, info.args);
         started = true;
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
         Warning out(_logger);
         out << "ServiceManager: exception in start for service " << info.name << ":\n";
@@ -235,7 +212,7 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
         info.service->stop();
         stopped = true;
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
         Warning out(_logger);
         out << "ServiceManager: exception while stopping service " << info.name << ":\n";
@@ -276,7 +253,7 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
 }
 
 void
-IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const Ice::Current&)
+IceBox::ServiceManagerI::addObserver(const ServiceObserverPrx& observer, const Current&)
 {
     //
     // Null observers and duplicate registrations are ignored
@@ -458,18 +435,6 @@ IceBox::ServiceManagerI::start()
         try
         {
             _communicator->addAdminFacet(this, "IceBox.ServiceManager");
-
-            //
-            // Add a Properties facet for each service
-            //
-            for(vector<ServiceInfo>::iterator r = _services.begin(); r != _services.end(); ++r)
-            {
-                const ServiceInfo& info = *r;
-                CommunicatorPtr communicator = info.communicator != 0 ? info.communicator : _sharedCommunicator;
-                _communicator->addAdminFacet(new PropertiesAdminI(communicator->getProperties()),
-                                             "IceBox.Service." + info.name + ".Properties");
-            }
-
             _communicator->getAdmin();
         }
         catch(const ObjectAdapterDeactivatedException&)
@@ -536,11 +501,6 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-    ServiceInfo info;
-    info.name = service;
-    info.status = Stopped;
-    info.args = args;
-
     //
     // Load the entry point.
     //
@@ -559,57 +519,27 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         throw ex;
     }
 
-    //
-    // Invoke the factory function.
-    //
-    SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
-    try
-    {
-        info.service = factory(_communicator);
-    }
-    catch(const FailureException&)
-    {
-        throw;
-    }
-    catch(const Exception& ex)
-    {
-        ostringstream s;
-        s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << service << ":\n";
-        s << ex;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
-    }
-    catch(...)
-    {
-        ostringstream s;
-        s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << service;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
-    }
+    ServiceInfo info;
+    info.name = service;
+    info.status = Stopped;
+    info.args = args;
 
     //
-    // Invoke Service::start().
+    // If Ice.UseSharedCommunicator.<name> is not defined, create
+    // a communicator for the service. The communicator inherits
+    // from the shared communicator properties. If it's defined
+    // add the service properties to the shared commnunicator
+    // property set.
     //
-    try
+    Ice::CommunicatorPtr communicator;
+    if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
     {
-        //
-        // If Ice.UseSharedCommunicator.<name> is not defined, create
-        // a communicator for the service. The communicator inherits
-        // from the shared communicator properties. If it's defined
-        // add the service properties to the shared commnunicator
-        // property set.
-        //
-        Ice::CommunicatorPtr communicator;
-        if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
-        {
-            assert(_sharedCommunicator);
-            communicator = _sharedCommunicator;
-        }
-        else
+        assert(_sharedCommunicator);
+        communicator = _sharedCommunicator;
+    }
+    else
+    {
+        try
         {
             //
             // Create the service properties. We use the communicator properties as the default
@@ -624,19 +554,19 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 // read the service config file if it's specified with --Ice.Config.
                 //
                 initData.properties = createProperties(info.args, initData.properties);
-
+                
                 //
                 // Next, parse the service "<service>.*" command line options (the Ice command
                 // line options were parsed by the createProperties above)
                 //
                 info.args = initData.properties->parseCommandLineOptions(service, info.args);
             }
-
+            
             //
             // Clone the logger to assign a new prefix.
             //
             initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
-
+            
             //
             // Remaining command line options are passed to the communicator. This is
             // necessary for Ice plug-in properties (e.g.: IceSSL).
@@ -644,15 +574,69 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
         }
+        catch(const Exception& ex)
+        {
+            ostringstream s;
+            s << "ServiceManager: exception while starting service " << service << ":\n";
+            s << ex;
 
+            FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
+        }
+    }
+
+    try
+    {
+        //
+        // Add a PropertiesAdmin facet to the service manager's communicator that provides
+        // access to this service's property set. We do this prior to instantiating the
+        // service so that the service's constructor is able to access the facet (e.g.,
+        // in case it wants to set a callback).
+        //
+        string facetName = "IceBox.Service." + info.name + ".Properties";
+        _communicator->addAdminFacet(
+            new PropertiesAdminI(facetName, communicator->getProperties(), communicator->getLogger()), facetName);
+
+        //
+        // Invoke the factory function.
+        //
+        SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
+        try
+        {
+            info.service = factory(_communicator);
+        }
+        catch(const FailureException&)
+        {
+            throw;
+        }
+        catch(const Exception& ex)
+        {
+            ostringstream s;
+            s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << info.name << ":\n";
+            s << ex;
+            
+            FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
+        }
+        catch(...)
+        {
+            ostringstream s;
+            s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << info.name;
+            
+            FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
+        }
+            
         //
         // Start the service.
         //
         try
         {
-            info.service->start(service, communicator, info.args);
-            info.status = Started;
-
+            info.service->start(info.name, communicator, info.args);
+            
             //
             // There is no need to notify the observers since the 'start all'
             // (that indirectly calls this function) occurs before the creation of
@@ -660,71 +644,61 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // object adapter (so before any observer can be registered)
             //
         }
+        catch(const FailureException&)
+        {
+            throw;
+        }
+        catch(const Exception& ex)
+        {
+            ostringstream s;
+            s << "ServiceManager: exception while starting service " << info.name << ":\n";
+            s << ex;
+
+            FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
+        }
         catch(...)
         {
-            if(info.communicator)
-            {
-                try
-                {
-                    info.communicator->shutdown();
-                    info.communicator->waitForShutdown();
-                }
-                catch(const Ice::CommunicatorDestroyedException&)
-                {
-                    //
-                    // Ignore, the service might have already destroyed
-                    // the communicator for its own reasons.
-                    //
-                }
-                catch(const Ice::Exception& ex)
-                {
-                    Warning out(_logger);
-                    out << "ServiceManager: exception while shutting down communicator for service " << service
-                        << ":\n";
-                    out << ex;
-                }
+            ostringstream s;
+            s << "ServiceManager: unknown exception while starting service " << info.name;
 
-                try
-                {
-                    info.communicator->destroy();
-                    info.communicator = 0;
-                }
-                catch(const Exception& ex)
-                {
-                    Warning out(_logger);
-                    out << "ServiceManager: exception while destroying communicator for service " << service
-                        << ":\n";
-                    out << ex;
-                }
-            }
-            throw;
+            FailureException e(__FILE__, __LINE__);
+            e.reason = s.str();
+            throw e;
         }
 
         info.library = library;
+        info.status = Started;
         _services.push_back(info);
     }
-    catch(const FailureException&)
+    catch(const ObjectAdapterDeactivatedException&)
     {
+        //
+        // Can be raised by addAdminFacet if the service manager communicator has been shut down.
+        //
+        if(info.communicator)
+        {
+            destroyServiceCommunicator(info.name, info.communicator);
+        }
+    }
+    catch(const Exception&)
+    {
+        try
+        {
+            _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+        }
+        catch(const LocalException&)
+        {
+            // Ignored
+        }
+
+        if(info.communicator)
+        {
+            destroyServiceCommunicator(info.name, info.communicator);
+        }
+
         throw;
-    }
-    catch(const Exception& ex)
-    {
-        ostringstream s;
-        s << "ServiceManager: exception while starting service " << service << ":\n";
-        s << ex;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
-    }
-    catch(...)
-    {
-        ostringstream s;
-        s << "ServiceManager: unknown exception while starting service " << service;
-
-        FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
     }
 }
 
@@ -764,7 +738,7 @@ IceBox::ServiceManagerI::stopAll()
                 info.status = Stopped;
                 stoppedServices.push_back(info.name);
             }
-            catch(const Ice::Exception& ex)
+            catch(const Exception& ex)
             {
                 Warning out(_logger);
                 out << "ServiceManager: exception while stopping service " << info.name << ":\n";
@@ -798,14 +772,14 @@ IceBox::ServiceManagerI::stopAll()
                 info.communicator->shutdown();
                 info.communicator->waitForShutdown();
             }
-            catch(const Ice::CommunicatorDestroyedException&)
+            catch(const CommunicatorDestroyedException&)
             {
                 //
                 // Ignore, the service might have already destroyed
                 // the communicator for its own reasons.
                 //
             }
-            catch(const Ice::Exception& ex)
+            catch(const Exception& ex)
             {
                 Warning out(_logger);
                 out << "ServiceManager: exception while stopping service " << info.name << ":\n";
@@ -982,4 +956,38 @@ ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
             observerRemoved(observer, ex);
         }
      }
+}
+
+void
+IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const CommunicatorPtr& communicator)
+{
+    try
+    {
+        communicator->shutdown();
+        communicator->waitForShutdown();
+    }
+    catch(const CommunicatorDestroyedException&)
+    {
+        //
+        // Ignore, the service might have already destroyed
+        // the communicator for its own reasons.
+        //
+    }
+    catch(const Exception& ex)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+        out << ex;
+    }
+
+    try
+    {
+        communicator->destroy();
+    }
+    catch(const Exception& ex)
+    {
+        Warning out(_logger);
+        out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
+        out << ex;
+    }
 }

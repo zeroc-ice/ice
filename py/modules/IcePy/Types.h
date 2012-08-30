@@ -481,7 +481,7 @@ public:
     virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
-    virtual Ice::Exception* ice_clone() const;
+    virtual ExceptionWriter* ice_clone() const;
     virtual void ice_throw() const;
 
 private:
@@ -507,7 +507,7 @@ public:
     virtual void usesClasses(bool);
 
     virtual std::string ice_name() const;
-    virtual Ice::Exception* ice_clone() const;
+    virtual ExceptionReader* ice_clone() const;
     virtual void ice_throw() const;
 
     PyObject* getException() const; // Borrowed reference.

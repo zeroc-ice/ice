@@ -345,7 +345,7 @@ propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
     PyObject* list = PyList_New(0);
     if(!list)
     {
-        return false;
+        return 0;
     }
     if(!stringSeqToList(value, list))
     {
@@ -395,7 +395,7 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
     PyObject* list = PyList_New(0);
     if(!list)
     {
-        return false;
+        return 0;
     }
     if(!stringSeqToList(value, list))
     {
@@ -514,7 +514,7 @@ propertiesGetCommandLineOptions(PropertiesObject* self)
     PyObject* list = PyList_New(0);
     if(!list)
     {
-        return false;
+        return 0;
     }
     if(!stringSeqToList(options, list))
     {
@@ -564,7 +564,7 @@ propertiesParseCommandLineOptions(PropertiesObject* self, PyObject* args)
     PyObject* list = PyList_New(0);
     if(!list)
     {
-        return false;
+        return 0;
     }
     if(!stringSeqToList(filteredSeq, list))
     {
@@ -607,7 +607,7 @@ propertiesParseIceCommandLineOptions(PropertiesObject* self, PyObject* args)
     PyObject* list = PyList_New(0);
     if(!list)
     {
-        return false;
+        return 0;
     }
     if(!stringSeqToList(filteredSeq, list))
     {

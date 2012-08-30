@@ -62,6 +62,12 @@ Demos in this directory:
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
 
+- properties
+
+  Shows how to access a server's PropertiesAdmin facet in order to
+  retrieve and modify its configuration properties, and how the server
+  can receive notifications whenever its properties are changed.
+
 -nrvo
 
   A demo that shows how Ice takes advantage of NRVO (Named Return

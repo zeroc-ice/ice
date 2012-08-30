@@ -182,10 +182,7 @@ class LoadCB : virtual public IceUtil::Shared
 {
 public:
 
-    LoadCB(const TraceLevelsPtr& traceLevels, 
-           const ServerEntryPtr& server, 
-           const string& node,
-           int timeout) : 
+    LoadCB(const TraceLevelsPtr& traceLevels, const ServerEntryPtr& server, const string& node, int timeout) : 
         _traceLevels(traceLevels), _server(server), _id(server->getId()), _node(node), _timeout(timeout)
     {
     }
@@ -549,7 +546,8 @@ NodeEntry::canRemove()
 }
 
 void
-NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session, int timeout)
+NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, const SessionIPtr& session, int timeout,
+                      bool noRestart)
 {
     try
     {
@@ -600,12 +598,23 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
                 out << " for session `" << session->getId() << "'";
             }
         }
-        
-        node->begin_loadServer(desc, _cache.getReplicaName(),
-                               newCallback_Node_loadServer(
-                                   new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
-                                   &LoadCB::response, 
-                                   &LoadCB::exception));
+
+        if(noRestart)
+        {
+            node->begin_loadServerWithoutRestart(desc, _cache.getReplicaName(),
+                                                 newCallback_Node_loadServerWithoutRestart(
+                                                     new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
+                                                     &LoadCB::response, 
+                                                     &LoadCB::exception));
+        }
+        else
+        {
+            node->begin_loadServer(desc, _cache.getReplicaName(),
+                                   newCallback_Node_loadServer(
+                                       new LoadCB(_cache.getTraceLevels(), entry, _name, sessionTimeout),
+                                       &LoadCB::response, 
+                                       &LoadCB::exception));
+        }
     }
     catch(const NodeUnreachableException& ex)
     {
@@ -665,31 +674,27 @@ NodeEntry::getServerInfo(const ServerInfo& server, const SessionIPtr& session)
     return info;
 }
 
-ServerDescriptorPtr
-NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& session)
+InternalServerDescriptorPtr
+NodeEntry::getInternalServerDescriptor(const ServerInfo& server, const SessionIPtr& session)
 {
-    assert(_session);
-
-    Resolver resolve(_session->getInfo(), _cache.getCommunicator());
-    resolve.setReserved("application", server.application);
-    resolve.setReserved("server", server.descriptor->id);
-    resolve.setContext("server `${server}'");
-
-    if(session)
+    Lock sync(*this);
+    checkSession();
+    
+    ServerInfo info = server;
+    try
     {
-        resolve.setReserved("session.id", session->getId());
+        info.descriptor = getServerDescriptor(server, session);
     }
-
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
-    if(iceBox)
+    catch(const DeploymentException&)
     {
-        return IceBoxHelper(iceBox).instantiate(resolve, PropertyDescriptorSeq(), PropertySetDescriptorDict());
+        //
+        // We ignore the deployment error for now (which can
+        // only be caused in theory by session variables not
+        // being defined because the server isn't
+        // allocated...)
+        //
     }
-    else
-    {
-        return ServerHelper(server.descriptor).instantiate(resolve, PropertyDescriptorSeq(), 
-                                                           PropertySetDescriptorDict());
-    }
+    return getInternalServerDescriptor(info);
 }
 
 void
@@ -851,6 +856,33 @@ NodeEntry::finishedRegistration(const Ice::Exception& ex)
     {
         _registering = false;
         notifyAll();
+    }
+}
+
+ServerDescriptorPtr
+NodeEntry::getServerDescriptor(const ServerInfo& server, const SessionIPtr& session)
+{
+    assert(_session);
+
+    Resolver resolve(_session->getInfo(), _cache.getCommunicator());
+    resolve.setReserved("application", server.application);
+    resolve.setReserved("server", server.descriptor->id);
+    resolve.setContext("server `${server}'");
+
+    if(session)
+    {
+        resolve.setReserved("session.id", session->getId());
+    }
+
+    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server.descriptor);
+    if(iceBox)
+    {
+        return IceBoxHelper(iceBox).instantiate(resolve, PropertyDescriptorSeq(), PropertySetDescriptorDict());
+    }
+    else
+    {
+        return ServerHelper(server.descriptor).instantiate(resolve, PropertyDescriptorSeq(), 
+                                                           PropertySetDescriptorDict());
     }
 }
 

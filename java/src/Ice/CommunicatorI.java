@@ -239,22 +239,28 @@ public final class CommunicatorI implements Communicator
         r.__wait();
     }
 
-    public ObjectPrx 
+    public ObjectPrx
     getAdmin()
     {
         return _instance.getAdmin();
     }
 
-    public void 
+    public void
     addAdminFacet(Object servant, String facet)
     {
         _instance.addAdminFacet(servant, facet);
     }
 
-    public Object 
+    public Object
     removeAdminFacet(String facet)
     {
         return _instance.removeAdminFacet(facet);
+    }
+
+    public Object
+    findAdminFacet(String facet)
+    {
+        return _instance.findAdminFacet(facet);
     }
 
     CommunicatorI(InitializationData initData)

@@ -159,7 +159,7 @@ interface MetricsAdmin
      *
      * @param map The name of the metrics map.
      *
-     * @param map The ID of the metrics.
+     * @param id The ID of the metrics.
      *
      * @return The metrics failures associated with the metrics.
      *

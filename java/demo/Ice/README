@@ -56,6 +56,12 @@ Demos in this directory:
 
   A demo to illustrate how to write and use Ice plugins.
 
+- properties
+
+  Shows how to access a server's PropertiesAdmin facet in order to
+  retrieve and modify its configuration properties, and how the server
+  can receive notifications whenever its properties are changed.
+
 - serialize
 
   This demo illustrates how to transfer serializable Java classes

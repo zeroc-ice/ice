@@ -384,6 +384,12 @@ Ice::CommunicatorI::removeAdminFacet(const string& facet)
     return _instance->removeAdminFacet(facet);
 }
 
+Ice::ObjectPtr
+Ice::CommunicatorI::findAdminFacet(const string& facet)
+{
+    return _instance->findAdminFacet(facet);
+}
+
 Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 {
     __setNoDelete(true);

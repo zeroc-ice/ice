@@ -22,7 +22,7 @@ public interface Tab
     boolean close();
 
     void save();
-    void saveToRegistry();
+    void saveToRegistry(boolean restart);
     void saveToFile();
     void discardUpdates();
 }

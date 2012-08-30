@@ -582,14 +582,20 @@ class Node extends ListTreeNode
         if(_info != null)
         {
             java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
+            boolean found = false;
             while(p.hasNext())
             {
                 ServerDynamicInfo sinfo = p.next();
                 if(sinfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
+                    found = true;
                     break;
                 }
+            }
+            if(!found)
+            {
+                _info.servers.add(updatedInfo);
             }
         }
 
@@ -605,14 +611,20 @@ class Node extends ListTreeNode
         if(_info != null)
         {
             java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
+            boolean found = false;
             while(p.hasNext())
             {
                 AdapterDynamicInfo ainfo = p.next();
                 if(ainfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
+                    found = true;
                     break;
                 }
+            }
+            if(!found)
+            {
+                _info.adapters.add(updatedInfo);
             }
         }
 

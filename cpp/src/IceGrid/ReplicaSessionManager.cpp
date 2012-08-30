@@ -79,7 +79,7 @@ public:
         string failure;
         try
         {
-            _database->updateApplication(update);
+            _database->updateApplication(update, false);
         }
         catch(const DeploymentException& ex)
         {

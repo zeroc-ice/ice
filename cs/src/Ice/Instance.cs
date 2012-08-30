@@ -509,7 +509,6 @@ namespace IceInternal
             }
         }
 
-
         public Ice.Object 
         removeAdminFacet(string facet)
         {
@@ -537,6 +536,35 @@ namespace IceInternal
                 else
                 {
                     result = _adminAdapter.removeFacet(_adminIdentity, facet);
+                }
+                return result;
+            }
+        }
+
+        public Ice.Object 
+        findAdminFacet(string facet)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                Ice.Object result = null;
+                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                {
+                    try
+                    {
+                        result = _adminFacets[facet];
+                    }
+                    catch(KeyNotFoundException)
+                    {
+                    }
+                }
+                else
+                {
+                    result = _adminAdapter.findFacet(_adminIdentity, facet);
                 }
                 return result;
             }
@@ -780,7 +808,8 @@ namespace IceInternal
                         _adminFacetFilter.Add(s);
                     }
                 }
-                _adminFacets.Add("Properties", new PropertiesAdminI(_initData.properties));
+                _adminFacets.Add("Properties", 
+                                 new PropertiesAdminI("Properties", _initData.properties, _initData.logger));
                 _adminFacets.Add("Process", new ProcessI(communicator));
             }
             catch(Ice.LocalException)

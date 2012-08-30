@@ -25,6 +25,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
 #include <Ice/PropertiesI.h>
+#include <Ice/PropertiesAdminI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
@@ -724,6 +725,35 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     {
         result = _adminAdapter->removeFacet(_adminIdentity, facet);  
     }
+
+    return result;
+}
+
+Ice::ObjectPtr
+IceInternal::Instance::findAdminFacet(const string& facet)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    ObjectPtr result;
+
+    if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    {
+        FacetMap::iterator p = _adminFacets.find(facet);
+        if(p != _adminFacets.end())
+        {
+            result = p->second;
+        }
+    }
+    else
+    {
+        result = _adminAdapter->findFacet(_adminIdentity, facet);
+    }
+
     return result;
 } 
 
@@ -1074,7 +1104,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
         }
 
-        _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
+        _adminFacets.insert(
+            FacetMap::value_type("Properties",
+                                 new PropertiesAdminI("Properties", _initData.properties, _initData.logger)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
         IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties);
         _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));

@@ -41,6 +41,7 @@ demos = [
     "Ice/session",
     "Ice/throughput",
     "Ice/value",
+    "Ice/properties",
     "IceStorm/clock",
     "IceStorm/counter",
     "IceStorm/replicated",
