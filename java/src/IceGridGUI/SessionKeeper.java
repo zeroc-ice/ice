@@ -1057,7 +1057,7 @@ class SessionKeeper
                     catch(java.io.IOException e)
                     {}
                 }
-                _alias.setModel(new DefaultComboBoxModel(aliasVector));
+                _alias.setModel(new DefaultComboBoxModel<String>(aliasVector));
                 if(selectedAlias != null)
                 {
                     _alias.setSelectedItem(selectedAlias);
@@ -1071,7 +1071,7 @@ class SessionKeeper
 
         private void clearAlias()
         {
-            _alias.setModel(new DefaultComboBoxModel());
+            _alias.setModel(new DefaultComboBoxModel<String>());
         }
 
         private void selectRegistryUseSSL(boolean selected)
@@ -1174,7 +1174,7 @@ class SessionKeeper
         private JPasswordField _advancedKeyPassword = new JPasswordField(_keyPassword.getDocument(), null, 30);
 
         private JPasswordField _keystorePassword = new JPasswordField(30);
-        private JComboBox _alias = new JComboBox();
+        private JComboBox<String> _alias = new JComboBox<String>();
 
         private JTextField _truststore = new JTextField(30);
         private JPasswordField _truststorePassword = new JPasswordField(30);

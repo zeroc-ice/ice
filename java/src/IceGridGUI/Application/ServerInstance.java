@@ -437,7 +437,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
         return _editable;
     }
 
-    Object[] getServiceNames()
+    String[] getServiceNames()
     {
         assert _isIceBox;
 
@@ -447,7 +447,7 @@ class ServerInstance extends ListTreeNode implements Server, PropertySetParent
 
         Communicator.ChildList services = getRoot().findServerTemplate(_descriptor.template).getServices();
 
-        Object[] result = new Object[services.size()];
+        String[] result = new String[services.size()];
         int i = 0;
 
         java.util.Iterator p = services.iterator();

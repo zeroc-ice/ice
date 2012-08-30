@@ -42,7 +42,7 @@ public class ParametersField extends JTable
         _columnNames.add("Name");
         _columnNames.add("Default value");
 
-        JComboBox comboBox = new JComboBox(new Object[]{_noDefault});
+        JComboBox<String> comboBox = new JComboBox<String>(new String[]{_noDefault});
         comboBox.setEditable(true);
         _cellEditor = new DefaultCellEditor(comboBox);
 

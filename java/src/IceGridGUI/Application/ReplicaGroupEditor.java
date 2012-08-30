@@ -448,12 +448,12 @@ class ReplicaGroupEditor extends Editor
     private JTextField _id = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _loadBalancing = new JComboBox(new Object[] {ADAPTIVE, ORDERED, RANDOM, ROUND_ROBIN});
+    private JComboBox<String> _loadBalancing = new JComboBox<String>(new String[] {ADAPTIVE, ORDERED, RANDOM, ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);
 
     private JLabel _loadSampleLabel;
-    private JComboBox _loadSample = new JComboBox(new Object[] {"1", "5", "15"});
+    private JComboBox<String> _loadSample = new JComboBox<String>(new String[] {"1", "5", "15"});
 
     private SimpleMapField _objects;
     private java.util.LinkedList<ObjectDescriptor> _objectList;
