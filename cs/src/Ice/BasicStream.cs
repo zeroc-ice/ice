@@ -827,7 +827,7 @@ namespace IceInternal
 
         public void writeByte(int tag, Ice.Optional<byte> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeByte(tag, v.Value);
             }
@@ -920,7 +920,7 @@ namespace IceInternal
 
         public void writeByteSeq(int tag, Ice.Optional<byte[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeByteSeq(tag, v.Value);
             }
@@ -929,7 +929,7 @@ namespace IceInternal
         public void writeByteSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<byte>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
                 writeByteSeq(count, v.Value);
             }
@@ -1125,7 +1125,7 @@ namespace IceInternal
 
         public void writeBool(int tag, Ice.Optional<bool> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeBool(tag, v.Value);
             }
@@ -1218,7 +1218,7 @@ namespace IceInternal
 
         public void writeBoolSeq(int tag, Ice.Optional<bool[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeBoolSeq(tag, v.Value);
             }
@@ -1227,7 +1227,7 @@ namespace IceInternal
         public void writeBoolSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<bool>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
                 writeBoolSeq(count, v.Value);
             }
@@ -1376,7 +1376,7 @@ namespace IceInternal
 
         public void writeShort(int tag, Ice.Optional<short> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeShort(tag, v.Value);
             }
@@ -1464,7 +1464,7 @@ namespace IceInternal
 
         public void writeShortSeq(int tag, Ice.Optional<short[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeShortSeq(tag, v.Value);
             }
@@ -1473,9 +1473,9 @@ namespace IceInternal
         public void writeShortSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<short>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
-                writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
+                writeSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
                 writeShortSeq(count, v.Value);
             }
         }
@@ -1627,7 +1627,7 @@ namespace IceInternal
 
         public void writeInt(int tag, Ice.Optional<int> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeInt(tag, v.Value);
             }
@@ -1720,7 +1720,7 @@ namespace IceInternal
 
         public void writeIntSeq(int tag, Ice.Optional<int[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeIntSeq(tag, v.Value);
             }
@@ -1729,9 +1729,9 @@ namespace IceInternal
         public void writeIntSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<int>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
-                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeIntSeq(count, v.Value);
             }
         }
@@ -1903,7 +1903,7 @@ namespace IceInternal
 
         public void writeLong(int tag, Ice.Optional<long> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeLong(tag, v.Value);
             }
@@ -1991,7 +1991,7 @@ namespace IceInternal
 
         public void writeLongSeq(int tag, Ice.Optional<long[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeLongSeq(tag, v.Value);
             }
@@ -2000,9 +2000,9 @@ namespace IceInternal
         public void writeLongSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<long>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
-                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeLongSeq(count, v.Value);
             }
         }
@@ -2174,7 +2174,7 @@ namespace IceInternal
 
         public void writeFloat(int tag, Ice.Optional<float> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeFloat(tag, v.Value);
             }
@@ -2262,7 +2262,7 @@ namespace IceInternal
 
         public void writeFloatSeq(int tag, Ice.Optional<float[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeFloatSeq(tag, v.Value);
             }
@@ -2271,9 +2271,9 @@ namespace IceInternal
         public void writeFloatSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<float>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
-                writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
+                writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeFloatSeq(count, v.Value);
             }
         }
@@ -2445,7 +2445,7 @@ namespace IceInternal
 
         public void writeDouble(int tag, Ice.Optional<double> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeDouble(tag, v.Value);
             }
@@ -2533,7 +2533,7 @@ namespace IceInternal
 
         public void writeDoubleSeq(int tag, Ice.Optional<double[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeDoubleSeq(tag, v.Value);
             }
@@ -2542,9 +2542,9 @@ namespace IceInternal
         public void writeDoubleSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<double>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
             {
-                writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
+                writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeDoubleSeq(count, v.Value);
             }
         }
@@ -2725,7 +2725,7 @@ namespace IceInternal
 
         public void writeString(int tag, Ice.Optional<string> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeString(tag, v.Value);
             }
@@ -2769,7 +2769,7 @@ namespace IceInternal
 
         public void writeStringSeq(int tag, Ice.Optional<String[]> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeStringSeq(tag, v.Value);
             }
@@ -2778,7 +2778,7 @@ namespace IceInternal
         public void writeStringSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<string>
         {
-            if(v != null && v.HasValue && writeOpt(tag, Ice.OptionalType.FSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalType.FSize))
             {
                 startSize();
                 writeStringSeq(count, v.Value);
@@ -2973,7 +2973,7 @@ namespace IceInternal
 
         public void writeProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeProxy(tag, v.Value);
             }
@@ -3083,7 +3083,7 @@ namespace IceInternal
         public void writeObject<T>(int tag, Ice.Optional<T> v)
             where T : Ice.Object
         {
-            if(v != null && v.HasValue)
+            if(v.HasValue)
             {
                 writeObject(tag, v.Value);
             }
@@ -3104,17 +3104,11 @@ namespace IceInternal
             _readEncapsStack.decoder.readObject(patcher);
         }
 
-        public void readObject<T>(int tag, Ice.Optional<T> v, string type)
-            where T : Ice.Object
+        public void readObject(int tag, IPatcher patcher)
         {
             if(readOpt(tag, Ice.OptionalType.Size))
             {
-                Ice.OptionalObject<T> opt = new Ice.OptionalObject<T>(v, type);
-                readObject(opt);
-            }
-            else
-            {
-                v.Clear();
+                readObject(patcher);
             }
         }
 

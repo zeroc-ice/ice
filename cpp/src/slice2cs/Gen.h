@@ -25,6 +25,7 @@ public:
 protected:
 
     void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool);
+    void writePostUnmarshalParams(const ParamDeclList&, const OperationPtr&);
     void writeMarshalDataMember(const DataMemberPtr&, const std::string&);
     void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, bool, int&);
     void writeStreamMarshalDataMember(const DataMemberPtr&, const std::string&);

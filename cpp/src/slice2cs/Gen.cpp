@@ -129,25 +129,31 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const
 
     for(pli = params.begin(); pli != params.end(); ++pli)
     {
+        string param = fixId((*pli)->name());
+        TypePtr type = (*pli)->type();
+        if(!marshal && isClassType(type))
+        {
+            param = (*pli)->name() + "__PP";
+            string typeS = typeToString(type);
+            if((*pli)->optional())
+            {
+                _out << nl << "Ice.OptionalPatcher<" << typeS << "> " << param
+                     << " = new Ice.OptionalPatcher<" << typeS << ">(" << getStaticId(type) << ");";
+            }
+            else
+            {
+                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
+                     << " = new IceInternal.ParamPatcher<" << typeS << ">(" << getStaticId(type) << ");";
+            }
+        }
+
         if((*pli)->optional())
         {
             optionals.push_back(*pli);
         }
         else
         {
-            string param = fixId((*pli)->name());
-            TypePtr type = (*pli)->type();
-            string patchParams;
-            if(!marshal && isClassType(type))
-            {
-                param += "__PP";
-                string typeS = typeToString(type);
-                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
-                     << " = new IceInternal.ParamPatcher<" << typeS << ">("
-                     << getStaticId(type) << ");";
-                patchParams = param;
-            }
-            writeMarshalUnmarshalCode(_out, type, param, marshal, false, patchParams);
+            writeMarshalUnmarshalCode(_out, type, param, marshal, false);
         }
     }
 
@@ -157,22 +163,26 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const
     {
         ret = op->returnType();
 
+        string param = "ret__";
+        if(!marshal && isClassType(ret))
+        {
+            param += "PP";
+            string typeS = typeToString(ret);
+            if(op->returnIsOptional())
+            {
+                _out << nl << "Ice.OptionalPatcher<" << typeS << "> " << param
+                     << " = new Ice.OptionalPatcher<" << typeS << ">(" << getStaticId(ret) << ");";
+            }
+            else
+            {
+                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
+                     << " = new IceInternal.ParamPatcher<" << typeS << ">(" << getStaticId(ret) << ");";
+            }
+        }
+
         if(!op->returnIsOptional())
         {
-            string patchParams;
-            string param = "ret__";
-
-            if(!marshal && isClassType(ret))
-            {
-                param = "ret__PP";
-                string typeS = typeToString(ret);
-                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
-                     << " = new IceInternal.ParamPatcher<" << typeS << ">("
-                     << getStaticId(ret) << ");";
-                patchParams = param;
-            }
-
-            writeMarshalUnmarshalCode(_out, ret, param, marshal, false, patchParams);
+            writeMarshalUnmarshalCode(_out, ret, param, marshal, false);
         }
     }
 
@@ -194,36 +204,48 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const
     //
     bool checkReturnType = op && op->returnIsOptional();
 
-    string returnPatchParams;
-    if(!marshal && checkReturnType && isClassType(ret))
-    {
-        returnPatchParams = "new Ice.OptionalObject<" + typeToString(ret) + ">(ret__, " + getStaticId(ret) + ")";
-    }
-
     for(pli = optionals.begin(); pli != optionals.end(); ++pli)
     {
         if(checkReturnType && op->returnTag() < (*pli)->tag())
         {
-            writeOptionalMarshalUnmarshalCode(_out, ret, "ret__", op->returnTag(), marshal, false, returnPatchParams);
+            const string param = !marshal && isClassType(ret) ? "ret__PP" : "ret__";
+            writeOptionalMarshalUnmarshalCode(_out, ret, param, op->returnTag(), marshal, false);
             checkReturnType = false;
         }
 
         string param = fixId((*pli)->name());
         TypePtr type = (*pli)->type();
 
-        string patchParams;
         if(!marshal && isClassType(type))
         {
-            patchParams = "new Ice.OptionalObject<" + typeToString(type) + ">(" + param + ", " + getStaticId(type)
-                + ")";
+            param = (*pli)->name() + "__PP";
         }
 
-        writeOptionalMarshalUnmarshalCode(_out, type, param, (*pli)->tag(), marshal, false, patchParams);
+        writeOptionalMarshalUnmarshalCode(_out, type, param, (*pli)->tag(), marshal, false);
     }
 
     if(checkReturnType)
     {
-        writeOptionalMarshalUnmarshalCode(_out, ret, "ret__", op->returnTag(), marshal, false, returnPatchParams);
+        const string param = !marshal && isClassType(ret) ? "ret__PP" : "ret__";
+        writeOptionalMarshalUnmarshalCode(_out, ret, param, op->returnTag(), marshal, false);
+    }
+}
+
+void
+Slice::CsVisitor::writePostUnmarshalParams(const ParamDeclList& params, const OperationPtr& op)
+{
+    for(ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    {
+        if(isClassType((*pli)->type()))
+        {
+            const string tmp = (*pli)->name() + "__PP";
+            _out << nl << fixId((*pli)->name()) << " = " << tmp << ".value;";
+        }
+    }
+
+    if(op && op->returnType() && isClassType(op->returnType()))
+    {
+        _out << nl << "ret__ = ret__PP.value;";
     }
 }
 
@@ -456,22 +478,24 @@ void
 Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const string& name, bool needPatcher,
                                            int& patchIter)
 {
-    string patchParams;
-    if(isClassType(member->type()))
+    const bool classType = isClassType(member->type());
+
+    string patcher;
+    if(classType)
     {
-        patchParams = "new Patcher__(" + getStaticId(member->type()) + ", this";
+        patcher = "new Patcher__(" + getStaticId(member->type()) + ", this";
         if(needPatcher)
         {
             ostringstream ostr;
             ostr << ", " << patchIter++;
-            patchParams += ostr.str();
+            patcher += ostr.str();
         }
-        patchParams += ")";
+        patcher += ")";
     }
 
     if(!member->optional())
     {
-        writeMarshalUnmarshalCode(_out, member->type(), name, false, false, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, false);
         return;
     }
 
@@ -503,7 +527,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
             _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
                  << getOptionalType(member->type()) << "))";
             _out << sb;
-            writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+            writeMarshalUnmarshalCode(_out, member->type(), patcher, false, false);
             _out << eb;
             break;
         }
@@ -557,7 +581,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
                      << getOptionalType(member->type()) << "))";
                 _out << sb;
                 _out << nl << "is__.skip(4);";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+                writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
                 _out << eb;
                 break;
             }
@@ -584,7 +608,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
                     _out << nl << "is__.skipSize();";
                 }
             }
-            writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+            writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
             _out << eb;
         }
         return;
@@ -606,7 +630,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
             _out << nl << "is__.skipSize();";
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
         _out << eb;
         return;
     }
@@ -627,7 +651,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
             _out << nl << "is__.skipSize();";
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
         _out << eb;
         return;
     }
@@ -638,7 +662,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
         _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
              << getOptionalType(member->type()) << "))";
         _out << sb;
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
         _out << eb;
         return;
     }
@@ -651,7 +675,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
         _out << sb;
 
         _out << nl << "is__.skip(4);";
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
         _out << eb;
         return;
     }
@@ -661,7 +685,7 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
     _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
          << getOptionalType(member->type()) << "))";
     _out << sb;
-    writeMarshalUnmarshalCode(_out, member->type(), prop, false, false, patchParams);
+    writeMarshalUnmarshalCode(_out, member->type(), patcher, false, false);
     _out << eb;
 }
 
@@ -857,22 +881,24 @@ void
 Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, const string& name, bool needPatcher,
                                                  int& patchIter)
 {
-    string patchParams;
-    if(isClassType(member->type()))
+    const bool classType = isClassType(member->type());
+
+    string patcher;
+    if(classType)
     {
-        patchParams = "new Patcher__(" + getStaticId(member->type()) + ", this";
+        patcher = "new Patcher__(" + getStaticId(member->type()) + ", this";
         if(needPatcher)
         {
             ostringstream ostr;
             ostr << ", " << patchIter++;
-            patchParams += ostr.str();
+            patcher += ostr.str();
         }
-        patchParams += ")";
+        patcher += ")";
     }
 
     if(!member->optional())
     {
-        writeMarshalUnmarshalCode(_out, member->type(), name, false, true, patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, true);
         return;
     }
 
@@ -938,7 +964,7 @@ Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, co
         _out << nl << "inS__.skip(4);";
     }
 
-    writeMarshalUnmarshalCode(_out, member->type(), prop, false, true, patchParams);
+    writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : prop, false, true);
     _out << eb;
 }
 
@@ -1194,12 +1220,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
                 if((*pli)->optional())
                 {
-                    BuiltinPtr b = BuiltinPtr::dynamicCast((*pli)->type());
-                    if(!b || isClass)
-                    {
-                        _out << nl << typeS << ' ' << param << " = new " << typeS << "();";
-                    }
-                    else
+                    if(!isClass)
                     {
                         _out << nl << typeS << ' ' << param << ';';
                     }
@@ -1272,9 +1293,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             for(pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
                 string arg = fixId((*pli)->name());
-                if(!(*pli)->optional() && isClassType((*pli)->type()))
+                if(isClassType((*pli)->type()))
                 {
-                    arg += "__PP.value";
+                    arg = (*pli)->name() + "__PP.value";
                 }
                 _out << arg;
             }
@@ -1347,9 +1368,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             for(pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
                 string arg = fixId((*pli)->name());
-                if(!(*pli)->optional() && isClassType((*pli)->type()))
+                if(isClassType((*pli)->type()))
                 {
-                    arg += "__PP.value";
+                    arg = (*pli)->name() + "__PP.value";
                 }
                 _out << arg;
             }
@@ -5380,15 +5401,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string typeS = typeToString((*pli)->type(), (*pli)->optional());
                     const bool isClass = isClassType((*pli)->type());
 
-                    if((*pli)->optional())
-                    {
-                        BuiltinPtr b = BuiltinPtr::dynamicCast((*pli)->type());
-                        if(!b || isClass)
-                        {
-                            _out << nl << param << " = new " << typeS << "();";
-                        }
-                    }
-                    else if(!isClass)
+                    if(!(*pli)->optional() && !isClass)
                     {
                         StructPtr st = StructPtr::dynamicCast((*pli)->type());
                         if(st)
@@ -5409,15 +5422,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     string typeS = typeToString(ret, op->returnIsOptional());
                     const bool isClass = isClassType(ret);
 
-                    if(op->returnIsOptional())
-                    {
-                        BuiltinPtr b = BuiltinPtr::dynamicCast(ret);
-                        if(!b || isClass)
-                        {
-                            _out << nl << "ret__ = new " << typeS << "();";
-                        }
-                    }
-                    else if(!isClass)
+                    if(!op->returnIsOptional() && !isClass)
                     {
                         StructPtr st = StructPtr::dynamicCast(ret);
                         if(st)
@@ -5435,20 +5440,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 writeMarshalUnmarshalParams(outParams, op, false);
                 _out << nl << "outAsync__.endReadParams__();";
-                for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-                {
-                    string param = fixId((*pli)->name());
-                    if(!(*pli)->optional() && isClassType((*pli)->type()))
-                    {
-                        _out << nl << param << " = " << param << "__PP.value;";
-                    }
-                }
+                writePostUnmarshalParams(outParams, op);
                 if(ret)
                 {
-                    if(!op->returnIsOptional() && isClassType(ret))
-                    {
-                        _out << nl << "ret__ = ret__PP.value;";
-                    }
                     _out << nl << "return ret__;";
                 }
             }
@@ -6091,10 +6085,10 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
     writeMarshalUnmarshalCode(_out, key, "k__", false, false);
 
-    string patchParams;
+    string patcher;
     if(hasClassValue)
     {
-        patchParams = "new Patcher__(" + getStaticId(value) + ", r__, k__)";
+        patcher = "new Patcher__(" + getStaticId(value) + ", r__, k__)";
     }
     else
     {
@@ -6113,7 +6107,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             }
         }
     }
-    writeMarshalUnmarshalCode(_out, value, "v__", false, false, patchParams);
+    writeMarshalUnmarshalCode(_out, value, hasClassValue ? patcher : "v__", false, false);
     if(!hasClassValue)
     {
         _out << nl << "r__[k__] = v__;";
@@ -6186,7 +6180,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 }
             }
         }
-        writeMarshalUnmarshalCode(_out, value, "v__", false, true, patchParams);
+        writeMarshalUnmarshalCode(_out, value, hasClassValue ? patcher : "v__", false, true);
         if(!hasClassValue)
         {
             _out << nl << "r__[k__] = v__;";
@@ -6428,24 +6422,16 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "IceInternal.BasicStream is__ = og__.startReadParams();";
             for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                string param = fixId((*pli)->name());
-                string typeS = typeToString((*pli)->type(), (*pli)->optional());
                 const bool isClass = isClassType((*pli)->type());
 
-                if((*pli)->optional())
-                {
-                    BuiltinPtr b = BuiltinPtr::dynamicCast((*pli)->type());
-                    if(!b || isClass)
-                    {
-                        _out << nl << param << " = new " << typeS << "();";
-                    }
-                }
-                else if(!isClass)
+                if(!(*pli)->optional() && !isClass)
                 {
                     StructPtr st = StructPtr::dynamicCast((*pli)->type());
                     if(st)
                     {
-                        if(isValueType((*pli)->type()))
+                        string param = fixId((*pli)->name());
+                        string typeS = typeToString(st, (*pli)->optional());
+                        if(isValueType(st))
                         {
                             _out << nl << param << " = new " << typeS << "();";
                         }
@@ -6488,18 +6474,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
             writeMarshalUnmarshalParams(outParams, op, false);
-            if(op->returnsClasses())
-            {
-                for(pli = outParams.begin(); pli != outParams.end(); ++pli)
-                {
-                    string param = fixId((*pli)->name());
-                    if(!(*pli)->optional() && isClassType((*pli)->type()))
-                    {
-                        _out << nl << param << " = " << param << "__PP.value;";
-                    }
-                }
-            }
             _out << nl << "og__.endReadParams();";
+            writePostUnmarshalParams(outParams, op);
         }
         else
         {
@@ -6508,10 +6484,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(ret)
         {
-            if(!op->returnIsOptional() && isClassType(ret))
-            {
-                _out << nl << "ret__ = ret__PP.value;";
-            }
             _out << nl << "return ret__;";
         }
         _out << eb;
@@ -6638,10 +6610,11 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 string arg = fixId((*q)->name());
                 if((*q)->isOutParam())
                 {
-                    _out << nl << typeToString((*q)->type(), (*q)->optional()) << " " << arg << "Holder__ = ";
+                    string typeS = typeToString((*q)->type(), (*q)->optional());
+                    _out << nl << typeS << " " << arg << "Holder__ = ";
                     if((*q)->optional())
                     {
-                        _out << "null";
+                        _out << "new " << typeS << "()";
                     }
                     else
                     {
@@ -6659,7 +6632,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << nl << retS << " result__ = ";
                 if(op->returnIsOptional())
                 {
-                    _out << "null";
+                    _out << "new " << retS << "()";
                 }
                 else
                 {
@@ -6849,7 +6822,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             args = getArgs(*op);
         }
 
-        _out << sp << nl << "public " << typeToString(ret) << " " << opname << spar << params << epar;
+        string retS = typeToString(ret, (*op)->returnIsOptional());
+        _out << sp << nl << "public " << retS << " " << opname << spar << params << epar;
         _out << sb << nl;
         if(ret)
         {
@@ -6858,7 +6832,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << opname << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
         _out << eb;
 
-        _out << sp << nl << "public abstract " << typeToString(ret) << " " << opname << spar << params;
+        _out << sp << nl << "public abstract " << retS << " " << opname << spar << params;
         if(!p->isLocal())
         {
             _out << "Ice.Current current__";

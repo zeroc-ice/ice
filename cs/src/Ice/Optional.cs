@@ -10,17 +10,23 @@
 namespace Ice
 {
     using System;
+    using System.Collections.Generic;
+
+    public struct NoneType
+    {
+    }
 
     /// <summary>
-    /// Encapsulates an optional value.
+    /// Encapsulates an optional value. Instances of this type are immutable.
     /// </summary>
-    public class Optional<T>
+    public struct Optional<T>
     {
         /// <summary>
-        /// Creates an optional value whose initial state is unset.
+        /// Creates an optional value whose state is unset.
         /// </summary>
-        public Optional()
+        public Optional(NoneType none)
         {
+            _value = default(T);
             _isSet = false;
         }
 
@@ -34,7 +40,7 @@ namespace Ice
         }
 
         /// <summary>
-        /// Creates an optional value whose state is (shallow) copied from the given argument.
+        /// Creates an optional value whose state is copied from the given argument.
         /// </summary>
         public Optional(Optional<T> v)
         {
@@ -62,6 +68,14 @@ namespace Ice
         }
 
         /// <summary>
+        /// Conversion operator from a None value; no cast is required.
+        /// </summary>
+        public static implicit operator Optional<T>(NoneType v)
+        {
+            return new Optional<T>();
+        }
+
+        /// <summary>
         /// Reads and writes the encapsulated value.
         /// </summary>
         /// <exception cref="System.InvalidOperationException">Thrown if the property is read and no value is
@@ -76,11 +90,6 @@ namespace Ice
                 }
                 return _value;
             }
-            set
-            {
-                _value = value;
-                _isSet = true;
-            }
         }
 
         /// <summary>
@@ -93,14 +102,6 @@ namespace Ice
             {
                 return _isSet;
             }
-        }
-
-        /// <summary>
-        /// Clears the value and changes this optional's state to unset.
-        /// </summary>
-        public void Clear()
-        {
-            _isSet = false;
         }
 
         public override bool Equals(object other)
@@ -124,7 +125,8 @@ namespace Ice
                 }
                 else if(_isSet)
                 {
-                    return _value.Equals(o2._value);
+                    EqualityComparer<T> comparer = EqualityComparer<T>.Default;
+                    return comparer.Equals(_value, o2._value);
                 }
 
                 return true;
@@ -154,18 +156,16 @@ namespace Ice
     /// <summary>
     /// Handles callbacks for an optional object parameter.
     /// </summary>
-    public class OptionalObject<T> : IceInternal.Patcher
+    public class OptionalPatcher<T> : IceInternal.Patcher
         where T : Ice.Object
     {
         /// <summary>
         /// Instantiates the class with the given optional.
         /// </summary>
-        /// <param name="opt">The target optional.</param>
         /// <param name="type">The Slice type ID corresponding to the formal type.</param>
-        public OptionalObject(Optional<T> opt, string type) :
+        public OptionalPatcher(string type) :
             base(type)
         {
-            this.opt = opt;
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Ice
                 // However, when v is null, the optional might be cleared, which
                 // is not the result we want.
                 //
-                this.opt.Value = (T)v;
+                this.value = new Optional<T>((T)v);
             }
             else
             {
@@ -196,7 +196,7 @@ namespace Ice
         /// <summary>
         /// The target optional.
         /// </summary>
-        public Optional<T> opt;
+        public Optional<T> value = new Optional<T>();
     }
 
     /// <summary>

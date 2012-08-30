@@ -224,7 +224,7 @@ public class AllTests : TestCommon.TestApp
         test(mo5.ser.Equals(new Test.SerializableClass(56)));
 #endif
 
-        // Clear the first half of the optional parameters
+        // Clear the first half of the optional members
         Test.MultiOptional mo6 = new Test.MultiOptional();
         mo6.b = mo5.b;
         mo6.d = mo5.d;
@@ -279,7 +279,7 @@ public class AllTests : TestCommon.TestApp
         test(!mo7.hasSer);
 #endif
 
-        // Clear the second half of the optional parameters
+        // Clear the second half of the optional members
         Test.MultiOptional mo8 = new Test.MultiOptional();
         mo8.a = mo5.a;
         mo8.c = mo5.c;
@@ -550,7 +550,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<byte> p3;
             Ice.Optional<byte> p2 = initial.opByte(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opByte(null, out p3);
+            p2 = initial.opByte(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = 56;
@@ -593,7 +593,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<bool> p3;
             Ice.Optional<bool> p2 = initial.opBool(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opBool(null, out p3);
+            p2 = initial.opBool(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = true;
@@ -636,7 +636,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<short> p3;
             Ice.Optional<short> p2 = initial.opShort(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opShort(null, out p3);
+            p2 = initial.opShort(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = 56;
@@ -679,7 +679,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<int> p3;
             Ice.Optional<int> p2 = initial.opInt(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opInt(null, out p3);
+            p2 = initial.opInt(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = 56;
@@ -722,7 +722,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<long> p3;
             Ice.Optional<long> p2 = initial.opLong(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opLong(null, out p3);
+            p2 = initial.opLong(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = 56;
@@ -765,7 +765,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<float> p3;
             Ice.Optional<float> p2 = initial.opFloat(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opFloat(null, out p3);
+            p2 = initial.opFloat(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = (float)1.0;
@@ -808,7 +808,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<double> p3;
             Ice.Optional<double> p2 = initial.opDouble(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opDouble(null, out p3);
+            p2 = initial.opDouble(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = 1.0;
@@ -851,8 +851,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<string> p3;
             Ice.Optional<string> p2 = initial.opString(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opString(null, out p3);
+            p2 = initial.opString(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opString(null, out p3); // Implicitly converts to Ice.Optional<string>(null)
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = "test";
             p2 = initial.opString(p1, out p3);
@@ -894,7 +896,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.MyEnum> p3;
             Ice.Optional<Test.MyEnum> p2 = initial.opMyEnum(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opMyEnum(null, out p3);
+            p2 = initial.opMyEnum(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = Test.MyEnum.MyEnumMember;
@@ -937,7 +939,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.SmallStruct> p3;
             Ice.Optional<Test.SmallStruct> p2 = initial.opSmallStruct(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opSmallStruct(null, out p3);
+            p2 = initial.opSmallStruct(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = new Test.SmallStruct(56);
@@ -986,7 +988,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.FixedStruct> p3;
             Ice.Optional<Test.FixedStruct> p2 = initial.opFixedStruct(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opFixedStruct(null, out p3);
+            p2 = initial.opFixedStruct(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = new Test.FixedStruct(56);
@@ -1035,7 +1037,7 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.VarStruct> p3;
             Ice.Optional<Test.VarStruct> p2 = initial.opVarStruct(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opVarStruct(null, out p3);
+            p2 = initial.opVarStruct(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
 
             p1 = new Test.VarStruct("test");
@@ -1085,8 +1087,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.OneOptional> p3;
             Ice.Optional<Test.OneOptional> p2 = initial.opOneOptional(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opOneOptional(null, out p3);
+            p2 = initial.opOneOptional(Ice.Util.None, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opOneOptional(null, out p3); // Implicitly converts to Ice.Optional<OneOptional>(null)
+            test(p2.HasValue && p2.Value == null && p3.HasValue && p3.Value == null);
 
             p2 = initial.opOneOptional(new Ice.Optional<Test.OneOptional>((Test.OneOptional)null), out p3);
             test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
@@ -1136,16 +1140,17 @@ public class AllTests : TestCommon.TestApp
             test(!p2.HasValue && !p3.HasValue);
             p2 = initial.opOneOptionalProxy(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
-            p2 = initial.opOneOptionalProxy(new Ice.Optional<Test.OneOptionalPrx>((Test.OneOptionalPrx)null), out p3);
+            p2 = initial.opOneOptionalProxy(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opOneOptionalProxy(null, out p3);
             test(p2.HasValue && p3.HasValue && p2.Value == null && p3.Value == null);
 
             //
             // Not allowed by C# language spec because OptionalOnePrx is an interface.
             //
             //p1 = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-            p1.Value = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-            //p1 = new Ice.Optional<Test.OneOptionalPrx>(
-                //Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+            p1 = new Ice.Optional<Test.OneOptionalPrx>(
+                Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
             p2 = initial.opOneOptionalProxy(p1, out p3);
             test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
@@ -1190,6 +1195,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<byte[]> p3;
             Ice.Optional<byte[]> p2 = initial.opByteSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opByteSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opByteSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new byte[100];
             Populate(p1.Value, (byte)56);
@@ -1232,6 +1241,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<bool[]> p3;
             Ice.Optional<bool[]> p2 = initial.opBoolSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opBoolSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opBoolSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new bool[100];
             Populate(p1.Value, true);
@@ -1274,6 +1287,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<short[]> p3;
             Ice.Optional<short[]> p2 = initial.opShortSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opShortSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opShortSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new short[100];
             Populate(p1.Value, (short)56);
@@ -1319,6 +1336,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<int[]> p3;
             Ice.Optional<int[]> p2 = initial.opIntSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new int[100];
             Populate(p1.Value, 56);
@@ -1364,6 +1385,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<long[]> p3;
             Ice.Optional<long[]> p2 = initial.opLongSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opLongSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opLongSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new long[100];
             Populate(p1.Value, 56);
@@ -1409,6 +1434,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<float[]> p3;
             Ice.Optional<float[]> p2 = initial.opFloatSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFloatSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFloatSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new float[100];
             Populate(p1.Value, (float)1.0);
@@ -1454,6 +1483,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<double[]> p3;
             Ice.Optional<double[]> p2 = initial.opDoubleSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opDoubleSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opDoubleSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new double[100];
             Populate(p1.Value, 1.0);
@@ -1499,6 +1532,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<String[]> p3;
             Ice.Optional<String[]> p2 = initial.opStringSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opStringSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opStringSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new String[10];
             Populate(p1.Value, "test1");
@@ -1545,6 +1582,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.SmallStruct[]> p3;
             Ice.Optional<Test.SmallStruct[]> p2 = initial.opSmallStructSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opSmallStructSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opSmallStructSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new Test.SmallStruct[10];
             for(int i = 0; i < p1.Value.Length; ++i)
@@ -1595,6 +1636,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<List<Test.SmallStruct>> p3;
             Ice.Optional<List<Test.SmallStruct>> p2 = initial.opSmallStructList(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opSmallStructList(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opSmallStructList(null, out p3);
+            test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
 
             p1 = new List<Test.SmallStruct>();
             for(int i = 0; i < 10; ++i)
@@ -1645,6 +1690,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.FixedStruct[]> p3;
             Ice.Optional<Test.FixedStruct[]> p2 = initial.opFixedStructSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFixedStructSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFixedStructSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new Test.FixedStruct[10];
             for(int i = 0; i < p1.Value.Length; ++i)
@@ -1695,6 +1744,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<LinkedList<Test.FixedStruct>> p3;
             Ice.Optional<LinkedList<Test.FixedStruct>> p2 = initial.opFixedStructList(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFixedStructList(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opFixedStructList(null, out p3);
+            test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
 
             p1 = new LinkedList<Test.FixedStruct>();
             for(int i = 0; i < 10; ++i)
@@ -1745,6 +1798,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.VarStruct[]> p3;
             Ice.Optional<Test.VarStruct[]> p2 = initial.opVarStructSeq(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opVarStructSeq(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opVarStructSeq(null, out p3);
+            test(p2.HasValue && p2.Value.Length == 0 && p3.HasValue && p3.Value.Length == 0);
 
             p1 = new Test.VarStruct[10];
             for(int i = 0; i < p1.Value.Length; ++i)
@@ -1797,6 +1854,8 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Test.SerializableClass> p3;
             Ice.Optional<Test.SerializableClass> p2 = initial.opSerializable(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opSerializable(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
 
             p1 = new Test.SerializableClass(58);
             p2 = initial.opSerializable(p1, out p3);
@@ -1841,6 +1900,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Dictionary<int, int>> p3;
             Ice.Optional<Dictionary<int, int>> p2 = initial.opIntIntDict(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntIntDict(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opIntIntDict(null, out p3);
+            test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
 
             p1 = new Dictionary<int, int>();
             p1.Value.Add(1, 2);
@@ -1889,6 +1952,10 @@ public class AllTests : TestCommon.TestApp
             Ice.Optional<Dictionary<string, int>> p3;
             Ice.Optional<Dictionary<string, int>> p2 = initial.opStringIntDict(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opStringIntDict(Ice.Util.None, out p3);
+            test(!p2.HasValue && !p3.HasValue);
+            p2 = initial.opStringIntDict(null, out p3);
+            test(p2.HasValue && p2.Value.Count == 0 && p3.HasValue && p3.Value.Count == 0);
 
             p1 = new Dictionary<string, int>();
             p1.Value.Add("1", 1);
