@@ -338,12 +338,10 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 _os.write(replyUnknownLocalException);
                 ostringstream str;
                 str << *le;
-#ifdef __GNUC__
                 if(IceUtilInternal::printStackTraces)
                 {
                     str <<  '\n' << ex->ice_stackTrace();
                 }
-#endif
                 _os.write(str.str(), false);
             }
             else if(const UserException* ue = dynamic_cast<const UserException*>(&exc))
@@ -351,12 +349,10 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 _os.write(replyUnknownUserException);
                 ostringstream str;
                 str << *ue;
-#ifdef __GNUC__
                 if(IceUtilInternal::printStackTraces)
                 {
                     str <<  '\n' << ex->ice_stackTrace();
                 }
-#endif
                 _os.write(str.str(), false);
             }
             else

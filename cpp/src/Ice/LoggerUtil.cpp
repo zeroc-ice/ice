@@ -39,7 +39,6 @@ Ice::operator<<(Ice::LoggerOutputBase& out, ios_base& (*val)(ios_base&))
 Ice::LoggerOutputBase&
 Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
 {
-#ifdef __GNUC__
     if(IceUtilInternal::printStackTraces)
     {
         const ::IceUtil::Exception* exception = dynamic_cast<const ::IceUtil::Exception*>(&ex);
@@ -49,7 +48,6 @@ Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
             return out;
         }
     }
-#endif
     out.__str() << ex.what();
     return out;
 }
