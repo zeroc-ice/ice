@@ -323,13 +323,14 @@ class MetricsViewEditor extends Editor
                 for(int i = 0; i < values.length; ++i)
                 {
                     IceMX.InvocationMetrics o = (IceMX.InvocationMetrics)values[i];
-                    Object[] row = new Object[6];
+                    Object[] row = new Object[7];
                     row[0] = o.id;
                     row[1] = Integer.toString(o.current);
                     row[2] = Long.toString(o.total);
                     row[3] = Integer.toString(o.retry);
                     row[4] = metricAvg(o, 1000.0f);
-                    row[5] = failures(key, node, o);
+                    row[5] = remotes(o);
+                    row[6] = failures(key, node, o);
                     _invocations.addRow(row);
                 }
             }
@@ -471,6 +472,62 @@ class MetricsViewEditor extends Editor
                     }
                 });
         }
+        else
+        {
+            button.setEnabled(false);
+        }
+        return button;
+
+    }
+
+    private Object remotes(final IceMX.InvocationMetrics o)
+    {
+        JButton button = new JButton("Show Remotes (" + Integer.toString(o.remotes.length) + ")");
+        button.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    final DefaultTableModel model = new DefaultTableModel();
+                    model.addColumn("Identity");
+                    model.addColumn("Current");
+                    model.addColumn("Total");
+                    model.addColumn("Avg (ms)");
+
+                    JTable table = new JTable(model);
+                    table.setPreferredSize(new Dimension(550, 200));
+                    table.setPreferredScrollableViewportSize(table.getPreferredSize());
+                    table.setCellSelectionEnabled(false);
+                    table.setOpaque(false);
+
+                    for(int i = 0; i < o.remotes.length; ++i)
+                    {
+                        IceMX.Metrics ro = o.remotes[i];
+                        Object[] row = new Object[5];
+                        row[0] = ro.id;
+                        row[1] = Integer.toString(ro.current);
+                        row[2] = Long.toString(ro.total);
+                        row[3] = metricAvg(ro, 1000.0f);
+                        model.addRow(row);
+                    }
+
+                    DefaultTableCellRenderer cr = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
+                    cr.setOpaque(false);
+
+                    DefaultTableCellRenderer rr = new DefaultTableCellRenderer();
+                    for(int i = 1; i < model.getColumnCount(); ++i)
+                    {
+                        rr.setHorizontalAlignment(SwingConstants.RIGHT);
+                        rr.setOpaque(false);
+                        table.getColumnModel().getColumn(i).setCellRenderer(rr);
+                    }
+                    JScrollPane scrollPane = new JScrollPane(table);
+
+                    JOptionPane.showMessageDialog(_node.getCoordinator().getMainFrame(),
+                        scrollPane,
+                        "Invocation Remotes",
+                        JOptionPane.PLAIN_MESSAGE );
+                }
+            });
         return button;
 
     }
@@ -479,11 +536,11 @@ class MetricsViewEditor extends Editor
     {
         createScrollTable(builder, "Operation Dispatch", _dispatColumnNames, _dispatch);
 
-        createScrollTable(builder, "Application Connections", _connectionsColumnNames, _connections);
+        createScrollTable(builder, "Connections", _connectionsColumnNames, _connections);
 
         createScrollTable(builder, "Remote Invocations", _invocationsColumnNames, _invocations);
 
-        createScrollTable(builder, "Application Threads", _threadsColumnNames, _threads);
+        createScrollTable(builder, "Threads", _threadsColumnNames, _threads);
 
         createScrollTable(builder, "Connection Establishments", _connectionsEstablishmentsColumnNames,
                           _connectionsEstablishments);
@@ -523,16 +580,26 @@ class MetricsViewEditor extends Editor
 
         DefaultTableCellRenderer cr = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
         cr.setOpaque(false);
+
+        DefaultTableCellRenderer br = new ButtonRenderer();
+        br.setOpaque(false);
+
         DefaultTableCellRenderer rr = new DefaultTableCellRenderer();
         rr.setHorizontalAlignment(SwingConstants.RIGHT);
         rr.setOpaque(false);
-        for(int i = 1; i < columnNames.length - 1; i++)
+
+        for(int i = 0; i < columnNames.length; ++i)
         {
-            table.getColumnModel().getColumn(i).setCellRenderer(rr);
+            String name = (String)columnNames[i];
+            if(name.equals("Remotes") || name.equals("Failures"))
+            {
+                table.getColumnModel().getColumn(i).setCellRenderer(br);
+            }
+            else if(!name.equals("Identity"))
+            {
+                table.getColumnModel().getColumn(i).setCellRenderer(rr);
+            }
         }
-        DefaultTableCellRenderer br = new ButtonRenderer();
-        br.setOpaque(false);
-        table.getColumnModel().getColumn(columnNames.length - 1).setCellRenderer(br);
     }
 
     protected void buildPropertiesPanel()
@@ -568,10 +635,11 @@ class MetricsViewEditor extends Editor
 
     private DefaultTableModel _invocations = new TableModel();
     private Object[] _invocationsColumnNames = new Object[]{"Identity", "Current", "Total", "Retries", "Avg (ms)",
-                                                            "Failures"};
+                                                            "Remotes", "Failures"};
 
     private DefaultTableModel _connectionsEstablishments = new TableModel();
     private Object[] _connectionsEstablishmentsColumnNames =  new Object[]{"Identity", "Current", "Total", "Avg (ms)", 
                                                                            "Failures"};
+
     private MetricsView _node;
 }

@@ -66,6 +66,10 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
 import IceGrid.*;
 
+import IceGridGUI.LiveDeployment.GraphView;
+import IceGridGUI.LiveDeployment.GraphView.GraphType;
+import IceGridGUI.LiveDeployment.GraphView.GraphCategory;
+
 //
 // This class coordinates the communications between the various objects
 // that make up the IceGrid GUI.
@@ -345,6 +349,20 @@ public class Coordinator
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER));
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER_ICEBOX));
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVICE));
+
+
+            //
+            // New Graph sub-menu
+            //
+            _newMenu.addSeparator();
+            _newGraphMenu = new JMenu("Graph");
+            _newGraphMenu.setEnabled(false);
+            _newMenu.add(_newGraphMenu);
+            _newGraphMenu.add(_newDispatchGraph);
+            _newGraphMenu.add(_newInvocationGraph);
+            _newGraphMenu.add(_newConnectionsGraph);
+            _newGraphMenu.add(_newThreadsGraph);
+            _newGraphMenu.add(_newBandwidthGraph);
 
             fileMenu.addSeparator();
             fileMenu.add(_login);
@@ -1959,6 +1977,22 @@ public class Coordinator
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    if(_graphViews.size() > 0)
+                    {
+                        if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(getMainFrame(),
+                                                                            "Close all open Graph Views and logout?",
+                                                                            "Confirm logout",
+                                                                            JOptionPane.YES_NO_OPTION))
+                        {
+                            return;
+                        }
+                        
+                        java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
+                        for(GraphView v : views)
+                        {
+                            v.close();
+                        }
+                    }
                     _sessionKeeper.logout(true);
                 }
             };
@@ -1997,6 +2031,54 @@ public class Coordinator
         _releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION,
                                               "Release exclusive write access on the registry");
         _releaseExclusiveWriteAccess.setEnabled(false);
+
+        _newDispatchGraph = new AbstractAction("Dispatch")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    _graphViews.add(new GraphView(Coordinator.this, GraphType.TotalAverageGraphType,
+                                                  GraphCategory.DispatchGraphCategory, "Operation Dispatch", 
+                                                  "Dispatch"));
+                }
+            };
+
+        _newInvocationGraph  = new AbstractAction("Invocation")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    _graphViews.add(new GraphView(Coordinator.this, GraphType.TotalAverageGraphType,
+                                                  GraphCategory.InvocationsGraphCategory, "Remote Invocation", 
+                                                  "Invocation"));
+                }
+            };
+
+        _newConnectionsGraph = new AbstractAction("Connections")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    _graphViews.add(new GraphView(Coordinator.this, GraphType.CurrentCountGraphType,
+                                                  GraphCategory.ConnectionsGraphCategory, "Connections", 
+                                                  "Connection"));
+                }
+            };
+
+        _newThreadsGraph = new AbstractAction("Threads")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    _graphViews.add(new GraphView(Coordinator.this, GraphType.CurrentCountGraphType,
+                                                  GraphCategory.ThreadsGraphCategory, "Threads", "Thread"));
+                }
+            };
+
+        _newBandwidthGraph = new AbstractAction("Bandwidth")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    _graphViews.add(new GraphView(Coordinator.this, GraphType.BandwidhGraphType,
+                                                  GraphCategory.BandwidthGraphCategory, "Bandwidth", "Connection"));
+                }
+            };
 
         _showLiveDeploymentFilters = new AbstractAction("Filter live deployment")
             {
@@ -2530,6 +2612,23 @@ public class Coordinator
 
     void exit(int status)
     {
+        if(_graphViews.size() > 0)
+        {
+            if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(getMainFrame(),
+                                                                       "Close all open windows and exit?",
+                                                                       "Confirm exit",
+                                                                       JOptionPane.YES_NO_OPTION))
+            {
+                return;
+            }
+            
+            java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
+            for(GraphView v : views)
+            {
+                v.close();
+            }
+        }
+
         if(_openChooser != null)
         {
             File dir = _openChooser.getCurrentDirectory();
@@ -2702,6 +2801,11 @@ public class Coordinator
         _serviceMenu.setEnabled(false);
     }
 
+    public void removeGraphView(GraphView view)
+    {
+        _graphViews.remove(view);
+    }
+
     public boolean traceObservers()
     {
         return _traceObservers;
@@ -2726,6 +2830,7 @@ public class Coordinator
     {
         _connected = connected;
         _statusBar.setConnected(connected);
+        _newGraphMenu.setEnabled(connected);
     }
 
     public boolean connected()
@@ -2791,6 +2896,12 @@ public class Coordinator
     private Action _acquireExclusiveWriteAccess;
     private Action _releaseExclusiveWriteAccess;
 
+    private Action _newDispatchGraph;
+    private Action _newInvocationGraph;
+    private Action _newConnectionsGraph;
+    private Action _newThreadsGraph;
+    private Action _newBandwidthGraph;
+
     private Action _showLiveDeploymentFilters;
     private Action _openApplicationFromFile;
     private Action _openApplicationFromRegistry;
@@ -2841,6 +2952,7 @@ public class Coordinator
     private JMenu _newServerMenu;
     private JMenu _newServiceMenu;
     private JMenu _newTemplateMenu;
+    private JMenu _newGraphMenu;
     private JMenu _appMenu;
     private JMenu _nodeMenu;
     private JMenu _registryMenu;
@@ -2857,6 +2969,8 @@ public class Coordinator
     private Process _icegridadminProcess;
     private String _fileParser;
     private boolean _connected;
+
+    private java.util.List<GraphView> _graphViews = new java.util.ArrayList<GraphView>();
 
     static private final int HISTORY_MAX_SIZE = 20;
 }

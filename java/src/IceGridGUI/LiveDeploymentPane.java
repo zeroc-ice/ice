@@ -26,6 +26,8 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
+import javax.swing.event.TreeWillExpandListener;
+import javax.swing.event.TreeExpansionEvent;
 
 import com.jgoodies.forms.factories.Borders;
 
@@ -33,6 +35,7 @@ import IceGrid.*;
 import IceGridGUI.LiveDeployment.Editor;
 import IceGridGUI.LiveDeployment.Root;
 import IceGridGUI.LiveDeployment.TreeNode;
+import IceGridGUI.LiveDeployment.Server;
 
 public class LiveDeploymentPane extends JSplitPane implements Tab
 {
@@ -216,6 +219,26 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         tree.addTreeSelectionListener(new SelectionListener());
+
+        //
+        // Fetch metrics when Server node is expanded.
+        //
+        tree.addTreeWillExpandListener(
+            new TreeWillExpandListener()
+                {
+                    public void treeWillExpand(TreeExpansionEvent evt)
+                    {
+                        TreeNode node = (TreeNode)evt.getPath().getLastPathComponent();
+                        if(node instanceof Server)
+                        {
+                            ((Server)node).fetchMetricsViewNames();
+                        }
+                    }
+
+                    public void treeWillCollapse(TreeExpansionEvent evt)
+                    {
+                    }
+                });
 
         tree.setRootVisible(false);
 

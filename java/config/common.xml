@@ -356,6 +356,14 @@
     </target>
 
     <target name="config-init" depends="config-init-warn">
+        
+         <!-- JavaFX jar file -->
+        <condition property="javafx.jar" value="${java.home}/lib/jfxrt.jar">
+            <and>
+                <not><isset property="javafx.jar"/></not>
+                <available file="${java.home}/lib/jfxrt.jar"/>
+            </and>
+        </condition>
 
         <!-- Set slice.dir to the directory containing the Slice files. -->
         <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">

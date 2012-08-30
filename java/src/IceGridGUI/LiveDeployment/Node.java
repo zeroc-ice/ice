@@ -908,6 +908,17 @@ class Node extends ListTreeNode
         Utils.Resolver resolver;
     }
 
+    public java.util.List<Server>
+    getServers()
+    {
+        java.util.List<Server> servers = new java.util.ArrayList<Server>();
+        for(Object obj : _children)
+        {
+            servers.add((Server)obj);
+        }
+        return servers;
+    }
+
     //
     // Application name to ApplicationData
     //

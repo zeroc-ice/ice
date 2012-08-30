@@ -12,6 +12,10 @@ package IceGridGUI.LiveDeployment;
 import java.awt.Component;
 import java.awt.Cursor;
 
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -20,6 +24,8 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
+
+import javax.swing.JComponent;
 
 import java.util.Enumeration;
 import java.util.prefs.Preferences;
@@ -153,6 +159,161 @@ public class Root extends ListArrayTreeNode
         return _applicationNameFilter;
     }
 
+    public class NodeTransferable implements Transferable
+    {
+        public NodeTransferable(IceGridGUI.LiveDeployment.Node node)
+        {
+            _node = node;
+            try
+            {
+                _flavors = new DataFlavor[]{new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + 
+                                                           ";class=IceGridGUI.LiveDeployment.Node")};
+            }
+            catch(ClassNotFoundException ex)
+            {
+            }
+        }
+
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+        {
+            if(!isDataFlavorSupported(flavor))
+            {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return _node;
+        }
+
+        public DataFlavor[] getTransferDataFlavors()
+        {
+            return _flavors;
+        }
+
+        public boolean isDataFlavorSupported(DataFlavor flavor)
+        {
+            return _flavors[0].equals(flavor);
+        }
+
+        private IceGridGUI.LiveDeployment.Node _node;
+        private DataFlavor[] _flavors;
+    }
+
+    public class ServerTransferable implements Transferable
+    {
+        public ServerTransferable(IceGridGUI.LiveDeployment.Server server)
+        {
+            _server = server;
+            try
+            {
+                _flavors = new DataFlavor[]{new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + 
+                                                           ";class=IceGridGUI.LiveDeployment.Server")};
+            }
+            catch(ClassNotFoundException ex)
+            {
+            }
+        }
+
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+        {
+            if(!isDataFlavorSupported(flavor))
+            {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return _server;
+        }
+
+        public DataFlavor[] getTransferDataFlavors()
+        {
+            return _flavors;
+        }
+
+        public boolean isDataFlavorSupported(DataFlavor flavor)
+        {
+            return _flavors[0].equals(flavor);
+        }
+
+        private IceGridGUI.LiveDeployment.Server _server;
+        private DataFlavor[] _flavors;
+    }
+
+    public class MetricsViewTransferable implements Transferable
+    {
+        public MetricsViewTransferable(IceGridGUI.LiveDeployment.MetricsView metricsView)
+        {
+            _metricsView = metricsView;
+            try
+            {
+                _flavors = new DataFlavor[]{new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType + 
+                                            ";class=IceGridGUI.LiveDeployment.MetricsView")};
+            }
+            catch(ClassNotFoundException ex)
+            {
+            }
+        }
+
+        public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
+        {
+            if(!isDataFlavorSupported(flavor))
+            {
+                throw new UnsupportedFlavorException(flavor);
+            }
+            return _metricsView;
+        }
+
+        public DataFlavor[] getTransferDataFlavors()
+        {
+            return _flavors;
+        }
+
+        public boolean isDataFlavorSupported(DataFlavor flavor)
+        {
+            return _flavors[0].equals(flavor);
+        }
+
+        private IceGridGUI.LiveDeployment.MetricsView _metricsView;
+        private DataFlavor[] _flavors;
+    }
+
+    class TransferHandler extends javax.swing.TransferHandler
+    {
+        @Override
+        public int
+        getSourceActions(JComponent component)
+        {
+            return javax.swing.TransferHandler.COPY;
+        }
+
+        @Override
+        public Transferable
+        createTransferable(JComponent component)
+        {
+            JTree tree = (JTree)component;
+            TreePath[] paths = tree.getSelectionPaths();
+            if(paths != null)
+            {
+                TreeNode node = (TreeNode)paths[0].getLastPathComponent();
+                if(node instanceof IceGridGUI.LiveDeployment.MetricsView)
+                {
+                    return new MetricsViewTransferable((IceGridGUI.LiveDeployment.MetricsView)node);
+                }
+                else if(node instanceof IceGridGUI.LiveDeployment.Server)
+                {
+                    return new ServerTransferable((IceGridGUI.LiveDeployment.Server)node);
+                }
+                else if(node instanceof IceGridGUI.LiveDeployment.Node)
+                {
+                    return new NodeTransferable((IceGridGUI.LiveDeployment.Node)node);
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void exportDone(JComponent source, Transferable data, int action)
+        {
+            // Does nothing as we don't support move action.
+        }
+    }
+
     public Root(Coordinator coordinator)
     {
         super(null, "Root", 2);
@@ -164,6 +325,8 @@ public class Root extends ListArrayTreeNode
         _treeModel = new FilteredTreeModel(this);
         _tree = new JTree();
         _tree.setModel(_treeModel);
+        _tree.setDragEnabled(true);
+        _tree.setTransferHandler(new TransferHandler());
         _addObjectDialog = new ObjectDialog(this, false);
         _showObjectDialog = new ObjectDialog(this, true);
 

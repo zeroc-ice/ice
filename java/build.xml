@@ -669,11 +669,15 @@
         </jar>
     </target>
 
+   <target name="icegridadmin-setup" depends="icegrid-compile, icebox-compile">
+    <echo message="JAVA_HOME: ${java.home}"/>
+    <echo message="JavaFX: ${javafx.jar}"/>
+   </target>
     <target name="icegridadmin-compile" depends="icegrid-compile, icebox-compile" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             includes="IceGridGUI/**"
-            classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}"
+            classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}:${javafx.jar}"
             deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -707,10 +711,10 @@
     </target>
 
     <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icegrid-jar, icegridadmin-compile" if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
-        <condition property="library.jarfiles" value="classes.jar,jsse.jar">
+        <condition property="library.jarfiles" value="classes.jar,jsse.jar,jfxrt.jar">
             <os family="mac"/>
         </condition>
-        <condition property="library.jarfiles" value="rt.jar,jsse.jar">
+        <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
             <!-- Library jar files for Sun JDK -->
             <and>
                 <available file="${java.home}/lib/rt.jar"/>

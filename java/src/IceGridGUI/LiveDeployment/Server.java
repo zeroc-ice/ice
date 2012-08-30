@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class Server extends ListArrayTreeNode
+public class Server extends ListArrayTreeNode
 {
     //
     // Actions
@@ -82,7 +82,6 @@ class Server extends ListArrayTreeNode
                 public void response()
                 {
                     amiSuccess(prefix);
-                    fetchMetricsViewNames();
                 }
 
                 public void exception(Ice.UserException e)
@@ -113,7 +112,6 @@ class Server extends ListArrayTreeNode
 
     public void stop()
     {
-        _metrics.clear();
         final String prefix = "Stopping server '" + _id + "'...";
         getCoordinator().getStatusBar().setText(prefix);
 
@@ -399,8 +397,14 @@ class Server extends ListArrayTreeNode
         }
     }
 
-    void fetchMetricsViewNames()
+    public void fetchMetricsViewNames()
     {
+        if(_metricsRetrieved)
+        {
+            return; // Already loaded.
+        }
+        _metricsRetrieved = true;
+
         Ice.ObjectPrx admin = getServerAdmin();
         if(admin == null)
         {
@@ -707,7 +711,6 @@ class Server extends ListArrayTreeNode
         createAdapters();
         createDbEnvs();
         createServices();
-        fetchMetricsViewNames();
     }
 
     ApplicationDescriptor getApplication()
@@ -882,6 +885,20 @@ class Server extends ListArrayTreeNode
             else
             {
                 _stateIconIndex = _state.ordinal() + 1;
+            }
+            
+            if(_state == ServerState.Active && getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
+            else
+            {
+                _metricsRetrieved = false;
+                if(_metrics.size() > 0)
+                {
+                    _metrics.clear();
+                    rebuild(this);
+                }
             }
 
             if(_serverDescriptor instanceof IceBoxDescriptor)
@@ -1207,6 +1224,10 @@ class Server extends ListArrayTreeNode
 
     Ice.ObjectPrx getServerAdmin()
     {
+        if(_state != ServerState.Active)
+        {
+            return null;
+        }
         AdminPrx admin = getCoordinator().getAdmin();
         if(admin == null)
         {
@@ -1235,6 +1256,12 @@ class Server extends ListArrayTreeNode
         return result;
     }
 
+    public java.util.List<MetricsView>
+    getMetrics()
+    {
+        return new java.util.ArrayList<MetricsView>(_metrics);
+    }
+
     private ServerInstanceDescriptor _instanceDescriptor;
     private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
         new java.util.HashMap<String, PropertySetDescriptor>(); // with substituted names!
@@ -1256,6 +1283,7 @@ class Server extends ListArrayTreeNode
     private int _stateIconIndex;
     private int _pid;
     private String _toolTip;
+    private boolean _metricsRetrieved = false;
 
     private IceBox.ServiceObserverPrx _serviceObserver;
 
