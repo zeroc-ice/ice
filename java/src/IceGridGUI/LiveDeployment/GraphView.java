@@ -1163,7 +1163,7 @@ public class GraphView extends JFrame
         return value;
     }
 
-    private void addStyle(XYChart.Series<Number, Number> series, String seriesClass, String color, boolean doted)
+    private void addStyle(XYChart.Series<Number, Number> series, String seriesClass, String color, boolean dashed)
     {
         //
         // Customize the style.
@@ -1175,7 +1175,7 @@ public class GraphView extends JFrame
         sb.append("-fx-background-color: ");
         sb.append(color);
         sb.append(", white;");
-        if(doted)
+        if(dashed)
         {
             sb.append("-fx-stroke-dash-array: 10 10;");
         }
