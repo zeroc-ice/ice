@@ -240,7 +240,7 @@ MetricsMapI::detached(Entry* entry)
         }
     }
 
-    if(_detachedQueue.size() == _retain)
+    if(static_cast<int>(_detachedQueue.size()) == _retain)
     {
         // Remove oldest entry if there's still no room
         _objects.erase(_detachedQueue.front()->id());
