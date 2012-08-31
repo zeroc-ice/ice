@@ -186,8 +186,8 @@ class MetricsView extends TreeNode
 
     private String _name;
     private String _toolTip;
+    private MetricsViewEditor _editor;
     private java.util.Map<java.lang.String, IceMX.Metrics[]> _data;
 
     static private DefaultTreeCellRenderer _cellRenderer;
-    static private MetricsViewEditor _editor;
 }

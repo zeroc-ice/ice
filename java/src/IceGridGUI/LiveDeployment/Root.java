@@ -334,6 +334,14 @@ public class Root extends ListArrayTreeNode
             {
                 public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
                 {
+                    //
+                    // Fetch metrics when Server node is expanded.
+                    //
+                    TreeNode node = (TreeNode)event.getPath().getLastPathComponent();
+                    if(node instanceof Server)
+                    {
+                        ((Server)node).fetchMetricsViewNames();
+                    }
                 }
 
                 public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)

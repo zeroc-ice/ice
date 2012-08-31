@@ -221,26 +221,6 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
 
         tree.addTreeSelectionListener(new SelectionListener());
 
-        //
-        // Fetch metrics when Server node is expanded.
-        //
-        tree.addTreeWillExpandListener(
-            new TreeWillExpandListener()
-                {
-                    public void treeWillExpand(TreeExpansionEvent evt)
-                    {
-                        TreeNode node = (TreeNode)evt.getPath().getLastPathComponent();
-                        if(node instanceof Server)
-                        {
-                            ((Server)node).fetchMetricsViewNames();
-                        }
-                    }
-
-                    public void treeWillCollapse(TreeExpansionEvent evt)
-                    {
-                    }
-                });
-
         tree.setRootVisible(false);
 
         JScrollPane leftScroll =

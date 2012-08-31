@@ -9,6 +9,9 @@
 
 package IceGridGUI.LiveDeployment;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -36,7 +39,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
 import javax.swing.tree.TreePath;
-
+import javax.swing.ListSelectionModel;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.SwingConstants;
@@ -223,132 +226,168 @@ class MetricsViewEditor extends Editor
     public void show(final MetricsView node)
     {
         _node = node;
+        final java.util.Map<java.lang.String, IceMX.Metrics[]> data = node.data();
 
-        //
-        // Call showInternal later on the Swing thread. Without this JTable
-        // doesn't repaint correctly, when call addRow in the model.
-        //
-        SwingUtilities.invokeLater(new Runnable()
+        boolean rebuildPanel = false;
+
+        for(Map.Entry<String, IceMX.Metrics[]> entry : data.entrySet())
         {
-            public void run()
+            if(_tables.get(entry.getKey()) == null)
             {
-                showInternal(node);
+                IceMX.Metrics[] objects = entry.getValue();
+                if(objects.length > 0)
+                {
+                    java.util.HashMap<String, Integer> columnPositions = new java.util.HashMap<String, Integer>();
+                    _columnPositions.put(entry.getKey(), columnPositions);
+                    DefaultTableModel model = new TableModel();
+                    JTable table = new JTable(model);
+
+                    table.setDragEnabled(true);
+                    table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+                    table.setCellSelectionEnabled(true);
+                    table.addMouseListener(new ButtonMouseListener(table));
+
+                    DefaultTableCellRenderer defaultCellRender = 
+                                                    (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
+
+                    DefaultTableCellRenderer buttonCellRender = new ButtonRenderer();
+
+                    DefaultTableCellRenderer numberCellRender = new DefaultTableCellRenderer();
+                    numberCellRender.setHorizontalAlignment(SwingConstants.RIGHT);
+
+                    Class cls = objects[0].getClass();
+                    Map<String, Field> fields = new java.util.HashMap<String, Field>();
+                    for(Field f : cls.getFields())
+                    {
+                        if(Modifier.isStatic(f.getModifiers()))
+                        {
+                            continue;
+                        }
+
+                        Class fieldClass = f.getType();
+
+                        if(!fieldClass.equals(int.class) && !fieldClass.equals(long.class) && 
+                           !fieldClass.equals(float.class) && !fieldClass.equals(double.class) && 
+                           !fieldClass.equals(boolean.class) && !fieldClass.equals(byte.class) && 
+                           !fieldClass.equals(String.class) && !fieldClass.isArray())
+                        {
+                            continue;
+                        }
+                        fields.put(f.getName(), f);
+                    }
+
+                    //
+                    // Add fields using the default column sort.
+                    //
+                    for(String name : _columnSort)
+                    {
+                        Field field = fields.remove(name);
+                        if(field != null)
+                        {
+                            addField(field, model, columnPositions);
+                        }
+                    }
+            
+                    //
+                    // Append field names that are not in default column
+                    // sort to the end, using the order in class definition.
+                    //
+                    if(fields.size() > 0)
+                    {
+                        for(Field f : cls.getFields())
+                        {
+                            Field field = fields.remove(f.getName());
+                            if(field != null)
+                            {
+                                addField(field, model, columnPositions);    
+                            }
+                        }
+                    }
+
+                    for(Map.Entry<String, Integer> e : columnPositions.entrySet())
+                    {
+                        try
+                        {
+                            Field field = cls.getField(e.getKey());
+                            Class fieldClass = field.getType();
+
+                            //
+                            // XXX Open arrays in a dialog with a table.
+                            //
+//                             if(field.getName().equals("failures") || fieldClass.isArray())
+//                             {
+//                                 table.getColumnModel().getColumn(e.getValue().intValue()).
+//                                                                                     setCellRenderer(buttonCellRender);
+//                             }
+                            if(fieldClass.equals(int.class) || fieldClass.equals(long.class) || 
+                               fieldClass.equals(float.class) || fieldClass.equals(double.class))
+                            {
+                                table.getColumnModel().getColumn(e.getValue().intValue()).
+                                                                                    setCellRenderer(numberCellRender);
+                            }
+                        }
+                        catch(NoSuchFieldException ex)
+                        {
+                        }
+                    }
+                    _tables.put(entry.getKey(), table);
+                    rebuildPanel = true;
+                }
             }
-        });
-    }
-
-    public void showInternal(final MetricsView node)
-    {
-        java.util.Map<java.lang.String, IceMX.Metrics[]> data = node.data();
-        _endpointLookups.getDataVector().removeAllElements();
-        _dispatch.getDataVector().removeAllElements();
-        _threads.getDataVector().removeAllElements();
-        _connections.getDataVector().removeAllElements();
-        _invocations.getDataVector().removeAllElements();
-        _connectionsEstablishments.getDataVector().removeAllElements();
-
-        if(data == null)
-        {
-            return;
         }
 
+        if(rebuildPanel)
+        {
+            buildPropertiesPanel();
+        }
+
+        //
+        // Load the data.
+        //
         for(Map.Entry<String, IceMX.Metrics[]> entry : data.entrySet())
         {
             String key = entry.getKey();
             IceMX.Metrics[] values = entry.getValue();
-            if(key.equals("EndpointLookup"))
+            JTable table = _tables.get(key);
+            DefaultTableModel  model = (DefaultTableModel)table.getModel();
+            model.getDataVector().removeAllElements();
+            for(IceMX.Metrics m : values)
             {
-                for(int i = 0; i < values.length; ++i)
-                {
-                    IceMX.Metrics o = values[i];
-                    Object[] row = new Object[5];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = metricAvg(o, 1000.0f);
-                    row[4] = failures(key, node, o);
-                    _endpointLookups.addRow(row);
-                }
-            }
-            else if(key.equals("Dispatch"))
-            {
-                for(int i = 0; i < values.length; ++i)
-                {
-                    IceMX.Metrics o = values[i];
-                    Object[] row = new Object[5];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = metricAvg(o, 1000.0f);
-                    row[4] = failures(key, node, o);
-                    _dispatch.addRow(row);
-                }
+                Class cls = m.getClass();
+                int idx = 0;
+                Object[] row = new Object[table.getColumnCount()];
+                java.util.Map<String, Integer> columnPositions = _columnPositions.get(key);
 
-            }
-            else if(key.equals("Thread"))
-            {
-                for(int i = 0; i < values.length; ++i)
+                for(Field f : cls.getFields())
                 {
-                    IceMX.ThreadMetrics o = (IceMX.ThreadMetrics)values[i];
-                    Object[] row = new Object[8];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = Integer.toString(o.inUseForIO);
-                    row[4] = Integer.toString(o.inUseForUser);
-                    row[5] = Integer.toString(o.inUseForOther);
-                    row[6] = metricAvg(o, 1000000.0f);
-                    row[7] = failures(key, node, o);
-                    _threads.addRow(row);
+                    Integer position = columnPositions.get(f.getName());
+                    if(position == null)
+                    {
+                        continue;
+                    }
+                    try
+                    {
+                        row[position.intValue()] = f.get(m).toString();
+                    }
+                    catch(IllegalAccessException ex)
+                    {
+                        row[position.intValue()] = null;
+                    }
                 }
-            }
-            else if(key.equals("Connection"))
-            {
-                for(int i = 0; i < values.length; ++i)
-                {
-                    IceMX.ConnectionMetrics o = (IceMX.ConnectionMetrics)values[i];
-                    Object[] row = new Object[9];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = Long.toString(o.receivedBytes);
-                    row[4] = Long.toString(o.sentBytes);
-                    row[5] = metricAvg(o, 1000000.0f);
-                    row[6] = failures(key, node, o);
-                    _connections.addRow(row);
-                }
-            }
-            else if(key.equals("Invocation"))
-            {
-                for(int i = 0; i < values.length; ++i)
-                {
-                    IceMX.InvocationMetrics o = (IceMX.InvocationMetrics)values[i];
-                    Object[] row = new Object[7];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = Integer.toString(o.retry);
-                    row[4] = metricAvg(o, 1000.0f);
-                    row[5] = remotes(o);
-                    row[6] = failures(key, node, o);
-                    _invocations.addRow(row);
-                }
-            }
-            else if(key.equals("ConnectionEstablishment"))
-            {
-                for(int i = 0; i < values.length; ++i)
-                {
-                    IceMX.Metrics o = values[i];
-                    Object[] row = new Object[5];
-                    row[0] = o.id;
-                    row[1] = Integer.toString(o.current);
-                    row[2] = Long.toString(o.total);
-                    row[3] = metricAvg(o, 1000.0f);
-                    row[4] = failures(key, node, o);
-                    _connectionsEstablishments.addRow(row);
-                }
+                model.addRow(row);
             }
         }
+    }
+
+    private void addField(Field f, DefaultTableModel model, java.util.HashMap<String, Integer> columnPositions)
+    {
+        String columnName = _columnNames.get(f.getName());
+        if(columnName == null)
+        {
+            columnName = f.getName();
+        }
+        model.addColumn(columnName);
+        columnPositions.put(f.getName(), columnPositions.size());
     }
 
     private String metricAvg(IceMX.Metrics o, float divisor)
@@ -364,198 +403,32 @@ class MetricsViewEditor extends Editor
         }
     }
 
-    private Object failures(final String map, final MetricsView node, final IceMX.Metrics o)
-    {
-        JButton button = new JButton("Show Failures (" + Integer.toString(o.failures) + ")");
-        if(o.failures > 0)
-        {
-            button.addActionListener(new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        final DefaultTableModel model = new DefaultTableModel();
-                        model.addColumn("Count");
-                        model.addColumn("Type");
-                        model.addColumn("Identity");
-                        JTable table = new JTable(model);
-                        table.setPreferredSize(new Dimension(550, 200));
-                        table.setPreferredScrollableViewportSize(table.getPreferredSize());
-                        table.setCellSelectionEnabled(false);
-                        table.setOpaque(false);
-
-                        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
-                        cr.setOpaque(false);
-
-                        DefaultTableCellRenderer rr = new DefaultTableCellRenderer();
-                        rr.setHorizontalAlignment(SwingConstants.RIGHT);
-                        rr.setOpaque(false);
-                        table.getColumnModel().getColumn(0).setCellRenderer(rr);
-
-                        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-                        table.getColumnModel().getColumn(0).setPreferredWidth(50);
-                        table.getColumnModel().getColumn(1).setPreferredWidth(250);
-                        table.getColumnModel().getColumn(2).setPreferredWidth(250);
-
-                        JScrollPane scrollPane = new JScrollPane(table);
-
-                        IceMX.Callback_MetricsAdmin_getMetricsFailures cb = 
-                            new IceMX.Callback_MetricsAdmin_getMetricsFailures()
-                                {
-                                    public void response(final IceMX.MetricsFailures data)
-                                    {
-                                        SwingUtilities.invokeLater(new Runnable()
-                                            {
-                                                public void run()
-                                                {
-                                                    for(Map.Entry<String, Integer> entry : data.failures.entrySet())
-                                                    {
-                                                        Object[] row = new Object[3];
-                                                        row[0] = entry.getValue().toString();
-                                                        row[1] = entry.getKey();
-                                                        row[2] = o.id;
-                                                        model.addRow(row);
-                                                    }
-                                                    node.getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                                }
-                                            });
-                                    }
-
-                                    public void exception(final Ice.LocalException e)
-                                    {
-                                        SwingUtilities.invokeLater(new Runnable()
-                                            {
-                                                public void run()
-                                                {
-                                                    node.getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                                    e.printStackTrace();
-                                                    if(e instanceof Ice.ObjectNotExistException)
-                                                    {
-                                                        // Server is down.
-                                                    }
-                                                    else if(e instanceof Ice.FacetNotExistException)
-                                                    {
-                                                        // MetricsAdmin facet not present.
-                                                    }
-                                                    else
-                                                    {
-                                                        e.printStackTrace();
-                                                        JOptionPane.showMessageDialog(node.getCoordinator().getMainFrame(), 
-                                                                                    "Error: " + e.toString(), "Error",
-                                                                                    JOptionPane.ERROR_MESSAGE);
-                                                    }
-                                                }
-                                            });
-                                    }
-
-                                    public void exception(final Ice.UserException e)
-                                    {
-                                        SwingUtilities.invokeLater(new Runnable()
-                                            {
-                                                public void run()
-                                                {
-                                                    node.getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                                                    e.printStackTrace();
-                                                    JOptionPane.showMessageDialog(node.getCoordinator().getMainFrame(), 
-                                                                                    "Error: " + e.toString(), "Error",
-                                                                                    JOptionPane.ERROR_MESSAGE);
-                                                }
-                                            });
-                                    }
-                                };
-                        node.getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                        node.fetchMetricsFailures(map, o.id, cb);
-                        JOptionPane.showMessageDialog(_node.getCoordinator().getMainFrame(),
-                            scrollPane,
-                            "Metrics Failures",
-                            JOptionPane.PLAIN_MESSAGE );
-                        node.getCoordinator().getMainFrame().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-                    }
-                });
-        }
-        else
-        {
-            button.setEnabled(false);
-        }
-        return button;
-
-    }
-
-    private Object remotes(final IceMX.InvocationMetrics o)
-    {
-        JButton button = new JButton("Show Remotes (" + Integer.toString(o.remotes.length) + ")");
-        button.addActionListener(new ActionListener()
-            {
-                public void actionPerformed(ActionEvent e)
-                {
-                    final DefaultTableModel model = new DefaultTableModel();
-                    model.addColumn("Identity");
-                    model.addColumn("Current");
-                    model.addColumn("Total");
-                    model.addColumn("Avg (ms)");
-
-                    JTable table = new JTable(model);
-                    table.setPreferredSize(new Dimension(550, 200));
-                    table.setPreferredScrollableViewportSize(table.getPreferredSize());
-                    table.setCellSelectionEnabled(false);
-                    table.setOpaque(false);
-
-                    for(int i = 0; i < o.remotes.length; ++i)
-                    {
-                        IceMX.Metrics ro = o.remotes[i];
-                        Object[] row = new Object[5];
-                        row[0] = ro.id;
-                        row[1] = Integer.toString(ro.current);
-                        row[2] = Long.toString(ro.total);
-                        row[3] = metricAvg(ro, 1000.0f);
-                        model.addRow(row);
-                    }
-
-                    DefaultTableCellRenderer cr = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
-                    cr.setOpaque(false);
-
-                    DefaultTableCellRenderer rr = new DefaultTableCellRenderer();
-                    for(int i = 1; i < model.getColumnCount(); ++i)
-                    {
-                        rr.setHorizontalAlignment(SwingConstants.RIGHT);
-                        rr.setOpaque(false);
-                        table.getColumnModel().getColumn(i).setCellRenderer(rr);
-                    }
-                    JScrollPane scrollPane = new JScrollPane(table);
-
-                    JOptionPane.showMessageDialog(_node.getCoordinator().getMainFrame(),
-                        scrollPane,
-                        "Invocation Remotes",
-                        JOptionPane.PLAIN_MESSAGE );
-                }
-            });
-        return button;
-
-    }
-
     protected void appendProperties(DefaultFormBuilder builder)
     {
-        createScrollTable(builder, "Operation Dispatch", _dispatColumnNames, _dispatch);
-
-        createScrollTable(builder, "Connections", _connectionsColumnNames, _connections);
-
-        createScrollTable(builder, "Remote Invocations", _invocationsColumnNames, _invocations);
-
-        createScrollTable(builder, "Threads", _threadsColumnNames, _threads);
-
-        createScrollTable(builder, "Connection Establishments", _connectionsEstablishmentsColumnNames,
-                          _connectionsEstablishments);
-
-        createScrollTable(builder, "Endpoint Lookups", _endpointLookupsColumnNames, _endpointLookups);
+        java.util.Map<String, JTable> tables = new java.util.HashMap<String, JTable>(_tables);
+        for(String name : _sectionSort)
+        {
+            JTable table = tables.remove(name);
+            if(table == null)
+            {
+                continue;
+            }
+            String section = _sectionNames.get(name);
+            if(section == null)
+            {
+                section = name;
+            }
+            createScrollTable(builder, section, table);
+        }
+        for(Map.Entry<String, JTable> entry : tables.entrySet())
+        {
+            createScrollTable(builder, entry.getKey(), entry.getValue());
+        }
     }
 
-    private void createScrollTable(DefaultFormBuilder builder, String title, Object[] columnNames,
-                                   DefaultTableModel model)
+    private void createScrollTable(DefaultFormBuilder builder, String title, JTable table)
     {
         CellConstraints cc = new CellConstraints();
-        for(Object name : columnNames)
-        {
-            model.addColumn(name);
-        }
         builder.appendSeparator(title);
         builder.append("");
         builder.nextLine();
@@ -569,37 +442,11 @@ class MetricsViewEditor extends Editor
         builder.nextLine();
         builder.append("");
         builder.nextRow(-10);
-        JTable table = new JTable(model);
-        table.setCellSelectionEnabled(false);
-        table.setOpaque(false);
-        table.addMouseListener(new ButtonMouseListener(table));
+
         JScrollPane scrollPane = new JScrollPane(table);
         builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 10));
         builder.nextRow(10);
         builder.nextLine();
-
-        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)table.getDefaultRenderer(String.class);
-        cr.setOpaque(false);
-
-        DefaultTableCellRenderer br = new ButtonRenderer();
-        br.setOpaque(false);
-
-        DefaultTableCellRenderer rr = new DefaultTableCellRenderer();
-        rr.setHorizontalAlignment(SwingConstants.RIGHT);
-        rr.setOpaque(false);
-
-        for(int i = 0; i < columnNames.length; ++i)
-        {
-            String name = (String)columnNames[i];
-            if(name.equals("Remotes") || name.equals("Failures"))
-            {
-                table.getColumnModel().getColumn(i).setCellRenderer(br);
-            }
-            else if(!name.equals("Identity"))
-            {
-                table.getColumnModel().getColumn(i).setCellRenderer(rr);
-            }
-        }
     }
 
     protected void buildPropertiesPanel()
@@ -617,29 +464,76 @@ class MetricsViewEditor extends Editor
     }
 
     private RefreshThread _refreshThread;
-
-    private DefaultTableModel _endpointLookups = new TableModel();
-    private Object[] _endpointLookupsColumnNames = new Object[]{"Identity", "Current", "Total", "Avg (ms)", 
-                                                                "Failures"};
-
-    private DefaultTableModel _threads = new TableModel();
-    private Object[] _threadsColumnNames = new Object[]{"Identity", "Current", "Total", "IO", "User", "Other", 
-                                                               "Avg (ms)", "Failures"};
-
-    private DefaultTableModel _dispatch = new TableModel();
-    private Object[] _dispatColumnNames = new Object[]{"Identity", "Current", "Total", "Avg (ms)", "Failures"};
-
-    private DefaultTableModel _connections = new TableModel();
-    private Object[] _connectionsColumnNames = new Object[]{"Identity", "Current", "Total", "RxBytes",  
-                                                            "TxBytes", "Avg (s)", "Failures"};
-
-    private DefaultTableModel _invocations = new TableModel();
-    private Object[] _invocationsColumnNames = new Object[]{"Identity", "Current", "Total", "Retries", "Avg (ms)",
-                                                            "Remotes", "Failures"};
-
-    private DefaultTableModel _connectionsEstablishments = new TableModel();
-    private Object[] _connectionsEstablishmentsColumnNames =  new Object[]{"Identity", "Current", "Total", "Avg (ms)", 
-                                                                           "Failures"};
-
+    private java.util.Map<String, JTable> _tables = new java.util.HashMap<String, JTable>();
     private MetricsView _node;
+
+    static class ColumnInfo
+    {
+        public ColumnInfo(String name, String displayName)
+        {
+            this.name = name;
+            this.displayName = displayName;
+        }
+
+        public String name;
+        public String displayName;
+    }
+
+    //
+    // Map attributes to column names.
+    //
+    private static final Map<String, String> _columnNames;
+    static
+    {
+        Map<String, String> m = new java.util.HashMap<String, String>();
+        m.put("id", "Identity");
+        m.put("current", "Current");
+        m.put("total", "Total");
+        m.put("retry", "Retry");
+        m.put("remotes", "Remotes");
+        m.put("inUseForIO", "IO");
+        m.put("inUseForUser", "User");
+        m.put("inUseForOther", "Other");
+        m.put("remotes", "Remotes");
+        m.put("validating", "Validating");
+        m.put("holding", "Holding");
+        m.put("active", "Active");
+        m.put("closing", "Closing");
+        m.put("closed", "Closed");
+        m.put("receivedBytes", "RX Bytes");
+        m.put("sentBytes", "TX Bytes");
+        m.put("totalLifetime", "Total Time");
+        m.put("failures", "Failures");
+        _columnNames = java.util.Collections.unmodifiableMap(m);
+    }
+
+    //
+    // Default column sort
+    //
+    private static final String[] _columnSort = {"id", "current", "total", "retry", "remotes", "inUseForIO", "inUseForUser", 
+                                                 "inUseForOther", "remotes", "validating", "holding",
+                                                 "active", "closing", "closed", "receivedBytes", "sentBytes",
+                                                 "totalLifetime", "failures"};
+
+
+    private static final Map<String, String> _sectionNames;
+    static
+    {
+        Map<String, String> m = new java.util.HashMap<String, String>();
+        m.put("Dispatch", "Operation Dispatch");
+        m.put("Invocation", "Remote Invocations");
+        m.put("Connection", "Connections");
+        m.put("Thread", "Threads");
+        m.put("ConnectionEstablishment", "Connection Establishments");
+        m.put("EndpointLookup", "Endpoint Lookups");
+        _sectionNames = java.util.Collections.unmodifiableMap(m);
+    }
+
+    //
+    // Default section sort
+    //
+    private static final String[] _sectionSort = {"Dispatch", "Invocation", "Connection", "Thread", 
+                                                 "ConnectionEstablishment", "EndpointLookup"};
+
+    private static final Map<String, Map<String, Integer>> _columnPositions = new java.util.HashMap<String, Map<String, Integer>>();
 }
