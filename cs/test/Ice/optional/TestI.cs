@@ -32,7 +32,7 @@ public class InitialI : Test.Initial
         }
         else
         {
-            ex.clearA(); // The member "a" has a default value.
+            ex.a = Ice.Util.None; // The member "a" has a default value.
         }
         if(b.HasValue)
         {

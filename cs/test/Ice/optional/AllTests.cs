@@ -44,12 +44,12 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         Test.OneOptional oo1 = new Test.OneOptional();
-        test(!oo1.hasA);
+        test(!oo1.a.HasValue);
         oo1.a = 15;
-        test(oo1.hasA && oo1.a == 15);
+        test(oo1.a.HasValue && oo1.a.Value == 15);
 
         Test.OneOptional oo2 = new Test.OneOptional(16);
-        test(oo2.hasA && oo2.a == 16);
+        test(oo2.a.HasValue && oo2.a.Value == 16);
 
         Test.MultiOptional mo1 = new Test.MultiOptional();
         mo1.a = 15;
@@ -61,14 +61,15 @@ public class AllTests : TestCommon.TestApp
         mo1.g = 1.0;
         mo1.h = "test";
         mo1.i = Test.MyEnum.MyEnumMember;
-        mo1.j = Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
+        mo1.j = new Ice.Optional<Test.MultiOptionalPrx>(
+            Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
         mo1.k = mo1;
         mo1.bs = new byte[] { 5 };
         mo1.ss = new string[] { "test", "test2" };
         mo1.iid = new Dictionary<int, int>();
-        mo1.iid.Add(4, 3);
+        mo1.iid.Value.Add(4, 3);
         mo1.sid = new Dictionary<string, int>();
-        mo1.sid.Add("test", 10);
+        mo1.sid.Value.Add("test", 10);
         Test.FixedStruct fs = new Test.FixedStruct();
         fs.m = 78;
         mo1.fs = fs;
@@ -85,15 +86,15 @@ public class AllTests : TestCommon.TestApp
             { Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")) };
 
         mo1.ied = new Dictionary<int, Test.MyEnum>();
-        mo1.ied.Add(4, Test.MyEnum.MyEnumMember);
+        mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
         mo1.ifsd = new Dictionary<int, Test.FixedStruct>();
-        mo1.ifsd.Add(4, fs);
+        mo1.ifsd.Value.Add(4, fs);
         mo1.ivsd = new Dictionary<int, Test.VarStruct>();
-        mo1.ivsd.Add(5, vs);
+        mo1.ivsd.Value.Add(5, vs);
         mo1.iood = new Dictionary<int, Test.OneOptional>();
-        mo1.iood.Add(5, new Test.OneOptional(15));
+        mo1.iood.Value.Add(5, new Test.OneOptional(15));
         mo1.ioopd = new Dictionary<int, Test.OneOptionalPrx>();
-        mo1.ioopd.Add(5, Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+        mo1.ioopd.Value.Add(5, Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
 
         mo1.bos = new bool[] { false, true, false };
 
@@ -101,41 +102,41 @@ public class AllTests : TestCommon.TestApp
         mo1.ser = new Test.SerializableClass(56);
 #endif
 
-        test(mo1.a == (byte)15);
-        test(mo1.b);
-        test(mo1.c == 19);
-        test(mo1.d == 78);
-        test(mo1.e == 99);
-        test(mo1.f == (float)5.5);
-        test(mo1.g == 1.0);
-        test(mo1.h.Equals("test"));
-        test(mo1.i == Test.MyEnum.MyEnumMember);
-        test(mo1.j.Equals(Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
-        test(mo1.k == mo1);
-        test(ArraysEqual(mo1.bs, new byte[] { (byte)5 }));
-        test(ArraysEqual(mo1.ss, new String[] { "test", "test2" }));
-        test(mo1.iid[4] == 3);
-        test(mo1.sid["test"] == 10);
-        test(mo1.fs.Equals(new Test.FixedStruct(78)));
-        test(mo1.vs.Equals(new Test.VarStruct("hello")));
+        test(mo1.a.Value == (byte)15);
+        test(mo1.b.Value);
+        test(mo1.c.Value == 19);
+        test(mo1.d.Value == 78);
+        test(mo1.e.Value == 99);
+        test(mo1.f.Value == (float)5.5);
+        test(mo1.g.Value == 1.0);
+        test(mo1.h.Value.Equals("test"));
+        test(mo1.i.Value == Test.MyEnum.MyEnumMember);
+        test(mo1.j.Value.Equals(Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.k.Value == mo1);
+        test(ArraysEqual(mo1.bs.Value, new byte[] { (byte)5 }));
+        test(ArraysEqual(mo1.ss.Value, new String[] { "test", "test2" }));
+        test(mo1.iid.Value[4] == 3);
+        test(mo1.sid.Value["test"] == 10);
+        test(mo1.fs.Value.Equals(new Test.FixedStruct(78)));
+        test(mo1.vs.Value.Equals(new Test.VarStruct("hello")));
 
-        test(mo1.shs[0] == (short)1);
-        test(mo1.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
-        test(mo1.fss[0].Equals(new Test.FixedStruct(78)));
-        test(mo1.vss[0].Equals(new Test.VarStruct("hello")));
-        test(mo1.oos[0] == oo1);
-        test(mo1.oops[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.shs.Value[0] == (short)1);
+        test(mo1.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
+        test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
+        test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
+        test(mo1.oos.Value[0] == oo1);
+        test(mo1.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(mo1.ied[4] == Test.MyEnum.MyEnumMember);
-        test(mo1.ifsd[4].Equals(new Test.FixedStruct(78)));
-        test(mo1.ivsd[5].Equals(new Test.VarStruct("hello")));
-        test(mo1.iood[5].a == 15);
-        test(mo1.ioopd[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
+        test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
+        test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
+        test(mo1.iood.Value[5].a.Value == 15);
+        test(mo1.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(ArraysEqual(mo1.bos, new bool[] { false, true, false }));
+        test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
 
 #if !SILVERLIGHT
-        test(mo1.ser.Equals(new Test.SerializableClass(56)));
+        test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
 #endif
 
         WriteLine("ok");
@@ -144,84 +145,84 @@ public class AllTests : TestCommon.TestApp
         Flush();
 
         Test.OneOptional oo4 = (Test.OneOptional)initial.pingPong(new Test.OneOptional());
-        test(!oo4.hasA);
+        test(!oo4.a.HasValue);
 
         Test.OneOptional oo5 = (Test.OneOptional)initial.pingPong(oo1);
-        test(oo1.a == oo5.a);
+        test(oo1.a.Value == oo5.a.Value);
 
         Test.MultiOptional mo4 = (Test.MultiOptional)initial.pingPong(new Test.MultiOptional());
-        test(!mo4.hasA);
-        test(!mo4.hasB);
-        test(!mo4.hasC);
-        test(!mo4.hasD);
-        test(!mo4.hasE);
-        test(!mo4.hasF);
-        test(!mo4.hasG);
-        test(!mo4.hasH);
-        test(!mo4.hasI);
-        test(!mo4.hasJ);
-        test(!mo4.hasK);
-        test(!mo4.hasBs);
-        test(!mo4.hasSs);
-        test(!mo4.hasIid);
-        test(!mo4.hasSid);
-        test(!mo4.hasFs);
-        test(!mo4.hasVs);
+        test(!mo4.a.HasValue);
+        test(!mo4.b.HasValue);
+        test(!mo4.c.HasValue);
+        test(!mo4.d.HasValue);
+        test(!mo4.e.HasValue);
+        test(!mo4.f.HasValue);
+        test(!mo4.g.HasValue);
+        test(!mo4.h.HasValue);
+        test(!mo4.i.HasValue);
+        test(!mo4.j.HasValue);
+        test(!mo4.k.HasValue);
+        test(!mo4.bs.HasValue);
+        test(!mo4.ss.HasValue);
+        test(!mo4.iid.HasValue);
+        test(!mo4.sid.HasValue);
+        test(!mo4.fs.HasValue);
+        test(!mo4.vs.HasValue);
 
-        test(!mo4.hasShs);
-        test(!mo4.hasEs);
-        test(!mo4.hasFss);
-        test(!mo4.hasVss);
-        test(!mo4.hasOos);
-        test(!mo4.hasOops);
+        test(!mo4.shs.HasValue);
+        test(!mo4.es.HasValue);
+        test(!mo4.fss.HasValue);
+        test(!mo4.vss.HasValue);
+        test(!mo4.oos.HasValue);
+        test(!mo4.oops.HasValue);
 
-        test(!mo4.hasIed);
-        test(!mo4.hasIfsd);
-        test(!mo4.hasIvsd);
-        test(!mo4.hasIood);
-        test(!mo4.hasIoopd);
+        test(!mo4.ied.HasValue);
+        test(!mo4.ifsd.HasValue);
+        test(!mo4.ivsd.HasValue);
+        test(!mo4.iood.HasValue);
+        test(!mo4.ioopd.HasValue);
 
-        test(!mo4.hasBos);
+        test(!mo4.bos.HasValue);
 
 #if !SILVERLIGHT
-        test(!mo4.hasSer);
+        test(!mo4.ser.HasValue);
 #endif
 
         Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
-        test(mo5.a == mo1.a);
-        test(mo5.b == mo1.b);
-        test(mo5.c == mo1.c);
-        test(mo5.d == mo1.d);
-        test(mo5.e == mo1.e);
-        test(mo5.f == mo1.f);
-        test(mo5.g == mo1.g);
-        test(mo5.h.Equals(mo1.h));
-        test(mo5.i == mo1.i);
-        test(mo5.j.Equals(mo1.j));
-        test(mo5.k == mo5);
-        test(ArraysEqual(mo5.bs, mo1.bs));
-        test(ArraysEqual(mo5.ss, mo1.ss));
-        test(mo5.iid[4] == 3);
-        test(mo5.sid["test"] == 10);
-        test(mo5.fs.Equals(mo1.fs));
-        test(mo5.vs.Equals(mo1.vs));
-        test(ArraysEqual(mo5.shs, mo1.shs));
-        test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
-        test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
-        test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
-        test(mo5.oos[0].a == 15);
-        test(mo5.oops[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.a.Value == mo1.a.Value);
+        test(mo5.b.Value == mo1.b.Value);
+        test(mo5.c.Value == mo1.c.Value);
+        test(mo5.d.Value == mo1.d.Value);
+        test(mo5.e.Value == mo1.e.Value);
+        test(mo5.f.Value == mo1.f.Value);
+        test(mo5.g.Value == mo1.g.Value);
+        test(mo5.h.Value.Equals(mo1.h.Value));
+        test(mo5.i.Value == mo1.i.Value);
+        test(mo5.j.Value.Equals(mo1.j.Value));
+        test(mo5.k.Value == mo5);
+        test(ArraysEqual(mo5.bs.Value, mo1.bs.Value));
+        test(ArraysEqual(mo5.ss.Value, mo1.ss.Value));
+        test(mo5.iid.Value[4] == 3);
+        test(mo5.sid.Value["test"] == 10);
+        test(mo5.fs.Value.Equals(mo1.fs.Value));
+        test(mo5.vs.Value.Equals(mo1.vs.Value));
+        test(ArraysEqual(mo5.shs.Value, mo1.shs.Value));
+        test(mo5.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
+        test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
+        test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
+        test(mo5.oos.Value[0].a.Value == 15);
+        test(mo5.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(mo5.ied[4] == Test.MyEnum.MyEnumMember);
-        test(mo5.ifsd[4].Equals(new Test.FixedStruct(78)));
-        test(mo5.ivsd[5].Equals(new Test.VarStruct("hello")));
-        test(mo5.iood[5].a == 15);
-        test(mo5.ioopd[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
+        test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
+        test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
+        test(mo5.iood.Value[5].a.Value == 15);
+        test(mo5.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(ArraysEqual(mo5.bos, new bool[] { false, true, false }));
+        test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
 
 #if !SILVERLIGHT
-        test(mo5.ser.Equals(new Test.SerializableClass(56)));
+        test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
 #endif
 
         // Clear the first half of the optional members
@@ -242,41 +243,41 @@ public class AllTests : TestCommon.TestApp
         mo6.bos = mo5.bos;
 
         Test.MultiOptional mo7 = (Test.MultiOptional)initial.pingPong(mo6);
-        test(!mo7.hasA);
-        test(mo7.b == mo1.b);
-        test(!mo7.hasC);
-        test(mo7.d == mo1.d);
-        test(!mo7.hasE);
-        test(mo7.f == mo1.f);
-        test(!mo7.hasG);
+        test(!mo7.a.HasValue);
+        test(mo7.b.Equals(mo1.b));
+        test(!mo7.c.HasValue);
+        test(mo7.d.Equals(mo1.d));
+        test(!mo7.e.HasValue);
+        test(mo7.f.Equals(mo1.f));
+        test(!mo7.g.HasValue);
         test(mo7.h.Equals(mo1.h));
-        test(!mo7.hasI);
+        test(!mo7.i.HasValue);
         test(mo7.j.Equals(mo1.j));
-        test(!mo7.hasK);
-        test(ArraysEqual(mo7.bs, mo1.bs));
-        test(!mo7.hasSs);
-        test(mo7.iid[4] == 3);
-        test(!mo7.hasSid);
+        test(!mo7.k.HasValue);
+        test(ArraysEqual(mo7.bs.Value, mo1.bs.Value));
+        test(!mo7.ss.HasValue);
+        test(mo7.iid.Value[4] == 3);
+        test(!mo7.sid.HasValue);
         test(mo7.fs.Equals(mo1.fs));
-        test(!mo7.hasVs);
+        test(!mo7.vs.HasValue);
 
-        test(ArraysEqual(mo7.shs, mo1.shs));
-        test(!mo7.hasEs);
-        test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
-        test(!mo7.hasVss);
-        test(mo7.oos[0].a == 15);
-        test(!mo7.hasOops);
+        test(ArraysEqual(mo7.shs.Value, mo1.shs.Value));
+        test(!mo7.es.HasValue);
+        test(mo7.fss.Value[0].Equals(new Test.FixedStruct(78)));
+        test(!mo7.vss.HasValue);
+        test(mo7.oos.Value[0].a.Value == 15);
+        test(!mo7.oops.HasValue);
 
-        test(!mo7.hasIed);
-        test(mo7.ifsd[4].Equals(new Test.FixedStruct(78)));
-        test(!mo7.hasIvsd);
-        test(mo7.iood[5].a == 15);
-        test(!mo7.hasIoopd);
+        test(!mo7.ied.HasValue);
+        test(mo7.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
+        test(!mo7.ivsd.HasValue);
+        test(mo7.iood.Value[5].a.Value == 15);
+        test(!mo7.ioopd.HasValue);
 
-        test(ArraysEqual(mo7.bos, new bool[] { false, true, false }));
+        test(ArraysEqual(mo7.bos.Value, new bool[] { false, true, false }));
 
 #if !SILVERLIGHT
-        test(!mo7.hasSer);
+        test(!mo7.ser.HasValue);
 #endif
 
         // Clear the second half of the optional members
@@ -304,55 +305,55 @@ public class AllTests : TestCommon.TestApp
 #endif
 
         Test.MultiOptional mo9 = (Test.MultiOptional)initial.pingPong(mo8);
-        test(mo9.a == mo1.a);
-        test(!mo9.hasB);
-        test(mo9.c == mo1.c);
-        test(!mo9.hasD);
-        test(mo9.e == mo1.e);
-        test(!mo9.hasF);
-        test(mo9.g == mo1.g);
-        test(!mo9.hasH);
-        test(mo9.i == mo1.i);
-        test(!mo9.hasJ);
-        test(mo9.k == mo9);
-        test(!mo9.hasBs);
-        test(ArraysEqual(mo9.ss, mo1.ss));
-        test(!mo9.hasIid);
-        test(mo9.sid["test"] == 10);
-        test(!mo9.hasFs);
+        test(mo9.a.Equals(mo1.a));
+        test(!mo9.b.HasValue);
+        test(mo9.c.Equals(mo1.c));
+        test(!mo9.d.HasValue);
+        test(mo9.e.Equals(mo1.e));
+        test(!mo9.f.HasValue);
+        test(mo9.g.Equals(mo1.g));
+        test(!mo9.h.HasValue);
+        test(mo9.i.Equals(mo1.i));
+        test(!mo9.j.HasValue);
+        test(mo9.k.Value == mo9);
+        test(!mo9.bs.HasValue);
+        test(ArraysEqual(mo9.ss.Value, mo1.ss.Value));
+        test(!mo9.iid.HasValue);
+        test(mo9.sid.Value["test"] == 10);
+        test(!mo9.fs.HasValue);
         test(mo9.vs.Equals(mo1.vs));
 
-        test(!mo9.hasShs);
-        test(mo9.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
-        test(!mo9.hasFss);
-        test(mo9.vss[0].Equals(new Test.VarStruct("hello")));
-        test(!mo9.hasOos);
-        test(mo9.oops[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(!mo9.shs.HasValue);
+        test(mo9.es.Value[0] == Test.MyEnum.MyEnumMember && mo1.es.Value[1] == Test.MyEnum.MyEnumMember);
+        test(!mo9.fss.HasValue);
+        test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
+        test(!mo9.oos.HasValue);
+        test(mo9.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(mo9.ied[4] == Test.MyEnum.MyEnumMember);
-        test(!mo9.hasIfsd);
-        test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
-        test(!mo9.hasIood);
-        test(mo9.ioopd[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
+        test(!mo9.ifsd.HasValue);
+        test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
+        test(!mo9.iood.HasValue);
+        test(mo9.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
 
-        test(!mo9.hasBos);
+        test(!mo9.bos.HasValue);
 
 #if !SILVERLIGHT
-        test(mo9.ser.Equals(new Test.SerializableClass(56)));
+        test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
 #endif
 
         {
             Test.OptionalWithCustom owc1 = new Test.OptionalWithCustom();
             owc1.l = new List<Test.SmallStruct>();
-            owc1.l.Add(new Test.SmallStruct(5));
-            owc1.l.Add(new Test.SmallStruct(6));
-            owc1.l.Add(new Test.SmallStruct(7));
+            owc1.l.Value.Add(new Test.SmallStruct(5));
+            owc1.l.Value.Add(new Test.SmallStruct(6));
+            owc1.l.Value.Add(new Test.SmallStruct(7));
             owc1.s = new Test.ClassVarStruct(5);
             Test.OptionalWithCustom owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
-            test(owc2.hasL);
-            test(ListsEqual(owc1.l, owc2.l));
-            test(owc2.hasS);
-            test(owc2.s.a == 5);
+            test(owc2.l.HasValue);
+            test(ListsEqual(owc1.l.Value, owc2.l.Value));
+            test(owc2.s.HasValue);
+            test(owc2.s.Value.a == 5);
         }
 
         //
@@ -400,20 +401,20 @@ public class AllTests : TestCommon.TestApp
         mc.fss = new Test.FixedStruct[300];
         for(int i = 0; i < 300; ++i)
         {
-            mc.fss[i] = new Test.FixedStruct();
+            mc.fss.Value[i] = new Test.FixedStruct();
         }
 
         mc.ifsd = new Dictionary<int, Test.FixedStruct>();
         for(int i = 0; i < 300; ++i)
         {
-            mc.ifsd.Add(i, new Test.FixedStruct());
+            mc.ifsd.Value.Add(i, new Test.FixedStruct());
         }
 
         mc = (Test.MultiOptional)initial.pingPong(mc);
-        test(mc.bs.Length == 1000);
-        test(mc.shs.Length == 300);
-        test(mc.fss.Length == 300);
-        test(mc.ifsd.Count == 300);
+        test(mc.bs.Value.Length == 1000);
+        test(mc.shs.Value.Length == 300);
+        test(mc.fss.Value.Length == 300);
+        test(mc.ifsd.Value.Count == 300);
 
         factory.setEnabled(true);
         os = Ice.Util.createOutputStream(communicator);
@@ -436,9 +437,9 @@ public class AllTests : TestCommon.TestApp
         {
             Test.B b = new Test.B();
             Test.B b2 = (Test.B)initial.pingPong(b);
-            test(!b2.hasMa);
-            test(!b2.hasMb);
-            test(!b2.hasMc);
+            test(!b2.ma.HasValue);
+            test(!b2.mb.HasValue);
+            test(!b2.mc.HasValue);
 
             b.ma = 10;
             b.mb = 11;
@@ -446,10 +447,10 @@ public class AllTests : TestCommon.TestApp
             b.md = 13;
 
             b2 = (Test.B)initial.pingPong(b);
-            test(b2.ma == 10);
-            test(b2.mb == 11);
-            test(b2.mc == 12);
-            test(b2.md == 13);
+            test(b2.ma.Value == 10);
+            test(b2.mb.Value == 11);
+            test(b2.mc.Value == 12);
+            test(b2.md.Value == 13);
 
             factory.setEnabled(true);
             os = Ice.Util.createOutputStream(communicator);
@@ -471,13 +472,13 @@ public class AllTests : TestCommon.TestApp
         Flush();
         {
             Test.WD wd = (Test.WD)initial.pingPong(new Test.WD());
-            test(wd.a == 5);
-            test(wd.s.Equals("test"));
-            wd.clearA();
-            wd.clearS();
+            test(wd.a.Value == 5);
+            test(wd.s.Value.Equals("test"));
+            wd.a = Ice.Util.None;
+            wd.s = Ice.Util.None;
             wd = (Test.WD)initial.pingPong(wd);
-            test(!wd.hasA);
-            test(!wd.hasS);
+            test(!wd.a.HasValue);
+            test(!wd.s.HasValue);
         }
         WriteLine("ok");
 
@@ -1097,15 +1098,15 @@ public class AllTests : TestCommon.TestApp
 
             p1 = new Test.OneOptional(58);
             p2 = initial.opOneOptional(p1, out p3);
-            test(p2.Value.a == 58 && p3.Value.a == 58);
+            test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
             Ice.AsyncResult r = initial.begin_opOneOptional(p1);
             p2 = initial.end_opOneOptional(out p3, r);
-            test(p2.Value.a == 58 && p3.Value.a == 58);
+            test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
             p2 = initial.opOneOptional(p1.Value, out p3);
-            test(p2.Value.a == 58 && p3.Value.a == 58);
+            test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
             r = initial.begin_opOneOptional(p1.Value);
             p2 = initial.end_opOneOptional(out p3, r);
-            test(p2.Value.a == 58 && p3.Value.a == 58);
+            test(p2.Value.a.Value == 58 && p3.Value.a.Value == 58);
 
             p2 = initial.opOneOptional(new Ice.Optional<Test.OneOptional>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
@@ -1126,7 +1127,7 @@ public class AllTests : TestCommon.TestApp
             ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
             @in.readObject(p3cb);
             @in.endEncapsulation();
-            test(((Test.OneOptional)p2cb.obj).a == 58 && ((Test.OneOptional)p3cb.obj).a == 58);
+            test(((Test.OneOptional)p2cb.obj).a.Value == 58 && ((Test.OneOptional)p3cb.obj).a.Value == 58);
 
             @in = Ice.Util.createInputStream(communicator, outEncaps);
             @in.startEncapsulation();
@@ -2013,9 +2014,9 @@ public class AllTests : TestCommon.TestApp
             }
             catch(Test.OptionalException ex)
             {
-                test(!ex.hasA);
-                test(!ex.hasB);
-                test(!ex.hasO);
+                test(!ex.a.HasValue);
+                test(!ex.b.HasValue);
+                test(!ex.o.HasValue);
             }
 
             try
@@ -2027,9 +2028,9 @@ public class AllTests : TestCommon.TestApp
             }
             catch(Test.OptionalException ex)
             {
-                test(ex.a == 30);
-                test(ex.b.Equals("test"));
-                test(ex.o.a == 53);
+                test(ex.a.Value == 30);
+                test(ex.b.Value.Equals("test"));
+                test(ex.o.Value.a.Value == 53);
             }
         }
         WriteLine("ok");
@@ -2249,7 +2250,7 @@ public class AllTests : TestCommon.TestApp
 
         internal void check()
         {
-            test(((Test.A)a.obj).mc == 18);
+            test(((Test.A)a.obj).mc.Value == 18);
         }
 
         private ReadObjectCallbackI a = new ReadObjectCallbackI();

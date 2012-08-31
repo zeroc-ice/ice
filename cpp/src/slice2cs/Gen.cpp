@@ -252,226 +252,14 @@ Slice::CsVisitor::writePostUnmarshalParams(const ParamDeclList& params, const Op
 void
 Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const string& name)
 {
-    if(!member->optional())
+    if(member->optional())
+    {
+        writeOptionalMarshalUnmarshalCode(_out, member->type(), name, member->tag(), true, false);
+    }
+    else
     {
         writeMarshalUnmarshalCode(_out, member->type(), name, true, false);
-        return;
     }
-
-    const string flag = member->name() + "__isset";
-    const string prop = member->name() + "__prop";
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-        case Builtin::KindByte:
-        case Builtin::KindBool:
-        case Builtin::KindShort:
-        case Builtin::KindInt:
-        case Builtin::KindFloat:
-        case Builtin::KindLong:
-        case Builtin::KindDouble:
-        case Builtin::KindString:
-        {
-            string func = typeToString(builtin);
-            func[0] = toupper(static_cast<unsigned char>(func[0]));
-
-            _out << nl << "if(" << flag << ')';
-            _out << sb;
-            _out << nl << "os__.write" << func << '(' << member->tag() << ", " << prop << ");";
-            _out << eb;
-            break;
-        }
-        case Builtin::KindObject:
-        {
-            _out << nl << "if(" << flag << ')';
-            _out << sb;
-            _out << nl << "os__.writeObject(" << member->tag() << ", " << prop << ");";
-            _out << eb;
-            break;
-        }
-        case Builtin::KindObjectProxy:
-        {
-            _out << nl << "if(" << flag << ')';
-            _out << sb;
-            _out << nl << "os__.writeProxy(" << member->tag() << ", " << prop << ");";
-            _out << eb;
-            break;
-        }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
-        }
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(member->type());
-    if(seq)
-    {
-        string meta;
-        const bool serializable = seq->findMetaData("clr:serializable:", meta);
-        const bool isArray = !seq->findMetaData("clr:generic:", meta) && !seq->hasMetaData("clr:collection");
-        const string length = isArray ? prop + ".Length" : prop + ".Count";
-
-        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
-        if(b && !serializable)
-        {
-            switch(b->kind())
-            {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindFloat:
-            case Builtin::KindLong:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-            {
-                string func = typeToString(b);
-                func[0] = toupper(static_cast<unsigned char>(func[0]));
-
-                _out << nl << "if(" << flag << ')';
-                _out << sb;
-                _out << nl << "os__.write" << func << "Seq(" << member->tag() << ", " << prop << ");";
-                _out << eb;
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            {
-                _out << nl << "if(" << flag << " && os__.writeOpt(" << member->tag() << ", "
-                     << getOptionalType(member->type()) << "))";
-                _out << sb;
-                _out << nl << "os__.startSize();";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-                _out << nl << "os__.endSize();";
-                _out << eb;
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                break;
-            }
-            }
-            return;
-        }
-        else
-        {
-            _out << nl << "if(" << flag << " && os__.writeOpt(" << member->tag() << ", "
-                 << getOptionalType(member->type()) << "))";
-            _out << sb;
-
-            StructPtr st = StructPtr::dynamicCast(seq->type());
-            if(st && !st->isVariableLength())
-            {
-                _out << nl << "os__.writeSize(" << prop << " == null ? 1 : " << length << " * " << st->minWireSize()
-                     << " + (" << length << " > 254 ? 5 : 1));";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-            }
-            else if(serializable)
-            {
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-            }
-            else
-            {
-                _out << nl << "os__.startSize();";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-                _out << nl << "os__.endSize();";
-            }
-
-            _out << eb;
-        }
-        return;
-    }
-
-    DictionaryPtr d = DictionaryPtr::dynamicCast(member->type());
-    if(d)
-    {
-        _out << nl << "if(" << flag << " && os__.writeOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
-        {
-            _out << nl << "os__.startSize();";
-        }
-        else
-        {
-            _out << nl << "os__.writeSize(" << prop << " == null ? 1 : " << prop << ".Count * "
-                 << (d->keyType()->minWireSize() + d->valueType()->minWireSize()) << " + (" << prop
-                 << ".Count > 254 ? 5 : 1));";
-        }
-
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
-        {
-            _out << nl << "os__.endSize();";
-        }
-        _out << eb;
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(member->type());
-    if(st)
-    {
-        _out << nl << "if(" << flag << " && os__.writeOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        if(st->isVariableLength())
-        {
-            _out << nl << "os__.startSize();";
-        }
-        else
-        {
-            _out << nl << "os__.writeSize(" << st->minWireSize() << ");";
-        }
-
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-        if(st->isVariableLength())
-        {
-            _out << nl << "os__.endSize();";
-        }
-        _out << eb;
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(member->type());
-    if(en)
-    {
-        size_t sz = en->getEnumerators().size();
-        _out << nl << "if(" << flag << ')';
-        _out << sb;
-        _out << nl << "os__.writeEnum(" << member->tag() << ", (int)" << prop << ", " << sz << ");";
-        _out << eb;
-        return;
-    }
-
-    ProxyPtr pr = ProxyPtr::dynamicCast(member->type());
-    if(pr)
-    {
-        _out << nl << "if(" << flag << " && os__.writeOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        _out << nl << "os__.startSize();";
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, false);
-        _out << nl << "os__.endSize();";
-        _out << eb;
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(member->type());
-    assert(cl);
-    _out << nl << "if(" << flag << ')';
-    _out << sb;
-    _out << nl << "os__.writeObject(" << member->tag() << ", " << prop << ");";
-    _out << eb;
 }
 
 void
@@ -493,200 +281,15 @@ Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const st
         patcher += ")";
     }
 
-    if(!member->optional())
+    if(member->optional())
+    {
+        writeOptionalMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, member->tag(), false,
+                                          false);
+    }
+    else
     {
         writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, false);
-        return;
     }
-
-    const string flag = member->name() + "__isset";
-    const string prop = member->name() + "__prop";
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-    if(builtin)
-    {
-        string func = typeToString(builtin);
-        func[0] = toupper(static_cast<unsigned char>(func[0]));
-
-        switch(builtin->kind())
-        {
-        case Builtin::KindByte:
-        case Builtin::KindBool:
-        case Builtin::KindShort:
-        case Builtin::KindInt:
-        case Builtin::KindFloat:
-        case Builtin::KindLong:
-        case Builtin::KindDouble:
-        case Builtin::KindString:
-        {
-            _out << nl << "is__.read" << func << '(' << member->tag() << ", out " << flag << ", out " << prop << ");";
-            break;
-        }
-        case Builtin::KindObject:
-        {
-            _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-                 << getOptionalType(member->type()) << "))";
-            _out << sb;
-            writeMarshalUnmarshalCode(_out, member->type(), patcher, false, false);
-            _out << eb;
-            break;
-        }
-        case Builtin::KindObjectProxy:
-        {
-            _out << nl << "is__.readProxy(" << member->tag() << ", out " << flag << ", out " << prop << ");";
-            break;
-        }
-        case Builtin::KindLocalObject:
-        {
-            assert(false);
-            break;
-        }
-        }
-        return;
-    }
-
-    SequencePtr seq = SequencePtr::dynamicCast(member->type());
-    if(seq)
-    {
-        string meta;
-        const bool serializable = seq->findMetaData("clr:serializable:", meta);
-        const bool isArray = !seq->findMetaData("clr:generic:", meta) && !seq->hasMetaData("clr:collection");
-        const string length = isArray ? prop + ".Length" : prop + ".Count";
-
-        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
-        if(b && !serializable)
-        {
-            string func = typeToString(b);
-            func[0] = toupper(static_cast<unsigned char>(func[0]));
-
-            switch(b->kind())
-            {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindFloat:
-            case Builtin::KindLong:
-            case Builtin::KindDouble:
-            case Builtin::KindString:
-            {
-                _out << nl << "is__.read" << func << "Seq(" << member->tag() << ", out " << flag << ", out " << prop
-                     << ");";
-                break;
-            }
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            {
-                _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-                     << getOptionalType(member->type()) << "))";
-                _out << sb;
-                _out << nl << "is__.skip(4);";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-                _out << eb;
-                break;
-            }
-            case Builtin::KindLocalObject:
-            {
-                assert(false);
-                break;
-            }
-            }
-        }
-        else
-        {
-            _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-                 << getOptionalType(member->type()) << "))";
-            _out << sb;
-            if(!serializable)
-            {
-                if(seq->type()->isVariableLength())
-                {
-                    _out << nl << "is__.skip(4);";
-                }
-                else
-                {
-                    _out << nl << "is__.skipSize();";
-                }
-            }
-            writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-            _out << eb;
-        }
-        return;
-    }
-
-    DictionaryPtr d = DictionaryPtr::dynamicCast(member->type());
-    if(d)
-    {
-        _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
-        {
-            _out << nl << "is__.skip(4);";
-        }
-        else
-        {
-            _out << nl << "is__.skipSize();";
-        }
-
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-        _out << eb;
-        return;
-    }
-
-    StructPtr st = StructPtr::dynamicCast(member->type());
-    if(st)
-    {
-        _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        if(st->isVariableLength())
-        {
-            _out << nl << "is__.skip(4);";
-        }
-        else
-        {
-            _out << nl << "is__.skipSize();";
-        }
-
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-        _out << eb;
-        return;
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(member->type());
-    if(en)
-    {
-        _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-        _out << eb;
-        return;
-    }
-
-    ProxyPtr pr = ProxyPtr::dynamicCast(member->type());
-    if(pr)
-    {
-        _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
-        _out << sb;
-
-        _out << nl << "is__.skip(4);";
-        writeMarshalUnmarshalCode(_out, member->type(), prop, false, false);
-        _out << eb;
-        return;
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(member->type());
-    assert(cl);
-    _out << nl << "if(" << flag << " = is__.readOpt(" << member->tag() << ", "
-         << getOptionalType(member->type()) << "))";
-    _out << sb;
-    writeMarshalUnmarshalCode(_out, member->type(), patcher, false, false);
-    _out << eb;
 }
 
 void
@@ -698,8 +301,8 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         return;
     }
 
-    const string flag = member->name() + "__isset";
-    const string prop = member->name() + "__prop";
+    const string flag = name + ".HasValue";
+    const string value = name + ".Value";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
     if(builtin)
@@ -711,7 +314,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         {
             _out << nl << "outS__.startSize();";
         }
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(builtin->kind() == Builtin::KindObjectProxy)
         {
             _out << nl << "outS__.endSize();";
@@ -726,7 +329,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         string meta;
         const bool serializable = seq->findMetaData("clr:serializable:", meta);
         const bool isArray = !seq->findMetaData("clr:generic:", meta) && !seq->hasMetaData("clr:collection");
-        const string length = isArray ? prop + ".Length" : prop + ".Count";
+        const string length = isArray ? value + ".Length" : value + ".Count";
 
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
              << getOptionalType(member->type()) << "))";
@@ -736,7 +339,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
 
         if(serializable)
         {
-            writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+            writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         }
         else if(b)
         {
@@ -744,23 +347,23 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             {
             case Builtin::KindByte:
             case Builtin::KindBool:
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
                 break;
             case Builtin::KindShort:
             case Builtin::KindInt:
             case Builtin::KindFloat:
             case Builtin::KindLong:
             case Builtin::KindDouble:
-                _out << nl << "outS__.writeSize(" << prop << " == null ? 1 : " << length << " * " << b->minWireSize()
+                _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << length << " * " << b->minWireSize()
                      << " + (" << length << " > 254 ? 5 : 1));";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
                 break;
             case Builtin::KindString:
             case Builtin::KindObject:
             case Builtin::KindObjectProxy:
             {
                 _out << nl << "outS__.startSize();";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
                 _out << nl << "outS__.endSize();";
                 break;
             }
@@ -776,14 +379,14 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             StructPtr st = StructPtr::dynamicCast(seq->type());
             if(st && !st->isVariableLength())
             {
-                _out << nl << "outS__.writeSize(" << prop << " == null ? 1 : " << length << " * " << st->minWireSize()
+                _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << length << " * " << st->minWireSize()
                      << " + (" << length << " > 254 ? 5 : 1));";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
             }
             else
             {
                 _out << nl << "outS__.startSize();";
-                writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
                 _out << nl << "outS__.endSize();";
             }
         }
@@ -805,12 +408,12 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         }
         else
         {
-            _out << nl << "outS__.writeSize(" << prop << " == null ? 1 : " << prop << ".Count * "
-                 << (d->keyType()->minWireSize() + d->valueType()->minWireSize()) << " + (" << prop
+            _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << value << ".Count * "
+                 << (d->keyType()->minWireSize() + d->valueType()->minWireSize()) << " + (" << value
                  << ".Count > 254 ? 5 : 1));";
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
         {
             _out << nl << "outS__.endSize();";
@@ -835,7 +438,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
             _out << nl << "outS__.writeSize(" << st->minWireSize() << ");";
         }
 
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         if(st->isVariableLength())
         {
             _out << nl << "outS__.endSize();";
@@ -850,7 +453,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
              << getOptionalType(member->type()) << "))";
         _out << sb;
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         _out << eb;
         return;
     }
@@ -862,7 +465,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
              << getOptionalType(member->type()) << "))";
         _out << sb;
         _out << nl << "outS__.startSize();";
-        writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         _out << nl << "outS__.endSize();";
         _out << eb;
         return;
@@ -873,7 +476,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
          << getOptionalType(member->type()) << "))";
     _out << sb;
-    writeMarshalUnmarshalCode(_out, member->type(), prop, true, true);
+    writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
     _out << eb;
 }
 
@@ -902,10 +505,7 @@ Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, co
         return;
     }
 
-    const string flag = member->name() + "__isset";
-    const string prop = member->name() + "__prop";
-
-    _out << nl << "if(" << flag << " = inS__.readOptional(" << member->tag() << ", "
+    _out << nl << "if(inS__.readOptional(" << member->tag() << ", "
          << getOptionalType(member->type()) << "))";
     _out << sb;
 
@@ -964,7 +564,32 @@ Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, co
         _out << nl << "inS__.skip(4);";
     }
 
-    writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : prop, false, true);
+    const string typeS = typeToString(member->type());
+    const string tmp = "tmpValue__";
+
+    if(st)
+    {
+        if(isValueType(st))
+        {
+            _out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
+        }
+        else
+        {
+            _out << nl << typeS << ' ' << tmp << " = null;";
+        }
+    }
+    else if(!classType)
+    {
+        _out << nl << typeS << ' ' << tmp << ';';
+    }
+
+    writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : tmp, false, true);
+
+    if(!classType)
+    {
+        _out << nl << name << " = new " << typeToString(member->type(), true) << '(' << tmp << ");";
+    }
+
     _out << eb;
 }
 
@@ -1612,14 +1237,29 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 _out.inc();
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
-            string memberType = typeToString((*d)->type());
-            if(ClassDeclPtr::dynamicCast((*d)->type()))
+            string memberType = typeToString((*d)->type(), (*d)->optional());
+            if((*d)->optional())
             {
-                _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                if(ClassDeclPtr::dynamicCast((*d)->type()))
+                {
+                    _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                         << typeToString((*d)->type()) << ")v);";
+                }
+                else
+                {
+                    _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                }
             }
             else
             {
-                _out << nl << "_instance." << memberName << " = v;";
+                if(ClassDeclPtr::dynamicCast((*d)->type()))
+                {
+                    _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                }
+                else
+                {
+                    _out << nl << "_instance." << memberName << " = v;";
+                }
             }
             if(allClassMembers.size() > 1)
             {
@@ -2197,7 +1837,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
         if((*p)->defaultValueType())
         {
             _out << nl << "this.";
-            if(propertyMapping && !(*p)->optional())
+            if(propertyMapping)
             {
                 _out << (*p)->name() << "__prop";
             }
@@ -2208,6 +1848,11 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
             _out << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
+        }
+        else if((*p)->optional())
+        {
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString((*p)->type(), true)
+                 << "();";
         }
     }
 }
@@ -3290,7 +2935,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             {
                 _out << nl << "this.";
                 const string paramName = fixId((*d)->name());
-                if(propertyMapping && !(*d)->optional())
+                if(propertyMapping)
                 {
                     _out << (*d)->name() << "__prop";
                 }
@@ -3298,7 +2943,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 {
                     _out << paramName;
                 }
-                _out << " = " << paramName << ';';
+                if((*d)->optional())
+                {
+                    _out << " = new " << typeToString((*d)->type(), true) << '(' << paramName << ");";
+                }
+                else
+                {
+                    _out << " = " << paramName << ';';
+                }
             }
             _out << eb;
 
@@ -3678,7 +3330,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string name = fixId((*q)->name(), DotNet::Exception, false);
-                _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
+                if((*q)->optional())
+                {
+                    _out << nl << "this." << name << " = new " << typeToString((*q)->type(), true) << '(' <<
+                         fixId((*q)->name()) << ");";
+                }
+                else
+                {
+                    _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
+                }
             }
             _out << eb;
         }
@@ -3880,14 +3540,29 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     _out.inc();
                 }
                 string memberName = fixId((*q)->name(), DotNet::Exception);
-                string memberType = typeToString((*q)->type());
-                if(ClassDeclPtr::dynamicCast((*q)->type()))
+                string memberType = typeToString((*q)->type(), (*q)->optional());
+                if((*q)->optional())
                 {
-                    _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                    if(ClassDeclPtr::dynamicCast((*q)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                             << typeToString((*q)->type()) << ")v);";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                    }
                 }
                 else
                 {
-                    _out << nl << "_instance." << memberName << " = v;";
+                    if(ClassDeclPtr::dynamicCast((*q)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = v;";
+                    }
                 }
                 if(allClassMembers.size() > 1)
                 {
@@ -4536,10 +4211,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    string type = typeToString(p->type());
+    string type = typeToString(p->type(), isOptional);
     string propertyName = fixId(p->name(), baseTypes, isClass);
     string dataMemberName;
-    if(isProperty || isOptional)
+    if(isProperty)
     {
         dataMemberName = p->name() + "__prop";
     }
@@ -4548,7 +4223,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         dataMemberName = propertyName;
     }
 
-    if(isProperty || isOptional)
+    if(isProperty)
     {
         _out << nl << "private";
     }
@@ -4565,59 +4240,16 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         _out << nl << "public";
     }
 
-    _out << ' ' << type << ' ' << dataMemberName << ';';
-
-    if(isOptional)
+    if(isOptional && isValue)
     {
-        const string flagName = propertyName + "__isset";
-        _out << nl << "private bool " << flagName << ';';
-
-        _out << sp;
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl << (isProtected ? "protected" : "public") << " virtual " << type << ' ' << propertyName;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "if(" << flagName << ')';
-        _out << sb;
-        _out << nl << "return " << dataMemberName << ';';
-        _out << eb;
-        _out << nl << "else";
-        _out << sb;
-        _out << nl << "throw new _System.InvalidOperationException();";
-        _out << eb;
-        _out << eb;
-        _out << nl << "set";
-        _out << sb;
-        _out << nl << dataMemberName << " = value;";
-        _out << nl << flagName << " = true;";
-        _out << eb;
-        _out << eb;
-
-        string capName = p->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
-
-        _out << sp;
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl << (isProtected ? "protected" : "public") << " virtual bool has" << capName;
-        _out << sb;
-        _out << nl << "get";
-        _out << sb;
-        _out << nl << "return " << flagName << ';';
-        _out << eb;
-        _out << eb;
-
-        _out << sp;
-        emitAttributes(p);
-        emitGeneratedCodeAttribute();
-        _out << nl << (isProtected ? "protected" : "public") << " virtual void clear" << capName << "()";
-        _out << sb;
-        _out << nl << flagName << " = false;";
-        _out << eb;
+        _out << ' ' << type << ' ' << dataMemberName << " = new " << type << "();";
     }
-    else if(isProperty)
+    else
+    {
+        _out << ' ' << type << ' ' << dataMemberName << ';';
+    }
+
+    if(isProperty)
     {
         emitAttributes(p);
         emitGeneratedCodeAttribute();
@@ -4645,7 +4277,12 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, " << fixId((*q)->name(), baseTypes) << ");";
+        _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, " << fixId((*q)->name(), baseTypes);
+        if((*q)->optional())
+        {
+            _out << ".Value";
+        }
+        _out << ");";
     }
 }
 
@@ -4656,7 +4293,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
     {
         string memberName = fixId((*q)->name(), baseTypes);
         TypePtr memberType = (*q)->type();
-        if(!isValueType(memberType))
+        if(!(*q)->optional() && !isValueType(memberType))
         {
             _out << nl << "if(" << memberName << " == null)";
             _out << sb;
