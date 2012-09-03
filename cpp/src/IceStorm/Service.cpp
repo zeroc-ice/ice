@@ -200,11 +200,11 @@ ServiceI::start(
         e.reason = s.str();
         throw e;
     }
-    DatabaseCachePtr databaseCache = plugin->getDatabaseCache(name);
+    ConnectionPoolPtr connectionPool = plugin->getConnectionPool(name);
 
     if(id == -1) // No replication.
     {
-        _instance = new Instance(instanceName, name, communicator, databaseCache, publishAdapter, topicAdapter);
+        _instance = new Instance(instanceName, name, communicator, connectionPool, publishAdapter, topicAdapter);
 
         try
         {
@@ -352,7 +352,7 @@ ServiceI::start(
             }
             Ice::ObjectAdapterPtr nodeAdapter = communicator->createObjectAdapter(name + ".Node");
 
-            _instance = new Instance(instanceName, name, communicator, databaseCache, publishAdapter, topicAdapter, 
+            _instance = new Instance(instanceName, name, communicator, connectionPool, publishAdapter, topicAdapter, 
                                      nodeAdapter, nodes[id]);
             _instance->observers()->setMajority(static_cast<unsigned int>(nodes.size())/2);
             

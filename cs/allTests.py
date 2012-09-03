@@ -61,6 +61,7 @@ tests = [
     ("Ice/invoke", ["core"]),
     ("Ice/hash", ["once"]),
     ("Ice/plugin", ["core"]),
+    ("Ice/optional", ["core"]),
     ("IceBox/configuration", ["core", "noipv6", "nosilverlight"]),
     ("Glacier2/router", ["service", "nosilverlight"]),
     ("Glacier2/sessionHelper", ["service", "nosilverlight"]),

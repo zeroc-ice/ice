@@ -47,6 +47,11 @@ CPPFLAGS        = $(CPPFLAGS) -MP
 !if "$(OPTIMIZE)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
+
+!if "$(RELEASEPDBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -Zi
+!endif
+
 ARFLAGS	        = $(ARFLAGS) /LTCG
 CONFIG		= Retail	
 

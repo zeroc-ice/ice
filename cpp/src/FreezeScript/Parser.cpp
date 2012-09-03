@@ -174,7 +174,7 @@ FreezeScript::EvaluateException::ice_print(ostream& out) const
     }
 }
 
-IceUtil::Exception*
+FreezeScript::EvaluateException*
 FreezeScript::EvaluateException::ice_clone() const
 {
     return new EvaluateException(ice_file(), ice_line(), _reason);

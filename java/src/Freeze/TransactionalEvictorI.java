@@ -61,11 +61,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         _deactivateController.lock();
         try
         {
-            long currentTime = IceInternal.Time.currentMonotonicTimeMillis();
-
-            ObjectRecord rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
-
-            ObjectStore store = findStore(facet, _createDb);
+	    ObjectStore store = findStore(facet, _createDb);
             if(store == null)
             {
                 NotFoundException ex = new NotFoundException();
@@ -73,9 +69,25 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 throw ex;
             }
 
+            long currentTime = 0;
+	    ObjectRecord rec;
+
+	    if(store.keepStats())
+	    {
+		currentTime = IceInternal.Time.currentMonotonicTimeMillis();
+		rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
+	    }
+	    else
+	    {
+		rec = new ObjectRecord(servant, null);
+	    }
+
             TransactionI tx = beforeQuery();
 
-            updateStats(rec.stats, currentTime);
+	    if(store.keepStats())
+	    {
+		updateStats(rec.stats, currentTime);
+	    }
 
             if(!store.insert(ident, rec, tx))
             {

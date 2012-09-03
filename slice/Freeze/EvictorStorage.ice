@@ -18,7 +18,7 @@ module Freeze
 
 /**
  *
- * The evictor maintains statistics about each object.
+ *  Evictors maintain statistics about each object, when using Ice encoding version 1.0.
  *
  **/
 struct Statistics
@@ -47,8 +47,8 @@ struct Statistics
 
 /**
  *
- * The evictor uses a number of maps with {@link Ice.Identity} keys and {@link ObjectRecord} values as its
- * persistent storage.
+ * ObjectRecord is the value-type for the persistent maps maintained by evictors 
+ * when using Ice encoding version is 1.0.
  *
  **/
 struct ObjectRecord
@@ -62,7 +62,7 @@ struct ObjectRecord
 
     /**
      *
-     * The statistics for the object.
+     * The statistics for the object. 
      *
      **/
     Statistics stats;

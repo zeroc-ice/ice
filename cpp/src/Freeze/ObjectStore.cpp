@@ -29,7 +29,8 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
     _evictor(evictor),
     _indices(indices),
     _communicator(evictor->communicator()),
-    _encoding(evictor->encoding())
+    _encoding(evictor->encoding()),
+    _keepStats(false)
 {
     if(facet == "")
     {
@@ -60,10 +61,17 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
     Catalog::iterator p = catalog.find(evictor->filename());
     if(p != catalog.end())
     {
-        if(p->second.evictor == false)
+        if(p->second.evictor)
+	{
+	    //
+	    // empty means the value is ::Freeze::ObjectRecord
+	    //
+	    _keepStats = p->second.value.empty();
+	}
+	else
         {
             DatabaseException ex(__FILE__, __LINE__);
-            ex.message = evictor->filename() + " is an evictor database";
+            ex.message = evictor->filename() + " is not an evictor database";
             throw ex;
         }
     }
@@ -141,6 +149,8 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
         {
             CatalogData catalogData;
             catalogData.evictor = true;
+	    catalogData.key = "Ice::Identity";
+	    catalogData.value = "Object";
             catalog.put(Catalog::value_type(evictor->filename(), catalogData));
         }
 
@@ -348,12 +358,21 @@ void
 Freeze::ObjectStoreBase::marshal(const ObjectRecord& v, 
                                  Value& bytes, 
                                  const CommunicatorPtr& communicator,
-                                 const EncodingVersion& encoding)
+                                 const EncodingVersion& encoding,
+				 bool keepStats)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
     stream.startWriteEncaps();
-    v.__write(&stream);
+    if(keepStats)
+    {
+	v.__write(&stream);
+    }
+    else
+    {
+	stream.write(v.servant);
+    }
+
     stream.writePendingObjects();
     stream.endWriteEncaps();
     vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
@@ -363,7 +382,8 @@ void
 Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
                                    const Value& bytes,
                                    const CommunicatorPtr& communicator,
-                                   const EncodingVersion& encoding)
+                                   const EncodingVersion& encoding,
+				   bool keepStats)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
@@ -372,7 +392,16 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
     memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
     stream.startReadEncaps();
-    v.__read(&stream);
+    
+    if(keepStats)
+    {
+	v.__read(&stream);
+    }
+    else
+    {
+	stream.read(v.servant);
+    }
+    
     stream.readPendingObjects();
     stream.endReadEncaps();
 }
@@ -436,7 +465,7 @@ Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tran
         }
     }
     
-    unmarshal(rec, value, _communicator, _encoding);
+    unmarshal(rec, value, _communicator, _encoding, _keepStats);
     _evictor->initialize(ident, _facet, rec.servant);
     return true;
 }
@@ -460,7 +489,7 @@ Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, 
     marshal(ident, key, _communicator, _encoding);
 
     Value value;
-    marshal(rec, value, _communicator, _encoding);
+    marshal(rec, value, _communicator, _encoding, _keepStats);
 
     Dbt dbKey;
     Dbt dbValue;
@@ -505,7 +534,7 @@ Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, 
     marshal(ident, key, _communicator, _encoding);
 
     Value value;
-    marshal(rec, value, _communicator, _encoding);
+    marshal(rec, value, _communicator, _encoding, _keepStats);
 
     Dbt dbKey;
     Dbt dbValue;
@@ -653,7 +682,7 @@ Freeze::ObjectStoreBase::loadImpl(const Identity& ident, ObjectRecord& rec)
         }
     }
     
-    unmarshal(rec, value, _communicator, _encoding);
+    unmarshal(rec, value, _communicator, _encoding, _keepStats);
     _evictor->initialize(ident, _facet, rec.servant);
     return true;
 }

@@ -20,14 +20,14 @@
 namespace IceGrid
 {
 
-class SqlDatabaseCache : public SqlDB::DatabaseCache, public DatabaseCache
+class SqlConnectionPool : public SqlDB::ConnectionPool, public ConnectionPool
 {
 public:
 
-    SqlDatabaseCache(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
-                     const std::string&, int, const std::string&, const std::string&, const std::string&,
-                     const std::string&);
-    virtual ~SqlDatabaseCache();
+    SqlConnectionPool(const Ice::CommunicatorPtr&, const std::string&, const std::string&,
+                      const std::string&, int, const std::string&, const std::string&, const std::string&,
+                      const std::string&);
+    virtual ~SqlConnectionPool();
 
     virtual ApplicationsWrapperPtr getApplications(const IceDB::DatabaseConnectionPtr&);
     virtual AdaptersWrapperPtr getAdapters(const IceDB::DatabaseConnectionPtr&);
@@ -41,7 +41,7 @@ private:
     const SqlIdentityObjectInfoDictPtr _objects;
     const SqlIdentityObjectInfoDictPtr _internalObjects;
 };
-typedef IceUtil::Handle<SqlDatabaseCache> SqlDatabaseCachePtr;
+typedef IceUtil::Handle<SqlConnectionPool> SqlConnectionPoolPtr;
 
 class SqlDBPlugin : public DatabasePlugin
 {
@@ -53,12 +53,12 @@ public:
     virtual void initialize();
     virtual void destroy();
     
-    DatabaseCachePtr getDatabaseCache();
+    ConnectionPoolPtr getConnectionPool();
 
 private:
 
     const Ice::CommunicatorPtr _communicator;
-    SqlDatabaseCachePtr _databaseCache;
+    SqlConnectionPoolPtr _connectionPool;
     QCoreApplication* _qtApp;
 };
 

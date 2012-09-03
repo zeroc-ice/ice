@@ -119,20 +119,20 @@ public:
 
 }
 
-FreezeDatabaseCache::FreezeDatabaseCache(const Ice::CommunicatorPtr& communicator, const string& envName) :
-    FreezeDB::DatabaseCache(communicator, envName)
+FreezeConnectionPool::FreezeConnectionPool(const Ice::CommunicatorPtr& communicator, const string& envName) :
+    FreezeDB::ConnectionPool(communicator, envName)
 {
 }
 
 LLUWrapperPtr
-FreezeDatabaseCache::getLLU(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getLLU(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     return new FreezeLLUWrapper(c->freezeConnection(), "llu");
 }
 
 SubscribersWrapperPtr
-FreezeDatabaseCache::getSubscribers(const IceDB::DatabaseConnectionPtr& connection)
+FreezeConnectionPool::getSubscribers(const IceDB::DatabaseConnectionPtr& connection)
 {
     FreezeDB::DatabaseConnection* c = dynamic_cast<FreezeDB::DatabaseConnection*>(connection.get());
     // COMPILERFIX: GCC 4.4 w/ -O2 emits strict aliasing warnings
@@ -155,8 +155,8 @@ FreezeDBPlugin::destroy()
 {
 }
 
-DatabaseCachePtr
-FreezeDBPlugin::getDatabaseCache(const string& name)
+ConnectionPoolPtr
+FreezeDBPlugin::getConnectionPool(const string& name)
 {
-    return new FreezeDatabaseCache(_communicator, name);
+    return new FreezeConnectionPool(_communicator, name);
 }

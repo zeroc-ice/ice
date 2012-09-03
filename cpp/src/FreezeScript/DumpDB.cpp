@@ -314,7 +314,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     {
         selectExpr = opts.optArg("select");
     }
-
+    
     if(outputFile.empty() && args.size() != 2)
     {
         usage(appName);
@@ -357,15 +357,16 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     if(inputFile.empty())
     {
         const string evictorKeyTypeName = "::Ice::Identity";
-        const string evictorValueTypeName = "::Freeze::ObjectRecord";
+	const string oldEvictorValueTypeName = "::Freeze::ObjectRecord";
+	const string newEvictorValueTypeName = "Object";
 
-        if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty()))
+        if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty() && !evictor))
         {
             cerr << appName << ": a key type and a value type must be specified" << endl;
             usage(appName);
             return EXIT_FAILURE;
         }
-        else if(!evictor && keyTypeName.empty() && valueTypeName.empty())
+        else if(valueTypeName.empty())
         {
             try
             {
@@ -387,24 +388,32 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                     {
                         evictor = true;
                     }
-                    else
-                    {
-                        keyTypeName = p->second.key;
-                        valueTypeName = p->second.value;
-                    }
+		    keyTypeName = p->second.key;
+		    valueTypeName = p->second.value;
+
+		    if(evictor && valueTypeName.empty())
+		    {
+			valueTypeName = oldEvictorValueTypeName;
+		    }
                 }
             }
             catch(const FreezeScript::FailureException& ex)
             {
-                cerr << appName << ": " << ex.reason() << endl;
-                return EXIT_FAILURE;
+		cerr << appName << ": " << ex.reason() << endl;
+		return EXIT_FAILURE;
             }
         }
 
         if(evictor)
         {
-            keyTypeName = evictorKeyTypeName;
-            valueTypeName = evictorValueTypeName;
+	    if(keyTypeName.empty())
+	    {
+		keyTypeName = evictorKeyTypeName;
+	    }
+	    if(valueTypeName.empty())
+	    {
+		valueTypeName = newEvictorValueTypeName;
+	    }
         }
 
         Slice::TypePtr keyType, valueType;
@@ -536,7 +545,7 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
                     Dbc* dbc = 0;
-                    db.cursor(0, &dbc, 0);
+                    db.cursor(txn, &dbc, 0);
 
                     while(dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
                     {

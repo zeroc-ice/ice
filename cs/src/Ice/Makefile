@@ -61,7 +61,7 @@ SRCS		= Acceptor.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
 		  OpaqueEndpointI.cs \
-		  OptionalType.cs \
+		  Optional.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \

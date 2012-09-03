@@ -37,7 +37,7 @@ public:
 };
 typedef IceUtil::Handle<ObjectsWrapper> ObjectsWrapperPtr;
 
-class DatabaseCache : virtual public IceDB::DatabaseCache
+class ConnectionPool : public virtual IceDB::ConnectionPool
 {
 public:
 
@@ -46,13 +46,13 @@ public:
     virtual ObjectsWrapperPtr getObjects(const IceDB::DatabaseConnectionPtr&) = 0;
     virtual ObjectsWrapperPtr getInternalObjects(const IceDB::DatabaseConnectionPtr&) = 0;
 };
-typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
 
 class DatabasePlugin : virtual public Ice::Plugin
 {
 public:
 
-    virtual DatabaseCachePtr getDatabaseCache() = 0;
+    virtual ConnectionPoolPtr getConnectionPool() = 0;
 };
 typedef IceUtil::Handle<DatabasePlugin> DatabasePluginPtr;
 

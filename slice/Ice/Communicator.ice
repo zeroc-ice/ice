@@ -281,8 +281,8 @@ local interface Communicator
 
     /**
      *
-     * <p>Add a servant factory to this communicator. Installing a
-     * factory with an id for which a factory is already registered
+     * <p>Add an object factory to this communicator. Installing a 
+     * factory with an id for which a factory is already registered 
      * throws {@link AlreadyRegisteredException}.</p>
      *
      * <p>When unmarshaling an Ice object, the Ice run-time reads the
@@ -324,12 +324,12 @@ local interface Communicator
 
     /**
      *
-     * Find a servant factory registered with this communicator.
+     * Find an object factory registered with this communicator.
      *
      * @param id The type id for which the factory can create instances,
      * or an empty string for the default factory.
      *
-     * @return The servant factory, or null if no servant factory was
+     * @return The object factory, or null if no object factory was
      * found for the given id.
      *
      * @see #addObjectFactory

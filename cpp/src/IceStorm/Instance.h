@@ -40,14 +40,14 @@ namespace IceStorm
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class DatabaseCache;
-typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+class ConnectionPool;
+typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
 
 class Instance : public IceUtil::Shared
 {
 public:
 
-    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const DatabaseCachePtr&, 
+    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const ConnectionPoolPtr&, 
              const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0,
              const IceStormElection::NodePrx& = 0);
     ~Instance();
@@ -69,7 +69,7 @@ public:
     IceUtil::TimerPtr timer() const;
     Ice::ObjectPrx topicReplicaProxy() const;
     Ice::ObjectPrx publisherReplicaProxy() const;
-    DatabaseCachePtr databaseCache() const;
+    ConnectionPoolPtr connectionPool() const;
 
     IceUtil::Time discardInterval() const;
     IceUtil::Time flushInterval() const;
@@ -93,7 +93,7 @@ private:
     const int _sendTimeout;
     const Ice::ObjectPrx _topicReplicaProxy;
     const Ice::ObjectPrx _publisherReplicaProxy;
-    const DatabaseCachePtr _databaseCache;
+    const ConnectionPoolPtr _connectionPool;
     IceStormElection::NodeIPtr _node;
     IceStormElection::ObserversPtr _observers;
     IceUtil::TimerPtr _batchFlusher;

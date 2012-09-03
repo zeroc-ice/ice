@@ -32,9 +32,7 @@ class ICE_DB_API DatabaseException : public IceUtil::Exception
 {
 protected:
 
-    DatabaseException(const char* file, int line) : IceUtil::Exception(file, line)
-    {
-    }
+    DatabaseException(const char*, int);
 
     virtual std::string ice_name() const;
 };
@@ -43,9 +41,7 @@ class ICE_DB_API DeadlockException : public DatabaseException
 {
 protected:
 
-    DeadlockException(const char* file, int line) : DatabaseException(file, line)
-    {
-    }
+    DeadlockException(const char*, int);
 
     virtual std::string ice_name() const;
 };
@@ -54,14 +50,12 @@ class ICE_DB_API NotFoundException : public DatabaseException
 {
 protected:
 
-    NotFoundException(const char* file, int line) : DatabaseException(file, line)
-    {
-    }
+    NotFoundException(const char*, int);
 
     virtual std::string ice_name() const;
 };
 
-class ICE_DB_API DatabaseConnection : virtual public IceUtil::Shared
+class ICE_DB_API DatabaseConnection : public IceUtil::Shared
 {
 public:
 
@@ -89,23 +83,21 @@ private:
     // Not implemented
     //
     TransactionHolder(const TransactionHolder&);
-
-    TransactionHolder& 
-    operator=(const TransactionHolder&);
+    TransactionHolder& operator=(const TransactionHolder&);
 
     DatabaseConnectionPtr _connection;
 };
 
-class ICE_DB_API DatabaseCache : public IceUtil::Shared
+class ICE_DB_API ConnectionPool : public IceUtil::Shared
 {
 public:
     
     virtual DatabaseConnectionPtr getConnection() = 0;
     virtual DatabaseConnectionPtr newConnection() = 0;
 };
-typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
 
-template<class Key, class Value> class Wrapper : virtual public IceUtil::Shared
+template<class Key, class Value> class Wrapper :  public IceUtil::Shared
 {
 public:
 
@@ -116,4 +108,4 @@ public:
     virtual void clear() = 0;
 };
 
-};
+}

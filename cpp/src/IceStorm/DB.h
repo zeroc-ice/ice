@@ -21,7 +21,7 @@ namespace IceStorm
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
-class LLUWrapper : public virtual IceUtil::Shared
+class LLUWrapper : public IceUtil::Shared
 {
 public:
 
@@ -38,20 +38,20 @@ public:
 };
 typedef IceUtil::Handle<SubscribersWrapper> SubscribersWrapperPtr;
 
-class DatabaseCache : virtual public IceDB::DatabaseCache
+class ConnectionPool : public virtual IceDB::ConnectionPool
 {
 public:
 
     virtual LLUWrapperPtr getLLU(const IceDB::DatabaseConnectionPtr&) = 0;
     virtual SubscribersWrapperPtr getSubscribers(const IceDB::DatabaseConnectionPtr&) = 0;
 };
-typedef IceUtil::Handle<DatabaseCache> DatabaseCachePtr;
+typedef IceUtil::Handle<ConnectionPool> ConnectionPoolPtr;
 
-class DatabasePlugin : virtual public Ice::Plugin
+class DatabasePlugin : public Ice::Plugin
 {
 public:
 
-    virtual DatabaseCachePtr getDatabaseCache(const std::string&) = 0;
+    virtual ConnectionPoolPtr getConnectionPool(const std::string&) = 0;
 };
 typedef IceUtil::Handle<DatabasePlugin> DatabasePluginPtr;
 

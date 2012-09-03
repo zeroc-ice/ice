@@ -16,16 +16,32 @@
 using namespace IceDB;
 using namespace std;
 
+
+IceDB::DatabaseException::DatabaseException(const char* file, int line) :
+    IceUtil::Exception(file, line)
+{
+}
+
 string
 DatabaseException::ice_name() const
 {
     return "IceDB::DatabaseException";
 }
 
+DeadlockException::DeadlockException(const char* file, int line) :
+    DatabaseException(file, line)
+{
+}
+
 string
 DeadlockException::ice_name() const
 {
     return "IceDB::DeadlockException";
+}
+
+NotFoundException::NotFoundException(const char* file, int line) :
+DatabaseException(file, line)
+{
 }
 
 string

@@ -79,6 +79,13 @@ opFormatTypeToString(const OperationPtr& op)
     return "???";
 }
 
+static bool
+isClassType(const TypePtr type)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    return (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type);
+}
+
 static string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
@@ -115,130 +122,475 @@ Slice::CsVisitor::~CsVisitor()
 }
 
 void
+Slice::CsVisitor::writeMarshalUnmarshalParams(const ParamDeclList& params, const OperationPtr& op, bool marshal)
+{
+    ParamDeclList optionals;
+    ParamDeclList::const_iterator pli;
+
+    for(pli = params.begin(); pli != params.end(); ++pli)
+    {
+        string param = fixId((*pli)->name());
+        TypePtr type = (*pli)->type();
+        if(!marshal && isClassType(type))
+        {
+            param = (*pli)->name() + "__PP";
+            string typeS = typeToString(type);
+            if((*pli)->optional())
+            {
+                _out << nl << "Ice.OptionalPatcher<" << typeS << "> " << param
+                     << " = new Ice.OptionalPatcher<" << typeS << ">(" << getStaticId(type) << ");";
+            }
+            else
+            {
+                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
+                     << " = new IceInternal.ParamPatcher<" << typeS << ">(" << getStaticId(type) << ");";
+            }
+        }
+
+        if((*pli)->optional())
+        {
+            optionals.push_back(*pli);
+        }
+        else
+        {
+            writeMarshalUnmarshalCode(_out, type, param, marshal, false);
+        }
+    }
+
+    TypePtr ret;
+
+    if(op && op->returnType())
+    {
+        ret = op->returnType();
+
+        string param = "ret__";
+        if(!marshal && isClassType(ret))
+        {
+            param += "PP";
+            string typeS = typeToString(ret);
+            if(op->returnIsOptional())
+            {
+                _out << nl << "Ice.OptionalPatcher<" << typeS << "> " << param
+                     << " = new Ice.OptionalPatcher<" << typeS << ">(" << getStaticId(ret) << ");";
+            }
+            else
+            {
+                _out << nl << "IceInternal.ParamPatcher<" << typeS << "> " << param
+                     << " = new IceInternal.ParamPatcher<" << typeS << ">(" << getStaticId(ret) << ");";
+            }
+        }
+
+        if(!op->returnIsOptional())
+        {
+            writeMarshalUnmarshalCode(_out, ret, param, marshal, false);
+        }
+    }
+
+    //
+    // Sort optional parameters by tag.
+    //
+    class SortFn
+    {
+    public:
+        static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+        {
+            return lhs->tag() < rhs->tag();
+        }
+    };
+    optionals.sort(SortFn::compare);
+
+    //
+    // Handle optional parameters.
+    //
+    bool checkReturnType = op && op->returnIsOptional();
+
+    for(pli = optionals.begin(); pli != optionals.end(); ++pli)
+    {
+        if(checkReturnType && op->returnTag() < (*pli)->tag())
+        {
+            const string param = !marshal && isClassType(ret) ? "ret__PP" : "ret__";
+            writeOptionalMarshalUnmarshalCode(_out, ret, param, op->returnTag(), marshal, false);
+            checkReturnType = false;
+        }
+
+        string param = fixId((*pli)->name());
+        TypePtr type = (*pli)->type();
+
+        if(!marshal && isClassType(type))
+        {
+            param = (*pli)->name() + "__PP";
+        }
+
+        writeOptionalMarshalUnmarshalCode(_out, type, param, (*pli)->tag(), marshal, false);
+    }
+
+    if(checkReturnType)
+    {
+        const string param = !marshal && isClassType(ret) ? "ret__PP" : "ret__";
+        writeOptionalMarshalUnmarshalCode(_out, ret, param, op->returnTag(), marshal, false);
+    }
+}
+
+void
+Slice::CsVisitor::writePostUnmarshalParams(const ParamDeclList& params, const OperationPtr& op)
+{
+    for(ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    {
+        if(isClassType((*pli)->type()))
+        {
+            const string tmp = (*pli)->name() + "__PP";
+            _out << nl << fixId((*pli)->name()) << " = " << tmp << ".value;";
+        }
+    }
+
+    if(op && op->returnType() && isClassType(op->returnType()))
+    {
+        _out << nl << "ret__ = ret__PP.value;";
+    }
+}
+
+void
 Slice::CsVisitor::writeMarshalDataMember(const DataMemberPtr& member, const string& name)
 {
-    writeMarshalUnmarshalCode(_out, member->type(), name, true, false, false);
-
-#if 0
-    if(!member->optional())
+    if(member->optional())
     {
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()),
-                                  true, iter, false, member->getMetaData());
+        writeOptionalMarshalUnmarshalCode(_out, member->type(), name, member->tag(), true, false);
     }
     else
     {
-        out << nl << "if(__has_" << member->name() << " && __os.writeOpt(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
-        out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), true,
-                                  iter, false, member->getMetaData());
-        out << eb;
+        writeMarshalUnmarshalCode(_out, member->type(), name, true, false);
     }
-#endif
 }
 
 void
 Slice::CsVisitor::writeUnmarshalDataMember(const DataMemberPtr& member, const string& name, bool needPatcher,
                                            int& patchIter)
 {
-    string patchParams = "this";
-    if(needPatcher)
+    const bool classType = isClassType(member->type());
+
+    string patcher;
+    if(classType)
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        patcher = "new Patcher__(" + getStaticId(member->type()) + ", this";
+        if(needPatcher)
         {
             ostringstream ostr;
             ostr << ", " << patchIter++;
-            patchParams += ostr.str();
+            patcher += ostr.str();
         }
+        patcher += ")";
     }
 
-    writeMarshalUnmarshalCode(_out, member->type(), name, false, false, false, patchParams);
-#if 0
-    if(!member->optional())
+    if(member->optional())
     {
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalNone, false, 0, fixKwd(member->name()), false,
-                                  iter, false, member->getMetaData(), patchParams);
+        writeOptionalMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, member->tag(), false,
+                                          false);
     }
     else
     {
-        out << nl << "if(__has_" << member->name() << " = __is.readOpt(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
-        out << sb;
-        writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false,
-                                  iter, false, member->getMetaData(), patchParams);
-        out << eb;
+        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, false);
     }
-#endif
 }
 
 void
 Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, const string& name)
 {
-    writeMarshalUnmarshalCode(_out, member->type(), name, true, true, false);
-#if 0
     if(!member->optional())
     {
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), false, 0, fixKwd(member->name()), true,
-                                        iter, false, member->getMetaData());
+        writeMarshalUnmarshalCode(_out, member->type(), name, true, true);
+        return;
     }
-    else
+
+    const string flag = name + ".HasValue";
+    const string value = name + ".Value";
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
+    if(builtin)
     {
-        out << nl << "if(__has_" << member->name() << " && __outS.writeOptional(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
-        out << sb;
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
-                                        true, iter, false, member->getMetaData());
-        out << eb;
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+        if(builtin->kind() == Builtin::KindObjectProxy)
+        {
+            _out << nl << "outS__.startSize();";
+        }
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        if(builtin->kind() == Builtin::KindObjectProxy)
+        {
+            _out << nl << "outS__.endSize();";
+        }
+        _out << eb;
+        return;
     }
-#endif
+
+    SequencePtr seq = SequencePtr::dynamicCast(member->type());
+    if(seq)
+    {
+        string meta;
+        const bool serializable = seq->findMetaData("clr:serializable:", meta);
+        const bool isArray = !seq->findMetaData("clr:generic:", meta) && !seq->hasMetaData("clr:collection");
+        const string length = isArray ? value + ".Length" : value + ".Count";
+
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+
+        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+
+        if(serializable)
+        {
+            writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        }
+        else if(b)
+        {
+            switch(b->kind())
+            {
+            case Builtin::KindByte:
+            case Builtin::KindBool:
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+                break;
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindFloat:
+            case Builtin::KindLong:
+            case Builtin::KindDouble:
+                _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << length << " * " << b->minWireSize()
+                     << " + (" << length << " > 254 ? 5 : 1));";
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+                break;
+            case Builtin::KindString:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            {
+                _out << nl << "outS__.startSize();";
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+                _out << nl << "outS__.endSize();";
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                assert(false);
+                break;
+            }
+            }
+        }
+        else
+        {
+            StructPtr st = StructPtr::dynamicCast(seq->type());
+            if(st && !st->isVariableLength())
+            {
+                _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << length << " * " << st->minWireSize()
+                     << " + (" << length << " > 254 ? 5 : 1));";
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+            }
+            else
+            {
+                _out << nl << "outS__.startSize();";
+                writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+                _out << nl << "outS__.endSize();";
+            }
+        }
+
+        _out << eb;
+        return;
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(member->type());
+    if(d)
+    {
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+
+        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
+        {
+            _out << nl << "outS__.startSize();";
+        }
+        else
+        {
+            _out << nl << "outS__.writeSize(" << value << " == null ? 1 : " << value << ".Count * "
+                 << (d->keyType()->minWireSize() + d->valueType()->minWireSize()) << " + (" << value
+                 << ".Count > 254 ? 5 : 1));";
+        }
+
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
+        {
+            _out << nl << "outS__.endSize();";
+        }
+        _out << eb;
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(member->type());
+    if(st)
+    {
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+
+        if(st->isVariableLength())
+        {
+            _out << nl << "outS__.startSize();";
+        }
+        else
+        {
+            _out << nl << "outS__.writeSize(" << st->minWireSize() << ");";
+        }
+
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        if(st->isVariableLength())
+        {
+            _out << nl << "outS__.endSize();";
+        }
+        _out << eb;
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(member->type());
+    if(en)
+    {
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        _out << eb;
+        return;
+    }
+
+    ProxyPtr pr = ProxyPtr::dynamicCast(member->type());
+    if(pr)
+    {
+        _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+             << getOptionalType(member->type()) << "))";
+        _out << sb;
+        _out << nl << "outS__.startSize();";
+        writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+        _out << nl << "outS__.endSize();";
+        _out << eb;
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(member->type());
+    assert(cl);
+    _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
+         << getOptionalType(member->type()) << "))";
+    _out << sb;
+    writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
+    _out << eb;
 }
 
 void
 Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, const string& name, bool needPatcher,
                                                  int& patchIter)
 {
-    string patchParams = "this";
-    if(needPatcher)
+    const bool classType = isClassType(member->type());
+
+    string patcher;
+    if(classType)
     {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        patcher = "new Patcher__(" + getStaticId(member->type()) + ", this";
+        if(needPatcher)
         {
             ostringstream ostr;
             ostr << ", " << patchIter++;
-            patchParams += ostr.str();
+            patcher += ostr.str();
         }
-    }
-
-    writeMarshalUnmarshalCode(_out, member->type(), name, false, true, false, patchParams);
-#if 0
-    string patchParams;
-    if(needPatcher)
-    {
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
-        {
-            ostringstream ostr;
-            ostr << "new Patcher(" << patchIter++ << ')';
-            patchParams = ostr.str();
-        }
+        patcher += ")";
     }
 
     if(!member->optional())
     {
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), false, 0, fixKwd(member->name()), false,
-                                        iter, false, member->getMetaData(), patchParams);
+        writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : name, false, true);
+        return;
     }
-    else
+
+    _out << nl << "if(inS__.readOptional(" << member->tag() << ", "
+         << getOptionalType(member->type()) << "))";
+    _out << sb;
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
+    if(builtin && builtin->kind() == Builtin::KindObjectProxy)
     {
-        out << nl << "if(__has_" << member->name() << " = __inS.readOptional(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
-        out << sb;
-        writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
-                                        false, iter, false, member->getMetaData(), patchParams);
-        out << eb;
+        _out << nl << "inS__.skip(4);";
     }
-#endif
+
+    SequencePtr seq = SequencePtr::dynamicCast(member->type());
+    if(seq)
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        if(!b || (b->kind() != Builtin::KindByte && b->kind() != Builtin::KindBool))
+        {
+            if(seq->type()->isVariableLength())
+            {
+                _out << nl << "inS__.skip(4);";
+            }
+            else
+            {
+                _out << nl << "inS__.skipSize();";
+            }
+        }
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(member->type());
+    if(d)
+    {
+        if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
+        {
+            _out << nl << "inS__.skip(4);";
+        }
+        else
+        {
+            _out << nl << "inS__.skipSize();";
+        }
+    }
+
+    StructPtr st = StructPtr::dynamicCast(member->type());
+    if(st)
+    {
+        if(st->isVariableLength())
+        {
+            _out << nl << "inS__.skip(4);";
+        }
+        else
+        {
+            _out << nl << "inS__.skipSize();";
+        }
+    }
+
+    ProxyPtr pr = ProxyPtr::dynamicCast(member->type());
+    if(pr)
+    {
+        _out << nl << "inS__.skip(4);";
+    }
+
+    const string typeS = typeToString(member->type());
+    const string tmp = "tmpValue__";
+
+    if(st)
+    {
+        if(isValueType(st))
+        {
+            _out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
+        }
+        else
+        {
+            _out << nl << typeS << ' ' << tmp << " = null;";
+        }
+    }
+    else if(!classType)
+    {
+        _out << nl << typeS << ' ' << tmp << ';';
+    }
+
+    writeMarshalUnmarshalCode(_out, member->type(), classType ? patcher : tmp, false, true);
+
+    if(!classType)
+    {
+        _out << nl << name << " = new " << typeToString(member->type(), true) << '(' << tmp << ");";
+    }
+
+    _out << eb;
 }
 
 void
@@ -459,26 +811,73 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
              << " obj__, IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
 
-        bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
-        if(!amd)
-        {
-            TypePtr ret = op->returnType();
+        TypePtr ret = op->returnType();
 
-            TypeStringList inParams;
-            TypeStringList outParams;
-            ParamDeclList paramList = op->parameters();
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+        ParamDeclList paramList = op->parameters();
+        ParamDeclList::const_iterator pli;
+        ParamDeclList inParams;
+        ParamDeclList outParams;
+
+        for(pli = paramList.begin(); pli != paramList.end(); ++pli)
+        {
+            if((*pli)->isOutParam())
             {
-                if((*pli)->isOutParam())
+                outParams.push_back(*pli);
+            }
+            else
+            {
+                inParams.push_back(*pli);
+            }
+        }
+
+        _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
+        if(!inParams.empty())
+        {
+            //
+            // Unmarshal 'in' parameters.
+            //
+            _out << nl << "IceInternal.BasicStream is__ = inS__.startReadParams();";
+            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
+            {
+                string param = fixId((*pli)->name());
+                string typeS = typeToString((*pli)->type(), (*pli)->optional());
+                const bool isClass = isClassType((*pli)->type());
+
+                if((*pli)->optional())
                 {
-                    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                    if(!isClass)
+                    {
+                        _out << nl << typeS << ' ' << param << ';';
+                    }
                 }
-                else
+                else if(!isClass)
                 {
-                    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                    _out << nl << typeS << ' ' << param << ';';
+                    StructPtr st = StructPtr::dynamicCast((*pli)->type());
+                    if(st)
+                    {
+                        if(isValueType((*pli)->type()))
+                        {
+                            _out << nl << param << " = new " << typeS << "();";
+                        }
+                        else
+                        {
+                            _out << nl << param << " = null;";
+                        }
+                    }
                 }
             }
+            writeMarshalUnmarshalParams(inParams, 0, false);
+            _out << nl << "inS__.endReadParams();";
+        }
+        else
+        {
+            _out << nl << "inS__.readEmptyParams();";
+        }
 
+        const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+        if(!amd)
+        {
             ExceptionList throws = op->throws();
             throws.sort();
             throws.unique();
@@ -495,55 +894,10 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-            TypeStringList::const_iterator q;
-
-            _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
-            if(!inParams.empty())
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                //
-                // Unmarshal 'in' parameters.
-                //
-                _out << nl << "IceInternal.BasicStream is__ = inS__.startReadParams();";
-                for(q = inParams.begin(); q != inParams.end(); ++q)
-                {
-                    string param = fixId(q->second);
-                    string typeS = typeToString(q->first);
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                    bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                        || ClassDeclPtr::dynamicCast(q->first);
-                    if(!isClass)
-                    {
-                        _out << nl << typeS << ' ' << param << ';';
-                        StructPtr st = StructPtr::dynamicCast(q->first);
-                        if(st)
-                        {
-                            if(isValueType(q->first))
-                            {
-                                _out << nl << param << " = new " << typeS << "();";
-                            }
-                            else
-                            {
-                                _out << nl << param << " = null;";
-                            }
-                        }
-                    }
-                    writeMarshalUnmarshalCode(_out, q->first, param, false, false, true);
-                }
-                if(op->sendsClasses())
-                {
-                    _out << nl << "is__.readPendingObjects();";
-                }
-                _out << nl << "inS__.endReadParams();";
-            }
-            else
-            {
-                _out << nl << "inS__.readEmptyParams();";
-            }
-
-            for(q = outParams.begin(); q != outParams.end(); ++q)
-            {
-                string typeS = typeToString(q->first);
-                _out << nl << typeS << ' ' << fixId(q->second) << ";";
+                string typeS = typeToString((*pli)->type(), (*pli)->optional());
+                _out << nl << typeS << ' ' << fixId((*pli)->name()) << ";";
             }
 
             //
@@ -557,31 +911,22 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             _out << nl;
             if(ret)
             {
-                string retS = typeToString(ret);
+                string retS = typeToString(ret, op->returnIsOptional());
                 _out << retS << " ret__ = ";
             }
             _out << "obj__." << fixId(opName, DotNet::ICloneable, true) << spar;
-            for(q = inParams.begin(); q != inParams.end(); ++q)
+            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                               || ClassDeclPtr::dynamicCast(q->first);
-
-                string arg;
-                if(isClass)
+                string arg = fixId((*pli)->name());
+                if(isClassType((*pli)->type()))
                 {
-                    arg += "(" + typeToString(q->first) + ")";
-                }
-                arg += fixId(q->second);
-                if(isClass)
-                {
-                    arg += "_PP.value";
+                    arg = (*pli)->name() + "__PP.value";
                 }
                 _out << arg;
             }
-            for(q = outParams.begin(); q != outParams.end(); ++q)
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                _out << "out " + fixId(q->second);
+                _out << "out " + fixId((*pli)->name());
             }
             _out << "current__" << epar << ';';
 
@@ -592,18 +937,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 _out << nl << "IceInternal.BasicStream os__ = inS__.startWriteParams__("
                      << opFormatTypeToString(op) << ");";
-                for(q = outParams.begin(); q != outParams.end(); ++q)
-                {
-                    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, true, "");
-                }
-                if(ret)
-                {
-                    writeMarshalUnmarshalCode(_out, ret, "ret__", true, false, true, "");
-                }
-                if(op->returnsClasses())
-                {
-                    _out << nl << "os__.writePendingObjects();";
-                }
+                writeMarshalUnmarshalParams(outParams, op, true);
                 _out << nl << "inS__.endWriteParams__(true);";
             }
             else
@@ -634,61 +968,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         else
         {
-            TypeStringList inParams;
-            ParamDeclList paramList = op->parameters();
-            for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
-            {
-                if(!(*pli)->isOutParam())
-                {
-                    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
-                }
-            }
-
-            TypeStringList::const_iterator q;
-            _out << nl << "checkMode__(" << sliceModeToIceMode(op->mode()) << ", current__.mode);";
-
-            if(!inParams.empty())
-            {
-                //
-                // Unmarshal 'in' parameters.
-                //
-                _out << nl << "IceInternal.BasicStream is__ = inS__.startReadParams();";
-                for(q = inParams.begin(); q != inParams.end(); ++q)
-                {
-                    string param = fixId(q->second);
-                    string typeS = typeToString(q->first);
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                    bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                        || ClassDeclPtr::dynamicCast(q->first);
-                    if(!isClass)
-                    {
-                        _out << nl << typeS << ' ' << param << ';';
-                        StructPtr st = StructPtr::dynamicCast(q->first);
-                        if(st)
-                        {
-                            if(isValueType(q->first))
-                            {
-                                _out << nl << param << " = new " << typeS << "();";
-                            }
-                            else
-                            {
-                                _out << nl << param << " = null;";
-                            }
-                        }
-                    }
-                    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
-                }
-                if(op->sendsClasses())
-                {
-                    _out << nl << "is__.readPendingObjects();";
-                }
-                _out << nl << "inS__.endReadParams();";
-            }
-            else
-            {
-                _out << nl << "inS__.readEmptyParams();";
-            }
-
             //
             // Call on the servant.
             //
@@ -711,20 +990,12 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 _out << "cb__";
             }
-            for(q = inParams.begin(); q != inParams.end(); ++q)
+            for(pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
-                               || ClassDeclPtr::dynamicCast(q->first);
-                string arg;
-                if(isClass)
+                string arg = fixId((*pli)->name());
+                if(isClassType((*pli)->type()))
                 {
-                    arg += "(" + typeToString(q->first) + ")";
-                }
-                arg += fixId(q->second);
-                if(isClass)
-                {
-                    arg += "_PP.value";
+                    arg = (*pli)->name() + "__PP.value";
                 }
                 _out << arg;
             }
@@ -860,6 +1131,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     DataMemberList allClassMembers = p->allClassDataMembers();
     DataMemberList::const_iterator d;
     DataMemberList members = p->dataMembers();
+    DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     DataMemberList classMembers = p->classDataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
     const bool preserved = basePreserved || p->hasMetaData("preserve-slice");
@@ -902,6 +1174,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     _out << nl << "os__.startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
     for(d = members.begin(); d != members.end(); ++d)
     {
+        if(!(*d)->optional())
+        {
+            writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true));
+        }
+    }
+    for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {
         writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true));
     }
     _out << nl << "os__.endWriteSlice();";
@@ -923,7 +1202,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             _out << "new ";
         }
-        _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
+        _out << "class Patcher__ : IceInternal.Patcher";
         _out << sb;
         _out << sp << nl << "internal Patcher__(string type, Ice.ObjectImpl instance";
         if(allClassMembers.size() > 1)
@@ -958,11 +1237,30 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 _out.inc();
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
-            string memberType = typeToString((*d)->type());
-            _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-            ContainedPtr contained = ContainedPtr::dynamicCast((*d)->type());
-            string sliceId = contained ? contained->scoped() : string("::Ice::Object");
-            _out << nl << "_typeId = \"" << sliceId << "\";";
+            string memberType = typeToString((*d)->type(), (*d)->optional());
+            if((*d)->optional())
+            {
+                if(ClassDeclPtr::dynamicCast((*d)->type()))
+                {
+                    _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                         << typeToString((*d)->type()) << ")v);";
+                }
+                else
+                {
+                    _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                }
+            }
+            else
+            {
+                if(ClassDeclPtr::dynamicCast((*d)->type()))
+                {
+                    _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                }
+                else
+                {
+                    _out << nl << "_instance." << memberName << " = v;";
+                }
+            }
             if(allClassMembers.size() > 1)
             {
                 _out << nl << "break;";
@@ -976,7 +1274,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
         _out << nl << "catch(_System.InvalidCastException)";
         _out << sb;
-        _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
+        _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         _out << eb;
         _out << eb;
 
@@ -985,7 +1283,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             _out << nl << "private int _member;";
         }
-        _out << nl << "private string _typeId;";
         _out << eb;
     }
 
@@ -1019,6 +1316,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
     const bool needCustomPatcher = classMembers.size() > 1 || allClassMembers.size() > 1;
     for(d = members.begin(); d != members.end(); ++d)
+    {
+        if(!(*d)->optional())
+        {
+            writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, classMemberCount);
+        }
+    }
+    for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
         writeUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher, classMemberCount);
     }
@@ -1063,6 +1367,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << nl << "outS__.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
         for(d = members.begin(); d != members.end(); ++d)
         {
+            if(!(*d)->optional())
+            {
+                writeStreamMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true));
+            }
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+        {
             writeStreamMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true));
         }
         _out << nl << "outS__.endSlice();";
@@ -1101,6 +1412,14 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << nl << "inS__.startSlice();";
         classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
         for(d = members.begin(); d != members.end(); ++d)
+        {
+            if(!(*d)->optional())
+            {
+                writeStreamUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher,
+                                               classMemberCount);
+            }
+        }
+        for(d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
         {
             writeStreamUnmarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), needCustomPatcher,
                                            classMemberCount);
@@ -1180,7 +1499,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op)
         {
             param += "out ";
         }
-        param += typeToString((*q)->type()) + " " + fixId((*q)->name());
+        param += typeToString((*q)->type(), (*q)->optional()) + " " + fixId((*q)->name());
         params.push_back(param);
     }
     return params;
@@ -1205,7 +1524,8 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd, bool newAMI)
     {
         if(!(*q)->isOutParam())
         {
-            params.push_back(getParamAttributes(*q) + typeToString((*q)->type()) + " " + fixId((*q)->name()));
+            params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), (*q)->optional()) + " " +
+                             fixId((*q)->name()));
         }
     }
     return params;
@@ -1221,7 +1541,7 @@ Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool newAMI, bool out
         TypePtr ret = op->returnType();
         if(ret)
         {
-            params.push_back(typeToString(ret) + " ret__");
+            params.push_back(typeToString(ret, op->returnIsOptional()) + " ret__");
         }
     }
 
@@ -1232,7 +1552,8 @@ Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool newAMI, bool out
         {
             if(!newAMI)
             {
-                params.push_back(getParamAttributes(*q) + typeToString((*q)->type()) + ' ' + fixId((*q)->name()));
+                params.push_back(getParamAttributes(*q) + typeToString((*q)->type(), (*q)->optional()) + ' ' +
+                                 fixId((*q)->name()));
             }
             else
             {
@@ -1241,7 +1562,7 @@ Slice::CsVisitor::getParamsAsyncCB(const OperationPtr& op, bool newAMI, bool out
                 {
                     s += "out ";
                 }
-                s += typeToString((*q)->type()) + ' ' + fixId((*q)->name());
+                s += typeToString((*q)->type(), (*q)->optional()) + ' ' + fixId((*q)->name());
                 params.push_back(s);
             }
         }
@@ -1515,15 +1836,23 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& members, int
     {
         if((*p)->defaultValueType())
         {
-            string memberName = fixId((*p)->name(), baseTypes);
-            _out << nl << "this." << memberName;
+            _out << nl << "this.";
             if(propertyMapping)
             {
-                _out << "_prop";
+                _out << (*p)->name() << "__prop";
+            }
+            else
+            {
+                _out << fixId((*p)->name(), baseTypes);
             }
             _out << " = ";
             writeConstantValue((*p)->type(), (*p)->defaultValueType(), (*p)->defaultValue());
             _out << ';';
+        }
+        else if((*p)->optional())
+        {
+            _out << nl << "this." << fixId((*p)->name(), baseTypes) << " = new " << typeToString((*p)->type(), true)
+                 << "();";
         }
     }
 }
@@ -2565,7 +2894,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!allDataMembers.empty())
         {
-            bool propertyMapping = p->hasMetaData("clr:property");
+            const bool propertyMapping = p->hasMetaData("clr:property");
             _out << sp << nl << "#region Constructors";
 
             _out << sp;
@@ -2602,19 +2931,26 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 _out << baseParamNames << epar;
             }
             _out << sb;
-            vector<string> paramNames;
             for(d = dataMembers.begin(); d != dataMembers.end(); ++d)
             {
-                paramNames.push_back(fixId((*d)->name()));
-            }
-            for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
-            {
-                _out << nl << "this." << *i;
+                _out << nl << "this.";
+                const string paramName = fixId((*d)->name());
                 if(propertyMapping)
                 {
-                    _out << "_prop";
+                    _out << (*d)->name() << "__prop";
                 }
-                _out << " = " << *i << ';';
+                else
+                {
+                    _out << paramName;
+                }
+                if((*d)->optional())
+                {
+                    _out << " = new " << typeToString((*d)->type(), true) << '(' << paramName << ");";
+                }
+                else
+                {
+                    _out << " = " << paramName << ';';
+                }
             }
             _out << eb;
 
@@ -2668,7 +3004,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         params = getParams(p);
         args = getArgs(p);
         name = fixId(name, DotNet::ICloneable, true);
-        retS = typeToString(p->returnType());
+        retS = typeToString(p->returnType(), p->returnIsOptional());
     }
     else
     {
@@ -2759,8 +3095,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         {
             _out << "public abstract ";
         }
-        _out << typeToString(p->returnType()) << " end_" << name << spar << getParamsAsyncCB(p, true)
-             << "Ice.AsyncResult r__" << epar << ';';
+        _out << typeToString(p->returnType(), p->returnIsOptional()) << " end_" << name << spar
+             << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar << ';';
     }
 }
 
@@ -2994,7 +3330,15 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string name = fixId((*q)->name(), DotNet::Exception, false);
-                _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
+                if((*q)->optional())
+                {
+                    _out << nl << "this." << name << " = new " << typeToString((*q)->type(), true) << '(' <<
+                         fixId((*q)->name()) << ");";
+                }
+                else
+                {
+                    _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
+                }
             }
             _out << eb;
         }
@@ -3161,7 +3505,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 _out << "new ";
             }
-            _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
+            _out << "class Patcher__ : IceInternal.Patcher";
             _out << sb;
             _out << sp << nl << "internal Patcher__(string type, Ice.Exception instance";
             if(allClassMembers.size() > 1)
@@ -3196,11 +3540,30 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     _out.inc();
                 }
                 string memberName = fixId((*q)->name(), DotNet::Exception);
-                string memberType = typeToString((*q)->type());
-                _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
-                string sliceId = contained ? contained->scoped() : string("::Ice::Object");
-                _out << nl << "_typeId = \"" << sliceId << "\";";
+                string memberType = typeToString((*q)->type(), (*q)->optional());
+                if((*q)->optional())
+                {
+                    if(ClassDeclPtr::dynamicCast((*q)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(("
+                             << typeToString((*q)->type()) << ")v);";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = new " << memberType << "(v);";
+                    }
+                }
+                else
+                {
+                    if(ClassDeclPtr::dynamicCast((*q)->type()))
+                    {
+                        _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                    }
+                    else
+                    {
+                        _out << nl << "_instance." << memberName << " = v;";
+                    }
+                }
                 if(allClassMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -3214,7 +3577,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
             _out << nl << "catch(_System.InvalidCastException)";
             _out << sb;
-            _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
+            _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             _out << eb;
             _out << eb;
 
@@ -3223,7 +3586,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 _out << nl << "private int _member;";
             }
-            _out << nl << "private string _typeId;";
             _out << eb;
         }
 
@@ -3422,11 +3784,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
-    bool propertyMapping = p->hasMetaData("clr:property");
+    const bool propertyMapping = p->hasMetaData("clr:property");
 
     _out << sp << nl << "#endregion"; // Slice data members
 
-    bool isClass = !isValueType(p) || p->hasDefaultValues();
+    const bool isClass = !isValueType(p) || p->hasDefaultValues();
 
     _out << sp << nl << "#region Constructor";
     if(isClass)
@@ -3450,24 +3812,27 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public " << name << spar;
     vector<string> paramDecl;
-    vector<string> paramNames;
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
         string memberType = typeToString((*q)->type());
         paramDecl.push_back(memberType + " " + memberName);
-        paramNames.push_back(memberName);
     }
     _out << paramDecl << epar;
     _out << sb;
-    for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "this." << *i;
+        string paramName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
+        _out << nl << "this.";
         if(propertyMapping)
         {
-            _out << "_prop";
+            _out << (*q)->name() << "__prop";
         }
-        _out << " = " << *i << ';';
+        else
+        {
+            _out << paramName;
+        }
+        _out << " = " << paramName << ';';
     }
     _out << eb;
 
@@ -3563,17 +3928,15 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0),
-                                      true, false, false);
+            writeMarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0));
         }
         _out << eb;
-
 
         if(isClass && classMembers.size() != 0)
         {
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << name << ">";
+            _out << nl << "public sealed class Patcher__ : IceInternal.Patcher";
             _out << sb;
             _out << sp << nl << "internal Patcher__(string type, " << name << " instance";
             if(classMembers.size() > 1)
@@ -3609,10 +3972,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
                 string memberType = typeToString((*q)->type());
                 string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-                _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
-                string sliceId = contained ? contained->scoped() : string("::Ice::Object");
-                _out << nl << "_typeId = \"" << sliceId << "\";";
+                if(ClassDeclPtr::dynamicCast((*q)->type()))
+                {
+                    _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
+                }
+                else
+                {
+                    _out << nl << "_instance." << memberName << " = v;";
+                }
                 if(classMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -3626,7 +3993,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << eb;
             _out << nl << "catch(_System.InvalidCastException)";
             _out << sb;
-            _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
+            _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             _out << eb;
             _out << eb;
 
@@ -3636,7 +4003,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             {
                 _out << nl << "private int _member;";
             }
-            _out << nl << "private string _typeId;";
             _out << eb;
         }
 
@@ -3645,20 +4011,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << nl << "public void read__(IceInternal.BasicStream is__)";
         _out << sb;
         int classMemberCount = 0;
+        const bool needCustomPatcher = classMembers.size() > 1;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            ostringstream patchParams;
-            patchParams << "this";
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
-            {
-                if(classMembers.size() > 1)
-                {
-                    patchParams << ", " << classMemberCount++;
-                }
-            }
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0 ),
-                                      false, false, false, patchParams.str());
+            writeUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), needCustomPatcher,
+                                     classMemberCount);
         }
         _out << eb;
 
@@ -3670,8 +4027,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << sb;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0),
-                                          true, true, false);
+                writeStreamMarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0));
             }
             _out << eb;
 
@@ -3682,18 +4038,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             classMemberCount = 0;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                ostringstream patchParams;
-                patchParams << "this";
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
-                {
-                    if(classMembers.size() > 1)
-                    {
-                        patchParams << ", " << classMemberCount++;
-                    }
-                }
-                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0 ),
-                                          false, true, false, patchParams.str());
+                writeStreamUnmarshalDataMember(*q, fixId(*q, isClass ? DotNet::ICloneable : 0), needCustomPatcher,
+                                               classMemberCount);
             }
             _out << eb;
         }
@@ -3794,13 +4140,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
         _out << sp << nl << "public static void write(Ice.OutputStream outS__, " << scoped << " v__)";
         _out << sb;
-        writeMarshalUnmarshalCode(_out, p, "v__", true, true, false);
+        writeMarshalUnmarshalCode(_out, p, "v__", true, true);
         _out << eb;
 
         _out << sp << nl << "public static " << scoped << " read(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << scoped << " v__;";
-        writeMarshalUnmarshalCode(_out, p, "v__", false, true, false);
+        writeMarshalUnmarshalCode(_out, p, "v__", false, true);
         _out << nl << "return v__;";
         _out << eb;
 
@@ -3828,9 +4174,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     int baseTypes = 0;
     bool isClass = false;
-    bool propertyMapping = false;
+    bool isProperty = false;
     bool isValue = false;
     bool isProtected = false;
+    const bool isOptional = p->optional();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
     if(StructPtr::dynamicCast(cont))
@@ -3842,7 +4189,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         }
         if(cont->hasMetaData("clr:property"))
         {
-            propertyMapping = true;
+            isProperty = true;
         }
     }
     else if(ExceptionPtr::dynamicCast(cont))
@@ -3855,7 +4202,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         isClass = true;
         if(cont->hasMetaData("clr:property"))
         {
-            propertyMapping = true;
+            isProperty = true;
         }
         isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
@@ -3864,15 +4211,19 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     emitDeprecate(p, cont, _out, "member");
 
-    string type = typeToString(p->type());
+    string type = typeToString(p->type(), isOptional);
     string propertyName = fixId(p->name(), baseTypes, isClass);
-    string dataMemberName = propertyName;
-    if(propertyMapping)
+    string dataMemberName;
+    if(isProperty)
     {
-        dataMemberName += "_prop";
+        dataMemberName = p->name() + "__prop";
+    }
+    else
+    {
+        dataMemberName = propertyName;
     }
 
-    if(propertyMapping)
+    if(isProperty)
     {
         _out << nl << "private";
     }
@@ -3888,31 +4239,37 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         emitGeneratedCodeAttribute();
         _out << nl << "public";
     }
-    _out << ' ' << type << ' ' << dataMemberName << ';';
 
-    if(!propertyMapping)
+    if(isOptional && isValue)
     {
-        return;
+        _out << ' ' << type << ' ' << dataMemberName << " = new " << type << "();";
+    }
+    else
+    {
+        _out << ' ' << type << ' ' << dataMemberName << ';';
     }
 
-    emitAttributes(p);
-    emitGeneratedCodeAttribute();
-    _out << nl << (isProtected ? "protected" : "public");
-    if(!isValue)
+    if(isProperty)
     {
-        _out << " virtual";
+        emitAttributes(p);
+        emitGeneratedCodeAttribute();
+        _out << nl << (isProtected ? "protected" : "public");
+        if(!isValue)
+        {
+            _out << " virtual";
+        }
+        _out << ' ' << type << ' ' << propertyName;
+        _out << sb;
+        _out << nl << "get";
+        _out << sb;
+        _out << nl << "return " << dataMemberName << ';';
+        _out << eb;
+        _out << nl << "set";
+        _out << sb;
+        _out << nl << dataMemberName << " = value;";
+        _out << eb;
+        _out << eb;
     }
-    _out << ' ' << type << ' ' << propertyName;
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return " << dataMemberName << ';';
-    _out << eb;
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << dataMemberName << " = value;";
-    _out << eb;
-    _out << eb;
 }
 
 void
@@ -3920,7 +4277,12 @@ Slice::Gen::TypesVisitor::writeMemberHashCode(const DataMemberList& dataMembers,
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, " << fixId((*q)->name(), baseTypes) << ");";
+        _out << nl << "IceInternal.HashUtil.hashAdd(ref h__, " << fixId((*q)->name(), baseTypes);
+        if((*q)->optional())
+        {
+            _out << ".Value";
+        }
+        _out << ");";
     }
 }
 
@@ -3931,7 +4293,7 @@ Slice::Gen::TypesVisitor::writeMemberEquals(const DataMemberList& dataMembers, i
     {
         string memberName = fixId((*q)->name(), baseTypes);
         TypePtr memberType = (*q)->type();
-        if(!isValueType(memberType))
+        if(!(*q)->optional() && !isValueType(memberType))
         {
             _out << nl << "if(" << memberName << " == null)";
             _out << sb;
@@ -4086,7 +4448,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string name = fixId(p->name(), DotNet::ICloneable, true);
     vector<string> params = getParams(p);
     ParamDeclList paramList = p->parameters();
-    
+    string retS = typeToString(p->returnType(), p->returnIsOptional());
 
     _out << sp;
 
@@ -4110,14 +4472,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
-    _out << nl << typeToString(p->returnType()) << " " << name << spar << params << epar << ';';
+    _out << nl << retS << " " << name << spar << params << epar << ';';
 
     if(!deprecateReason.empty())
     {
         _out << nl << "[_System.Obsolete(\"" << deprecateReason << "\")]";
     }
-    _out << nl << typeToString(p->returnType()) << " " << name
-         << spar << params << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
+    _out << nl << retS << " " << name << spar << params
+         << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
 
     //
     // Write the operations for the new async mapping.
@@ -4163,8 +4525,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // end_ method.
     //
     _out << sp;
-    _out << nl << typeToString(p->returnType()) << " end_" << p->name() << spar
-         << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar << ';';
+    _out << nl << retS << " end_" << p->name() << spar << getParamsAsyncCB(p, true) << "Ice.AsyncResult r__" << epar
+         << ';';
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
@@ -4233,7 +4595,7 @@ Slice::Gen::AsyncDelegateVisitor::visitOperation(const OperationPtr& p)
     }
 
     vector<string> paramDeclAMI = getParamsAsyncCB(p, true, false);
-    string retS = typeToString(p->returnType());
+    string retS = typeToString(p->returnType(), p->returnIsOptional());
     string delName = "Callback_" + cl->name() + "_" + p->name();
 
     _out << sp;
@@ -4382,7 +4744,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
         emitDeprecate(op, p, _out, "operation");
 
         emitAttributes(op);
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
         _out << nl << retS << ' ' << opname << spar << params;
         if(!noCurrent && !p->isLocal())
         {
@@ -4449,7 +4811,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
 
         vector<string> params = getParams(op);
         vector<string> args = getArgs(op);
@@ -4553,20 +4915,20 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         string opName = op->name();
 
-        TypeStringList inParams;
-        TypeStringList outParams;
-        TypeStringList::const_iterator q;
-
         ParamDeclList paramList = op->parameters();
-        for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+        ParamDeclList::const_iterator pli;
+        ParamDeclList inParams;
+        ParamDeclList outParams;
+
+        for(pli = paramList.begin(); pli != paramList.end(); ++pli)
         {
             if((*pli)->isOutParam())
             {
-               outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                outParams.push_back(*pli);
             }
             else
             {
-               inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                inParams.push_back(*pli);
             }
         }
 
@@ -4619,7 +4981,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
 
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
         _out << sp << nl << "public " << retS << " end_" << opName << spar << getParamsAsyncCB(op, true)
              << "Ice.AsyncResult r__" << epar;
         _out << sb;
@@ -4662,6 +5024,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "throw new Ice.UnknownUserException(ex__.ice_name(), ex__);";
             _out << eb;
             _out << eb;
+
             if(ret || !outParams.empty())
             {
                 if(ret)
@@ -4669,63 +5032,52 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << nl << retS << " ret__;";
                 }
                 _out << nl << "IceInternal.BasicStream is__ = outAsync__.startReadParams__();";
-                for(q = outParams.begin(); q != outParams.end(); ++q)
+                for(pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
-                    string param = fixId(q->second);
-                    StructPtr st = StructPtr::dynamicCast(q->first);
-                    if(st)
+                    string param = fixId((*pli)->name());
+                    string typeS = typeToString((*pli)->type(), (*pli)->optional());
+                    const bool isClass = isClassType((*pli)->type());
+
+                    if(!(*pli)->optional() && !isClass)
                     {
-                        if(isValueType(st))
+                        StructPtr st = StructPtr::dynamicCast((*pli)->type());
+                        if(st)
                         {
-                            _out << nl << param << " = new " << typeToString(q->first) << "();";
-                        }
-                        else
-                        {
-                            _out << nl << param << " = null;";
+                            if(isValueType((*pli)->type()))
+                            {
+                                _out << nl << param << " = new " << typeS << "();";
+                            }
+                            else
+                            {
+                                _out << nl << param << " = null;";
+                            }
                         }
                     }
-                    writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
                 }
                 if(ret)
                 {
-                    StructPtr st = StructPtr::dynamicCast(ret);
-                    if(st)
+                    string typeS = typeToString(ret, op->returnIsOptional());
+                    const bool isClass = isClassType(ret);
+
+                    if(!op->returnIsOptional() && !isClass)
                     {
-                        if(isValueType(ret))
+                        StructPtr st = StructPtr::dynamicCast(ret);
+                        if(st)
                         {
-                            _out << nl << "ret__ = new " << retS << "();";
-                        }
-                        else
-                        {
-                            _out << nl << "ret__ = null;";
+                            if(isValueType(ret))
+                            {
+                                _out << nl << "ret__ = new " << typeS << "();";
+                            }
+                            else
+                            {
+                                _out << nl << "ret__ = null;";
+                            }
                         }
                     }
-                    writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true);
                 }
-                if(op->returnsClasses())
-                {
-                    _out << nl << "is__.readPendingObjects();";
-                }
+                writeMarshalUnmarshalParams(outParams, op, false);
                 _out << nl << "outAsync__.endReadParams__();";
-                for(q = outParams.begin(); q != outParams.end(); ++q)
-                {
-                    string param = fixId(q->second);
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
-                    {
-                        string type = typeToString(q->first);
-                        _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
-                    }
-                }
-                if(ret)
-                {
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-                    {
-                        string type = typeToString(ret);
-                        _out << nl << "ret__ = (" << retS << ")ret___PP.value;";
-                    }
-                }
+                writePostUnmarshalParams(outParams, op);
                 if(ret)
                 {
                     _out << nl << "return ret__;";
@@ -4776,15 +5128,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "IceInternal.BasicStream os__ = result__.startWriteParams__("
                  << opFormatTypeToString(op) << ");";
-            for(q = inParams.begin(); q != inParams.end(); ++q)
-            {
-                string typeS = typeToString(q->first);
-                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false, "", true);
-            }
-            if(op->sendsClasses())
-            {
-                _out << nl << "os__.writePendingObjects();";
-            }
+            writeMarshalUnmarshalParams(inParams, 0, true);
             _out << nl << "result__.endWriteParams__();";
         }
         else
@@ -4808,10 +5152,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp << nl << "private void " << op->name()
                  << "_completed__(Ice.AsyncResult r__, " << delType << " cb__, Ice.ExceptionCallback excb__)";
             _out << sb;
-            TypeStringList::const_iterator tsli;
-            for(tsli = outParams.begin(); tsli != outParams.end(); ++tsli)
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                _out << nl << typeToString(tsli->first) << ' ' << fixId(tsli->second) << ';';
+                _out << nl << typeToString((*pli)->type(), (*pli)->optional()) << ' ' << fixId((*pli)->name()) << ';';
             }
             if(ret)
             {
@@ -4825,9 +5168,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << "ret__ = ";
             }
             _out << "end_" << op->name() << spar;
-            for(tsli = outParams.begin(); tsli != outParams.end(); ++tsli)
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                _out << "out " + fixId(tsli->second);
+                _out << "out " + fixId((*pli)->name());
             }
             _out << "r__" << epar << ';';
             _out << eb;
@@ -4846,9 +5189,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << "ret__";
             }
-            for(tsli = outParams.begin(); tsli != outParams.end(); ++tsli)
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                _out << fixId(tsli->second);
+                _out << fixId((*pli)->name());
             }
             _out << epar << ';';
             _out << eb;
@@ -5188,13 +5531,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public static void write(IceInternal.BasicStream os__, " << typeS << " v__)";
     _out << sb;
-    writeSequenceMarshalUnmarshalCode(_out, p, "v__", true, false);
+    writeSequenceMarshalUnmarshalCode(_out, p, "v__", true, false, false);
     _out << eb;
 
     _out << sp << nl << "public static " << typeS << " read(IceInternal.BasicStream is__)";
     _out << sb;
     _out << nl << typeS << " v__;";
-    writeSequenceMarshalUnmarshalCode(_out, p, "v__", false, false);
+    writeSequenceMarshalUnmarshalCode(_out, p, "v__", false, false, false);
     _out << nl << "return v__;";
     _out << eb;
 
@@ -5202,13 +5545,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         _out << sp << nl << "public static void write(Ice.OutputStream outS__, " << typeS << " v__)";
         _out << sb;
-        writeSequenceMarshalUnmarshalCode(_out, p, "v__", true, true);
+        writeSequenceMarshalUnmarshalCode(_out, p, "v__", true, true, false);
         _out << eb;
 
         _out << sp << nl << "public static " << typeS << " read(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << typeS << " v__;";
-        writeSequenceMarshalUnmarshalCode(_out, p, "v__", false, true);
+        writeSequenceMarshalUnmarshalCode(_out, p, "v__", false, true, false);
         _out << nl << "return v__;";
         _out << eb;
     }
@@ -5315,18 +5658,18 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << " e__ in v__)";
     _out << sb;
     string keyArg = isNewMapping ? string("e__.Key") : "((" + keyS + ")e__.Key)";
-    writeMarshalUnmarshalCode(_out, key, keyArg, true, false, false);
+    writeMarshalUnmarshalCode(_out, key, keyArg, true, false);
     string valueArg = isNewMapping ? string("e__.Value") : "((" + valueS + ")e__.Value)";
-    writeMarshalUnmarshalCode(_out, value, valueArg, true, false, false);
+    writeMarshalUnmarshalCode(_out, value, valueArg, true, false);
     _out << eb;
     _out << eb;
     _out << eb;
 
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(value);
-    bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
+    const bool hasClassValue = isClassType(value);
+
     if(hasClassValue)
     {
-        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << valueS << ">";
+        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher";
         _out << sb;
         _out << sp << nl << "internal Patcher__(string type, " << name << " m, " << keyS << " key) : base(type)";
         _out << sb;
@@ -5334,16 +5677,23 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << nl << "_key = key;";
         _out << eb;
 
-        _out << sp << nl << "public override void" << nl << "patch(Ice.Object v)";
+        _out << sp << nl << "public override void patch(Ice.Object v)";
         _out << sb;
-        _out << nl << "try";
-        _out << sb;
-        _out << nl << "_m[_key] = (" << valueS << ")v;";
-        _out << eb;
-        _out << nl << "catch(_System.InvalidCastException)";
-        _out << sb;
-        _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
-        _out << eb;
+        if(ClassDeclPtr::dynamicCast(value))
+        {
+            _out << nl << "try";
+            _out << sb;
+            _out << nl << "_m[_key] = (" << valueS << ")v;";
+            _out << eb;
+            _out << nl << "catch(_System.InvalidCastException)";
+            _out << sb;
+            _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
+            _out << eb;
+        }
+        else
+        {
+            _out << nl << "_m[_key] = v;";
+        }
         _out << eb;
 
         _out << sp << nl << "private " << name << " _m;";
@@ -5370,8 +5720,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             _out << nl << "k__ = null;";
         }
     }
-    writeMarshalUnmarshalCode(_out, key, "k__", false, false, false);
-    if(!hasClassValue)
+    writeMarshalUnmarshalCode(_out, key, "k__", false, false);
+
+    string patcher;
+    if(hasClassValue)
+    {
+        patcher = "new Patcher__(" + getStaticId(value) + ", r__, k__)";
+    }
+    else
     {
         _out << nl << valueS << " v__;";
 
@@ -5388,7 +5744,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             }
         }
     }
-    writeMarshalUnmarshalCode(_out, value, "v__", false, false, false, "r__, k__");
+    writeMarshalUnmarshalCode(_out, value, hasClassValue ? patcher : "v__", false, false);
     if(!hasClassValue)
     {
         _out << nl << "r__[k__] = v__;";
@@ -5419,8 +5775,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         }
         _out << " e__ in v__)";
         _out << sb;
-        writeMarshalUnmarshalCode(_out, key, keyArg, true, true, false);
-        writeMarshalUnmarshalCode(_out, value, valueArg, true, true, false);
+        writeMarshalUnmarshalCode(_out, key, keyArg, true, true);
+        writeMarshalUnmarshalCode(_out, value, valueArg, true, true);
         _out << eb;
         _out << eb;
         _out << eb;
@@ -5444,7 +5800,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 _out << nl << "k__ = null;";
             }
         }
-        writeMarshalUnmarshalCode(_out, key, "k__", false, true, false);
+        writeMarshalUnmarshalCode(_out, key, "k__", false, true);
         if(!hasClassValue)
         {
             _out << nl << valueS << " v__;";
@@ -5461,7 +5817,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 }
             }
         }
-        writeMarshalUnmarshalCode(_out, value, "v__", false, true, false, "r__, k__");
+        writeMarshalUnmarshalCode(_out, value, hasClassValue ? patcher : "v__", false, true);
         if(!hasClassValue)
         {
             _out << nl << "r__[k__] = v__;";
@@ -5541,7 +5897,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
         vector<string> params = getParams(op);
 
         _out << sp << nl << retS << ' ' << opName << spar << params
@@ -5606,24 +5962,24 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
 
-        TypeStringList inParams;
-        TypeStringList outParams;
         ParamDeclList paramList = op->parameters();
-        for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+        ParamDeclList::const_iterator pli;
+        ParamDeclList inParams;
+        ParamDeclList outParams;
+
+        for(pli = paramList.begin(); pli != paramList.end(); ++pli)
         {
             if((*pli)->isOutParam())
             {
-               outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                outParams.push_back(*pli);
             }
             else
             {
-               inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                inParams.push_back(*pli);
             }
         }
-
-        TypeStringList::const_iterator q;
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -5656,14 +6012,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "try";
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = og__.startWriteParams(" << opFormatTypeToString(op) << ");";
-            for(q = inParams.begin(); q != inParams.end(); ++q)
-            {
-                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false);
-            }
-            if(op->sendsClasses())
-            {
-                _out << nl << "os__.writePendingObjects();";
-            }
+            writeMarshalUnmarshalParams(inParams, 0, true);
             _out << nl << "og__.endWriteParams();";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";
@@ -5708,77 +6057,62 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(ret || !outParams.empty())
         {
             _out << nl << "IceInternal.BasicStream is__ = og__.startReadParams();";
-            for(q = outParams.begin(); q != outParams.end(); ++q)
+            for(pli = outParams.begin(); pli != outParams.end(); ++pli)
             {
-                string param = fixId(q->second);
-                StructPtr st = StructPtr::dynamicCast(q->first);
-                if(st)
+                const bool isClass = isClassType((*pli)->type());
+
+                if(!(*pli)->optional() && !isClass)
                 {
-                    if(isValueType(q->first))
+                    StructPtr st = StructPtr::dynamicCast((*pli)->type());
+                    if(st)
                     {
-                        _out << nl << param << " = new " << typeToString(q->first) << "();";
-                    }
-                    else
-                    {
-                        _out << nl << param << " = null;";
+                        string param = fixId((*pli)->name());
+                        string typeS = typeToString(st, (*pli)->optional());
+                        if(isValueType(st))
+                        {
+                            _out << nl << param << " = new " << typeS << "();";
+                        }
+                        else
+                        {
+                            _out << nl << param << " = null;";
+                        }
                     }
                 }
-                writeMarshalUnmarshalCode(_out, q->first, param, false, false, true, "");
             }
             if(ret)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+                string typeS = typeToString(ret, op->returnIsOptional());
+                const bool isClass = isClassType(ret);
+
+                _out << nl << typeS << " ret__;";
+
+                if(op->returnIsOptional())
                 {
-                    _out << nl << retS << " ret__;";
-                    ContainedPtr contained = ContainedPtr::dynamicCast(ret);
-                    string sliceId = contained ? contained->scoped() : string("::Ice::Object");
-                    _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
-                         << retS << ">(\"" << sliceId << "\");";
-                    _out << nl << "is__.readObject(ret___PP);";
+                    BuiltinPtr b = BuiltinPtr::dynamicCast(ret);
+                    if(!b || isClass)
+                    {
+                        _out << nl << "ret__ = new " << typeS << "();";
+                    }
                 }
-                else
+                else if(!isClass)
                 {
-                    _out << nl << retS << " ret__;";
                     StructPtr st = StructPtr::dynamicCast(ret);
                     if(st)
                     {
-                        if(isValueType(st))
+                        if(isValueType(ret))
                         {
-                            _out << nl << "ret__ = new " << retS << "();";
+                            _out << nl << "ret__ = new " << typeS << "();";
                         }
                         else
                         {
                             _out << nl << "ret__ = null;";
                         }
                     }
-                    writeMarshalUnmarshalCode(_out, ret, "ret__", false, false, true, "");
                 }
             }
-            if(op->returnsClasses())
-            {
-                _out << nl << "is__.readPendingObjects();";
-                for(q = outParams.begin(); q != outParams.end(); ++q)
-                {
-                    string param = fixId(q->second);
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
-                    {
-                        string type = typeToString(q->first);
-                        _out << nl << "try";
-                        _out << sb;
-                        _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
-                        _out << eb;
-                        _out << nl << "catch(_System.InvalidCastException)";
-                        _out << sb;
-                        _out << nl << param << " = null;";
-                        _out << nl << "IceInternal.Ex.throwUOE(" << param << "_PP.type(), "
-                             << param << "_PP.value.ice_id());";
-                        _out << eb;
-                    }
-                }
-            }
+            writeMarshalUnmarshalParams(outParams, op, false);
             _out << nl << "og__.endReadParams();";
+            writePostUnmarshalParams(outParams, op);
         }
         else
         {
@@ -5787,19 +6121,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(ret)
         {
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
-            {
-                _out << nl << "try";
-                _out << sb;
-                _out << nl << "ret__ = (" << retS << ")ret___PP.value;";
-                _out << eb;
-                _out << nl << "catch(_System.InvalidCastException)";
-                _out << sb;
-                _out << nl << "ret__ = null;";
-                _out << nl << "IceInternal.Ex.throwUOE(ret___PP.type(), ret___PP.value.ice_id());";
-                _out << eb;
-            }
             _out << nl << "return ret__;";
         }
         _out << eb;
@@ -5877,7 +6198,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret);
+        string retS = typeToString(ret, op->returnIsOptional());
         ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
 
         ExceptionList throws = op->throws();
@@ -5914,7 +6235,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                  << sliceModeToIceMode(op->sendMode())
                  << ", context__);";
 
-
             //
             // Create out holders and delArgs
             //
@@ -5927,7 +6247,17 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 string arg = fixId((*q)->name());
                 if((*q)->isOutParam())
                 {
-                    _out << nl << typeToString((*q)->type()) << " " << arg << "Holder__ = " << writeValue((*q)->type()) << ";";
+                    string typeS = typeToString((*q)->type(), (*q)->optional());
+                    _out << nl << typeS << " " << arg << "Holder__ = ";
+                    if((*q)->optional())
+                    {
+                        _out << "new " << typeS << "()";
+                    }
+                    else
+                    {
+                        _out << writeValue((*q)->type());
+                    }
+                    _out << ';';
                     outHolders.push_back(arg);
                     arg = "out " + arg + "Holder__";
                 }
@@ -5936,7 +6266,16 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             if(ret)
             {
-                _out << nl << retS << " result__ = " << writeValue(ret) << ";";
+                _out << nl << retS << " result__ = ";
+                if(op->returnIsOptional())
+                {
+                    _out << "new " << retS << "()";
+                }
+                else
+                {
+                    _out << writeValue(ret);
+                }
+                _out << ';';
             }
 
             if(!throws.empty())
@@ -5953,7 +6292,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
             _out << nl << "catch(_System.InvalidCastException)";
             _out << sb;
-            _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
+            _out << nl
+                 << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
             _out << eb;
 
             if(!throws.empty())
@@ -6119,7 +6459,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             args = getArgs(*op);
         }
 
-        _out << sp << nl << "public " << typeToString(ret) << " " << opname << spar << params << epar;
+        string retS = typeToString(ret, (*op)->returnIsOptional());
+        _out << sp << nl << "public " << retS << " " << opname << spar << params << epar;
         _out << sb << nl;
         if(ret)
         {
@@ -6128,7 +6469,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << opname << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar << ';';
         _out << eb;
 
-        _out << sp << nl << "public abstract " << typeToString(ret) << " " << opname << spar << params;
+        _out << sp << nl << "public abstract " << retS << " " << opname << spar << params;
         if(!p->isLocal())
         {
             _out << "Ice.Current current__";
@@ -6242,13 +6583,15 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         TypePtr ret = p->returnType();
 
-        TypeStringList outParams;
         ParamDeclList paramList = p->parameters();
-        for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+        ParamDeclList::const_iterator pli;
+        ParamDeclList outParams;
+
+        for(pli = paramList.begin(); pli != paramList.end(); ++pli)
         {
             if((*pli)->isOutParam())
             {
-                outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+                outParams.push_back(*pli);
             }
         }
 
@@ -6268,7 +6611,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-        TypeStringList::const_iterator q;
         _out << sp;
         emitGeneratedCodeAttribute();
         _out << nl << "class " << classNameAMDI << '_' << name
@@ -6288,20 +6630,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << nl << "try";
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = startWriteParams__(" << opFormatTypeToString(p) << ");";
-            for(q = outParams.begin(); q != outParams.end(); ++q)
-            {
-                string typeS = typeToString(q->first);
-                writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), true, false, false);
-            }
-            if(ret)
-            {
-                string retS = typeToString(ret);
-                writeMarshalUnmarshalCode(_out, ret, "ret__", true, false, false);
-            }
-            if(p->returnsClasses())
-            {
-                _out << nl << "os__.writePendingObjects();";
-            }
+            writeMarshalUnmarshalParams(outParams, p, true);
             _out << nl << "endWriteParams__(true);";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";

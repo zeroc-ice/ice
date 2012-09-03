@@ -1076,7 +1076,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     string name = fixKwd(p->name());
 
-    bool classMetaData = findMetaData(p->getMetaData()) == "class";
+    bool classMetaData = findMetaData(p->getMetaData()) == "%class";
     if(classMetaData)
     {
         H << sp << nl << "class " << _dllExport << name << " : public IceUtil::Shared";
@@ -1119,7 +1119,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     // Generate a one-shot constructor if the struct uses the class mapping, or if at least
     // one of its members has a default value.
     //
-    if(!dataMembers.empty() && (findMetaData(p->getMetaData()) == "class" || p->hasDefaultValues()))
+    if(!dataMembers.empty() && (findMetaData(p->getMetaData()) == "%class" || p->hasDefaultValues()))
     {
         DataMemberList::const_iterator q;
         vector<string> paramDecls;
@@ -1183,7 +1183,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     }
 
     string dllExport;
-    if(findMetaData(p->getMetaData()) != "class")
+    if(findMetaData(p->getMetaData()) != "%class")
     {
         dllExport = _dllExport;
     }
@@ -1292,7 +1292,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     H << eb << ';';
 
-    if(findMetaData(p->getMetaData()) == "class")
+    if(findMetaData(p->getMetaData()) == "%class")
     {
         H << sp << nl << "typedef ::IceUtil::Handle< " << scoped << "> " << p->name() + "Ptr;";
     }
@@ -3393,11 +3393,18 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:" << sp;
     H.inc();
 
-    if(!p->isLocal())
+    //
+    // In C++, a nested type cannot have the same name as the enclosing type
+    //
+    if(!p->isLocal() && p->name() != "ProxyType")
     {
         H << nl << "typedef " << p->name() << "Prx ProxyType;";
     }
-    H << nl << "typedef " << p->name() << "Ptr PointerType;";
+
+    if(p->name() != "PointerType")
+    {
+	H << nl << "typedef " << p->name() << "Ptr PointerType;";
+    }
 
     vector<string> params;
     vector<string> allTypes;
@@ -6094,7 +6101,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
     if(!p->isLocal())
     {
-        bool classMetaData = findMetaData(p->getMetaData(), false) == "class";
+        bool classMetaData = findMetaData(p->getMetaData(), false) == "%class";
         string scoped = p->scoped();
         H << nl << "template<>";
         if(classMetaData)

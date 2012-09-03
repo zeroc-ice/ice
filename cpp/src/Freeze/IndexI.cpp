@@ -405,7 +405,7 @@ Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey,
     ObjectRecord rec;
     Byte* first = static_cast<Byte*>(dbValue->get_data());
     Value value(first, first + dbValue->get_size());
-    ObjectStoreBase::unmarshal(rec, value, communicator, encoding);
+    ObjectStoreBase::unmarshal(rec, value, communicator, encoding, _store->keepStats());
 
     Key bytes;
     if(_index.marshalKey(rec.servant, bytes))

@@ -42,7 +42,7 @@ FreezeScript::FailureException::ice_print(ostream& out) const
     }
 }
 
-IceUtil::Exception*
+FreezeScript::FailureException*
 FreezeScript::FailureException::ice_clone() const
 {
     return new FailureException(ice_file(), ice_line(), _reason);
