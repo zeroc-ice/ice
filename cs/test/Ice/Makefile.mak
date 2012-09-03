@@ -44,6 +44,7 @@ SUBDIRS         = application \
                   defaultValue \
                   threadPoolPriority \
 		  plugin \
+		  admin \
 		  optional
 
 $(EVERYTHING)::

@@ -2190,7 +2190,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                                   bool noRestart)
 {
     const ApplicationDescriptor& newDesc = helper.getDefinition();
-    DatabaseConnectionPtr connection = _databaseCache->newConnection();
+    DatabaseConnectionPtr connection = _connectionPool->newConnection();
 
     ServerEntrySeq entries;
     try

@@ -494,7 +494,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
             
-                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     if(_adminFacets.ContainsKey(facet))
                     {
@@ -520,7 +520,7 @@ namespace IceInternal
                 }
                 
                 Ice.Object result = null;
-                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     try
                     {
@@ -552,7 +552,7 @@ namespace IceInternal
                 }
                 
                 Ice.Object result = null;
-                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     try
                     {

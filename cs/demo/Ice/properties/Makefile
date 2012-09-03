@@ -9,12 +9,12 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= client.exe testservice.dll
+TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs AllTests.cs
-S_SRCS		= TestI.cs TestServiceI.cs
+C_SRCS		= Client.cs
+S_SRCS		= Server.cs
 
-SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_SRCS	= $(SDIR)/Props.ice
 
 SDIR		= .
 
@@ -24,12 +24,12 @@ include $(top_srcdir)/config/Make.rules.cs
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
-testservice.dll: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $(subst /,$(DSEP),$^)
+server.exe: $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 include .depend

@@ -9,10 +9,10 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= client.exe testservice.dll
+TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs AllTests.cs
-S_SRCS		= TestI.cs TestServiceI.cs
+C_SRCS		= AllTests.cs Client.cs TestI.cs ../../TestCommon/TestApp.cs
+S_SRCS		= TestI.cs Server.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 
@@ -29,7 +29,7 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
-testservice.dll: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -target:library -out:$@ $(call ref,IceBox) $(call ref,Ice) $(subst /,$(DSEP),$^)
+server.exe: $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 include .depend

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2010 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,21 +21,13 @@ public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
+        AllTests.allTests(communicator);
 
-        Console.Out.Write("testing server shutdown... ");
-        Console.Out.Flush();
-        myClass.shutdown();
-        try
-        {
-            myClass.opVoid();
-            throw new System.Exception();
-        }
-        catch(Ice.LocalException)
-        {
-            Console.Out.WriteLine("ok");
-        }
-
+        //
+        // Shutdown the IceBox server.
+        //
+        Ice.ProcessPrxHelper.uncheckedCast(
+            communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996")).shutdown();
         return 0;
     }
 
@@ -50,23 +42,7 @@ public class Client
 
         try
         {
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-
-            //
-            // We must set MessageSizeMax to an explicit values,
-            // because we run tests to check whether
-            // Ice.MemoryLimitException is raised as expected.
-            //
-            initData.properties.setProperty("Ice.MessageSizeMax", "100");
-
-            communicator = Ice.Util.initialize(ref args, initData);
+            communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }
         catch(System.Exception ex)

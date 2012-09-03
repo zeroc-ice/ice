@@ -24,7 +24,8 @@ SUBDIRS		= bidir \
 		  async \
 		  multicast \
 		  serialize \
-		  plugin
+		  plugin \
+		  properties
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
