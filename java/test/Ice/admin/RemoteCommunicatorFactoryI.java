@@ -13,6 +13,13 @@ import test.Ice.admin.Test.*;
 
 public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
 {
+    class TestI implements Ice.NativePropertiesAdmin
+    {
+        public void addUpdateCallback(Ice.PropertiesAdminUpdateCallback callback){}
+        public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback callback){}
+    };
+
+
     public RemoteCommunicatorPrx createCommunicator(java.util.Map<String, String> props, Ice.Current current)
     {
         //
@@ -44,7 +51,7 @@ public class RemoteCommunicatorFactoryI extends _RemoteCommunicatorFactoryDisp
 
         Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
         assert admin != null;
-        admin.setUpdateCallback(servant);
+        admin.addUpdateCallback(servant);
 
         Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);
         return RemoteCommunicatorPrxHelper.uncheckedCast(proxy);

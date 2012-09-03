@@ -75,7 +75,7 @@ public class Server extends Ice.Application
         //
         Ice.Object obj = communicator().findAdminFacet("Properties");
         Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)obj;
-        admin.setUpdateCallback(props);
+        admin.addUpdateCallback(props);
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Props");
         adapter.add(props, communicator().stringToIdentity("props"));

@@ -96,7 +96,7 @@ Server::run(int argc, char* argv[])
     //
     Ice::ObjectPtr obj = communicator()->findAdminFacet("Properties");
     Ice::NativePropertiesAdminPtr admin = Ice::NativePropertiesAdminPtr::dynamicCast(obj);
-    admin->setUpdateCallback(props);
+    admin->addUpdateCallback(props);
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Props");
     adapter->add(props, communicator()->stringToIdentity("props"));

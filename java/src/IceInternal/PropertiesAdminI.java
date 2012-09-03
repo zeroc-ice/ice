@@ -37,7 +37,7 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
         java.util.Map<String, String> added = new java.util.HashMap<String, String>();
         java.util.Map<String, String> changed = new java.util.HashMap<String, String>();
         java.util.Map<String, String> removed = new java.util.HashMap<String, String>();
-        Ice.PropertiesAdminUpdateCallback callback;
+        java.util.List<Ice.PropertiesAdminUpdateCallback> callbacks = null;
         
         synchronized(this)
         {
@@ -162,7 +162,7 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
                 _properties.setProperty(e.getKey(), "");
             }
 
-            callback = _updateCallback;
+            callbacks = new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
         }
 
         //
@@ -170,31 +170,40 @@ public class PropertiesAdminI extends Ice._PropertiesAdminDisp implements Ice.Na
         //
         cb.ice_response();
 
-        if(callback != null)
+        if(callbacks != null)
         {
             java.util.Map<String, String> changes = new java.util.HashMap<String, String>(added);
             changes.putAll(changed);
             changes.putAll(removed);
-
-            try
+            for(Ice.PropertiesAdminUpdateCallback callback : callbacks)
             {
-                callback.updated(changes);
-            }
-            catch(RuntimeException ex)
-            {
-                // Ignore.
+                try
+                {
+                    callback.updated(changes);
+                }
+                catch(RuntimeException ex)
+                {
+                    // Ignore.
+                }
             }
         }
     }
 
     public synchronized void
-    setUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
+    addUpdateCallback (Ice.PropertiesAdminUpdateCallback cb)
     {
-        _updateCallback = cb;
+        _updateCallbacks.add(cb);
+    }
+
+    public synchronized void
+    removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
+    {
+        _updateCallbacks.remove(cb);
     }
 
     private final String _name;
     private final Ice.Properties _properties;
     private final Ice.Logger _logger;
-    private Ice.PropertiesAdminUpdateCallback _updateCallback;
+    private java.util.List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks = 
+        new java.util.ArrayList<Ice.PropertiesAdminUpdateCallback>();
 }

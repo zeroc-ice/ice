@@ -1104,12 +1104,16 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
         }
 
-        _adminFacets.insert(
-            FacetMap::value_type("Properties",
-                                 new PropertiesAdminI("Properties", _initData.properties, _initData.logger)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+
         IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties);
         _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
+
+        PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("Properties",props));
+
+        // Make sure the MetricsAdmin plugin received property update notifications.
+        props->addUpdateCallback(admin);
 
         //
         // Setup the communicator observer only the metrics admin plugin only if the user didn't already set an

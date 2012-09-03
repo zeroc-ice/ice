@@ -501,7 +501,6 @@ Ice::ConnectionI::updateObserver()
         return;
     }
 
-    ConnectionInfoPtr info;
     if(!_info && _state < StateClosed)
     {
         _info = _transceiver->getInfo();
@@ -510,12 +509,15 @@ Ice::ConnectionI::updateObserver()
         _info->adapterName = _adapter ? _adapter->getName() : string();
     }
 
-    const CommunicatorObserverPtr& comObsv = _instance->initializationData().observer;
-    assert(comObsv);
-    _observer.attach(comObsv->getConnectionObserver(info,
-                                                    _endpoint->getInfo(), 
-                                                    connectionStateMap[static_cast<int>(_state)], 
-                                                    _observer.get()));
+    if(_info)
+    {
+        const CommunicatorObserverPtr& comObsv = _instance->initializationData().observer;
+        assert(comObsv);
+        _observer.attach(comObsv->getConnectionObserver(_info,
+                                                        _endpoint->getInfo(), 
+                                                        connectionStateMap[static_cast<int>(_state)], 
+                                                        _observer.get()));
+    }
 }
 
 void

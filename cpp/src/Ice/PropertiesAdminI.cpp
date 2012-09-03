@@ -40,7 +40,7 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
                                            const Ice::Current&)
 {
     PropertyDict added, changed, removed;
-    PropertiesAdminUpdateCallbackPtr callback;
+    vector<PropertiesAdminUpdateCallbackPtr> callbacks;
     {
         IceUtil::Mutex::Lock sync(*this);
 
@@ -154,7 +154,7 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
             _properties->setProperty(p->first, "");
         }
 
-        callback = _updateCallback;
+        callbacks = _updateCallbacks;
     }
 
     //
@@ -162,26 +162,35 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
     //
     cb->ice_response();
 
-    if(callback)
+    if(!callbacks.empty())
     {
         PropertyDict changes = added;
         changes.insert(changed.begin(), changed.end());
         changes.insert(removed.begin(), removed.end());
-
-        try
+        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
         {
-            callback->updated(changes);
-        }
-        catch(...)
-        {
-            // Ignore.
+            try
+            {
+                (*p)->updated(changes);
+            }
+            catch(...)
+            {
+                // Ignore.
+            }
         }
     }
 }
 
 void
-Ice::PropertiesAdminI::setUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
+Ice::PropertiesAdminI::addUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
 {
     IceUtil::Mutex::Lock sync(*this);
-    _updateCallback = cb;
+    _updateCallbacks.push_back(cb);
+}
+
+void
+Ice::PropertiesAdminI::removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr& cb)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    _updateCallbacks.erase(remove(_updateCallbacks.begin(), _updateCallbacks.end(), cb), _updateCallbacks.end());
 }

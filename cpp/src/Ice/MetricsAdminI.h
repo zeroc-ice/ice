@@ -12,6 +12,7 @@
 
 #include <Ice/Metrics.h>
 #include <Ice/Properties.h>
+#include <Ice/PropertiesAdmin.h>
 #include <Ice/Initialize.h>
 
 #ifdef _MSC_VER
@@ -33,7 +34,7 @@ typedef IceUtil::Handle<Updater> UpdaterPtr;
 class MetricsHelper;
 template<typename T> class MetricsHelperT;
 
-class MetricsMapI : public IceUtil::Shared, public IceUtil::Mutex
+class MetricsMapI : public IceUtil::Shared, private IceUtil::Mutex
 {
 public:
 
@@ -56,13 +57,20 @@ public:
     };
     typedef IceUtil::Handle<RegExp> RegExpPtr;
 
-    class Entry : public Ice::LocalObject, public IceUtil::Mutex
+    class Entry : public Ice::LocalObject, protected IceUtil::Mutex
     {
     public:
 
-        Entry(MetricsMapI* map, const MetricsPtr& object) : _object(object), _map(map)
-        {
-        }
+        Entry(MetricsMapI* map, const MetricsPtr& object);
+
+        void destroy();
+        void  failed(const std::string& exceptionName);
+        MetricsFailures getFailures() const;
+        void detach(Ice::Long lifetime);
+        virtual MetricsPtr clone() const;
+        const std::string& id() const;
+        bool isDetached() const;
+        virtual Entry* getMatching(const std::string&, const MetricsHelper&);
 
         template<typename T> IceInternal::Handle<T>
         attach(const MetricsHelperT<T>& helper)
@@ -76,79 +84,16 @@ public:
             return obj;
         }
 
-        void 
-        failed(const std::string& exceptionName)
-        {
-            IceUtil::Mutex::Lock sync(*this);
-            ++_object->failures;
-            ++_failures[exceptionName];
-        }
-
-        MetricsFailures
-        getFailures() const
-        {
-            MetricsFailures f;
-
-            IceUtil::Mutex::Lock sync(*this);
-            f.id = _object->id;
-            f.failures = _failures;
-            return f;
-        }
-
         template<typename Function, typename MetricsType> void
         execute(Function func, const MetricsType& obj)
         {
             IceUtil::Mutex::Lock sync(*this);
             func(obj);
         }
-        
-        void 
-        detach(Ice::Long lifetime)
-        {
-            bool detached = false;
-            {
-                IceUtil::Mutex::Lock sync(*this);
-                detached = --_object->current == 0;
-                _object->totalLifetime += lifetime;
-            }
-            if(detached)
-            {
-                _map->detached(this);
-            }
-        }
-
-        virtual MetricsPtr
-        clone() const
-        {
-            IceUtil::Mutex::Lock sync(*this);
-            return dynamic_cast<Metrics*>(_object->ice_clone().get());
-        }
-
-        const std::string& 
-        id() const
-        {
-            return _object->id;
-        }
-
-        bool 
-        isDetached() const
-        {
-            IceUtil::Mutex::Lock sync(*this);
-            return _object->current == 0;
-        }
-
-        virtual Entry*
-        getMatching(const std::string&, const MetricsHelper&)
-        {
-            return 0;
-        }
 
     protected:
 
         MetricsPtr _object;
-
-    private:
-
         MetricsMapI* _map;
         StringIntDict _failures;
     };
@@ -157,6 +102,8 @@ public:
     MetricsMapI(const std::string&, const Ice::PropertiesPtr&);
     MetricsMapI(const MetricsMapI&);
 
+    virtual ~MetricsMapI();
+    
     MetricsFailuresSeq getFailures();
     MetricsFailures getFailures(const std::string&);
     MetricsMap getMetrics() const;
@@ -250,8 +197,8 @@ public:
 
     private:
 
-        std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> > _subMaps;
         MetricsMapT* _map;
+        std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> > _subMaps;
     };
     typedef IceUtil::Handle<EntryT> EntryTPtr;
 
@@ -305,7 +252,14 @@ protected:
         TPtr t = new T();
         t->id = id;
         t->failures = 0;
-        return new EntryT(this, t);
+        if(_subMaps.empty())
+        {
+            return new Entry(this, t);
+        }
+        else
+        {
+            return new EntryT(this, t);
+        }
     }
 
     virtual MetricsMapI* clone() const
@@ -343,9 +297,7 @@ public:
     
     MetricsViewI(const std::string&);
 
-    void update(const Ice::PropertiesPtr&, 
-                const std::map<std::string, MetricsMapFactoryPtr>&, 
-                std::set<std::string>&);
+    void update(const Ice::PropertiesPtr&, const std::map<std::string, MetricsMapFactoryPtr>&, std::set<std::string>&);
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
@@ -362,7 +314,7 @@ private:
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 
-class MetricsAdminI : public MetricsAdmin, public IceUtil::Mutex
+class MetricsAdminI : public MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, private IceUtil::Mutex
 {
 public:
 
@@ -395,6 +347,8 @@ public:
     virtual MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,
                                                const ::Ice::Current&);
 
+    virtual void updated(const Ice::PropertyDict&);
+    
 private:
 
     std::map<std::string, MetricsViewIPtr> _views;

@@ -19,7 +19,8 @@ public interface PropertiesAdminUpdateCallback
 
 public interface NativePropertiesAdmin
 {
-    void setUpdateCallback(PropertiesAdminUpdateCallback callback);
+    void addUpdateCallback(PropertiesAdminUpdateCallback callback);
+    void removeUpdateCallback(PropertiesAdminUpdateCallback callback);
 }
 
 }
@@ -54,7 +55,7 @@ namespace IceInternal
             Dictionary<string, string> added = new Dictionary<string, string>();
             Dictionary<string, string> changed = new Dictionary<string, string>();
             Dictionary<string, string> removed = new Dictionary<string, string>();
-            Ice.PropertiesAdminUpdateCallback callback;
+            List<Ice.PropertiesAdminUpdateCallback> callbacks;
 
             lock(this)
             {
@@ -179,7 +180,7 @@ namespace IceInternal
                     _properties.setProperty(e.Key, "");
                 }
 
-                callback = _updateCallback;
+                callbacks = new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
             }
 
             //
@@ -187,7 +188,7 @@ namespace IceInternal
             //
             cb.ice_response();
 
-            if(callback != null)
+            if(callbacks != null)
             {
                 Dictionary<string, string> changes = new Dictionary<string, string>(added);
                 foreach(KeyValuePair<string, string> e in changed)
@@ -199,28 +200,39 @@ namespace IceInternal
                     changes.Add(e.Key, e.Value);
                 }
 
-                try
+                foreach(Ice.PropertiesAdminUpdateCallback callback in callbacks)
                 {
-                    callback.updated(changes);
-                }
-                catch(System.Exception ex)
-                {
-                    // Ignore.
+                    try
+                    {
+                        callback.updated(changes);
+                    }
+                    catch(System.Exception ex)
+                    {
+                        // Ignore.
+                    }
                 }
             }
         }
 
-        public void setUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
+        public void addUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
         {
             lock(this)
             {
-                _updateCallback = cb;
+                _updateCallbacks.Add(cb);
+            }
+        }
+
+        public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
+        {
+            lock(this)
+            {
+                _updateCallbacks.Remove(cb);
             }
         }
 
         private readonly string _name;
         private readonly Ice.Properties _properties;
         private readonly Ice.Logger _logger;
-        private Ice.PropertiesAdminUpdateCallback _updateCallback;
+        private List<Ice.PropertiesAdminUpdateCallback> _updateCallbacks = new List<Ice.PropertiesAdminUpdateCallback>();
     }
 }

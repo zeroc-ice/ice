@@ -27,15 +27,17 @@ public:
     virtual PropertyDict getPropertiesForPrefix(const std::string&, const Current&);
     virtual void setProperties_async(const AMD_PropertiesAdmin_setPropertiesPtr&, const PropertyDict&, const Current&);
 
-    virtual void setUpdateCallback(const PropertiesAdminUpdateCallbackPtr&);
+    virtual void addUpdateCallback(const PropertiesAdminUpdateCallbackPtr&);
+    virtual void removeUpdateCallback(const PropertiesAdminUpdateCallbackPtr&);
 
 private:
 
     const std::string _name;
     const PropertiesPtr _properties;
     const LoggerPtr _logger;
-    PropertiesAdminUpdateCallbackPtr _updateCallback;
+    std::vector<PropertiesAdminUpdateCallbackPtr> _updateCallbacks;
 };
+typedef IceUtil::Handle<PropertiesAdminI> PropertiesAdminIPtr;
 
 }
 

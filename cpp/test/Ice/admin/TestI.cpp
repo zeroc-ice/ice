@@ -110,7 +110,7 @@ RemoteCommunicatorFactoryI::createCommunicator(const Ice::PropertyDict& props, c
     {
         Ice::NativePropertiesAdminPtr admin = Ice::NativePropertiesAdminPtr::dynamicCast(propFacet);
         assert(admin);
-        admin->setUpdateCallback(servant);
+        admin->addUpdateCallback(servant);
     }
 
     Ice::ObjectPrx proxy = current.adapter->addWithUUID(servant);

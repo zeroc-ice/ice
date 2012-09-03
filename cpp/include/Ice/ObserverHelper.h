@@ -47,10 +47,14 @@ public:
     void
     attach(const TPtr& o)
     {
-        if(_observer)
-        {
-            _observer->detach();
-        }
+        //
+        // Don't detach the existing observer. The observer is being
+        // replaced and the observed object is still being observed!
+        //
+        // if(_observer)
+        // {
+        //     _observer->detach();
+        // }
         _observer = o;
         if(_observer)
         {
