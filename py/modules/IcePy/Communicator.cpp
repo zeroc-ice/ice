@@ -18,6 +18,7 @@
 #include <ObjectFactory.h>
 #include <Operation.h>
 #include <Properties.h>
+#include <PropertiesAdmin.h>
 #include <Proxy.h>
 #include <Thread.h>
 #include <Util.h>
@@ -865,6 +866,58 @@ communicatorAddAdminFacet(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* facetObj;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &facetObj))
+    {
+        return 0;
+    }
+
+    string facet;
+    if(!getStringArg(facetObj, "facet", facet))
+    {
+        return 0;
+    }
+
+    assert(self->communicator);
+    try
+    {
+        //
+        // The facet being found may not be implemented by a Python servant
+        // (e.g., it could be the Process or Properties facet), in which case
+        // we return None.
+        //
+        Ice::ObjectPtr obj = (*self->communicator)->findAdminFacet(facet);
+        if(obj)
+        {
+            ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
+            if(wrapper)
+            {
+                return wrapper->getObject();
+            }
+
+            Ice::NativePropertiesAdminPtr props = Ice::NativePropertiesAdminPtr::dynamicCast(obj);
+            if(props)
+            {
+                return createNativePropertiesAdmin(props);
+            }
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorRemoveAdminFacet(CommunicatorObject* self, PyObject* args)
 {
     PyObject* facetObj;
@@ -1426,6 +1479,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("getAdmin() -> Ice.ObjectPrx")) },
     { STRCAST("addAdminFacet"), reinterpret_cast<PyCFunction>(communicatorAddAdminFacet), METH_VARARGS,
         PyDoc_STR(STRCAST("addAdminFacet(servant, facet) -> None")) },
+    { STRCAST("findAdminFacet"), reinterpret_cast<PyCFunction>(communicatorFindAdminFacet), METH_VARARGS,
+        PyDoc_STR(STRCAST("findAdminFacet(facet) -> Ice.Object")) },
     { STRCAST("removeAdminFacet"), reinterpret_cast<PyCFunction>(communicatorRemoveAdminFacet), METH_VARARGS,
         PyDoc_STR(STRCAST("removeAdminFacet(facet) -> Ice.Object")) },
     { STRCAST("_setWrapper"), reinterpret_cast<PyCFunction>(communicatorSetWrapper), METH_VARARGS,

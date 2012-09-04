@@ -199,6 +199,18 @@ class SliceInfo(object):
     # objects - tuple of Ice.Object
     pass
 
+#
+# Native PropertiesAdmin admin facet.
+#
+NativePropertiesAdmin = IcePy.NativePropertiesAdmin
+
+class PropertiesAdminUpdateCallback(object):
+    '''Callback class to get notifications of property updates passed
+    through the Properties admin facet'''
+
+    def updated(self, props):
+        pass
+
 def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
 

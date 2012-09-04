@@ -819,15 +819,6 @@ IceInternal::Instance::setThreadHook(const Ice::ThreadNotificationPtr& threadHoo
     _initData.threadHook = threadHook;
 }
 
-void
-IceInternal::Instance::setObserver(const Ice::Instrumentation::CommunicatorObserverPtr& observer)
-{
-    //
-    // No locking, as it can only be called during plug-in loading
-    //
-    _initData.observer = observer;
-}
-
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),

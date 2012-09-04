@@ -21,6 +21,7 @@
 #include <ObjectAdapter.h>
 #include <Operation.h>
 #include <Properties.h>
+#include <PropertiesAdmin.h>
 #include <Proxy.h>
 #include <Slice.h>
 #include <Types.h>
@@ -154,6 +155,10 @@ initIcePy(void)
         INIT_RETURN;
     }
     if(!initProperties(module))
+    {
+        INIT_RETURN;
+    }
+    if(!initPropertiesAdmin(module))
     {
         INIT_RETURN;
     }
