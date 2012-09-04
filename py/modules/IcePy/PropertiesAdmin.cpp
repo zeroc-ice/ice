@@ -118,7 +118,7 @@ extern "C"
 static PyObject*
 nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType = lookupType("Ice.PropertiersAdminUpdateCallback");
+    PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &callback))
     {
@@ -127,6 +127,7 @@ nativePropertiesAdminAddUpdateCB(NativePropertiesAdminObject* self, PyObject* ar
 
     (*self->callbacks).push_back(new UpdateCallbackWrapper(callback));
     (*self->admin)->addUpdateCallback((*self->callbacks).back());
+    Py_INCREF(Py_None);
     return Py_None;
 }
 
@@ -136,7 +137,7 @@ extern "C"
 static PyObject*
 nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject* args)
 {
-    PyObject* callbackType = lookupType("Ice.PropertiersAdminUpdateCallback");
+    PyObject* callbackType = lookupType("Ice.PropertiesAdminUpdateCallback");
     PyObject* callback;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), callbackType, &callback))
     {
@@ -149,12 +150,12 @@ nativePropertiesAdminRemoveUpdateCB(NativePropertiesAdminObject* self, PyObject*
         if((*p)->getObject() == callback)
         {
             (*self->admin)->removeUpdateCallback(*p);
-            return Py_None;
+            break;
         }
     }
+    Py_INCREF(Py_None);
     return Py_None;
 }
-
 
 static PyMethodDef NativePropertiesAdminMethods[] =
 {
@@ -162,6 +163,7 @@ static PyMethodDef NativePropertiesAdminMethods[] =
         PyDoc_STR(STRCAST("addUpdateCallback(callback) -> None")) },
     { STRCAST("removeUpdateCallback"), reinterpret_cast<PyCFunction>(nativePropertiesAdminRemoveUpdateCB), METH_VARARGS,
         PyDoc_STR(STRCAST("removeUpdateCallback(callback) -> None")) },
+    { 0, 0 } /* sentinel */
 };
 
 namespace IcePy
