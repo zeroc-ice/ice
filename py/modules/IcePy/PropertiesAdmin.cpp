@@ -69,6 +69,8 @@ IcePy::UpdateCallbackWrapper::getObject() const
 void
 IcePy::UpdateCallbackWrapper::updated(const Ice::PropertyDict& dict)
 {
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
     PyObjectHandle result = PyDict_New();
     if(result.get())
     {

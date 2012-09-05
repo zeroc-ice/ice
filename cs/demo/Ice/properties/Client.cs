@@ -45,13 +45,6 @@ public class Client : Ice.Application
             return 1;
         }
 
-        //
-        // Since this is an interactive demo we want to clear the
-        // Application installed interrupt callback and install our
-        // own shutdown hook.
-        //
-        //setInterruptHook(new ShutdownHook());
-
         PropsPrx props = PropsPrxHelper.checkedCast(communicator().propertyToProxy("Props.Proxy"));
         if(props == null)
         {

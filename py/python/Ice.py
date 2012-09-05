@@ -351,6 +351,7 @@ import Ice_Locator_ice
 import Ice_Logger_ice
 import Ice_ObjectAdapter_ice
 import Ice_ObjectFactory_ice
+import Ice_Process_ice
 import Ice_Properties_ice
 import Ice_Router_ice
 import Ice_ServantLocator_ice
@@ -531,6 +532,9 @@ class CommunicatorI(Communicator):
 
     def addAdminFacet(self, servant, facet):
         self._impl.addAdminFacet(servant, facet)
+
+    def findAdminFacet(self, facet):
+        return self._impl.findAdminFacet(facet)
 
     def removeAdminFacet(self, facet):
         return self._impl.removeAdminFacet(facet)

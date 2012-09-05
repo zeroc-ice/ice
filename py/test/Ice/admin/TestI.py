@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice, Test
+import Ice, Test, threading
 
 def test(b):
     if not b:
@@ -23,10 +23,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
         self.called = False
         self.m = threading.Condition()
 
-    def getAdmin(current = None):
+    def getAdmin(self, current = None):
         return self.communicator.getAdmin()
 
-    def getChanges(current = None):
+    def getChanges(self, current = None):
         self.m.acquire()
         try:
             #
@@ -36,52 +36,52 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
             # updated() method is called. We block here to ensure that updated()
             # gets called before we return the most recent set of changes.
             #
-            while !self.called:
+            while not self.called:
                 self.m.wait()
             
-            self.called = false
+            self.called = False
             
             return self.changes
         finally:
             self.m.release()
 
-    def shutdown(current = None):
+    def shutdown(self, current = None):
         self.communicator.shutdown()
 
-    def waitForShutdown(current = None):
+    def waitForShutdown(self, current = None):
         #
         # Note that we are executing in a thread of the *main* communicator,
         # not the one that is being shut down.
         #
         self.communicator.waitForShutdown()
 
-    def destroy(current = None):
+    def destroy(self, current = None):
         self.communicator.destroy()
 
-    def updated(changes):
+    def updated(self, changes):
         self.m.acquire()
         try:
             self.changes = changes
-            self.called = true
+            self.called = True
             self.m.notify()
         finally:
             self.m.release()
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
-    def createCommunicator(props, current = None):
+    def createCommunicator(self, props, current = None):
         #
         # Prepare the property set using the given properties.
         #
         init = Ice.InitializationData()
-        init.properties = Ice.Util.createProperties()
-        for k, v in props:
+        init.properties = Ice.createProperties()
+        for k, v in props.items():
             init.properties.setProperty(k, v)
 
         #
         # Initialize a new communicator.
         #
-        communicator = Ice.Util.initialize(init)
+        communicator = Ice.initialize(init)
 
         #
         # Install a custom admin facet.
@@ -92,16 +92,14 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
         # The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
         # Set the callback on the admin facet.
         #
-        RemoteCommunicatorI servant = RemoteCommunicatorI(communicator)
-        propFacet = communicator.findAdminFacet("Properties")
-
-        admin = (Ice.NativePropertiesAdmin)propFacet
+        servant = RemoteCommunicatorI(communicator)
+        admin = communicator.findAdminFacet("Properties")
         test(admin != None)
         admin.addUpdateCallback(servant)
 
         proxy = current.adapter.addWithUUID(servant)
-        return RemoteCommunicatorPrxHelper.uncheckedCast(proxy)
+        return Test.RemoteCommunicatorPrx.uncheckedCast(proxy)
 
-    def shutdown(current = None)
+    def shutdown(self, current = None):
         current.adapter.getCommunicator().shutdown()
 

@@ -902,6 +902,10 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
             {
                 return createNativePropertiesAdmin(props);
             }
+
+            // If the facet isn't supported in Python, just return an Ice.Object.
+            PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
+            return objectType->tp_alloc(objectType, 0);
         }
     }
     catch(const Ice::Exception& ex)

@@ -25,6 +25,7 @@ def test(b):
 
 def run(args, communicator):
     AllTests.allTests(communicator)
+    return True
 
 try:
     communicator = Ice.initialize(sys.argv)

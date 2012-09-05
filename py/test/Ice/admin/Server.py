@@ -27,7 +27,7 @@ def run(args, communicator):
     adapter.activate();
 
     communicator.waitForShutdown();
-    return 0;
+    return True;
 
 try:
     communicator = Ice.initialize(sys.argv)
