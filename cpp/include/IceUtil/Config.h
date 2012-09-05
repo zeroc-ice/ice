@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_CONFIG_H
+#define ICE_UTIL_CONFIG_H
 
 //
 // Endianness
@@ -189,3 +190,4 @@ typedef long long Int64;
 #define ICE_STRING_VERSION "3.4.2" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30402      // AABBCC, with AA=major, BB=minor, CC=patch
 
+#endif

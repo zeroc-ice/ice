@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_RFC_2253_H
+#define ICE_SSL_RFC_2253_H
 
 #include <IceUtil/Config.h>
 #include <list>
@@ -62,3 +63,5 @@ std::string unescape(const std::string&);
 
 }
 }
+
+#endif

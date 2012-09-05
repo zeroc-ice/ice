@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SQL_LLU_H
+#define SQL_LLU_H
 
 #include <IceDB/SqlTypes.h>
 
@@ -33,3 +34,5 @@ private:
 typedef IceUtil::Handle<SqlLLU> SqlLLUPtr;
 
 }
+
+#endif

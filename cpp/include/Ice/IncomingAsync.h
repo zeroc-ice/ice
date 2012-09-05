@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_INCOMING_ASYNC_H
+#define ICE_INCOMING_ASYNC_H
 
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Incoming.h>
@@ -103,3 +104,5 @@ public:
 }
 
 }
+
+#endif

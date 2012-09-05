@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GCCOUNTMAP_H
+#define ICE_GCCOUNTMAP_H
 
 #include <map>
 
@@ -19,3 +20,5 @@ class GCShared;
 typedef ::std::map<GCShared*, int> GCCountMap;
 
 }
+
+#endif

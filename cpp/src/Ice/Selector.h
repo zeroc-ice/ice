@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SELECTOR_H
+#define ICE_SELECTOR_H
 
 #include <IceUtil/StringUtil.h>
 
@@ -224,3 +225,5 @@ private:
 #endif
 
 }
+
+#endif

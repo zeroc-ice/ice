@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_OBJECT_H
+#define ICE_OBJECT_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
@@ -172,3 +173,5 @@ ICE_API void ice_writeObject(const OutputStreamPtr&, const ObjectPtr&);
 ICE_API void ice_readObject(const InputStreamPtr&, ObjectPtr&);
 
 }
+
+#endif

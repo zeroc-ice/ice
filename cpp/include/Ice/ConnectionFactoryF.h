@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_CONNECTION_FACTORY_F_H
+#define ICE_CONNECTION_FACTORY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -25,3 +26,5 @@ ICE_API IceUtil::Shared* upCast(IncomingConnectionFactory*);
 typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
 
 }
+
+#endif

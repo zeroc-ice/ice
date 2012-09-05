@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STORM_PARSER_H
+#define ICE_STORM_PARSER_H
 
 #include <IceUtil/Handle.h>
 #include <IceStorm/IceStorm.h>
@@ -104,3 +105,5 @@ private:
 extern Parser* parser; // The current parser for bison/flex
 
 } // End namespace IceStorm
+
+#endif

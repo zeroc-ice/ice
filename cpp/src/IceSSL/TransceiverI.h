@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_TRANSCEIVER_I_H
+#define ICE_SSL_TRANSCEIVER_I_H
 
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
@@ -104,3 +105,5 @@ private:
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
 }
+
+#endif

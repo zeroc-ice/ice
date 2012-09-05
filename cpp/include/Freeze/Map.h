@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_MAP_H
+#define FREEZE_MAP_H
 
 #include <Ice/Ice.h>
 #include <iterator>
@@ -1160,5 +1161,7 @@ protected:
     Ice::EncodingVersion _encoding;
 };
 
-
 }
+
+#endif
+

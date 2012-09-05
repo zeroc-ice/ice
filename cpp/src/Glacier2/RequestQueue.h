@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef REQUEST_H
+#define REQUEST_H
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
@@ -113,3 +114,5 @@ private:
 };
 
 }
+
+#endif

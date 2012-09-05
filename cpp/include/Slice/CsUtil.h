@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef CS_UTIL_H
+#define CS_UTIL_H
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -84,3 +85,5 @@ private:
 };
 
 }
+
+#endif

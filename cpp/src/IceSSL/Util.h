@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_UTIL_H
+#define ICE_SSL_UTIL_H
 
 #include <IceSSL/UtilF.h>
 #include <Ice/Network.h>
@@ -57,3 +58,5 @@ bool checkPath(std::string&, const std::string&, bool);
 std::string getSslErrors(bool);
 
 }
+
+#endif

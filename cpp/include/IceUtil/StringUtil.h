@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STRING_UTIL_H
+#define ICE_STRING_UTIL_H
 
 #include <IceUtil/Config.h>
 #include <vector>
@@ -86,3 +87,5 @@ ICE_UTIL_API bool isDigit(char);
 ICE_UTIL_API std::string removeWhitespace(const std::string&);
 
 }
+
+#endif

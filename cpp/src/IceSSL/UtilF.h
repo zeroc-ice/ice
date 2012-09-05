@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_UTIL_F_H
+#define ICE_SSL_UTIL_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -24,4 +25,6 @@ IceUtil::Shared* upCast(IceSSL::DHParams*);
 typedef IceInternal::Handle<DHParams> DHParamsPtr;
 
 }
+#endif
+
 #endif

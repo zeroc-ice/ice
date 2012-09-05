@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_SCRIPT_PARSER_H
+#define FREEZE_SCRIPT_PARSER_H
 
 #include <FreezeScript/Data.h>
 
@@ -246,3 +247,5 @@ private:
 } // End of namespace FreezeScript
 
 std::ostream& operator<<(std::ostream&, const FreezeScript::EntityNodePtr&);
+
+#endif

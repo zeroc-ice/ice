@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_OBJECT_ADAPTER_I_H
+#define ICE_OBJECT_ADAPTER_I_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/RecMutex.h>
@@ -140,3 +141,5 @@ private:
 };
 
 }
+
+#endif

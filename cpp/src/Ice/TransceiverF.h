@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_TRANSCEIVER_F_H
+#define ICE_TRANSCEIVER_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ ICE_API IceUtil::Shared* upCast(Transceiver*);
 typedef Handle<Transceiver> TransceiverPtr;
 
 }
+
+#endif

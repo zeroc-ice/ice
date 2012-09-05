@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_EVICTOR_ITERATOR_I_H
+#define FREEZE_EVICTOR_ITERATOR_I_H
 
 #include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
@@ -48,3 +49,5 @@ private:
 };
 
 }
+
+#endif

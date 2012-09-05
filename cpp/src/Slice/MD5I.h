@@ -47,7 +47,8 @@
   1999-05-03 lpd Original version.
  */
 
-#pragma once
+#ifndef md5_INCLUDED
+#  define md5_INCLUDED
 
 /*
  * This package supports both compile-time and run-time determination of CPU
@@ -86,3 +87,5 @@ void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 #ifdef __cplusplus
 }  /* end extern "C" */
 #endif
+
+#endif /* md5_INCLUDED */

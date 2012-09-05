@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STREAM_ACCEPTOR_H
+#define ICE_STREAM_ACCEPTOR_H
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
@@ -64,3 +65,5 @@ private:
 };
 
 }
+#endif
+

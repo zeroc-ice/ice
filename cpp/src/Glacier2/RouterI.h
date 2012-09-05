@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GLACIER2_ROUTER_I_H
+#define GLACIER2_ROUTER_I_H
 
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
@@ -74,3 +75,5 @@ private:
 };
 
 }
+
+#endif

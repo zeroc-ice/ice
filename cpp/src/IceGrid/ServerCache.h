@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_SERVERCACHE_H
+#define ICE_GRID_SERVERCACHE_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
@@ -142,3 +143,5 @@ private:
 };
 
 };
+
+#endif

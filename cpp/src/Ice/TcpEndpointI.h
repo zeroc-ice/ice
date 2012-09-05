@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_TCP_ENDPOINT_I_H
+#define ICE_TCP_ENDPOINT_I_H
 
 #include <IceUtil/Config.h>
 #include <Ice/EndpointI.h>
@@ -84,3 +85,5 @@ private:
 };
 
 }
+
+#endif

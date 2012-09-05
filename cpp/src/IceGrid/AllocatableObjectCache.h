@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_ALLOCATABLEOBJECTCACHE_H
+#define ICE_GRID_ALLOCATABLEOBJECTCACHE_H
 
 #include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
@@ -113,3 +114,5 @@ private:
 };
 
 };
+
+#endif

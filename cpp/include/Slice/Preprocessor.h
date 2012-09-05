@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef PREPROCESSOR_H
+#define PREPROCESSOR_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -63,3 +64,5 @@ private:
 };
 
 }
+
+#endif

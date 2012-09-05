@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_DESCRIPTOR_HELPER_H
+#define ICE_GRID_DESCRIPTOR_HELPER_H
 
 #include <IceUtil/OutputUtil.h>
 #include <IceXML/Parser.h>
@@ -343,3 +344,5 @@ bool descriptorEqual(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
 ServerHelperPtr createHelper(const ServerDescriptorPtr&);
 
 }
+
+#endif

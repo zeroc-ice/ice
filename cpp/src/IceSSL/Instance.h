@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_INSTANCE_H
+#define ICE_SSL_INSTANCE_H
 
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/UtilF.h>
@@ -87,3 +88,5 @@ private:
 };
 
 }
+
+#endif

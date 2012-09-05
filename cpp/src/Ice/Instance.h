@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_INSTANCE_H
+#define ICE_INSTANCE_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -158,3 +159,5 @@ private:
 };
 
 }
+
+#endif

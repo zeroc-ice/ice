@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_PLUGIN_H
+#define ICE_SSL_PLUGIN_H
 
 #include <IceUtil/Time.h>
 #include <Ice/Plugin.h>
@@ -453,3 +454,5 @@ public:
 typedef IceUtil::Handle<Plugin> PluginPtr;
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_ENDPOINT_I_F_H
+#define ICE_ENDPOINT_I_F_H
 
 #include <Ice/Handle.h>
 #include <Ice/LocalObject.h>
@@ -24,3 +25,5 @@ ICE_API IceUtil::Shared* upCast(EndpointHostResolver*);
 typedef Handle<EndpointHostResolver> EndpointHostResolverPtr;
 
 }
+
+#endif

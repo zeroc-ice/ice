@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SUBSCRIBER_H
+#define SUBSCRIBER_H
 
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/SubscriberRecord.h>
@@ -92,3 +93,5 @@ bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 
 }
+
+#endif // SUBSCRIBER_H

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_PROTOCOL_PLUGIN_FACADE_H
+#define ICE_PROTOCOL_PLUGIN_FACADE_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -88,3 +89,5 @@ private:
 };
 
 }
+
+#endif

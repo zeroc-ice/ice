@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_SCOPED_ARRAY_H
+#define ICE_UTIL_SCOPED_ARRAY_H
 
 #include <IceUtil/Config.h>
 
@@ -85,3 +86,5 @@ private:
 };
 
 } // End of namespace IceUtil
+
+#endif

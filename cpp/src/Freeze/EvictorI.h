@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_EVICTOR_I_H
+#define FREEZE_EVICTOR_I_H
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
@@ -342,3 +343,5 @@ checkIdentity(const Ice::Identity& ident)
 }
 
 }
+
+#endif

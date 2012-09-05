@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_HANDLE_H
+#define ICE_HANDLE_H
 
 #include <IceUtil/Handle.h>
 #include <Ice/Config.h>
@@ -187,3 +188,5 @@ public:
 };
 
 }
+
+#endif

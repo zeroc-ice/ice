@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_TRANSCEIVER_H
+#define ICE_TRANSCEIVER_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/TransceiverF.h>
@@ -41,3 +42,5 @@ public:
 };
 
 }
+
+#endif

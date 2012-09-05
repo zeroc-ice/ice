@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_WAIT_QUEUE_H
+#define ICE_GRID_WAIT_QUEUE_H
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
@@ -57,3 +58,5 @@ private:
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
 }
+
+#endif

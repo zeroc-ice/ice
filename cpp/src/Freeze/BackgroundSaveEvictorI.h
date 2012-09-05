@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_BACKGROUND_SAVE_EVICTOR_I_H
+#define FREEZE_BACKGROUND_SAVE_EVICTOR_I_H
 
 #include <Freeze/EvictorI.h>
 #include <Freeze/BackgroundSaveEvictor.h>
@@ -212,3 +213,5 @@ private:
 };
 
 }
+
+#endif

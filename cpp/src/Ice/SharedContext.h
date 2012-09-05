@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SHARED_CONTEXT_H
+#define ICE_SHARED_CONTEXT_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -46,3 +47,5 @@ private:
 };
 typedef IceUtil::Handle<SharedContext> SharedContextPtr;
 }
+
+#endif

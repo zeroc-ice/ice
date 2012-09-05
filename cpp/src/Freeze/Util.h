@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_UTIL_H
+#define FREEZE_UTIL_H
 
 #include <Ice/Ice.h>
 #include <Freeze/DB.h>
@@ -67,3 +68,7 @@ handleDbException(const DbException&, Key&, Dbt&, Value&, Dbt&,
                   const char*, int);
 
 }
+
+
+#endif
+

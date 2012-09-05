@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SQL_TYPES_H
+#define SQL_TYPES_H
 
 #include <IceDB/IceDB.h>
 
@@ -205,3 +206,5 @@ protected:
 };
 
 }
+
+#endif

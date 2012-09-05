@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STREAM_H
+#define ICE_STREAM_H
 
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
@@ -436,3 +437,5 @@ protected:
 };
 
 }
+
+#endif

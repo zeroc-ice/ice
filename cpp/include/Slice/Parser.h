@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SLICE_PARSER_H
+#define SLICE_PARSER_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -1070,3 +1071,5 @@ private:
 extern SLICE_API Unit* unit; // The current parser for bison/flex
 
 }
+
+#endif

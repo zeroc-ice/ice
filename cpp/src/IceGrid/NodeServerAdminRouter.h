@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_NODE_SERVER_ADMIN_ROUTER_H
+#define ICE_GRID_NODE_SERVER_ADMIN_ROUTER_H
 
 #include <IceGrid/NodeI.h>
 
@@ -28,3 +29,4 @@ private:
     NodeIPtr _node;
 };
 }
+#endif

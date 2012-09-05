@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SERVANT_MANAGER_H
+#define ICE_SERVANT_MANAGER_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -69,3 +70,5 @@ private:
 };
 
 }
+
+#endif

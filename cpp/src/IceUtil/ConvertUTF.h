@@ -29,7 +29,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_CONVERT_UTF_H
+#define ICE_UTIL_CONVERT_UTF_H
 
 #include <IceUtil/Unicode.h>
 
@@ -140,3 +141,4 @@ ConversionResult ConvertUTF32toUTF8(
 /* --------------------------------------------------------------------- */
 
 }
+#endif

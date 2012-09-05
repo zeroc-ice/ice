@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_LOCK_H
+#define ICE_UTIL_LOCK_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/ThreadException.h>
@@ -130,3 +131,5 @@ public:
 };
 
 } // End namespace IceUtil
+
+#endif

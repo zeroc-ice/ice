@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_CONNECTIONI_F_H
+#define ICE_CONNECTIONI_F_H
 
 #include <Ice/Handle.h>
 #include <Ice/LocalObject.h>
@@ -32,3 +33,5 @@ enum AsyncStatus
 };
 
 }
+
+#endif

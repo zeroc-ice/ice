@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef BLOBJECT_H
+#define BLOBJECT_H
 
 #include <Ice/Ice.h>
 #include <Glacier2/RequestQueue.h>
@@ -69,3 +70,5 @@ private:
 };
 
 }
+
+#endif

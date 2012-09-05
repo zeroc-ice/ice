@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_EXCEPTION_H
+#define ICE_UTIL_EXCEPTION_H
 
 #include <IceUtil/Config.h>
 
@@ -134,3 +135,5 @@ private:
 };
 
 }
+
+#endif

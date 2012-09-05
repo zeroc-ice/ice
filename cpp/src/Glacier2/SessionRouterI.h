@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GLACIER2_SESSION_ROUTER_I_H
+#define GLACIER2_SESSION_ROUTER_I_H
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
@@ -162,3 +163,5 @@ private:
 };
 
 }
+
+#endif

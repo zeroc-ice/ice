@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_ARGVECTOR_H
+#define ICE_UTIL_ARGVECTOR_H
 
 #include <IceUtil/Config.h>
 #include <vector>
@@ -36,3 +37,5 @@ private:
 };
 
 }
+
+#endif

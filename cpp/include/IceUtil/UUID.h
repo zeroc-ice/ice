@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_UUID_H
+#define ICE_UTIL_UUID_H
 
 #include <IceUtil/Config.h>
 
@@ -17,3 +18,5 @@ namespace IceUtil
 ICE_UTIL_API std::string generateUUID();
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STORM_TRACE_LEVELS_H
+#define ICE_STORM_TRACE_LEVELS_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -45,3 +46,5 @@ public:
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 } // End namespace IceStorm
+
+#endif

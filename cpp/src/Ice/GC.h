@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GC_H
+#define ICE_GC_H
 
 #include <Ice/Config.h>
 #include <IceUtil/Thread.h>
@@ -46,3 +47,5 @@ private:
 };
 
 }
+
+#endif

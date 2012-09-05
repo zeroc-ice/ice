@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_OBJECTCACHE_H
+#define ICE_GRID_OBJECTCACHE_H
 
 #include <IceUtil/Mutex.h>
 #include <Ice/CommunicatorF.h>
@@ -80,3 +81,5 @@ private:
 };
 
 };
+
+#endif

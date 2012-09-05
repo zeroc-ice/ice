@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_MAP_DB_H
+#define FREEZE_MAP_DB_H
 
 #include <IceUtil/Config.h>
 #include <db_cxx.h>
@@ -119,3 +120,4 @@ MapDb::getKeyCompare() const
 }
 
 }
+#endif

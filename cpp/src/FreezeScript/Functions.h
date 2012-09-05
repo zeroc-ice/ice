@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_SCRIPT_FUNCTIONS_H
+#define FREEZE_SCRIPT_FUNCTIONS_H
 
 #include <FreezeScript/Data.h>
 
@@ -21,3 +22,5 @@ bool invokeMemberFunction(const std::string&, const DataPtr&, const DataList&, D
                           const ErrorReporterPtr&);
 
 }
+
+#endif

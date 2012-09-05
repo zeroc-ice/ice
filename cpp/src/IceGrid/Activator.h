@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_ACTIVATOR_H
+#define ICE_GRID_ACTIVATOR_H
 
 #include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
@@ -94,3 +95,5 @@ private:
 typedef IceUtil::Handle<Activator> ActivatorPtr;
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_TRANSACTIONAL_EVICTOR_I_H
+#define FREEZE_TRANSACTIONAL_EVICTOR_I_H
 
 #include <Freeze/EvictorI.h>
 #include <Freeze/TransactionalEvictor.h>
@@ -123,3 +124,5 @@ private:
 typedef IceUtil::Handle<TransactionalEvictorI> TransactionalEvictorIPtr;
 
 }
+
+#endif

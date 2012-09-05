@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef DATABASE_CACHE_H
+#define DATABASE_CACHE_H
 
 #include <Ice/Plugin.h>
 #include <IceDB/IceDB.h>
@@ -56,3 +57,6 @@ public:
 typedef IceUtil::Handle<DatabasePlugin> DatabasePluginPtr;
 
 }
+
+
+#endif

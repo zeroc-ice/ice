@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_DEFAULTS_AND_OVERRIDES_F_H
+#define ICE_DEFAULTS_AND_OVERRIDES_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ IceUtil::Shared* upCast(DefaultsAndOverrides*);
 typedef Handle<DefaultsAndOverrides> DefaultsAndOverridesPtr;
 
 }
+
+#endif

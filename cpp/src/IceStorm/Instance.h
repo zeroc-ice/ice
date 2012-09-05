@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef INSTANCE_H
+#define INSTANCE_H
+
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -102,3 +104,5 @@ private:
 typedef IceUtil::Handle<Instance> InstancePtr;
 
 } // End namespace IceStorm
+
+#endif

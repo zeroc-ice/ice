@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SERVICE_MANAGER_I_H
+#define SERVICE_MANAGER_I_H
 
 #include <IceBox/IceBox.h>
 #include <Ice/LoggerF.h>
@@ -86,3 +87,5 @@ private:
 typedef IceUtil::Handle<ServiceManagerI> ServiceManagerIPtr;
 
 }
+
+#endif

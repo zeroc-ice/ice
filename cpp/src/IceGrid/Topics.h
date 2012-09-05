@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICEGRID_TOPICS_H
+#define ICEGRID_TOPICS_H
 
 #include <IceUtil/Mutex.h>
 #include <IceStorm/IceStorm.h>
@@ -160,3 +161,5 @@ private:
 typedef IceUtil::Handle<ObjectObserverTopic> ObjectObserverTopicPtr;
 
 };
+
+#endif

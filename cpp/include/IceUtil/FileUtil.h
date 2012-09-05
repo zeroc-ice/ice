@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_FILE_UTIL_H
+#define ICE_FILE_UTIL_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -143,3 +144,4 @@ private:
 };
 
 }
+#endif

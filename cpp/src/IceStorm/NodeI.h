@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ELECTION_I_H
+#define ELECTION_I_H
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
@@ -197,3 +198,5 @@ private:
 };
 
 }
+
+#endif // ELECTION_I_H

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_ENDPOINT_FACTORY_H
+#define ICE_ENDPOINT_FACTORY_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/EndpointIF.h>
@@ -37,3 +38,5 @@ protected:
 };
 
 }
+
+#endif

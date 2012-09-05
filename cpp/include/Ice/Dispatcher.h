@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_DISPATCHER_H
+#define ICE_DISPATCHER_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
@@ -73,4 +74,6 @@ newDispatcher(const ::std::function<void (const ::Ice::DispatcherCallPtr&, const
 }
 
 }
+
+#endif
 #endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_COMMUNICATOR_I_H
+#define ICE_COMMUNICATOR_I_H
 
 #include <IceUtil/RecMutex.h>
 
@@ -107,3 +108,5 @@ private:
 };
 
 }
+
+#endif

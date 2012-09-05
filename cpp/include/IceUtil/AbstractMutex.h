@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_ABSTRACT_MUTEX_H
+#define ICE_UTIL_ABSTRACT_MUTEX_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
@@ -113,3 +114,5 @@ public:
 
 
 }
+
+#endif

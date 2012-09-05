@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_PROXY_FACTORY_H
+#define ICE_PROXY_FACTORY_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -52,3 +53,5 @@ private:
 };
 
 }
+
+#endif

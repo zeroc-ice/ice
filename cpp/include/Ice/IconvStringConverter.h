@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_ICONV_STRING_CONVERTER
+#define ICE_ICONV_STRING_CONVERTER
 
 #include <Ice/StringConverter.h>
 #include <Ice/UndefSysMacros.h>
@@ -367,3 +368,5 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 }
 
 }
+
+#endif

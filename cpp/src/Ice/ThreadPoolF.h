@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_THREAD_POOL_F_H
+#define ICE_THREAD_POOL_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -27,3 +28,5 @@ typedef Handle<ThreadPoolWorkItem> ThreadPoolWorkItemPtr;
 class ThreadPoolCurrent;
 
 }
+
+#endif
