@@ -261,13 +261,13 @@ private:
 
 class ObserverI;
 
-template<class MetricsType> class ObserverT : virtual public Ice::Instrumentation::Observer
+template<typename T> class ObserverT : virtual public Ice::Instrumentation::Observer
 {
 public:
 
-    typedef MetricsType Type;
-    typedef IceInternal::Handle<MetricsType> PtrType;
-    typedef std::vector<std::pair<PtrType, MetricsMapI::EntryPtr> > SeqType;
+    typedef T MetricsType;
+    typedef typename MetricsMapT<MetricsType>::EntryTPtr EntryPtrType;
+    typedef std::vector<EntryPtrType> EntrySeqType;
 
     ObserverT()
     {
@@ -283,54 +283,61 @@ public:
     detach()
     {
         Ice::Long lifetime = _watch.stop();
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        IceUtil::Mutex::Lock sync(*_mutex);
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            p->second->detach(lifetime);
+            (*p)->detach(lifetime);
         }
     }
 
     virtual void
     failed(const std::string& exceptionName)
     {
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        IceUtil::Mutex::Lock sync(*_mutex);
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            p->second->failed(exceptionName);
+            (*p)->failed(exceptionName);
         }
     }
 
     template<typename Function> void
     forEach(const Function& func)
     {
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        IceUtil::Mutex::Lock sync(*_mutex);
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            p->second->execute(func, p->first);
+            (*p)->execute(func);
         }
     }
     
     void
-    init(const MetricsHelperT<MetricsType>& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
+    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, IceUtil::Mutex* mutex)
     {
-        _objects.reserve(objects.size());
-        for(std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        _mutex = mutex;
+        _objects.swap(objects);
+        std::sort(_objects.begin(), _objects.end());
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            _objects.push_back(std::make_pair((*p)->attach(helper), *p));
+            (*p)->attach(helper);
         }
     }
 
     void
-    update(const MetricsHelperT<MetricsType>& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
+    update(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects)
     {
-        std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin();
-        typename SeqType::iterator q = _objects.begin();
+        std::sort(objects.begin(), objects.end());
+        typename EntrySeqType::const_iterator p = objects.begin();
+        typename EntrySeqType::iterator q = _objects.begin();
         while(p != objects.end())
         {
-            if(q == _objects.end() || *p < q->second) // New metrics object
+            if(q == _objects.end() || *p < *q) // New metrics object
             {
-                q = _objects.insert(q, std::make_pair((*p)->attach(helper), *p));
+                q = _objects.insert(q, *p);
+                (*p)->attach(helper);
                 ++p;
                 ++q;
             }
-            else if(*p == q->second) // Same metrics object
+            else if(*p == *q) // Same metrics object
             {
                 ++p;
                 ++q;
@@ -345,25 +352,32 @@ public:
     template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
     getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects;
-        for(typename SeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+        IceUtil::Mutex::Lock sync(*_mutex);
+        std::vector<typename MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
+            typename MetricsMapT<ObserverMetricsType>::EntryTPtr e = (*p)->getMatching(mapName, helper);
             if(e)
             {
                 metricsObjects.push_back(e);
             }
         }
 
+        if(metricsObjects.empty())
+        {
+            return 0;
+        }
+
         IceInternal::Handle<ObserverImpl> obsv = new ObserverImpl();
-        obsv->init(helper, metricsObjects);
+        obsv->init(helper, metricsObjects, _mutex);
         return obsv;
     }
     
 private:
 
-    SeqType _objects;
+    EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
+    IceUtil::Mutex* _mutex;
 };
 
 class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
@@ -388,11 +402,17 @@ class ObserverFactoryT : private IceUtil::Mutex
 public:
 
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
-    typedef typename ObserverImplType::Type MetricsType;
+    typedef typename ObserverImplType::MetricsType MetricsType;
+
+    typedef std::vector<IceUtil::Handle<MetricsMapT<MetricsType> > > MetricsMapSeqType;
 
     ObserverFactoryT(const MetricsAdminIPtr& metrics, const std::string& name) : _metrics(metrics), _name(name)
     {
         _metrics->registerMap<MetricsType>(name);
+    }
+
+    ObserverFactoryT(const std::string& name) : _name(name)
+    {
     }
 
     ObserverImplPtrType
@@ -400,10 +420,10 @@ public:
     {
         IceUtil::Mutex::Lock sync(*this);
 
-        std::vector<MetricsMapI::EntryPtr> metricsObjects;
-        for(std::vector<MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+        typename ObserverImplType::EntrySeqType metricsObjects;
+        for(typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
         {
-            MetricsMapI::EntryPtr entry = (*p)->getMatching(helper);
+            typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
             if(entry)
             {
                 metricsObjects.push_back(entry);
@@ -415,8 +435,10 @@ public:
             return 0;
         }
 
+        std::sort(metricsObjects.begin(), metricsObjects.end());
+
         ObserverImplPtrType obsv = new ObserverImplType();
-        obsv->init(helper, metricsObjects);
+        obsv->init(helper, metricsObjects, this);
         return obsv;
     }
 
@@ -425,10 +447,10 @@ public:
     {
         IceUtil::Mutex::Lock sync(*this);
 
-        std::vector<MetricsMapI::EntryPtr> metricsObjects;
-        for(std::vector<MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+        typename ObserverImplType::EntrySeqType metricsObjects;
+        for(typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
         {
-            MetricsMapI::EntryPtr entry = (*p)->getMatching(helper);
+            typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
             if(entry)
             {
                 metricsObjects.push_back(entry);
@@ -440,11 +462,13 @@ public:
             return 0;
         }
 
+        std::sort(metricsObjects.begin(), metricsObjects.end());
+
         ObserverImplPtrType obsv = ObserverImplPtrType::dynamicCast(observer);
         if(!obsv)
         {
             obsv = new ObserverImplType();
-            obsv->init(helper, metricsObjects);
+            obsv->init(helper, metricsObjects, this);
         }
         else
         {
@@ -467,7 +491,13 @@ public:
     void updateMaps()
     {
         IceUtil::Mutex::Lock sync(*this);
-        _maps = _metrics->getMaps(_name);
+        std::vector<MetricsMapIPtr> maps = _metrics->getMaps(_name);
+        _maps.clear();
+        for(std::vector<MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
+        {
+            _maps.push_back(IceUtil::Handle<MetricsMapT<MetricsType> >::dynamicCast(*p));
+            assert(_maps.back());
+        }
         _enabled = !_maps.empty();
     }
 
@@ -475,7 +505,7 @@ private:
 
     const MetricsAdminIPtr _metrics;
     const std::string _name;
-    std::vector<MetricsMapIPtr> _maps;
+    MetricsMapSeqType _maps;
     volatile bool _enabled;
 };
 

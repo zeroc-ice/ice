@@ -696,13 +696,21 @@ CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 ObserverPtr
 CommunicatorObserverI::getConnectionEstablishmentObserver(const EndpointInfoPtr& endpt, const string& connector)
 {
-    return _connects.getObserver(EndpointHelper(endpt, connector));
+    if(_connects.isEnabled())
+    {
+        return _connects.getObserver(EndpointHelper(endpt, connector));
+    }
+    return 0;
 }
 
 ObserverPtr
 CommunicatorObserverI::getEndpointLookupObserver(const EndpointInfoPtr& endpt, const string& endpoint)
 {
-    return _endpointLookups.getObserver(EndpointHelper(endpt, endpoint));
+    if(_endpointLookups.isEnabled())
+    {
+        return _endpointLookups.getObserver(EndpointHelper(endpt, endpoint));
+    }
+    return 0;
 }
 
 ConnectionObserverPtr 
@@ -711,7 +719,11 @@ CommunicatorObserverI::getConnectionObserver(const ConnectionInfoPtr& con,
                                              ConnectionState state, 
                                              const ConnectionObserverPtr& observer)
 {
-    return _connections.getObserver(ConnectionHelper(con, endpt, state), observer);
+    if(_connections.isEnabled())
+    {
+        return _connections.getObserver(ConnectionHelper(con, endpt, state), observer);
+    }
+    return 0;
 }
 
 ThreadObserverPtr 
@@ -720,7 +732,11 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
                                          ThreadState state,
                                          const ThreadObserverPtr& observer)
 {
-    return _threads.getObserver(ThreadHelper(parent, id, state), observer);
+    if(_threads.isEnabled())
+    {
+        return _threads.getObserver(ThreadHelper(parent, id, state), observer);
+    }
+    return 0;
 }
 
 InvocationObserverPtr 
@@ -736,13 +752,21 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
 InvocationObserverPtr 
 CommunicatorObserverI::getInvocationObserverWithContext(const ObjectPrx& proxy, const string& op, const Context& ctx)
 {
-    return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
+    if(_invocations.isEnabled())
+    {
+        return _invocations.getObserver(InvocationHelper(proxy, op, ctx));
+    }
+    return 0;
 }
 
 ObserverPtr 
 CommunicatorObserverI::getDispatchObserver(const Current& current)
 {
-    return _dispatch.getObserver(DispatchHelper(current));
+    if(_dispatch.isEnabled())
+    {
+        return _dispatch.getObserver(DispatchHelper(current));
+    }
+    return 0;
 }
 
 void

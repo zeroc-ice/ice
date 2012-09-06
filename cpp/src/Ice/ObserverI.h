@@ -40,9 +40,6 @@ public:
     virtual void retried();
 
     virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionPtr&);
-
-private:
-
 };
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, 
@@ -91,7 +88,7 @@ private:
     ObserverFactoryT<InvocationObserverI> _invocations;
     ObserverFactoryT<ThreadObserverI> _threads;
     ObserverFactoryT<ObserverI> _connects;
-    ObserverFactoryT<ObserverI>  _endpointLookups;
+    ObserverFactoryT<ObserverI> _endpointLookups;
 };
 typedef IceUtil::Handle<CommunicatorObserverI> CommunicatorObserverIPtr;
 
