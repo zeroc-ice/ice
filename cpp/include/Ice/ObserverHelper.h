@@ -100,7 +100,9 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 public:
 
     InvocationObserver(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
-    InvocationObserver();
+    InvocationObserver()
+    {
+    }
 
     void attach(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
 

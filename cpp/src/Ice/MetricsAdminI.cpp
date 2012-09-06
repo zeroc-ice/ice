@@ -71,7 +71,8 @@ MetricsMapI::RegExp::match(const MetricsHelper& helper)
 #endif
 }
 
-MetricsMapI::Entry::Entry(MetricsMapI* map, const MetricsPtr& object) : _object(object), _map(map)
+MetricsMapI::Entry::Entry(MetricsMapI* map, const MetricsPtr& object, const list<Entry*>::iterator& pos) : 
+    _object(object), _map(map), _detachedPos(pos)
 {
 }
 
@@ -101,25 +102,6 @@ MetricsMapI::Entry::getFailures() const
     return f;
 }
 
-void 
-MetricsMapI::Entry::detach(Ice::Long lifetime)
-{
-    MetricsMapI* map;
-    {
-        IceUtil::Mutex::Lock sync(*this);
-        _object->totalLifetime += lifetime;
-        if(--_object->current > 0)
-        {
-            return;
-        }
-        map = _map;
-    }
-    if(map)
-    {
-        map->detached(this);
-    }
-}
-
 MetricsPtr
 MetricsMapI::Entry::clone() const
 {
@@ -131,13 +113,6 @@ const string&
 MetricsMapI::Entry::id() const
 {
     return _object->id;
-}
-
-bool 
-MetricsMapI::Entry::isDetached() const
-{
-    Lock sync(*this);
-    return _object->current == 0;
 }
 
 MetricsMapI::Entry*
@@ -272,19 +247,26 @@ MetricsMapI::getMatching(const MetricsHelper& helper)
             return 0;
         }
     }
-    
-    ostringstream os;
-    vector<string>::const_iterator q = _groupBySeparators.begin();
-    for(vector<string>::const_iterator p = _groupByAttributes.begin(); p != _groupByAttributes.end(); ++p)
-    {
-        os << helper(*p);
-        if(q != _groupBySeparators.end())
-        {
-            os << *q++;
-        }
-    }
 
-    string key = os.str();
+    string key;
+    if(_groupByAttributes.size() == 1)
+    {
+        key = helper(_groupByAttributes.front());
+    }
+    else
+    {
+        ostringstream os;
+        vector<string>::const_iterator q = _groupBySeparators.begin();
+        for(vector<string>::const_iterator p = _groupByAttributes.begin(); p != _groupByAttributes.end(); ++p)
+        {
+            os << helper(*p);
+            if(q != _groupBySeparators.end())
+            {
+                os << *q++;
+            }
+        }
+        key = os.str();
+    }
 
     Lock sync(*this);
     map<string, EntryPtr>::const_iterator p = _objects.find(key);
@@ -298,29 +280,35 @@ MetricsMapI::getMatching(const MetricsHelper& helper)
 void
 MetricsMapI::detached(Entry* entry)
 {
-    Lock sync(*this);
     if(_retain == 0)
     {
         return;
     }
 
+    Lock sync(*this);
     assert(static_cast<int>(_detachedQueue.size()) <= _retain);
 
-    deque<Entry*>::iterator p = _detachedQueue.begin();
-    while(p != _detachedQueue.end())
+    if(entry->_detachedPos != _detachedQueue.end())
     {
-        if(*p == entry)
+        _detachedQueue.splice(_detachedQueue.end(), _detachedQueue, entry->_detachedPos);
+        entry->_detachedPos = --_detachedQueue.end();
+        return;
+    }
+
+    if(static_cast<int>(_detachedQueue.size()) == _retain)
+    {
+        // Remove entries which are no longer detached
+        list<Entry*>::iterator p = _detachedQueue.begin();
+        while(p != _detachedQueue.end())
         {
-            _detachedQueue.erase(p);
-            break;
-        }
-        else if(!(*p)->isDetached())
-        {
-            p = _detachedQueue.erase(p);
-        }
-        else
-        {
-            ++p;
+            if(!(*p)->isDetached())
+            {
+                p = _detachedQueue.erase(p);
+            }
+            else
+            {
+                ++p;
+            }
         }
     }
 
@@ -332,6 +320,7 @@ MetricsMapI::detached(Entry* entry)
     }
 
     _detachedQueue.push_back(entry);
+    entry->_detachedPos = --_detachedQueue.end();
 }
     
 MetricsViewI::MetricsViewI(const string& name) : _name(name)
@@ -414,17 +403,6 @@ MetricsViewI::getFailures(const string& mapName, const string& id)
     return MetricsFailures();
 }
 
-MetricsMapI::EntryPtr
-MetricsViewI::getMatching(const string& mapName, const MetricsHelper& helper) const
-{
-    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
-    if(p != _maps.end())
-    {
-        return p->second->getMatching(helper);
-    }
-    return 0;
-}
-
 vector<string>
 MetricsViewI::getMaps() const
 {
@@ -434,6 +412,17 @@ MetricsViewI::getMaps() const
         maps.push_back(p->first);
     }
     return maps;
+}
+
+MetricsMapIPtr
+MetricsViewI::getMap(const string& mapName) const
+{
+    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    if(p != _maps.end())
+    {
+        return p->second;
+    }
+    return 0;
 }
 
 MetricsAdminI::MetricsAdminI(const Ice::PropertiesPtr& properties) : _properties(properties)
@@ -527,23 +516,6 @@ MetricsAdminI::updateViews()
      }
 }
         
-vector<MetricsMapI::EntryPtr>
-MetricsAdminI::getMatching(const string& mapName, const MetricsHelper& helper) const
-{
-    Lock sync(*this);
-    vector<MetricsMapI::EntryPtr> objects;
-    for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
-    {
-        MetricsMapI::EntryPtr e = p->second->getMatching(mapName, helper);
-        if(e)
-        {
-            objects.push_back(e);
-        }
-    }
-    sort(objects.begin(), objects.end());
-    return objects;
-}
-
 Ice::StringSeq
 MetricsAdminI::getMetricsViewNames(const ::Ice::Current&)
 {
@@ -593,15 +565,18 @@ MetricsAdminI::getMetricsFailures(const string& view, const string& map, const s
     return p->second->getFailures(map, id);
 }
 
-void 
-MetricsAdminI::updated(const PropertyDict& props)
+vector<MetricsMapIPtr> 
+MetricsAdminI::getMaps(const string& mapName) const
 {
-    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    Lock sync(*this);
+    vector<MetricsMapIPtr> maps;
+    for(std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        if(p->first.find("IceMX.") == 0)
+        MetricsMapIPtr map = p->second->getMap(mapName);
+        if(map)
         {
-            updateViews();
-            return;
+            maps.push_back(map);
         }
     }
+    return maps;
 }

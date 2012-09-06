@@ -58,6 +58,10 @@ protected:
 
     public:
 
+        AttributeResolverT() : _default(0)
+        {
+        }
+
         ~AttributeResolverT()
         {
             for(typename std::map<std::string, Resolver*>::iterator p = _attributes.begin(); p != _attributes.end();++p)
@@ -75,33 +79,43 @@ protected:
                 {
                     return "";
                 }
+                if(_default)
+                {
+                    return (helper->*_default)(attribute);
+                }
                 return "unknown";
             }
             return (*p->second)(helper);
+        }
+        
+        void
+        setDefault(std::string (Helper::*memberFn)(const std::string&) const)
+        {
+            _default = memberFn;
         }
 
         template<typename Y> void
         add(const std::string& name, Y Helper::*member)
         {
-            _attributes.insert(make_pair(name,  new HelperMemberResolver<Y>(member)));
+            _attributes.insert(make_pair(name, new HelperMemberResolver<Y>(member)));
         }
 
         template<typename Y> void
         add(const std::string& name, Y (Helper::*memberFn)() const)
         {
-            _attributes.insert(make_pair(name,  new HelperMemberFunctionResolver<Y>(memberFn)));
+            _attributes.insert(make_pair(name, new HelperMemberFunctionResolver<Y>(memberFn)));
         }
 
         template<typename I, typename O, typename Y> void
         add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
         {
-            _attributes.insert(make_pair(name,  new MemberResolver<I, O, Y>(getFn, member)));
+            _attributes.insert(make_pair(name, new MemberResolver<I, O, Y>(getFn, member)));
         }
 
         template<typename I, typename O, typename Y> void
         add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
         {
-            _attributes.insert(make_pair(name,  new MemberFunctionResolver<I, O, Y>(getFn, memberFn)));
+            _attributes.insert(make_pair(name, new MemberFunctionResolver<I, O, Y>(getFn, memberFn)));
         }
 
     private:
@@ -208,7 +222,7 @@ protected:
             return os.str();
         }
 
-        static std::string
+        static const std::string&
         toString(const std::string& s)
         {
             return s;
@@ -221,6 +235,7 @@ protected:
         }
 
         std::map<std::string, Resolver*> _attributes;
+        std::string (Helper::*_default)(const std::string&) const;
     };
 };
 
@@ -257,7 +272,7 @@ public:
     ObserverT()
     {
     }
-
+    
     virtual void 
     attach()
     {
@@ -292,6 +307,16 @@ public:
         }
     }
     
+    void
+    init(const MetricsHelperT<MetricsType>& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
+    {
+        _objects.reserve(objects.size());
+        for(std::vector<MetricsMapI::EntryPtr>::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        {
+            _objects.push_back(std::make_pair((*p)->attach(helper), *p));
+        }
+    }
+
     void
     update(const MetricsHelperT<MetricsType>& helper, const std::vector<MetricsMapI::EntryPtr>& objects)
     {
@@ -331,7 +356,7 @@ public:
         }
 
         IceInternal::Handle<ObserverImpl> obsv = new ObserverImpl();
-        obsv->update(helper, metricsObjects);
+        obsv->init(helper, metricsObjects);
         return obsv;
     }
     
@@ -358,7 +383,7 @@ newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 }
 
 template<typename ObserverImplType> 
-class ObserverFactoryT
+class ObserverFactoryT : private IceUtil::Mutex
 {
 public:
 
@@ -373,21 +398,43 @@ public:
     ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        IceUtil::Mutex::Lock sync(*this);
+
+        std::vector<MetricsMapI::EntryPtr> metricsObjects;
+        for(std::vector<MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+        {
+            MetricsMapI::EntryPtr entry = (*p)->getMatching(helper);
+            if(entry)
+            {
+                metricsObjects.push_back(entry);
+            }
+        }
+
         if(metricsObjects.empty())
         {
             return 0;
         }
 
         ObserverImplPtrType obsv = new ObserverImplType();
-        obsv->update(helper, metricsObjects);
+        obsv->init(helper, metricsObjects);
         return obsv;
     }
 
     template<typename ObserverPtrType> ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
-        std::vector<MetricsMapI::EntryPtr> metricsObjects = _metrics->getMatching(_name, helper);
+        IceUtil::Mutex::Lock sync(*this);
+
+        std::vector<MetricsMapI::EntryPtr> metricsObjects;
+        for(std::vector<MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+        {
+            MetricsMapI::EntryPtr entry = (*p)->getMatching(helper);
+            if(entry)
+            {
+                metricsObjects.push_back(entry);
+            }
+        }
+
         if(metricsObjects.empty())
         {
             return 0;
@@ -397,8 +444,12 @@ public:
         if(!obsv)
         {
             obsv = new ObserverImplType();
+            obsv->init(helper, metricsObjects);
         }
-        obsv->update(helper, metricsObjects);
+        else
+        {
+            obsv->update(helper, metricsObjects);
+        }
         return obsv;
     }
 
@@ -408,10 +459,24 @@ public:
         _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
     }
 
+    bool isEnabled() const
+    {
+        return _enabled;
+    }
+
+    void updateMaps()
+    {
+        IceUtil::Mutex::Lock sync(*this);
+        _maps = _metrics->getMaps(_name);
+        _enabled = !_maps.empty();
+    }
+
 private:
 
     const MetricsAdminIPtr _metrics;
     const std::string _name;
+    std::vector<MetricsMapIPtr> _maps;
+    volatile bool _enabled;
 };
 
 }

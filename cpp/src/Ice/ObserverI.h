@@ -45,7 +45,8 @@ private:
 
 };
 
-class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
+class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, 
+                              public Ice::PropertiesAdminUpdateCallback
 {
 public:
 
@@ -80,6 +81,9 @@ public:
 
 private:
 
+    void updateObservers();
+    virtual void updated(const Ice::PropertyDict&);
+
     const MetricsAdminIPtr _metrics;
 
     ObserverFactoryT<ConnectionObserverI> _connections;
@@ -89,6 +93,7 @@ private:
     ObserverFactoryT<ObserverI> _connects;
     ObserverFactoryT<ObserverI>  _endpointLookups;
 };
+typedef IceUtil::Handle<CommunicatorObserverI> CommunicatorObserverIPtr;
 
 };
 

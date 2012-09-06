@@ -21,6 +21,8 @@ using namespace IceMX;
 namespace 
 {
 
+Ice::Context emptyCtx;
+
 int ConnectionMetrics::*
 getConnectionStateMetric(ConnectionState s)
 {
@@ -167,22 +169,26 @@ public:
         ++(v.get()->*getConnectionStateMetric(_state));
     }
 
-    string 
+    const string&
     getId() const
     {
-        ostringstream os;
-        IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection);
-        if(info)
+        if(_id.empty())
         {
-            os << info->localAddress << ':' << info->localPort;
-            os << " -> ";
-            os << info->remoteAddress << ':' << info->remotePort;
+            ostringstream os;
+            IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection);
+            if(info)
+            {
+                os << info->localAddress << ':' << info->localPort;
+                os << " -> ";
+                os << info->remoteAddress << ':' << info->remotePort;
+            }
+            else
+            {
+                os << "connection-" << _connection.get();
+            }
+            _id = os.str();
         }
-        else
-        {
-            os << "connection-" << _connection.get();
-        }
-        return os.str();
+        return _id;
     }
     
     string 
@@ -212,9 +218,10 @@ public:
     
 private:
 
-    const ConnectionInfoPtr _connection;
-    const EndpointInfoPtr _endpoint;
+    const ConnectionInfoPtr& _connection;
+    const EndpointInfoPtr& _endpoint;
     const ConnectionState _state;
+    mutable string _id;
 };
 
 ConnectionHelper::Attributes ConnectionHelper::attributes;
@@ -240,6 +247,8 @@ public:
             add("facet", &DispatchHelper::getCurrent, &Current::facet);
             add("encoding", &DispatchHelper::getCurrent, &Current::encoding);
             add("mode", &DispatchHelper::getMode);
+
+            setDefault(&DispatchHelper::resolve);
         }
     };
     static Attributes attributes;
@@ -250,19 +259,20 @@ public:
 
     virtual string operator()(const string& attribute) const
     {
-        if(attribute.find("context.") == 0)
+        return attributes(this, attribute);
+    }
+
+    string resolve(const string& attribute) const
+    {
+        if(attribute.compare(0, 8, "context.") == 0)
         {
             Ice::Context::const_iterator p = _current.ctx.find(attribute.substr(8));
             if(p != _current.ctx.end())
             {
                 return p->second;
             }
-            return "unknown";
         }
-        else
-        {
-            return attributes(this, attribute);
-        }
+        return "unknown";
     }
 
     string
@@ -271,16 +281,20 @@ public:
         return _current.requestId == 0 ? "oneway" : "twoway";
     }
 
-    string 
+    const string&
     getId() const
     {
-        ostringstream os;
-        if(!_current.id.category.empty())
+        if(_id.empty())
         {
-            os << _current.id.category << '/';
+            ostringstream os;
+            if(!_current.id.category.empty())
+            {
+                os << _current.id.category << '/';
+            }
+            os << _current.id.name << " [" << _current.operation << ']';
+            _id = os.str();
         }
-        os << _current.id.name << " [" << _current.operation << ']';
-        return os.str();
+        return _id;
     }
 
     string 
@@ -316,6 +330,7 @@ public:
 private:
 
     const Current& _current;
+    mutable string _id;
 };
 
 DispatchHelper::Attributes DispatchHelper::attributes;
@@ -333,37 +348,40 @@ public:
             add("parent", &InvocationHelper::getParent);
             add("id", &InvocationHelper::getId);
 
-            add("operation", &InvocationHelper::_operation);
+            add("operation", &InvocationHelper::getOperation);
             add("identityCategory", &InvocationHelper::getIdentity, &Identity::category);
             add("identityName", &InvocationHelper::getIdentity, &Identity::name);
             add("facet", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
             add("encoding", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
             add("mode", &InvocationHelper::getMode);
             add("proxy", &InvocationHelper::getProxy);
+
+            setDefault(&InvocationHelper::resolve);
         }
     };
     static Attributes attributes;
     
-    InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = Ice::Context()) :
+    InvocationHelper(const Ice::ObjectPrx& proxy, const string& op, const Ice::Context& ctx = emptyCtx) :
         _proxy(proxy), _operation(op), _context(ctx)
     {
     }
 
-    virtual string operator()(const string& attribute) const
+    string resolve(const string& attribute) const
     {
-        if(attribute.find("context.") == 0)
+        if(attribute.compare(0, 8, "context.") == 0)
         {
             Ice::Context::const_iterator p = _context.find(attribute.substr(8));
             if(p != _context.end())
             {
                 return p->second;
             }
-            return "unknown";
         }
-        else
-        {
-            return attributes(this, attribute);
-        }
+        return "unknown";
+    }
+
+    virtual string operator()(const string& attribute) const
+    {
+        return attributes(this, attribute);
     }
 
     string
@@ -395,12 +413,16 @@ public:
         }
     }
 
-    string 
+    const string&
     getId() const
     {
-        ostringstream os;
-        os << _proxy << " [" << _operation << ']';
-        return os.str();
+        if(_id.empty())
+        {
+            ostringstream os;
+            os << _proxy << " [" << _operation << ']';
+            _id = os.str();
+        }
+        return _id;
     }
 
     string 
@@ -422,11 +444,18 @@ public:
         return _proxy->ice_getIdentity();
     }
 
+    const string&
+    getOperation() const
+    {
+        return _operation;
+    }
+
 private:
 
     const ObjectPrx& _proxy;
-    const string _operation;
+    const string& _operation;
     const Ice::Context& _context;
+    mutable string _id;
 };
 
 InvocationHelper::Attributes InvocationHelper::attributes;
@@ -457,20 +486,24 @@ public:
         return attributes(this, attribute);
     }
 
-    string 
+    const string&
     getId() const
     {
-        ostringstream os;
-        IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection->getInfo());
-        if(info)
+        if(_id.empty())
         {
-            os << info->remoteAddress << ':' << info->remotePort;
+            ostringstream os;
+            IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connection->getInfo());
+            if(info)
+            {
+                os << info->remoteAddress << ':' << info->remotePort;
+            }
+            else
+            {
+                os << "connection-" << _connection.get();
+            }
+            _id = os.str();
         }
-        else
-        {
-            os << "connection-" << _connection.get();
-        }
-        return os.str();
+        return _id;
     }
     
     string 
@@ -500,7 +533,8 @@ public:
     
 private:
 
-    const ConnectionPtr _connection;
+    const ConnectionPtr& _connection;
+    mutable string _id;
 };
 
 RemoteInvocationHelper::Attributes RemoteInvocationHelper::attributes;
@@ -649,6 +683,7 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
 {
     _invocations.registerSubMap<Metrics>("Remote", &InvocationMetrics::remotes);
     _metrics->updateViews();
+    updateObservers();
 }
 
 void
@@ -691,7 +726,11 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
 InvocationObserverPtr 
 CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const string& op)
 {
-    return _invocations.getObserver(InvocationHelper(proxy, op));
+    if(_invocations.isEnabled())
+    {
+        return _invocations.getObserver(InvocationHelper(proxy, op));
+    }
+    return 0;
 }
 
 InvocationObserverPtr 
@@ -704,4 +743,31 @@ ObserverPtr
 CommunicatorObserverI::getDispatchObserver(const Current& current)
 {
     return _dispatch.getObserver(DispatchHelper(current));
+}
+
+void
+CommunicatorObserverI::updateObservers()
+{
+    _connections.updateMaps();
+    _dispatch.updateMaps();
+    _invocations.updateMaps();
+    _threads.updateMaps();
+    _connects.updateMaps();
+    _endpointLookups.updateMaps();
+}
+
+void 
+CommunicatorObserverI::updated(const PropertyDict& props)
+{
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    {
+        if(p->first.find("IceMX.") == 0)
+        {
+            // Udpate the metrics views using the new configuration and then update
+            // the maps associated to observers.
+            _metrics->updateViews();
+            updateObservers();
+            return;
+        }
+    }
 }

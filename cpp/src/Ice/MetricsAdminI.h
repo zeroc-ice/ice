@@ -25,6 +25,8 @@
 #  include <regex.h>
 #endif
 
+#include <list>
+
 namespace IceMX
 {
 
@@ -61,21 +63,20 @@ public:
     {
     public:
 
-        Entry(MetricsMapI* map, const MetricsPtr& object);
+        Entry(MetricsMapI* map, const MetricsPtr& object, const std::list<Entry*>::iterator&);
 
         void destroy();
         void  failed(const std::string& exceptionName);
         MetricsFailures getFailures() const;
-        void detach(Ice::Long lifetime);
+
         virtual MetricsPtr clone() const;
         const std::string& id() const;
-        bool isDetached() const;
         virtual Entry* getMatching(const std::string&, const MetricsHelper&);
 
         template<typename T> IceInternal::Handle<T>
         attach(const MetricsHelperT<T>& helper)
         {
-            IceUtil::Mutex::Lock sync(*this);
+            Lock sync(*this);
             ++_object->total;
             ++_object->current;
             IceInternal::Handle<T> obj = IceInternal::Handle<T>::dynamicCast(_object);
@@ -84,18 +85,45 @@ public:
             return obj;
         }
 
+        void detach(Ice::Long lifetime)
+        {
+            MetricsMapI* map;
+            {
+                Lock sync(*this);
+                _object->totalLifetime += lifetime;
+                if(--_object->current > 0)
+                {
+                    return;
+                }
+                map = _map;
+            }
+            if(map)
+            {
+                map->detached(this);
+            }
+        }
+
+        bool isDetached() const
+        {
+            Lock sync(*this);
+            return _object->current == 0;
+        }
+
         template<typename Function, typename MetricsType> void
         execute(Function func, const MetricsType& obj)
         {
-            IceUtil::Mutex::Lock sync(*this);
+            Lock sync(*this);
             func(obj);
         }
 
     protected:
 
+        friend class MetricsMapI;
+
         MetricsPtr _object;
         MetricsMapI* _map;
         StringIntDict _failures;
+        std::list<Entry*>::iterator _detachedPos;
     };
     typedef IceUtil::Handle<Entry> EntryPtr;
 
@@ -119,6 +147,7 @@ public:
 protected:
 
     virtual EntryPtr newEntry(const std::string&) = 0;
+    std::list<Entry*> _detachedQueue;
 
 private:
 
@@ -133,7 +162,6 @@ private:
     const std::vector<RegExpPtr> _reject;
 
     std::map<std::string, EntryPtr> _objects;
-    std::deque<Entry*> _detachedQueue;
 };
 typedef IceUtil::Handle<MetricsMapI> MetricsMapIPtr;
 
@@ -158,7 +186,8 @@ public:
     {
     public:
 
-        EntryT(MetricsMapT* map, const TPtr& object) : Entry(map, object), _map(map)
+        EntryT(MetricsMapT* map, const TPtr& object, const std::list<Entry*>::iterator& p) : 
+            Entry(map, object, p), _map(map)
         {
         }
 
@@ -185,7 +214,7 @@ public:
         virtual MetricsPtr
         clone() const
         {
-            IceUtil::Mutex::Lock sync(*this);
+            Lock sync(*this);
             TPtr metrics = TPtr::dynamicCast(_object->ice_clone());
             for(typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
                     _subMaps.begin(); p != _subMaps.end(); ++p)
@@ -210,7 +239,7 @@ public:
         typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >::const_iterator p;
         for(p = subMaps.begin(); p != subMaps.end(); ++p)
         {
-            const std::string subMapsPrefix = mapPrefix + ".Map.";
+            const std::string subMapsPrefix = mapPrefix + "Map.";
             std::string subMapPrefix = subMapsPrefix + p->first;
             if(properties->getPropertiesForPrefix(subMapPrefix).empty())
             {
@@ -254,11 +283,11 @@ protected:
         t->failures = 0;
         if(_subMaps.empty())
         {
-            return new Entry(this, t);
+            return new Entry(this, t, _detachedQueue.end());
         }
         else
         {
-            return new EntryT(this, t);
+            return new EntryT(this, t, _detachedQueue.end());
         }
     }
 
@@ -303,9 +332,9 @@ public:
     MetricsFailuresSeq getFailures(const std::string&);
     MetricsFailures getFailures(const std::string&, const std::string&);
 
-    MetricsMapI::EntryPtr getMatching(const std::string&, const MetricsHelper&) const;
-
     std::vector<std::string> getMaps() const;
+
+    MetricsMapIPtr getMap(const std::string&) const;
 
 private:
 
@@ -314,13 +343,11 @@ private:
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 
-class MetricsAdminI : public MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, private IceUtil::Mutex
+class MetricsAdminI : public MetricsAdmin, private IceUtil::Mutex
 {
 public:
 
     MetricsAdminI(const ::Ice::PropertiesPtr&);
-
-    std::vector<MetricsMapI::EntryPtr> getMatching(const std::string&, const MetricsHelper&) const;
 
     void addUpdater(const std::string&, const UpdaterPtr&);
     void updateViews();
@@ -347,8 +374,8 @@ public:
     virtual MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,
                                                const ::Ice::Current&);
 
-    virtual void updated(const Ice::PropertyDict&);
-    
+    std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
+
 private:
 
     std::map<std::string, MetricsViewIPtr> _views;

@@ -19,14 +19,21 @@ using namespace IceInternal;
 
 InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& operation, const Context* context)
 {
-    if(proxy->__reference()->getInstance()->initializationData().observer)
+    const Ice::Instrumentation::CommunicatorObserverPtr& obsv = 
+        proxy->__reference()->getInstance()->initializationData().observer;
+    if(obsv)
     {
-        attach(proxy, operation, context);
+        if(context)
+        {
+            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
+                obsv->getInvocationObserverWithContext(proxy, operation, *context));
+        }
+        else
+        {
+            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
+                obsv->getInvocationObserver(proxy, operation));
+        }
     }
-}
-
-InvocationObserver::InvocationObserver()
-{
 }
 
 void

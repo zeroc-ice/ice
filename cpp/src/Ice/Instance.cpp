@@ -1103,17 +1103,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
         _adminFacets.insert(FacetMap::value_type("Properties",props));
 
-        // Make sure the MetricsAdmin plugin received property update notifications.
-        props->addUpdateCallback(admin);
-
         //
         // Setup the communicator observer only the metrics admin plugin only if the user didn't already set an
         // Ice observer resovler.
         //
         if(!_initData.observer && 
-           (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()))
+           (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()) &&
+           _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            _initData.observer = new IceMX::CommunicatorObserverI(admin);
+            IceMX::CommunicatorObserverIPtr observer = new IceMX::CommunicatorObserverI(admin);
+            _initData.observer = observer;
+
+            // Make sure the MetricsAdmin plugin received property update notifications.
+            props->addUpdateCallback(observer);
         }
 
         __setNoDelete(false);
