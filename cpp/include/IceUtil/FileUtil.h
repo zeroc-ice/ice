@@ -121,6 +121,10 @@ public:
     ifstream(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
     void open(const std::string&, std::ios_base::openmode mode = std::ios_base::in);
 
+#ifdef __SUNPRO_CC
+    using std::ifstream::open;
+#endif
+
 private:
 
     // Hide const char* definitions since they shouldn't be used.
@@ -135,6 +139,10 @@ public:
     ofstream();
     ofstream(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
     void open(const std::string&, std::ios_base::openmode mode = std::ios_base::out);
+
+#ifdef __SUNPRO_CC
+    using std::ofstream::open;
+#endif
 
 private:
 

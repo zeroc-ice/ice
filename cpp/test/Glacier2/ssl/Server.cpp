@@ -99,7 +99,7 @@ public:
     }
 
     virtual void
-    ice_ping(const Ice::Current& current)
+    ice_ping(const Ice::Current& current) const
     {
         testContext(_ssl, current.ctx);
     }

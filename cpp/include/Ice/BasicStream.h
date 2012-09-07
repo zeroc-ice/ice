@@ -891,7 +891,7 @@ private:
     class WriteEncaps;
     enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
 
-    class EncapsDecoder : private ::IceUtil::noncopyable
+    class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
     public:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
@@ -962,7 +962,7 @@ private:
         Ice::Int _typeIdIndex;
     };
 
-    class EncapsEncoder : private ::IceUtil::noncopyable
+    class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
     {
     public:
         EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : 
@@ -1039,7 +1039,7 @@ private:
     {
     public:
 
-        ReadEncaps() : decoder(0), previous(0)
+        ReadEncaps() : start(0), decoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }

@@ -115,7 +115,7 @@ Slice::fullPath(const string& path)
         }
 
         char buf[PATH_MAX + 1];
-        int len = readlink(subpath.c_str(), buf, sizeof(buf));
+        int len = static_cast<int>(readlink(subpath.c_str(), buf, sizeof(buf)));
         if(len > 0)
         {
             buf[len] = '\0';

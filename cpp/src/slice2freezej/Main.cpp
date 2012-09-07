@@ -100,7 +100,13 @@ public:
 
     void generate(UnitPtr&, const Index&);
 
+#ifdef __SUNPRO_CC
+protected:
+    using JavaGenerator::typeToObjectString;
+#endif
+
 private:
+
     string typeToObjectString(const TypePtr&);
     string varToObject(const TypePtr&, const string&);
     string objectToVar(const TypePtr&, const string&);

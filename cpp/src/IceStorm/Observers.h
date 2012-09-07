@@ -15,6 +15,11 @@
 #include <IceStorm/Election.h>
 #include <IceStorm/Replica.h>
 
+#ifdef __SUNPRO_CC
+#  pragma error_messages(off,hidef)
+#endif
+
+
 namespace IceStorm
 {
 class Instance;
@@ -65,5 +70,9 @@ private:
 typedef IceUtil::Handle<Observers> ObserversPtr;
 
 }
+
+#ifdef __SUNPRO_CC
+#  pragma error_messages(default,hidef)
+#endif
 
 #endif // OBSERVERS_H

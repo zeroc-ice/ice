@@ -64,10 +64,6 @@ using namespace Windows::Networking;
 using namespace Windows::Networking::Sockets;
 #endif
 
-#if defined(__sun) && !defined(__GNUC__)
-#    define INADDR_NONE (in_addr_t)0xffffffff
-#endif
-
 namespace
 {
 
@@ -1129,11 +1125,11 @@ IceInternal::inetAddrToString(const Address& ss)
     int size = 0;
     if(ss.ss_family == AF_INET)
     {
-        size = sizeof(sockaddr_in);
+        size = static_cast<int>(sizeof(sockaddr_in));
     }
     else if(ss.ss_family == AF_INET6)
     {
-        size = sizeof(sockaddr_in6);
+        size = static_cast<int>(sizeof(sockaddr_in6));
     }
     else
     {
@@ -1142,7 +1138,7 @@ IceInternal::inetAddrToString(const Address& ss)
 
     char namebuf[1024];
     namebuf[0] = '\0';
-    getnameinfo(reinterpret_cast<const struct sockaddr *>(&ss), size, namebuf, sizeof(namebuf), 0, 0, NI_NUMERICHOST);
+    getnameinfo(reinterpret_cast<const struct sockaddr *>(&ss), size, namebuf, static_cast<socklen_t>(sizeof(namebuf)), 0, 0, NI_NUMERICHOST);
     return string(namebuf);
 #else
     if(ss.host == nullptr)
@@ -1627,11 +1623,11 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
     int size;
     if(addr.ss_family == AF_INET)
     {
-        size = sizeof(sockaddr_in);
+        size = static_cast<int>(sizeof(sockaddr_in));
     }
     else if(addr.ss_family == AF_INET6)
     {
-        size = sizeof(sockaddr_in6);
+        size = static_cast<int>(sizeof(sockaddr_in6));
     }
     else
     {
@@ -1843,11 +1839,11 @@ repeatConnect:
     int size;
     if(addr.ss_family == AF_INET)
     {
-        size = sizeof(sockaddr_in);
+        size = static_cast<int>(sizeof(sockaddr_in));
     }
     else if(addr.ss_family == AF_INET6)
     {
-        size = sizeof(sockaddr_in6);
+        size = static_cast<int>(sizeof(sockaddr_in6));
     }
     else
     {

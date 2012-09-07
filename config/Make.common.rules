@@ -45,6 +45,10 @@ ifeq ($(UNAME),SunOS)
        lp64suffix	= /sparcv9
        lp64binsuffix	= /sparcv9
     endif
+    ifeq ($(MACHINE_TYPE),sun4v)
+       lp64suffix       = /sparcv9
+       lp64binsuffix    = /sparcv9
+    endif
     ifeq ($(MACHINE_TYPE),i86pc)
 	lp64suffix	= /amd64
 	lp64binsuffix	= /amd64

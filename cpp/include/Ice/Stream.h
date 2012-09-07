@@ -431,6 +431,10 @@ public:
 
     virtual bool __usesClasses() const;
 
+#ifdef __SUNPRO_CC
+    using UserException::__usesClasses;
+#endif
+
 protected:
 
     const CommunicatorPtr _communicator;

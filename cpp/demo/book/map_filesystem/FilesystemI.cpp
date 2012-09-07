@@ -193,7 +193,11 @@ DirectoryI::DirectoryI(const Ice::CommunicatorPtr& communicator, const string& e
             {
                 DirectoryEntry d;
                 d.name = "/";
+#ifdef __SUNPRO_CC
+                dirDB.put(IdentityDirectoryEntryMap::value_type(rootId, d));
+#else
                 dirDB.put(make_pair(rootId, d));
+#endif
             }
             break;
         }
@@ -345,7 +349,11 @@ DirectoryI::createDirectory(const string& name, const Ice::Current& c)
             entry.nodes.insert(make_pair(name, nd));
 
             p.set(entry);
+#ifdef __SUNPRO_CC
+            directoryDB.put(IdentityDirectoryEntryMap::value_type(id, d));
+#else
             directoryDB.put(make_pair(id, d));
+#endif
 
             txn.commit();
 
@@ -407,7 +415,12 @@ DirectoryI::createFile(const string& name, const Ice::Current& c)
             entry.nodes.insert(make_pair(name, nd));
 
             p.set(entry);
+
+#ifdef __SUNPRO_CC
+            fileDB.put(IdentityFileEntryMap::value_type(id, d));
+#else
             fileDB.put(make_pair(id, d));
+#endif
 
             txn.commit();
 

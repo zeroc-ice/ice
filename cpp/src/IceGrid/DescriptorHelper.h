@@ -225,7 +225,7 @@ public:
 
 protected:
 
-#if defined(__sun)
+#ifdef __SUNPRO_CC
     using ServerHelper::instantiateImpl;
 #endif
 

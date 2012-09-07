@@ -18,6 +18,22 @@
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 
+#ifdef __SUNPRO_CC
+
+//
+// The call to sk_GENERAL_NAME_pop_free fails to compile if we don't
+// remove the extern "C" vs non extern "C" check with the macro below:
+//
+
+extern "C" typedef void (*FreeFunc)(void*);
+
+#undef CHECKED_SK_FREE_FUNC
+#define CHECKED_SK_FREE_FUNC(type, p) \
+    (FreeFunc) (p)
+
+#endif
+
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;

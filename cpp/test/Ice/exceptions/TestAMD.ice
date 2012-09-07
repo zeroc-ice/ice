@@ -12,6 +12,10 @@
 module Test
 {
 
+interface Empty
+{
+};
+
 interface Thrower;
 
 exception Base {};
