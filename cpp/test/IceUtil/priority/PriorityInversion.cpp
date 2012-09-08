@@ -298,7 +298,7 @@ PriorityInversionTest::run()
     {
         return; // Mutex protocol PrioInherit not supported
     }
-    cores = sysconf(_SC_NPROCESSORS_ONLN);
+    cores = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
     high = 45;
     medium = 35;
     low = 1;

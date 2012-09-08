@@ -224,7 +224,7 @@ private:
 namespace IceProxy { namespace Ice
 {
 
-class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
+class ICE_API Object : public ::IceUtil::Shared
 {
 public:
     
@@ -1221,6 +1221,7 @@ private:
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
+    IceUtil::Mutex _mutex;
 };
 
 } }

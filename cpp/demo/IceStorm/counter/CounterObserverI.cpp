@@ -22,7 +22,7 @@ CounterObserverI::CounterObserverI(const MTPrinterPtr& printer) :
 void
 CounterObserverI::init(int value, const Ice::Current&)
 {
-    Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_mutex);
     _value = value;
     ostringstream ostr;
     ostr << "init: " << value << endl;
@@ -32,7 +32,7 @@ CounterObserverI::init(int value, const Ice::Current&)
 void
 CounterObserverI::inc(int value, const Ice::Current&)
 {
-    Lock sync(*this);
+    IceUtil::Mutex::Lock sync(_mutex);
     _value += value;
     ostringstream ostr;
     ostr << "int: " << value << " total: " << _value << endl;

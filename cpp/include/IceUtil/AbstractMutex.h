@@ -13,9 +13,6 @@
 #include <IceUtil/Config.h>
 #include <IceUtil/Lock.h>
 
-#ifdef __SUNPRO_CC
-#   pragma error_messages(off,hidef)
-#endif
 
 namespace IceUtil
 {
@@ -117,9 +114,5 @@ public:
 };
 
 }
-
-#ifdef __SUNPRO_CC
-#   pragma error_messages(default,hidef)
-#endif
 
 #endif
