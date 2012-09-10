@@ -1038,7 +1038,7 @@ private:
     {
     public:
 
-        ReadEncaps() : decoder(0), previous(0)
+        ReadEncaps() : start(0), decoder(0), previous(0)
         {
             // Inlined for performance reasons.
         }

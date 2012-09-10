@@ -121,6 +121,11 @@ public:
     virtual void __exception(const Exception&); // Required to be public for AsynchronousException
     void __sent(); // Required to be public for AsynchronousSent
 
+    virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+    }
+
 protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);
@@ -155,6 +160,7 @@ protected:
     bool _sentSynchronously;
     std::auto_ptr<Exception> _exception;
     IceInternal::InvocationObserver _observer;
+    IceInternal::ObserverHelperT<> _remoteObserver;
 };
 
 }
@@ -299,7 +305,6 @@ public:
 private:
     
     Ice::ObjectPrx _proxy;
-    IceInternal::InvocationObserver _observer;
 };
 
 class ICE_API ConnectionBatchOutgoingAsync : public BatchOutgoingAsync
@@ -318,22 +323,19 @@ private:
     const Ice::ConnectionIPtr _connection;
 };
 
-class ICE_API CommunicatorBatchOutgoingAsync : public BatchOutgoingAsync
+class ICE_API CommunicatorBatchOutgoingAsync : public Ice::AsyncResult
 {
 public:
 
     CommunicatorBatchOutgoingAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
                                    const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
-    void flushConnection(const Ice::ConnectionPtr&);
+    void flushConnection(const Ice::ConnectionIPtr&);
     void ready();
-
-    void completed(const Ice::AsyncResultPtr&);
-    void sent(const Ice::AsyncResultPtr&);
 
 private:
 
-    void check(const Ice::AsyncResultPtr&, const Ice::LocalException*, bool);
+    void check(bool);
 
     int _useCount;
 };

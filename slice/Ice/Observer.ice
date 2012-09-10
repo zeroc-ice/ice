@@ -220,8 +220,12 @@ local interface InvocationObserver extends Observer
      *
      * Get a remote observer for this invocation.
      *
+     * @param con The connection information.
+     *
+     * @param endpt The connection endpoint.
+     *
      **/
-    Observer getRemoteObserver(Ice::Connection con);
+    Observer getRemoteObserver(ConnectionInfo con, Endpoint endpt);
 };
 
 /**
@@ -283,13 +287,13 @@ local interface CommunicatorObserver
      * information and connector. The Ice run-time calls this method
      * for each connection establishment attempt.
      *
-     * @param endpt The endpoint information.
+     * @param endpt The endpoint.
      *
      * @param connector The description of the connector. For IP
      * transports, this is typically the IP address to connect to.
      *
      **/
-    Observer getConnectionEstablishmentObserver(EndpointInfo endpt, string connector);
+    Observer getConnectionEstablishmentObserver(Endpoint endpt, string connector);
 
     /**
      *
@@ -300,12 +304,10 @@ local interface CommunicatorObserver
      * For IP endpoints, this typically involves doing a DNS lookup to
      * obtain the IP addresses associated with the DNS name.
      *
-     * @param endpt The endpoint information.
-     *
-     * @param endpoint The stringified endpoint.
+     * @param endpt The endpoint.
      *
      **/
-    Observer getEndpointLookupObserver(EndpointInfo endpt, string endpoint);
+    Observer getEndpointLookupObserver(Endpoint endpt);
 
     /**
      * 
@@ -314,20 +316,19 @@ local interface CommunicatorObserver
      * connection and for all the Ice communicator connections when
      * ObserverUpdater::updateConnections is called.
      *
-     * @param con The connection information of the connection
+     * @param c The connection information.
      *
-     * @param endpt The endpoint information of the connection
+     * @param e The connection endpoint.
      *
      * @param s The state of the connection
      *
-     * @param o The old connection observer if one is already set or
-     * a null reference otherwise.
+     * @param o The old connection observer if one is already set or a
+     * null reference otherwise.
      *
      * @return The connection observer object.
      *
      **/
-    ConnectionObserver getConnectionObserver(ConnectionInfo con, EndpointInfo endpt, ConnectionState s, 
-                                             ConnectionObserver o);
+    ConnectionObserver getConnectionObserver(ConnectionInfo c, Endpoint e, ConnectionState s, ConnectionObserver o);
 
     /**
      * 

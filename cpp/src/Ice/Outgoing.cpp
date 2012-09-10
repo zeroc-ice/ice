@@ -547,19 +547,21 @@ IceInternal::Outgoing::throwUserException()
     }
 }
 
-IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler) :
+IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler, InvocationObserver& observer) :
     _handler(handler),
     _connection(0),
     _sent(false),
-    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding)
+    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
+    _observer(observer)
 {
 }
 
-IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* instance) :
+IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* instance, InvocationObserver& observer) :
     _handler(0),
     _connection(connection),
     _sent(false), 
-    _os(instance, Ice::currentProtocolEncoding)
+    _os(instance, Ice::currentProtocolEncoding),
+    _observer(observer)
 {
 }
 
@@ -574,7 +576,7 @@ IceInternal::BatchOutgoing::invoke()
         {
             _monitor.wait();
         }
-        
+        _remoteObserver.detach();
         if(_exception.get())
         {
             _exception->ice_throw();

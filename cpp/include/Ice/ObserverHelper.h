@@ -12,6 +12,7 @@
 
 #include <Ice/Observer.h>
 #include <Ice/ProxyF.h>
+#include <Ice/InstanceF.h>
 
 namespace IceInternal
 {
@@ -100,11 +101,13 @@ class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::
 public:
 
     InvocationObserver(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+    InvocationObserver(Instance*, const std::string&);
     InvocationObserver()
     {
     }
 
     void attach(IceProxy::Ice::Object*, const std::string&, const Ice::Context*);
+    void attach(Instance*, const std::string&);
 
     void retried()
     {
@@ -115,14 +118,18 @@ public:
     }
 
     ::Ice::Instrumentation::ObserverPtr
-    getRemoteObserver(const Ice::ConnectionPtr& con)
+    getRemoteObserver(const Ice::ConnectionInfoPtr& con, const Ice::EndpointPtr& endpt)
     {
         if(_observer)
         {
-            return _observer->getRemoteObserver(con);
+            return _observer->getRemoteObserver(con, endpt);
         }
         return 0;
     }
+
+private:
+
+    using ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach;
 };
 
 }

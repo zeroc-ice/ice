@@ -155,17 +155,17 @@ public:
             return map->getMatching(helper);
         }
 
-        TPtr
+        void
         attach(const MetricsHelperT<T>& helper)
         {
             Lock sync(*this);
             ++_object->total;
             ++_object->current;
             helper.initMetrics(_object);
-            return _object;
         }
 
-        void detach(Ice::Long lifetime)
+        void 
+        detach(Ice::Long lifetime)
         {
             MetricsMapT* map;
             {
@@ -293,7 +293,7 @@ public:
     getFailures(const std::string& id)
     {
         Lock sync(*this);
-        typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin();
+        typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(id);
         if(p != _objects.end())
         {
             return p->second->getFailures();
@@ -317,6 +317,9 @@ public:
     EntryTPtr 
     getMatching(const MetricsHelperT<T>& helper)
     {
+        //
+        // Check the accept and reject filters.
+        //
         for(std::vector<RegExpPtr>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
         {
             if(!(*p)->match(helper))
@@ -332,7 +335,10 @@ public:
                 return 0;
             }
         }
-        
+
+        //
+        // Compute the key from the GroupBy property.
+        //
         std::string key;
         if(_groupByAttributes.size() == 1)
         {
@@ -353,7 +359,10 @@ public:
             }
             key = os.str();
         }
-        
+
+        //
+        // Lookup the metrics object.
+        // 
         Lock sync(*this);
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
         if(p == _objects.end())
@@ -369,7 +378,6 @@ private:
     {
         TPtr t = new T();
         t->id = id;
-        t->failures = 0;
         return new EntryT(this, t, _detachedQueue.end());
     }
 
@@ -388,6 +396,7 @@ private:
         Lock sync(*this);
         assert(static_cast<int>(_detachedQueue.size()) <= _retain);
 
+        // If the entry is already detached and in the queue, just move it to the back.
         if(entry->_detachedPos != _detachedQueue.end())
         {
             _detachedQueue.splice(_detachedQueue.end(), _detachedQueue, entry->_detachedPos);
@@ -395,6 +404,7 @@ private:
             return;
         }
 
+        // Otherwise, compress the queue by removing entries which are no longer detached.
         if(static_cast<int>(_detachedQueue.size()) == _retain)
         {
             // Remove entries which are no longer detached
@@ -403,6 +413,7 @@ private:
             {
                 if(!(*p)->isDetached())
                 {
+                    (*p)->_detachedPos = _detachedQueue.end();
                     p = _detachedQueue.erase(p);
                 }
                 else
@@ -412,13 +423,14 @@ private:
             }
         }
 
+        // If there's still no room, remove the oldest entry (at the front).
         if(static_cast<int>(_detachedQueue.size()) == _retain)
         {
-            // Remove oldest entry if there's still no room
             _objects.erase(_detachedQueue.front()->_object->id);
             _detachedQueue.pop_front();
         }
 
+        // Add the entry at the back of the queue.
         _detachedQueue.push_back(entry);
         entry->_detachedPos = --_detachedQueue.end();
     }
@@ -478,7 +490,7 @@ class MetricsAdminI : public MetricsAdmin, private IceUtil::Mutex
 {
 public:
 
-    MetricsAdminI(const ::Ice::PropertiesPtr&);
+    MetricsAdminI(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
     void addUpdater(const std::string&, const UpdaterPtr&);
     void updateViews();
@@ -507,13 +519,16 @@ public:
 
     std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
+    const Ice::LoggerPtr& getLogger() const;
+
 private:
 
     std::map<std::string, MetricsViewIPtr> _views;
     std::map<std::string, UpdaterPtr> _updaters;
     std::map<std::string, MetricsMapFactoryPtr> _factories;
 
-    Ice::PropertiesPtr _properties;
+    const Ice::PropertiesPtr _properties;
+    const Ice::LoggerPtr _logger;
 };
 typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 

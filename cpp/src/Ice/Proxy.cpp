@@ -1657,7 +1657,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 void
 IceDelegateM::Ice::Object::ice_flushBatchRequests(InvocationObserver& observer)
 {
-    BatchOutgoing __og(__handler.get());
+    BatchOutgoing __og(__handler.get(), observer);
     __og.invoke();
 }
 

@@ -15,43 +15,64 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
+using namespace Ice::Instrumentation;
 
-InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& operation, const Context* context)
+IceInternal::InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& op, const Context* ctx)
 {
-    const Ice::Instrumentation::CommunicatorObserverPtr& obsv = 
-        proxy->__reference()->getInstance()->initializationData().observer;
-    if(obsv)
+    const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
+    if(!obsv)
     {
-        if(context)
-        {
-            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
-                obsv->getInvocationObserverWithContext(proxy, operation, *context));
-        }
-        else
-        {
-            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
-                obsv->getInvocationObserver(proxy, operation));
-        }
+        return;
+    }
+
+    if(ctx)
+    {
+        attach(obsv->getInvocationObserverWithContext(proxy, op, *ctx));
+    }
+    else
+    {
+        attach(obsv->getInvocationObserver(proxy, op));
+    }
+}
+
+IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* instance, const string& op)
+{
+    const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
+    if(!obsv)
+    {
+        return;
+    }
+
+    attach(obsv->getInvocationObserver(0, op));
+}
+
+void
+IceInternal::InvocationObserver::attach(IceProxy::Ice::Object* proxy, const string& op, const Context* ctx)
+{
+    const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
+    if(!obsv)
+    {
+        return;
+    }
+
+    if(ctx)
+    {
+        attach(obsv->getInvocationObserverWithContext(proxy, op, *ctx));
+    }
+    else
+    {
+        attach(obsv->getInvocationObserver(proxy, op));
     }
 }
 
 void
-InvocationObserver::attach(IceProxy::Ice::Object* proxy, const string& operation, const Context* context)
+IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const string& op)
 {
-    const Ice::Instrumentation::CommunicatorObserverPtr& obsv = 
-        proxy->__reference()->getInstance()->initializationData().observer;
-    if(obsv)
+    const CommunicatorObserverPtr& obsv = instance->initializationData().observer;
+    if(!obsv)
     {
-        if(context)
-        {
-            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
-                obsv->getInvocationObserverWithContext(proxy, operation, *context));
-        }
-        else
-        {
-            ObserverHelperT<Ice::Instrumentation::InvocationObserver>::attach(
-                obsv->getInvocationObserver(proxy, operation));
-        }
+        return;
     }
+
+    attach(obsv->getInvocationObserver(0, op));
 }

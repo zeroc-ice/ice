@@ -283,7 +283,6 @@ public:
     detach()
     {
         Ice::Long lifetime = _watch.stop();
-        IceUtil::Mutex::Lock sync(*_mutex);
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->detach(lifetime);
@@ -293,7 +292,6 @@ public:
     virtual void
     failed(const std::string& exceptionName)
     {
-        IceUtil::Mutex::Lock sync(*_mutex);
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->failed(exceptionName);
@@ -303,7 +301,6 @@ public:
     template<typename Function> void
     forEach(const Function& func)
     {
-        IceUtil::Mutex::Lock sync(*_mutex);
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->execute(func);
@@ -311,9 +308,8 @@ public:
     }
     
     void
-    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, IceUtil::Mutex* mutex)
+    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects)
     {
-        _mutex = mutex;
         _objects.swap(objects);
         std::sort(_objects.begin(), _objects.end());
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
@@ -352,7 +348,6 @@ public:
     template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
     getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
-        IceUtil::Mutex::Lock sync(*_mutex);
         std::vector<typename MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
@@ -369,7 +364,7 @@ public:
         }
 
         IceInternal::Handle<ObserverImpl> obsv = new ObserverImpl();
-        obsv->init(helper, metricsObjects, _mutex);
+        obsv->init(helper, metricsObjects);
         return obsv;
     }
     
@@ -377,7 +372,6 @@ private:
 
     EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
-    IceUtil::Mutex* _mutex;
 };
 
 class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
@@ -438,7 +432,7 @@ public:
         std::sort(metricsObjects.begin(), metricsObjects.end());
 
         ObserverImplPtrType obsv = new ObserverImplType();
-        obsv->init(helper, metricsObjects, this);
+        obsv->init(helper, metricsObjects);
         return obsv;
     }
 
@@ -468,7 +462,7 @@ public:
         if(!obsv)
         {
             obsv = new ObserverImplType();
-            obsv->init(helper, metricsObjects, this);
+            obsv->init(helper, metricsObjects);
         }
         else
         {

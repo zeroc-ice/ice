@@ -205,7 +205,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
     {
-        observer.attach(obsv->getEndpointLookupObserver(endpoint->getInfo(), endpoint->toString()));
+        observer.attach(obsv->getEndpointLookupObserver(endpoint));
     }
     
     vector<ConnectorPtr> connectors;
@@ -255,7 +255,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     const CommunicatorObserverPtr& obsv = _instance->initializationData().observer;
     if(obsv)
     {
-        entry.observer = obsv->getEndpointLookupObserver(endpoint->getInfo(), endpoint->toString());
+        entry.observer = obsv->getEndpointLookupObserver(endpoint);
         if(entry.observer)
         {
             entry.observer->attach();

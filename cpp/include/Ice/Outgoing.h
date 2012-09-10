@@ -138,9 +138,9 @@ public:
 
     void throwUserException();
 
-    void attachRemoteObserver(const Ice::ConnectionPtr& connection)
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
     {
-        _remoteObserver.attach(_observer.getRemoteObserver(connection));
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
     }
 
 private:
@@ -184,8 +184,8 @@ class BatchOutgoing : public OutgoingMessageCallback
 {
 public:
 
-    BatchOutgoing(RequestHandler*);
-    BatchOutgoing(Ice::ConnectionI*, Instance*);
+    BatchOutgoing(RequestHandler*, InvocationObserver&);
+    BatchOutgoing(Ice::ConnectionI*, Instance*, InvocationObserver&);
     
     void invoke();
     
@@ -193,6 +193,11 @@ public:
     virtual void finished(const Ice::LocalException&, bool);
     
     BasicStream* os() { return &_os; }
+
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+    }
 
 private:
 
@@ -203,6 +208,9 @@ private:
     std::auto_ptr<Ice::LocalException> _exception;
 
     BasicStream _os;
+
+    InvocationObserver& _observer;
+    ObserverHelperT<> _remoteObserver;
 };
 
 }

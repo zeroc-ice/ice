@@ -299,6 +299,9 @@ private:
     int connectTimeout();
     int closeTimeout();
 
+    Ice::ConnectionInfoPtr initConnectionInfo() const;
+    Ice::Instrumentation::ConnectionState toConnectionState(State) const;
+        
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     Ice::CommunicatorPtr _communicator;

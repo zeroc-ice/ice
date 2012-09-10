@@ -55,7 +55,7 @@ class Metrics
      * The number of failures observed.
      *
      **/
-    int failures;
+    int failures = 0;
 };
 
 struct MetricsFailures

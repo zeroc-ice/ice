@@ -13,6 +13,7 @@
 #include <Ice/Properties.h>
 #include <Ice/Communicator.h>
 #include <Ice/Instance.h>
+#include <Ice/LoggerUtil.h>
 
 #include <IceUtil/StringUtil.h>
 
@@ -24,7 +25,7 @@ namespace
 {
 
 vector<MetricsMapI::RegExpPtr>
-parseRule(const ::Ice::PropertiesPtr& properties, const string& name)
+parseRule(const PropertiesPtr& properties, const string& name)
 {
     vector<MetricsMapI::RegExpPtr> regexps;
     PropertyDict rules = properties->getPropertiesForPrefix(name + '.');
@@ -42,7 +43,7 @@ MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _at
 #ifndef ICE_CPP11_REGEXP
     if(regcomp(&_preg, regexp.c_str(), REG_EXTENDED | REG_NOSUB) != 0)
     {
-        throw Ice::SyscallException(__FILE__, __LINE__); 
+        throw SyscallException(__FILE__, __LINE__); 
     }
 #else
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
@@ -71,7 +72,7 @@ MetricsMapI::RegExp::match(const MetricsHelper& helper)
 #endif
 }
 
-MetricsMapI::MetricsMapI(const std::string& mapPrefix, const Ice::PropertiesPtr& properties) :
+MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties) :
     _properties(properties->getPropertiesForPrefix(mapPrefix)),
     _retain(properties->getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10)),
     _accept(parseRule(properties, mapPrefix + "Accept")),
@@ -133,7 +134,7 @@ MetricsViewI::MetricsViewI(const string& name) : _name(name)
 }
 
 void
-MetricsViewI::update(const Ice::PropertiesPtr& properties,  
+MetricsViewI::update(const PropertiesPtr& properties,  
                      const map<string, MetricsMapFactoryPtr>& factories,
                      set<string>& updatedMaps)
 {
@@ -230,7 +231,8 @@ MetricsViewI::getMap(const string& mapName) const
     return 0;
 }
 
-MetricsAdminI::MetricsAdminI(const Ice::PropertiesPtr& properties) : _properties(properties)
+MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) : 
+    _properties(properties), _logger(logger)
 {
 }
 
@@ -269,7 +271,10 @@ MetricsAdminI::updateViews()
             {
                 continue; // The view is disabled
             }
-            
+
+            //
+            // Create the view or update it.
+            //
             map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
             if(q == _views.end())
             {
@@ -284,7 +289,7 @@ MetricsAdminI::updateViews()
         _views.swap(views);
         
         //
-        // Go through removed views to collect updated maps.
+        // Go through removed views to collect maps to update.
         //
         for(map<string, MetricsViewIPtr>::const_iterator p = views.begin(); p != views.end(); ++p)
         {
@@ -296,7 +301,7 @@ MetricsAdminI::updateViews()
         }
         
         //
-        // Call the observer update for each of the updated maps.
+        // Gather the updates for each of the map to update.
         //
         for(set<string>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
         {
@@ -306,25 +311,29 @@ MetricsAdminI::updateViews()
                 updaters.push_back(q->second);
             }
         }
-     }
-        
-     for(vector<UpdaterPtr>::const_iterator p = updaters.begin(); p != updaters.end(); ++p)
-     {
-         try
-         {
-             (*p)->update();
-         }
-         catch(...)
-         {
-             // TODO: Warn?
-         }
-     }
+    }
+    
+    //
+    // Call the updaters to update the maps.
+    //
+    for(vector<UpdaterPtr>::const_iterator p = updaters.begin(); p != updaters.end(); ++p)
+    {
+        try
+        {
+            (*p)->update();
+        }
+        catch(const std::exception& ex)
+        {
+            Warning warn(_logger);
+            warn << "unexpected exception while calling observer updater:\n" << ex;
+        }
+    }
 }
-        
-Ice::StringSeq
-MetricsAdminI::getMetricsViewNames(const ::Ice::Current&)
+
+StringSeq
+MetricsAdminI::getMetricsViewNames(const Current&)
 {
-    Ice::StringSeq names;
+    StringSeq names;
 
     Lock sync(*this);
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
@@ -335,7 +344,7 @@ MetricsAdminI::getMetricsViewNames(const ::Ice::Current&)
 }
 
 MetricsView
-MetricsAdminI::getMetricsView(const string& view, const ::Ice::Current&)
+MetricsAdminI::getMetricsView(const string& view, const Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -347,7 +356,7 @@ MetricsAdminI::getMetricsView(const string& view, const ::Ice::Current&)
 }
 
 MetricsFailuresSeq
-MetricsAdminI::getMapMetricsFailures(const string& view, const string& map, const ::Ice::Current&)
+MetricsAdminI::getMapMetricsFailures(const string& view, const string& map, const Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -359,7 +368,7 @@ MetricsAdminI::getMapMetricsFailures(const string& view, const string& map, cons
 }
 
 MetricsFailures
-MetricsAdminI::getMetricsFailures(const string& view, const string& map, const string& id, const ::Ice::Current&)
+MetricsAdminI::getMetricsFailures(const string& view, const string& map, const string& id, const Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -384,4 +393,10 @@ MetricsAdminI::getMaps(const string& mapName) const
         }
     }
     return maps;
+}
+
+const LoggerPtr&
+MetricsAdminI::getLogger() const
+{
+    return _logger;
 }

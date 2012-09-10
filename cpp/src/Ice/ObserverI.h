@@ -39,7 +39,15 @@ public:
 
     virtual void retried();
 
-    virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionPtr&);
+    virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&);
+
+
+private:
+
+    friend class CommunicatorObserverI;
+    void initLogger(const Ice::LoggerPtr&);
+
+    const Ice::LoggerPtr _logger;
 };
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, 
@@ -51,15 +59,14 @@ public:
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
-    virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointInfoPtr&, 
+    virtual Ice::Instrumentation::ObserverPtr getConnectionEstablishmentObserver(const Ice::EndpointPtr&,
                                                                                  const std::string&);
  
-    virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointInfoPtr&, 
-                                                                        const std::string&);
+    virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr&);
     
     virtual Ice::Instrumentation::ConnectionObserverPtr 
     getConnectionObserver(const Ice::ConnectionInfoPtr&, 
-                          const Ice::EndpointInfoPtr&,
+                          const Ice::EndpointPtr&,
                           Ice::Instrumentation::ConnectionState, 
                           const Ice::Instrumentation::ConnectionObserverPtr&);
 

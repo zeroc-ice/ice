@@ -504,6 +504,7 @@ IceInternal::OutgoingAsync::__sent(Ice::ConnectionI* connection)
     {
         if(!_proxy->ice_isTwoway())
         {
+            _remoteObserver.detach();
             if(!_callback || !_callback->__hasSentCallback())
             {
                 _observer.detach();
@@ -538,6 +539,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc, bool sent
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!(_state & Done));
+        _remoteObserver.detach();
         if(_timerTaskConnection)
         {
             _instance->timer()->cancel(this);
@@ -576,6 +578,7 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
     // calling on the callback. The LocalExceptionWrapper exception is only called
     // before the invocation is sent.
     //
+    _remoteObserver.detach();
 
     try
     {
@@ -605,6 +608,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!_exception.get() && !(_state & Done));
+        _remoteObserver.detach();
 
         if(_timerTaskConnection)
         {
@@ -883,6 +887,7 @@ IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(!_exception.get());
     _state |= Done | OK | Sent;
+    _remoteObserver.detach();
     _monitor.notifyAll();
     if(_callback && _callback->__hasSentCallback())
     {
@@ -904,6 +909,7 @@ IceInternal::BatchOutgoingAsync::__sent()
 void
 IceInternal::BatchOutgoingAsync::__finished(const Ice::LocalException& exc, bool)
 {
+    _remoteObserver.detach();
     __exception(exc);
 }
 
@@ -954,6 +960,7 @@ IceInternal::ConnectionBatchOutgoingAsync::ConnectionBatchOutgoingAsync(const Co
     BatchOutgoingAsync(communicator, instance, operation, delegate, cookie),
     _connection(con)
 {
+    _observer.attach(instance.get(), operation);
 }
 
 void
@@ -981,7 +988,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::CommunicatorBatchOutgoingAsync(cons
                                                                             const string& operation,
                                                                             const CallbackBasePtr& delegate,
                                                                             const Ice::LocalObjectPtr& cookie) :
-    BatchOutgoingAsync(communicator, instance, operation, delegate, cookie)
+    AsyncResult(communicator, instance, operation, delegate, cookie)
 {
     //
     // _useCount is initialized to 1 to prevent premature callbacks.
@@ -994,92 +1001,97 @@ IceInternal::CommunicatorBatchOutgoingAsync::CommunicatorBatchOutgoingAsync(cons
     // Assume all connections are flushed synchronously.
     //
     _sentSynchronously = true;
+    
+    //
+    // Attach observer
+    //
+    _observer.attach(instance.get(), operation);
 }
 
 void
-IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionPtr& con)
+IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPtr& con)
 {
+    class BatchOutgoingAsyncI : public BatchOutgoingAsync
+    {
+    public:
+
+        BatchOutgoingAsyncI(const CommunicatorBatchOutgoingAsyncPtr& outAsync) :
+            BatchOutgoingAsync(outAsync->_communicator, outAsync->_instance, outAsync->_operation, __dummyCallback, 0),
+            _outAsync(outAsync)
+        {
+        }
+
+        virtual bool __sent(Ice::ConnectionI*)
+        {
+            _remoteObserver.detach();
+            _outAsync->check(false);
+            return false;
+        }
+
+        virtual void __finished(const Ice::LocalException&, bool)
+        {
+            _remoteObserver.detach();
+            _outAsync->check(false);
+        }
+
+        virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+        {
+            _remoteObserver.attach(_outAsync->_observer.getRemoteObserver(connection, endpt));
+        }
+
+    private:
+        
+        const CommunicatorBatchOutgoingAsyncPtr _outAsync;
+    };
+
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         ++_useCount;
     }
-    CallbackPtr cb = newCallback(this, &CommunicatorBatchOutgoingAsync::completed,
-                                 &CommunicatorBatchOutgoingAsync::sent);
-    con->begin_flushBatchRequests(cb);
+
+    AsyncStatus status = con->flushAsyncBatchRequests(new BatchOutgoingAsyncI(this));
+    if(!(status & AsyncStatusSent))
+    {
+        _sentSynchronously = false;
+    }
 }
 
 void
 IceInternal::CommunicatorBatchOutgoingAsync::ready()
 {
-    check(0, 0, true);
+    check(true);
 }
 
 void
-IceInternal::CommunicatorBatchOutgoingAsync::completed(const AsyncResultPtr& r)
+IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
 {
-    ConnectionPtr con = r->getConnection();
-    assert(con);
-
-    try
-    {
-        con->end_flushBatchRequests(r);
-        assert(false); // completed() should only be called when an exception occurs.
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        check(r, &ex, false);
-    }
-}
-
-void
-IceInternal::CommunicatorBatchOutgoingAsync::sent(const AsyncResultPtr& r)
-{
-    check(r, 0, r->sentSynchronously());
-}
-
-void
-IceInternal::CommunicatorBatchOutgoingAsync::check(const AsyncResultPtr& r, const LocalException* ex, bool userThread)
-{
-    bool done = false;
-
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(_useCount > 0);
-        --_useCount;
-
-        //
-        // We report that the communicator flush request was sent synchronously
-        // if all of the connection flush requests are sent synchronously.
-        //
-        if((r && !r->sentSynchronously()) || ex)
+        if(--_useCount > 0)
         {
-            _sentSynchronously = false;
+            return;
         }
-
-        if(_useCount == 0)
-        {
-            done = true;
-            _state |= Done | OK | Sent;
-            _monitor.notifyAll();
-        }
+         
+        _observer.detach();
+        _state |= Done | OK | Sent;
+        _monitor.notifyAll();
     }
 
-    if(done)
+    //
+    // _sentSynchronously is immutable here.
+    //
+    if(!_sentSynchronously && userThread)
     {
-        //
-        // _sentSynchronously is immutable here.
-        //
-        if(!_sentSynchronously && userThread)
-        {
-            __sentAsync();
-        }
-        else
-        {
-            assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
-            BatchOutgoingAsync::__sent();
-        }
+        __sentAsync();
+    }
+    else
+    {
+        assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
+        AsyncResult::__sent();
     }
 }
+
 
 namespace
 {
@@ -1152,3 +1164,4 @@ Ice::AMICallbackBase::__sent(bool sentSynchronously)
         dynamic_cast<AMISentCallback*>(this)->ice_sent();
     }
 }
+

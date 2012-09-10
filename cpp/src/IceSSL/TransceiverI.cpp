@@ -890,8 +890,6 @@ IceSSL::TransceiverI::~TransceiverI()
 NativeConnectionInfoPtr
 IceSSL::TransceiverI::getNativeConnectionInfo() const
 {
-    assert(_fd != INVALID_SOCKET);
-
     NativeConnectionInfoPtr info = new NativeConnectionInfo();
     IceInternal::fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
 

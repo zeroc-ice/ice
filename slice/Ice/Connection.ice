@@ -192,13 +192,13 @@ local class IPConnectionInfo extends ConnectionInfo
     string localAddress;
 
     /** The local port. */
-    int localPort;
+    int localPort = -1;
 
     /** The remote address. */
     string remoteAddress;
 
     /** The remote port. */
-    int remotePort;
+    int remotePort = -1;
 };
 
 /**
@@ -221,7 +221,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
     string mcastAddress;
 
     /** The multicast port. */
-    int mcastPort;
+    int mcastPort = -1;
 };
 
 };
