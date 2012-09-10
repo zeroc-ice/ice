@@ -31,10 +31,10 @@ checkIsInstance(PyObject* p, const char* type)
     return PyObject_IsInstance(p, pyType) == 1;
 }
 
-template<typename T, const char* PT> bool
-setVersion(PyObject* p, const T& version)
+template<typename T> bool
+setVersion(PyObject* p, const T& version, const char* type)
 {
-    assert(checkIsInstance(p, PT));
+    assert(checkIsInstance(p, type));
 
     PyObjectHandle major = PyLong_FromLong(version.major);
     PyObjectHandle minor = PyLong_FromLong(version.minor);
@@ -50,10 +50,10 @@ setVersion(PyObject* p, const T& version)
     return true;
 }
 
-template<typename T, const char* PT> bool
-getVersion(PyObject* p, T& v)
+template<typename T> bool
+getVersion(PyObject* p, T& v, const char* type)
 {
-    assert(checkIsInstance(p, PT));
+    assert(checkIsInstance(p, type));
     PyObjectHandle major = PyObject_GetAttrString(p, STRCAST("major"));
     PyObjectHandle minor = PyObject_GetAttrString(p, STRCAST("minor"));
     if(major.get())
@@ -91,10 +91,10 @@ getVersion(PyObject* p, T& v)
     return true;
 }
 
-template<typename T, const char* PT> PyObject*
-createVersion(const T& version)
+template<typename T> PyObject*
+createVersion(const T& version, const char* type)
 {
-    PyObject* versionType = lookupType(PT);
+    PyObject* versionType = lookupType(type);
 
     PyObjectHandle obj = PyObject_CallObject(versionType, 0);
     if(!obj.get())
@@ -102,7 +102,7 @@ createVersion(const T& version)
         return 0;
     }
 
-    if(!setVersion<T, PT>(obj.get(), version))
+    if(!setVersion<T>(obj.get(), version, type))
     {
         return 0;
     }
@@ -110,10 +110,10 @@ createVersion(const T& version)
     return obj.release();
 }
 
-template<typename T, const char* PT> PyObject*
-versionToString(PyObject* args)
+template<typename T> PyObject*
+versionToString(PyObject* args, const char* type)
 {
-    PyObject* versionType = IcePy::lookupType(PT);
+    PyObject* versionType = IcePy::lookupType(type);
     PyObject* p;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
     {
@@ -121,7 +121,7 @@ versionToString(PyObject* args)
     }
 
     T v;
-    if(!getVersion<T, PT>(p, v))
+    if(!getVersion<T>(p, v, type))
     {
         return NULL;
     }
@@ -139,8 +139,8 @@ versionToString(PyObject* args)
     return createString(s);
 }
 
-template<typename T, const char* PT> PyObject*
-stringToVersion(PyObject* args)
+template<typename T> PyObject*
+stringToVersion(PyObject* args, const char* type)
 {
     char* str;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
@@ -159,7 +159,7 @@ stringToVersion(PyObject* args)
         return NULL;
     }
 
-    return createVersion<T, PT>(v);
+    return createVersion<T>(v, type);
 }
 
 char Ice_ProtocolVersion[] = "Ice.ProtocolVersion";
@@ -1074,13 +1074,13 @@ IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 PyObject*
 IcePy::createProtocolVersion(const Ice::ProtocolVersion& v)
 {
-    return createVersion<Ice::ProtocolVersion, Ice_ProtocolVersion>(v);
+    return createVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
 }
 
 PyObject*
 IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 {
-    return createVersion<Ice::EncodingVersion, Ice_EncodingVersion>(v);
+    return createVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
 }
 
 bool
@@ -1093,7 +1093,7 @@ IcePy::getEncodingVersion(PyObject* args, Ice::EncodingVersion& v)
         return false;
     }
 
-    if(!getVersion<Ice::EncodingVersion, Ice_EncodingVersion>(p, v))
+    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
     {
         return false;
     }
@@ -1141,28 +1141,28 @@ extern "C"
 PyObject*
 IcePy_protocolVersionToString(PyObject* /*self*/, PyObject* args)
 {
-    return IcePy::versionToString<Ice::ProtocolVersion, IcePy::Ice_ProtocolVersion>(args);
+    return IcePy::versionToString<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
 }
 
 extern "C"
 PyObject*
 IcePy_stringToProtocolVersion(PyObject* /*self*/, PyObject* args)
 {
-    return IcePy::stringToVersion<Ice::ProtocolVersion, IcePy::Ice_ProtocolVersion>(args);
+    return IcePy::stringToVersion<Ice::ProtocolVersion>(args, IcePy::Ice_ProtocolVersion);
 }
 
 extern "C"
 PyObject*
 IcePy_encodingVersionToString(PyObject* /*self*/, PyObject* args)
 {
-    return IcePy::versionToString<Ice::EncodingVersion, IcePy::Ice_EncodingVersion>(args);
+    return IcePy::versionToString<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
 }
 
 extern "C"
 PyObject*
 IcePy_stringToEncodingVersion(PyObject* /*self*/, PyObject* args)
 {
-    return IcePy::stringToVersion<Ice::EncodingVersion, IcePy::Ice_EncodingVersion>(args);
+    return IcePy::stringToVersion<Ice::EncodingVersion>(args, IcePy::Ice_EncodingVersion);
 }
 
 extern "C"

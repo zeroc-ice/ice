@@ -58,6 +58,10 @@ ifeq ($(CXX),CC)
 
     mklib            = $(CXX) -xar -o $(1) $(2)
 
+    
+    CXXLIBS          = -lCrun -lCstd
+
+
     ifneq ($(embedded_runpath_prefix),)
          LDPLATFORMFLAGS    = -norunpath -R $(runpath_libdir) -z text $(PLATFORMLIBDIRS)
     else
