@@ -392,12 +392,7 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
             // Marshal the in parameters.
             //
             Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator->getCommunicator());
-            os->startEncapsulation(_prx->ice_getEncodingVersion());
-
-            if(_op->sendsClasses && _op->format != Ice::DefaultFormat)
-            {
-                os->format(_op->format);
-            }
+            os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
             int i = 0;

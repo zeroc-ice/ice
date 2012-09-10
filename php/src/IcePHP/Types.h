@@ -492,7 +492,7 @@ public:
     virtual void usesClasses(bool);
 
     virtual std::string ice_name() const;
-    virtual Ice::Exception* ice_clone() const;
+    virtual ExceptionReader* ice_clone() const;
     virtual void ice_throw() const;
 
     ExceptionInfoPtr getInfo() const;

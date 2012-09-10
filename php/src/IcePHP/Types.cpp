@@ -2722,7 +2722,7 @@ IcePHP::ExceptionReader::ice_name() const
     return _info->id;
 }
 
-Ice::Exception*
+IcePHP::ExceptionReader*
 IcePHP::ExceptionReader::ice_clone() const
 {
     assert(false);

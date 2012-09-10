@@ -63,9 +63,9 @@ setStringMember(zval* obj, const string& name, const string& val TSRMLS_DC)
                                  const_cast<char*>(val.c_str()), static_cast<int>(val.size()) TSRMLS_CC);
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-getVersion(zval* zv, T& v TSRMLS_DC)
+getVersion(zval* zv, T& v, const char* type TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
@@ -73,7 +73,7 @@ getVersion(zval* zv, T& v TSRMLS_DC)
         return false;
     }
 
-    zend_class_entry* cls = idToClass(PT TSRMLS_CC);
+    zend_class_entry* cls = idToClass(type TSRMLS_CC);
     assert(cls);
 
     zend_class_entry* ce = Z_OBJCE_P(zv);
@@ -115,11 +115,11 @@ getVersion(zval* zv, T& v TSRMLS_DC)
     return true;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-createVersion(zval* zv, const T& version TSRMLS_DC)
+createVersion(zval* zv, const T& version, const char* type TSRMLS_DC)
 {
-    zend_class_entry* cls = idToClass(PT TSRMLS_CC);
+    zend_class_entry* cls = idToClass(type TSRMLS_CC);
     assert(cls);
 
     if(object_init_ex(zv, cls) != SUCCESS)
@@ -134,12 +134,12 @@ createVersion(zval* zv, const T& version TSRMLS_DC)
     return true;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-versionToString(zval* zv, zval* s TSRMLS_DC)
+versionToString(zval* zv, zval* s, const char* type TSRMLS_DC)
 {
     T v;
-    if(!getVersion<T, PT>(zv, v TSRMLS_CC))
+    if(!getVersion<T>(zv, v, type TSRMLS_CC))
     {
         return false;
     }
@@ -158,14 +158,14 @@ versionToString(zval* zv, zval* s TSRMLS_DC)
     return true;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-stringToVersion(const string& s, zval* zv TSRMLS_DC)
+stringToVersion(const string& s, zval* zv, const char* type TSRMLS_DC)
 {
     try
     {
         T v = IceInternal::stringToVersion<T>(s);
-        return createVersion<T, PT>(zv, v TSRMLS_CC);
+        return createVersion<T>(zv, v, type TSRMLS_CC);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -434,19 +434,19 @@ IcePHP::extractStringArray(zval* zv, Ice::StringSeq& seq TSRMLS_DC)
 bool
 IcePHP::createProtocolVersion(zval* zv, const Ice::ProtocolVersion& v TSRMLS_DC)
 {
-    return createVersion<Ice::ProtocolVersion, Ice_ProtocolVersion>(zv, v TSRMLS_CC);
+    return createVersion<Ice::ProtocolVersion>(zv, v, Ice_ProtocolVersion TSRMLS_CC);
 }
 
 bool
 IcePHP::createEncodingVersion(zval* zv, const Ice::EncodingVersion& v TSRMLS_DC)
 {
-    return createVersion<Ice::EncodingVersion, Ice_EncodingVersion>(zv, v TSRMLS_CC);
+    return createVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion TSRMLS_CC);
 }
 
 bool
 IcePHP::extractEncodingVersion(zval* zv, Ice::EncodingVersion& v TSRMLS_DC)
 {
-    return getVersion<Ice::EncodingVersion, Ice_EncodingVersion>(zv, v TSRMLS_CC);
+    return getVersion<Ice::EncodingVersion>(zv, v, Ice_EncodingVersion TSRMLS_CC);
 }
 
 static bool
@@ -977,7 +977,7 @@ ZEND_FUNCTION(Ice_protocolVersionToString)
         RETURN_NULL();
     }
 
-    if(!versionToString<Ice::ProtocolVersion, Ice_ProtocolVersion>(zv, return_value TSRMLS_CC))
+    if(!versionToString<Ice::ProtocolVersion>(zv, return_value, Ice_ProtocolVersion TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -993,7 +993,7 @@ ZEND_FUNCTION(Ice_stringToProtocolVersion)
     }
     string s(str, strLen);
 
-    if(!stringToVersion<Ice::ProtocolVersion, Ice_ProtocolVersion>(s, return_value TSRMLS_CC))
+    if(!stringToVersion<Ice::ProtocolVersion>(s, return_value, Ice_ProtocolVersion TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -1010,7 +1010,7 @@ ZEND_FUNCTION(Ice_encodingVersionToString)
         RETURN_NULL();
     }
 
-    if(!versionToString<Ice::EncodingVersion, Ice_EncodingVersion>(zv, return_value TSRMLS_CC))
+    if(!versionToString<Ice::EncodingVersion>(zv, return_value, Ice_EncodingVersion TSRMLS_CC))
     {
         RETURN_NULL();
     }
@@ -1026,7 +1026,7 @@ ZEND_FUNCTION(Ice_stringToEncodingVersion)
     }
     string s(str, strLen);
 
-    if(!stringToVersion<Ice::EncodingVersion, Ice_EncodingVersion>(s, return_value TSRMLS_CC))
+    if(!stringToVersion<Ice::EncodingVersion>(s, return_value, Ice_EncodingVersion TSRMLS_CC))
     {
         RETURN_NULL();
     }
