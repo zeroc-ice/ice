@@ -30,7 +30,6 @@ link below:
 For more information about the third-party dependencies, please refer
 to the links below:
 
-STLport        http://www.stlport.org
 Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
@@ -46,7 +45,6 @@ Table of Contents
      - Berkeley DB
      - mcpp
   2. Packages
-     - STLport
      - Berkeley DB
      - expat
      - OpenSSL
@@ -124,15 +122,6 @@ directory and apply the patch as shown below:
 ======================================================================
 2. Packages
 ======================================================================
-
-
-STLport
--------
-
-STLport is only required when using Visual C++ 6.0. For installation
-instructions, please refer to
-
-  http://www.stlport.org/doc/install.html
 
 
 Berkeley DB

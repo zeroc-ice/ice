@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_SCANNER_CONFIG_H
+#define ICE_UTIL_SCANNER_CONFIG_H
 
 #include <IceUtil/Config.h> // Required by generated Scanners.
 
@@ -22,4 +23,6 @@
 //
 #if defined(_MSC_VER) && (_MSC_VER >= 1600)
 #   include <stdint.h>
+#endif
+
 #endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_CONNECTION_FACTORY_H
+#define ICE_CONNECTION_FACTORY_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
@@ -228,3 +229,5 @@ private:
 };
 
 }
+
+#endif

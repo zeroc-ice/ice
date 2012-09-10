@@ -177,11 +177,11 @@ repeat:
         socklen_t len = static_cast<socklen_t>(sizeof(_peerAddr));
         if(_peerAddr.ss_family == AF_INET)
         {
-            len = sizeof(sockaddr_in);
+            len = static_cast<socklen_t>(sizeof(sockaddr_in));
         }
         else if(_peerAddr.ss_family == AF_INET6)
         {
-            len = sizeof(sockaddr_in6);
+            len = static_cast<socklen_t>(sizeof(sockaddr_in6));
         }
         else
         {

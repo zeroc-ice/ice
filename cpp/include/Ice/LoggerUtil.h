@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_LOGGER_UTIL_H
+#define ICE_LOGGER_UTIL_H
 
 #include <Ice/LoggerF.h>
 #include <Ice/CommunicatorF.h>
@@ -118,3 +119,5 @@ public:
 };
 
 }
+
+#endif

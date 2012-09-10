@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_ICE_UTIL_H
+#define ICE_UTIL_ICE_UTIL_H
 
 //
 // This file must include *all* other headers of IceUtil, except
@@ -37,3 +38,5 @@
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_OBJECT_ADAPTER_FACTORY_F_H
+#define ICE_OBJECT_ADAPTER_FACTORY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ IceUtil::Shared* upCast(ObjectAdapterFactory*);
 typedef IceInternal::Handle<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
 
 }
+
+#endif

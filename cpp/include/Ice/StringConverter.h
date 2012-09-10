@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STRING_CONVERTER_H
+#define ICE_STRING_CONVERTER_H
 
 #include <Ice/Config.h>
 #include <Ice/CommunicatorF.h>
@@ -156,3 +157,5 @@ ICE_API std::string
 UTF8ToNative(const Ice::CommunicatorPtr&, const std::string&);
 
 }
+
+#endif

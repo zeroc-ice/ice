@@ -38,7 +38,7 @@ private:
 };
 
 #ifndef _WIN32
-void testAction(int)
+extern "C" void testAction(int)
 {
     test(false);
 }

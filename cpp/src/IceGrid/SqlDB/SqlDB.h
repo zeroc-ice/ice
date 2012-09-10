@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SQL_DATABASE_CACHE_H
+#define SQL_DATABASE_CACHE_H
 
 #include <IceGrid/DB.h>
 
@@ -63,3 +64,5 @@ private:
 };
 
 }
+
+#endif

@@ -8,7 +8,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_DEFAULTS_AND_OVERRIDES_H
+#define ICE_DEFAULTS_AND_OVERRIDES_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/DefaultsAndOverridesF.h>
@@ -47,3 +48,5 @@ public:
 };
 
 }
+
+#endif

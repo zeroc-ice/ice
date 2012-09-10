@@ -7,12 +7,20 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_DESCRIPTOR_BUILDER_H
+#define ICE_GRID_DESCRIPTOR_BUILDER_H
 
 #include <Ice/Logger.h>
 #include <IceXML/Parser.h>
 #include <IceGrid/Descriptor.h>
 #include <set>
+
+#ifdef __SUNPRO_CC
+//
+// We hide some init functions on purpose in classes below
+//
+#   pragma error_messages(off,hidef)
+#endif
 
 namespace IceGrid
 {
@@ -309,4 +317,10 @@ private:
     ServiceDescriptorPtr _descriptor;
 };
 
-};
+}
+
+#ifdef __SUNPRO_CC
+#   pragma error_messages(default,hidef)
+#endif
+
+#endif

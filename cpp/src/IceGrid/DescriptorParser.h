@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICEGRID_DESCRIPTOR_PARSER_H
+#define ICEGRID_DESCRIPTOR_PARSER_H
 
 namespace IceGrid
 {
@@ -27,3 +28,5 @@ public:
 };
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_DESCRIPTOR_HELPER_H
+#define ICE_GRID_DESCRIPTOR_HELPER_H
 
 #include <IceUtil/OutputUtil.h>
 #include <IceXML/Parser.h>
@@ -225,7 +226,7 @@ public:
 
 protected:
 
-#if defined(__sun)
+#ifdef __SUNPRO_CC
     using ServerHelper::instantiateImpl;
 #endif
 
@@ -345,3 +346,5 @@ ServerHelperPtr createHelper(const ServerDescriptorPtr&);
 bool isServerUpdated(const ServerInfo&, const ServerInfo&, bool = false);
 
 }
+
+#endif

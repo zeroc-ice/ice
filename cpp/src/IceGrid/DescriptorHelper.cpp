@@ -18,6 +18,13 @@ using namespace IceUtil;
 using namespace IceUtilInternal;
 using namespace IceGrid;
 
+#ifdef __SUNPRO_CC
+//
+// Disable warning about unassigned function objects
+//
+#   pragma error_messages(off,unassigned)
+#endif
+
 namespace IceGrid
 {
 

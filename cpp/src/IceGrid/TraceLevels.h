@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_TRACE_LEVELS_H
+#define ICE_GRID_TRACE_LEVELS_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/CommunicatorF.h>
@@ -59,3 +60,5 @@ public:
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 } // End namespace IceGrid
+
+#endif

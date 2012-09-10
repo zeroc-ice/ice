@@ -214,12 +214,12 @@ Slice::Gen::Gen(const string& base, const string& headerExtension, const string&
 
 Slice::Gen::~Gen()
 {
-    H << '\n';
+    H << "\n\n#endif\n";
     C << '\n';
 
     if(_impl)
     {
-        implH << '\n';
+        implH << "\n\n#endif\n";
         implC << '\n';
     }
 }
@@ -280,7 +280,15 @@ Slice::Gen::generate(const UnitPtr& p)
         }
         FileTracker::instance()->addFile(fileImplC);
 
-        implH << "#pragma once\n";
+        string s = fileImplH;
+        if(_include.size())
+        {
+            s = _include + '/' + s;
+        }
+        transform(s.begin(), s.end(), s.begin(), ToIfdef());
+        implH << "#ifndef __" << s << "__";
+        implH << "\n#define __" << s << "__";
+        implH << '\n';
     }
 
     string fileH = _base + "." + _headerExtension;
@@ -314,7 +322,16 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
-    H << "#pragma once\n";
+
+    string s = fileH;
+    if(_include.size())
+    {
+        s = _include + '/' + s;
+    }
+    transform(s.begin(), s.end(), s.begin(), ToIfdef());
+    H << "\n#ifndef __" << s << "__";
+    H << "\n#define __" << s << "__";
+    H << '\n';
 
     validateMetaData(p);
 

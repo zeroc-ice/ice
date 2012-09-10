@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_OPTIONS_H
+#define ICE_UTIL_OPTIONS_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/RecMutex.h>
@@ -136,3 +137,5 @@ private:
 };
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_ACCEPTOR_F_H
+#define ICE_ACCEPTOR_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ ICE_API IceUtil::Shared* upCast(Acceptor*);
 typedef Handle<Acceptor> AcceptorPtr;
 
 }
+
+#endif

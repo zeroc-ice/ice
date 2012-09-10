@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_INSTANCE_F_H
+#define ICE_SSL_INSTANCE_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ IceUtil::Shared* upCast(IceSSL::Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 }
+
+#endif

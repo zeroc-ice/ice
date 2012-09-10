@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GEN_H
+#define GEN_H
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -266,3 +267,5 @@ private:
 };
 
 }
+
+#endif

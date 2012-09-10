@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_BASE_64_H
+#define ICE_BASE_64_H
 
 #include <Ice/Config.h>
 #include <string>
@@ -31,3 +32,5 @@ private:
 };
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STREAM_H
+#define ICE_STREAM_H
 
 #include <Ice/StreamF.h>
 #include <Ice/CommunicatorF.h>
@@ -430,9 +431,15 @@ public:
 
     virtual bool __usesClasses() const;
 
+#ifdef __SUNPRO_CC
+    using UserException::__usesClasses;
+#endif
+
 protected:
 
     const CommunicatorPtr _communicator;
 };
 
 }
+
+#endif

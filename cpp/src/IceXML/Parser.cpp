@@ -323,8 +323,8 @@ startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
         attributes[attr[i]] = attr[i + 1];
     }
 
-    int line = XML_GetCurrentLineNumber(cb->parser);
-    int column = XML_GetCurrentColumnNumber(cb->parser);
+    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
     cb->handler->startElement(name, attributes, line, column);
 }
 
@@ -332,8 +332,8 @@ static void
 endElementHandler(void* data, const XML_Char* name)
 {
     CallbackData* cb = static_cast<CallbackData*>(data);
-    int line = XML_GetCurrentLineNumber(cb->parser);
-    int column = XML_GetCurrentColumnNumber(cb->parser);
+    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
     cb->handler->endElement(name, line, column);
 }
 
@@ -343,8 +343,8 @@ characterDataHandler(void* data, const XML_Char* s, int len)
     CallbackData* cb = static_cast<CallbackData*>(data);
 
     string str(s, len);
-    int line = XML_GetCurrentLineNumber(cb->parser);
-    int column = XML_GetCurrentColumnNumber(cb->parser);
+    int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
+    int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
     cb->handler->characters(str, line, column);
 }
 
@@ -406,8 +406,9 @@ IceXML::Parser::parse(istream& in, Handler& handler)
             }
             if(XML_Parse(parser, buff, static_cast<int>(in.gcount()), isFinal) != 1)
             {
-                handler.error(XML_ErrorString(XML_GetErrorCode(parser)), XML_GetCurrentLineNumber(parser),
-                              XML_GetCurrentColumnNumber(parser));
+                handler.error(XML_ErrorString(XML_GetErrorCode(parser)), 
+                              static_cast<int>(XML_GetCurrentLineNumber(parser)),
+                              static_cast<int>(XML_GetCurrentColumnNumber(parser)));
                 return;
             }
         }

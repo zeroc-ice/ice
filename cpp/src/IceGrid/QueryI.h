@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_QUERY_I_H
+#define ICE_GRID_QUERY_I_H
 
 #include <IceGrid/Query.h>
 #include <Ice/CommunicatorF.h>
@@ -43,3 +44,5 @@ private:
 };
 
 }
+
+#endif

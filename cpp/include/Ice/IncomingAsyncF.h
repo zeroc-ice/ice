@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_INCOMING_ASYNC_F_H
+#define ICE_INCOMING_ASYNC_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -30,3 +31,5 @@ ICE_API IceUtil::Shared* upCast(::Ice::AMD_Object_ice_invoke*);
 typedef IceInternal::Handle<AMD_Object_ice_invoke> AMD_Object_ice_invokePtr;
 
 }
+
+#endif

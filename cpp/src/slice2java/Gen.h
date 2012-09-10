@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GEN_H
+#define GEN_H
 
 #include <Slice/Parser.h>
 #include <Slice/JavaUtil.h>
@@ -336,3 +337,5 @@ private:
 };
 
 }
+
+#endif

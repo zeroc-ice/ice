@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_CONNECTION_MONITOR_F_H
+#define ICE_CONNECTION_MONITOR_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ ICE_API IceUtil::Shared* upCast(ConnectionMonitor*);
 typedef IceInternal::Handle<ConnectionMonitor> ConnectionMonitorPtr;
 
 }
+
+#endif

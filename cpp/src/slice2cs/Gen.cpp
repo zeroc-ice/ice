@@ -2915,7 +2915,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
             for(d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {
                 string memberName = fixId((*d)->name());
-                string memberType = typeToString((*d)->type());
+                string memberType = typeToString((*d)->type(), (*d)->optional());
                 paramDecl.push_back(memberType + " " + memberName);
             }
             _out << paramDecl << epar;
@@ -2943,14 +2943,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 {
                     _out << paramName;
                 }
-                if((*d)->optional())
-                {
-                    _out << " = new " << typeToString((*d)->type(), true) << '(' << paramName << ");";
-                }
-                else
-                {
-                    _out << " = " << paramName << ';';
-                }
+                _out << " = " << paramName << ';';
             }
             _out << eb;
 
@@ -3254,7 +3247,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type());
+        string memberType = typeToString((*q)->type(), (*q)->optional());
         allParamDecl.push_back(memberType + " " + memberName);
     }
 
@@ -3268,7 +3261,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         string memberName = fixId((*q)->name());
-        string memberType = typeToString((*q)->type());
+        string memberType = typeToString((*q)->type(), (*q)->optional());
         paramDecl.push_back(memberType + " " + memberName);
     }
 
@@ -3330,15 +3323,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string name = fixId((*q)->name(), DotNet::Exception, false);
-                if((*q)->optional())
-                {
-                    _out << nl << "this." << name << " = new " << typeToString((*q)->type(), true) << '(' <<
-                         fixId((*q)->name()) << ");";
-                }
-                else
-                {
-                    _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
-                }
+                _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
             }
             _out << eb;
         }

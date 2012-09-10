@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GLACIER2_SESSION_HELPER_H
+#define GLACIER2_SESSION_HELPER_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
@@ -111,3 +112,5 @@ private:
 typedef IceUtil::Handle<SessionFactoryHelper> SessionFactoryHelperPtr;
 
 }
+
+#endif

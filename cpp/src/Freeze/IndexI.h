@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_INDEX_I_H
+#define FREEZE_INDEX_I_H
 
 #include <Ice/Ice.h>
 #include <Freeze/Index.h>
@@ -48,3 +49,5 @@ private:
 };
 
 }
+#endif
+

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_IMPLICIT_CONTEXT_I_H
+#define ICE_IMPLICIT_CONTEXT_I_H
 
 #include <Ice/ImplicitContext.h>
 
@@ -47,3 +48,4 @@ public:
 typedef IceInternal::Handle<ImplicitContextI> ImplicitContextIPtr;
 
 }
+#endif

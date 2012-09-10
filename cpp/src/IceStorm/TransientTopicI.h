@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef TRANSIENT_TOPIC_I_H
+#define TRANSIENT_TOPIC_I_H
 
 #include <IceStorm/IceStormInternal.h>
 
@@ -75,3 +76,5 @@ private:
 typedef IceUtil::Handle<TransientTopicImpl> TransientTopicImplPtr;
 
 } // End namespace IceStorm
+
+#endif

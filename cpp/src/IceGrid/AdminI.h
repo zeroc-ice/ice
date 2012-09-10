@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_ADMIN_I_H
+#define ICE_GRID_ADMIN_I_H
 
 #include <IceGrid/Admin.h>
 
@@ -103,3 +104,5 @@ private:
 typedef IceUtil::Handle<AdminI> AdminIPtr;
 
 }
+
+#endif

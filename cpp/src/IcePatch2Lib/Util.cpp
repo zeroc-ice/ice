@@ -37,78 +37,6 @@
 const char* IcePatch2::checksumFile = "IcePatch2.sum";
 const char* IcePatch2::logFile = "IcePatch2.log";
 
-//
-// Solaris 9 and before doesn't have scandir() or alphasort().
-//
-#ifdef __sun
-
-extern "C" int
-ice_scandir(const char* dir, struct dirent*** namelist,
-        int (*select)(const struct dirent*),
-        int (*compar)(const void*, const void*))
-{
-    DIR* d;
-    struct dirent* entry;
-    register int i = 0;
-    size_t entrysize;
-
-    if((d = opendir(dir)) == 0)
-    {
-        return -1;
-    }
-
-    *namelist = 0;
-    while((entry = readdir(d)) != 0)
-    {
-        if(select == 0 || (select != 0 && (*select)(entry)))
-        {
-            *namelist = (struct dirent**)realloc((void*)(*namelist), (size_t)((i + 1) * sizeof(struct dirent*)));
-            if(*namelist == 0)
-            {
-                closedir(d);
-                return -1;
-            }
-
-            entrysize = sizeof(struct dirent) - sizeof(entry->d_name) + strlen(entry->d_name) + 1;
-            (*namelist)[i] = (struct dirent*)malloc(entrysize);
-            if((*namelist)[i] == 0)
-            {
-                closedir(d);
-                return -1;
-            }
-            memcpy((*namelist)[i], entry, entrysize);
-            ++i;
-        }
-    }
-
-    if(closedir(d))
-    {
-        return -1;
-    }
-
-    if(i == 0)
-    {
-        return -1;
-    }
-
-    if(compar != 0)
-    {
-        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
-    }
-
-    return i;
-}
-
-extern "C" int
-ice_alphasort(const void* v1, const void* v2)
-{
-    const struct dirent **a = (const struct dirent **)v1;
-    const struct dirent **b = (const struct dirent **)v2;
-    return(strcmp((*a)->d_name, (*b)->d_name));
-}
-
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
@@ -530,11 +458,8 @@ IcePatch2::readDirectory(const string& pa)
 #else
 
     struct dirent **namelist;
-#ifdef __sun
-    int n = ice_scandir(path.c_str(), &namelist, 0, ice_alphasort);
-#else
     int n = scandir(path.c_str(), &namelist, 0, alphasort);
-#endif
+
     if(n < 0)
     {
         throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();

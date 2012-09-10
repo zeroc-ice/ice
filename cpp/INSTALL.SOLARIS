@@ -6,24 +6,14 @@ Requirements
 Operating System
 ----------------
 
-Ice is expected to build and run properly on Solaris 8, Solaris 9
-and Solaris 10 on SPARC and x86/x64. However, Ice is officially
-supported only on Solaris 10 update 5 or greater for both SPARC and
-x86/x64.
-
-You also need to have /dev/urandom installed. This is installed by
-default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
-patch 112438-01.
-
+Ice is supported on:
+ - Solaris 11 for SPARC.
 
 C++ compiler
 ------------
 
-Ice is expected to build properly with GCC 3.4 or later. However, only
-the following compilers are officially supported:
-
-- GCC 3.4.3 on x86/x64
-- GCC 4.3.2 on SPARC
+Ice is supported with:
+- Solaris Studio 12.3 (CC 5.12)
 
 
 Third-party libraries
@@ -31,13 +21,11 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.8.30
-- expat 1.95.7 or 2.0.0
-- OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
-- bzip2 1.0.x
+- Berkeley DB 5.1.25 (from pkg.oracle.com)
+- expat 2.0.1 (from pkg.oracle.com)
+- OpenSSL 1.0.0 (from pkg.oracle.com)
+- bzip2 1.0.6 (from pkg.oracle.com)
 - mcpp 2.7.2 (with patches)
-- libiconv 1.13.1 (x86/x64 only)
-- QT 4.5.3 (optional)
 
 We recommend downloading the Ice third-party source archive from
 
@@ -55,17 +43,12 @@ expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 mcpp           http://mcpp.sourceforge.net
-libiconv       http://www.gnu.org/software/libiconv
-QT             http://qt.nokia.com
 
-
-GNU Make 3.80
+GNU Make 3.81
 -------------
 
-GNU Make 3.80 is required to build Ice on Solaris. GNU make is
-distributed on the "Solaris 10 OS Companion Software DVD":
-
-http://www.sun.com/software/solaris/freeware/
+GNU Make 3.81 is required to build Ice on Solaris. It can be installed
+using pkg.oracle.com (package name: gnu-make).
 
 
 ======================================================================
@@ -97,9 +80,7 @@ $ gmake
 
 This will build the Ice core libraries, services, tests and examples.
 
-Python is required to run the test suite:
-
-  http://www.python.org/download
+Python is required to run the test suite.
 
 After a successful build, you can run the test suite:
 

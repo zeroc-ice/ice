@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GEN_H
+#define GEN_H
 
 #include <Slice/CsUtil.h>
 
@@ -314,3 +315,5 @@ private:
 };
 
 }
+
+#endif

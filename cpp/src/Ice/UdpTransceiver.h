@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UDP_TRANSCEIVER_H
+#define ICE_UDP_TRANSCEIVER_H
 
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
@@ -116,4 +117,4 @@ private:
 };
 
 }
-
+#endif

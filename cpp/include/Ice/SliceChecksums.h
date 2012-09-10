@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SLICE_CHECKSUM_H
+#define ICE_SLICE_CHECKSUM_H
 
 #include <Ice/SliceChecksumDict.h>
 
@@ -29,3 +30,5 @@ public:
 };
 
 }
+
+#endif

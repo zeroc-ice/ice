@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_DISABLEWARNINGS_H
+#define ICE_UTIL_DISABLEWARNINGS_H
 
 //
 // This header file disables various annoying compiler warnings that
@@ -27,4 +28,6 @@
 #    if (_MSC_VER < 1700)
 #       pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
 #    endif
+#endif
+
 #endif

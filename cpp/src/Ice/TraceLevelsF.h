@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_TRACE_LEVELS_F_H
+#define ICE_TRACE_LEVELS_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ ICE_API IceUtil::Shared* upCast(TraceLevels*);
 typedef Handle<TraceLevels> TraceLevelsPtr;
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_PROXY_FACTORY_F_H
+#define ICE_PROXY_FACTORY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -21,3 +22,5 @@ IceUtil::Shared* upCast(ProxyFactory*);
 typedef IceInternal::Handle<ProxyFactory> ProxyFactoryPtr;
 
 }
+
+#endif

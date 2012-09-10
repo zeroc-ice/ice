@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef GLACIER2_INSTANCE_H
+#define GLACIER2_INSTANCE_H
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -59,3 +60,5 @@ private:
 typedef IceUtil::Handle<Instance> InstancePtr;
 
 } // End namespace Glacier2
+
+#endif

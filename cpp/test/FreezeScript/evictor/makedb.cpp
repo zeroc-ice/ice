@@ -14,6 +14,10 @@
 using namespace std;
 using namespace Test;
 
+#ifdef __SUNPRO_CC
+#   pragma error_messages(off,hidef)
+#endif
+
 class MainObjectI : public MainObject, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 };

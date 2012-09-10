@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICEGRID_REAPER_THREAD_H
+#define ICEGRID_REAPER_THREAD_H
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Mutex.h>
@@ -112,3 +113,5 @@ private:
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
 };
+
+#endif

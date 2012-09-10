@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_OUTGOING_ASYNC_H
+#define ICE_OUTGOING_ASYNC_H
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
@@ -600,3 +601,5 @@ public:
 };
 
 }
+
+#endif

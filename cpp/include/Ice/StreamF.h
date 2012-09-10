@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STREAM_F_H
+#define ICE_STREAM_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -25,3 +26,5 @@ ICE_API IceUtil::Shared* upCast(::Ice::OutputStream*);
 typedef IceInternal::Handle< OutputStream > OutputStreamPtr;
 
 }
+
+#endif

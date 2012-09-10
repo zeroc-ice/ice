@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_CONNECTIONI_H
+#define FREEZE_CONNECTIONI_H
 
 #include <Freeze/Connection.h>
 #include <Freeze/Initialize.h>
@@ -167,3 +168,5 @@ ConnectionI::deadlockWarning() const
 }
 
 }
+
+#endif

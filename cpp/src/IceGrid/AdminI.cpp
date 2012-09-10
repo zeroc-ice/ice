@@ -830,12 +830,14 @@ AdminI::getNodeProcessorSocketCount(const string& name, const Current&) const
     catch(const Ice::ObjectNotExistException&)
     {
         throw NodeNotExistException(name);
+        return 0;
     }
     catch(const Ice::LocalException& ex)
     {
         ostringstream os;
         os << ex;
         throw NodeUnreachableException(name, os.str());
+        return 0;
     }
 }
 

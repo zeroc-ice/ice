@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_TCP_TRANSCEIVER_H
+#define ICE_TCP_TRANSCEIVER_H
 
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
@@ -80,3 +81,5 @@ private:
 };
 
 }
+
+#endif

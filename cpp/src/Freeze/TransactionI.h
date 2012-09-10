@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_TRANSACTIONI_H
+#define FREEZE_TRANSACTIONI_H
 
 #include <Ice/CommunicatorF.h>
 #include <Freeze/Transaction.h>
@@ -84,3 +85,4 @@ private:
 typedef IceUtil::Handle<TransactionI> TransactionIPtr;
 
 }
+#endif

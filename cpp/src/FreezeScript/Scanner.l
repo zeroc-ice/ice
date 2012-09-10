@@ -39,6 +39,16 @@
 #   define YY_NO_UNISTD_H
 #endif
 
+#ifdef __SUNPRO_CC
+#   ifdef freeze_script_wrap
+#      undef freeze_script_wrap
+#      define freeze_script_wrap() 1
+#   endif
+#   ifdef ICE_64
+#       pragma error_messages(off,truncwarn)
+#   endif
+#endif
+
 using namespace std;
 using namespace FreezeScript;
 

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UDP_ENDPOINT_I_H
+#define ICE_UDP_ENDPOINT_I_H
 
 #include <IceUtil/Config.h>
 #include <Ice/EndpointI.h>
@@ -85,3 +86,5 @@ private:
 };
 
 }
+
+#endif

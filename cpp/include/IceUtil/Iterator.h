@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_ITERATOR_H
+#define ICE_UTIL_ITERATOR_H
 
 #include <iterator>
 
@@ -32,3 +33,4 @@ distance(ForwardIterator first, ForwardIterator last)
 }
 
 }
+#endif

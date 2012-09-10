@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_SHARED_DB_ENV_H
+#define FREEZE_SHARED_DB_ENV_H
 
 #include <Freeze/Map.h>
 #include <IceUtil/FileUtil.h>
@@ -126,3 +127,4 @@ SharedDbEnv::getEncoding() const
 }
 
 }
+#endif

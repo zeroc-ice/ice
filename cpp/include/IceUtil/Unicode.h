@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_UNICODE_H
+#define ICE_UTIL_UNICODE_H
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Exception.h>
@@ -90,3 +91,5 @@ convertUTF8ToUTFWstring(const IceUtil::Byte*& sourceStart, const IceUtil::Byte* 
                         std::wstring& target, IceUtil::ConversionFlags flags);
 
 }
+
+#endif

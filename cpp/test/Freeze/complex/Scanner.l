@@ -38,6 +38,16 @@ using namespace Ice;
 #   define YY_NO_UNISTD_H
 #endif
 
+#ifdef __SUNPRO_CC
+#   ifdef yywrap
+#      undef yywrap
+#      define yywrap() 1
+#   endif
+#   ifdef ICE_64
+#       pragma error_messages(off,truncwarn)
+#   endif
+#endif
+
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 %}

@@ -7,12 +7,18 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef OBSERVERS_H
+#define OBSERVERS_H
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include <IceStorm/Election.h>
 #include <IceStorm/Replica.h>
+
+#ifdef __SUNPRO_CC
+#  pragma error_messages(off,hidef)
+#endif
+
 
 namespace IceStorm
 {
@@ -64,3 +70,9 @@ private:
 typedef IceUtil::Handle<Observers> ObserversPtr;
 
 }
+
+#ifdef __SUNPRO_CC
+#  pragma error_messages(default,hidef)
+#endif
+
+#endif // OBSERVERS_H

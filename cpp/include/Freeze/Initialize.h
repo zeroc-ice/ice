@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_INITIALIZE_H
+#define FREEZE_INITIALIZE_H
 
 #include <Ice/Ice.h>
 #include <Freeze/EvictorF.h>
@@ -99,3 +100,5 @@ typedef void (*FatalErrorCallback)(const BackgroundSaveEvictorPtr&, const Ice::C
 FREEZE_API FatalErrorCallback registerFatalErrorCallback(FatalErrorCallback);
 
 }
+
+#endif

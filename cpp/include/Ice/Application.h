@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_APPLICATION_H
+#define ICE_APPLICATION_H
 
 #include <Ice/Ice.h>
 
@@ -151,3 +152,5 @@ protected:
 };
 
 }
+
+#endif

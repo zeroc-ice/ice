@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_SSL_ENDPOINT_I_H
+#define ICE_SSL_ENDPOINT_I_H
 
 #include <Ice/EndpointI.h>
 #include <Ice/EndpointFactory.h>
@@ -84,3 +85,5 @@ private:
 };
 
 }
+
+#endif

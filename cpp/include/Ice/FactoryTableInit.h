@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_FACTORYTABLEINIT_H
+#define ICE_FACTORYTABLEINIT_H
 
 #include <Ice/FactoryTable.h>
 
@@ -27,3 +28,5 @@ static FactoryTableInit factoryTableInitializer;    // Dummy variable to force i
 extern ICE_API FactoryTable* factoryTable;
 
 }
+
+#endif

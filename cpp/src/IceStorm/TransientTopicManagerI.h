@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef TRANSIENT_TOPIC_MANAGER_I_H
+#define TRANSIENT_TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStormInternal.h>
 
@@ -54,3 +55,5 @@ private:
 typedef IceUtil::Handle<TransientTopicManagerImpl> TransientTopicManagerImplPtr;
 
 } // End namespace IceStorm
+
+#endif

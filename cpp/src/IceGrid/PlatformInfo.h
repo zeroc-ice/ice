@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_PLATFORM_INFO_H
+#define ICE_GRID_PLATFORM_INFO_H
 
 #include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
@@ -87,3 +88,5 @@ private:
 
 
 };
+
+#endif

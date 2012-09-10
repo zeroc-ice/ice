@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SLICE_CHECKSUM_H
+#define SLICE_CHECKSUM_H
 
 #include <Slice/Parser.h>
 #include <map>
@@ -21,3 +22,5 @@ typedef std::map<std::string, std::vector<unsigned char> > ChecksumMap;
 SLICE_API ChecksumMap createChecksums(const UnitPtr&);
 
 }
+
+#endif

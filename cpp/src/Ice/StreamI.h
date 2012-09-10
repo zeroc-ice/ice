@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_STREAM_I_H
+#define ICE_STREAM_I_H
 
 #include <Ice/Stream.h>
 
@@ -87,6 +88,10 @@ public:
     virtual void read(std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&);
     virtual void read(std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&);
 
+#ifdef __SUNPRO_CC
+    using InputStream::read;
+#endif
+
     virtual bool readOptional(Int, OptionalType);
 
     virtual void closure(void*);
@@ -138,6 +143,10 @@ public:
     virtual void write(const Float*, const Float*);
     virtual void write(const Double*, const Double*);
 
+#ifdef __SUNPRO_CC
+    using OutputStream::write;
+#endif
+
     virtual void writeOptional(Int, OptionalType);
 
     virtual void startObject(const SlicedDataPtr&);
@@ -172,3 +181,5 @@ private:
 };
 
 }
+
+#endif

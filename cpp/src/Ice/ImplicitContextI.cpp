@@ -55,9 +55,6 @@ public:
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
     virtual void combine(const Context&, Context&) const;
-    
-    static void threadDestructor(void*);
-    
 
     struct Slot
     {
@@ -104,6 +101,9 @@ private:
 #endif
 }
 
+extern "C" void iceImplicitContextThreadDestructor(void*);
+
+
 
 /*static*/ ImplicitContextI*
 ImplicitContextI::create(const std::string& kind)
@@ -141,8 +141,7 @@ ImplicitContextI::cleanupThread()
 {
     if(PerThreadImplicitContext::_nextId > 0)
     {
-        PerThreadImplicitContext::threadDestructor(
-            TlsGetValue(PerThreadImplicitContext::_key));
+        iceImplicitContextThreadDestructor(TlsGetValue(PerThreadImplicitContext::_key));
     } 
 }
 #endif
@@ -310,7 +309,7 @@ PerThreadImplicitContext::PerThreadImplicitContext()
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
         }
 #   else
-        int err = pthread_key_create(&_key, &threadDestructor);
+        int err = pthread_key_create(&_key, &iceImplicitContextThreadDestructor);
         if(err != 0)
         {
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
@@ -348,26 +347,6 @@ PerThreadImplicitContext::~PerThreadImplicitContext()
     {
         delete _indexInUse;
         _indexInUse = 0;
-    }
-}
-
-/*static*/ void
-PerThreadImplicitContext::threadDestructor(void* v)
-{
-    SlotVector* sv = static_cast<SlotVector*>(v);
-    if(sv != 0)
-    {
-        //
-        // Cleanup each slot
-        //
-        for(SlotVector::iterator p = sv->begin(); p != sv->end(); ++p)
-        {
-            delete p->context;
-        }
-        //
-        // Then the vector
-        //
-        delete sv;
     }
 }
 
@@ -635,4 +614,24 @@ PerThreadImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
         ctx.insert(threadCtx->begin(), threadCtx->end());
     }
 }
+
+extern "C" void iceImplicitContextThreadDestructor(void* v)
+{
+    PerThreadImplicitContext::SlotVector* sv = static_cast<PerThreadImplicitContext::SlotVector*>(v);
+    if(sv != 0)
+    {
+        //
+        // Cleanup each slot
+        //
+        for(PerThreadImplicitContext::SlotVector::iterator p = sv->begin(); p != sv->end(); ++p)
+        {
+            delete p->context;
+        }
+        //
+        // Then the vector
+        //
+        delete sv;
+    }
+}
+
 #endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_ICONV_STRING_CONVERTER
+#define ICE_ICONV_STRING_CONVERTER
 
 #include <Ice/StringConverter.h>
 #include <Ice/UndefSysMacros.h>
@@ -19,7 +20,7 @@
 #include <langinfo.h>
 #endif
 
-#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B) || (defined(__sun) && !defined(_XPG6)) || defined(__FreeBSD__)
+#if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B) || defined(__FreeBSD__)
     //
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
     //
@@ -242,7 +243,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 #ifdef NDEBUG
     iconv(cd, 0, 0, 0, 0);
 #else
-    int rs = iconv(cd, 0, 0, 0, 0);
+    size_t rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
 #endif
 
@@ -295,7 +296,7 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 #ifdef NDEBUG
     iconv(cd, 0, 0, 0, 0);
 #else
-    int rs = iconv(cd, 0, 0, 0, 0);
+    size_t rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
 #endif
 
@@ -367,3 +368,5 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 }
 
 }
+
+#endif

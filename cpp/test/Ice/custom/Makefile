@@ -65,6 +65,20 @@ include $(top_srcdir)/config/Make.rules
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 SLICE2CPPFLAGS  := --stream $(SLICE2CPPFLAGS)
 
+#
+# Disables optimization when building with Solaris CC:
+# AllTests.cpp takes a very very long time to compile with -O
+#
+ifeq ($(UNAME),SunOS)
+ifeq ($(CXX),CC)
+ifeq ($(OPTIMIZE),yes)
+
+AllTests.o:  AllTests.cpp
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) -xO0 $<
+endif
+endif
+endif
+
 $(CLIENT): $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)

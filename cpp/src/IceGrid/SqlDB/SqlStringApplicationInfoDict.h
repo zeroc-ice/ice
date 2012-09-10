@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef SQL_STRING_APPLICATION_INFO_DICT_H
+#define SQL_STRING_APPLICATION_INFO_DICT_H
 
 #include <Ice/CommunicatorF.h>
 #include <IceGrid/Admin.h>
@@ -41,3 +42,5 @@ private:
 typedef IceUtil::Handle<SqlStringApplicationInfoDict> SqlStringApplicationInfoDictPtr;
 
 }
+
+#endif

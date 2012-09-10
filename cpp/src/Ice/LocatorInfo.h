@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_LOCATOR_INFO_H
+#define ICE_LOCATOR_INFO_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -181,3 +182,5 @@ private:
 };
 
 }
+
+#endif

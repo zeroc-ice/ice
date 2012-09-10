@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_SCRIPT_TRANSFORM_ANALYZER_H
+#define FREEZE_SCRIPT_TRANSFORM_ANALYZER_H
 
 #include <Slice/Parser.h>
 #include <IceUtil/OutputUtil.h>
@@ -39,3 +40,5 @@ private:
 };
 
 }
+
+#endif

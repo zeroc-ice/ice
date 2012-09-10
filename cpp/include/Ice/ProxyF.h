@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_PROXY_F_H
+#define ICE_PROXY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -72,3 +73,6 @@ namespace Ice
 typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 }
+
+
+#endif

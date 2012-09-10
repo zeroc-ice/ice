@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_FILE_CACHE_H
+#define ICE_GRID_FILE_CACHE_H
 
 #include <IceUtil/Shared.h>
 #include <Ice/BuiltinSequences.h>
@@ -32,3 +33,5 @@ private:
 typedef IceUtil::Handle<FileCache> FileCachePtr;
 
 };
+
+#endif

@@ -32,7 +32,7 @@ private:
 };
 typedef IceUtil::Handle<MTPrinter> MTPrinterPtr;
 
-class CounterObserverI : public Demo::CounterObserver, public IceUtil::Mutex
+class CounterObserverI : public Demo::CounterObserver
 {
 public:
 
@@ -45,6 +45,7 @@ private:
 
     int _value;
     MTPrinterPtr _printer;
+    IceUtil::Mutex _mutex;
 };
 
 #endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_FUNCTIONAL_H
+#define ICE_FUNCTIONAL_H
 
 #include <IceUtil/Functional.h>
 #include <Ice/Handle.h>
@@ -133,3 +134,5 @@ secondConstVoidMemFun1(void (T::*p)(A) const)
 }
 
 }
+
+#endif

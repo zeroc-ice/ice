@@ -74,6 +74,7 @@ typedef int flex_int32_t;
 typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
+#endif /* ! C99 */
 
 /* Limits of integral types. */
 #ifndef INT8_MIN
@@ -103,8 +104,6 @@ typedef unsigned int flex_uint32_t;
 #ifndef UINT32_MAX
 #define UINT32_MAX             (4294967295U)
 #endif
-
-#endif /* ! C99 */
 
 #endif /* ! FLEXINT_H */
 
@@ -162,15 +161,7 @@ typedef unsigned int flex_uint32_t;
 
 /* Size of default input buffer. */
 #ifndef YY_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k.
- * Moreover, YY_BUF_SIZE is 2*YY_READ_BUF_SIZE in the general case.
- * Ditto for the __ia64__ case accordingly.
- */
-#define YY_BUF_SIZE 32768
-#else
 #define YY_BUF_SIZE 16384
-#endif /* __ia64__ */
 #endif
 
 /* The state buf must be large enough to hold one state per character in the main buffer.
@@ -591,6 +582,16 @@ char *slice_text;
 #   define YY_NO_UNISTD_H
 #endif
 
+#ifdef __SUNPRO_CC
+#   ifdef slice_wrap
+#      undef slice_wrap
+#      define slice_wrap() 1
+#   endif
+#   ifdef ICE_64
+#       pragma error_messages(off,truncwarn)      
+#   endif
+#endif
+
 using namespace std;
 using namespace Slice;
 
@@ -612,7 +613,7 @@ int checkKeyword(string&);
 
 
 
-#line 615 "lex.yy.c"
+#line 616 "lex.yy.c"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -695,12 +696,7 @@ static int input (void );
 
 /* Amount of stuff to slurp up with each read. */
 #ifndef YY_READ_BUF_SIZE
-#ifdef __ia64__
-/* On IA-64, the buffer size is 16k, not 8k */
-#define YY_READ_BUF_SIZE 16384
-#else
 #define YY_READ_BUF_SIZE 8192
-#endif /* __ia64__ */
 #endif
 
 /* Copy whatever the last rule matched to the standard output. */
@@ -708,7 +704,7 @@ static int input (void );
 /* This used to be an fputs(), but since the string might contain NUL's,
  * we now use fwrite().
  */
-#define ECHO do { if (fwrite( slice_text, slice_leng, 1, slice_out )) {} } while (0)
+#define ECHO fwrite( slice_text, slice_leng, 1, slice_out )
 #endif
 
 /* Gets input and stuffs it into "buf".  number of characters read, or YY_NULL,
@@ -719,7 +715,7 @@ static int input (void );
 	if ( YY_CURRENT_BUFFER_LVALUE->yy_is_interactive ) \
 		{ \
 		int c = '*'; \
-		size_t n; \
+		int n; \
 		for ( n = 0; n < max_size && \
 			     (c = getc( slice_in )) != EOF && c != '\n'; ++n ) \
 			buf[n] = (char) c; \
@@ -804,10 +800,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 75 "Scanner.l"
+#line 85 "Scanner.l"
 
 
-#line 810 "lex.yy.c"
+#line 806 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -892,7 +888,7 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 77 "Scanner.l"
+#line 87 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -906,7 +902,7 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 84 "Scanner.l"
+#line 94 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -919,7 +915,7 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 91 "Scanner.l"
+#line 101 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -933,7 +929,7 @@ case 4:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 98 "Scanner.l"
+#line 108 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -943,7 +939,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 105 "Scanner.l"
+#line 115 "Scanner.l"
 {
     // C++-style comment
     BEGIN(MAINSCAN);
@@ -961,7 +957,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 120 "Scanner.l"
+#line 130 "Scanner.l"
 {
     // C-style comment
     BEGIN(MAINSCAN);
@@ -1005,7 +1001,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 161 "Scanner.l"
+#line 171 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_SCOPE_DELIMITER;
@@ -1013,7 +1009,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 166 "Scanner.l"
+#line 176 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -1021,7 +1017,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 171 "Scanner.l"
+#line 181 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
@@ -1029,7 +1025,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 176 "Scanner.l"
+#line 186 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
@@ -1037,7 +1033,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 181 "Scanner.l"
+#line 191 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
@@ -1046,7 +1042,7 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 186 "Scanner.l"
+#line 196 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1074,7 +1070,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 211 "Scanner.l"
+#line 221 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1085,7 +1081,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 219 "Scanner.l"
+#line 229 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1249,7 +1245,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 380 "Scanner.l"
+#line 390 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1268,7 +1264,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 396 "Scanner.l"
+#line 406 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1302,7 +1298,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 426 "Scanner.l"
+#line 436 "Scanner.l"
 {
     // Ignore white-space
     
@@ -1318,7 +1314,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 439 "Scanner.l"
+#line 449 "Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
     
@@ -1327,7 +1323,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 445 "Scanner.l"
+#line 455 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
@@ -1346,10 +1342,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 461 "Scanner.l"
+#line 471 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1352 "lex.yy.c"
+#line 1348 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -2109,8 +2105,8 @@ YY_BUFFER_STATE slice__scan_string (yyconst char * yystr )
 
 /** Setup the input buffer state to scan the given bytes. The next call to slice_lex() will
  * scan from a @e copy of @a bytes.
- * @param yybytes the byte buffer to scan
- * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
+ * @param bytes the byte buffer to scan
+ * @param len the number of bytes in the buffer pointed to by @a bytes.
  * 
  * @return the newly allocated buffer state object.
  */
@@ -2349,7 +2345,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 461 "Scanner.l"
+#line 471 "Scanner.l"
 
 
 

@@ -553,7 +553,9 @@ Selector::~Selector()
 void
 Selector::destroy()
 {
+#if !defined(ICE_USE_SELECT) && !defined(ICE_USE_POLL)
     assert(_events.empty());
+#endif
 }
 
 void

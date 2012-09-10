@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_DYNAMIC_LIBRARY_F_H
+#define ICE_DYNAMIC_LIBRARY_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -25,4 +26,4 @@ ICE_API IceUtil::Shared* upCast(DynamicLibraryList*);
 typedef Handle<DynamicLibraryList> DynamicLibraryListPtr;
 
 }
-
+#endif

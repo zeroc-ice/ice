@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_HASH_UTIL_H
+#define ICE_HASH_UTIL_H
 
 namespace IceInternal
 {
@@ -53,3 +54,6 @@ hashAdd(Ice::Int& hashCode, const std::map<K, V>& map)
 }
 
 }
+
+#endif
+

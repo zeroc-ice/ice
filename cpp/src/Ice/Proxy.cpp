@@ -1106,7 +1106,7 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
 {
     Handle< ::IceDelegate::Ice::Object> __del;
     {
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(_mutex);
         __del =  _delegate;
     }
 
@@ -1194,7 +1194,7 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     Handle< ::IceDelegateM::Ice::Object> delegateM;
 
     {
-        IceUtil::Mutex::Lock sync(*from.get());
+        IceUtil::Mutex::Lock sync(from->_mutex);
 
         ref = from->_reference;
         delegateD = dynamic_cast< ::IceDelegateD::Ice::Object*>(from->_delegate.get());
@@ -1245,7 +1245,7 @@ IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDeleg
     // Only _delegate needs to be mutex protected here.
     //
     {
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(_mutex);
         if(delegate.get() == _delegate.get())
         {
             _delegate = 0;
@@ -1288,7 +1288,7 @@ IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::I
                                                 InvocationObserver& observer)
 {
     {
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(_mutex);
         if(delegate.get() == _delegate.get())
         {
             _delegate = 0;
@@ -1322,7 +1322,7 @@ IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Hand
     else
     {
         {
-            IceUtil::Mutex::Lock sync(*this);
+            IceUtil::Mutex::Lock sync(_mutex);
             if(del.get() == _delegate.get())
             {
                 _delegate = 0;
@@ -1394,7 +1394,7 @@ IceProxy::Ice::Object::__getDelegate(bool ami)
 {
     if(_reference->getCacheConnection())
     {
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(_mutex);
         if(_delegate)
         {
             return _delegate;
@@ -1415,7 +1415,7 @@ IceProxy::Ice::Object::__setRequestHandler(const Handle< ::IceDelegate::Ice::Obj
 {
     if(_reference->getCacheConnection())
     {
-        IceUtil::Mutex::Lock sync(*this);
+        IceUtil::Mutex::Lock sync(_mutex);
         if(_delegate.get() == delegate.get())
         {
             if(dynamic_cast< ::IceDelegateM::Ice::Object*>(_delegate.get()))

@@ -320,6 +320,7 @@ ifeq ($(MinGW), yes)
 endif
 
 EVERYTHING		= all depend clean install 
+EVERYTHING_EXCEPT_ALL   = depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o

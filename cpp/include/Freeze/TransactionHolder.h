@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_TRANSACTION_HOLDER_H
+#define FREEZE_TRANSACTION_HOLDER_H
 
 #include <Freeze/Connection.h>
 #include <Freeze/Transaction.h>
@@ -43,3 +44,5 @@ private:
 };
 
 }
+
+#endif

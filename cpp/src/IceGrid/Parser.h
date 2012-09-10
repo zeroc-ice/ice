@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_PARSER_H
+#define ICE_GRID_PARSER_H
 
 #include <IceUtil/Handle.h>
 #include <IceGrid/Admin.h>
@@ -164,3 +165,5 @@ private:
 extern Parser* parser; // The current parser for bison/flex
 
 }
+
+#endif

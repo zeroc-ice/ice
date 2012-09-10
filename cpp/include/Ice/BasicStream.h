@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_BASIC_STREAM_H
+#define ICE_BASIC_STREAM_H
 
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectF.h>
@@ -890,7 +891,7 @@ private:
     class WriteEncaps;
     enum SliceType { NoSlice, ObjectSlice, ExceptionSlice };
 
-    class EncapsDecoder : private ::IceUtil::noncopyable
+    class ICE_API EncapsDecoder : private ::IceUtil::noncopyable
     {
     public:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
@@ -961,7 +962,7 @@ private:
         Ice::Int _typeIdIndex;
     };
 
-    class EncapsEncoder : private ::IceUtil::noncopyable
+    class ICE_API EncapsEncoder : private ::IceUtil::noncopyable
     {
     public:
         EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : 
@@ -1134,3 +1135,5 @@ private:
 };
 
 } // End namespace IceInternal
+
+#endif

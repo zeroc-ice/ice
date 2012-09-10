@@ -40,7 +40,8 @@ commonPreamble = commonPreamble + """
 """
 
 cppHeaderPreamble = commonPreamble + """
-#pragma once
+#ifndef ICE_INTERNAL_%(classname)s_H
+#define ICE_INTERNAL_%(classname)s_H
 
 #include <Ice/Config.h>
 
@@ -74,9 +75,9 @@ struct PropertyArray
     const Property* properties;
     const int length;
 
-    PropertyArray(const Property* p, int len) :
+    PropertyArray(const Property* p, size_t len) :
         properties(p),
-        length(len)
+        length(static_cast<int>(len))
     {
     }
 };
@@ -94,6 +95,7 @@ cppHeaderPostamble = """
 
 }
 
+#endif
 """
 
 cppSrcPreamble = commonPreamble + """

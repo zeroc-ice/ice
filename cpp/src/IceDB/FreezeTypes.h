@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_TYPES_H
+#define FREEZE_TYPES_H
 
 #include <IceDB/IceDB.h>
 #include <Freeze/Freeze.h>
@@ -193,3 +194,6 @@ protected:
 };
 
 }
+
+#endif
+

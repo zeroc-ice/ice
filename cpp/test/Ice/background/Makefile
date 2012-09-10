@@ -28,7 +28,8 @@ SOBJS		= Configuration.o \
 		  TestI.o \
 		  Server.o
 
-TRANSPORT_OBJS	= Configuration.o \
+TRANSPORT_OBJS	= Test.o \
+                  Configuration.o \
 		  Connector.o \
 		  Acceptor.o \
 		  EndpointI.o \

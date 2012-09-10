@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_OUTGOING_ASYNC_F_H
+#define ICE_OUTGOING_ASYNC_F_H
 
 #include <IceUtil/Shared.h>
 
@@ -50,3 +51,5 @@ ICE_API IceUtil::Shared* upCast(CommunicatorBatchOutgoingAsync*);
 typedef IceInternal::Handle<CommunicatorBatchOutgoingAsync> CommunicatorBatchOutgoingAsyncPtr;
 
 }
+
+#endif

@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef FREEZE_FREEZE_H
+#define FREEZE_FREEZE_H
 
 #include <Freeze/Initialize.h>
 #include <Freeze/BackgroundSaveEvictor.h>
@@ -16,3 +17,4 @@
 #include <Freeze/TransactionHolder.h>
 #include <Freeze/Catalog.h>
 
+#endif

@@ -35,9 +35,6 @@ Table of Contents
      - mcpp
      - expat
   4. Instructions for Solaris
-     - Berkeley DB
-     - OpenSSL
-     - expat
      - mcpp
 
 
@@ -162,58 +159,18 @@ For builds with support for both i386 and x86_64 architectures, use:
 If a third-party package is not listed below, there are no special
 requirements for configuring or building that package.
 
-
-Berkeley DB
------------
-
-Berkeley DB must be configured with C++ support enabled. If you intend
-to use Ice for Java with Berkeley DB, you must also enable Java
-support:
-
-  $ ../dist/configure --enable-cxx
-  (plus --prefix=<dir> and/or --enable-java if you like)
-
-For 64-bit builds, use:
-
-  $ export CFLAGS="-m64"
-  $ export CXXFLAGS="-m64"
-  $ export LDFLAGS="-m64
-  $ ../dist/configure --enable-cxx
-  (plus --prefix=<dir> and/or --enable-java if you like)
-
-
-OpenSSL
--------
-
-OpenSSL is included with the Solaris 10 operating system and is
-installed in /usr/sfw. If you want to use this version of OpenSSL
-with Ice, we recommend that you also install the "Solaris 10
-Encryption Kit" available from:
-
-  http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
-
-This kit is required to run the IceSSL tests successfully.
-
-
-expat
------
-
-expat is included with the Solaris 10 operating system and is
-installed in /usr/sfw.
-
-
 mcpp
 ----
 
 Ice requires the library version of mcpp, so configure mcpp as shown
 below:
 
-  $ ./configure CFLAGS=-fPIC --enable-mcpplib --disable-shared
+  $ ./configure CFLAGS=-xcode=pic32 --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 For 64-bit builds, use:
 
-  $ ./configure CFLAGS="-fPIC -m64" --enable-mcpplib --disable-shared
+  $ ./configure CFLAGS="-xcode=pic32 -m64" --enable-mcpplib --disable-shared
   (and --prefix=<dir> if you like)
 
 On 64-bit platforms, after installation it is necessary to rename the

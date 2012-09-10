@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_SERVER_I_H
+#define ICE_GRID_SERVER_I_H
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
@@ -334,3 +335,5 @@ private:
 };
 
 }
+
+#endif

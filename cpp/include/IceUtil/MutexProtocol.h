@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_UTIL_MUTEX_PROTOCOL_H
+#define ICE_UTIL_MUTEX_PROTOCOL_H
 
 #include <IceUtil/Config.h>
 
@@ -23,3 +24,5 @@ enum MutexProtocol
 ICE_UTIL_API MutexProtocol getDefaultMutexProtocol();
 
 } // End namespace IceUtil
+
+#endif

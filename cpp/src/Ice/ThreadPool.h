@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_THREAD_POOL_H
+#define ICE_THREAD_POOL_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
@@ -369,3 +370,6 @@ private:
 #endif
 
 };
+
+
+#endif

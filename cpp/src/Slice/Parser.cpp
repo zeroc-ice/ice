@@ -2407,23 +2407,11 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
 
         if(constant)
         {
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
-            // Strange Sun C++ 5.3 bug.
-            const IceUtil::HandleBase<SyntaxTreeBase>& hb = constant->type();
-            lt = BuiltinPtr::dynamicCast(hb);
-#else
             lt = BuiltinPtr::dynamicCast(constant->type());
-#endif
         }
         else
         {
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
-            // Strange Sun C++ 5.3 bug.
-            const IceUtil::HandleBase<SyntaxTreeBase>& hb = valueType;
-            lt = BuiltinPtr::dynamicCast(hb);
-#else
             lt = BuiltinPtr::dynamicCast(valueType);
-#endif
         }
 
         if(lt)

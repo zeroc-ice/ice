@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICE_GRID_SESSIONSERVANTLOCATOR_H
+#define ICE_GRID_SESSIONSERVANTLOCATOR_H
 
 #include <IceGrid/AdminCallbackRouter.h>
 #include <IceUtil/Mutex.h>
@@ -83,3 +84,5 @@ private:
 typedef IceUtil::Handle<SessionServantManager> SessionServantManagerPtr;
 
 };
+
+#endif

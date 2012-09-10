@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#pragma once
+#ifndef ICEE_BUFFER_H
+#define ICEE_BUFFER_H
 
 #include <Ice/Config.h>
 
@@ -149,3 +150,5 @@ public:
 };
 
 }
+
+#endif
