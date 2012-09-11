@@ -15,17 +15,3 @@ LLUMap.h
 LLUMap.cpp
 LinkRecord.h
 LinkRecord.cpp
-V32Format.cpp
-V31Format.cpp
-V32Format.h
-V31Format.h
-SubscriberMap.h
-SubscriberMap.cpp
-V32FormatDB.h
-V32FormatDB.cpp
-V31FormatDB.h
-V31FormatDB.cpp
-LLUMap.h
-LLUMap.cpp
-LinkRecord.h
-LinkRecord.cpp

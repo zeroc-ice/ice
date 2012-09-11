@@ -14,8 +14,6 @@ FacetMap.h
 Identity.h
 ImplicitContextF.h
 ImplicitContext.h
-InstrumentationF.h
-Instrumentation.h
 LocalException.h
 LocatorF.h
 Locator.h
@@ -26,6 +24,8 @@ ObjectAdapterF.h
 ObjectAdapter.h
 ObjectFactoryF.h
 ObjectFactory.h
+Instrumentation.h
+InstrumentationF.h
 PluginF.h
 Plugin.h
 ProcessF.h

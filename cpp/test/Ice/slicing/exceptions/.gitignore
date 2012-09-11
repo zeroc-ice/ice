@@ -4,13 +4,13 @@
 client
 server
 serveramd
-ClientPrivate.cpp
-ClientPrivate.h
 Test.cpp
 TestAMD.cpp
+ClientPrivate.cpp
 ServerPrivate.cpp
 ServerPrivateAMD.cpp
 Test.h
 TestAMD.h
+ClientPrivate.h
 ServerPrivate.h
 ServerPrivateAMD.h
