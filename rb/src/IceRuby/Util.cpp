@@ -29,11 +29,11 @@ checkIsInstance(VALUE p, const char* type)
     return callRuby(rb_obj_is_instance_of, p, rbType) == Qtrue;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-setVersion(VALUE p, const T& version)
+setVersion(VALUE p, const T& version, const char* type)
 {
-    assert(checkIsInstance(p, PT));
+    assert(checkIsInstance(p, type));
 
     VALUE major = callRuby(rb_int2inum, version.major);
     VALUE minor = callRuby(rb_int2inum, version.minor);
@@ -43,11 +43,11 @@ setVersion(VALUE p, const T& version)
     return true;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 bool
-getVersion(VALUE p, T& v)
+getVersion(VALUE p, T& v, const char* type)
 {
-    assert(checkIsInstance(p, PT));
+    assert(checkIsInstance(p, type));
     volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
     volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
 
@@ -72,16 +72,16 @@ getVersion(VALUE p, T& v)
     return true;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 VALUE
-createVersion(const T& version)
+createVersion(const T& version, const char* type)
 {
-    volatile VALUE rbType = callRuby(rb_path2class, PT);
+    volatile VALUE rbType = callRuby(rb_path2class, type);
     assert(!NIL_P(rbType));
 
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rbType);
 
-    if(!setVersion<T, PT>(obj, version))
+    if(!setVersion<T>(obj, version, type))
     {
         return Qnil;
     }
@@ -89,19 +89,19 @@ createVersion(const T& version)
     return obj;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 VALUE
-versionToString(VALUE p)
+versionToString(VALUE p, const char* type)
 {
-    volatile VALUE rbType = callRuby(rb_path2class, PT);
+    volatile VALUE rbType = callRuby(rb_path2class, type);
     assert(!NIL_P(rbType));
     if(callRuby(rb_obj_is_instance_of, p, rbType) != Qtrue)
     {
-        throw RubyException(rb_eTypeError, "argument is not an instance of %s", PT);
+        throw RubyException(rb_eTypeError, "argument is not an instance of %s", type);
     }
 
     T v;
-    if(!getVersion<T, PT>(p, v))
+    if(!getVersion<T>(p, v, type))
     {
         return Qnil;
     }
@@ -115,16 +115,16 @@ versionToString(VALUE p)
     return Qnil;
 }
 
-template<typename T, const char* PT>
+template<typename T>
 VALUE
-stringToVersion(VALUE p)
+stringToVersion(VALUE p, const char* type)
 {
     string str = getString(p);
 
     ICE_RUBY_TRY
     {
         T v = IceInternal::stringToVersion<T>(str);
-        return createVersion<T, PT>(v);
+        return createVersion<T>(v, type);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -200,28 +200,28 @@ extern "C"
 VALUE
 IceRuby_protocolVersionToString(VALUE /*self*/, VALUE v)
 {
-    return versionToString<Ice::ProtocolVersion, Ice_ProtocolVersion>(v);
+    return versionToString<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
 }
 
 extern "C"
 VALUE
 IceRuby_stringToProtocolVersion(VALUE /*self*/, VALUE v)
 {
-    return stringToVersion<Ice::ProtocolVersion, Ice_ProtocolVersion>(v);
+    return stringToVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
 }
 
 extern "C"
 VALUE
 IceRuby_encodingVersionToString(VALUE /*self*/, VALUE v)
 {
-    return versionToString<Ice::EncodingVersion, Ice_EncodingVersion>(v);
+    return versionToString<Ice::EncodingVersion>(v, Ice_EncodingVersion);
 }
 
 extern "C"
 VALUE
 IceRuby_stringToEncodingVersion(VALUE /*self*/, VALUE v)
 {
-    return stringToVersion<Ice::EncodingVersion, Ice_EncodingVersion>(v);
+    return stringToVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
 }
 
 void
@@ -538,13 +538,13 @@ IceRuby::createIdentity(const Ice::Identity& id)
 VALUE
 IceRuby::createProtocolVersion(const Ice::ProtocolVersion& v)
 {
-    return createVersion<Ice::ProtocolVersion, Ice_ProtocolVersion>(v);
+    return createVersion<Ice::ProtocolVersion>(v, Ice_ProtocolVersion);
 }
 
 VALUE
 IceRuby::createEncodingVersion(const Ice::EncodingVersion& v)
 {
-    return createVersion<Ice::EncodingVersion, Ice_EncodingVersion>(v);
+    return createVersion<Ice::EncodingVersion>(v, Ice_EncodingVersion);
 }
 
 bool
@@ -558,7 +558,7 @@ IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
         throw RubyException(rb_eTypeError, "value is not an Ice::EncodingVersion");
     }
 
-    if(!getVersion<Ice::EncodingVersion, Ice_EncodingVersion>(p, v))
+    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
     {
         return false;
     }

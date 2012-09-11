@@ -475,7 +475,7 @@ IcePy::SlicedDataUtil::getMember(PyObject* obj, ObjectMap* objectMap)
                 assert(PyString_Check(bytes.get()));
                 PyString_AsStringAndSize(bytes.get(), &str, &strsz);
 #endif
-                vector<Ice::Byte> vtmp(str, str + strsz);
+                vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
                 info->bytes.swap(vtmp);
 
                 PyObjectHandle objects = PyObject_GetAttrString(s.get(), STRCAST("objects"));
@@ -2871,7 +2871,7 @@ IcePy::ExceptionWriter::ice_name() const
     return _info->id;
 }
 
-ExceptionWriter*
+IcePy::ExceptionWriter*
 IcePy::ExceptionWriter::ice_clone() const
 {
     return new ExceptionWriter(*this);
@@ -2931,7 +2931,7 @@ IcePy::ExceptionReader::ice_name() const
     return _info->id;
 }
 
-ExceptionReader*
+IcePy::ExceptionReader*
 IcePy::ExceptionReader::ice_clone() const
 {
     assert(false);

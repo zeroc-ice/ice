@@ -2143,7 +2143,7 @@ IceRuby::ExceptionReader::ice_name() const
     return _info->id;
 }
 
-Ice::Exception*
+IceRuby::ExceptionReader*
 IceRuby::ExceptionReader::ice_clone() const
 {
     assert(false);

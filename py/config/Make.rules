@@ -79,10 +79,6 @@ else
     include $(top_srcdir)/../config/Make.common.rules
 endif
 
-libdir			= $(top_srcdir)/python
-install_pythondir	= $(prefix)/python
-install_libdir		= $(prefix)/python
-
 #
 # Platform specific definitions
 #
@@ -91,6 +87,17 @@ ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
 else
     include $(top_srcdir)/../cpp/config/Make.rules.$(UNAME)
 endif 
+
+libdir                  = $(top_srcdir)/python
+install_pythondir       = $(prefix)/python
+install_libdir          = $(prefix)/python
+
+ifeq ($(UNAME),SunOS)
+   ifeq ($(LP64),yes)
+      libdir            = $(top_srcdir)/python$(lp64suffix)
+      install_libdir    = $(prefix)/python$(lp64suffix)   
+   endif
+endif
 
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)

@@ -1574,6 +1574,9 @@ IcePy::TypedInvocation::unmarshalException(const pair<const Ice::Byte*, const Ic
     }
 
     throw Ice::UnknownUserException(__FILE__, __LINE__, "unknown exception");
+#ifdef __SUNPRO_CC
+    return 0;
+#endif
 }
 
 bool
