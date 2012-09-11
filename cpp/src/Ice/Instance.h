@@ -18,7 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/StatsF.h>
-#include <Ice/ObserverF.h>
+#include <Ice/InstrumentationF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>

@@ -15,6 +15,8 @@
 #include <Ice/Initialize.h>
 #include <Ice/Instance.h>
 #include <Ice/PropertiesAdminI.h>
+#include <Ice/MetricsAdminI.h>
+#include <Ice/InstrumentationI.h>
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
@@ -399,7 +401,29 @@ IceBox::ServiceManagerI::start()
                 //
                 q->args = initData.properties->parseCommandLineOptions(q->name, q->args);
             }
+
+            //
+            // If Ice metrics are enabled on the IceBox communicator, we also enable them on the 
+            // shared communicator.
+            // 
+            IceMX::MetricsAdminIPtr metricsAdmin;
+            if(IceMX::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
+            {
+                metricsAdmin = new IceMX::MetricsAdminI(initData.properties, getProcessLogger());
+                initData.observer = new IceMX::CommunicatorObserverI(metricsAdmin);
+            }
+
             _sharedCommunicator = initialize(initData);
+
+            //
+            // Ensure the metrics admin plugin uses the same property set as the
+            // communicator. This is necessary to correctly deal with runtime 
+            // property updates.
+            //
+            if(metricsAdmin)
+            {
+                metricsAdmin->setProperties(_sharedCommunicator->getProperties());
+            }
         }
 
         //
@@ -532,10 +556,16 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     // property set.
     //
     Ice::CommunicatorPtr communicator;
+    IceMX::MetricsAdminIPtr metricsAdmin;
     if(_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
     {
         assert(_sharedCommunicator);
         communicator = _sharedCommunicator;
+        IceMX::CommunicatorObserverIPtr o = IceMX::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+        if(o)
+        {
+            metricsAdmin = o->getMetricsAdmin();
+        }
     }
     else
     {
@@ -547,6 +577,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             //
             InitializationData initData;
             initData.properties = createServiceProperties(service);
+
             if(!info.args.empty())
             {
                 //
@@ -566,13 +597,33 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // Clone the logger to assign a new prefix.
             //
             initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
-            
+
+            //
+            // If Ice metrics are enabled on the IceBox communicator, we also enable them on
+            // the service communicator.
+            // 
+            if(IceMX::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
+            {
+                metricsAdmin = new IceMX::MetricsAdminI(initData.properties, initData.logger);
+                initData.observer = new IceMX::CommunicatorObserverI(metricsAdmin);
+            }
+
             //
             // Remaining command line options are passed to the communicator. This is
             // necessary for Ice plug-in properties (e.g.: IceSSL).
             //
             info.communicator = initialize(info.args, initData);
             communicator = info.communicator;
+
+            //
+            // Ensure the metrics admin plugin uses the same property set as the
+            // communicator. This is necessary to correctly deal with runtime 
+            // property updates.
+            //
+            if(metricsAdmin)
+            {
+                metricsAdmin->setProperties(communicator->getProperties());
+            }
         }
         catch(const Exception& ex)
         {
@@ -595,8 +646,21 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         // in case it wants to set a callback).
         //
         string facetName = "IceBox.Service." + info.name + ".Properties";
-        _communicator->addAdminFacet(
-            new PropertiesAdminI(facetName, communicator->getProperties(), communicator->getLogger()), facetName);
+        PropertiesAdminIPtr propAdmin = 
+            new PropertiesAdminI(facetName, communicator->getProperties(), communicator->getLogger());
+        _communicator->addAdminFacet(propAdmin, facetName);
+
+        //
+        // If a metrics admin facet is setup for the service, register
+        // it with the IceBox communicator.
+        //
+        if(metricsAdmin)
+        {
+            _communicator->addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".MetricsAdmin");
+
+            // Ensure the metrics admin facet is notified of property updates.
+            propAdmin->addUpdateCallback(metricsAdmin);
+        }
 
         //
         // Invoke the factory function.

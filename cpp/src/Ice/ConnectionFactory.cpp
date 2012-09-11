@@ -24,7 +24,6 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
-#include <Ice/Observer.h>
 #include <IceUtil/Random.h>
 #include <iterator>
 

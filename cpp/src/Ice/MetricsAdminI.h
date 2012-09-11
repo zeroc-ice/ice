@@ -31,7 +31,6 @@ namespace IceMX
 {
 
 class Updater;
-typedef IceUtil::Handle<Updater> UpdaterPtr;
 
 class MetricsHelper;
 template<typename T> class MetricsHelperT;
@@ -67,27 +66,33 @@ public:
     virtual MetricsMap getMetrics() const = 0;
     virtual MetricsMapI* clone() const = 0;
 
-    const Ice::PropertyDict& getMapProperties() const
-    {
-        return _properties;
-    }
+    void validateProperties(const std::string&, const Ice::PropertiesPtr&, const std::vector<std::string>&);
+    const Ice::PropertyDict& getProperties() const;
 
 protected:
 
     const Ice::PropertyDict _properties;
-    std::vector<std::string> _groupByAttributes;
-    std::vector<std::string> _groupBySeparators;
+    const std::vector<std::string> _groupByAttributes;
+    const std::vector<std::string> _groupBySeparators;
     const int _retain;
     const std::vector<RegExpPtr> _accept;
     const std::vector<RegExpPtr> _reject;
 };
 typedef IceUtil::Handle<MetricsMapI> MetricsMapIPtr;
 
-class MetricsMapFactory : public IceUtil::Shared
+class MetricsMapFactory : public Ice::LocalObject
 {
 public:
 
+    MetricsMapFactory(Updater*);
+
     virtual MetricsMapIPtr create(const std::string&, const Ice::PropertiesPtr&) = 0;
+    
+    void update();
+
+private:
+
+    Updater* _updater;
 };
 typedef IceUtil::Handle<MetricsMapFactory> MetricsMapFactoryPtr;
 
@@ -225,11 +230,13 @@ public:
                 const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >& subMaps) : 
         MetricsMapI(mapPrefix, properties)
     {
+        std::vector<std::string> subMapNames;
         typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >::const_iterator p;
         for(p = subMaps.begin(); p != subMaps.end(); ++p)
         {
+            subMapNames.push_back(p->first);
             const std::string subMapsPrefix = mapPrefix + "Map.";
-            std::string subMapPrefix = subMapsPrefix + p->first;
+            std::string subMapPrefix = subMapsPrefix + p->first + '.';
             if(properties->getPropertiesForPrefix(subMapPrefix).empty())
             {
                 if(properties->getPropertiesForPrefix(subMapsPrefix).empty())
@@ -245,6 +252,7 @@ public:
                                            std::make_pair(p->second.first, 
                                                           p->second.second->create(subMapPrefix, properties))));
         }
+        validateProperties(mapPrefix, properties, subMapNames);
     }
 
     MetricsMapT(const MetricsMapT& other) : MetricsMapI(other)
@@ -446,6 +454,10 @@ template<class MetricsType> class MetricsMapFactoryT : public MetricsMapFactory
 {
 public:
 
+    MetricsMapFactoryT(Updater* updater) : MetricsMapFactory(updater)
+    {
+    }
+
     virtual MetricsMapIPtr
     create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
     {
@@ -455,7 +467,7 @@ public:
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, MetricsMap MetricsType::* member)
     {
-        _subMaps[subMap] = make_pair(member, new MetricsMapFactoryT<SubMapMetricsType>());
+        _subMaps[subMap] = make_pair(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
     }
 
 private:
@@ -469,7 +481,8 @@ public:
     
     MetricsViewI(const std::string&);
 
-    void update(const Ice::PropertiesPtr&, const std::map<std::string, MetricsMapFactoryPtr>&, std::set<std::string>&);
+    void update(const Ice::PropertiesPtr&, const std::map<std::string, MetricsMapFactoryPtr>&, 
+                std::set<MetricsMapFactoryPtr>&);
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
@@ -486,29 +499,38 @@ private:
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 
-class MetricsAdminI : public MetricsAdmin, private IceUtil::Mutex
+class MetricsAdminI : public MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, private IceUtil::Mutex
 {
 public:
 
     MetricsAdminI(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
-    void addUpdater(const std::string&, const UpdaterPtr&);
     void updateViews();
 
     template<class MetricsType> void 
-    registerMap(const std::string& map)
+    registerMap(const std::string& map, Updater* updater)
     {
-        _factories[map] = new MetricsMapFactoryT<MetricsType>();
+        Lock sync(*this);
+        _factories[map] = new MetricsMapFactoryT<MetricsType>(updater);
     }
 
     template<class MemberMetricsType, class MetricsType> void
     registerSubMap(const std::string& map, const std::string& subMap, MetricsMap MetricsType::* member)
     {
+        Lock sync(*this);
+
         std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
         assert(p != _factories.end());
 
         MetricsMapFactoryT<MetricsType>* factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
         factory->template registerSubMap<MemberMetricsType>(subMap, member);
+    }
+
+    void
+    unregisterMap(const std::string& map)
+    {
+        Lock sync(*this);
+        _factories.erase(map);
     }
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
@@ -521,14 +543,17 @@ public:
 
     const Ice::LoggerPtr& getLogger() const;
 
+    void setProperties(const Ice::PropertiesPtr&);
+
 private:
 
+    void updated(const Ice::PropertyDict&);
+
     std::map<std::string, MetricsViewIPtr> _views;
-    std::map<std::string, UpdaterPtr> _updaters;
     std::map<std::string, MetricsMapFactoryPtr> _factories;
 
-    const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
+    Ice::PropertiesPtr _properties;
 };
 typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
 

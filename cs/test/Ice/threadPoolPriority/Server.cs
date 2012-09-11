@@ -21,13 +21,7 @@ public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        //
-        // We don't want connection warnings because of the timeout test.
-        //
-        communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
-        communicator.getProperties().setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
-
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new PriorityI(), communicator.stringToIdentity("test"));
         adapter.activate();
@@ -49,12 +43,7 @@ public class Server
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
-            //
-            // It's possible to have batch oneway requests dispatched
-            // after the adapter is deactivated due to thread
-            // scheduling so we suppress this warning.
-            //
-            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            initData.properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }

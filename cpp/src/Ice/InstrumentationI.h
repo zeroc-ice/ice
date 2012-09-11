@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBSERVER_I_H
-#define ICE_OBSERVER_I_H
+#ifndef ICE_INSTRUMENTATION_I_H
+#define ICE_INSTRUMENTATION_I_H
 
 #include <Ice/MetricsObserverI.h>
 
@@ -50,8 +50,7 @@ private:
     const Ice::LoggerPtr _logger;
 };
 
-class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver, 
-                              public Ice::PropertiesAdminUpdateCallback
+class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
@@ -83,10 +82,9 @@ public:
 
     virtual Ice::Instrumentation::ObserverPtr getDispatchObserver(const Ice::Current&);
 
-private:
+    const MetricsAdminIPtr& getMetricsAdmin() const;
 
-    void updateObservers();
-    virtual void updated(const Ice::PropertyDict&);
+private:
 
     const MetricsAdminIPtr _metrics;
 

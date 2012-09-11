@@ -10,7 +10,7 @@
 #ifndef ICE_OBSERVERHELPER_H
 #define ICE_OBSERVERHELPER_H
 
-#include <Ice/Observer.h>
+#include <Ice/Instrumentation.h>
 #include <Ice/ProxyF.h>
 #include <Ice/InstanceF.h>
 

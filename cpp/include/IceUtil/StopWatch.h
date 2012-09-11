@@ -39,6 +39,11 @@ public:
         return _s != IceUtil::Time();
     }
 
+    IceUtil::Int64 delay()
+    {
+        return (IceUtil::Time::now(IceUtil::Time::Monotonic) - _s).toMicroSeconds();
+    }
+
 private:
 
     IceUtil::Time _s;

@@ -12,7 +12,7 @@
 #include <IceUtil/RecMutex.h>
 #include <Ice/GC.h>
 #include <Ice/GCShared.h>
-#include <Ice/Observer.h>
+#include <Ice/Instrumentation.h>
 #include <set>
 
 using namespace IceUtil;

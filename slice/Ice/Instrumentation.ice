@@ -230,14 +230,14 @@ local interface InvocationObserver extends Observer
 
 /**
  *
- * The ObserverUpdater interface is implemented by the Ice run-time and
- * an instance of this interface is provided by the Ice communicator on
- * initialization to the ObserverResolver object set with the
- * communicator initialization data.
+ * The ObserverUpdater interface is implemented by the Ice run-time
+ * and an instance of this interface is provided by the Ice
+ * communicator on initialization to the CommunicatorObserver object
+ * set with the communicator initialization data.
  *
- * This interface can be used by add-ins imlementing the
- * ObserverResolver interface to update the obsevers of observed
- * objects.
+ * This interface can be used by add-ins implementing the
+ * CommunicatorObserver interface to update the obsevers of
+ * connections and threads.
  *
  **/
 local interface ObserverUpdater
@@ -248,8 +248,8 @@ local interface ObserverUpdater
      * connection from the communicator and its object adpaters.
      *
      * When called, this method goes through all the connections and
-     * for each connection ObserverResolver::getConnectionObserver is
-     * called. The implementation of getConnectionObserver has the
+     * for each connection CommunicatorObserver::getConnectionObserver
+     * is called. The implementation of getConnectionObserver has the
      * possibility to return an updated observer if necessary.
      * 
      **/
@@ -261,9 +261,9 @@ local interface ObserverUpdater
      * from the communicator and its object adpaters.
      *
      * When called, this method goes through all the threads and for
-     * each thread ObserverResolver::getThreadObserver is called. The
-     * implementation of getThreadObserver has the possibility to
-     * return an updated observer if necessary.
+     * each thread CommunicatorObserver::getThreadObserver is
+     * called. The implementation of getThreadObserver has the
+     * possibility to return an updated observer if necessary.
      * 
      **/
     void updateThreadObservers();

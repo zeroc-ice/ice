@@ -76,9 +76,9 @@ OBJS		= Acceptor.o \
 		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
 		  Object.o \
-		  Observer.o \
+		  Instrumentation.o \
 		  ObserverHelper.o \
-		  ObserverI.o \
+		  InstrumentationI.o \
 		  OpaqueEndpointI.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \
@@ -155,8 +155,8 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/Observer.ice \
-		  $(SDIR)/ObserverF.ice \
+		  $(SDIR)/Instrumentation.ice \
+		  $(SDIR)/InstrumentationF.ice \
 		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/ProcessF.ice \

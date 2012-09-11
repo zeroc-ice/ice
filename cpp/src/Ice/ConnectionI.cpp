@@ -25,7 +25,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/ReferenceFactory.h> // For createProxy().
 #include <Ice/ProxyFactory.h> // For createProxy().
-#include <Ice/Observer.h>
 #include <bzlib.h>
 
 using namespace std;

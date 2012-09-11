@@ -25,7 +25,6 @@
 #include <Ice/Selector.h>
 #include <Ice/BasicStream.h>
 #include <Ice/ObserverHelper.h>
-#include <Ice/Observer.h>
 
 #include <set>
 #include <list>

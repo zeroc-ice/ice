@@ -12,7 +12,7 @@
 
 #include <IceUtil/StopWatch.h>
 
-#include <Ice/Observer.h>
+#include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
 
 #include <Ice/MetricsAdminI.h>
@@ -340,6 +340,7 @@ public:
             }
             else // Removed metrics object
             {
+                (*q)->detach(_watch.delay());
                 q = _objects.erase(q);
             }
         }
@@ -391,7 +392,7 @@ newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 }
 
 template<typename ObserverImplType> 
-class ObserverFactoryT : private IceUtil::Mutex
+class ObserverFactoryT : public Updater, private IceUtil::Mutex
 {
 public:
 
@@ -402,11 +403,19 @@ public:
 
     ObserverFactoryT(const MetricsAdminIPtr& metrics, const std::string& name) : _metrics(metrics), _name(name)
     {
-        _metrics->registerMap<MetricsType>(name);
+        _metrics->registerMap<MetricsType>(name, this);
     }
 
     ObserverFactoryT(const std::string& name) : _name(name)
     {
+    }
+
+    ~ObserverFactoryT()
+    {
+        if(_metrics)
+        {
+            _metrics->unregisterMap(_name);
+        }
     }
 
     ObserverImplPtrType
@@ -482,17 +491,38 @@ public:
         return _enabled;
     }
 
-    void updateMaps()
+    virtual void update()
+    {
+        UpdaterPtr updater;
+        {
+            IceUtil::Mutex::Lock sync(*this);
+            std::vector<MetricsMapIPtr> maps = _metrics->getMaps(_name);
+            _maps.clear();
+            for(std::vector<MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
+            {
+                _maps.push_back(IceUtil::Handle<MetricsMapT<MetricsType> >::dynamicCast(*p));
+                assert(_maps.back());
+            }
+            _enabled = !_maps.empty();
+            updater = _updater;
+        }
+
+        if(updater)
+        {
+            try
+            {
+                updater->update();
+            }
+            catch(const std::exception& ex)
+            {
+            }
+        }
+    }
+
+    void setUpdater(const UpdaterPtr& updater)
     {
         IceUtil::Mutex::Lock sync(*this);
-        std::vector<MetricsMapIPtr> maps = _metrics->getMaps(_name);
-        _maps.clear();
-        for(std::vector<MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
-        {
-            _maps.push_back(IceUtil::Handle<MetricsMapT<MetricsType> >::dynamicCast(*p));
-            assert(_maps.back());
-        }
-        _enabled = !_maps.empty();
+        _updater = updater;
     }
 
 private:
@@ -501,6 +531,7 @@ private:
     const std::string _name;
     MetricsMapSeqType _maps;
     volatile bool _enabled;
+    UpdaterPtr _updater;
 };
 
 }

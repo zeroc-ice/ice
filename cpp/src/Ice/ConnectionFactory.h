@@ -25,7 +25,7 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/EndpointI.h>
-#include <Ice/ObserverF.h>
+#include <Ice/InstrumentationF.h>
 
 #include <list>
 #include <set>

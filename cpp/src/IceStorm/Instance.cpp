@@ -12,8 +12,10 @@
 #include <IceStorm/DB.h>
 #include <IceStorm/Observers.h>
 #include <IceStorm/NodeI.h>
+#include <IceStorm/InstrumentationI.h>
 #include <IceUtil/Timer.h>
 
+#include <Ice/InstrumentationI.h>
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 
@@ -67,6 +69,16 @@ Instance::Instance(
         _observers = new Observers(this);
         _batchFlusher = new IceUtil::Timer();
         _timer = new IceUtil::Timer();
+        
+        //
+        // If an Ice metrics are setup on the communicator, also
+        // enable metrics for IceStorm.
+        //
+        IceMX::CommunicatorObserverIPtr o = IceMX::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+        if(o)
+        {
+            _observer = new IceMX::TopicManagerObserverI(o->getMetricsAdmin());
+        }
     }
     catch(...)
     {
@@ -184,6 +196,12 @@ ConnectionPoolPtr
 Instance::connectionPool() const
 {
     return _connectionPool;
+}
+
+IceStorm::Instrumentation::TopicManagerObserverPtr
+Instance::observer() const
+{
+    return _observer;
 }
 
 IceUtil::Time

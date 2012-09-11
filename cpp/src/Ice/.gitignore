@@ -14,6 +14,8 @@ FacetMap.cpp
 Identity.cpp
 ImplicitContextF.cpp
 ImplicitContext.cpp
+InstrumentationF.cpp
+Instrumentation.cpp
 LocalException.cpp
 LocatorF.cpp
 Locator.cpp
@@ -24,8 +26,6 @@ ObjectAdapterF.cpp
 ObjectAdapter.cpp
 ObjectFactoryF.cpp
 ObjectFactory.cpp
-ObserverF.cpp
-Observer.cpp
 PluginF.cpp
 Plugin.cpp
 ProcessF.cpp

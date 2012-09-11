@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <Ice/ObserverHelper.h>
-#include <Ice/Observer.h>
 #include <Ice/Reference.h>
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>

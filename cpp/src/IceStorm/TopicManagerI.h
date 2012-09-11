@@ -14,6 +14,7 @@
 
 #include <IceStorm/Replica.h>
 #include <IceStorm/Election.h>
+#include <IceStorm/Instrumentation.h>
 
 #include <IceUtil/RecMutex.h>
 
@@ -35,7 +36,9 @@ typedef IceUtil::Handle<TopicImpl> TopicImplPtr;
 //
 // TopicManager implementation.
 //
-class TopicManagerImpl : public IceStormElection::Replica, public IceUtil::RecMutex
+class TopicManagerImpl : public IceStormElection::Replica,
+                         public IceStorm::Instrumentation::ObserverUpdater,
+                         public IceUtil::RecMutex
 {
 public:
 
@@ -72,6 +75,9 @@ public:
     Ice::ObjectPtr getServant() const;
 
 private:
+
+    void updateTopicObservers();
+    void updateSubscriberObservers();
 
     TopicPrx installTopic(const std::string&, const Ice::Identity&, bool,
                           const IceStorm::SubscriberRecordSeq& = IceStorm::SubscriberRecordSeq());

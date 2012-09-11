@@ -296,6 +296,11 @@ TopicManagerImpl::TopicManagerImpl(const InstancePtr& instance) :
     {
         __setNoDelete(true);
 
+        if(_instance->observer())
+        {
+            _instance->observer()->setObserverUpdater(this);
+        }
+
         // TODO: If we want to improve the performance of the
         // non-replicated case we could allocate a null-topic manager impl
         // here.
@@ -859,6 +864,26 @@ Ice::ObjectPtr
 TopicManagerImpl::getServant() const
 {
     return _managerImpl;
+}
+
+void
+TopicManagerImpl::updateTopicObservers()
+{
+    Lock sync(*this);
+    for(map<string, TopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    {
+        p->second->updateObserver();
+    }
+}
+
+void
+TopicManagerImpl::updateSubscriberObservers()
+{
+    Lock sync(*this);
+    for(map<string, TopicImplPtr>::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    {
+        p->second->updateSubscriberObservers();
+    }
 }
 
 TopicPrx

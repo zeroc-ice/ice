@@ -9,7 +9,7 @@
 
 #include <Ice/MetricsAdminI.h>
 
-#include <Ice/ObserverI.h>
+#include <Ice/InstrumentationI.h>
 #include <Ice/Properties.h>
 #include <Ice/Communicator.h>
 #include <Ice/Instance.h>
@@ -23,6 +23,59 @@ using namespace IceMX;
 
 namespace 
 {
+
+const string viewSuffixes[] =
+{
+    "Disabled",
+    "GroupBy",
+    "Accept",
+    "Reject",
+    "RetainDetached",
+    "Map.*",
+};
+
+const string mapSuffixes[] =
+{
+    "GroupBy",
+    "Accept",
+    "Reject",
+    "RetainDetached",
+};
+
+void
+validateProperties(const string& prefix, const PropertiesPtr& properties, const string* suffixes, int cnt)
+{
+    vector<string> unknownProps;
+    PropertyDict props = properties->getPropertiesForPrefix(prefix);
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    {
+        bool valid = false;
+        for(unsigned int i = 0; i < cnt; ++i)
+        {
+            string prop = prefix + suffixes[i];
+            if(IceUtilInternal::match(p->first, prop))
+            {
+                valid = true;
+                break;
+            }
+        }
+        if(!valid)
+        {
+            unknownProps.push_back(p->first);
+        }
+    }
+
+    if(!unknownProps.empty())
+    {
+        Warning out(getProcessLogger());
+        out << "found unknown Ice metrics properties for '" << prefix.substr(0, prefix.size() - 1) << "':";
+        for(vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
+        {
+            out << "\n    " << *p;
+            properties->setProperty(*p, ""); // Clear the known property to prevent further warnings.
+        }
+    }
+}
 
 vector<MetricsMapI::RegExpPtr>
 parseRule(const PropertiesPtr& properties, const string& name)
@@ -79,27 +132,29 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
     _reject(parseRule(properties, mapPrefix + "Reject"))
 {
     string groupBy = properties->getPropertyWithDefault(mapPrefix + "GroupBy", "id");
+    vector<string>& groupByAttributes = const_cast<vector<string>&>(_groupByAttributes);
+    vector<string>& groupBySeparators = const_cast<vector<string>&>(_groupBySeparators);
     if(!groupBy.empty())
     {
         string v;
         bool attribute = IceUtilInternal::isAlpha(groupBy[0]) || IceUtilInternal::isDigit(groupBy[0]);
         if(!attribute)
         {
-            _groupByAttributes.push_back("");
+            groupByAttributes.push_back("");
         }
         
         for(string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)
         {
-            bool isAlphaNum = IceUtilInternal::isAlpha(*p) || IceUtilInternal::isDigit(*p);
+            bool isAlphaNum = IceUtilInternal::isAlpha(*p) || IceUtilInternal::isDigit(*p) || *p == '.';
             if(attribute && !isAlphaNum)
             {
-                _groupByAttributes.push_back(v);
+                groupByAttributes.push_back(v);
                 v = *p;
                 attribute = false;
             }
             else if(!attribute && isAlphaNum)
             {
-                _groupBySeparators.push_back(v);
+                groupBySeparators.push_back(v);
                 v = *p;
                 attribute = true;
             }
@@ -111,22 +166,59 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
 
         if(attribute)
         {
-            _groupByAttributes.push_back(v);
+            groupByAttributes.push_back(v);
         }
         else
         {
-            _groupBySeparators.push_back(v);
+            groupBySeparators.push_back(v);
         }
     }
 }
 
 MetricsMapI::MetricsMapI(const MetricsMapI& map) :
+    _properties(map._properties),
     _groupByAttributes(map._groupByAttributes),
     _groupBySeparators(map._groupBySeparators),
     _retain(map._retain),
     _accept(map._accept),
     _reject(map._reject)
 {
+}
+
+void
+MetricsMapI::validateProperties(const string& prefix, const Ice::PropertiesPtr& props, const vector<string>& subMaps)
+{
+    if(subMaps.empty())
+    {
+        ::validateProperties(prefix, props, mapSuffixes, sizeof(mapSuffixes) / sizeof(*mapSuffixes));
+        return;
+    }
+
+    vector<string> suffixes(mapSuffixes, mapSuffixes + sizeof(mapSuffixes) / sizeof(*mapSuffixes));
+    for(vector<string>::const_iterator p = subMaps.begin(); p != subMaps.end(); ++p)
+    {
+        const string suffix = "Map." + *p + ".";
+        ::validateProperties(prefix + suffix, props, mapSuffixes, sizeof(mapSuffixes) / sizeof(*mapSuffixes));
+        suffixes.push_back(suffix + '*');
+    }
+    ::validateProperties(prefix, props, &suffixes[0], suffixes.size());
+}
+
+const Ice::PropertyDict&
+MetricsMapI::getProperties() const
+{
+    return _properties;
+}
+
+MetricsMapFactory::MetricsMapFactory(Updater* updater) : _updater(updater)
+{
+}
+
+void
+MetricsMapFactory::update()
+{
+    assert(_updater);
+    _updater->update();
 }
     
 MetricsViewI::MetricsViewI(const string& name) : _name(name)
@@ -136,27 +228,27 @@ MetricsViewI::MetricsViewI(const string& name) : _name(name)
 void
 MetricsViewI::update(const PropertiesPtr& properties,  
                      const map<string, MetricsMapFactoryPtr>& factories,
-                     set<string>& updatedMaps)
+                     set<MetricsMapFactoryPtr>& updatedMaps)
 {
     //
     // Add maps to views configured with the given map.
     //
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
     const string mapsPrefix = viewPrefix + "Map.";
-    bool hasMapsProperties = !properties->getPropertiesForPrefix(mapsPrefix).empty();
+    PropertyDict mapsProps = properties->getPropertiesForPrefix(mapsPrefix);
     for(map<string, MetricsMapFactoryPtr>::const_iterator p = factories.begin(); p != factories.end(); ++p)
     {
         const string& mapName = p->first;
         string mapPrefix;
         PropertyDict mapProps;
-        if(hasMapsProperties)
+        if(!mapsProps.empty())
         {
             mapPrefix = mapsPrefix + mapName + ".";
             mapProps = properties->getPropertiesForPrefix(mapPrefix);
             if(mapProps.empty())
             {
                 // This map isn't configured anymore for this view.
-                updatedMaps.insert(mapName);
+                updatedMaps.insert(p->second);
                 continue; 
             }
         }
@@ -167,12 +259,12 @@ MetricsViewI::update(const PropertiesPtr& properties,
         }
 
         map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
-        if(q != _maps.end() && q->second->getMapProperties() == mapProps)
+        if(q != _maps.end() && q->second->getProperties() == mapProps)
         {
-            continue; // The map configuration didn't change.
+            continue; // The map configuration didn't change, no need to re-create.
         }
         _maps[mapName] = p->second->create(mapPrefix, properties);
-        updatedMaps.insert(mapName);
+        updatedMaps.insert(p->second);
     }
 }
 
@@ -237,21 +329,13 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& l
 }
 
 void
-MetricsAdminI::addUpdater(const string& mapName, const UpdaterPtr& updater)
-{
-    Lock sync(*this);
-    _updaters.insert(make_pair(mapName, updater));
-}
-
-void
 MetricsAdminI::updateViews()
 {
-    vector<UpdaterPtr> updaters;
+    set<MetricsMapFactoryPtr> updatedMaps;
     {
         Lock sync(*this);
         const string viewsPrefix = "IceMX.Metrics.";
         PropertyDict viewsProps = _properties->getPropertiesForPrefix(viewsPrefix);
-        set<string> updatedMaps;
         map<string, MetricsViewIPtr> views;
         for(PropertyDict::const_iterator p = viewsProps.begin(); p != viewsProps.end(); ++p)
         {
@@ -266,7 +350,10 @@ MetricsAdminI::updateViews()
             {
                 continue; // View already configured.
             }
-            
+
+            validateProperties(viewsPrefix + viewName + ".", _properties, viewSuffixes, sizeof(viewSuffixes) /
+                               sizeof(*viewSuffixes));
+
             if(_properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
             {
                 continue; // The view is disabled
@@ -296,19 +383,10 @@ MetricsAdminI::updateViews()
             if(_views.find(p->first) == _views.end())
             {
                 vector<string> maps = p->second->getMaps();
-                updatedMaps.insert(maps.begin(), maps.end());
-            }
-        }
-        
-        //
-        // Gather the updates for each of the map to update.
-        //
-        for(set<string>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
-        {
-            map<string, UpdaterPtr>::const_iterator q = _updaters.find(*p);
-            if(q != _updaters.end())
-            {
-                updaters.push_back(q->second);
+                for(vector<string>::const_iterator q = maps.begin(); q != maps.end(); ++q)
+                {
+                    updatedMaps.insert(_factories[*q]);
+                }
             }
         }
     }
@@ -316,17 +394,9 @@ MetricsAdminI::updateViews()
     //
     // Call the updaters to update the maps.
     //
-    for(vector<UpdaterPtr>::const_iterator p = updaters.begin(); p != updaters.end(); ++p)
+    for(set<MetricsMapFactoryPtr>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
     {
-        try
-        {
-            (*p)->update();
-        }
-        catch(const std::exception& ex)
-        {
-            Warning warn(_logger);
-            warn << "unexpected exception while calling observer updater:\n" << ex;
-        }
+        (*p)->update();
     }
 }
 
@@ -400,3 +470,24 @@ MetricsAdminI::getLogger() const
 {
     return _logger;
 }
+
+void
+MetricsAdminI::setProperties(const Ice::PropertiesPtr& properties)
+{
+    _properties = properties;
+}
+
+void 
+MetricsAdminI::updated(const PropertyDict& props)
+{
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    {
+        if(p->first.find("IceMX.") == 0)
+        {
+            // Udpate the metrics views using the new configuration.
+            updateViews();
+            return;
+        }
+    }
+}
+

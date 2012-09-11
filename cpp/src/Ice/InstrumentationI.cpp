@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/ObserverI.h>
+#include <Ice/InstrumentationI.h>
 
 #include <Ice/Connection.h>
 #include <Ice/Endpoint.h>
@@ -756,14 +756,13 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
 {
     _invocations.registerSubMap<Metrics>("Remote", &InvocationMetrics::remotes);
     _metrics->updateViews();
-    updateObservers();
 }
 
 void
 CommunicatorObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 {
-    _metrics->addUpdater("Connection", newUpdater(updater, &ObserverUpdater::updateConnectionObservers));
-    _metrics->addUpdater("Thread", newUpdater(updater, &ObserverUpdater::updateThreadObservers));
+    _connections.setUpdater(newUpdater(updater, &ObserverUpdater::updateConnectionObservers));
+    _threads.setUpdater(newUpdater(updater, &ObserverUpdater::updateThreadObservers));
 }
 
 ObserverPtr
@@ -898,29 +897,8 @@ CommunicatorObserverI::getDispatchObserver(const Current& current)
     return 0;
 }
 
-void
-CommunicatorObserverI::updateObservers()
+const MetricsAdminIPtr& 
+CommunicatorObserverI::getMetricsAdmin() const
 {
-    _connections.updateMaps();
-    _dispatch.updateMaps();
-    _invocations.updateMaps();
-    _threads.updateMaps();
-    _connects.updateMaps();
-    _endpointLookups.updateMaps();
-}
-
-void 
-CommunicatorObserverI::updated(const PropertyDict& props)
-{
-    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
-    {
-        if(p->first.find("IceMX.") == 0)
-        {
-            // Udpate the metrics views using the new configuration and then update
-            // the maps associated to observers.
-            _metrics->updateViews();
-            updateObservers();
-            return;
-        }
-    }
+    return _metrics;
 }

@@ -37,10 +37,9 @@
 #include <IceUtil/StringUtil.h>
 #include <Ice/PropertiesI.h>
 #include <Ice/Communicator.h>
-#include <Ice/Observer.h>
 #include <Ice/GC.h>
 #include <Ice/MetricsAdminI.h>
-#include <Ice/ObserverI.h>
+#include <Ice/InstrumentationI.h>
 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
@@ -1115,10 +1114,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.observer = observer;
 
             //
-            // Make sure the observer receives property update notifications to update
-            // the metrics admin configuration.
+            // Make sure the admin plugin receives property updates.
             //
-            props->addUpdateCallback(observer);
+            props->addUpdateCallback(admin);
         }
 
         __setNoDelete(false);

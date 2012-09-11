@@ -70,9 +70,9 @@ OBJS		= Acceptor.obj \
 		  ObjectFactoryManager.obj \
 		  ObjectFactory.obj \
 		  Object.obj \
-		  Observer.obj \
+		  Instrumentation.obj \
 		  ObserverHelper.obj \
-		  ObserverI.obj \
+		  InstrumentationI.obj \
 		  OpaqueEndpointI.obj \
 		  OutgoingAsync.obj \
 		  Outgoing.obj \
@@ -180,8 +180,8 @@ clean::
 	-del /q Metrics.cpp $(HDIR)\Metrics.h
 	-del /q ObjectAdapterF.cpp $(HDIR)\ObjectAdapterF.h
 	-del /q ObjectAdapter.cpp $(HDIR)\ObjectAdapter.h
-	-del /q Observer.cpp $(HDIR)\Observer.h
-	-del /q ObserverF.cpp $(HDIR)\ObserverF.h
+	-del /q Instrumentation.cpp $(HDIR)\Instrumentation.h
+	-del /q InstrumentationF.cpp $(HDIR)\InstrumentationF.h
 	-del /q ObjectFactoryF.cpp $(HDIR)\ObjectFactoryF.h
 	-del /q ObjectFactory.cpp $(HDIR)\ObjectFactory.h
 	-del /q PluginF.cpp $(HDIR)\PluginF.h

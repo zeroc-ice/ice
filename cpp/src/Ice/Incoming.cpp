@@ -21,7 +21,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
-#include <Ice/Observer.h>
 #include <IceUtil/StringUtil.h>
 #include <typeinfo>
 

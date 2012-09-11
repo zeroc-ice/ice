@@ -73,3 +73,9 @@ IceStorm.Flush.Timeout=2000
 # database environment for the IceStorm service.
 #
 Freeze.DbEnv.IceStorm.DbHome=db
+
+
+Ice.Admin.Endpoints=tcp -p 13000
+Ice.Admin.InstanceName=IceStorm
+IceMX.Metrics.Debug.Map.Topic.GroupBy=id
+IceMX.Metrics.Debug.Map.Subscriber.GroupBy=identityName-mode

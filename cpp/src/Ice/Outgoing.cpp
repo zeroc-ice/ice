@@ -17,7 +17,6 @@
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>
 #include <Ice/ReplyStatus.h>
-#include <Ice/Observer.h>
 #include <Ice/ProxyFactory.h>
 
 using namespace std;

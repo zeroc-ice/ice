@@ -13,7 +13,6 @@
 #include <Ice/PropertiesI.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <Ice/Observer.h>
 
 using namespace std;
 using namespace Ice::Instrumentation;

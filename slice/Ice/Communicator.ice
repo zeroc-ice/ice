@@ -13,7 +13,7 @@
 
 #include <Ice/LoggerF.ice>
 #include <Ice/StatsF.ice>
-#include <Ice/ObserverF.ice>
+#include <Ice/InstrumentationF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/RouterF.ice>
