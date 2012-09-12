@@ -11,6 +11,7 @@
 
 #include <Ice/InstrumentationI.h>
 #include <Ice/Properties.h>
+#include <Ice/Logger.h>
 #include <Ice/Communicator.h>
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
@@ -28,8 +29,8 @@ const string viewSuffixes[] =
 {
     "Disabled",
     "GroupBy",
-    "Accept",
-    "Reject",
+    "Accept.*",
+    "Reject.*",
     "RetainDetached",
     "Map.*",
 };
@@ -37,8 +38,8 @@ const string viewSuffixes[] =
 const string mapSuffixes[] =
 {
     "GroupBy",
-    "Accept",
-    "Reject",
+    "Accept.*",
+    "Reject.*",
     "RetainDetached",
 };
 
@@ -84,7 +85,14 @@ parseRule(const PropertiesPtr& properties, const string& name)
     PropertyDict rules = properties->getPropertiesForPrefix(name + '.');
     for(PropertyDict::const_iterator p = rules.begin(); p != rules.end(); ++p)
     {
-        regexps.push_back(new MetricsMapI::RegExp(p->first.substr(name.length() + 1), p->second));
+        try
+        {
+            regexps.push_back(new MetricsMapI::RegExp(p->first.substr(name.length() + 1), p->second));
+        }
+        catch(const std::exception&)
+        {
+            throw "invalid regular expression `" + p->second + "' for `" + p->first + "'";
+        }
     }
     return regexps;
 }
@@ -111,15 +119,15 @@ MetricsMapI::RegExp::~RegExp()
 }
 
 bool
-MetricsMapI::RegExp::match(const MetricsHelper& helper)
+MetricsMapI::RegExp::match(const MetricsHelper& helper, bool reject)
 {
     string value = helper(_attribute);
-#ifndef ICE_CPP11_REGEXP
-    if(regexec(&_preg, value.c_str(), 0, 0, 0) == 0)
+    if(value == "unknown") // Unknown attributes are ignored by filtering
     {
-        return true;
+        return !reject;
     }
-    return false;
+#ifndef ICE_CPP11_REGEXP
+    return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
 #else
     return regex_match(value, _regex);
 #endif
@@ -228,7 +236,8 @@ MetricsViewI::MetricsViewI(const string& name) : _name(name)
 void
 MetricsViewI::update(const PropertiesPtr& properties,  
                      const map<string, MetricsMapFactoryPtr>& factories,
-                     set<MetricsMapFactoryPtr>& updatedMaps)
+                     set<MetricsMapFactoryPtr>& updatedMaps,
+                     const Ice::LoggerPtr& logger)
 {
     //
     // Add maps to views configured with the given map.
@@ -263,7 +272,23 @@ MetricsViewI::update(const PropertiesPtr& properties,
         {
             continue; // The map configuration didn't change, no need to re-create.
         }
-        _maps[mapName] = p->second->create(mapPrefix, properties);
+
+        try
+        {
+            _maps[mapName] = p->second->create(mapPrefix, properties);
+        }
+        catch(const std::exception& ex)
+        {
+            Ice::Warning warn(logger);
+            warn << "unexpected exception while creating metrics map:\n" << ex;
+            _maps.erase(mapName);
+        }
+        catch(const string& msg)
+        {
+            Ice::Warning warn(logger);
+            warn << msg;
+            _maps.erase(mapName);
+        }
         updatedMaps.insert(p->second);
     }
 }
@@ -274,7 +299,11 @@ MetricsViewI::getMetrics()
     MetricsView metrics;
     for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
     {
-        metrics.insert(make_pair(p->first, p->second->getMetrics()));
+        MetricsMap map = p->second->getMetrics();
+        if(!map.empty())
+        {
+            metrics.insert(make_pair(p->first, map));
+        }
     }
     return metrics;
 }
@@ -324,7 +353,7 @@ MetricsViewI::getMap(const string& mapName) const
 }
 
 MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) : 
-    _properties(properties), _logger(logger)
+    _logger(logger), _properties(properties)
 {
 }
 
@@ -371,7 +400,7 @@ MetricsAdminI::updateViews()
             {
                 q = views.insert(make_pair(viewName, q->second)).first;
             }
-            q->second->update(_properties, _factories, updatedMaps);
+            q->second->update(_properties, _factories, updatedMaps, _logger);
         }
         _views.swap(views);
         
@@ -485,7 +514,15 @@ MetricsAdminI::updated(const PropertyDict& props)
         if(p->first.find("IceMX.") == 0)
         {
             // Udpate the metrics views using the new configuration.
-            updateViews();
+            try
+            {
+                updateViews();
+            }
+            catch(const std::exception& ex)
+            {
+                Ice::Warning warn(_logger);
+                warn << "unexpected exception while updating metrics view configuration:\n" << ex.what();
+            }
             return;
         }
     }

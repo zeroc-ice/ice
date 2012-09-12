@@ -81,8 +81,7 @@ public:
             add("topic", &SubscriberHelper::getTopic);
             add("service", &SubscriberHelper::getService);
 
-            add("identityCategory", &SubscriberHelper::getIdentity, &Identity::category);
-            add("identityName", &SubscriberHelper::getIdentity, &Identity::name);
+            add("identity", &SubscriberHelper::getIdentity);
             add("facet", &SubscriberHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
             add("encoding", &SubscriberHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
             add("mode", &SubscriberHelper::getMode);
@@ -186,10 +185,10 @@ public:
         return _proxy;
     }
 
-    Identity
+    string
     getIdentity() const
     {
-        return _proxy->ice_getIdentity();
+        return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
     }
 
 private:

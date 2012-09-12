@@ -46,7 +46,7 @@ public:
         RegExp(const std::string&, const std::string&);
         ~RegExp();
 
-        bool match(const MetricsHelper&);
+        bool match(const MetricsHelper&, bool);
 
     private:
         const std::string _attribute;
@@ -330,7 +330,7 @@ public:
         //
         for(std::vector<RegExpPtr>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
         {
-            if(!(*p)->match(helper))
+            if(!(*p)->match(helper, false))
             {
                 return 0;
             }
@@ -338,7 +338,7 @@ public:
         
         for(std::vector<RegExpPtr>::const_iterator p = _reject.begin(); p != _reject.end(); ++p)
         {
-            if((*p)->match(helper))
+            if((*p)->match(helper, true))
             {
                 return 0;
             }
@@ -482,7 +482,7 @@ public:
     MetricsViewI(const std::string&);
 
     void update(const Ice::PropertiesPtr&, const std::map<std::string, MetricsMapFactoryPtr>&, 
-                std::set<MetricsMapFactoryPtr>&);
+                std::set<MetricsMapFactoryPtr>&, const Ice::LoggerPtr&);
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);

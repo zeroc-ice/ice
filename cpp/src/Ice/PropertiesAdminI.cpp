@@ -158,7 +158,8 @@ Ice::PropertiesAdminI::setProperties_async(const AMD_PropertiesAdmin_setProperti
     }
 
     //
-    // Send the response now so that we do not block the client during the call to the update callback.
+    // Send the response now so that we do not block the client during
+    // the call to the update callback.
     //
     cb->ice_response();
 

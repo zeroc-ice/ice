@@ -151,7 +151,7 @@ public:
         {
             add("parent", &ConnectionHelper::getParent);
             add("id", &ConnectionHelper::getId);
-
+            add("endpoint", &ConnectionHelper::getEndpoint);
             addConnectionAttributes<ConnectionHelper>(*this);
         }
     };
@@ -189,6 +189,10 @@ public:
             {
                 os << "connection-" << _connectionInfo.get();
             }
+            if(!_connectionInfo->connectionId.empty())
+            {
+                os << " [" << _connectionInfo->connectionId << "]";
+            }
             _id = os.str();
         }
         return _id;
@@ -211,6 +215,12 @@ public:
     getConnectionInfo() const
     {
         return _connectionInfo;
+    }
+
+    const EndpointPtr&
+    getEndpoint() const
+    {
+        return _endpoint;
     }
 
     const EndpointInfoPtr&
@@ -246,12 +256,12 @@ public:
         {
             add("parent", &DispatchHelper::getParent);
             add("id", &DispatchHelper::getId);
+            add("endpoint", &DispatchHelper::getEndpoint);
 
             addConnectionAttributes<DispatchHelper>(*this);
 
             add("operation", &DispatchHelper::getCurrent, &Current::operation);
-            add("identityCategory", &DispatchHelper::getIdentity, &Identity::category);
-            add("identityName", &DispatchHelper::getIdentity, &Identity::name);
+            add("identity", &DispatchHelper::getIdentity);
             add("facet", &DispatchHelper::getCurrent, &Current::facet);
             add("encoding", &DispatchHelper::getCurrent, &Current::encoding);
             add("mode", &DispatchHelper::getMode);
@@ -317,6 +327,12 @@ public:
         return _current.con->getInfo();
     }
 
+    EndpointPtr
+    getEndpoint() const
+    {
+        return _current.con->getEndpoint();
+    }
+
     const EndpointInfoPtr&
     getEndpointInfo() const
     {
@@ -333,10 +349,10 @@ public:
         return _current;
     }
 
-    const Identity&
+    string
     getIdentity() const
     {
-        return _current.id;
+        return _current.adapter->getCommunicator()->identityToString(_current.id);
     }
 
 private:
@@ -362,8 +378,7 @@ public:
             add("id", &InvocationHelper::getId);
 
             add("operation", &InvocationHelper::getOperation);
-            add("identityCategory", &InvocationHelper::getIdentity, &Identity::category);
-            add("identityName", &InvocationHelper::getIdentity, &Identity::name);
+            add("identity", &InvocationHelper::getIdentity);
             add("facet", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getFacet);
             add("encoding", &InvocationHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
             add("mode", &InvocationHelper::getMode);
@@ -471,16 +486,16 @@ public:
     }
 
 
-    Identity
+    string
     getIdentity() const
     {
         if(_proxy)
         {
-            return _proxy->ice_getIdentity();
+            return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
         }
         else
         {
-            return Identity();
+            return "";
         }
     }
 
@@ -512,6 +527,7 @@ public:
         {
             add("parent", &RemoteInvocationHelper::getParent);
             add("id", &RemoteInvocationHelper::getId);
+            add("endpoint", &RemoteInvocationHelper::getEndpoint);
             addConnectionAttributes<RemoteInvocationHelper>(*this);
         }
     };
@@ -532,17 +548,11 @@ public:
     {
         if(_id.empty())
         {
-            ostringstream os;
-            IPConnectionInfoPtr info = IPConnectionInfoPtr::dynamicCast(_connectionInfo);
-            if(info)
+            _id = _endpoint->toString();
+            if(!_connectionInfo->connectionId.empty())
             {
-                os << info->remoteAddress << ':' << info->remotePort;
+                _id += " [" + _connectionInfo->connectionId + "]";
             }
-            else
-            {
-                os << "connection-" << _connectionInfo.get();
-            }
-            _id = os.str();
         }
         return _id;
     }
@@ -564,6 +574,12 @@ public:
     getConnectionInfo() const
     {
         return _connectionInfo;
+    }
+
+    const EndpointPtr&
+    getEndpoint() const
+    {
+        return _endpoint;
     }
 
     const EndpointInfoPtr&
@@ -640,6 +656,7 @@ public:
         {
             add("parent", &EndpointHelper::getParent);
             add("id", &EndpointHelper::getId);
+            add("endpoint", &EndpointHelper::getId);
             addEndpointAttributes<EndpointHelper>(*this);
         }
     };
