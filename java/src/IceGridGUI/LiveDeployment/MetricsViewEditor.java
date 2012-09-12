@@ -144,6 +144,36 @@ public class MetricsViewEditor extends Editor
             return button;  
         }
     }
+    
+    //
+    // This class allow to render a number with a format
+    //
+    public static class FormatedNumberRenderer extends DefaultTableCellRenderer
+    {
+
+        public FormatedNumberRenderer(String format)
+        {
+            _format = new DecimalFormat(format);
+        }
+
+        public Component
+        getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                                      int row, int column)
+        {
+            if(value != null)
+            { 
+                this.setText(_format.format(Double.parseDouble(value.toString()))); 
+            } 
+            else
+            { 
+                this.setText(""); 
+            } 
+            this.setHorizontalAlignment(RIGHT);  
+            return this; 
+        }
+        
+        private final DecimalFormat _format; 
+    }
 
     //
     // Handle button clicks when buttons are embedded in a JTable cell.
@@ -515,7 +545,7 @@ public class MetricsViewEditor extends Editor
             if(field == null)
             {
                 throw new IllegalArgumentException("Field argument must be non null, " +
-                                                   "Metrics object: `" + mapName + "' field: `" + fieldName: + "'");
+                                                   "Metrics object: `" + mapName + "' field: `" + fieldName + "'");
             }
             Class columnClass = field.getType();
             if(columnClass.equals(int.class))
@@ -529,10 +559,12 @@ public class MetricsViewEditor extends Editor
             else if(columnClass.equals(float.class))
             {
                 _columnClass = Float.class;
+                setFormat("#0.000"); // Set the default format
             }
             else if(columnClass.equals(double.class))
             {
                 _columnClass = Double.class;
+                setFormat("#0.000"); // Set the default format
             }
             else
             {
@@ -565,9 +597,14 @@ public class MetricsViewEditor extends Editor
             return _columnClass;
         }
 
+        public void setFormat(String format)
+        {
+            _cellRenderer = new FormatedNumberRenderer(format);
+        }
+
         public TableCellRenderer getCellRenderer()
         {
-            return null;
+            return _cellRenderer;
         }
 
         public Object getValue(IceMX.Metrics m)
@@ -591,6 +628,7 @@ public class MetricsViewEditor extends Editor
         private final String _fieldName;
         private String _columnName;
         private Class _columnClass;
+        private TableCellRenderer _cellRenderer;
     }
 
     static public class AverageLifetimeMetricsField implements MetricsField
@@ -600,11 +638,17 @@ public class MetricsViewEditor extends Editor
             _node = node;
             _mapName = mapName;
             _fieldName = fieldName;
+            setFormat("#0.000"); // Set the default format
         }
         
         public void setColumnName(String columnName)
         {
             _columnName = columnName;
+        }
+
+        public void setFormat(String format)
+        {
+            _cellRenderer = new FormatedNumberRenderer(format);
         }
 
 	    public String getColumnName()
@@ -619,7 +663,7 @@ public class MetricsViewEditor extends Editor
 
         public TableCellRenderer getCellRenderer()
         {
-            return null;
+            return _cellRenderer;
         }
 
         public void setDivisor(String divisor) throws java.lang.NumberFormatException
@@ -644,6 +688,7 @@ public class MetricsViewEditor extends Editor
         private final String _fieldName;
 	    private float _divisor;
 	    private String _columnName;
+        private TableCellRenderer _cellRenderer;
     }
 
     static public class BandwidthDelta
@@ -659,6 +704,7 @@ public class MetricsViewEditor extends Editor
             _node = node;
             _mapName = mapName;
             _fieldName = fieldName;
+            setFormat("#0.000"); // Set the default format
 	    }
 
         public void setColumnName(String columnName)
@@ -671,6 +717,11 @@ public class MetricsViewEditor extends Editor
             return _columnName;
         }
 
+        public void setFormat(String format)
+        {
+            _cellRenderer = new FormatedNumberRenderer(format);
+        }
+
         public Class getColumnClass()
         {
             return Float.class;
@@ -678,7 +729,7 @@ public class MetricsViewEditor extends Editor
 
         public TableCellRenderer getCellRenderer()
         {
-            return null;
+            return _cellRenderer;
         }
 
         public void setBytesField(String bytesField)
@@ -712,7 +763,7 @@ public class MetricsViewEditor extends Editor
             }
             else
             {
-                return (float)( (d2.bytes - d1.bytes) / (float)(d2.timestamp - d1.timestamp) );
+                return (float)((d2.bytes - d1.bytes) / (float)(d2.timestamp - d1.timestamp) * 1000.0f);
             }
         }
 
@@ -722,6 +773,7 @@ public class MetricsViewEditor extends Editor
         private String _columnName;
         private String _bytesField;
         private final Map<String, BandwidthDelta> _deltas = new java.util.HashMap<String, BandwidthDelta>();
+        private TableCellRenderer _cellRenderer;
     }
 
     static public class FailuresMetricsField implements MetricsField
