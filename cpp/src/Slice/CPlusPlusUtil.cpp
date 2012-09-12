@@ -310,6 +310,11 @@ writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const Oper
         writeMarshalUnmarshalCode(out, (*p)->type(), true, (*p)->tag(), fixKwd((*p)->name()), marshal,
                                   (*p)->getMetaData(), typeCtx);
     }
+    if(checkReturnType)
+    {
+        writeMarshalUnmarshalCode(out, op->returnType(), true, op->returnTag(), "__ret", marshal, op->getMetaData(), 
+                                  typeCtx);
+    }
 }
 
 }
