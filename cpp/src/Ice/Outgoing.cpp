@@ -539,8 +539,12 @@ IceInternal::Outgoing::throwUserException()
         _is.startReadEncaps();
         _is.throwException();
     }
-    catch(const Ice::UserException&)
+    catch(const Ice::UserException& ex)
     {
+        if(_observer)
+        {
+            _observer.failed(ex.ice_name());
+        }
         _is.endReadEncaps();
         throw;
     }

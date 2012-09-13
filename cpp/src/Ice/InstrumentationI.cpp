@@ -257,6 +257,7 @@ public:
             add("parent", &DispatchHelper::getParent);
             add("id", &DispatchHelper::getId);
             add("endpoint", &DispatchHelper::getEndpoint);
+            add("connection", &DispatchHelper::getConnection);
 
             addConnectionAttributes<DispatchHelper>(*this);
 
@@ -331,6 +332,12 @@ public:
     getEndpoint() const
     {
         return _current.con->getEndpoint();
+    }
+
+    const ConnectionPtr&
+    getConnection() const
+    {
+        return _current.con;
     }
 
     const EndpointInfoPtr&
@@ -656,7 +663,7 @@ public:
         {
             add("parent", &EndpointHelper::getParent);
             add("id", &EndpointHelper::getId);
-            add("endpoint", &EndpointHelper::getId);
+            add("endpoint", &EndpointHelper::getEndpoint);
             addEndpointAttributes<EndpointHelper>(*this);
         }
     };
@@ -699,6 +706,12 @@ public:
             _id = _endpoint->toString();
         }
         return _id;
+    }
+
+    string
+    getEndpoint() const
+    {
+        return _endpoint->toString();
     }
 
 private:

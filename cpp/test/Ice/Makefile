@@ -44,7 +44,8 @@ SUBDIRS		= proxy \
 		  invoke \
 		  properties \
 		  plugin \
-		  admin
+		  admin \
+		  metrics
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

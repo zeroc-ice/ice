@@ -31,7 +31,8 @@ SUBDIRS		= proxy \
 		  udp \
 		  admin \
 		  plugin \
-		  stream
+		  stream \
+		  metrics
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \

@@ -69,6 +69,7 @@ tests = [
     ("Ice/plugin", ["core"]),
     ("Ice/hash", ["once"]),
     ("Ice/admin", ["core"]),
+    ("Ice/metrics", ["core"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw"]),
     ("IceBox/admin", ["core", "noipv6", "novc6", "nomingw"]),

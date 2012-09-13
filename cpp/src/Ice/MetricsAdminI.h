@@ -144,6 +144,11 @@ public:
                 _subMaps.find(mapName);
             if(p == _subMaps.end())
             {
+                Lock sync(*this);
+                if(_map == 0)
+                {
+                    return 0;
+                }
                 std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
                 if(map.first)
                 {

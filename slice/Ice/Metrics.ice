@@ -122,10 +122,10 @@ interface MetricsAdmin
      *
      * @param view The name of the metrics view to retrieve.
      *
+     * @return The metrics view data.
+     *
      * @throws UnknownMetricsView Raised if the metrics view can't be
      * found.
-     *
-     * @return The metrics view data.
      *
      **/
     MetricsView getMetricsView(string view)
@@ -135,14 +135,14 @@ interface MetricsAdmin
      *
      * Get the metrics failures associated with the given view and map.
      *
-     * @throws UnknownMetricsView Raised if the metrics view can't be
-     * found.
-     *
      * @param view The name of the metrics view.
      *
      * @param map The name of the metrics map.
      *
      * @return The metrics failures associated with the map.
+     *
+     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * found.
      *
      **/
     MetricsFailuresSeq getMapMetricsFailures(string view, string map)
@@ -152,9 +152,6 @@ interface MetricsAdmin
      *
      * Get the metrics failure associated for the given metrics
      *
-     * @throws UnknownMetricsView Raised if the metrics view can't be
-     * found.
-     *
      * @param view The name of the metrics view.
      *
      * @param map The name of the metrics map.
@@ -162,6 +159,9 @@ interface MetricsAdmin
      * @param id The ID of the metrics.
      *
      * @return The metrics failures associated with the metrics.
+     *
+     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * found.
      *
      **/
     MetricsFailures getMetricsFailures(string view, string map, string id)

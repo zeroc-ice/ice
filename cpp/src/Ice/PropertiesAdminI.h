@@ -10,14 +10,14 @@
 #ifndef ICE_PROPERTIES_ADMIN_I_H
 #define ICE_PROPERTIES_ADMIN_I_H
 
-#include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/PropertiesAdmin.h>
 #include <Ice/LoggerF.h>
 
 namespace Ice
 {
 
-class ICE_API PropertiesAdminI : public PropertiesAdmin, public NativePropertiesAdmin, private IceUtil::Mutex
+class ICE_API PropertiesAdminI : public PropertiesAdmin, public NativePropertiesAdmin, private IceUtil::RecMutex
 {
 public:
 

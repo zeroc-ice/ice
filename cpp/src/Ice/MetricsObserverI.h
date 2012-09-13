@@ -15,6 +15,7 @@
 #include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
 #include <Ice/Endpoint.h>
+#include <Ice/Connection.h>
 #include <Ice/MetricsAdminI.h>
 #include <Ice/MetricsFunctional.h>
 
@@ -230,6 +231,12 @@ protected:
 
         static std::string
         toString(const Ice::EndpointPtr& e)
+        {
+            return e->toString();
+        }
+
+        static std::string
+        toString(const Ice::ConnectionPtr& e)
         {
             return e->toString();
         }
