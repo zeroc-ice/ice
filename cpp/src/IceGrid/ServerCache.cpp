@@ -939,7 +939,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
         ServerInfo oldInfo = _loaded.get() ? *_loaded : *_load;
         if(noRestart && info.node != oldInfo.node)
         {
-            throw DeploymentException("server `" + _id + "' is moved to another node");
+            throw DeploymentException("server `" + _id + "' is moving to another node");
         }
 
         session = _session;
@@ -958,7 +958,14 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     ServerPrx server;
     try
     {
-        server = getProxy(true);
+        server = getProxy(true, 5);
+    }
+    catch(const SynchronizationException&)
+    {
+        ostringstream os;
+        os << "check for server `" << _id << "' update failed:";
+        os << "timeout while waiting for the server to be loaded on the node";
+        throw DeploymentException(os.str());
     }
     catch(const DeploymentException&)
     {

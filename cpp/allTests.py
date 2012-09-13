@@ -77,7 +77,7 @@ tests = [
     ("Freeze/complex", ["once", "novc6", "nomingw"]),
     ("Freeze/evictor", ["core", "novc6", "nomingw"]),
     ("Freeze/fileLock", ["core", "novc6", "nomingw"]),
-    ("IceStorm/single", ["service", "novc6", "noappverifier", "nomingw"]),  # This test doensn't work with appverifier is sensitive to timeouts.
+    ("IceStorm/single", ["service", "novc6", "noappverifier", "nomingw"]),  # This test doesn't work with appverifier is sensitive to timeouts.
     ("IceStorm/federation", ["service", "novc6", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc6", "nomingw"]),
     ("IceStorm/stress", ["service", "stress", "novc6", "noappverifier", "nomingw"]), # This test is very slow with appverifier.
