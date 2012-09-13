@@ -217,63 +217,80 @@ TopicObserverI::forwarded()
     forEach(inc(&TopicMetrics::forwarded));
 }
 
+namespace
+{
+
+struct QueuedUpdate
+{
+    QueuedUpdate(int count) : count(count)
+    {
+    }
+
+    void operator()(const SubscriberMetricsPtr& v)
+    {
+        v->queued += count;
+    }
+
+    int count;
+};
+
+}
 void
 SubscriberObserverI::queued(int count)
 {
-    struct Update
+    forEach(QueuedUpdate(count));
+}
+
+namespace
+{
+
+struct OutstandingUpdate
+{
+    OutstandingUpdate(int count) : count(count)
     {
-        Update(int count) : count(count)
-        {
-        }
+    }
 
-        void operator()(const SubscriberMetricsPtr& v)
-        {
-            v->queued += count;
-        }
+    void operator()(const SubscriberMetricsPtr& v)
+    {
+        v->queued -= count;
+        v->outstanding += count;
+    }
 
-        int count;
-    };
-    forEach(Update(count));
+    int count;
+};
+
 }
 
 void
 SubscriberObserverI::outstanding(int count)
 {
-    struct Update
+    forEach(OutstandingUpdate(count));
+}
+
+namespace
+{
+
+struct DeliveredUpdate
+{
+    DeliveredUpdate(int count) : count(count)
     {
-        Update(int count) : count(count)
-        {
-        }
+    }
 
-        void operator()(const SubscriberMetricsPtr& v)
-        {
-            v->queued -= count;
-            v->outstanding += count;
-        }
+    void operator()(const SubscriberMetricsPtr& v)
+    {
+        v->outstanding -= count;
+        v->delivered += count;
+    }
 
-        int count;
-    };
-    forEach(Update(count));
+    int count;
+};
+
 }
 
 void
 SubscriberObserverI::delivered(int count)
 {
-    struct Update
-    {
-        Update(int count) : count(count)
-        {
-        }
-
-        void operator()(const SubscriberMetricsPtr& v)
-        {
-            v->outstanding -= count;
-            v->delivered += count;
-        }
-
-        int count;
-    };
-    forEach(Update(count));
+    forEach(DeliveredUpdate(count));
 }
 
 TopicManagerObserverI::TopicManagerObserverI(const MetricsAdminIPtr& metrics) : 
