@@ -1,4 +1,4 @@
-#include <IceUtil/ScannerConfig.h>
+#include "IceUtil/ScannerConfig.h" 
 #line 2 "lex.yy.c"
 
 #line 4 "lex.yy.c"
@@ -574,6 +574,13 @@ char *slice_text;
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(_MSC_VER) && defined(ICE_32)
+//
+// '<' : signed/unsigned mismatch
+//
+#   pragma warning( 4 : 4018 )
+#endif
+
 #ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap
@@ -613,7 +620,7 @@ int checkKeyword(string&);
 
 
 
-#line 616 "lex.yy.c"
+#line 623 "lex.yy.c"
 
 #define INITIAL 0
 #define BOMSCAN 1
@@ -800,10 +807,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 85 "Scanner.l"
+#line 92 "Scanner.l"
 
 
-#line 806 "lex.yy.c"
+#line 813 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -888,7 +895,7 @@ case 1:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 87 "Scanner.l"
+#line 94 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -902,7 +909,7 @@ case 2:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 94 "Scanner.l"
+#line 101 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -915,7 +922,7 @@ case 3:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 101 "Scanner.l"
+#line 108 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -929,7 +936,7 @@ case 4:
 (yy_c_buf_p) = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up slice_text again */
 YY_RULE_SETUP
-#line 108 "Scanner.l"
+#line 115 "Scanner.l"
 {
     if(unit->scanPosition(slice_text))
     {
@@ -939,7 +946,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 115 "Scanner.l"
+#line 122 "Scanner.l"
 {
     // C++-style comment
     BEGIN(MAINSCAN);
@@ -957,7 +964,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 130 "Scanner.l"
+#line 137 "Scanner.l"
 {
     // C-style comment
     BEGIN(MAINSCAN);
@@ -1001,7 +1008,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 171 "Scanner.l"
+#line 178 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_SCOPE_DELIMITER;
@@ -1009,7 +1016,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 176 "Scanner.l"
+#line 183 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_OPEN;
@@ -1017,7 +1024,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 181 "Scanner.l"
+#line 188 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_METADATA_CLOSE;
@@ -1025,7 +1032,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 186 "Scanner.l"
+#line 193 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_OPEN;
@@ -1033,7 +1040,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 191 "Scanner.l"
+#line 198 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     return ICE_GLOBAL_METADATA_CLOSE;
@@ -1042,7 +1049,7 @@ YY_RULE_SETUP
 case 12:
 /* rule 12 can match eol */
 YY_RULE_SETUP
-#line 196 "Scanner.l"
+#line 203 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1070,7 +1077,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 221 "Scanner.l"
+#line 228 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr ident = new StringTok;
@@ -1081,7 +1088,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 229 "Scanner.l"
+#line 236 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     StringTokPtr str = new StringTok;
@@ -1245,7 +1252,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 390 "Scanner.l"
+#line 397 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     IntegerTokPtr itp = new IntegerTok;
@@ -1264,7 +1271,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 406 "Scanner.l"
+#line 413 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     errno = 0;
@@ -1298,7 +1305,7 @@ YY_RULE_SETUP
 case 17:
 /* rule 17 can match eol */
 YY_RULE_SETUP
-#line 436 "Scanner.l"
+#line 443 "Scanner.l"
 {
     // Ignore white-space
     
@@ -1314,7 +1321,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 449 "Scanner.l"
+#line 456 "Scanner.l"
 {
     // Ignore UTF-8 BOM, rule only active when parsing start of file.
     
@@ -1323,7 +1330,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 455 "Scanner.l"
+#line 462 "Scanner.l"
 {
     BEGIN(MAINSCAN);
     if(slice_text[0] < 32 || slice_text[0] > 126)
@@ -1342,10 +1349,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 471 "Scanner.l"
+#line 478 "Scanner.l"
 ECHO;
 	YY_BREAK
-#line 1348 "lex.yy.c"
+#line 1355 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(BOMSCAN):
 case YY_STATE_EOF(MAINSCAN):
@@ -2345,7 +2352,7 @@ void slice_free (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 471 "Scanner.l"
+#line 478 "Scanner.l"
 
 
 

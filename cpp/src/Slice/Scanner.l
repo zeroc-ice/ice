@@ -29,6 +29,13 @@
 #   pragma warning( 4 : 4244 )
 #endif
 
+#if defined(_MSC_VER) && defined(ICE_32)
+//
+// '<' : signed/unsigned mismatch
+//
+#   pragma warning( 4 : 4018 )
+#endif
+
 #ifdef _MSC_VER
 #   ifdef slice_wrap
 #      undef slice_wrap
