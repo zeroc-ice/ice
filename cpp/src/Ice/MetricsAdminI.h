@@ -495,8 +495,9 @@ public:
     
     MetricsViewI(const std::string&);
 
-    void update(const Ice::PropertiesPtr&, const std::map<std::string, MetricsMapFactoryPtr>&, 
-                std::set<MetricsMapFactoryPtr>&, const Ice::LoggerPtr&);
+    bool addOrUpdateMap(const Ice::PropertiesPtr&, const std::string&, const MetricsMapFactoryPtr&, 
+                        const Ice::LoggerPtr&);
+    bool removeMap(const std::string&);
 
     MetricsView getMetrics();
     MetricsFailuresSeq getFailures(const std::string&);
@@ -524,8 +525,18 @@ public:
     template<class MetricsType> void 
     registerMap(const std::string& map, Updater* updater)
     {
-        Lock sync(*this);
-        _factories[map] = new MetricsMapFactoryT<MetricsType>(updater);
+        bool update;
+        MetricsMapFactoryPtr factory;
+        {
+            Lock sync(*this);
+            factory = new MetricsMapFactoryT<MetricsType>(updater);
+            _factories[map] = factory;
+            addOrUpdateMap(map, factory);
+        }
+        if(update)
+        {
+            factory->update();
+        }
     }
 
     template<class MemberMetricsType, class MetricsType> void
@@ -534,18 +545,14 @@ public:
         Lock sync(*this);
 
         std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
-        assert(p != _factories.end());
-
-        MetricsMapFactoryT<MetricsType>* factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
-        factory->template registerSubMap<MemberMetricsType>(subMap, member);
+        if(p != _factories.end())
+        {
+            MetricsMapFactoryT<MetricsType>* factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
+            factory->template registerSubMap<MemberMetricsType>(subMap, member);
+        }
     }
 
-    void
-    unregisterMap(const std::string& map)
-    {
-        Lock sync(*this);
-        _factories.erase(map);
-    }
+    void unregisterMap(const std::string&);
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
     virtual MetricsView getMetricsView(const std::string&, const ::Ice::Current&);
@@ -562,6 +569,9 @@ public:
 private:
 
     void updated(const Ice::PropertyDict&);
+
+    bool addOrUpdateMap(const std::string&, const MetricsMapFactoryPtr&);
+    bool removeMap(const std::string&);
 
     std::map<std::string, MetricsViewIPtr> _views;
     std::map<std::string, MetricsMapFactoryPtr> _factories;

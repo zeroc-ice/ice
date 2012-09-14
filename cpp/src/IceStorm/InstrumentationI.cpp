@@ -317,7 +317,6 @@ TopicManagerObserverI::TopicManagerObserverI(const MetricsAdminIPtr& metrics) :
     _topics(metrics, "Topic"),
     _subscribers(metrics, "Subscriber")
 {
-    _metrics->updateViews();
 }
 
 void

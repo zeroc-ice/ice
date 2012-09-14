@@ -236,11 +236,9 @@ MetricsViewI::MetricsViewI(const string& name) : _name(name)
 {
 }
 
-void
-MetricsViewI::update(const PropertiesPtr& properties,  
-                     const map<string, MetricsMapFactoryPtr>& factories,
-                     set<MetricsMapFactoryPtr>& updatedMaps,
-                     const Ice::LoggerPtr& logger)
+bool
+MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName, 
+                             const MetricsMapFactoryPtr& factory, const Ice::LoggerPtr& logger)
 {
     //
     // Add maps to views configured with the given map.
@@ -248,53 +246,61 @@ MetricsViewI::update(const PropertiesPtr& properties,
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
     const string mapsPrefix = viewPrefix + "Map.";
     PropertyDict mapsProps = properties->getPropertiesForPrefix(mapsPrefix);
-    for(map<string, MetricsMapFactoryPtr>::const_iterator p = factories.begin(); p != factories.end(); ++p)
+
+    string mapPrefix;
+    PropertyDict mapProps;
+    if(!mapsProps.empty())
     {
-        const string& mapName = p->first;
-        string mapPrefix;
-        PropertyDict mapProps;
-        if(!mapsProps.empty())
+        mapPrefix = mapsPrefix + mapName + ".";
+        mapProps = properties->getPropertiesForPrefix(mapPrefix);
+        if(mapProps.empty())
         {
-            mapPrefix = mapsPrefix + mapName + ".";
-            mapProps = properties->getPropertiesForPrefix(mapPrefix);
-            if(mapProps.empty())
-            {
-                // This map isn't configured anymore for this view.
-                updatedMaps.insert(p->second);
-                _maps.erase(mapName);
-                continue; 
-            }
-        }
-        else
-        {
-            mapPrefix = viewPrefix;
-            mapProps = properties->getPropertiesForPrefix(mapPrefix);
-        }
-
-        map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
-        if(q != _maps.end() && q->second->getProperties() == mapProps)
-        {
-            continue; // The map configuration didn't change, no need to re-create.
-        }
-
-        try
-        {
-            _maps[mapName] = p->second->create(mapPrefix, properties);
-        }
-        catch(const std::exception& ex)
-        {
-            Ice::Warning warn(logger);
-            warn << "unexpected exception while creating metrics map:\n" << ex;
+            // This map isn't configured for this view.
             _maps.erase(mapName);
+            return true;
         }
-        catch(const string& msg)
-        {
-            Ice::Warning warn(logger);
-            warn << msg;
-            _maps.erase(mapName);
-        }
-        updatedMaps.insert(p->second);
     }
+    else
+    {
+        mapPrefix = viewPrefix;
+        mapProps = properties->getPropertiesForPrefix(mapPrefix);
+    }
+
+    map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+    if(q != _maps.end() && q->second->getProperties() == mapProps)
+    {
+        return false; // The map configuration didn't change, no need to re-create.
+    }
+
+    try
+    {
+        _maps[mapName] = factory->create(mapPrefix, properties);
+    }
+    catch(const std::exception& ex)
+    {
+        Ice::Warning warn(logger);
+        warn << "unexpected exception while creating metrics map:\n" << ex;
+        _maps.erase(mapName);
+    }
+    catch(const string& msg)
+    {
+        Ice::Warning warn(logger);
+        warn << msg;
+        _maps.erase(mapName);
+    }
+    return true;
+}
+
+bool
+MetricsViewI::removeMap(const string& mapName)
+{
+    map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+    if(q != _maps.end())
+    {
+        _maps.erase(q);
+        return true;
+    }
+    return false;
 }
 
 MetricsView
@@ -404,7 +410,14 @@ MetricsAdminI::updateViews()
             {
                 q = views.insert(make_pair(viewName, q->second)).first;
             }
-            q->second->update(_properties, _factories, updatedMaps, _logger);
+
+            for(map<string, MetricsMapFactoryPtr>::const_iterator p = _factories.begin(); p != _factories.end(); ++p)
+            {
+                if(q->second->addOrUpdateMap(_properties, p->first, p->second, _logger))
+                {
+                    updatedMaps.insert(p->second);
+                }
+            }
         }
         _views.swap(views);
         
@@ -430,6 +443,28 @@ MetricsAdminI::updateViews()
     for(set<MetricsMapFactoryPtr>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
     {
         (*p)->update();
+    }
+}
+
+void
+MetricsAdminI::unregisterMap(const std::string& mapName)
+{
+    bool updated;
+    MetricsMapFactoryPtr factory;
+    {
+        Lock sync(*this);
+        map<string, MetricsMapFactoryPtr>::iterator p = _factories.find(mapName);
+        if(p == _factories.end())
+        {
+            return;
+        }
+        factory = p->second;
+        _factories.erase(p);
+        updated = removeMap(mapName);
+    }
+    if(updated)
+    {
+        factory->update();
     }
 }
 
@@ -532,3 +567,24 @@ MetricsAdminI::updated(const PropertyDict& props)
     }
 }
 
+bool
+MetricsAdminI::addOrUpdateMap(const std::string& mapName, const MetricsMapFactoryPtr& factory)
+{
+    bool updated = false;
+    for(std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    {
+        updated |= p->second->addOrUpdateMap(_properties, mapName, factory, _logger);
+    }
+    return updated;
+}
+
+bool
+MetricsAdminI::removeMap(const std::string& mapName)
+{
+    bool updated = false;
+    for(std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    {
+        updated |= p->second->removeMap(mapName);
+    }
+    return updated;
+}

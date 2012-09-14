@@ -31,14 +31,6 @@ public:
     virtual std::string operator()(const std::string&) const = 0;
 };
 
-class Updater : public IceUtil::Shared
-{
-public:
-
-    virtual void update() = 0;
-};
-typedef IceUtil::Handle<Updater> UpdaterPtr;
-
 template<typename T> class MetricsHelperT : public MetricsHelper
 {
 public:
@@ -268,6 +260,14 @@ protected:
     };
 };
 
+class Updater : public IceUtil::Shared
+{
+public:
+
+    virtual void update() = 0;
+};
+typedef IceUtil::Handle<Updater> UpdaterPtr;
+
 template<typename T> class UpdaterT : public Updater
 {
 public:
@@ -288,7 +288,17 @@ private:
     void (T::*_fn)();
 };
 
-class ObserverI;
+template<typename T> Updater*
+newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)())
+{
+    return new UpdaterT<T>(updater.get(), fn);
+}
+
+template<typename T> Updater*
+newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
+{
+    return new UpdaterT<T>(updater.get(), fn);
+}
 
 template<typename T> class ObserverT : virtual public Ice::Instrumentation::Observer
 {
@@ -412,22 +422,6 @@ private:
     EntrySeqType _objects;
     IceUtilInternal::StopWatch _watch;
 };
-
-class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
-{
-};
-
-template<typename T> Updater*
-newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)())
-{
-    return new UpdaterT<T>(updater.get(), fn);
-}
-
-template<typename T> Updater*
-newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
-{
-    return new UpdaterT<T>(updater.get(), fn);
-}
 
 template<typename ObserverImplType> 
 class ObserverFactoryT : public Updater, private IceUtil::Mutex
@@ -564,6 +558,10 @@ private:
     MetricsMapSeqType _maps;
     volatile bool _enabled;
     UpdaterPtr _updater;
+};
+
+class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
+{
 };
 
 }

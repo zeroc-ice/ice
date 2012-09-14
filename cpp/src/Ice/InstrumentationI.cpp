@@ -750,7 +750,6 @@ CommunicatorObserverI::CommunicatorObserverI(const MetricsAdminIPtr& metrics) :
     _endpointLookups(metrics, "EndpointLookup")
 {
     _invocations.registerSubMap<Metrics>("Remote", &InvocationMetrics::remotes);
-    _metrics->updateViews();
 }
 
 void
