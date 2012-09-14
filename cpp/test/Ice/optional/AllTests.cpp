@@ -154,6 +154,10 @@ class FactoryI : public Ice::ObjectFactory
 
 public:
 
+    FactoryI() : _enabled(false)
+    {
+    }
+
     Ice::ObjectPtr
     create(const string& typeId) 
     {
@@ -938,7 +942,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         StringSeq ss(10);
         fill(ss.begin(), ss.end(), "test1");
-        p1 = make_pair(&ss[0], &ss[0] + ss.size());
+        p1 = make_pair(ss.begin(), ss.end());
         p2 = initial->opStringSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
@@ -999,7 +1003,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(!p2 && !p3);
 
         VarStructSeq ss(10);
-        p1 = make_pair(&ss[0], &ss[0] + ss.size());
+        p1 = make_pair(ss.begin(), ss.end());
         p2 = initial->opVarStructSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
