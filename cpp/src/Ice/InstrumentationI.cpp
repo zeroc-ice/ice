@@ -26,45 +26,6 @@ namespace
 
 Context emptyCtx;
 
-int ConnectionMetrics::*
-getConnectionStateMetric(ConnectionState s)
-{
-    switch(s)
-    {
-    case ConnectionStateValidating:
-        return &ConnectionMetrics::validating;
-    case ConnectionStateActive:
-        return &ConnectionMetrics::active;
-    case ConnectionStateHolding:
-        return &ConnectionMetrics::holding;
-    case ConnectionStateClosing:
-        return &ConnectionMetrics::closing;
-    case ConnectionStateClosed:
-        return &ConnectionMetrics::closed;
-    default:
-        assert(false);
-        return 0;
-    }
-}    
-
-struct ConnectionStateChanged 
-{
-    ConnectionStateChanged(ConnectionState oldState, ConnectionState newState) : 
-        oldState(oldState), newState(newState)
-    {
-    }
-
-    void operator()(const ConnectionMetricsPtr& v)
-    {
-        --(v.get()->*getConnectionStateMetric(oldState));
-        ++(v.get()->*getConnectionStateMetric(newState));
-    }
-
-
-    ConnectionState oldState;
-    ConnectionState newState;
-};
-
 int ThreadMetrics::*
 getThreadStateMetric(ThreadState s)
 {
@@ -152,6 +113,7 @@ public:
             add("parent", &ConnectionHelper::getParent);
             add("id", &ConnectionHelper::getId);
             add("endpoint", &ConnectionHelper::getEndpoint);
+            add("state", &ConnectionHelper::getState);
             addConnectionAttributes<ConnectionHelper>(*this);
         }
     };
@@ -165,11 +127,6 @@ public:
     virtual string operator()(const string& attribute) const
     {
         return attributes(this, attribute);
-    }
-
-    virtual void initMetrics(const ConnectionMetricsPtr& v) const
-    {
-        ++(v.get()->*getConnectionStateMetric(_state));
     }
 
     const string&
@@ -196,6 +153,27 @@ public:
             _id = os.str();
         }
         return _id;
+    }
+
+    string
+    getState() const
+    {
+        switch(_state)
+        {
+        case ConnectionStateValidating:
+            return "validating";
+        case ConnectionStateHolding:
+            return "holding";
+        case ConnectionStateActive:
+            return "active";
+        case ConnectionStateClosing:
+            return "closing";
+        case ConnectionStateClosed:
+            return "closed";
+        default:
+            assert(false);
+            return "";
+        }
     }
     
     string 
@@ -291,7 +269,7 @@ public:
                 return p->second;
             }
         }
-        return "unknown";
+        throw invalid_argument(attribute);
     }
 
     string
@@ -411,7 +389,7 @@ public:
                 return p->second;
             }
         }
-        return "unknown";
+        throw invalid_argument(attribute);
     }
 
     virtual string operator()(const string& attribute) const
@@ -424,7 +402,7 @@ public:
     {
         if(!_proxy)
         {
-            return "unknown";
+            throw invalid_argument("mode");
         }
 
         if(_proxy->ice_isTwoway())
@@ -449,7 +427,7 @@ public:
         } 
         else
         {
-            return "unknown";
+            throw invalid_argument("mode");
         }
     }
 
@@ -723,19 +701,6 @@ private:
 
 EndpointHelper::Attributes EndpointHelper::attributes;
 
-}
-
-void
-ConnectionObserverI::detach()
-{
-    ObserverT<ConnectionMetrics>::detach();
-    forEach(dec(&ConnectionMetrics::closed));
-}
-
-void
-ConnectionObserverI::stateChanged(ConnectionState oldState, ConnectionState newState)
-{
-    forEach(ConnectionStateChanged(oldState, newState));
 }
 
 void 

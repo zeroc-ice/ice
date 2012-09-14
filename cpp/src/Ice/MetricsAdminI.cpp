@@ -121,16 +121,19 @@ MetricsMapI::RegExp::~RegExp()
 bool
 MetricsMapI::RegExp::match(const MetricsHelper& helper, bool reject)
 {
-    string value = helper(_attribute);
-    if(value == "unknown") // Unknown attributes are ignored by filtering
+    try
+    {
+        string value = helper(_attribute);
+#ifndef ICE_CPP11_REGEXP
+        return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
+#else
+        return regex_match(value, _regex);
+#endif
+    }
+    catch(const std::exception&)
     {
         return !reject;
     }
-#ifndef ICE_CPP11_REGEXP
-    return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
-#else
-    return regex_match(value, _regex);
-#endif
 }
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties) :
@@ -258,6 +261,7 @@ MetricsViewI::update(const PropertiesPtr& properties,
             {
                 // This map isn't configured anymore for this view.
                 updatedMaps.insert(p->second);
+                _maps.erase(mapName);
                 continue; 
             }
         }

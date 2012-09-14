@@ -86,7 +86,8 @@ public:
             add("encoding", &SubscriberHelper::getProxy, &IceProxy::Ice::Object::ice_getEncodingVersion);
             add("mode", &SubscriberHelper::getMode);
             add("proxy", &SubscriberHelper::getProxy);
-            add("isLink", &SubscriberHelper::_isLink);
+            add("link", &SubscriberHelper::_link);
+            add("state", &SubscriberHelper::getState);
 
             setDefault(&SubscriberHelper::resolve);
         }
@@ -94,8 +95,8 @@ public:
     static Attributes attributes;
     
     SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrx& proxy, const IceStorm::QoS& qos, 
-                     bool isLink) :
-        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _isLink(isLink)
+                     const IceStorm::TopicPrx& link, SubscriberState state) :
+        _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(link), _state(state)
     {
     }
 
@@ -118,7 +119,7 @@ public:
                 return "default";
             }
         }
-        return "unknown";
+        throw invalid_argument(attribute);
     }
 
     const string&
@@ -186,6 +187,23 @@ public:
     }
 
     string
+    getState() const
+    {
+        switch(_state)
+        {
+        case SubscriberStateOnline:
+            return "online";
+        case SubscriberStateOffline:
+            return "offline";
+        case SubscriberStateError:
+            return "error";
+        default:
+            assert(false);
+            return "";
+        }
+    }
+
+    string
     getIdentity() const
     {
         return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
@@ -197,7 +215,8 @@ private:
     const string& _topic;
     const Ice::ObjectPrx& _proxy;
     const IceStorm::QoS& _qos;
-    bool _isLink;
+    const IceStorm::TopicPrx _link;
+    const SubscriberState _state;
     mutable string _id;
 };
 
@@ -331,14 +350,15 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
                                              const string& topic, 
                                              const Ice::ObjectPrx& proxy, 
                                              const IceStorm::QoS& qos,
-                                             bool isLink,
+                                             const IceStorm::TopicPrx& link,
+                                             SubscriberState state,
                                              const SubscriberObserverPtr& old)
 {
     if(_subscribers.isEnabled())
     {
         try
         {
-            return _subscribers.getObserver(SubscriberHelper(svc, topic, proxy, qos, isLink), old);
+            return _subscribers.getObserver(SubscriberHelper(svc, topic, proxy, qos, link, state), old);
         }
         catch(const exception& ex)
         {

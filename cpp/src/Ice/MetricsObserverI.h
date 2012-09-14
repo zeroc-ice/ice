@@ -19,6 +19,8 @@
 #include <Ice/MetricsAdminI.h>
 #include <Ice/MetricsFunctional.h>
 
+#include <stdexcept>
+
 namespace IceMX
 {
 
@@ -53,8 +55,20 @@ protected:
         class Resolver
         {
         public:
-            virtual ~Resolver() { }
+
+            Resolver(const std::string& name) : _name(name)
+            {
+            }
+
+            virtual ~Resolver() 
+            {
+            }
+
             virtual std::string operator()(const Helper* h) const = 0;
+
+        protected:
+
+            std::string _name;
         };
 
     public:
@@ -84,7 +98,7 @@ protected:
                 {
                     return (helper->*_default)(attribute);
                 }
-                return "unknown";
+                throw std::invalid_argument(attribute);
             }
             return (*p->second)(helper);
         }
@@ -98,25 +112,25 @@ protected:
         template<typename Y> void
         add(const std::string& name, Y Helper::*member)
         {
-            _attributes.insert(make_pair(name, new HelperMemberResolver<Y>(member)));
+            _attributes.insert(make_pair(name, new HelperMemberResolver<Y>(name, member)));
         }
 
         template<typename Y> void
         add(const std::string& name, Y (Helper::*memberFn)() const)
         {
-            _attributes.insert(make_pair(name, new HelperMemberFunctionResolver<Y>(memberFn)));
+            _attributes.insert(make_pair(name, new HelperMemberFunctionResolver<Y>(name, memberFn)));
         }
 
         template<typename I, typename O, typename Y> void
         add(const std::string& name, O (Helper::*getFn)() const, Y I::*member)
         {
-            _attributes.insert(make_pair(name, new MemberResolver<I, O, Y>(getFn, member)));
+            _attributes.insert(make_pair(name, new MemberResolver<I, O, Y>(name, getFn, member)));
         }
 
         template<typename I, typename O, typename Y> void
         add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const)
         {
-            _attributes.insert(make_pair(name, new MemberFunctionResolver<I, O, Y>(getFn, memberFn)));
+            _attributes.insert(make_pair(name, new MemberFunctionResolver<I, O, Y>(name, getFn, memberFn)));
         }
 
     private:
@@ -125,7 +139,7 @@ protected:
         {
         public:
 
-            HelperMemberResolver(Y Helper::*member) : _member(member)
+            HelperMemberResolver(const std::string& name, Y Helper::*member) : Resolver(name), _member(member)
             {
             }
 
@@ -143,7 +157,8 @@ protected:
         {
         public:
 
-            HelperMemberFunctionResolver(Y (Helper::*memberFn)() const) : _memberFn(memberFn)
+            HelperMemberFunctionResolver(const std::string& name, Y (Helper::*memberFn)() const) :
+                Resolver(name), _memberFn(memberFn)
             {
             }
 
@@ -162,7 +177,8 @@ protected:
         {
         public:
 
-            MemberResolver(O (Helper::*getFn)() const, Y I::*member) : _getFn(getFn), _member(member)
+            MemberResolver(const std::string& name, O (Helper::*getFn)() const, Y I::*member) : 
+                Resolver(name), _getFn(getFn), _member(member)
             {
             }
 
@@ -176,7 +192,7 @@ protected:
                 }
                 else
                 {
-                    return "unknown";
+                    throw std::invalid_argument(Resolver::_name);
                 }
             }
 
@@ -190,8 +206,8 @@ protected:
         {
         public:
 
-            MemberFunctionResolver(O (Helper::*getFn)() const, Y (I::*memberFn)() const) :
-                _getFn(getFn), _memberFn(memberFn)
+            MemberFunctionResolver(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const) :
+                Resolver(name), _getFn(getFn), _memberFn(memberFn)
             {
             }
 
@@ -205,7 +221,7 @@ protected:
                 }
                 else
                 {
-                    return "unknown";
+                    throw std::invalid_argument(Resolver::_name);
                 }
             }
 
@@ -323,6 +339,7 @@ public:
     void
     init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects)
     {
+        assert(_objects.empty());
         _objects.swap(objects);
         std::sort(_objects.begin(), _objects.end());
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
@@ -356,6 +373,14 @@ public:
                 (*q)->detach(_watch.delay());
                 q = _objects.erase(q);
             }
+        }
+        if(q != _objects.end())
+        {
+            for(p = q; p != _objects.end(); ++p)
+            {
+                (*q)->detach(_watch.delay());
+            }
+            _objects.erase(q, _objects.end());
         }
     }
 

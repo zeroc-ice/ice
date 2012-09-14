@@ -99,6 +99,30 @@ local interface ObserverUpdater
     void updateSubscriberObservers();
 };
 
+enum SubscriberState
+{
+    /**
+     *
+     * Online waiting to send events.
+     *
+     **/
+    SubscriberStateOnline,
+
+    /**
+     *
+     * Offline, retrying.
+     *
+     **/
+    SubscriberStateOffline,
+
+    /**
+     *
+     * Error state, awaiting to be destroyed.
+     *
+     **/
+    SubscriberStateError
+};
+
 /**
  *
  * The topic manager observer interface used by the Ice run-time to
@@ -133,14 +157,15 @@ local interface TopicManagerObserver
      *
      * @param qos The QoS configured for the subscriber.
      *
-     * @param isLink True if the subscriber is a link subscriber.
+     * @param link The proxy of the linked topic if this subscriber
+     * forwards events to a linked topic.
      *
      * @param old The previous observer, only set when updating an
      * existing observer.
      *
      **/
-    SubscriberObserver getSubscriberObserver(string svc, string topic, Object* prx, QoS q, bool isLink, 
-                                             SubscriberObserver old);
+    SubscriberObserver getSubscriberObserver(string svc, string topic, Object* prx, QoS q, IceStorm::Topic* link,
+                                             SubscriberState s, SubscriberObserver old);
 
     /**
      *

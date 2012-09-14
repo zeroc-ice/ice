@@ -51,7 +51,8 @@ public:
         const std::string&,
         const Ice::ObjectPrx&,
         const IceStorm::QoS&,
-        bool,
+        const IceStorm::TopicPrx&,
+        IceStorm::Instrumentation::SubscriberState,
         const IceStorm::Instrumentation::SubscriberObserverPtr&);
 
 private:

@@ -232,46 +232,6 @@ class ConnectionMetrics extends Metrics
 {
     /**
      *
-     * Number of connections waiting connection validation.
-     * 
-     **/
-    int validating = 0;
-
-    /**
-     *
-     * Number of connections in the holding state.
-     * 
-     **/
-    int holding = 0;
-
-    /**
-     *
-     * Number of active connection. An active connection is a
-     * connection that can receive and dispatch messages.
-     *
-     **/
-    int active = 0;
-    
-    /**
-     *
-     * Number of connections currently closing as a result of a
-     * graceful shutdown.
-     *
-     **/
-    int closing = 0;
-
-    /**
-     *
-     * Number of closed connection which are waiting to be
-     * destroyed. A connection might be in the closed state but not
-     * destroyed if it's still waiting for user dispatch or callbacks
-     * to return.
-     *
-     **/
-    int closed = 0;
-
-    /**
-     *
      * The number of bytes received by the connection. 
      *
      **/

@@ -163,8 +163,15 @@ testAttribute(const IceMX::MetricsAdminPrx& metrics,
     func();
 
     IceMX::MetricsView view = metrics->getMetricsView("View");
-    test(view.find(map) != view.end());
-    if(view[map][0]->id != value)
+    if(view.find(map) == view.end())
+    {
+        if(!value.empty())
+        {
+            cerr << "no map `" << map << "' for group by = `" << attr << "'" << endl;
+            test(false);
+        }
+    }
+    else if(view[map][0]->id != value)
     {
         cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
         test(false);
@@ -304,6 +311,17 @@ checkFailure(const IceMX::MetricsAdminPrx& m, const string& map, const string& i
     }
 }
 
+map<string, IceMX::MetricsPtr>
+toMap(const IceMX::MetricsMap& mmap)
+{
+    map<string, IceMX::MetricsPtr> m;
+    for(IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
+    {
+        m.insert(make_pair((*p)->id, *p));
+    }
+    return m;
+}
+
 }
 
 MetricsPrx
@@ -441,32 +459,40 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + bs.size() + 4);
     test(sm2->sentBytes - sm1->sentBytes == replySz);
+    
+    props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
+    updateProps(clientProps, serverProps, update, props, "Connection");
 
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
-    test(sm1->active == 1);
+    map<string, IceMX::MetricsPtr> map;
+    
+    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+
+    test(map["active"]->current == 1);
 
     ControllerPrx controller = ControllerPrx::checkedCast(communicator->stringToProxy("controller:default -p 12011"));
     controller->hold();
 
-    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
-    test(cm1->active == 1 && sm1->holding == 1);
+    map = toMap(clientMetrics->getMetricsView("View")["Connection"]);
+    test(map["active"]->current == 1);
+    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    test(map["holding"]->current == 1);
 
     metrics->ice_getConnection()->close(false);
 
-    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
-    test(cm1->active == 0 && cm1->closing == 1 && sm1->active == 0 && sm1->holding == 1);
+    map = toMap(clientMetrics->getMetricsView("View")["Connection"]);
+    test(map["closing"]->current == 1);
+    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    test(map["holding"]->current == 1);
 
     controller->resume();
 
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
-    test(sm1->holding == 0);
+    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    test(map["holding"]->current == 0);
 
-    waitForCurrent(clientMetrics, "View", "Connection", 0);
-    waitForCurrent(serverMetrics, "View", "Connection", 0);
+    props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
+    updateProps(clientProps, serverProps, update, props, "Connection");
 
-    clearView(clientProps, serverProps, update);
+    metrics->ice_getConnection()->close(false);
 
     metrics->ice_timeout(500)->ice_ping();
     controller->hold();
@@ -513,8 +539,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "");
     testAttribute(clientMetrics, clientProps, update, "Connection", "remoteHost", "127.0.0.1");
     testAttribute(clientMetrics, clientProps, update, "Connection", "remotePort", "12010");
-    testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "unknown");
-    testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "unknown");
+    testAttribute(clientMetrics, clientProps, update, "Connection", "mcastHost", "");
+    testAttribute(clientMetrics, clientProps, update, "Connection", "mcastPort", "");
     
     m->ice_getConnection()->close(false);
 
@@ -673,13 +699,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    IceMX::MetricsMap mmap = serverMetrics->getMetricsView("View")["Dispatch"];
-    test(mmap.size() == 6);
-    map<string, IceMX::MetricsPtr> map;
-    for(IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
-    {
-        map.insert(make_pair((*p)->id, *p));
-    }
+    map = toMap(serverMetrics->getMetricsView("View")["Dispatch"]);
+    test(map.size() == 6);
+
     m1 = map["op"];
     test(m1->current == 0 && m1->total == 1 && m1->failures == 0);
 
@@ -723,8 +745,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "localPort", "12010", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "remoteHost", "127.0.0.1", op);
     //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", "12010", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "unknown", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "unknown", op);
+    testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op);
+    testAttribute(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op);
 
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op);
@@ -734,7 +756,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry1", "test", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry2", "", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "unknown", op);
+    testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry3", "", op);
 
     cout << "ok" << endl;
 
@@ -787,13 +809,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    mmap = clientMetrics->getMetricsView("View")["Invocation"];
-    test(mmap.size() == 6);
-    map.clear();
-    for(IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
-    {
-        map.insert(make_pair((*p)->id, *p));
-    }
+    map = toMap(clientMetrics->getMetricsView("View")["Invocation"]);
+    test(map.size() == 6);
+
     IceMX::InvocationMetricsPtr im1;
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["op"]);
     test(im1->current == 0 && im1->total == 1 && im1->failures == 0 && im1->retry == 0 && im1->remotes.size() == 1);
@@ -832,7 +850,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op);
-    testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "unknown", op);
+    testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op);
 
     cout << "ok" << endl;
 

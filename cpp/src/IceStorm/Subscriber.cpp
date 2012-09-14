@@ -78,6 +78,21 @@ private:
 };
 typedef IceUtil::Handle<PerSubscriberPublisherI> PerSubscriberPublisherIPtr;
 
+IceStorm::Instrumentation::SubscriberState
+toSubscriberState(Subscriber::SubscriberState s)
+{
+    switch(s)
+    {
+    case Subscriber::SubscriberStateOnline:
+        return IceStorm::Instrumentation::SubscriberStateOnline;
+    case Subscriber::SubscriberStateOffline:
+        return IceStorm::Instrumentation::SubscriberStateOffline;
+    case Subscriber::SubscriberStateError:
+    case Subscriber::SubscriberStateReaped:
+        return IceStorm::Instrumentation::SubscriberStateError;
+    }
+}
+
 }
 
 // Each of the various Subscriber types.
@@ -899,7 +914,9 @@ Subscriber::updateObserver()
                                                                       _rec.topicName,
                                                                       _rec.obj,
                                                                       _rec.theQoS,
-                                                                      _rec.theTopic, _observer.get()));
+                                                                      _rec.theTopic,
+                                                                      toSubscriberState(_state),
+                                                                      _observer.get()));
     }
 }
 
@@ -934,6 +951,7 @@ Subscriber::Subscriber(
                                                                       rec.obj,
                                                                       rec.theQoS,
                                                                       rec.theTopic, 
+                                                                      toSubscriberState(_state),
                                                                       0));
     }
 }
@@ -974,6 +992,17 @@ Subscriber::setState(Subscriber::SubscriberState state)
                 << " transition from: " << stateToString(_state) << " to: " << stateToString(state);
         }
         _state = state;
+
+        if(_instance->observer())
+        {
+            _observer.attach(_instance->observer()->getSubscriberObserver(_instance->serviceName(),
+                                                                          _rec.topicName,
+                                                                          _rec.obj,
+                                                                          _rec.theQoS,
+                                                                          _rec.theTopic,
+                                                                          toSubscriberState(_state),
+                                                                          _observer.get()));
+        }
     }
 }
 

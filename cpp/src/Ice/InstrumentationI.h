@@ -19,9 +19,6 @@ class ConnectionObserverI : public Ice::Instrumentation::ConnectionObserver, pub
 {
 public:
 
-    virtual void detach();
-
-    virtual void stateChanged(Ice::Instrumentation::ConnectionState, Ice::Instrumentation::ConnectionState);
     virtual void sentBytes(Ice::Int);
     virtual void receivedBytes(Ice::Int);
 };

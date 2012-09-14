@@ -174,17 +174,6 @@ local interface ConnectionObserver extends Observer
 {
     /**
      *
-     * Notification of a state change.
-     *
-     * @param oldState The previous state of the connection.
-     *
-     * @param newState The new state of the connection.
-     * 
-     **/
-    void stateChanged(ConnectionState oldState, ConnectionState newState);
-    
-    /**
-     *
      * Notifiation of sent bytes over the connection.
      *
      * @param num The number of bytes sent.

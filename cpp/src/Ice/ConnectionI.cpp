@@ -2158,15 +2158,18 @@ Ice::ConnectionI::setState(State state)
         }
     }
 
-    if(_observer)
+    if(_instance->initializationData().observer)
     {
         ConnectionState oldState = toConnectionState(_state);
         ConnectionState newState = toConnectionState(state);
         if(oldState != newState)
         {
-            _observer->stateChanged(oldState, newState);
+            _observer.attach(_instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
+                                                                                             _endpoint, 
+                                                                                             newState,
+                                                                                             _observer.get()));
         }
-        if(state == StateClosed && _exception.get())
+        if(_observer && state == StateClosed && _exception.get())
         {
             if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
                  dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
@@ -2260,14 +2263,6 @@ Ice::ConnectionI::initialize(SocketOperation operation)
     //
     const_cast<string&>(_desc) = _transceiver->toString();
     setState(StateNotValidated);
-
-    if(_instance->initializationData().observer)
-    {
-        _observer.attach(_instance->initializationData().observer->getConnectionObserver(initConnectionInfo(),
-                                                                                         _endpoint,
-                                                                                         ConnectionStateValidating,
-                                                                                         0));
-    }
 
     return true;
 }

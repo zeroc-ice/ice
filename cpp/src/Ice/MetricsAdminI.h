@@ -219,6 +219,8 @@ public:
             return metrics;
         }
 
+        std::string getId() { return _object->id; }
+
     private:
 
         friend class MetricsMapT;
@@ -353,24 +355,31 @@ public:
         // Compute the key from the GroupBy property.
         //
         std::string key;
-        if(_groupByAttributes.size() == 1)
+        try
         {
-            key = helper(_groupByAttributes.front());
-        }
-        else
-        {
-            std::ostringstream os;
-            std::vector<std::string>::const_iterator q = _groupBySeparators.begin();
-            for(std::vector<std::string>::const_iterator p = _groupByAttributes.begin(); p != _groupByAttributes.end();
-                ++p)
+            if(_groupByAttributes.size() == 1)
             {
-                os << helper(*p);
-                if(q != _groupBySeparators.end())
-                {
-                    os << *q++;
-                }
+                key = helper(_groupByAttributes.front());
             }
-            key = os.str();
+            else
+            {
+                std::ostringstream os;
+                std::vector<std::string>::const_iterator q = _groupBySeparators.begin();
+                for(std::vector<std::string>::const_iterator p = _groupByAttributes.begin();
+                    p != _groupByAttributes.end(); ++p)
+                {
+                    os << helper(*p);
+                    if(q != _groupBySeparators.end())
+                    {
+                        os << *q++;
+                    }
+                }
+                key = os.str();
+            }
+        }
+        catch(const std::exception&)
+        {
+            return 0;
         }
 
         //
