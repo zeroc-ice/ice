@@ -129,7 +129,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\Metrics.cs \
 		  $(GDIR)\ObjectAdapter.cs \
 		  $(GDIR)\ObjectFactory.cs \
-		  $(GDIR)\Observer.cs \
+		  $(GDIR)\Instrumentation.cs \
 		  $(GDIR)\Plugin.cs \
 		  $(GDIR)\Process.cs \
 		  $(GDIR)\Properties.cs \

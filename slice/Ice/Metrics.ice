@@ -150,7 +150,7 @@ interface MetricsAdmin
 
     /**
      *
-     * Get the metrics failure associated for the given metrics
+     * Get the metrics failure associated for the given metrics.
      *
      * @param view The name of the metrics view.
      *

@@ -52,11 +52,6 @@ namespace IceInternal
                                                  Dictionary<string, string> props,
                                                  Ice.Current current)
         {
-            Dictionary<string, string> added = new Dictionary<string, string>();
-            Dictionary<string, string> changed = new Dictionary<string, string>();
-            Dictionary<string, string> removed = new Dictionary<string, string>();
-            List<Ice.PropertiesAdminUpdateCallback> callbacks;
-
             lock(this)
             {
                 Dictionary<string, string> old = _properties.getPropertiesForPrefix("");
@@ -72,6 +67,9 @@ namespace IceInternal
                 // 3) Any properties not present in the new set but present in the existing set.
                 //    In other words, the property has been removed.
                 //
+                Dictionary<string, string> added = new Dictionary<string, string>();
+                Dictionary<string, string> changed = new Dictionary<string, string>();
+                Dictionary<string, string> removed = new Dictionary<string, string>();
                 foreach(KeyValuePair<string, string> e in props)
                 {
                     string key = e.Key;
@@ -180,35 +178,39 @@ namespace IceInternal
                     _properties.setProperty(e.Key, "");
                 }
 
-                callbacks = new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
-            }
+                //
+                // Send the response now so that we do not block the client during the call to the update callback.
+                //
+                cb.ice_response();
 
-            //
-            // Send the response now so that we do not block the client during the call to the update callback.
-            //
-            cb.ice_response();
+                if(_updateCallbacks.Count > 0)
+                {
+                    //
+                    // Copy the callbacks to allow callbacks to update the callbacks.
+                    //
+                    List<Ice.PropertiesAdminUpdateCallback> callbacks =
+                        new List<Ice.PropertiesAdminUpdateCallback>(_updateCallbacks);
 
-            if(callbacks != null)
-            {
-                Dictionary<string, string> changes = new Dictionary<string, string>(added);
-                foreach(KeyValuePair<string, string> e in changed)
-                {
-                    changes.Add(e.Key, e.Value);
-                }
-                foreach(KeyValuePair<string, string> e in removed)
-                {
-                    changes.Add(e.Key, e.Value);
-                }
-
-                foreach(Ice.PropertiesAdminUpdateCallback callback in callbacks)
-                {
-                    try
+                    Dictionary<string, string> changes = new Dictionary<string, string>(added);
+                    foreach(KeyValuePair<string, string> e in changed)
                     {
-                        callback.updated(changes);
+                        changes.Add(e.Key, e.Value);
                     }
-                    catch(System.Exception ex)
+                    foreach(KeyValuePair<string, string> e in removed)
                     {
-                        // Ignore.
+                        changes.Add(e.Key, e.Value);
+                    }
+                    
+                    foreach(Ice.PropertiesAdminUpdateCallback callback in callbacks)
+                    {
+                        try
+                        {
+                            callback.updated(changes);
+                        }
+                        catch(System.Exception)
+                        {
+                            // Ignore.
+                        }
                     }
                 }
             }
