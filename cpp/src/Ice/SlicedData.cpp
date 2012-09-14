@@ -82,6 +82,12 @@ Ice::UnknownSlicedObject::getUnknownTypeId() const
     return _unknownTypeId;
 }
 
+SlicedDataPtr
+Ice::UnknownSlicedObject::getSlicedData() const
+{
+    return _slicedData;
+}
+
 void
 Ice::UnknownSlicedObject::__addObject(IceInternal::GCCountMap& _c)
 {

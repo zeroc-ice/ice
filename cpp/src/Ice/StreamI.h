@@ -147,7 +147,7 @@ public:
     using OutputStream::write;
 #endif
 
-    virtual void writeOptional(Int, OptionalType);
+    virtual bool writeOptional(Int, OptionalType);
 
     virtual void startObject(const SlicedDataPtr&);
     virtual void endObject();
@@ -172,6 +172,9 @@ public:
 
     virtual size_type pos();
     virtual void rewrite(Int, size_type);
+
+    virtual void startSize();
+    virtual void endSize();
 
 private:
 

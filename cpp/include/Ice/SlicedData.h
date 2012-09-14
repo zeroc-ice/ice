@@ -85,6 +85,8 @@ public:
 
     const std::string& getUnknownTypeId() const;
 
+    SlicedDataPtr getSlicedData() const;
+
     virtual void __addObject(::IceInternal::GCCountMap&);
     virtual bool __usesGC();
     virtual void __gcReachable(::IceInternal::GCCountMap&) const;

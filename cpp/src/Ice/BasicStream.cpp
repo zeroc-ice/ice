@@ -97,7 +97,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance, const EncodingVersion&
     _unlimited(unlimited),
     _stringConverter(instance->initializationData().stringConverter),
     _wstringConverter(instance->initializationData().wstringConverter),
-    _startSeq(-1)
+    _startSeq(-1),
+    _sizePos(-1)
 {
     //
     // Initialize the encoding members of our pre-allocated encapsulations, in case
@@ -125,6 +126,8 @@ IceInternal::BasicStream::clear()
     }
 
     _startSeq = -1;
+
+    _sizePos = -1;
 
     _sliceObjects = true;
 }
@@ -163,6 +166,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(_unlimited, other._unlimited);
     std::swap(_startSeq, other._startSeq);
     std::swap(_minSeqSize, other._minSeqSize);
+    std::swap(_sizePos, other._sizePos);
 }
 
 void
@@ -2754,12 +2758,39 @@ IceInternal::BasicStream::EncapsDecoder::readInstance()
         skipSlice();
 
         //
-        // If this is the last slice, keep the object as an opaque
-        // UnknownSlicedData object.
+        // If this is the last slice, keep the object as an opaque UnknownSlicedObject.
         //
         if(_sliceFlags & FLAG_IS_LAST_SLICE)
         {
-            v = new UnknownSlicedObject(mostDerivedId);
+            //
+            // Provide a factory with an opportunity to supply the object.
+            // We pass the "::Ice::Object" ID to indicate that this is the
+            // last chance to preserve the object.
+            //
+            userFactory = servantFactoryManager->find(Object::ice_staticId());
+            if(userFactory)
+            {
+                v = userFactory->create(Object::ice_staticId());
+            }
+
+            //
+            // If that fails, invoke the default factory if one has been
+            // registered.
+            //
+            if(!v)
+            {
+                userFactory = servantFactoryManager->find("");
+                if(userFactory)
+                {
+                    v = userFactory->create(Object::ice_staticId());
+                }
+            }
+
+            if(!v)
+            {
+                v = new UnknownSlicedObject(mostDerivedId);
+            }
+
             break;
         }
         

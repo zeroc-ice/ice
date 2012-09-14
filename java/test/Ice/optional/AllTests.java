@@ -710,14 +710,14 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F8);
+            os.writeOptional(1, Ice.OptionalType.F8);
             os.writeLong(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opLong", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F8));
+            test(in.readOptional(2, Ice.OptionalType.F8));
             test(in.readLong() == 56);
             test(in.readOptional(3, Ice.OptionalType.F8));
             test(in.readLong() == 56);

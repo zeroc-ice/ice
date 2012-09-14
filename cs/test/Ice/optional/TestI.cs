@@ -25,24 +25,7 @@ public class InitialI : Test.Initial
     public override void opOptionalException(Ice.Optional<int> a, Ice.Optional<string> b,
                                              Ice.Optional<Test.OneOptional> o, Ice.Current current)
     {
-        Test.OptionalException ex = new Test.OptionalException();
-        if(a.HasValue)
-        {
-            ex.a = a.Value;
-        }
-        else
-        {
-            ex.a = Ice.Util.None; // The member "a" has a default value.
-        }
-        if(b.HasValue)
-        {
-            ex.b = b.Value;
-        }
-        if(o.HasValue)
-        {
-            ex.o = o.Value;
-        }
-        throw ex;
+        throw new Test.OptionalException(a, b, o);
     }
 
     public override Ice.Optional<byte> opByte(Ice.Optional<byte> p1, out Ice.Optional<byte> p3, Ice.Current current)

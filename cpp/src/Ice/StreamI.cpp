@@ -570,10 +570,10 @@ OutputStreamI::write(const Double* begin, const Double* end)
     _os->write(begin, end);
 }
 
-void
+bool
 OutputStreamI::writeOptional(Int tag, OptionalType type)
 {
-    _os->writeOpt(tag, type);
+    return _os->writeOpt(tag, type);
 }
 
 void
@@ -675,6 +675,18 @@ void
 OutputStreamI::rewrite(Int sz, size_type p)
 {
     _os->rewrite(sz, p);
+}
+
+void
+OutputStreamI::startSize()
+{
+    _os->startSize();
+}
+
+void
+OutputStreamI::endSize()
+{
+    _os->endSize();
 }
 
 //

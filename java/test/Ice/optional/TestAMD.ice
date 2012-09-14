@@ -181,8 +181,8 @@ class Initial
     optional(1) int opInt(optional(2) int p1, out optional(3) int p3);
     ["java:optional"] optional(1) int opIntOpt(optional(2) int p1, out optional(3) int p3);
 
-    optional(1) long opLong(optional(2) long p1, out optional(3) long p3);
-    ["java:optional"] optional(1) long opLongOpt(optional(2) long p1, out optional(3) long p3);
+    optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
+    ["java:optional"] optional(3) long opLongOpt(optional(1) long p1, out optional(2) long p3);
 
     optional(1) float opFloat(optional(2) float p1, out optional(3) float p3);
     ["java:optional"] optional(1) float opFloatOpt(optional(2) float p1, out optional(3) float p3);

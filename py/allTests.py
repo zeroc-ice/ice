@@ -48,7 +48,8 @@ tests = [
     ("Ice/blobject", ["core"]),
     ("Ice/defaultServant", ["core"]),
     ("Ice/defaultValue", ["core"]),
-    ("Ice/ami", ["core"])
+    ("Ice/ami", ["core"]),
+    ("Ice/optional", ["core"])
     ]
 
 if __name__ == "__main__":

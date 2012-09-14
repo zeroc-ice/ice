@@ -486,11 +486,7 @@ IcePy::PyException::getTraceback()
 string
 IcePy::PyException::getTypeName()
 {
-#ifdef ICEPY_OLD_EXCEPTIONS
-    PyObject* cls = reinterpret_cast<PyObject*>(reinterpret_cast<PyInstanceObject*>(ex.get())->in_class);
-#else
     PyObject* cls = reinterpret_cast<PyObject*>(ex.get()->ob_type);
-#endif
     PyObjectHandle name = PyObject_GetAttrString(cls, "__name__");
     assert(name.get());
     PyObjectHandle mod = PyObject_GetAttrString(cls, "__module__");
@@ -685,11 +681,7 @@ IcePy::lookupType(const string& typeName)
 PyObject*
 IcePy::createExceptionInstance(PyObject* type)
 {
-#ifdef ICEPY_OLD_EXCEPTIONS
-    assert(PyClass_Check(type));
-#else
     assert(PyExceptionClass_Check(type));
-#endif
     IcePy::PyObjectHandle args = PyTuple_New(0);
     if(!args.get())
     {
@@ -945,13 +937,8 @@ IcePy::setPythonException(PyObject* ex)
     //
     // PyErr_Restore steals references to the type and exception.
     //
-#ifdef ICEPY_OLD_EXCEPTIONS
-    PyObject* type = reinterpret_cast<PyObject*>(reinterpret_cast<PyInstanceObject*>(ex)->in_class);
-    Py_INCREF(type);
-#else
     PyObject* type = PyObject_Type(ex);
     assert(type);
-#endif
     Py_INCREF(ex);
     PyErr_Restore(type, ex, 0);
 }
@@ -970,11 +957,7 @@ IcePy::handleSystemExit(PyObject* ex)
     // This code is similar to handle_system_exit in pythonrun.c.
     //
     PyObjectHandle code;
-#ifdef ICEPY_OLD_EXCEPTIONS
-    if(PyInstance_Check(ex))
-#else
     if(PyExceptionInstance_Check(ex))
-#endif
     {
         code = PyObject_GetAttrString(ex, STRCAST("code"));
     }
