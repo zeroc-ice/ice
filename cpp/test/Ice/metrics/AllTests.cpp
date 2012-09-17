@@ -295,7 +295,7 @@ clearView(const Ice::PropertiesAdminPrx& cprops, const Ice::PropertiesAdminPrx& 
 }
 
 void
-checkFailure(const IceMX::MetricsAdminPrx& m, const string& map, const string& id, const string& failure, int count)
+checkFailure(const IceMX::MetricsAdminPrx& m, const string& map, const string& id, const string& failure, int count = 0)
 {
     IceMX::MetricsFailures f = m->getMetricsFailures("View", map, id);
     if(f.failures.find(failure) == f.failures.end())
@@ -303,7 +303,7 @@ checkFailure(const IceMX::MetricsAdminPrx& m, const string& map, const string& i
         cerr << "couldn't find failure `" << failure << "' for `" << id << "'" << endl;
         test(false);
     }
-    if(f.failures[failure] != count)
+    if(count > 0 && f.failures[failure] != count)
     {
         cerr << "count for failure `" << failure << "' of `" << id << "' is different from expected: ";
         cerr << count << " != " << f.failures[failure] << endl;
@@ -429,8 +429,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
     sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
-    int requestSz = cm2->sentBytes - cm1->sentBytes;
-    int replySz = cm2->receivedBytes - cm1->receivedBytes;
+    Ice::Long requestSz = cm2->sentBytes - cm1->sentBytes;
+    Ice::Long replySz = cm2->receivedBytes - cm1->receivedBytes;
 
     cm1 = cm2;
     sm1 = sm2;
@@ -507,12 +507,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     controller->resume();
 
     cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    while(true)
+    {
+        sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+        if(sm1-> failures >= 2)
+        {
+            break;
+        }
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+    }
+
     test(cm1->failures == 2 && sm1->failures >= 1);
 
     checkFailure(clientMetrics, "Connection", cm1->id, "Ice::TimeoutException", 1);
     checkFailure(clientMetrics, "Connection", cm1->id, "Ice::ConnectTimeoutException", 1);
-    checkFailure(serverMetrics, "Connection", sm1->id, "Ice::ConnectionLostException", 2);
+    checkFailure(serverMetrics, "Connection", sm1->id, "Ice::ConnectionLostException");
 
     MetricsPrx m = metrics->ice_timeout(500)->ice_connectionId("Con1");
     m->ice_ping();
@@ -751,7 +760,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "operation", "op", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "identity", "metrics", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "facet", "", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "encoding", "1.1", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "mode", "twoway", op);
 
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "context.entry1", "test", op);

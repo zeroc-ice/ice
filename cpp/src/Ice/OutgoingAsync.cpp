@@ -1015,9 +1015,11 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
     {
     public:
 
-        BatchOutgoingAsyncI(const CommunicatorBatchOutgoingAsyncPtr& outAsync) :
-            BatchOutgoingAsync(outAsync->_communicator, outAsync->_instance, outAsync->_operation, __dummyCallback, 0),
-            _outAsync(outAsync)
+        BatchOutgoingAsyncI(const CommunicatorBatchOutgoingAsyncPtr& outAsync,
+                            const InstancePtr& instance, 
+                            InvocationObserver& observer) :
+            BatchOutgoingAsync(outAsync->getCommunicator(), instance, outAsync->getOperation(), __dummyCallback, 0),
+            _outAsync(outAsync), _observer(observer)
         {
         }
 
@@ -1036,12 +1038,13 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
 
         virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
         {
-            _remoteObserver.attach(_outAsync->_observer.getRemoteObserver(connection, endpt));
+            _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
         }
 
     private:
         
         const CommunicatorBatchOutgoingAsyncPtr _outAsync;
+        InvocationObserver& _observer;
     };
 
     {
@@ -1049,7 +1052,7 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
         ++_useCount;
     }
 
-    AsyncStatus status = con->flushAsyncBatchRequests(new BatchOutgoingAsyncI(this));
+    AsyncStatus status = con->flushAsyncBatchRequests(new BatchOutgoingAsyncI(this, _instance, _observer));
     if(!(status & AsyncStatusSent))
     {
         _sentSynchronously = false;

@@ -37,14 +37,6 @@ public:
     virtual void retried();
 
     virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&);
-
-
-private:
-
-    friend class CommunicatorObserverI;
-    void initLogger(const Ice::LoggerPtr&);
-
-    const Ice::LoggerPtr _logger;
 };
 
 class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver

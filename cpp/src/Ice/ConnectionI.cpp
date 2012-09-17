@@ -1257,19 +1257,19 @@ Ice::ConnectionI::finishAsync(SocketOperation operation)
     {
         if(operation & SocketOperationWrite)
         {
+            _transceiver->finishWrite(_writeStream);
             if(_observer)
             {
                 _observer.finishWrite(_writeStream.i);
             }
-            _transceiver->finishWrite(_writeStream);
         }
         else if(operation & SocketOperationRead)
         {
+            _transceiver->finishRead(_readStream);
             if(_observer && !_readHeader)
             {
                 _observer.finishRead(_readStream.i);
             }
-            _transceiver->finishRead(_readStream);
         }
     }
     catch(const Ice::LocalException& ex)

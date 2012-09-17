@@ -242,7 +242,6 @@ public:
             add("operation", &DispatchHelper::getCurrent, &Current::operation);
             add("identity", &DispatchHelper::getIdentity);
             add("facet", &DispatchHelper::getCurrent, &Current::facet);
-            add("encoding", &DispatchHelper::getCurrent, &Current::encoding);
             add("mode", &DispatchHelper::getMode);
 
             setDefault(&DispatchHelper::resolve);
@@ -443,7 +442,7 @@ public:
                 {
                     os << _proxy << " [" << _operation << ']';
                 }
-                catch(const FixedProxyException& ex)
+                catch(const FixedProxyException&)
                 {
                     os << _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
                     os << " [" << _operation << ']';
