@@ -37,7 +37,9 @@ public:
     virtual void run();
     void stop();
     void collectGarbage();
+
     void updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
+    void clearObserver(const Ice::Instrumentation::CommunicatorObserverPtr&);
 
 private:
 
@@ -46,6 +48,7 @@ private:
     bool _collecting;
     int _interval;
     StatsCallback _statsCallback;
+    Ice::Instrumentation::CommunicatorObserverPtr _communicatorObserver;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 };
 

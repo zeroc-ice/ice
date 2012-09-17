@@ -12,7 +12,6 @@
 #include <IceUtil/RecMutex.h>
 #include <Ice/GC.h>
 #include <Ice/GCShared.h>
-#include <Ice/Instrumentation.h>
 #include <set>
 
 using namespace IceUtil;
@@ -394,5 +393,27 @@ IceInternal::GC::updateObserver(const CommunicatorObserverPtr& observer)
 {
     Monitor<Mutex>::Lock sync(*this);
     assert(observer);
-    _observer.attach(observer->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+
+    // Only the first communicator can observe the GC thread.
+    if(!_communicatorObserver)
+    {
+        _communicatorObserver = observer;
+    } 
+
+    if(observer == _communicatorObserver)
+    {
+        _observer.attach(observer->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+    }
+}
+
+void
+IceInternal::GC::clearObserver(const CommunicatorObserverPtr& observer)
+{
+    Monitor<Mutex>::Lock sync(*this);
+    assert(observer);
+    if(observer == _communicatorObserver)
+    {
+        _communicatorObserver = 0;
+        _observer.detach();
+    }
 }

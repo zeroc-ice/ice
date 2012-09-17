@@ -40,7 +40,7 @@
 #include <Ice/GC.h>
 #include <Ice/MetricsAdminI.h>
 #include <Ice/InstrumentationI.h>
-
+ 
 #include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
@@ -1096,7 +1096,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
 
-        IceMX::MetricsAdminIPtr admin = new IceMX::MetricsAdminI(_initData.properties, _initData.logger);
+        IceInternal::MetricsAdminIPtr admin = new IceInternal::MetricsAdminI(_initData.properties, _initData.logger);
         _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
 
         PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
@@ -1354,6 +1354,11 @@ IceInternal::Instance::destroy()
     if(_retryQueue)
     {
         _retryQueue->destroy();
+    }
+
+    if(_initData.observer)
+    {
+        theCollector->clearObserver(_initData.observer);
     }
 
     ThreadPoolPtr serverThreadPool;

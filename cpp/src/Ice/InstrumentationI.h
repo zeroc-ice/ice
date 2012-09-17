@@ -51,7 +51,7 @@ class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 
-    CommunicatorObserverI(const MetricsAdminIPtr&);
+    CommunicatorObserverI(const IceInternal::MetricsAdminIPtr&);
 
     virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
  
@@ -79,11 +79,11 @@ public:
 
     virtual Ice::Instrumentation::ObserverPtr getDispatchObserver(const Ice::Current&);
 
-    const MetricsAdminIPtr& getMetricsAdmin() const;
+    const IceInternal::MetricsAdminIPtr& getMetricsAdmin() const;
 
 private:
 
-    const MetricsAdminIPtr _metrics;
+    const IceInternal::MetricsAdminIPtr _metrics;
 
     ObserverFactoryT<ConnectionObserverI> _connections;
     ObserverFactoryT<ObserverI> _dispatch;

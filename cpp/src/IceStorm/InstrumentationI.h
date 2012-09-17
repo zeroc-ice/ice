@@ -39,7 +39,7 @@ class TopicManagerObserverI : public IceStorm::Instrumentation::TopicManagerObse
 {
 public:
 
-    TopicManagerObserverI(const MetricsAdminIPtr&);
+    TopicManagerObserverI(const IceInternal::MetricsAdminIPtr&);
 
     virtual void setObserverUpdater(const IceStorm::Instrumentation::ObserverUpdaterPtr&);
  
@@ -57,7 +57,7 @@ public:
 
 private:
 
-    const MetricsAdminIPtr _metrics;
+    const IceInternal::MetricsAdminIPtr _metrics;
 
     ObserverFactoryT<TopicObserverI> _topics;
     ObserverFactoryT<SubscriberObserverI> _subscribers;

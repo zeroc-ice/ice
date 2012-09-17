@@ -20,6 +20,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceMX;
 
 namespace 
@@ -119,21 +120,13 @@ MetricsMapI::RegExp::~RegExp()
 }
 
 bool
-MetricsMapI::RegExp::match(const MetricsHelper& helper, bool reject)
+MetricsMapI::RegExp::match(const string& value, bool reject)
 {
-    try
-    {
-        string value = helper(_attribute);
 #ifndef ICE_CPP11_REGEXP
-        return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
+    return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
 #else
-        return regex_match(value, _regex);
+    return regex_match(value, _regex);
 #endif
-    }
-    catch(const std::exception&)
-    {
-        return !reject;
-    }
 }
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties) :
@@ -365,6 +358,7 @@ MetricsViewI::getMap(const string& mapName) const
 MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger) : 
     _logger(logger), _properties(properties)
 {
+    updateViews();
 }
 
 void

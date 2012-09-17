@@ -312,7 +312,7 @@ SubscriberObserverI::delivered(int count)
     forEach(DeliveredUpdate(count));
 }
 
-TopicManagerObserverI::TopicManagerObserverI(const MetricsAdminIPtr& metrics) : 
+TopicManagerObserverI::TopicManagerObserverI(const IceInternal::MetricsAdminIPtr& metrics) : 
     _metrics(metrics),
     _topics(metrics, "Topic"),
     _subscribers(metrics, "Subscriber")

@@ -10,7 +10,7 @@
 #ifndef ICE_METRICSFUNCTIONAL_H
 #define ICE_METRICSFUNCTIONAL_H
 
-namespace IceMX
+namespace IceInternal
 {
 
 template<typename R> struct ReferenceWrapper
@@ -85,6 +85,11 @@ template<typename R> struct ReferenceWrapper<const R&>
     }
 };
 
+};
+
+namespace IceMX
+{
+
 template<class T, typename Y, typename Func> struct ApplyOnMember
 {
     ApplyOnMember(Y T::*member, Func func) : func(func), member(member)
@@ -94,7 +99,7 @@ template<class T, typename Y, typename Func> struct ApplyOnMember
     template<typename R>
     void operator()(const R& v)
     {
-        func(ReferenceWrapper<R>::get(v)->*member);
+        func(IceInternal::ReferenceWrapper<R>::get(v)->*member);
     }
 
     Func func;

@@ -7,15 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef ICE_METRICSOBSERVER_I_H
-#define ICE_METRICSOBSERVER_I_H
+#ifndef ICEMX_METRICSOBSERVER_I_H
+#define ICEMX_METRICSOBSERVER_I_H
 
 #include <IceUtil/StopWatch.h>
 
 #include <Ice/Instrumentation.h>
-#include <Ice/Metrics.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Connection.h>
+
+#include <Ice/Metrics.h>
 #include <Ice/MetricsAdminI.h>
 #include <Ice/MetricsFunctional.h>
 
@@ -24,16 +25,11 @@
 namespace IceMX
 {
 
-class MetricsHelper
+template<typename T> class MetricsHelperT
 {
 public:
 
     virtual std::string operator()(const std::string&) const = 0;
-};
-
-template<typename T> class MetricsHelperT : public MetricsHelper
-{
-public:
 
     virtual void initMetrics(const IceInternal::Handle<T>&) const
     {
@@ -177,7 +173,7 @@ protected:
             virtual std::string operator()(const Helper* r) const
             {
                 O o = (r->*_getFn)();
-                I* v = dynamic_cast<I*>(ReferenceWrapper<O>::get(o));
+                I* v = dynamic_cast<I*>(IceInternal::ReferenceWrapper<O>::get(o));
                 if(v)
                 {
                     return toString(v->*_member);
@@ -206,7 +202,7 @@ protected:
             virtual std::string operator()(const Helper* r) const
             {
                 O o = (r->*_getFn)();
-                I* v = dynamic_cast<I*>(ReferenceWrapper<O>::get(o));
+                I* v = dynamic_cast<I*>(IceInternal::ReferenceWrapper<O>::get(o));
                 if(v)
                 {
                     return toString((v->*_memberFn)());
@@ -289,12 +285,6 @@ private:
 };
 
 template<typename T> Updater*
-newUpdater(const IceUtil::Handle<T>& updater, void (T::*fn)())
-{
-    return new UpdaterT<T>(updater.get(), fn);
-}
-
-template<typename T> Updater*
 newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 {
     return new UpdaterT<T>(updater.get(), fn);
@@ -305,7 +295,7 @@ template<typename T> class ObserverT : virtual public Ice::Instrumentation::Obse
 public:
 
     typedef T MetricsType;
-    typedef typename MetricsMapT<MetricsType>::EntryTPtr EntryPtrType;
+    typedef typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr EntryPtrType;
     typedef std::vector<EntryPtrType> EntrySeqType;
 
     ObserverT()
@@ -397,10 +387,10 @@ public:
     template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
     getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
     {
-        std::vector<typename MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
+        std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            typename MetricsMapT<ObserverMetricsType>::EntryTPtr e = (*p)->getMatching(mapName, helper);
+            typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr e = (*p)->getMatching(mapName, helper);
             if(e)
             {
                 metricsObjects.push_back(e);
@@ -431,9 +421,10 @@ public:
     typedef IceUtil::Handle<ObserverImplType> ObserverImplPtrType;
     typedef typename ObserverImplType::MetricsType MetricsType;
 
-    typedef std::vector<IceUtil::Handle<MetricsMapT<MetricsType> > > MetricsMapSeqType;
+    typedef std::vector<IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> > > MetricsMapSeqType;
 
-    ObserverFactoryT(const MetricsAdminIPtr& metrics, const std::string& name) : _metrics(metrics), _name(name)
+    ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
+        _metrics(metrics), _name(name)
     {
         _metrics->registerMap<MetricsType>(name, this);
     }
@@ -528,11 +519,11 @@ public:
         UpdaterPtr updater;
         {
             IceUtil::Mutex::Lock sync(*this);
-            std::vector<MetricsMapIPtr> maps = _metrics->getMaps(_name);
+            std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
             _maps.clear();
-            for(std::vector<MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
+            for(std::vector<IceInternal::MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
             {
-                _maps.push_back(IceUtil::Handle<MetricsMapT<MetricsType> >::dynamicCast(*p));
+                _maps.push_back(IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> >::dynamicCast(*p));
                 assert(_maps.back());
             }
             _enabled = !_maps.empty();
@@ -553,16 +544,14 @@ public:
 
 private:
 
-    const MetricsAdminIPtr _metrics;
+    const IceInternal::MetricsAdminIPtr _metrics;
     const std::string _name;
     MetricsMapSeqType _maps;
     volatile bool _enabled;
     UpdaterPtr _updater;
 };
 
-class ObserverI : virtual public Ice::Instrumentation::Observer, public ObserverT<Metrics>
-{
-};
+typedef ObserverT<Metrics> ObserverI;
 
 }
 
