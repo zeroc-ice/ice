@@ -46,9 +46,12 @@ public:
 
     Ice::StringSeq metaData;
     TypeInfoPtr type;
+    bool optional;
+    int tag;
+    int pos;
 };
 typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
-typedef vector<ParamInfoPtr> ParamInfoList;
+typedef list<ParamInfoPtr> ParamInfoList;
 
 //
 // Encapsulates attributes of an operation.
@@ -68,7 +71,9 @@ public:
     Ice::FormatType format;
     Ice::StringSeq metaData;
     ParamInfoList inParams;
+    ParamInfoList optionalInParams;
     ParamInfoList outParams;
+    ParamInfoList optionalOutParams;
     ParamInfoPtr returnType;
     ExceptionInfoList exceptions;
     string dispatchName;
@@ -80,7 +85,8 @@ private:
 
     string _deprecateMessage;
 
-    static void convertParams(PyObject*, ParamInfoList&, bool&);
+    static void convertParams(PyObject*, ParamInfoList&, int, bool&);
+    static ParamInfoPtr convertParam(PyObject*, int);
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
@@ -530,19 +536,19 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* sendMode;
     int amd;
     PyObject* format;
-    PyObject* meta;
+    PyObject* metaData;
     PyObject* inParams;
     PyObject* outParams;
     PyObject* returnType;
     PyObject* exceptions;
     if(!PyArg_ParseTuple(args, STRCAST("sO!O!iOO!O!O!OO!"), &name, modeType, &mode, modeType, &sendMode, &amd,
-                         &format, &PyTuple_Type, &meta, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams,
+                         &format, &PyTuple_Type, &metaData, &PyTuple_Type, &inParams, &PyTuple_Type, &outParams,
                          &returnType, &PyTuple_Type, &exceptions))
     {
         return -1;
     }
 
-    OperationPtr op = new Operation(name, mode, sendMode, amd, format, meta, inParams, outParams, returnType,
+    OperationPtr op = new Operation(name, mode, sendMode, amd, format, metaData, inParams, outParams, returnType,
                                     exceptions);
     self->op = new OperationPtr(op);
 
@@ -1036,7 +1042,7 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     amd = amdFlag ? true : false;
     if(amd)
     {
-        dispatchName = fixIdent(name) + "_async";
+        dispatchName = name + "_async";
     }
     else
     {
@@ -1060,31 +1066,19 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     //
     // metaData
     //
+    assert(PyTuple_Check(meta));
 #ifndef NDEBUG
     bool b =
 #endif
     tupleToStringSeq(meta, metaData);
     assert(b);
 
-    Py_ssize_t i, sz;
-
-    //
-    // inParams
-    //
-    convertParams(in, inParams, sendsClasses);
-
-    //
-    // outParams
-    //
-    convertParams(out, outParams, returnsClasses);
-
     //
     // returnType
     //
     if(ret != Py_None)
     {
-        returnType = new ParamInfo;
-        returnType->type = getType(ret);
+        returnType = convertParam(ret, 0);
         if(!returnsClasses)
         {
             returnsClasses = returnType->type->usesClasses();
@@ -1092,10 +1086,55 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     }
 
     //
+    // inParams
+    //
+    convertParams(in, inParams, 0, sendsClasses);
+
+    //
+    // outParams
+    //
+    convertParams(out, outParams, returnType ? 1 : 0, returnsClasses);
+
+    class SortFn
+    {
+    public:
+        static bool compare(const ParamInfoPtr& lhs, const ParamInfoPtr& rhs)
+        {
+            return lhs->tag < rhs->tag;
+        }
+
+        static bool isRequired(const ParamInfoPtr& i)
+        {
+            return !i->optional;
+        }
+    };
+
+    //
+    // The inParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters.
+    //
+    ParamInfoList l = inParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalInParams));
+    optionalInParams.sort(SortFn::compare);
+
+    //
+    // The outParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters. If the return value is
+    // optional, we must include it in this list.
+    //
+    l = outParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalOutParams));
+    if(returnType && returnType->optional)
+    {
+        optionalOutParams.push_back(returnType);
+    }
+    optionalOutParams.sort(SortFn::compare);
+
+    //
     // exceptions
     //
-    sz = PyTuple_GET_SIZE(ex);
-    for(i = 0; i < sz; ++i)
+    Py_ssize_t sz = PyTuple_GET_SIZE(ex);
+    for(Py_ssize_t i = 0; i < sz; ++i)
     {
         exceptions.push_back(getException(PyTuple_GET_ITEM(ex, i)));
     }
@@ -1120,39 +1159,66 @@ IcePy::Operation::deprecate(const string& msg)
 }
 
 void
-IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, bool& usesClasses)
+IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset, bool& usesClasses)
 {
     usesClasses = false;
     int sz = static_cast<int>(PyTuple_GET_SIZE(p));
     for(int i = 0; i < sz; ++i)
     {
         PyObject* item = PyTuple_GET_ITEM(p, i);
-        assert(PyTuple_Check(item));
-        assert(PyTuple_GET_SIZE(item) == 2);
-
-        ParamInfoPtr param = new ParamInfo;
-
-        //
-        // metaData
-        //
-        PyObject* meta = PyTuple_GET_ITEM(item, 0);
-        assert(PyTuple_Check(meta));
-#ifndef NDEBUG
-        bool b =
-#endif
-        tupleToStringSeq(meta, param->metaData);
-        assert(b);
-
-        //
-        // type
-        //
-        param->type = getType(PyTuple_GET_ITEM(item, 1));
+        ParamInfoPtr param = convertParam(item, i + posOffset);
         params.push_back(param);
         if(!usesClasses)
         {
             usesClasses = param->type->usesClasses();
         }
     }
+}
+
+ParamInfoPtr
+IcePy::Operation::convertParam(PyObject* p, int pos)
+{
+    assert(PyTuple_Check(p));
+    assert(PyTuple_GET_SIZE(p) == 4);
+
+    ParamInfoPtr param = new ParamInfo;
+
+    //
+    // metaData
+    //
+    PyObject* meta = PyTuple_GET_ITEM(p, 0);
+    assert(PyTuple_Check(meta));
+#ifndef NDEBUG
+    bool b =
+#endif
+    tupleToStringSeq(meta, param->metaData);
+    assert(b);
+
+    //
+    // type
+    //
+    PyObject* type = PyTuple_GET_ITEM(p, 1);
+    if(type != Py_None)
+    {
+        param->type = getType(type);
+    }
+
+    //
+    // optional
+    //
+    param->optional = PyObject_IsTrue(PyTuple_GET_ITEM(p, 2));
+
+    //
+    // tag
+    //
+    param->tag = static_cast<int>(PyLong_AsLong(PyTuple_GET_ITEM(p, 3)));
+
+    //
+    // position
+    //
+    param->pos = pos;
+
+    return param;
 }
 
 static PyMethodDef OperationMethods[] =
@@ -1443,30 +1509,61 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
-            int i = 0;
-            for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
+            ParamInfoList::iterator p;
+
+            //
+            // Validate the supplied arguments.
+            //
+            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
             {
-                PyObject* arg = PyTuple_GET_ITEM(args, i);
-                if(!(*p)->type->validate(arg))
+                ParamInfoPtr info = *p;
+                PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
+                if((!info->optional || arg != Unset) && !info->type->validate(arg))
                 {
-                    string opName;
+                    string name;
                     if(mapping == OldAsyncMapping)
                     {
-                        opName = _op->name + "_async";
+                        name = _op->name + "_async";
                     }
                     else if(mapping == AsyncMapping)
                     {
-                        opName = "begin_" + _op->name;
+                        name = "begin_" + _op->name;
                     }
                     else
                     {
-                        opName = fixIdent(_op->name);
+                        name = fixIdent(_op->name);
                     }
                     PyErr_Format(PyExc_ValueError, STRCAST("invalid value for argument %d in operation `%s'"),
-                                 mapping == OldAsyncMapping ? i + 2 : i + 1, const_cast<char*>(opName.c_str()));
+                                 mapping == OldAsyncMapping ? info->pos + 2 : info->pos + 1,
+                                 const_cast<char*>(name.c_str()));
                     return false;
                 }
-                (*p)->type->marshal(arg, os, &objectMap, &(*p)->metaData);
+            }
+
+            //
+            // Marshal the required parameters.
+            //
+            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                if(!info->optional)
+                {
+                    PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
+                    info->type->marshal(arg, os, &objectMap, false, &info->metaData);
+                }
+            }
+
+            //
+            // Marshal the optional parameters.
+            //
+            for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
+                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+                {
+                    info->type->marshal(arg, os, &objectMap, true, &info->metaData);
+                }
             }
 
             os->endEncapsulation();
@@ -1490,8 +1587,11 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
 PyObject*
 IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
-    Py_ssize_t i = _op->returnType ? 1 : 0;
-    Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size()) + i;
+    Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size());
+    if(_op->returnType)
+    {
+        numResults++;
+    }
 
     PyObjectHandle results = PyTuple_New(numResults);
     if(results.get() && numResults > 0)
@@ -1508,15 +1608,50 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
 
         is->startEncapsulation();
 
-        for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
+        ParamInfoList::iterator p;
+
+        //
+        // Unmarshal the required out parameters.
+        //
+        for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
         {
-            void* closure = reinterpret_cast<void*>(i);
-            (*p)->type->unmarshal(is, *p, results.get(), closure, &(*p)->metaData);
+            ParamInfoPtr info = *p;
+            if(!info->optional)
+            {
+                void* closure = reinterpret_cast<void*>(info->pos);
+                info->type->unmarshal(is, info, results.get(), closure, false, &info->metaData);
+            }
         }
 
-        if(_op->returnType)
+        //
+        // Unmarshal the required return value, if any.
+        //
+        if(_op->returnType && !_op->returnType->optional)
         {
-            _op->returnType->type->unmarshal(is, _op->returnType, results.get(), 0, &_op->metaData);
+            assert(_op->returnType->pos == 0);
+            void* closure = reinterpret_cast<void*>(_op->returnType->pos);
+            _op->returnType->type->unmarshal(is, _op->returnType, results.get(), closure, false, &_op->metaData);
+        }
+
+        //
+        // Unmarshal the optional results. This includes an optional return value.
+        //
+        for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
+        {
+            ParamInfoPtr info = *p;
+            if(is->readOptional(info->tag, info->type->optionalType()))
+            {
+                void* closure = reinterpret_cast<void*>(info->pos);
+                info->type->unmarshal(is, info, results.get(), closure, true, &info->metaData);
+            }
+            else
+            {
+                if(PyTuple_SET_ITEM(results.get(), info->pos, Unset) < 0)
+                {
+                    return 0;
+                }
+                Py_INCREF(Unset); // PyTuple_SET_ITEM steals a reference.
+            }
         }
 
         is->endEncapsulation();
@@ -1900,7 +2035,7 @@ IcePy::AsyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         // IllegalArgumentException can propagate directly.
         // (Raised by checkAsyncTwowayOnly)
         //
-        PyErr_Format(PyExc_RuntimeError, STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
         return 0;
     }
     catch(const Ice::Exception&)
@@ -1986,7 +2121,7 @@ IcePy::AsyncTypedInvocation::end(const Ice::ObjectPrx& proxy, const OperationPtr
     }
     catch(const IceUtil::IllegalArgumentException& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
     }
     catch(const Ice::Exception& ex)
     {
@@ -2702,7 +2837,7 @@ IcePy::AsyncBlobjectInvocation::end(const Ice::ObjectPrx& proxy, const Ice::Asyn
     }
     catch(const IceUtil::IllegalArgumentException& ex)
     {
-        PyErr_Format(PyExc_RuntimeError, STRCAST(ex.reason().c_str()));
+        PyErr_Format(PyExc_RuntimeError, "%s", STRCAST(ex.reason().c_str()));
     }
     catch(const Ice::Exception& ex)
     {
@@ -3066,11 +3201,11 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
     //
     Py_ssize_t count = static_cast<Py_ssize_t>(_op->inParams.size()) + 1;
 
-    Py_ssize_t start = 0;
+    Py_ssize_t offset = 0;
     if(_op->amd)
     {
         ++count; // Leave room for a leading AMD callback argument.
-        start = 1;
+        offset = 1;
     }
 
     PyObjectHandle args = PyTuple_New(count);
@@ -3095,11 +3230,40 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
         {
             is->startEncapsulation();
 
-            Py_ssize_t i = start;
-            for(ParamInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
+            ParamInfoList::iterator p;
+
+            //
+            // Unmarshal the required parameters.
+            //
+            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
             {
-                void* closure = reinterpret_cast<void*>(i);
-                (*p)->type->unmarshal(is, *p, args.get(), closure, &(*p)->metaData);
+                ParamInfoPtr info = *p;
+                if(!info->optional)
+                {
+                    void* closure = reinterpret_cast<void*>(info->pos + offset);
+                    info->type->unmarshal(is, info, args.get(), closure, false, &info->metaData);
+                }
+            }
+
+            //
+            // Unmarshal the optional parameters.
+            //
+            for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                if(is->readOptional(info->tag, info->type->optionalType()))
+                {
+                    void* closure = reinterpret_cast<void*>(info->pos + offset);
+                    info->type->unmarshal(is, info, args.get(), closure, true, &info->metaData);
+                }
+                else
+                {
+                    if(PyTuple_SET_ITEM(args.get(), info->pos + offset, Unset) < 0)
+                    {
+                        throwPythonException();
+                    }
+                    Py_INCREF(Unset); // PyTuple_SET_ITEM steals a reference.
+                }
             }
 
             is->endEncapsulation();
@@ -3198,71 +3362,111 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
         Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
         try
         {
-            Py_ssize_t i = _op->returnType ? 1 : 0;
-            Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size()) + i;
-            if(numResults > 1)
+            Py_ssize_t numResults = static_cast<Py_ssize_t>(_op->outParams.size());
+            if(_op->returnType)
             {
-                if(!PyTuple_Check(args) || PyTuple_GET_SIZE(args) != numResults)
-                {
-                    ostringstream ostr;
-                    ostr << "operation `" << fixIdent(_op->name) << "' should return a tuple of length " << numResults;
-                    string str = ostr.str();
-                    PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
-                    throw Ice::MarshalException(__FILE__, __LINE__);
-                }
+                numResults++;
             }
+
+            if(numResults > 1 && (!PyTuple_Check(args) || PyTuple_GET_SIZE(args) != numResults))
+            {
+                ostringstream ostr;
+                ostr << "operation `" << fixIdent(_op->name) << "' should return a tuple of length " << numResults;
+                string str = ostr.str();
+                PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+                throw Ice::MarshalException(__FILE__, __LINE__);
+            }
+
+            //
+            // Normalize the args value. For an AMD operation, or when there are multiple
+            // result values, args is already a tuple. Otherwise, we create a tuple to
+            // make the code a little simpler.
+            //
+            PyObjectHandle t;
+            if(_op->amd || numResults > 1)
+            {
+                t = args;
+            }
+            else
+            {
+                t = PyTuple_New(1);
+                if(!t.get())
+                {
+                    throw AbortMarshaling();
+                }
+                PyTuple_SET_ITEM(t.get(), 0, args);
+            }
+            Py_INCREF(args);
 
             os->startEncapsulation(encoding, _op->format);
 
             ObjectMap objectMap;
+            ParamInfoList::iterator p;
 
-            for(ParamInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p, ++i)
+            //
+            // Validate the results.
+            //
+            for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
             {
-                PyObject* arg;
-                if(_op->amd || numResults > 1)
-                {
-                    arg = PyTuple_GET_ITEM(args, i);
-                }
-                else
-                {
-                    arg = args;
-                    assert(_op->outParams.size() == 1);
-                }
-
-                if(!(*p)->type->validate(arg))
+                ParamInfoPtr info = *p;
+                PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+                if((!info->optional || arg != Unset) && !info->type->validate(arg))
                 {
                     // TODO: Provide the parameter name instead?
                     ostringstream ostr;
-                    ostr << "invalid value for out argument " << (i + 1) << " in operation `" << fixIdent(_op->name)
-                         << (_op->amd ? "_async" : "") << "'";
+                    ostr << "invalid value for out argument " << (info->pos + 1) << " in operation `"
+                         << _op->dispatchName << "'";
                     string str = ostr.str();
                     PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
                     throw Ice::MarshalException(__FILE__, __LINE__);
                 }
-                (*p)->type->marshal(arg, os, &objectMap, &(*p)->metaData);
             }
-
             if(_op->returnType)
             {
-                PyObject* res;
-                if(_op->amd || numResults > 1)
-                {
-                    res = PyTuple_GET_ITEM(args, 0);
-                }
-                else
-                {
-                    assert(_op->outParams.size() == 0);
-                    res = args;
-                }
-                if(!_op->returnType->type->validate(res))
+                PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+                if((!_op->returnType->optional || res != Unset) && !_op->returnType->type->validate(res))
                 {
                     ostringstream ostr;
-                    ostr << "invalid return value for operation `" << fixIdent(_op->name) << "'";
+                    ostr << "invalid return value for operation `" << _op->dispatchName << "'";
                     string str = ostr.str();
                     PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
                     throw Ice::MarshalException(__FILE__, __LINE__);
                 }
-                _op->returnType->type->marshal(res, os, &objectMap, &_op->metaData);
+            }
+
+            //
+            // Marshal the required out parameters.
+            //
+            for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                if(!info->optional)
+                {
+                    PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+                    info->type->marshal(arg, os, &objectMap, false, &info->metaData);
+                }
+            }
+
+            //
+            // Marshal the required return value, if any.
+            //
+            if(_op->returnType && !_op->returnType->optional)
+            {
+                PyObject* res = PyTuple_GET_ITEM(t.get(), 0);
+                _op->returnType->type->marshal(res, os, &objectMap, false, &_op->metaData);
+            }
+
+            //
+            // Marshal the optional results.
+            //
+            for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
+                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+                {
+                    info->type->marshal(arg, os, &objectMap, true, &info->metaData);
+                }
             }
 
             os->endEncapsulation();

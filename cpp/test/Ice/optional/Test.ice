@@ -144,7 +144,7 @@ class Initial
 
     optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
-    optional(1) long opLong(optional(2) long p1, out optional(3) long p3);
+    optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
 
     optional(1) string opString(optional(2) string p1, out optional(3) string p3);
 

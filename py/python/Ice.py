@@ -68,6 +68,7 @@ encodingVersionToString = IcePy.encodingVersionToString
 generateUUID = IcePy.generateUUID
 loadSlice = IcePy.loadSlice
 AsyncResult = IcePy.AsyncResult
+Unset = IcePy.Unset
 
 #
 # This value is used as the default value for struct types in the constructors
@@ -210,6 +211,13 @@ class PropertiesAdminUpdateCallback(object):
 
     def updated(self, props):
         pass
+
+class UnknownSlicedObject(Object):
+    #
+    # Members:
+    #
+    # unknownTypeId - string
+    pass
 
 def getSliceDir():
     '''Convenience function for locating the directory containing the Slice files.'''
@@ -1330,12 +1338,15 @@ IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, (), False, False, N
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 Object._ice_type = IcePy._t_Object
 
-Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (((), IcePy._t_string),), (), IcePy._t_bool, ())
+Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (((), IcePy._t_string, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
 Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), None, ())
-Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), _t_StringSeq, ())
-Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), IcePy._t_string, ())
+Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), _t_StringSeq, False, 0), ())
+Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, None, (), (), (), ((), IcePy._t_string, False, 0), ())
 
 IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, False, None, (), ())
+
+IcePy._t_UnknownSlicedObject = IcePy.defineClass('::Ice::UnknownSlicedObject', UnknownSlicedObject, (), False, True, None, (), ())
+UnknownSlicedObject._ice_type = IcePy._t_UnknownSlicedObject
 
 #
 # Annotate some exceptions.

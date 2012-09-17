@@ -58,6 +58,13 @@ class TestI(Test.TestIntf):
         su.su = "SUnknown.su"
         return su
 
+    def checkSUnknown(self, obj, current=None):
+        if current.encoding == Ice.Encoding_1_0:
+            test(not isinstance(obj, Test.SUnknown))
+        else:
+            test(isinstance(obj, Test.SUnknown))
+            test(obj.su == "SUnknown.su")
+
     def oneElementCycle(self, current=None):
         b = Test.B()
         b.sb = "B1.sb"

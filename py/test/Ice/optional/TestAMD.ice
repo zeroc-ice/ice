@@ -37,7 +37,6 @@ struct VarStruct
     string m;
 };
 
-["clr:class"]
 struct ClassVarStruct
 {
     int a;
@@ -53,16 +52,12 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-["clr:generic:List"] sequence<SmallStruct> SmallStructList;
+["python:seq:tuple"] sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-["clr:generic:LinkedList"] sequence<FixedStruct> FixedStructList;
+["python:seq:tuple"] sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
-
-#ifndef SILVERLIGHT
-["clr:serializable:Test.SerializableClass"] sequence<byte> Serializable;
-#endif
 
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
@@ -106,10 +101,6 @@ class MultiOptional
     optional(28) IntOneOptionalPrxDict ioopd;
 
     optional(29) BoolSeq bos;
-
-#ifndef SILVERLIGHT
-    optional(30) Serializable ser;
-#endif
 };
 
 class A
@@ -158,7 +149,6 @@ exception RequiredException extends OptionalException
     OneOptional o2;
 };
 
-["clr:property"]
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;
@@ -174,6 +164,12 @@ class Initial
     Object pingPong(Object o);
 
     void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+        throws OptionalException;
+
+    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+        throws OptionalException;
+
+    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
     optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
@@ -229,10 +225,6 @@ class Initial
     optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1, out optional(3) FixedStructList p3);
 
     optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
-
-#ifndef SILVERLIGHT
-    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
-#endif
 
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 

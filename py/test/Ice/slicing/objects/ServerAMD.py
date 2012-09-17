@@ -58,6 +58,14 @@ class TestI(Test.TestIntf):
         su.su = "SUnknown.su"
         cb.ice_response(su)
 
+    def checkSUnknown_async(self, cb, obj, current=None):
+        if current.encoding == Ice.Encoding_1_0:
+            test(not isinstance(obj, Test.SUnknown))
+        else:
+            test(isinstance(obj, Test.SUnknown))
+            test(obj.su == "SUnknown.su")
+        cb.ice_response()
+
     def oneElementCycle_async(self, cb, current=None):
         b = Test.B()
         b.sb = "B1.sb"

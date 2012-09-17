@@ -565,7 +565,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             string fixedOpName = fixIdent((*oli)->name());
             if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
             {
-                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+                _out << sp << nl << "def " << (*oli)->name() << "_async(self, _cb";
 
                 ParamDeclList params = (*oli)->parameters();
 
@@ -749,7 +749,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << nl << comment;
                 }
-                _out << nl << "def " << fixedOpName << "_async(self, _cb";
+                _out << nl << "def " << (*oli)->name() << "_async(self, _cb";
                 if(!inParams.empty())
                 {
                     _out << ", " << inParams;
@@ -832,7 +832,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType)
+    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -858,7 +858,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeMetaData((*r)->getMetaData());
         _out << ", ";
         writeType((*r)->type());
-        _out << ')';
+        _out << ", " << ((*r)->optional() ? "True" : "False") << ", "
+             << ((*r)->optional() ? (*r)->tag() : 0) << ')';
     }
     if(members.size() == 1)
     {
@@ -875,7 +876,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define each operation. The arguments to the IcePy.Operation constructor are:
     //
-    // 'opName', Mode, SendMode, AMD, (MetaData), (InParams), (OutParams), ReturnType, (Exceptions)
+    // 'opName', Mode, SendMode, AMD, Format, MetaData, (InParams), (OutParams), ReturnParam, (Exceptions)
     //
     // where InParams and OutParams are tuples of type descriptions, and Exceptions
     // is a tuple of exception type ids.
@@ -923,7 +924,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
-                    _out << ')';
+                    _out << ", " << ((*t)->optional() ? "True" : "False") << ", "
+                         << ((*t)->optional() ? (*t)->tag() : 0) << ')';
                     ++count;
                 }
             }
@@ -944,7 +946,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
-                    _out << ')';
+                    _out << ", " << ((*t)->optional() ? "True" : "False") << ", "
+                         << ((*t)->optional() ? (*t)->tag() : 0) << ')';
                     ++count;
                 }
             }
@@ -956,7 +959,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             TypePtr returnType = (*s)->returnType();
             if(returnType)
             {
+                //
+                // The return type has the same format as an in/out parameter:
+                //
+                // MetaData, Type, Optional?, OptionalTag
+                //
+                _out << "((), ";
                 writeType(returnType);
+                _out << ", " << ((*s)->returnIsOptional() ? "True" : "False") << ", "
+                     << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ')';
             }
             else
             {
@@ -1125,7 +1136,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as a tuple:
     //
-    //   ('MemberName', MemberMetaData, MemberType)
+    //   ('MemberName', MemberMetaData, MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -1139,7 +1150,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         writeMetaData((*dmli)->getMetaData());
         _out << ", ";
         writeType((*dmli)->type());
-        _out << ')';
+        _out << ", " << ((*dmli)->optional() ? "True" : "False") << ", "
+             << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
     }
     if(members.size() == 1)
     {
@@ -1762,24 +1774,27 @@ Slice::Python::CodeVisitor::writeMetaData(const StringList& meta)
 void
 Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
 {
+    string paramName = info.fixedName;
+    string memberName = info.fixedName;
+
     //
     // Structures are treated differently (see bug 3676).
     //
     StructPtr st = StructPtr::dynamicCast(info.dataMember->type());
-    if(st)
+    if(st && !info.dataMember->optional())
     {
-        _out << nl << "if " << info.fixedName << " is Ice._struct_marker:";
+        _out << nl << "if " << paramName << " is Ice._struct_marker:";
         _out.inc();
-        _out << nl << "self." << info.fixedName << " = " << getSymbol(st) << "()";
+        _out << nl << "self." << memberName << " = " << getSymbol(st) << "()";
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+        _out << nl << "self." << memberName << " = " << paramName;
         _out.dec();
     }
     else
     {
-        _out << nl << "self." << info.fixedName << " = " << info.fixedName;
+        _out << nl << "self." << memberName << " = " << paramName;
     }
 }
 
@@ -1932,6 +1947,10 @@ Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members
         if(member->defaultValueType())
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
+        }
+        else if(member->optional())
+        {
+            _out << "Ice.Unset";
         }
         else
         {

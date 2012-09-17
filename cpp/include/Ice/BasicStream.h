@@ -457,6 +457,19 @@ public:
 
     Ice::Int readAndCheckSeqSize(int);
 
+    void startSize()
+    {
+        _sizePos = static_cast<int>(b.size());
+        write(Ice::Int(0));
+    }
+
+    void endSize()
+    {
+        assert(_sizePos >= 0);
+        rewrite(b.size() - _sizePos - 4, _sizePos);
+        _sizePos = -1;
+    }
+
     void writeBlob(const std::vector<Ice::Byte>&);
     void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
@@ -1125,6 +1138,8 @@ private:
 
     int _startSeq;
     int _minSeqSize;
+
+    int _sizePos;
 
     static const Ice::Byte FLAG_HAS_TYPE_ID_STRING;
     static const Ice::Byte FLAG_HAS_TYPE_ID_INDEX;

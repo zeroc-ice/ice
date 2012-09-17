@@ -49,6 +49,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  defaultServant \
 		  interceptor \
 		  defaultValue \
+		  optional
 !endif
 
 

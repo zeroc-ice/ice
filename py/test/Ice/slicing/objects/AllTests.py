@@ -71,12 +71,20 @@ class Callback(CallbackBase):
         test(isinstance(ex, Ice.MarshalException))
         self.called()
 
-    def response_SUnknownAsObject(self, o):
+    def response_SUnknownAsObject10(self, o):
         test(False)
 
-    def exception_SUnknownAsObject(self, exc):
+    def exception_SUnknownAsObject10(self, exc):
         test(exc.ice_name() == "Ice::NoObjectFactoryException")
         self.called()
+
+    def response_SUnknownAsObject11(self, o):
+        test(isinstance(o, Ice.UnknownSlicedObject))
+        test(o.unknownTypeId == "::Test::SUnknown")
+        self.called()
+
+    def exception_SUnknownAsObject11(self, exc):
+        test(False)
 
     def response_oneElementCycle(self, b):
         test(b)
@@ -494,10 +502,14 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         o = t.SUnknownAsObject()
-        test(False)
+        test(t.ice_getEncodingVersion() != Ice.Encoding_1_0)
+        test(isinstance(o, Ice.UnknownSlicedObject))
+        test(o.unknownTypeId == "::Test::SUnknown")
+        t.checkSUnknown(o)
     except Ice.NoObjectFactoryException:
-        pass
-    except Ice.Exception:
+        test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
+    except Ice.Exception as ex:
+        print ex
         test(False)
     print("ok")
 
@@ -505,10 +517,11 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         cb = Callback()
-        t.begin_SUnknownAsObject(cb.response_SUnknownAsObject, cb.exception_SUnknownAsObject)
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            t.begin_SUnknownAsObject(cb.response_SUnknownAsObject10, cb.exception_SUnknownAsObject10)
+        else:
+            t.begin_SUnknownAsObject(cb.response_SUnknownAsObject11, cb.exception_SUnknownAsObject11)
         cb.check()
-    except Ice.NoObjectFactoryException:
-        pass
     except Ice.Exception:
         test(False)
     print("ok")

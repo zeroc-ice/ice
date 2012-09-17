@@ -19,6 +19,7 @@ SUBDIRS		= proxy \
 		  inheritance \
 		  facets \
 		  objects \
+		  optional \
 		  faultTolerance \
 		  location \
 		  adapterDeactivation \

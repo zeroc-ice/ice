@@ -743,14 +743,14 @@ public class AllTests : TestCommon.TestApp
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F8);
+            os.writeOptional(1, Ice.OptionalType.F8);
             os.writeLong(p1.Value);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opLong", Ice.OperationMode.Normal, inEncaps, out outEncaps);
             @in = Ice.Util.createInputStream(communicator, outEncaps);
             @in.startEncapsulation();
-            test(@in.readOptional(1, Ice.OptionalType.F8));
+            test(@in.readOptional(2, Ice.OptionalType.F8));
             test(@in.readLong() == 56);
             test(@in.readOptional(3, Ice.OptionalType.F8));
             test(@in.readLong() == 56);

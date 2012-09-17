@@ -67,7 +67,7 @@ public:
     virtual void usesClasses(bool) = 0;
 
     virtual ::std::string ice_name() const = 0;
-    virtual UserExceptionReader* ice_clone() const = 0;
+    virtual UserException* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
     virtual void __write(IceInternal::BasicStream*) const;
@@ -332,7 +332,10 @@ public:
     virtual void write(const Float*, const Float*) = 0;
     virtual void write(const Double*, const Double*) = 0;
 
-    virtual void writeOptional(Int, OptionalType) = 0;
+    virtual bool writeOptional(Int, OptionalType) = 0;
+
+    virtual void startSize() = 0;
+    virtual void endSize() = 0;
 
 //
 // COMPILER FIX: clang using libc++ cannot use the StreamHelper to write
@@ -423,7 +426,7 @@ public:
     virtual bool usesClasses() const = 0;
 
     virtual ::std::string ice_name() const = 0;
-    virtual UserExceptionWriter* ice_clone() const = 0;
+    virtual UserException* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
     virtual void __write(IceInternal::BasicStream*) const;
