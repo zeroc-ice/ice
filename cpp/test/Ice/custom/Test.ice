@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h"]]
+[["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h"]]
 
 module Test
 {
@@ -110,6 +110,15 @@ sequence<ClassOtherStruct> ClassOtherStructSeq;
 };
 sequence<ClassStruct> ClassStructSeq;
 
+["cpp:type:Test::CustomMap<Ice::Int, std::string>"] dictionary<int, string> IntStringDict;
+dictionary<long, long> LongLongDict;
+dictionary<string, int> StringIntDict;
+
+class DictClass
+{
+    IntStringDict isdict;
+};
+
 ["ami"] class TestIntf
 {
     ["cpp:array"] DoubleSeq opDoubleArray(["cpp:array"] DoubleSeq inSeq, out ["cpp:array"] DoubleSeq outSeq);
@@ -202,6 +211,12 @@ sequence<ClassStruct> ClassStructSeq;
     
     void opOutRangeByteSeq(ByteSeq org, out ["cpp:range"] ByteSeq copy);
 
+    IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
+
+    ["cpp:type:::Test::CustomMap< ::Ice::Long, ::Ice::Long>"] LongLongDict 
+    opVarDict(["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict idict,
+              out ["cpp:type:::Test::CustomMap<std::string, ::Ice::Int>"] StringIntDict odict);
+        
     void shutdown();
 };
 

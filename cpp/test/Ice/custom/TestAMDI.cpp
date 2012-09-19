@@ -308,6 +308,28 @@ TestIntfI::opOutRangeByteSeq_async(const ::Test::AMD_TestIntf_opOutRangeByteSeqP
                                 ::Test::ByteSeq::const_iterator>(inS.begin(), inS.end()));
 }
 
+void 
+TestIntfI::opIntStringDict_async(const ::Test::AMD_TestIntf_opIntStringDictPtr& cb,
+                                 const ::Test::IntStringDict& inDict,
+                                 const ::Ice::Current&)
+{
+    cb->ice_response(inDict, inDict);
+}
+    
+void 
+TestIntfI::opVarDict_async(const ::Test::AMD_TestIntf_opVarDictPtr& cb,
+                                 const ::Test::CustomMap<std::string, Ice::Int>& inDict,                          
+                                 const ::Ice::Current&)
+{
+    Test::CustomMap<Ice::Long, Ice::Long> result;
+    for(Ice::Long i = 0; i < 1000; ++i)
+    {
+        result[i] = i*i;
+    }
+    cb->ice_response(result, inDict);
+}
+
+
 void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,
                           const Ice::Current& current)

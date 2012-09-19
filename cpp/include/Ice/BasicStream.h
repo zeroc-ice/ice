@@ -459,14 +459,14 @@ public:
 
     void startSize()
     {
-        _sizePos = static_cast<int>(b.size());
+        _sizePos = static_cast<Ice::Int>(b.size());
         write(Ice::Int(0));
     }
 
     void endSize()
     {
         assert(_sizePos >= 0);
-        rewrite(b.size() - _sizePos - 4, _sizePos);
+        rewrite(static_cast<Ice::Int>(b.size()) - _sizePos - 4, _sizePos);
         _sizePos = -1;
     }
 

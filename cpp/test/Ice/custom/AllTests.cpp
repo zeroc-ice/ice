@@ -1405,8 +1405,8 @@ public:
     
     void opOutArrayByteSeq(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& data, const InParamPtr& cookie)
     {
-        Test::ByteSeq dumy;
-        const Test::ByteSeq& in = getIn(dumy, cookie);
+        Test::ByteSeq dummy;
+        const Test::ByteSeq& in = getIn(dummy, cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
@@ -1421,8 +1421,8 @@ public:
     void opOutRangeByteSeq(const ::std::pair< ::Test::ByteSeq::const_iterator, ::Test::ByteSeq::const_iterator>& data, 
                            const InParamPtr& cookie)
     {
-        Test::ByteSeq dumy;
-        const Test::ByteSeq& in = getIn(dumy, cookie);
+        Test::ByteSeq dummy;
+        const Test::ByteSeq& in = getIn(dummy, cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
@@ -1433,6 +1433,34 @@ public:
         }
         called();
     }
+
+    void opIntStringDict(const Test::IntStringDict& ret, const Test::IntStringDict& out, const InParamPtr& cookie)
+    {
+        Test::IntStringDict dummy; // just for type
+        const Test::IntStringDict& in = getIn(dummy, cookie);
+        
+        test(ret == in);
+        test(out == in);
+        called();
+    }
+
+    void opVarDict(const Test::CustomMap<Ice::Long, Ice::Long>& ret, 
+                   const Test::CustomMap<std::string, Ice::Int>& out, const InParamPtr& cookie)
+    {
+        Test::CustomMap<std::string, Ice::Int> dummy; // just for type
+        const Test::CustomMap<std::string, Ice::Int>& in = getIn(dummy, cookie);
+        
+        test(out == in);
+
+        test(ret.size() == 1000);
+        for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        {
+            test(i->second == i->first * i->first);
+        }
+
+        called();
+    }
+
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
@@ -2020,6 +2048,46 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
 
+    cout << "testing alternate dictionaries... " << flush;
+    
+    {
+        Test::IntStringDict idict;
+
+        idict[1] = "one";
+        idict[2] = "two";
+        idict[3] = "three";
+        idict[-1] = "minus one";
+        
+        Test::IntStringDict out;
+        out[5] = "five";
+        
+        Test::IntStringDict ret = t->opIntStringDict(idict, out);
+        test(out == idict);
+        test(ret == idict);
+    }
+
+    {
+        Test::CustomMap<std::string, Ice::Int> idict;
+
+        idict["one"] = 1;
+        idict["two"] = 2;
+        idict["three"] = 3;
+        idict["minus one"] = -1;
+        
+        Test::CustomMap<std::string, Ice::Int> out;
+        out["five"] = 5;
+        
+        Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
+        test(out == idict);
+        test(ret.size() == 1000);
+        for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        {
+            test(i->second == i->first * i->first);
+        }
+    }
+
+    cout << "ok" << endl;
+    
     if(!collocated)
     {
         cout << "testing alternate sequences with AMI... " << flush;
@@ -4273,6 +4341,145 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                                                 cb->noEx(ex, newInParam(in));
                                             });
             cb->check();
+        }
+        cout << "ok" << endl;
+#endif
+
+        cout << "testing alternate dictionaries with new AMI... " << flush;
+        {
+            {
+                Test::IntStringDict idict;
+                
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                Test::IntStringDict out;
+                out[5] = "five";
+                
+                Ice::AsyncResultPtr r = t->begin_opIntStringDict(idict);
+                Test::IntStringDict ret = t->end_opIntStringDict(out, r);
+                test(out == idict);
+                test(ret == idict);
+            }
+
+            {
+                Test::CustomMap<std::string, Ice::Int> idict;
+                
+                idict["one"] = 1;
+                idict["two"] = 2;
+                idict["three"] = 3;
+                idict["minus one"] = -1;
+                
+                Test::CustomMap<std::string, Ice::Int> out;
+                out["five"] = 5;
+                
+                Ice::AsyncResultPtr r = t->begin_opVarDict(idict);
+                Test::CustomMap<Ice::Long, Ice::Long> ret = t->end_opVarDict(out, r);
+                test(out == idict);
+                test(ret.size() == 1000);
+                for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+                {
+                    test(i->second == i->first * i->first);
+                }
+            }
+        }
+        cout << "ok" << endl;
+        
+        cout << "testing alternate dictionaries with new AMI callbacks... " << flush;
+        {
+            {
+                Test::IntStringDict idict;
+                
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                Test::IntStringDict out;
+                out[5] = "five";
+                
+                CallbackPtr cb = new Callback();
+                Test::Callback_TestIntf_opIntStringDictPtr callback = 
+                    Test::newCallback_TestIntf_opIntStringDict(cb, &Callback::opIntStringDict, &Callback::noEx);
+                t->begin_opIntStringDict(idict, callback, newInParam(idict));
+                cb->check();
+            }
+
+            {
+                Test::CustomMap<std::string, Ice::Int> idict;
+                
+                idict["one"] = 1;
+                idict["two"] = 2;
+                idict["three"] = 3;
+                idict["minus one"] = -1;
+                
+                Test::CustomMap<std::string, Ice::Int> out;
+                out["five"] = 5;
+                
+                CallbackPtr cb = new Callback();
+                Test::Callback_TestIntf_opVarDictPtr callback = 
+                    Test::newCallback_TestIntf_opVarDict(cb, &Callback::opVarDict, &Callback::noEx);
+                t->begin_opVarDict(idict, callback, newInParam(idict));
+                cb->check();
+            }
+        }
+        cout << "ok" << endl;
+
+#ifdef ICE_CPP11  
+        cout << "testing alternate dictionaries with new C++11 AMI callbacks... " << flush;
+        {
+            {
+                Test::IntStringDict idict;
+                
+                idict[1] = "one";
+                idict[2] = "two";
+                idict[3] = "three";
+                idict[-1] = "minus one";
+                
+                Test::IntStringDict out;
+                out[5] = "five";
+                
+                CallbackPtr cb = new Callback();
+                
+                t->begin_opIntStringDict(idict, 
+                                         [=](const Test::IntStringDict& ret, const Test::IntStringDict& out)
+                                         {
+                                             cb->opIntStringDict(ret, out, newInParam(idict));
+                                         },
+                                         [=](const Ice::Exception& ex)
+                                         {
+                                             cb->noEx(ex, newInParam(idict));
+                                         });               
+                cb->check();
+            }
+
+            {
+                Test::CustomMap<std::string, Ice::Int> idict;
+                
+                idict["one"] = 1;
+                idict["two"] = 2;
+                idict["three"] = 3;
+                idict["minus one"] = -1;
+                
+                Test::CustomMap<std::string, Ice::Int> out;
+                out["five"] = 5;
+                
+                CallbackPtr cb = new Callback();
+                
+                t->begin_opVarDict(idict, 
+                                   [=](const Test::CustomMap<Ice::Long, Ice::Long>& ret, 
+                                       const Test::CustomMap<std::string, Ice::Int>& out)
+                                   {
+                                       cb->opVarDict(ret, out, newInParam(idict));
+                                   },
+                                   [=](const Ice::Exception& ex)
+                                   {
+                                       cb->noEx(ex, newInParam(idict));
+                                   });               
+                cb->check();
+            }
         }
         cout << "ok" << endl;
 #endif

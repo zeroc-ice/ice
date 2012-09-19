@@ -151,6 +151,16 @@ public:
                                          const ::Test::ByteSeq&,
                                          const ::Ice::Current&);
 
+    virtual void opIntStringDict_async(const ::Test::AMD_TestIntf_opIntStringDictPtr&,
+                                       const ::Test::IntStringDict&,
+                                       const ::Ice::Current&);
+    
+    virtual void opVarDict_async(const ::Test::AMD_TestIntf_opVarDictPtr&,
+                                 const ::Test::CustomMap<std::string, Ice::Int>&,                          
+                                 const ::Ice::Current&);
+    
+
+
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
                                 const Ice::Current&);
 

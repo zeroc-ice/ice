@@ -163,6 +163,15 @@ public:
     
     virtual void opOutRangeByteSeq(const Test::ByteSeq&, Test::ByteSeq&, const Ice::Current&);
 
+
+    virtual Test::IntStringDict opIntStringDict(const Test::IntStringDict&, Test::IntStringDict&, 
+                                                const Ice::Current&);
+
+    virtual Test::CustomMap<Ice::Long, Ice::Long> opVarDict(const Test::CustomMap<std::string, Ice::Int>&,
+                                                            Test::CustomMap<std::string, Ice::Int>&,
+                                                            const Ice::Current&);
+
+
     virtual void shutdown(const Ice::Current&);
 
 private:

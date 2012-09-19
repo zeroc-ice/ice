@@ -337,6 +337,27 @@ TestIntfI::opOutRangeByteSeq(const Test::ByteSeq& data, Test::ByteSeq& copy, con
     copy = data;
 }
 
+Test::IntStringDict 
+TestIntfI::opIntStringDict(const Test::IntStringDict& data, Test::IntStringDict& copy, const Ice::Current&)
+{
+    copy = data;
+    return data;
+}
+
+Test::CustomMap<Ice::Long, Ice::Long> 
+TestIntfI::opVarDict(const Test::CustomMap<std::string, Ice::Int>& data,
+                     Test::CustomMap<std::string, Ice::Int>& copy, const Ice::Current&)
+{
+    copy = data;
+    
+    Test::CustomMap<Ice::Long, Ice::Long> result;
+    for(Ice::Long i = 0; i < 1000; ++i)
+    {
+        result[i] = i*i;
+    }
+    return result;
+}
+
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {

@@ -116,6 +116,21 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     }
 }
 
+string
+dictionaryTypeToString(const DictionaryPtr& dict, const StringList& metaData, int typeCtx)
+{
+    string dictType = findMetaData(metaData, typeCtx);
+    if(!dictType.empty())
+    {
+        return dictType;
+    }
+    else
+    {
+        return fixKwd(dict->scoped());
+    }
+}
+
+
 void
 writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const string& fixedName,
                        const StringList& metaData, int typeCtx)
@@ -472,7 +487,13 @@ Slice::typeToString(const TypePtr& type, const StringList& metaData, int typeCtx
     {
         return sequenceTypeToString(seq, metaData, typeCtx);
     }
-            
+   
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        return dictionaryTypeToString(dict, metaData, typeCtx);
+    }
+
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
@@ -596,6 +617,12 @@ Slice::inputTypeToString(const TypePtr& type, bool optional, const StringList& m
     {
         return "const " + sequenceTypeToString(seq, metaData, typeCtx) + "&";
     }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        return "const " + dictionaryTypeToString(dict, metaData, typeCtx) + "&";
+    }
             
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
@@ -676,6 +703,12 @@ Slice::outputTypeToString(const TypePtr& type, bool optional, const StringList& 
     if(seq)
     {
         return sequenceTypeToString(seq, metaData, typeCtx) + "&";
+    }
+
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(dict)
+    {
+        return dictionaryTypeToString(dict, metaData, typeCtx) + "&";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);

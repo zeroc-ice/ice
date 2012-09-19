@@ -19,6 +19,8 @@ public:
     typedef Ice::Byte* iterator;
     typedef Ice::Byte* const_iterator;
 
+    typedef Ice::Byte value_type;
+
     MyByteSeq();
     MyByteSeq(size_t);
     MyByteSeq(const MyByteSeq&);

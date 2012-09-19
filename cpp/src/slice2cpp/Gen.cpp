@@ -1384,31 +1384,48 @@ void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
-    TypePtr keyType = p->keyType();
-    if(SequencePtr::dynamicCast(keyType))
+    string dictType = findMetaData(p->getMetaData());
+
+    if(dictType.empty())
     {
-        SequencePtr s = SequencePtr::dynamicCast(keyType);
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
-        if(builtin && builtin->kind() == Builtin::KindByte)
+        //
+        // A default std::map dictionary
+        //
+
+        TypePtr keyType = p->keyType();
+        if(SequencePtr::dynamicCast(keyType))
         {
-            StringList metaData = s->getMetaData();
-            bool protobuf;
-            findMetaData(s, metaData, protobuf);
-            if(protobuf)
+            SequencePtr s = SequencePtr::dynamicCast(keyType);
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
+            if(builtin && builtin->kind() == Builtin::KindByte)
             {
-                emitWarning(p->file(), p->line(), "protobuf cannot be used as a dictionary key in C++");
+                StringList metaData = s->getMetaData();
+                bool protobuf;
+                findMetaData(s, metaData, protobuf);
+                if(protobuf)
+                {
+                    emitWarning(p->file(), p->line(), "protobuf cannot be used as a dictionary key in C++");
+                }
             }
         }
+        
+        TypePtr valueType = p->valueType();
+        string ks = typeToString(keyType, p->keyMetaData(), _useWstring);
+        if(ks[0] == ':')
+        {
+            ks.insert(0, " ");
+        }
+        string vs = typeToString(valueType, p->valueMetaData(), _useWstring);
+        
+        H << sp << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
     }
-
-    TypePtr valueType = p->valueType();
-    string ks = typeToString(keyType, p->keyMetaData(), _useWstring);
-    if(ks[0] == ':')
+    else
     {
-        ks.insert(0, " ");
+        //
+        // A custom dictionary
+        //
+        H << sp << nl << "typedef " << dictType << ' ' << name << ';';
     }
-    string vs = typeToString(valueType, p->valueMetaData(), _useWstring);
-    H << sp << nl << "typedef ::std::map<" << ks << ", " << vs << "> " << name << ';';
 }
 
 void
@@ -6143,7 +6160,6 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStruct;";
         }
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-        H << nl << "static const bool isVariableLength = " << p->isVariableLength() << ";";
         if(p->isVariableLength())
         {
             H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeFSize;";
@@ -6167,7 +6183,6 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeEnum;";
     H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << nl << "static const bool isVariableLength = true;";
     H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeSize;";
     H << eb << ";" << nl;
 }
@@ -6430,6 +6445,10 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
                     {
                         continue;
                     }
+                }
+                if(DictionaryPtr::dynamicCast(cont) && ss.find("type:") == 0) 
+                {
+                    continue;
                 }
                 if(StructPtr::dynamicCast(cont) && ss.find("class") == 0)
                 {

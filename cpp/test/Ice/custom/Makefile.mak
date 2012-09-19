@@ -56,7 +56,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm300
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -Zm300 -bigobj
 
 !if "$(GENERATE_PDB)" == "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

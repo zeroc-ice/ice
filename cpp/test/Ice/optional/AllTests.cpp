@@ -849,7 +849,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         vector<Ice::Byte> bs(100);
         fill(bs.begin(), bs.end(), 56);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Byte*, const Ice::Byte*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
         p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
         p2 = initial->opByteSeq(p1, p3);
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
@@ -880,7 +885,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         vector<Ice::Short> bs(100);
         fill(bs.begin(), bs.end(), 56);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const Ice::Short*, const Ice::Short*> cpair(&bs[0], &bs[0] + bs.size());
+        p1 = cpair;
+#else
         p1 = make_pair(&bs[0], &bs[0] + bs.size());
+#endif
         p2 = initial->opShortSeq(p1, p3);
         test(p2 && p3);
         test(p2 == bs && p3 == bs);
@@ -911,7 +921,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         bool bs[100];
         vector<bool> bsv(&bs[0], &bs[0] + 100);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const bool*, const bool*> cpair(&bs[0], &bs[0] + 100);
+        p1 = cpair;
+#else
         p1 = make_pair(&bs[0], &bs[0] + 100);
+#endif
         p2 = initial->opBoolSeq(p1, p3);
         test(p2 && p3);
         test(p2 == bsv && p3 == bsv);
@@ -942,7 +957,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         StringSeq ss(10);
         fill(ss.begin(), ss.end(), "test1");
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<StringSeq::const_iterator, StringSeq::const_iterator> cpair(ss.begin(), ss.end());
+        p1 = cpair;
+#else
         p1 = make_pair(ss.begin(), ss.end());
+#endif
         p2 = initial->opStringSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
@@ -973,7 +993,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         FixedStruct fss[10];
         vector<FixedStruct> fssv(&fss[0], &fss[0] + 10);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<const FixedStruct*, const FixedStruct*> cpair(&fss[0], &fss[0] + 10);
+        p1 = cpair;
+#else
         p1 = make_pair(&fss[0], &fss[0] + 10);
+#endif
         p2 = initial->opFixedStructSeq(p1, p3);
         test(p2 && p3);
         test(p2 == fssv && p3 == fssv);
@@ -1003,7 +1028,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(!p2 && !p3);
 
         VarStructSeq ss(10);
+#if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
+        std::pair<VarStructSeq::const_iterator, VarStructSeq::const_iterator> cpair(ss.begin(), ss.end());
+        p1 = cpair;
+#else
         p1 = make_pair(ss.begin(), ss.end());
+#endif
         p2 = initial->opVarStructSeq(p1, p3);
         test(p2 && p3);
         test(p2 == ss && p3 == ss);
