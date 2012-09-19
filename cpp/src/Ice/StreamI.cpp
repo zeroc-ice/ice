@@ -702,13 +702,6 @@ void
 ObjectReader::__read(BasicStream* is)
 {
     InputStreamI* stream = reinterpret_cast<InputStreamI*>(is->closure());
- 
-    if(stream == 0)
-    {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        cerr << ex.ice_stackTrace() << endl;
-    }
-    
     assert(stream);
     read(stream);
 }
