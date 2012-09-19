@@ -31,6 +31,9 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Color;
+import java.awt.Rectangle;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,33 +42,52 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.AbstractCellEditor;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.border.Border;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultListCellRenderer;
 
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JColorChooser;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JToolBar;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
+import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
+import javax.swing.JSplitPane;
 
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
+
+import java.text.DecimalFormat;
 
 import javafx.application.Platform;
 
@@ -89,39 +111,117 @@ import javafx.scene.layout.FlowPane;
 
 import javafx.scene.Scene;
 
+import javafx.scene.input.MouseEvent;
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseButton;
+import javafx.scene.control.Tooltip;
+
 import javafx.util.StringConverter;
 
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
+import com.jgoodies.forms.layout.CellConstraints;
+import com.jgoodies.looks.Options;
+import com.jgoodies.looks.HeaderStyle;
+import com.jgoodies.looks.BorderStyle;
+import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
 import IceGrid.*;
 import IceGridGUI.*;
 
+import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewInfo;
+import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsCell;
+import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransferableData;
+
+import java.util.prefs.Preferences;
+import java.util.prefs.BackingStoreException;
+
 public class GraphView extends JFrame
 {
-
-    public enum GraphCategory
+    class WorkQueue extends Thread
     {
-        DispatchGraphCategory,
-        InvocationsGraphCategory,
-        ConnectionsGraphCategory,
-        ThreadsGraphCategory,
-        BandwidthGraphCategory
-    }
+        private class WorkItem
+        {
+            public WorkItem(Runnable runnable, boolean javafx)
+            {
+                this.runnable = runnable;
+                this.javafx = javafx;
+            }
 
-    public enum GraphType
-    {
-        TotalAverageGraphType,
-        CurrentCountGraphType,
-        BandwidhGraphType
+            Runnable runnable;
+            boolean javafx;
+        }
+
+        public void run()
+        {
+            while(true)
+            {
+                WorkItem item = null;
+                synchronized(this)
+                {
+                    while(_queue.isEmpty())
+                    {
+                        try
+                        {
+                            wait();
+                        }
+                        catch(java.lang.InterruptedException ex)
+                        {
+                        }
+                    }
+                    assert !_queue.isEmpty();
+                    item = _queue.remove(0);
+                }
+
+                final java.util.concurrent.Semaphore sem = new java.util.concurrent.Semaphore(0);                
+                final Runnable r = item.runnable;
+                if(item.javafx)
+                {
+                    Platform.runLater(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                r.run();
+                                sem.release();
+                            }
+                        });
+                }
+                else
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                r.run();
+                                sem.release();
+                            }
+                        });
+                }
+                sem.acquireUninterruptibly();
+            }
+        }
+
+        synchronized public void enqueue(Runnable runnable, boolean javafx)
+        {
+            if(_queue.isEmpty())
+            {
+                notify();
+            }
+            _queue.add(new WorkItem(runnable, javafx));
+        }
+
+        private java.util.List<WorkItem> _queue = new java.util.LinkedList<WorkItem>();
     }
 
     class TimeFormatter extends StringConverter<java.lang.Number>
     {
-        TimeFormatter()
+        TimeFormatter(String format)
         {
+            setDateFormat(format);
             _dateFormat.setTimeZone(TimeZone.getDefault());
         }
 
@@ -161,7 +261,7 @@ public class GraphView extends JFrame
             _dateFormat = new SimpleDateFormat(format);
         }
 
-        private DateFormat _dateFormat = new SimpleDateFormat(getDateFormat());
+        private DateFormat _dateFormat;
     }
 
     class TransferHandler extends javax.swing.TransferHandler
@@ -173,8 +273,7 @@ public class GraphView extends JFrame
             boolean supported = false;
             for(DataFlavor f : support.getDataFlavors())
             {
-                if(f.getMimeType().equals(NodeMimeType) || f.getMimeType().equals(ServerMimeType) || 
-                   f.getMimeType().equals(MetricsViewMimeType))
+                if(f.equals(MetricsViewTransferableData.dataFlavor()))
                 {
                     supported = true;
                     break;
@@ -198,22 +297,9 @@ public class GraphView extends JFrame
             {
                 try
                 {
-                    if(flavor.getMimeType().equals(NodeMimeType))
+                    if(flavor.equals(MetricsViewTransferableData.dataFlavor()))
                     {
-                        Node node = (Node)t.getTransferData(flavor);
-                        importNode(node);
-                        break;
-                    }
-                    else if(flavor.getMimeType().equals(ServerMimeType))
-                    {
-                        Server server = (Server)t.getTransferData(flavor);
-                        importServer(server);
-                        break;
-                    }
-                    else if(flavor.getMimeType().equals(MetricsViewMimeType))
-                    {
-                        MetricsView metricsView = (MetricsView)t.getTransferData(flavor);
-                        importMetricsView(metricsView);
+                        addSeries((MetricsViewTransferableData)t.getTransferData(flavor));
                         break;
                     }
                 }
@@ -227,205 +313,6 @@ public class GraphView extends JFrame
 
             return true;
         }
-    }
-
-    private void importNode(Node node)
-    {
-        List<Server> servers = node.getServers();
-        for(Server s : servers)
-        {
-            importServer(s);
-        }
-    }
-
-    private void importServer(Server server)
-    {
-        List<MetricsView> metrics = server.getMetrics();
-        for(MetricsView m : metrics)
-        {
-            importMetricsView(m);
-        }
-    }
-
-    private void importMetricsView(MetricsView metricsView)
-    {
-        Server server = (Server)metricsView.getParent();
-        Node node = (Node)server.getParent();
-        MetricsViewInfo s = new MetricsViewInfo(node.getId(), server.getId(), metricsView.getId());
-        if(!_metrics.contains(s))
-        {
-            if(_metrics.size() == 0)
-            {
-                startRefreshThread();
-            }
-            _metrics.add(s);
-            addSeries(s, metricsView.data().get(_key));
-        }
-    }
-
-    class MetricsViewTargetInfo
-    {
-        MetricsViewTargetInfo(MetricsViewInfo parent, String id)
-        {
-            this.parent = parent;
-            this.id = id;
-            this.total = 0;
-            this.totalLifetime = 0;
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if(other == null)
-            {
-                return false;
-            }
-            else if(other == this)
-            {
-                return true;
-            }
-            else if(!(other instanceof MetricsViewTargetInfo))
-            {
-                return false;
-            }
-            MetricsViewTargetInfo that = (MetricsViewTargetInfo)other;
-            return this.parent.equals(that.parent) && this.id.equals(that.id);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return IceInternal.HashUtil.hashAdd(parent.hashCode(), id);
-        }
-
-        @Override 
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append(parent.toString());
-            sb.append(" - ");
-            sb.append(id);
-            return sb.toString();
-        }
-
-        public String id;
-        public MetricsViewInfo parent;
-        //
-        // Totals from last delta.
-        //
-        public long total;
-        public long totalLifetime;
-    };
-
-    class BandwidhMetricsInfo extends MetricsViewTargetInfo
-    {
-        BandwidhMetricsInfo(MetricsViewInfo parent, String id, boolean in)
-        {
-            super(parent, id);
-            this.in = in;
-        }
-
-        @Override public boolean
-        equals(Object other)
-        {
-            if(other == null)
-            {
-                return false;
-            }
-            else if(other == this)
-            {
-                return true;
-            }
-            else if(!(other instanceof BandwidhMetricsInfo))
-            {
-                return false;
-            }
-            BandwidhMetricsInfo that = (BandwidhMetricsInfo)other;
-            return super.equals(that) && this.in == that.in;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            return IceInternal.HashUtil.hashAdd(super.hashCode(), in);
-        }
-
-        @Override 
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append(super.toString());
-            sb.append(" - ");
-            sb.append((in ? "bytes received" : "bytes sent"));
-            return sb.toString();
-        }
-
-        public boolean in;
-    };
-
-    public class MetricsViewInfo
-    {
-        MetricsViewInfo(String node, String server, String view)
-        {
-            this.node = node;
-            this.server = server;
-            this.view = view;
-        }
-
-        @Override
-        public boolean equals(Object other)
-        {
-            if(other == null)
-            {
-                return false;
-            }
-            else if(other == this)
-            {
-                return true;
-            }
-            else if(!(other instanceof MetricsViewInfo))
-            {
-                return false;
-            }
-            MetricsViewInfo that = (MetricsViewInfo)other;
-            return this.node.equals(that.node) && this.server.equals(that.server) && this.view.equals(that.view);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int h = IceInternal.HashUtil.hashAdd(5381, node);
-            h = IceInternal.HashUtil.hashAdd(h, server);
-            return IceInternal.HashUtil.hashAdd(h, view);
-        }
-
-        @Override 
-        public String toString()
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append(node);
-            sb.append(" - ");
-            sb.append(server);
-            sb.append(" - ");
-            sb.append(view);
-            return sb.toString();
-        }
-
-        public String node;
-        public String server;
-        public String view;
-    }
-
-    public class DeltaInfo
-    {
-        public DeltaInfo(long total, long totalLifetime)
-        {
-            this.total = total;
-            this.totalLifetime = totalLifetime;
-        }
-
-        public long total;
-        public long totalLifetime;
     }
 
     private class RefreshThread extends Thread
@@ -446,11 +333,13 @@ public class GraphView extends JFrame
         {
             while(true)
             {
-                ArrayList<MetricsViewInfo> metrics = null;
+            
+                java.util.Set<MetricsViewInfo> metrics = null;
                 synchronized(GraphView.this)
                 {
-                    metrics = new ArrayList<MetricsViewInfo>(_metrics);
+                    metrics = new  java.util.HashSet<MetricsViewInfo>(_series.keySet());
                 }
+
                 for(final MetricsViewInfo m : metrics)
                 {
                     Ice.Identity adminId = new Ice.Identity(m.server, _coordinator.getServerAdminCategory());
@@ -459,7 +348,7 @@ public class GraphView extends JFrame
                         {
                             public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data)
                             {
-                                addDelta(m, data, System.currentTimeMillis());
+                                addData(m, data, System.currentTimeMillis());
                             }
 
                             public void exception(final Ice.LocalException e)
@@ -511,9 +400,10 @@ public class GraphView extends JFrame
             }
         }
 
-        private void handleError(final MetricsViewInfo metrics, final String error)
+        private void
+        handleError(final MetricsViewInfo metrics, final String error)
         {
-            SwingUtilities.invokeLater(new Runnable()
+            _queue.enqueue(new Runnable()
                 {
                     public void run()
                     {
@@ -521,33 +411,30 @@ public class GraphView extends JFrame
                                         "Error retrieving metrics view from `" + metrics.toString() + "'\n" + error, 
                                         "Error",
                                         JOptionPane.ERROR_MESSAGE);
-                        removeMetrics(metrics);
+                        //removeMetrics(metrics);
                     }
-                });
+                }, false);
         }
 
         private long _period;
         private boolean _done = false;
     }
 
-    public GraphView(Coordinator coordinator, GraphType type, GraphCategory category, 
-                    final String title, String key)
+    public GraphView(Coordinator coordinator)
     {
         _coordinator = coordinator;
-        _type = type;
-        _category = category;
-        setTitle(title);
-        _key = key;
+        _queue = new WorkQueue();
+        _queue.setDaemon(true);
+        _queue.start();
+
+        _preferences = Preferences.userNodeForPackage(getClass());
 
         //
         // Don't destroy JavaFX when the frame is disposed.
         //
         Platform.setImplicitExit(false);
-
         setIconImage(Utils.getIcon("/icons/16x16/grid.png").getImage());
-
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
         addWindowListener(new WindowAdapter()
         {
             public void windowClosing(WindowEvent e) 
@@ -555,69 +442,6 @@ public class GraphView extends JFrame
                 close();
             }
         });
-
-        //
-        // Create actions
-        //
-        Action removeMetrics = new AbstractAction("Remove Metrics")
-            {
-                public void actionPerformed(ActionEvent event) 
-                {
-                    final DefaultTableModel model = new DefaultTableModel()
-                        {
-                            public Class getColumnClass(int column)
-                            {
-                                if(column == 3)
-                                {
-                                    return Boolean.class;
-                                }
-                                else
-                                {
-                                    return String.class;
-                                }
-                            }
-                            
-                            public boolean isCellEditable(int row, int column)
-                            {
-                                return column == 3;
-                            }
-                        };
-                    model.addColumn("Node");
-                    model.addColumn("Server");
-                    model.addColumn("View");
-                    model.addColumn("Show");
-
-                    for(MetricsViewInfo m : _metrics)
-                    {
-                        model.addRow(new Object[]{m.node, m.server, m.view, true});
-                    }
-                    
-                    JTable table = new JTable(model);
-                    table.setPreferredSize(new Dimension(450, 300));
-                    table.setPreferredScrollableViewportSize(table.getPreferredSize());
-                    table.setCellSelectionEnabled(false);
-                    table.setOpaque(false);
-                    JScrollPane scrollPane = new JScrollPane(table);
-                    JOptionPane.showMessageDialog(GraphView.this, scrollPane, "Select Servers", 
-                                                  JOptionPane.PLAIN_MESSAGE);
-
-                    for(int i = 0; i < model.getRowCount(); ++i)
-                    {
-                        //
-                        // Remove unselected metrics from the graph.
-                        //
-                        boolean selected = ((Boolean)model.getValueAt(i, 3)).booleanValue();
-                        if(!selected)
-                        {
-                            removeMetrics(new MetricsViewInfo((String)model.getValueAt(i, 0), 
-                                                              (String)model.getValueAt(i, 1), 
-                                                              (String)model.getValueAt(i, 2)));
-
-                        }
-                    }
-                }
-            };
-        removeMetrics.setEnabled(true);
 
         //
         // Graph preferences.
@@ -665,33 +489,6 @@ public class GraphView extends JFrame
                         xAxisPanel = builder.getPanel();
                     }
 
-                    //
-                    // JComboBox to select Y Axis units.
-                    //
-                    JComboBox<String> units = null;
-                    JPanel yAxisPanel = null;
-                    if(_type == GraphType.BandwidhGraphType || _type == GraphType.TotalAverageGraphType)
-                    {
-                        if(_type == GraphType.BandwidhGraphType)
-                        {
-                            units = new JComboBox<String>(_bandwidthUnits);
-                            units.setSelectedIndex(getBandwidthUnitIndex());
-                        }
-                        else
-                        {
-                            units = new JComboBox<String>(_timeUnits);
-                            units.setSelectedIndex(getTimeUnitIndex());
-                        }
-
-                        
-                        {
-                            DefaultFormBuilder builder = 
-                                                new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                            builder.append("Units:", units);
-                            yAxisPanel = builder.getPanel();
-                        }
-                    }
-
                     FormLayout layout = new FormLayout("fill:pref:grow", "pref");
                     final DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.border(Borders.DIALOG);
@@ -700,231 +497,484 @@ public class GraphView extends JFrame
                     builder.nextLine();
                     builder.appendSeparator("Horizontal Axis");
                     builder.append(xAxisPanel);
-                    if(yAxisPanel != null)
-                    {
-                        builder.appendSeparator("Vertical Axis");
-                        builder.append(yAxisPanel);
-                    }
 
-                    class PreferencesDialog extends JDialog
-                        {
-                            PreferencesDialog(JFrame owner)
-                            {
-                                super(owner, true);
-                                setTitle("Graph Preferences");
-                                setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-                                JButton okButton = new JButton("OK");
-                                ActionListener okListener = new ActionListener()
-                                    {
-                                        public void actionPerformed(ActionEvent e)
-                                        {
-                                            _option = JOptionPane.OK_OPTION;
-                                            setVisible(false);
-                                            dispose();
-                                        }
-                                    };
-
-                                ActionListener cancelListener = new ActionListener()
-                                    {
-                                        public void actionPerformed(ActionEvent e)
-                                        {
-                                            setVisible(false);
-                                            dispose();
-                                        }
-                                    };
-
-                                okButton.addActionListener(okListener);
-                                getRootPane().setDefaultButton(okButton);
-                                KeyStroke stroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
-                                getRootPane().registerKeyboardAction(cancelListener, stroke, 
-                                                                     JComponent.WHEN_IN_FOCUSED_WINDOW);
-
-                                final JComponent buttonBar = new ButtonBarBuilder().addGlue()
-                                                                                   .addButton(okButton)
-                                                                                   .addGlue().build();
-                                buttonBar.setBorder(Borders.DIALOG);
-
-                                Container contentPane = getContentPane();
-                                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-                                contentPane.add(builder.getPanel());
-                                contentPane.add(buttonBar);
-                                pack();
-                                setResizable(false);
-                                setLocationRelativeTo(owner);
-                            }
-
-                            int showDialog()
-                            {
-                                setVisible(true);
-                                return _option;
-                            }
-
-                            private int _option = JOptionPane.CLOSED_OPTION;
-                        };
-                    //
-                    // Disabled the default dialog action, so we can use Enter for commit table cells edit.
-                    //
-                    PreferencesDialog dialog = new PreferencesDialog(GraphView.this);
-
-                    if(dialog.showDialog() != JOptionPane.OK_OPTION)
+                    if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Graph Preferences", 
+                       JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
                     {
                         return;
                     }
+
                     setRefreshPeriod(refreshPeriod.getNumber().longValue());
                     setHorizontalSymbolsCount(horizontalAxisSymbolCount.getNumber().intValue());
                     setDateFormat((String)dateFormats.getSelectedItem());
-                    if((_type == GraphType.BandwidhGraphType && getBandwidthUnitIndex() != units.getSelectedIndex()) ||
-                        _type == GraphType.TotalAverageGraphType && getTimeUnitIndex() != units.getSelectedIndex())
-                    {
-                        final int index = units.getSelectedIndex();
-                        final float  cf = conversionFactor(index);
-                        final String label = yAxisLabel(index);
-
-                        if(_type == GraphType.BandwidhGraphType)
-                        {
-                            setBandwidthUnitIndex(index);
-                        }
-                        else
-                        {
-                            setTimeUnitIndex(index);
-                        }
-
-                        //
-                        // Update the graph in JavaFX thread.
-                        //
-                        Platform.runLater(new Runnable()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    _yAxis.setLabel(label);
-                                    for(XYChart.Series<Number, Number> series : _chart.getData())
-                                    {
-                                        for(XYChart.Data<Number, Number> item : series.getData())
-                                        {
-                                            item.setYValue(item.getYValue().floatValue() * cf);
-                                        }
-                                    }
-                                }
-                            });
-                    }
                 }
             };
 
-        Action showLegend = new AbstractAction("Show Legend")
+        _legendTable = new JTable(_legendModel);
+
+        //
+        // Graph preferences.
+        //
+        final Action delete = new AbstractAction("Delete")
             {
                 public void actionPerformed(ActionEvent event) 
                 {
-                    Platform.runLater(new Runnable()
+                    int[] selectedRows = _legendTable.getSelectedRows();
+                    for(int i = 0; i < selectedRows.length; ++i)
+                    {
+                        selectedRows[i] = _legendTable.convertRowIndexToModel(selectedRows[i]);
+                    }
+
+                    //
+                    // Remove selected rows from the legend model.
+                    //
+                    final MetricsRow[] rows = _legendModel.removeRows(selectedRows);
+
+                    //
+                    // Remove rows from series hash maps
+                    //
+                    for(MetricsRow row : rows)
+                    {
+                        Map<String, Map<String, Map<String, MetricsRow>>> j = _series.get(row.info);
+                        Map<String, Map<String, MetricsRow>> k = j.get(row.cell.getField().getMetricsName());
+                        Map<String, MetricsRow> l = k.get(row.cell.getId());
+                        l.remove(row.cell.getField().getFieldName());
+                        if(l.size() == 0)
+                        {
+                            k.remove(row.cell.getId());
+                            if(k.size() == 0)
                             {
-                                @Override
-                                public void run()
+                                j.remove(row.cell.getField().getMetricsName());
+                                if(j.size() == 0)
                                 {
-                                    _legendScroll.setVisible(!_legendScroll.isVisible());
+                                    _series.remove(row.info);
+                                    if(_series.size() == 0)
+                                    {
+                                        stopRefreshThread();
+                                    }
                                 }
-                            });
+                            }
+                        }
+                    }
+
+                    //
+                    // Remove series from the chart, in JavaFx thread.
+                    //
+                    _queue.enqueue(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                for(MetricsRow row : rows)
+                                {
+                                     String seriesClass = getSeriesClass(row.series);
+                                    _styles.remove(seriesClass);
+                                    //
+                                    // Don't remove the XYChart.Series object here, to avoid the series style classes 
+                                    // to be reasign by JavaFX.
+                                    //
+                                    // _chart.getData().remove(row.series);
+                                    row.series.getData().clear();
+                                }
+                            }
+                        }, true);
                 }
             };
+        delete.setEnabled(false);
+
+        _legendTable.getSelectionModel().addListSelectionListener(new ListSelectionListener()
+            {
+                public void valueChanged(ListSelectionEvent e)
+                {
+                    if(!e.getValueIsAdjusting())
+                    {
+                        delete.setEnabled(_legendTable.getSelectedRows().length > 0);
+                    }
+                }
+            });
+
+        //
+        // Create the tool bar
+        //
+        class ToolBar extends JToolBar
+        {
+            public ToolBar()
+            {
+                putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.BOTH);
+                putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
+                setFloatable(false);
+                putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+
+                JButton button = new JButton(delete);
+                button.setText(null);
+                button.setIcon(Utils.getIcon("/icons/24x24/delete.png"));
+                add(button);
+            }
+        }
 
         //
         // Create menus
         //
         JMenuBar menuBar = new JMenuBar();
 
-        // Create a menu
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic(java.awt.event.KeyEvent.VK_F);
-        fileMenu.add(removeMetrics);
         fileMenu.add(preferences);
         menuBar.add(fileMenu);
 
-        JMenu viewMenu = new JMenu("View");
-        viewMenu.setMnemonic(java.awt.event.KeyEvent.VK_V);
-        _showLegendMenuItem = new JCheckBoxMenuItem(showLegend);
-        _showLegendMenuItem.setState(false);
-        viewMenu.add(_showLegendMenuItem);
-        menuBar.add(viewMenu);
+        JMenu editMenu = new JMenu("Edit");
+        editMenu.setMnemonic(java.awt.event.KeyEvent.VK_E);
+        editMenu.add(delete);
+        menuBar.add(editMenu);
 
         setJMenuBar(menuBar);
 
-        JLabel dropTarget = new JLabel("Drop runtime components here to add it to the graph.");
-        dropTarget.setBorder(new CompoundBorder(BorderFactory.createLineBorder(java.awt.Color.gray, 5, true), 
-                                                new EmptyBorder(20, 20, 20, 20)));
-        dropTarget.setHorizontalAlignment(SwingConstants.CENTER);
-        Font f = dropTarget.getFont();
-        dropTarget.setFont(f.deriveFont(f.getStyle(), f.getSize() + 8));
-        dropTarget.setTransferHandler(new TransferHandler());
+        //
+        // Set a combobox to edit the scale factors.
+        //
+        JComboBox<Double> scales = new JComboBox<Double>(_scales);
+        scales.setRenderer(new DecimalRenderer(scales.getRenderer()));
+        _legendTable.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(scales));
 
+        //
+        //Set default renderer and editor for Color.class column.
+        //
+        _legendTable.setDefaultRenderer(Color.class, new ColorRenderer(true));
+        _legendTable.setDefaultEditor(Color.class, new ColorEditor());
+
+        setTransferHandler(new TransferHandler());
+        _legendTable.setAutoCreateRowSorter(true);
 
         final JFXPanel fxPanel = new JFXPanel();
+
+        //
+        // Build the split pane, with the chart graph and the legend table.
+        //
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setTopComponent(fxPanel);
+        splitPane.setBottomComponent(new JScrollPane(_legendTable));
+        splitPane.setResizeWeight(0.9);
+        
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("fill:pref:grow", "fill:pref:grow, pref"));
-        builder.append(fxPanel);
-        builder.nextLine();
-        builder.append(dropTarget);
+        builder.append(splitPane);
         builder.nextLine();
 
         JPanel panel = builder.getPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setContentPane(panel);
+        getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
+        getContentPane().add(panel, BorderLayout.CENTER);
         setPreferredSize(new Dimension(1024, 768));
-        pack();
+
         //
         // initialize the scene in JavaFX thread.
         //
-        Platform.runLater(new Runnable()
+        _queue.enqueue(new Runnable()
             {
                 @Override
                 public void run()
                 {
                     _xAxis = new NumberAxis();
                     _yAxis = new NumberAxis();
-                    _legend = new VBox(5);
-                    _legend.setPadding(new javafx.geometry.Insets(5, 5, 5, 5));
-                    _legend.setAlignment(javafx.geometry.Pos.CENTER);
-                    _legendScroll = new ScrollPane();
-                    _legendScroll .managedProperty().bind(_legendScroll .visibleProperty());
-                    _legendScroll.setHbarPolicy(ScrollBarPolicy.NEVER);
-                    _legendScroll.setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
-                    _legendScroll.setPrefWidth(295);
-                    _legendScroll.setMaxWidth(295);
-                    _legendScroll.setContent(_legend);
-                    _legendScroll.setVisible(false);
-
-                    VBox legendBox = new VBox(5);
-                    legendBox.setPadding(new javafx.geometry.Insets(10, 10, 10, 10));
-                    legendBox.setAlignment(javafx.geometry.Pos.CENTER);
-                    VBox.setVgrow(_legendScroll, Priority.ALWAYS);
-                    legendBox.getChildren().add(_legendScroll);
 
                     _chart = new LineChart<Number, Number>(_xAxis, _yAxis);
 
-                    _xAxis.setLabel("Time (HH:mm:ss)");
+                    _xAxis.setLabel("Time (" + getDateFormat() + ")");
                     _xAxis.setTickLabelFormatter(_timeFormater);
                     _xAxis.setForceZeroInRange(false);
-                    _yAxis.setLabel(yAxisLabel(getUnitsSelectedIndex()));
-                    _chart.setTitle(title);
                     _chart.setAnimated(true);
                     _chart.setLegendVisible(false);
 
-                    HBox hbox = new HBox(5);
-                    hbox.setPadding(new javafx.geometry.Insets(0, 5, 0, 5)); 
-                    hbox.setAlignment(javafx.geometry.Pos.CENTER);
-                    HBox.setHgrow(_chart, Priority.ALWAYS);
-                    hbox.getChildren().addAll(_chart, legendBox);
-                    fxPanel.setScene(new Scene(hbox));
+                    fxPanel.setScene(new Scene(_chart));
                 }
-            });
-        setLocationRelativeTo(_coordinator.getMainFrame());
+            }, true);
+
+        pack();
+        if(!loadPreferences())
+        {
+            Rectangle otherRect = _coordinator.getMainFrame().getBounds();
+            Rectangle thisRect = getBounds();
+            if(otherRect.width < thisRect.width || otherRect.height < thisRect.height)
+            {
+                setLocationRelativeTo(null);
+            }
+            else
+            {
+                setLocationRelativeTo(_coordinator.getMainFrame());
+            }
+        }
         setVisible(true);
+
+        splitPane.setDividerLocation(0.8);
+
+        //
+        // Show info dialog if required.
+        //
+        if(showInfo())
+        {
+            JCheckBox checkbox = new JCheckBox("Do not show this message again.");  
+            String message = "Drop metrics cells on the table to add them to the graph.";  
+
+            JOptionPane.showConfirmDialog(this, new Object[]{message, checkbox}, "Information", 
+                                          JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);  
+            if(checkbox.isSelected())
+            {
+                _preferences.node("GraphView").putBoolean("showInfo", false);
+            }
+        }
+    }
+
+    private boolean showInfo()
+    {
+        try
+        {
+            if(!_preferences.nodeExists("GraphView"))
+            {
+                return true;
+            }
+        }
+        catch(BackingStoreException ex)
+        {
+            return true;
+        }
+        return _preferences.node("GraphView").getBoolean("showInfo", true);
+    }
+
+    public void storePreferences()
+    {
+        Preferences preferences = _preferences.node("GraphView");
+        Rectangle rect = getBounds();
+        preferences.putInt("x", rect.x);
+        preferences.putInt("y", rect.y);
+        preferences.putInt("width", rect.width);
+        preferences.putInt("height", rect.height);
+        preferences.putBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
+    }
+
+    public boolean loadPreferences()
+    {
+        try
+        {
+            if(!_preferences.nodeExists("GraphView"))
+            {
+                return false;
+            }
+        }
+        catch(BackingStoreException ex)
+        {
+            return false;
+        }
+
+        Preferences preferences = _preferences.node("GraphView");
+        int x = preferences.getInt("x", 0);
+        int y = preferences.getInt("y", 0);
+        int width = preferences.getInt("width", 0);
+        int height = preferences.getInt("height", 0);
+        setBounds(new Rectangle(x, y, width, height));
+        if(preferences.getBoolean("maximized", false))
+        {
+            setExtendedState(Frame.MAXIMIZED_BOTH);
+        }
+        return true;
     }
 
     public void close()
     {
+        storePreferences();
         stopRefreshThread();
         setVisible(false);
         _coordinator.removeGraphView(GraphView.this);
         dispose();
+    }
+
+    private void addSeries(final MetricsViewTransferableData data)
+    {
+        //
+        // Must run in JavaFX thread.
+        //
+        _queue.enqueue(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Map<String, Map<String, Map<String, MetricsRow>>> metrics = _series.get(data.info);
+                    if(metrics == null)
+                    {
+                        metrics = new HashMap<String, Map<String, Map<String, MetricsRow>>>();
+                        _series.put(data.info, metrics);
+                    }
+
+                    Map<String, Map<String, MetricsRow>> rows = metrics.get(data.name);
+                    if(rows == null)
+                    {
+                        rows = new HashMap<String, Map<String, MetricsRow>>();
+                        metrics.put(data.name, rows);
+                    }
+
+                    for(Map.Entry<String, List<MetricsCell>> i : data.rows.entrySet())
+                    {
+                        final String rowId = i.getKey();
+                        Map<String, MetricsRow> columns = rows.get(rowId);
+                        if(columns == null)
+                        {
+                            columns = new HashMap<String, MetricsRow>();
+                            rows.put(rowId, columns);
+                        }
+
+                        for(MetricsCell j : i.getValue())
+                        {
+                            if(columns.get(j.getField().getFieldName()) == null)
+                            {
+                                String color = DefaultColors[_chart.getData().size() % DefaultColors.length];
+                                final MetricsRow row = new MetricsRow(data.info, j, color, 
+                                                                      new XYChart.Series<Number, Number>());
+                                _chart.getData().add(row.series);
+
+                                String styleClass = getSeriesClass(row.series);
+                                addStyle(row.series, styleClass, color);
+                                setNodesStyle(styleClass);
+
+                                columns.put(j.getField().getFieldName(), row);
+
+                                //
+                                // When a line is clicked we select the correspoding row in the legend table.
+                                //
+                                javafx.scene.Node n = _chart.lookup(".chart-series-line." + getSeriesClass(row.series));
+                                if(n != null)
+                                {
+                                    n.setOnMousePressed(new EventHandler<MouseEvent>()
+                                    {
+                                        @Override public void 
+                                        handle(MouseEvent e)
+                                        {
+                                            if(e.getEventType() == MouseEvent.MOUSE_PRESSED &&
+                                               e.getButton() == MouseButton.PRIMARY)
+                                            {
+                                                //
+                                                // Must run in Swing thread.
+                                                //
+                                                _queue.enqueue(new Runnable()
+                                                    {
+                                                        public void run()
+                                                        {
+                                                            int i = _legendModel.getRowIndex(row);
+                                                            if(i != -1)
+                                                            {
+                                                                i = _legendTable.convertRowIndexToView(i);
+                                                                _legendTable.setRowSelectionInterval(i, i);
+                                                            }
+                                                        }
+                                                    }, false);
+                                            }
+                                        }
+                                    });
+                                }
+                                //
+                                // Add the serie to the legend, must run in Swing thread.
+                                //
+                                _queue.enqueue(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            _legendModel.addRow(row);
+                                        }
+                                    }, false);
+                            } 
+                        }
+                    }
+                    if(_chart.getData().size() > 0)
+                    {
+                        startRefreshThread();
+                    }
+                }
+            }, true);
+    }
+
+    private void addData(final MetricsViewInfo info, final Map<String, IceMX.Metrics[]> data, 
+                         final long timestamp)
+    {
+        //
+        // Update the graph series in JavaFX thread.
+        //
+        _queue.enqueue(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    Map<String, Map<String, Map<String, MetricsRow>>> metricsCollection = _series.get(info);
+                    if(metricsCollection != null)
+                    {
+                        for(Map.Entry<String, IceMX.Metrics[]> i : data.entrySet())
+                        {
+                            Map<String, Map<String, MetricsRow>> rows = metricsCollection.get(i.getKey());
+                            if(rows == null)
+                            {
+                                continue;
+                            }
+
+                            for(IceMX.Metrics metrics : i.getValue())
+                            {
+                                Map<String, MetricsRow> columns = rows.get(metrics.id);
+                                if(columns == null)
+                                {
+                                    continue;
+                                }
+
+                                for(Map.Entry<String, MetricsRow> j : columns.entrySet())
+                                {
+                                    try
+                                    {
+                                        MetricsRow row = j.getValue();
+                                        Number value = row.cell.getValue(metrics);
+                                        if(value == null)
+                                        {
+                                            continue;
+                                        }
+                                        row.series.getData().add(new XYChart.Data<Number, Number>(
+                                                                                    timestamp, 
+                                                                                    value));
+
+                                        final int n = getHorizontalSymbolsCount();
+                                        while(row.series.getData().size() > n)
+                                        {
+                                            row.series.getData().remove(0);
+                                        }
+
+                                        //
+                                        // Set the style so that new created nodes has the right style.
+                                        //
+                                        final String cssClass = getSeriesClass(row.series);
+                                        setNodesStyle(cssClass);
+
+                                        //
+                                        // If the series isn't visible ensure that new created nodes are hidden.
+                                        //
+                                        if(!row.visible)
+                                        {
+                                            setNodesVisible(cssClass, false);
+                                        }
+                                    }
+                                    catch(java.lang.RuntimeException ex)
+                                    {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                        //
+                        // Fire an event on the legend model to update all cells.
+                        //
+                        _queue.enqueue(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    _legendModel.fireTableChanged(
+                                                new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1, 
+                                                                    TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+                                }
+                            }, false);
+                    }
+                }
+            }, true);
     }
 
     synchronized private void startRefreshThread()
@@ -943,291 +993,6 @@ public class GraphView extends JFrame
             _refreshThread.done();
             _refreshThread = null;
         }
-    }
-
-    synchronized private void setHorizontalSymbolsCount(int count)
-    {
-        _horizontaSymbolsCount = count;
-    }
-
-    synchronized private int getHorizontalSymbolsCount()
-    {
-        return _horizontaSymbolsCount;
-    }
-
-    void addDelta(MetricsViewInfo info, java.util.Map<java.lang.String, IceMX.Metrics[]> data, 
-                               final long timestamp)
-    {
-        IceMX.Metrics[] metrics = data.get(_key);
-        Map<MetricsViewTargetInfo, XYChart.Series<Number, Number>> seriesSeq = _series.get(info);
-        if(seriesSeq == null)
-        {
-            return;
-        }
-
-        if(metrics != null)
-        {
-            if(_type == GraphType.TotalAverageGraphType)
-            {
-                for(IceMX.Metrics m : metrics)
-                {
-                    MetricsViewTargetInfo targetInfo = new MetricsViewTargetInfo(info, m.id);
-                    XYChart.Series<Number, Number> series = seriesSeq.get(targetInfo);
-                    if(series == null)
-                    {
-                        continue;
-                    }
-
-                    float value = 0;
-                    DeltaInfo delta = _deltas.get(targetInfo);
-                    if(delta == null)
-                    {
-                        delta = new DeltaInfo(m.total, m.totalLifetime);
-                        _deltas.put(targetInfo, delta);
-                        continue; // We need two meassurements to calculate delta AVG.
-                    }
-                    long deltaTotal = (m.total - delta.total);
-                    value = deltaTotal == 0 ? 0.0f : 
-                                        (m.totalLifetime - delta.totalLifetime) / deltaTotal;
-                    delta.total = m.total;
-                    delta.totalLifetime = m.totalLifetime;
-                    addDelta(series, timestamp, value * _timeUnitsFactors[getTimeUnitIndex()]);
-                }
-            }
-            else if(_type == GraphType.CurrentCountGraphType)
-            {
-                for(IceMX.Metrics m : metrics)
-                {
-                    MetricsViewTargetInfo targetInfo = new MetricsViewTargetInfo(info, m.id);
-                    XYChart.Series<Number, Number> series = seriesSeq.get(targetInfo);
-                    if(series == null)
-                    {
-                        continue;
-                    }
-                    float value = 0;
-                    value = m.current;
-                    addDelta(series, timestamp, value);
-                }
-            }
-            else if(_type == GraphType.BandwidhGraphType)
-            {
-                for(IceMX.Metrics m : metrics)
-                {
-                    IceMX.ConnectionMetrics cm = (IceMX.ConnectionMetrics)m;
-                    for(boolean in : new boolean[]{true, false})
-                    {
-                        MetricsViewTargetInfo targetInfo = new BandwidhMetricsInfo(info, m.id, in);
-                        XYChart.Series<Number, Number> series = seriesSeq.get(targetInfo);
-                        if(series == null)
-                        {
-                            continue;
-                        }
-
-                        float value = 0;
-                        DeltaInfo delta = _deltas.get(targetInfo);
-                        if(delta == null)
-                        {
-                            if(in)
-                            {
-                                delta = new DeltaInfo(cm.receivedBytes, timestamp);
-                            }
-                            else
-                            {
-                                delta = new DeltaInfo(cm.sentBytes, timestamp);
-                            }
-                            _deltas.put(targetInfo, delta);
-                            continue; // We need two meassurements to calculate delta AVG.
-                        }
-
-                        if(in)
-                        {
-                            boolean zero = (cm.receivedBytes - delta.total) == 0 || 
-                                           (timestamp - delta.totalLifetime) == 0;
-                            value = zero ? 0.0f : (cm.receivedBytes - delta.total) / 
-                                                  (float)(timestamp - delta.totalLifetime);
-                            delta.total = cm.receivedBytes;
-                            delta.totalLifetime = timestamp;
-                        }
-                        else
-                        {
-                            boolean zero = (cm.sentBytes - delta.total) == 0 || 
-                                           (timestamp - delta.totalLifetime) == 0;
-                            value = zero ? 0.0f : (cm.sentBytes - delta.total) / 
-                                                  (float)(timestamp - delta.totalLifetime);
-                            delta.total = cm.sentBytes;
-                            delta.totalLifetime = timestamp;
-                        }
-                        addDelta(series, timestamp, value * _bandwidthUnitsFactors[getBandwidthUnitIndex()]);
-                    }
-                }
-            }
-        }
-    }
-
-    private void addDelta(final XYChart.Series<Number, Number> series, final long timestamp, final float value)
-    {
-        //
-        // Update the graph series in JavaFX thread.
-        //
-        Platform.runLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    series.getData().add(new XYChart.Data<Number, Number>(timestamp, value));
-                    while(series.getData().size() > getHorizontalSymbolsCount())
-                    {
-                        series.getData().remove(0);
-                    }
-                    updateStyle(series, getSeriesClass(series));
-                }
-            });
-    }
-
-    public void addSeries(final MetricsViewInfo info, final IceMX.Metrics[] data)
-    {
-        //
-        // Need to run in JavaFX thread.
-        //
-        Platform.runLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    if(data != null)
-                    {
-                        Map<MetricsViewTargetInfo, XYChart.Series<Number, Number>> seriesSeq = _series.get(info);
- 
-                        if(seriesSeq == null)
-                        {
-                            seriesSeq = new HashMap<MetricsViewTargetInfo, XYChart.Series<Number, Number>>();
-                            _series.put(info, seriesSeq);
-                        }
-                        
-                        if(_category != GraphCategory.BandwidthGraphCategory)
-                        {
-                            for(IceMX.Metrics m : data)
-                            {
-                                String color = DefaultColors[_chart.getData().size() % DefaultColors.length];
-                                MetricsViewTargetInfo targetInfo = new MetricsViewTargetInfo(info, m.id);
-                                XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-                                series.setName(targetInfo.toString());
-                                seriesSeq.put(targetInfo, series);
-                                _chart.getData().add(series);
-                                String styleClass = getSeriesClass(series);
-                                addStyle(series, styleClass, color, false);
-                                updateStyle(series, styleClass);
-                                seriesAdded(targetInfo.toString(), styleClass);
-                            }
-                        }
-                        else
-                        {
-                            for(IceMX.Metrics m : data)
-                            {
-                                String color = DefaultColors[(_chart.getData().size() / 2) % DefaultColors.length];
-                                for(boolean in : new boolean[]{true, false})
-                                {
-                                    MetricsViewTargetInfo targetInfo = new BandwidhMetricsInfo(info, m.id, in);
-                                    XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-                                    series.setName(targetInfo.toString());
-                                    seriesSeq.put(targetInfo, series);
-                                    _chart.getData().add(series);
-                                    String styleClass = getSeriesClass(series);
-                                    addStyle(series, styleClass, color, in);
-                                    updateStyle(series, styleClass);
-                                    seriesAdded(targetInfo.toString(), styleClass);
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-    }
-
-    //
-    // Must be called in JavaFX thread.
-    //
-    // Return the class used to style a serie.
-    //
-    public String getSeriesClass(XYChart.Series<Number, Number> series)
-    {
-        String value = null;
-        for(String styleClass : series.getNode().getStyleClass())
-        {
-            if(styleClass.startsWith("series"))
-            {
-                value = styleClass;
-                break;
-            }
-        }
-        return value;
-    }
-
-    private void addStyle(XYChart.Series<Number, Number> series, String seriesClass, String color, boolean dashed)
-    {
-        //
-        // Customize the style.
-        //
-        StringBuilder sb = new StringBuilder();
-        sb.append("-fx-stroke: ");
-        sb.append(color);
-        sb.append("; ");
-        sb.append("-fx-background-color: ");
-        sb.append(color);
-        sb.append(", white;");
-        if(dashed)
-        {
-            sb.append("-fx-stroke-dash-array: 10 10;");
-        }
-        sb.append("-fx-stroke-width: 5;");
-        _styles.put(seriesClass, sb.toString()); 
-    }
-
-    private void 
-    removeMetrics(MetricsViewInfo info)
-    {
-        _metrics.remove(info);
-        if(_metrics.size() == 0)
-        {
-            stopRefreshThread();
-        }
-        removeSeries(info);
-    }
-
-    //
-    // Remove all series associated to a Metrics View
-    //
-    private void removeSeries(final MetricsViewInfo info)
-    {
-        //
-        // Need to run in JavaFX thread.
-        //
-        Platform.runLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    Map<MetricsViewTargetInfo, XYChart.Series<Number, Number>> seriesSeq = _series.get(info);
-                    if(seriesSeq != null)
-                    {
-                        for(Map.Entry<MetricsViewTargetInfo, XYChart.Series<Number, Number>> entry : 
-                            seriesSeq.entrySet())
-                        {
-                            String seriesClass = getSeriesClass(entry.getValue());
-                            seriesRemoved(seriesClass);
-                            _styles.remove(seriesClass);
-                            //
-                            // Don't remove the XYChart.Series object here, to avoid the series style classes 
-                            // to be reasign by JavaFX.
-                            //
-                            // _chart.getData().remove(entry.getValue());
-                            entry.getValue().getData().clear();
-                        }
-                        _deltas.remove(info);
-                        _series.remove(info);
-                    }
-                }
-            });
     }
 
     synchronized long getRefreshPeriod()
@@ -1253,106 +1018,385 @@ public class GraphView extends JFrame
     {
         _dateFormat = dateFormat;
         _timeFormater.setDateFormat(dateFormat);
-    }
-
-    synchronized String getBandwithUnit()
-    {
-        return _bandwidthUnits[_bandwidthUnitIndex];
-    }
-
-    synchronized int getBandwidthUnitIndex()
-    {
-        return _bandwidthUnitIndex;
-    }
-
-    synchronized void setBandwidthUnitIndex(int index)
-    {
-        _bandwidthUnitIndex = index;
-    }
-
-    synchronized String getTimeUnit()
-    {
-        return _timeUnits[_timeUnitIndex];
-    }
-
-    synchronized int getTimeUnitIndex()
-    {
-        return _timeUnitIndex;
-    }
-
-    synchronized void setTimeUnitIndex(int index)
-    {
-        _timeUnitIndex = index;
-    }
-
-    synchronized float conversionFactor(int index)
-    {
-        return _type == GraphType.BandwidhGraphType ?
-                    _bandwidthUnitsFactors[index] / _bandwidthUnitsFactors[_bandwidthUnitIndex] : 
-                    _timeUnitsFactors[index] / _timeUnitsFactors[_timeUnitIndex];
-    }
-
-    synchronized String yAxisLabel(int index)
-    {
-        if(_type == GraphType.BandwidhGraphType)
-        {
-            return _bandwidthUnits[index];
-        }
-        else if(_type == GraphType.TotalAverageGraphType)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Average ");
-            if(_category == GraphCategory.DispatchGraphCategory)
+        //
+        // Update the horizontal axis label, in JavaFx thread.
+        //
+        _queue.enqueue(new Runnable()
             {
-                sb.append("dispatch ");
+                @Override
+                public void run()
+                {
+                    _xAxis.setLabel("Time (" + getDateFormat() + ")");
+                }
+            }, true);
+    }
+
+    synchronized private void setHorizontalSymbolsCount(final int count)
+    {
+        if(count < _horizontaSymbolsCount)
+        {
+            //
+            // When the number of symbolls decreases, we remove the oldest symbols
+            // of all series.
+            //
+            _queue.enqueue(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        for(XYChart.Series<Number, Number> series : _chart.getData())
+                        {
+                            while(series.getData().size() > count)
+                            {
+                                series.getData().remove(0);
+                            }
+                        }
+                    }
+                }, true);
+        }
+        _horizontaSymbolsCount = count;
+        
+    }
+
+    synchronized private int getHorizontalSymbolsCount()
+    {
+        return _horizontaSymbolsCount;
+    }
+
+    class MetricsRow
+    {
+        public MetricsRow(MetricsViewInfo info, MetricsCell cell, String color, XYChart.Series<Number, Number> series)
+        {
+            this.visible = true;
+            this.info = info;
+            this.cell = cell;
+            this.color = color;
+            this.series = series;
+        }
+
+        boolean visible;
+        MetricsViewInfo info;
+        MetricsCell cell;
+        String color;
+        XYChart.Series<Number, Number> series;
+    }
+
+    class LegendTableModel extends javax.swing.table.AbstractTableModel
+    {
+        public String getColumnName(int col)
+        {
+            return _columnNames[col];
+        }
+
+        public int getRowCount()
+        {
+            return _rows.size();
+        }
+
+        public int getColumnCount()
+        {
+            return _columnNames.length;
+        }
+
+        public Class getColumnClass(int columnIndex)
+	    {
+            switch(columnIndex)
+            {
+                case 0: // Node Name
+                {
+                    return Boolean.class;
+                }
+                case 1: // Node Name
+                {
+                    return String.class;
+                }
+                case 2: // Server Name
+                {
+                    return String.class;
+                }
+                case 3: // View Name
+                {
+                    return String.class;
+                }
+                case 4: // Metrics Name
+                {
+                    return String.class;
+                }
+                case 5: // Metrics Id
+                {
+                    return String.class;
+                }
+                case 6: // Column Name
+                {
+                    return String.class;
+                }
+                case 7: // Scale factor
+                {
+                    return Double.class;
+                }
+                case 8: // Last value
+                {
+                    return Double.class;
+                }
+                case 9: // Average value
+                {
+                    return Double.class;
+                }
+                case 10: // Min value
+                {
+                    return Double.class;
+                }
+                case 11: // Max value
+                {
+                    return Double.class;
+                }
+                case 12: // Color
+                {
+                    return Color.class;
+                }
+                default:
+                {
+                    return null;
+                }
+            }
+	    }
+
+        public Object getValueAt(int rowIndex, int columnIndex)
+        {
+            if(rowIndex > _rows.size() || columnIndex > _columnNames.length)
+            {
+                return null;
+            }
+            MetricsRow row = _rows.get(rowIndex);
+            switch(columnIndex)
+            {
+                case 0:
+                {
+                    return row.visible;
+                }
+                case 1:
+                {
+                    return row.info.node;
+                }
+                case 2:
+                {
+                    return row.info.server;
+                }
+                case 3:
+                {
+                    return row.info.view;
+                }
+                case 4:
+                {
+                    return row.cell.getField().getMetricsName();
+                }
+                case 5:
+                {
+                    return row.cell.getId();
+                }
+                case 6:
+                {
+                    return row.cell.getField().getColumnName();
+                }
+                case 7:
+                {
+                    return row.cell.getScaleFactor();
+                }
+                case 8:
+                {
+                    return row.cell.getLast();
+                }
+                case 9:
+                {
+                    return row.cell.getAverage();
+                }
+                case 10:
+                {
+                    return row.cell.getMin();
+                }
+                case 11:
+                {
+                    return row.cell.getMax();
+                }
+                case 12:
+                {
+                    return new Color(Integer.parseInt(row.color.substring(1), 16));
+                }
+                default:
+                {
+                    return null;
+                }
+            }
+        }
+
+        public boolean isCellEditable(int row, int col)
+        {
+            if(col < _columnNames.length && (_columnNames[col].equals("Show") || 
+                                             _columnNames[col].equals("Scale") ||
+                                             _columnNames[col].equals("Color")))
+            {
+                return true;
             }
             else
             {
-                sb.append("invocation ");
+                return false;
             }
-            sb.append("time (");
-            sb.append(_timeUnits[index]);
-            sb.append(")");
-            return sb.toString();
         }
-        else if(_category == GraphCategory.ThreadsGraphCategory)
+
+        public void setValueAt(final Object value, int rowIndex, int columnIndex)
         {
-            return "Threads";
+            if(isCellEditable(rowIndex, columnIndex))
+            {
+                final MetricsRow row = _rows.get(rowIndex);
+                if(_columnNames[columnIndex].equals("Show"))
+                {
+                    row.visible = ((Boolean)value).booleanValue();
+                    _queue.enqueue(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                setNodesVisible(getSeriesClass(row.series), row.visible);
+                            }
+                        }, true);
+                }
+                else if(_columnNames[columnIndex].equals("Scale"))
+                {
+                    double s1 = ((Double)getValueAt(rowIndex, columnIndex)).doubleValue();
+                    double s2 = ((Double)value).doubleValue();
+                    updateScaleFactor(row.series, s1, s2);
+                    row.cell.setScaleFactor(((Double)value).doubleValue());
+                }
+                else if(_columnNames[columnIndex].equals("Color"))
+                {
+                    Color color = (Color)value;
+                    //
+                    // Convert color to the CSS representation used by JavaFX style.
+                    // example: #ff00aa
+                    //
+                    row.color = "#" + String.format("%02X", color.getRed()) + 
+                                      String.format("%02X", color.getGreen()) +
+                                      String.format("%02X", color.getBlue());
+                    updateSeriesColor(row.series, row.color);
+                }
+                fireTableCellUpdated(rowIndex, columnIndex);
+            }
         }
-        else if(_category == GraphCategory.ConnectionsGraphCategory)
+
+        public void addRow(MetricsRow row)
         {
-            return "Connections";
+            int i = _rows.size();
+            _rows.put(i, row);
+            fireTableRowsInserted(i, i);
         }
-        else
+
+        public MetricsRow[] removeRows(int[] rowIndexes)
         {
-            return null;
+            MetricsRow[] deletedRows = new MetricsRow[rowIndexes.length];
+            for(int i = 0; i < rowIndexes.length; i++)
+            {
+                deletedRows[i] = _rows.remove(rowIndexes[i]);
+            }
+            Map<Integer, MetricsRow> rows = new HashMap<Integer, MetricsRow>();
+            for(Map.Entry<Integer, MetricsRow> e : _rows.entrySet())
+            {
+                rows.put(rows.size(), e.getValue());
+            }
+            _rows = rows;
+            fireTableDataChanged();
+            return deletedRows;
         }
+
+        public MetricsRow[] getRows(int[] rowIndexes)
+        {
+            MetricsRow[] rows = new MetricsRow[rowIndexes.length];
+            for(int i = 0; i < rowIndexes.length; i++)
+            {
+                rows[i] = _rows.get(rowIndexes[i]);
+            }
+            return rows;
+        }
+
+        public int getRowIndex(MetricsRow row)
+        {
+            int index = -1;
+            for(Map.Entry<Integer, MetricsRow> entry : _rows.entrySet())
+            {
+                if(row == entry.getValue())
+                {
+                    index = entry.getKey();
+                    break;
+                }
+            }
+            return index;
+        }
+
+        private Map<Integer, MetricsRow> _rows = new HashMap<Integer, MetricsRow>();
     }
 
-    synchronized int getUnitsSelectedIndex()
+    void
+    updateScaleFactor(final XYChart.Series<Number, Number> series, final double s1, final double s2)
     {
-        if(_type == GraphType.BandwidhGraphType)
+        //
+        // Must run in JavaFX thread.
+        //
+        _queue.enqueue(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    for(XYChart.Data<Number, Number> i : series.getData())
+                    {
+                        i.setYValue(i.getYValue().doubleValue() * s2 / s1);
+                    }
+                }
+            }, true);
+    }
+
+    void
+    updateSeriesColor(final XYChart.Series<Number, Number> series, final String color)
+    {
+        //
+        // Must run in JavaFX thread.
+        //
+        _queue.enqueue(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    String cssClass = getSeriesClass(series);
+                    addStyle(series, cssClass, color);
+                    setNodesStyle(cssClass);
+                }
+            }, true);
+    }
+
+    //
+    // Must be called in JavaFX thread.
+    //
+    // Return the class used to style a serie.
+    //
+    public String getSeriesClass(XYChart.Series<Number, Number> series)
+    {
+        String value = null;
+        for(String styleClass : series.getNode().getStyleClass())
         {
-            return _bandwidthUnitIndex;
+            if(styleClass.startsWith("series"))
+            {
+                value = styleClass;
+                break;
+            }
         }
-        else if(_type == GraphType.TotalAverageGraphType)
-        {
-            return _timeUnitIndex;
-        }
-        else
-        {
-            return 0;
-        }
+        return value;
     }
 
     //
     // Must be called on JavaFX thread
     //
-    private void updateStyle(final XYChart.Series<Number, Number> series, String seriesClass)
+    private void setNodesStyle(String seriesClass)
     {
         String style = _styles.get(seriesClass);
-        java.util.Set<javafx.scene.Node> nodes = _chart.lookupAll("." + seriesClass);
-        for(javafx.scene.Node n : nodes)
+        for(javafx.scene.Node n : _chart.lookupAll("." + seriesClass))
         {
             n.setStyle(style);
         }
@@ -1361,106 +1405,175 @@ public class GraphView extends JFrame
     //
     // Must be called on JavaFX thread
     //
-    private void
-    seriesAdded(String name, String styleClass)
+    private void setNodesVisible(String seriesClass, boolean visible)
     {
-        VBox vbox = new VBox(5);
-        vbox.setPadding(new javafx.geometry.Insets(5, 5, 5, 5));
-
-        Line line = new Line(0, 10, 250, 10);
-        line.setStyle(_styles.get(styleClass));
-        
-        
-        Label label = new Label(name);
-        label.setPrefWidth(250);
-        label.setMaxWidth(250);
-        label.setWrapText(true);
-
-        if(!_legendScroll.isVisible() && _legend.getChildren().size() == 0)
+        for(javafx.scene.Node n : _chart.lookupAll("." + seriesClass))
         {
-            _legendScroll.setVisible(true);
-            SwingUtilities.invokeLater(new Runnable()
-                {
-                    public void run()
-                    {
-                        _showLegendMenuItem.setState(true);
-                    }
-                });
+            n.setVisible(visible);
         }
-        vbox.getChildren().addAll(line, label);
-
-        vbox.setStyle("-fx-border-color: #c0c0c0;; -fx-border-radius: 5; -fx-background-color: #f5f5f5;");
-        _legend.getChildren().add(vbox);
-        _legendItems.put(styleClass, vbox);
     }
 
-    private void
-    seriesRemoved(String styleClass)
+    //
+    // Must be called on JavaFX thread
+    //
+    private void addStyle(XYChart.Series<Number, Number> series, String seriesClass, String color)
     {
-        VBox vbox = _legendItems.get(styleClass);
-        if(vbox != null)
+        //
+        // Customize the style.
+        //
+        StringBuilder sb = new StringBuilder();
+        sb.append("-fx-stroke: ");
+        sb.append(color);
+        sb.append("; ");
+        sb.append("-fx-background-color: ");
+        sb.append(color);
+        sb.append(", white;");
+        sb.append("-fx-stroke-width: 3;");
+        _styles.put(seriesClass, sb.toString()); 
+    }
+
+    static class DecimalRenderer extends DefaultListCellRenderer
+    { 
+        public DecimalRenderer(ListCellRenderer renderer)
         {
-            _legendItems.remove(styleClass);
-            _legend.getChildren().remove(vbox);
-            if(_legendScroll.isVisible() && _legend.getChildren().size() == 0)
+            this._renderer = renderer;
+        }
+ 
+        @Override
+        public Component
+        getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+        {
+            @SuppressWarnings("unchecked")
+            Component c = _renderer.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+            if(c instanceof JLabel)
             {
-                _legendScroll.setVisible(false);
-                SwingUtilities.invokeLater(new Runnable()
-                    {
-                        public void run()
-                        {
-                            _showLegendMenuItem.setState(false);
-                        }
-                    });
+                ((JLabel) c).setText(_format.format(value));
             }
+            else
+            {
+                c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(_format.format(value));
+            }
+            return c;
+        }
+
+        private ListCellRenderer _renderer;
+        private static final DecimalFormat _format = new DecimalFormat("#,###,###,##0.00#######");
+    }
+
+    public class ColorEditor extends AbstractCellEditor implements TableCellEditor, ActionListener
+    {
+        public ColorEditor()
+        {
+            _button = new JButton();
+            _button.setActionCommand(EDIT);
+            _button.addActionListener(this);
+            _button.setBorderPainted(false);
+
+            _colorChooser = new JColorChooser();
+            _dialog = JColorChooser.createDialog(_button, "Select the series color", true, _colorChooser, this, null);
+            
+        }
+
+        public void actionPerformed(ActionEvent e)
+        {
+            if(EDIT.equals(e.getActionCommand()))
+            {
+                _button.setBackground(_currentColor);
+                _colorChooser.setColor(_currentColor);
+                _dialog.setVisible(true);
+                //Make the renderer reappear.
+                fireEditingStopped();
+            }
+            else
+            {
+                _currentColor = _colorChooser.getColor();
+            }
+        }
+
+        public Object getCellEditorValue()
+        {
+            return _currentColor;
+        }
+
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected,
+                                                     int row, int column)
+        {
+            _currentColor = (Color)value;
+            return _button;
+        }
+
+        Color _currentColor;
+        JButton _button;
+        JColorChooser _colorChooser;
+        JDialog _dialog;
+        protected static final String EDIT = "edit";
+    }
+
+    static class ColorRenderer extends JLabel implements TableCellRenderer
+    {
+        Border unselectedBorder = null;
+        Border selectedBorder = null;
+        boolean isBordered = true;
+ 
+        public ColorRenderer(boolean isBordered)
+        {
+            this.isBordered = isBordered;
+            setOpaque(true); //MUST do this for background to show up.
+        }
+ 
+        public Component getTableCellRendererComponent(JTable table, Object color, boolean isSelected, boolean hasFocus,
+                                                       int row, int column)
+        {
+            Color newColor = (Color)color;
+            setBackground(newColor);
+            if(isBordered)
+            {
+                if(isSelected)
+                {
+                    if(selectedBorder == null)
+                    {
+                        selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getSelectionBackground());
+                    }
+                    setBorder(selectedBorder);
+                }
+                else
+                {
+                    if(unselectedBorder == null)
+                    {
+                        unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5, table.getBackground());
+                    }
+                    setBorder(unselectedBorder);
+                }
+            }
+            return this;
         }
     }
 
     private final Coordinator _coordinator;
     private RefreshThread _refreshThread;
-    private final List<MetricsViewInfo> _metrics = new ArrayList<MetricsViewInfo>();
-    private Map<MetricsViewInfo, Map<MetricsViewTargetInfo, XYChart.Series<Number, Number>>> _series = 
-                            new HashMap<MetricsViewInfo, Map<MetricsViewTargetInfo, XYChart.Series<Number, Number>>>();
 
-    private Map<MetricsViewTargetInfo, DeltaInfo> _deltas = new HashMap<MetricsViewTargetInfo, DeltaInfo>();
-    private Map<String, String> _styles = new HashMap<String, String>();
-    private Map<String, VBox> _legendItems = new HashMap<String, VBox>();
-    
-    private LineChart<Number, Number> _chart;
-    private ScrollPane _legendScroll;
-    private VBox _legend;
-    private final GraphCategory _category;
-    private final GraphType _type;
-    private final String _key;
     private int _horizontaSymbolsCount = 10;
-
     private long _refreshPeriod = 5000;
 
     private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];
+    private final TimeFormatter _timeFormater = new TimeFormatter(_dateFormat);
+    private final Object _monitor = new Object();
 
-    private String[] _bandwidthUnits = new String[]{"Bytes/s", "KBytes/s", "Bytes/min", "KBytes/min"};
-    private float[] _bandwidthUnitsFactors = new float[]{1000.0f, 1.0f, 60000.0f, 60.0f};
-    private int _bandwidthUnitIndex = 0;
+    private LineChart<Number, Number> _chart;
+    private NumberAxis _xAxis;
+    private NumberAxis _yAxis;
 
-    private String[] _timeUnits = new String[]{"\u00B5s", "ms", "s"};
-    private float [] _timeUnitsFactors = new float[]{1.0f, 0.001f, 0.000001f};
-    private int _timeUnitIndex = 1;
+    private final static String[] _columnNames = new String[]{"Show", "Node", "Server", "Metrics View Name", 
+                                                              "Metrics Name", "Metrics Id", "Metrics Field", "Scale", 
+                                                              "Last", "Average", "Minimum", "Maximum", "Color"};
 
-    final TimeFormatter _timeFormater = new TimeFormatter();
-    final Object _monitor = new Object();
+    private final Map<MetricsViewInfo, Map<String, Map<String, Map<String, MetricsRow>>>> _series =
+                                    new HashMap<MetricsViewInfo, Map<String, Map<String, Map<String, MetricsRow>>>>();
 
-    private JCheckBoxMenuItem _showLegendMenuItem;
-
-    NumberAxis _xAxis;
-    NumberAxis _yAxis;
-
-    private final static String NodeMimeType = 
-                                "application/x-java-jvm-local-objectref; class=IceGridGUI.LiveDeployment.Node";
-    private final static String ServerMimeType =
-                                "application/x-java-jvm-local-objectref; class=IceGridGUI.LiveDeployment.Server";
-    private final static String MetricsViewMimeType = 
-                                "application/x-java-jvm-local-objectref; class=IceGridGUI.LiveDeployment.MetricsView";
+    private final static String MetricsCellFlavor = 
+                            "application/x-icegridadmin-metrics-cells; class=java.io.InputStream";
 
     private final static String[] DefaultColors = new String[]
                                                     {
@@ -1481,4 +1594,32 @@ public class GraphView extends JFrame
                                                         "#00BFFF", // DeepSkyBlue
                                                         "#4B0082", // Indigo
                                                     };
+
+    private final JTable _legendTable;
+    private final LegendTableModel _legendModel = new LegendTableModel();
+
+    private final Map<String, String> _styles = new HashMap<String, String>();
+
+    private final Double[] _scales = new Double[]{0.000000001d, 
+                                                  0.00000001d,
+                                                  0.0000001d, 
+                                                  0.000001d, 
+                                                  0.00001d,
+                                                  0.0001d, 
+                                                  0.001d, 
+                                                  0.01d, 
+                                                  0.1d, 
+                                                  1.0d, 
+                                                  10.0d, 
+                                                  100.0d,
+                                                  1000.0d,
+                                                  10000.0d, 
+                                                  100000.0d, 
+                                                  1000000.0d, 
+                                                  10000000.0d,
+                                                  100000000.0d,
+                                                  1000000000.0d};
+    private final WorkQueue _queue;
+    private final Preferences _preferences;
 }
+
