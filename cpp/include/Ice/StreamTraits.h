@@ -20,28 +20,28 @@ namespace Ice
 
 //
 // The different types of Slice types supported by the stream
-// marshalling/un-marshalling methods.
+// marshaling/unmarshaling methods.
 //
-enum StreamTraitType
-{
-    StreamTraitTypeBuiltin,
-    StreamTraitTypeStruct,
-    StreamTraitTypeStructClass, // struct with cpp:class metadata
-    StreamTraitTypeEnum,
-    StreamTraitTypeSequence,
-    StreamTraitTypeDictionary,
-    StreamTraitTypeProxy,
-    StreamTraitTypeClass,
-    StreamTraitTypeUserException,
-    StreamTraitTypeCustom
-};
+
+typedef int StreamTraitType;
+
+const StreamTraitType StreamTraitTypeUnknown = 0;
+const StreamTraitType StreamTraitTypeBuiltin = 1;
+const StreamTraitType StreamTraitTypeStruct = 2;
+const StreamTraitType StreamTraitTypeStructClass = 3; // struct with cpp:class metadata
+const StreamTraitType StreamTraitTypeEnum = 4;
+const StreamTraitType StreamTraitTypeSequence = 5;
+const StreamTraitType StreamTraitTypeDictionary = 6;
+const StreamTraitType StreamTraitTypeProxy = 7;
+const StreamTraitType StreamTraitTypeClass = 8;
+const StreamTraitType StreamTraitTypeUserException = 9;
 
 //
 // The optional type.
 //
 // Optional data members or attribute is encoded with a specific
 // optional type. This optional type describes how the data is encoded
-// and how it can be skipped by the un-marhsalling code if the optional
+// and how it can be skipped by the unmarshaling code if the optional
 // isn't known to the receiver.
 //
 enum OptionalType
@@ -96,11 +96,11 @@ struct IsMap
 // Base trait template.
 // Types with no specialized trait use this trait.
 //
-template<typename T>
+template<typename T, typename Enabler = void>
 struct StreamTrait
 {
     static const StreamTraitType type = IsMap<T>::value ? StreamTraitTypeDictionary :
-        (IsContainer<T>::value ? StreamTraitTypeSequence : StreamTraitTypeCustom);
+        (IsContainer<T>::value ? StreamTraitTypeSequence : StreamTraitTypeUnknown);
 
     //
     // When extracting a sequence<T> from a stream, we can ensure the 
@@ -123,7 +123,7 @@ struct StreamTrait
 template<typename T>
 struct IsFixedLength
 {
-    typedef typename StreamTrait<T> Traits;
+    typedef StreamTrait<T> Traits;
     
     static const bool value = (Traits::optionalType <= OptionalTypeF8)
         || ((Traits::type == StreamTraitTypeStruct || Traits::type == StreamTraitTypeStructClass)
@@ -355,7 +355,7 @@ struct StreamHelper<T, StreamTraitTypeSequence>
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        Int sz = stream->readAndCheckSeqSize(StreamTrait<T::value_type>::minWireSize);
+        Int sz = stream->readAndCheckSeqSize(StreamTrait<typename T::value_type>::minWireSize);
         T(sz).swap(v);
         for(typename T::iterator p = v.begin(); p != v.end(); ++p)
         {
@@ -524,16 +524,26 @@ struct StreamOptionalHelper
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
+#ifdef ICE_CPP11
+        static_assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
+                      || st == StreamTraitTypeBuiltin, "Bad helper");
+#else
         assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
                || st == StreamTraitTypeBuiltin);
+#endif
         StreamHelper<T, st>::write(stream, v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
+#ifdef ICE_CPP11
+        static_assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
+                      || st == StreamTraitTypeBuiltin, "Bad helper");
+#else
         assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
                || st == StreamTraitTypeBuiltin);
+#endif
         StreamHelper<T, st>::read(stream, v);
     }
 };
@@ -568,7 +578,7 @@ struct StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        stream->write((Int)0);
+        stream->write(static_cast<Int>(0));
         typename S::size_type p = stream->pos();
         stream->write(v);
         stream->rewrite(static_cast<Int>(stream->pos() - p), p - 4);

@@ -1332,27 +1332,6 @@ void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     string name = fixKwd(p->name());
-    TypePtr type = p->type();
-    if(p->container() != 0 && 
-       (StructPtr::dynamicCast(p->container()) || ExceptionPtr::dynamicCast(p->container())) &&
-       SequencePtr::dynamicCast(type))
-    {
-        SequencePtr s = SequencePtr::dynamicCast(type);
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
-        if(builtin && builtin->kind() == Builtin::KindByte)
-        {
-            StringList metaData = s->getMetaData();
-            bool protobuf;
-            findMetaData(s, metaData, protobuf);
-            if(protobuf)
-            {
-                emitWarning(p->file(), p->line(), string("protobuf cannot be used as a ") + 
-                                                  (StructPtr::dynamicCast(p->container()) ? "struct" : "exception") +
-                                                  " member in C++");
-            }
-        }
-    }
-
     H << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring) << ' ' << name << ';';
 }
 
@@ -1364,19 +1343,16 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string s = typeToString(type, p->typeMetaData(), _useWstring);
     StringList metaData = p->getMetaData();
 
-    bool protobuf;
-    string seqType = findMetaData(p, metaData, protobuf);
+    string seqType = findMetaData(metaData, _useWstring);
     H << sp;
-    if(!protobuf)
+
+    if(!seqType.empty())
     {
-        if(!seqType.empty())
-        {
-            H << nl << "typedef " << seqType << ' ' << name << ';';
-        }
-        else
-        {
-            H << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
-        }
+        H << nl << "typedef " << seqType << ' ' << name << ';';
+    }
+    else
+    {
+        H << nl << "typedef ::std::vector<" << (s[0] == ':' ? " " : "") << s << "> " << name << ';';
     }
 }
 
@@ -1393,22 +1369,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         //
 
         TypePtr keyType = p->keyType();
-        if(SequencePtr::dynamicCast(keyType))
-        {
-            SequencePtr s = SequencePtr::dynamicCast(keyType);
-            BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
-            if(builtin && builtin->kind() == Builtin::KindByte)
-            {
-                StringList metaData = s->getMetaData();
-                bool protobuf;
-                findMetaData(s, metaData, protobuf);
-                if(protobuf)
-                {
-                    emitWarning(p->file(), p->line(), "protobuf cannot be used as a dictionary key in C++");
-                }
-            }
-        }
-        
         TypePtr valueType = p->valueType();
         string ks = typeToString(keyType, p->keyMetaData(), _useWstring);
         if(ks[0] == ':')
@@ -4531,24 +4491,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
 void
 Slice::Gen::ObjectVisitor::emitDataMember(const DataMemberPtr& p)
-{
-    TypePtr type = p->type();
-    if(SequencePtr::dynamicCast(type))
-    {
-        SequencePtr s = SequencePtr::dynamicCast(type);
-        BuiltinPtr builtin = BuiltinPtr::dynamicCast(s->type());
-        if(builtin && builtin->kind() == Builtin::KindByte)
-        {
-            StringList metaData = s->getMetaData();
-            bool protobuf;
-            findMetaData(s, metaData, protobuf);
-            if(protobuf)
-            {
-                emitWarning(p->file(), p->line(), "protobuf cannot be used as a class member in C++");
-            }
-        }
-    }
-
+{  
     string name = fixKwd(p->name());
     H << sp << nl << typeToString(p->type(), p->optional(), p->getMetaData(), _useWstring) << ' ' << name << ';';
 }
@@ -6366,34 +6309,7 @@ Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 void
 Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
-    StringList metaData = p->getMetaData();
-    const string file = p->file();
-    const string line = p->line();
-    static const string prefix = "cpp:protobuf";
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
-    {
-        string s = *q++;
-        if(_history.count(s) == 0)
-        {
-            if(s.find(prefix) == 0)
-            {
-                //
-                // Remove from list so validate does not try to handle as well.
-                //
-                metaData.remove(s);
-
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
-                if(!builtin || builtin->kind() != Builtin::KindByte)
-                {
-                    _history.insert(s);
-                    emitWarning(file, line, "ignoring invalid metadata `" + s + "':\n"+
-                                "`protobuf' encoding must be a byte sequence.");
-                }
-            }
-        }
-    }
-
-    validate(p, metaData, file, line);
+    validate(p, p->getMetaData(), p->file(), p->line());
 }
 
 void

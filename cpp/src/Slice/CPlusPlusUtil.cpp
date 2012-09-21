@@ -106,12 +106,12 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     else
     {
         // Get the metadata associated at the point of definition.
-        bool protobuf;
-        seqType = findMetaData(seq, seq->getMetaData(), protobuf, typeCtx);
-        if(protobuf && !seqType.empty())
+        seqType = findMetaData(seq->getMetaData(), typeCtx);
+        if(!seqType.empty())
         {
             return seqType;
         }
+
         return fixKwd(seq->scoped());
     }
 }
@@ -154,17 +154,12 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        bool protobuf;
-        string seqType = findMetaData(seq, metaData, protobuf, typeCtx);
-        if(!protobuf && seqType.empty())
+        string seqType = findMetaData(metaData, typeCtx);
+        if(seqType.empty())
         {
-            seqType = findMetaData(seq, seq->getMetaData(), protobuf, typeCtx);
+            seqType = findMetaData(seq->getMetaData(), typeCtx);
         }
-        if(protobuf)
-        {
-            return;
-        }
-
+        
         string s;
         if(seqType == "%array" || seqType == "%range:array")
         {
@@ -197,74 +192,71 @@ writeParamEndCode(Output& out, const TypePtr& type, bool optional, const string&
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        bool protobuf;
-        string seqType = findMetaData(seq, metaData, protobuf, TypeContextInParam);
-        if(!protobuf && seqType.empty())
+        string seqType = findMetaData(metaData, TypeContextInParam);
+        if(seqType.empty())
         {
-            seqType = findMetaData(seq, seq->getMetaData(), protobuf, TypeContextInParam);
+            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
         }
-        if(!protobuf)
+       
+        if(seqType == "%array" || seqType == "%range:array")
         {
-            if(seqType == "%array" || seqType == "%range:array")
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            if(builtin && 
+               builtin->kind() != Builtin::KindByte &&
+               builtin->kind() != Builtin::KindString &&
+               builtin->kind() != Builtin::KindObject &&
+               builtin->kind() != Builtin::KindObjectProxy)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                if(builtin && 
-                   builtin->kind() != Builtin::KindByte &&
-                   builtin->kind() != Builtin::KindString &&
-                   builtin->kind() != Builtin::KindObject &&
-                   builtin->kind() != Builtin::KindObjectProxy)
+                if(optional)
                 {
-                    if(optional)
-                    {
-                        out << nl << "if(___" << fixedName << ")";
-                        out << sb;
-                        out << nl << fixedName << " = ___" << fixedName << "->second;";
+                    out << nl << "if(___" << fixedName << ")";
+                    out << sb;
+                    out << nl << fixedName << " = ___" << fixedName << "->second;";
                         out << eb;
-                    }
-                    else
-                    {
-                        out << nl << fixedName << " = ___" << fixedName << ".second;";
-                    }
                 }
-                else if(!builtin || 
-                        builtin->kind() == Builtin::KindString || 
-                        builtin->kind() == Builtin::KindObject ||
-                        builtin->kind() == Builtin::KindObjectProxy)
+                else
                 {
-                    if(optional)
-                    {
-                        out << nl << "if(___" << fixedName << ")";
-                        out << sb;
-                        out << nl << fixedName << ".__setIsSet();";
-                        out << nl << fixedName << "->first" << " = &(*___" << fixedName << ")[0];";
-                        out << nl << fixedName << "->second" << " = " << fixedName << "->first + " << "___" 
-                            << fixedName << "->size();";
-                        out << eb;
-                    }
-                    else
-                    {
-                        out << nl << fixedName << ".first" << " = &___" << fixedName << "[0];";
-                        out << nl << fixedName << ".second" << " = " << fixedName << ".first + " << "___" 
-                            << fixedName << ".size();";
-                    }
+                    out << nl << fixedName << " = ___" << fixedName << ".second;";
                 }
             }
-            else if(seqType.find("%range") == 0)
+            else if(!builtin || 
+                    builtin->kind() == Builtin::KindString || 
+                    builtin->kind() == Builtin::KindObject ||
+                    builtin->kind() == Builtin::KindObjectProxy)
             {
                 if(optional)
                 {
                     out << nl << "if(___" << fixedName << ")";
                     out << sb;
                     out << nl << fixedName << ".__setIsSet();";
-                    out << nl << fixedName << "->first = (*___" << fixedName << ").begin();";
-                    out << nl << fixedName << "->second = (*___" << fixedName << ").end();";
+                    out << nl << fixedName << "->first" << " = &(*___" << fixedName << ")[0];";
+                    out << nl << fixedName << "->second" << " = " << fixedName << "->first + " << "___" 
+                        << fixedName << "->size();";
                     out << eb;
                 }
                 else
                 {
-                    out << nl << fixedName << ".first = ___" << fixedName << ".begin();";
-                    out << nl << fixedName << ".second = ___" << fixedName << ".end();";
+                    out << nl << fixedName << ".first" << " = &___" << fixedName << "[0];";
+                    out << nl << fixedName << ".second" << " = " << fixedName << ".first + " << "___" 
+                        << fixedName << ".size();";
                 }
+            }
+        }
+        else if(seqType.find("%range") == 0)
+        {
+            if(optional)
+            {
+                out << nl << "if(___" << fixedName << ")";
+                out << sb;
+                out << nl << fixedName << ".__setIsSet();";
+                out << nl << fixedName << "->first = (*___" << fixedName << ").begin();";
+                out << nl << fixedName << "->second = (*___" << fixedName << ").end();";
+                out << eb;
+            }
+            else
+            {
+                out << nl << fixedName << ".first = ___" << fixedName << ".begin();";
+                out << nl << fixedName << ".second = ___" << fixedName << ".end();";
             }
         }
     }
@@ -962,39 +954,36 @@ Slice::getEndArg(const TypePtr& type, const StringList& metaData, const string& 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        bool protobuf;
-        string seqType = findMetaData(seq, metaData, protobuf, TypeContextInParam);
-        if(!protobuf && seqType.empty())
+        string seqType = findMetaData(metaData, TypeContextInParam);
+        if(seqType.empty())
         {
-            seqType = findMetaData(seq, seq->getMetaData(), protobuf, TypeContextInParam);
+            seqType = findMetaData(seq->getMetaData(), TypeContextInParam);
         }
-        if(!protobuf)
+       
+        if(seqType == "%array" || seqType == "%range:array")
         {
-            if(seqType == "%array" || seqType == "%range:array")
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+            if(builtin && 
+               builtin->kind() != Builtin::KindByte &&
+               builtin->kind() != Builtin::KindString &&
+               builtin->kind() != Builtin::KindObject &&
+               builtin->kind() != Builtin::KindObjectProxy)
             {
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                if(builtin && 
-                   builtin->kind() != Builtin::KindByte &&
-                   builtin->kind() != Builtin::KindString &&
-                   builtin->kind() != Builtin::KindObject &&
-                   builtin->kind() != Builtin::KindObjectProxy)
-                {
-                    endArg = "___" + endArg;
-                }
-                else if(!builtin || builtin->kind() != Builtin::KindByte)
-                {
-                    endArg = "___" + endArg;
-                }
-            }
-            else if(seqType.find("%range") == 0)
-            {
-                StringList md;
-                if(seqType.find("%range:") == 0)
-                {
-                    md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
-                }
                 endArg = "___" + endArg;
             }
+            else if(!builtin || builtin->kind() != Builtin::KindByte)
+            {
+                endArg = "___" + endArg;
+            }
+        }
+        else if(seqType.find("%range") == 0)
+        {
+            StringList md;
+            if(seqType.find("%range:") == 0)
+            {
+                md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
+            }
+            endArg = "___" + endArg;
         }
     }
     return endArg;
@@ -1013,99 +1002,6 @@ Slice::writeEndCode(Output& out, const ParamDeclList& params, const OperationPtr
     }
 }
 
-// Accepted metadata.
-//
-// cpp:type:<typename>
-// cpp:const
-// cpp:array
-// cpp:range:<typename>
-// cpp:protobuf<:typename>
-//
-// For the new AMI mapping, we ignore the array and range directives because they don't apply.
-//
-// This form is for sequences definitions only.
-//
-string
-Slice::findMetaData(const SequencePtr& seq, const StringList& metaData, bool& isProtobuf, int typeCtx)
-{
-    isProtobuf = false;
-    static const string prefix = "cpp:";
-    for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
-    {
-        string str = *q;
-        if(str.find(prefix) == 0)
-        {
-            string::size_type pos = str.find(':', prefix.size());
-            string ss = str.substr(prefix.size());
-
-            //
-            // If the form is cpp:type:<...> the data after cpp:type:
-            // is returned.
-	    // If the form is cpp:range[:<...>], cpp:array or cpp:class,
-	    // the return value is % followed by the string after cpp:.
-            //
-            if(ss.find("protobuf") == 0 || pos != string::npos)
-            {
-                if(ss.find("type:") == 0)
-                {
-                    return str.substr(pos + 1);
-                }
-                else if(ss.find("protobuf:") == 0)
-                {
-                    BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-                    if(!builtin || builtin->kind() != Builtin::KindByte)
-                    {
-                        continue;
-                    }
-                    isProtobuf = true;
-                    if(pos != string::npos)
-                    {
-                        return str.substr(pos + 1);
-                    }
-                    return "";
-                }
-                else if((typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd)) &&
-                        !(typeCtx & TypeContextAMIEnd) && ss.find("range:") == 0)
-                {
-                    return string("%") + str.substr(prefix.size());
-                }
-                else if((typeCtx & TypeContextAMIPrivateEnd) && ss == "range:array")
-                {
-                    return "%range:array";
-                }
-            }
-            //
-            // If the data is an inParam and the metadata is cpp:array
-            // or cpp:range then array or range is returned.
-            //
-            else if(typeCtx & (TypeContextInParam | TypeContextAMIPrivateEnd) && !(typeCtx & TypeContextAMIEnd))
-            {
-                if(ss == "array")
-                {
-                    return "%array";
-                }
-                else if((typeCtx & TypeContextInParam) && ss == "range")
-                {
-                    return "%range";
-                }
-            }
-            //
-            // Otherwise if the data is "class" it is returned.
-            //
-            else
-            {
-                if(ss == "class")
-                {
-                    return "%class";
-                }
-            }
-        }
-    }
-
-    return "";
-}
-
-// Does not handle cpp:protobuf
 string
 Slice::findMetaData(const StringList& metaData, int typeCtx)
 {
@@ -1126,7 +1022,7 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());
-                if(ss.find("type:") == 0)
+                if(ss.find("type:") == 0 || ss.find("protobuf:") == 0)
                 {
                     return str.substr(pos + 1);
                 }
