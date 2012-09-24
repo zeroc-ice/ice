@@ -6096,20 +6096,20 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << sb;
         if(classMetaData)
         {
-            H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStructClass;";
+            H << nl << "static const StreamTraitType type = StreamTraitTypeStructClass;";
         }
         else
         {
-            H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeStruct;";
+            H << nl << "static const StreamTraitType type = StreamTraitTypeStruct;";
         }
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         if(p->isVariableLength())
         {
-            H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeFSize;";
+            H << nl << "static const bool fixedLength = false;";
         }
         else
         {
-            H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeVSize;";
+            H << nl << "static const bool fixedLength = true;";
         }
         H << eb << ";" << nl;
     }
@@ -6123,10 +6123,10 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     H << nl << "template<>";
     H << nl << "struct StreamTrait< " << scoped << ">";
     H << sb;
-    H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeEnum;";
+    H << nl << "static const StreamTraitType type = StreamTraitTypeEnum;";
     H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << nl << "static const ::Ice::OptionalType optionalType = ::Ice::OptionalTypeSize;";
+    H << nl << "static const bool fixedLength = false;";
     H << eb << ";" << nl;
 }
 

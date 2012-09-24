@@ -105,13 +105,6 @@ sequenceTypeToString(const SequencePtr& seq, const StringList& metaData, int typ
     }
     else
     {
-        // Get the metadata associated at the point of definition.
-        seqType = findMetaData(seq->getMetaData(), typeCtx);
-        if(!seqType.empty())
-        {
-            return seqType;
-        }
-
         return fixKwd(seq->scoped());
     }
 }

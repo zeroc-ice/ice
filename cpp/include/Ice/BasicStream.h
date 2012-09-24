@@ -518,19 +518,19 @@ public:
 
         if(writeOpt(tag, Ice::StreamOptionalHelper<T,
                                                    Ice::StreamTrait<T>::type, 
-                                                   Ice::StreamTrait<T>::optionalType>::optionalType))
+                                                   Ice::StreamTrait<T>::fixedLength>::optionalType))
         {
-            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::write(this, *v);
+            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::write(this, *v);
         }
     }
     template<typename T> void read(Ice::Int tag, IceUtil::Optional<T>& v)
     {
         if(readOpt(tag, Ice::StreamOptionalHelper<T, 
                                                   Ice::StreamTrait<T>::type, 
-                                                  Ice::StreamTrait<T>::optionalType>::optionalType))
+                                                  Ice::StreamTrait<T>::fixedLength>::optionalType))
         {
             v.__setIsSet();
-            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::read(this, *v);
+            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::read(this, *v);
         }
         else
         {

@@ -235,6 +235,12 @@ InputStreamI::read(wstring& v)
 }
 
 void
+InputStreamI::read(vector<bool>& v)
+{
+    _is->read(v);
+}
+
+void
 InputStreamI::read(pair<const bool*, const bool*>& p, ::IceUtil::ScopedArray<bool>& result)
 {
     result.reset(_is->read(p));
@@ -524,6 +530,12 @@ OutputStreamI::write(const vector<string>& v, bool convert)
 
 void
 OutputStreamI::write(const wstring& v)
+{
+    _os->write(v);
+}
+
+void 
+OutputStreamI::write(const vector<bool>& v)
 {
     _os->write(v);
 }

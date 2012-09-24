@@ -97,28 +97,6 @@ public:
 
     virtual void sliceObjects(bool) = 0;
 
-    //
-    // Sequences of bool are handled specifically because C++
-    // optimizations for vector<bool> prevent us from reading vector
-    // of bools the same way as other sequences.
-    //
-    void 
-    read(std::vector<bool>& v)
-    {
-        Int sz = readAndCheckSeqSize(StreamTrait<bool>::minWireSize);
-        v.resize(sz);
-        for(std::vector<bool>::iterator p = v.begin(); p != v.end(); ++p)
-        {
-            //
-            // We can't just call inS->read(*p) here because *p is
-            // a compiler dependent bit reference.
-            //
-            bool b;
-            read(b);
-            *p = b;
-        }
-    }
-
     virtual Int readSize() = 0;
     virtual Int readAndCheckSeqSize(int) = 0;
 
@@ -209,7 +187,12 @@ public:
     virtual void read(::std::string&, bool = true) = 0;
     virtual void read(::std::vector< ::std::string>&, bool) = 0; // Overload required for additional bool argument.
     virtual void read(::std::wstring&) = 0;
-
+    
+    //
+    // std::vector<bool> is a special C++ type, so we give it its own read function
+    //
+    virtual void read(::std::vector<bool>&) = 0;
+    
     virtual void read(::std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&) = 0;
     virtual void read(::std::pair<const Byte*, const Byte*>&) = 0;
     virtual void read(::std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&) = 0;
@@ -229,10 +212,10 @@ public:
     {
         if(readOptional(tag, StreamOptionalHelper<T, 
                                                   Ice::StreamTrait<T>::type, 
-                                                  Ice::StreamTrait<T>::optionalType>::optionalType))
+                                                  Ice::StreamTrait<T>::fixedLength>::optionalType))
         {
             v.__setIsSet();
-            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::read(this, *v);
+            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::read(this, *v);
         }
     }
 
@@ -324,6 +307,11 @@ public:
     virtual void write(const char*, bool = true) = 0;
     virtual void write(const ::std::wstring&) = 0;
 
+    //
+    // std::vector<bool> is a special C++ type, so we give it its own write function
+    //
+    virtual void write(const ::std::vector<bool>&) = 0;
+
     virtual void write(const bool*, const bool*) = 0;
     virtual void write(const Byte*, const Byte*) = 0;
     virtual void write(const Short*, const Short*) = 0;
@@ -337,23 +325,6 @@ public:
     virtual void startSize() = 0;
     virtual void endSize() = 0;
 
-//
-// COMPILER FIX: clang using libc++ cannot use the StreamHelper to write
-// vector<bool>, as vector<bool> get optimized to
-// __bit_const_reference that has not size member function.
-//
-#if defined(__clang__) && defined(_LIBCPP_VERSION)
-    virtual void write(const ::std::vector<bool>& v)
-    {
-        writeSize(static_cast<Int>(v.size()));
-        for(::std::vector<bool>::const_iterator p = v.begin(); p != v.end(); ++p)
-        {
-            bool v = (*p);
-            write(v);
-        }
-    }
-#endif
-
     template<typename T> inline void write(const T& v)
     {
         StreamHelper<T, StreamTrait<T>::type>::write(this, v);
@@ -365,8 +336,8 @@ public:
         {
             writeOptional(tag, StreamOptionalHelper<T,
                                                     Ice::StreamTrait<T>::type, 
-                                                    Ice::StreamTrait<T>::optionalType>::optionalType);
-            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::optionalType>::write(this, *v);
+                                                    Ice::StreamTrait<T>::fixedLength>::optionalType);
+            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::write(this, *v);
         }
     }
 

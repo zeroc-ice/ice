@@ -104,31 +104,18 @@ struct StreamTrait
 
     //
     // When extracting a sequence<T> from a stream, we can ensure the 
-    // stream as at least StreamTrait<T>::minWireSize * size bytes
-    // For containers, the minWireSize is 1 - just 1 byte for an empty container.
+    // stream has at least StreamTrait<T>::minWireSize * size bytes
+    // For containers, the minWireSize is 1--just 1 byte for an empty container.
     //
     static const int minWireSize = 1;
     
     //
-    // The OptionalType, for reading/writing optional T from/to the stream
-    // For containers, it can be either OptionalTypeVSize or OptionalTypeFSize
-    // depending on whether the contained element is fixed size or not.
-    // We can't easily compute it here, so we set optionalType to OptionalTypeEndMarker
-    // and compute the correct optionalType for the container in the StreamOptionalHelpers
-    // below.
+    // Is this type encoded on a fixed number of bytes?
+    // Used only for marshaling/unmarshaling optional data members and parameters.
     //
-    static const OptionalType optionalType = OptionalTypeEndMarker;
+    static const bool fixedLength = false;
 };
 
-template<typename T>
-struct IsFixedLength
-{
-    typedef StreamTrait<T> Traits;
-    
-    static const bool value = (Traits::optionalType <= OptionalTypeF8)
-        || ((Traits::type == StreamTraitTypeStruct || Traits::type == StreamTraitTypeStructClass)
-            && Traits::optionalType == OptionalTypeVSize);
-};
 
 //
 // StreamTrait specialization for array / range mapped sequences
@@ -140,7 +127,7 @@ struct StreamTrait< ::std::pair<T, U> >
 {
     static const StreamTraitType type = StreamTraitTypeSequence;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeEndMarker;
+    static const bool fixedLength = false;
 };
 
 //
@@ -153,21 +140,21 @@ struct StreamTrait<UserException>
 
     //
     // There is no sequence/dictionary of UserException (so no need for minWireSize)
-    // and no optional UserException (so no need for optionalType)
+    // and no optional UserException (so no need for fixedLength)
     //
 };
 
 
 //
 // StreamTrait specialization for builtins (these are needed for sequence
-// marshalling to figure out the minWireSize of each built-in).
+// marshaling to figure out the minWireSize of each built-in).
 //
 template<>
 struct StreamTrait<bool>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeF1;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -175,7 +162,7 @@ struct StreamTrait<Byte>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeF1;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -183,7 +170,7 @@ struct StreamTrait<Short>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 2;
-    static const OptionalType optionalType = OptionalTypeF2;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -191,7 +178,7 @@ struct StreamTrait<Int>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 4;
-    static const OptionalType optionalType = OptionalTypeF4;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -199,7 +186,7 @@ struct StreamTrait<Long>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 8;
-    static const OptionalType optionalType = OptionalTypeF8;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -207,7 +194,7 @@ struct StreamTrait<Float>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 4;
-    static const OptionalType optionalType = OptionalTypeF4;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -215,7 +202,7 @@ struct StreamTrait<Double>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 8;
-    static const OptionalType optionalType = OptionalTypeF8;
+    static const bool fixedLength = true;
 };
 
 template<>
@@ -223,7 +210,7 @@ struct StreamTrait< ::std::string>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeVSize;
+    static const bool fixedLength = false;
 };
 
 template<>
@@ -231,15 +218,28 @@ struct StreamTrait< ::std::wstring>
 {
     static const StreamTraitType type = StreamTraitTypeBuiltin;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeVSize;
+    static const bool fixedLength = false;
 };
+
+//
+// vector<bool> is a special type in C++: the streams are responsible
+// to handle it like a built-in type.
+//
+template<>
+struct StreamTrait< ::std::vector<bool> >
+{
+    static const StreamTraitType type = StreamTraitTypeBuiltin;
+    static const int minWireSize = 1;
+    static const bool fixedLength = false;
+};
+
 
 template<typename T>
 struct StreamTrait< ::IceInternal::ProxyHandle<T> >
 {
     static const StreamTraitType type = StreamTraitTypeProxy;
     static const int minWireSize = 2;
-    static const OptionalType optionalType = OptionalTypeFSize;
+    static const bool fixedLength = false;
 };
 
 template<typename T>
@@ -247,9 +247,8 @@ struct StreamTrait< ::IceInternal::Handle<T> >
 {
     static const StreamTraitType type = StreamTraitTypeClass;
     static const int minWireSize = 1;
-    static const OptionalType optionalType = OptionalTypeSize;
+    static const bool fixedLength = false;
 };
-
 
 //
 // StreamHelper templates used by streams to read and write data.
@@ -388,7 +387,7 @@ struct StreamHelper<std::pair<T, T>, StreamTraitTypeSequence>
     template<class S> static inline void 
     write(S* stream, const std::pair<T, T>& v)
     {
-        stream->writeSize(static_cast< ::Ice::Int>(IceUtilInternal::distance(v.first, v.second)));
+        stream->writeSize(static_cast<Int>(IceUtilInternal::distance(v.first, v.second)));
         for(T p = v.first; p != v.second; ++p)
         {
             stream->write(*p);
@@ -410,7 +409,7 @@ struct StreamHelper<std::pair< ::std::vector<bool>::const_iterator,
     write(S* stream, const std::pair< ::std::vector<bool>::const_iterator,
                                       ::std::vector<bool>::const_iterator>& v)
     {
-        stream->writeSize(static_cast< ::Ice::Int>(IceUtilInternal::distance(v.first, v.second)));
+        stream->writeSize(static_cast<Int>(IceUtilInternal::distance(v.first, v.second)));
         for(::std::vector<bool>::const_iterator p = v.first; p != v.second; ++p)
         {
             stream->write(static_cast<bool>(*p));
@@ -515,42 +514,87 @@ struct StreamHelper<T, StreamTraitTypeClass>
 // Helpers to read/write optional attributes or members.
 //
 
-// Base helper
-template<typename T, StreamTraitType st, OptionalType ot>
+//
+// Extract / compute the optionalType 
+// This is used _only_ for the base StreamOptionalHelper below
+// /!\ Do not use in StreamOptionalHelper specializations, and do
+// not provide specialization not handled by the base StreamHelper
+//
+template<StreamTraitType st, int minWireSize, bool fixedLength>
+struct GetOptionalType;
+
+template<>
+struct GetOptionalType<StreamTraitTypeBuiltin, 1, true>
+{
+    static const OptionalType value = OptionalTypeF1;
+};
+
+template<>
+struct GetOptionalType<StreamTraitTypeBuiltin, 2, true>
+{
+    static const OptionalType value = OptionalTypeF2;
+};
+
+template<>
+struct GetOptionalType<StreamTraitTypeBuiltin, 4, true>
+{
+    static const OptionalType value = OptionalTypeF4;
+};
+
+template<>
+struct GetOptionalType<StreamTraitTypeBuiltin, 8, true>
+{
+    static const OptionalType value = OptionalTypeF8;
+};
+
+template<>
+struct GetOptionalType<StreamTraitTypeBuiltin, 1, false>
+{
+    static const OptionalType value = OptionalTypeVSize;
+};
+
+template<>
+struct GetOptionalType<StreamTraitTypeClass, 1, false>
+{
+    static const OptionalType value = OptionalTypeSize;
+};
+
+template<int minWireSize>
+struct GetOptionalType<StreamTraitTypeEnum, minWireSize, false>
+{
+    static const OptionalType value = OptionalTypeSize;
+};
+
+
+// Base helper: simply read/write the data
+template<typename T, StreamTraitType st, bool fixedLength>
 struct StreamOptionalHelper 
 {
-    static const OptionalType optionalType = ot;
+    typedef StreamTrait<T> Traits;
+
+    // If this optionalType fails to compile, you must either define your specialization
+    // for GetOptionalType (in which case the optional data will be marshaled/unmarshaled
+    // with straight calls to write/read on the stream), or define your own 
+    // StreamOptionalHelper specialization (which gives you more control over marshaling)
+    // 
+    static const OptionalType optionalType = GetOptionalType<st, Traits::minWireSize, fixedLength>::value;
 
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-#ifdef ICE_CPP11
-        static_assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
-                      || st == StreamTraitTypeBuiltin, "Bad helper");
-#else
-        assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
-               || st == StreamTraitTypeBuiltin);
-#endif
-        StreamHelper<T, st>::write(stream, v);
+        stream->write(v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-#ifdef ICE_CPP11
-        static_assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
-                      || st == StreamTraitTypeBuiltin, "Bad helper");
-#else
-        assert((ot != OptionalTypeVSize && ot != OptionalTypeFSize && ot != OptionalTypeEndMarker) 
-               || st == StreamTraitTypeBuiltin);
-#endif
-        StreamHelper<T, st>::read(stream, v);
+        stream->read(v);
     }
 };
 
 // Helper to write fixed size structs
 template<typename T>
-struct StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeVSize>
+struct StreamOptionalHelper<T, StreamTraitTypeStruct, true>
 {
     static const OptionalType optionalType = OptionalTypeVSize;
 
@@ -571,7 +615,7 @@ struct StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeVSize>
 
 // Helper to write variable size structs
 template<typename T>
-struct StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>
+struct StreamOptionalHelper<T, StreamTraitTypeStruct, false>
 {
     static const OptionalType optionalType = OptionalTypeFSize;
 
@@ -593,22 +637,22 @@ struct StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>
 };
 
 // Class structs are encoded like structs 
-template<typename T, OptionalType ot>
-struct StreamOptionalHelper<T, StreamTraitTypeStructClass, ot> : StreamOptionalHelper<T, StreamTraitTypeStruct, ot>
+template<typename T, bool fixedLength>
+struct StreamOptionalHelper<T, StreamTraitTypeStructClass, fixedLength> : StreamOptionalHelper<T, StreamTraitTypeStruct, fixedLength>
 {
 };
 
 // Optional proxies are encoded like variable size structs, using the FSize encoding
 template<typename T>
-struct StreamOptionalHelper<T, StreamTraitTypeProxy, OptionalTypeFSize> : 
-    StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>
+struct StreamOptionalHelper<T, StreamTraitTypeProxy, false> : StreamOptionalHelper<T, StreamTraitTypeStruct, false>
 {
 };
+
 
 //
 // Helpers to read/write optional sequences or dictionaries
 //
-template<typename T, bool isFixedLength, int sz>
+template<typename T, bool fixedLength, int sz>
 struct StreamOptionalContainerHelper;
 
 //
@@ -623,15 +667,15 @@ struct StreamOptionalContainerHelper<T, false, sz>
     static const OptionalType optionalType = OptionalTypeFSize;
 
     template<class S> static inline void 
-    write(S* stream, const T& v, Ice::Int n) 
+    write(S* stream, const T& v, Int) 
     {
-        StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>::write(stream, v);
+        StreamOptionalHelper<T, StreamTraitTypeStruct, false>::write(stream, v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v) 
     {
-        StreamOptionalHelper<T, StreamTraitTypeStruct, OptionalTypeFSize>::read(stream, v);
+        StreamOptionalHelper<T, StreamTraitTypeStruct, false>::read(stream, v);
     }
 };
 
@@ -646,7 +690,7 @@ struct StreamOptionalContainerHelper<T, true, sz>
     static const OptionalType optionalType = OptionalTypeVSize;
 
     template<class S> static inline void 
-    write(S* stream, const T& v, Ice::Int n)
+    write(S* stream, const T& v, Int n)
     {
         //
         // The container size is the number of elements * the size of
@@ -677,112 +721,113 @@ struct StreamOptionalContainerHelper<T, true, 1>
     static const OptionalType optionalType = OptionalTypeVSize;
 
     template<class S> static inline void 
-    write(S* stream, const T& v, Ice::Int n) 
+    write(S* stream, const T& v, Int) 
     {
-        StreamOptionalHelper<T, StreamTraitTypeBuiltin, OptionalTypeVSize>::write(stream, v);
+        stream->write(v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        StreamOptionalHelper<T, StreamTraitTypeBuiltin, OptionalTypeVSize>::read(stream, v);
+        stream->read(v);
     }
 };
+
 
 //
 // Helper to write sequences, delegates to the optional container
 // helper template partial specializations.
 //
-template<typename T, OptionalType ot>
-struct StreamOptionalHelper<T, StreamTraitTypeSequence, ot>
+template<typename T>
+struct StreamOptionalHelper<T, StreamTraitTypeSequence, false>
 {
     typedef typename T::value_type E;
     static const int size = StreamTrait<E>::minWireSize;
-    static const bool isFixedLength = IsFixedLength<E>::value;
+    static const bool fixedLength = StreamTrait<E>::fixedLength;
 
     // The optional type of a sequence depends on whether or not elements are fixed
     // or variable size elements and their size.
-    static const OptionalType optionalType = StreamOptionalContainerHelper<T, isFixedLength, size>::optionalType;
+    static const OptionalType optionalType = StreamOptionalContainerHelper<T, fixedLength, size>::optionalType;
 
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        StreamOptionalContainerHelper<T, isFixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
+        StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        StreamOptionalContainerHelper<T, isFixedLength, size>::read(stream, v);
+        StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
     }
 };
 
-template<typename T, OptionalType ot>
-struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamTraitTypeSequence, ot>
+template<typename T>
+struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamTraitTypeSequence, false>
 {
     typedef std::pair<const T*, const T*> P;
     static const int size = StreamTrait<T>::minWireSize;
-    static const bool isFixedLength = IsFixedLength<T>::value;
+    static const bool fixedLength = StreamTrait<T>::fixedLength;
 
     // The optional type of a sequence depends on whether or not elements are fixed
     // or variable size elements and their size.
-    static const OptionalType optionalType = StreamOptionalContainerHelper<P, isFixedLength, size>::optionalType;
+    static const OptionalType optionalType = StreamOptionalContainerHelper<P, fixedLength, size>::optionalType;
 
     template<class S> static inline void 
     write(S* stream, const P& v)
     {
-        Ice::Int n = static_cast<Ice::Int>(v.second - v.first);
-        StreamOptionalContainerHelper<P, isFixedLength, size>::write(stream, v, n);
+        Int n = static_cast<Int>(v.second - v.first);
+        StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
     }
 
     template<class S> static inline void 
     read(S* stream, P& v)
     {
-        StreamOptionalContainerHelper<P, isFixedLength, size>::read(stream, v);
+        StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
     }
 };
 
-template<typename T, OptionalType ot>
-struct StreamOptionalHelper<std::pair<T, T>, StreamTraitTypeSequence, ot>
+template<typename T>
+struct StreamOptionalHelper<std::pair<T, T>, StreamTraitTypeSequence, false>
 {
     typedef std::pair<T, T> P;
     static const int size = StreamTrait<typename T::value_type>::minWireSize;
-    static const bool isFixedLength = IsFixedLength<typename T::value_type>::value;
+    static const bool fixedLength = StreamTrait<typename T::value_type>::fixedLength;
 
     // The optional type of a sequence depends on whether or not elements are fixed
     // or variable size elements and their size.
-    static const OptionalType optionalType = StreamOptionalContainerHelper<P, isFixedLength, size>::optionalType;
+    static const OptionalType optionalType = StreamOptionalContainerHelper<P, fixedLength, size>::optionalType;
 
     template<class S> static inline void 
     write(S* stream, const P& v)
     {
-        Ice::Int n = static_cast<Ice::Int>(v.second - v.first);
-        StreamOptionalContainerHelper<P, isFixedLength, size>::write(stream, v, n);
+        Int n = static_cast<Int>(v.second - v.first);
+        StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
     }
 
     template<class S> static inline void 
     read(S* stream, P& v)
     {
-        StreamOptionalContainerHelper<P, isFixedLength, size>::read(stream, v);
+        StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
     }
 };
 
-template<typename T, OptionalType ot>
+template<typename T>
 struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> >,
-                            StreamTraitTypeSequence, ot>
+                            StreamTraitTypeSequence, false>
 {
     typedef std::pair<IceUtil::ScopedArray<T>, std::pair<const T*, const T*> > P;
     static const int size = StreamTrait<T>::minWireSize;
-    static const bool isFixedLength = IsFixedLength<T>::value;
+    static const bool fixedLength = StreamTrait<T>::fixedLength;
 
     // The optional type of a sequence depends on whether or not elements are fixed
     // or variable size elements and their size.
-    static const OptionalType optionalType = StreamOptionalContainerHelper<P, isFixedLength, size>::optionalType;
+    static const OptionalType optionalType = StreamOptionalContainerHelper<P, fixedLength, size>::optionalType;
 
     template<class S> static inline void 
     read(S* stream, P& v)
     {
-        StreamOptionalContainerHelper<P, isFixedLength, size>::read(stream, v);
+        StreamOptionalContainerHelper<P, fixedLength, size>::read(stream, v);
     }
 
     // no write: only used for unmarshaling
@@ -792,29 +837,29 @@ struct StreamOptionalHelper<std::pair<IceUtil::ScopedArray<T>, std::pair<const T
 // Helper to write dictionaries, delegates to the optional container
 // helper template partial specializations.
 //
-template<typename T, OptionalType ot>
-struct StreamOptionalHelper<T, StreamTraitTypeDictionary, ot>
+template<typename T>
+struct StreamOptionalHelper<T, StreamTraitTypeDictionary, false>
 {
     typedef typename T::key_type K;
     typedef typename T::mapped_type V;
 
     static const int size = StreamTrait<K>::minWireSize + StreamTrait<V>::minWireSize;
-    static const bool isFixedLength = IsFixedLength<K>::value && IsFixedLength<V>::value;
+    static const bool fixedLength = StreamTrait<K>::fixedLength && StreamTrait<V>::fixedLength;
 
     // The optional type of a dictionary depends on whether or not elements are fixed
     // or variable size elements.
-    static const OptionalType optionalType = StreamOptionalContainerHelper<T, isFixedLength, size>::optionalType;
+    static const OptionalType optionalType = StreamOptionalContainerHelper<T, fixedLength, size>::optionalType;
 
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        StreamOptionalContainerHelper<T, isFixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
+        StreamOptionalContainerHelper<T, fixedLength, size>::write(stream, v, static_cast<Int>(v.size()));
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        StreamOptionalContainerHelper<T, isFixedLength, size>::read(stream, v);
+        StreamOptionalContainerHelper<T, fixedLength, size>::read(stream, v);
     }
 };
 

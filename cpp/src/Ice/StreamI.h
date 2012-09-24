@@ -30,8 +30,8 @@ class InputStreamI : public InputStream
 {
 public:
 
-    InputStreamI(const CommunicatorPtr&, const std::vector< Byte >&);
-    InputStreamI(const CommunicatorPtr&, const std::pair< const Byte*, const Byte* >&);
+    InputStreamI(const CommunicatorPtr&, const std::vector<Byte>&);
+    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&);
     virtual ~InputStreamI();
 
     virtual CommunicatorPtr communicator() const;
@@ -70,16 +70,17 @@ public:
     virtual void skip(Ice::Int);
     virtual void skipSize();
     
-    virtual void read(bool& v);
-    virtual void read(Byte& v);
-    virtual void read(Short& v);
-    virtual void read(Int& v);
-    virtual void read(Long& v);
-    virtual void read(Float& v);
-    virtual void read(Double& v);
-    virtual void read(std::string& v, bool convert = true);
+    virtual void read(bool&);
+    virtual void read(Byte&);
+    virtual void read(Short&);
+    virtual void read(Int&);
+    virtual void read(Long&);
+    virtual void read(Float&);
+    virtual void read(Double&);
+    virtual void read(std::string&, bool = true);
     virtual void read(std::vector<std::string>&, bool);
-    virtual void read(std::wstring& v);
+    virtual void read(std::wstring&);
+    virtual void read(std::vector<bool>&);
     virtual void read(std::pair<const bool*, const bool*>&, ::IceUtil::ScopedArray<bool>&);
     virtual void read(std::pair<const Byte*, const Byte*>&);
     virtual void read(std::pair<const Short*, const Short*>&, ::IceUtil::ScopedArray<Short>&);
@@ -132,9 +133,9 @@ public:
     virtual void write(Double);
     virtual void write(const std::string&, bool = true);
     virtual void write(const std::vector<std::string>&, bool);
-    virtual void write(const char* v, bool = true);
-    virtual void write(const std::wstring& v);
-
+    virtual void write(const char*, bool = true);
+    virtual void write(const std::wstring&);
+    virtual void write(const std::vector<bool>&);
     virtual void write(const bool*, const bool*);
     virtual void write(const Byte*, const Byte*);
     virtual void write(const Short*, const Short*);
