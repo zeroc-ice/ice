@@ -2037,7 +2037,7 @@ public class Coordinator
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    _graphViews.add(new GraphView(Coordinator.this));
+                    createGraphView();
                 }
             };
         _newGraph.setEnabled(false);
@@ -2439,6 +2439,20 @@ public class Coordinator
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
     }
 
+    public GraphView createGraphView()
+    {
+        StringBuilder title = new StringBuilder();
+        title.append("Graph");
+        if(_graphViews.size() > 0)
+        {
+            title.append(" - ");
+            title.append(Integer.toString(_graphViews.size()));
+        }
+        GraphView view = new GraphView(Coordinator.this, title.toString());
+        _graphViews.add(view);
+        return view;
+    }
+
     public LiveDeploymentPane getLiveDeploymentPane()
     {
         return _liveDeploymentPane;
@@ -2809,6 +2823,11 @@ public class Coordinator
     public boolean connected()
     {
         return _connected;
+    }
+
+    public GraphView[] getGraphViews()
+    {
+        return _graphViews.toArray(new GraphView[_graphViews.size()]);
     }
 
     //

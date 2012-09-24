@@ -9,8 +9,6 @@
 
 package IceGridGUI.LiveDeployment;
 
-import javafx.scene.*;
-
 import java.util.Map;
 import java.util.List;
 import java.util.HashMap;
@@ -30,14 +28,13 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Font;
+
 import java.awt.Frame;
 import java.awt.Color;
 import java.awt.Rectangle;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -49,20 +46,15 @@ import javax.swing.border.Border;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListCellRenderer;
 
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JColorChooser;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -73,9 +65,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
+
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.SpinnerNumberModel;
@@ -97,24 +90,16 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.ScrollPane.ScrollBarPolicy;
-import javafx.scene.shape.Line;
-
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.FlowPane;
-
 import javafx.scene.Scene;
 
 import javafx.scene.input.MouseEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseButton;
-import javafx.scene.control.Tooltip;
+
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 
 import javafx.util.StringConverter;
 
@@ -317,13 +302,13 @@ public class GraphView extends JFrame
 
     private class RefreshThread extends Thread
     {
-        RefreshThread(long period)
+        RefreshThread(int period)
         {
             _period = period;
             _done = false;
         }
 
-        synchronized void setRefreshPeriod(long period)
+        synchronized void setRefreshPeriod(int period)
         {
            _period = period;
         }
@@ -416,16 +401,18 @@ public class GraphView extends JFrame
                 }, false);
         }
 
-        private long _period;
+        private int _period;
         private boolean _done = false;
     }
 
-    public GraphView(Coordinator coordinator)
+    public GraphView(Coordinator coordinator, String title)
     {
         _coordinator = coordinator;
         _queue = new WorkQueue();
         _queue.setDaemon(true);
         _queue.start();
+
+        setTitle(title);
 
         _preferences = Preferences.userNodeForPackage(getClass());
 
@@ -451,6 +438,18 @@ public class GraphView extends JFrame
                 public void actionPerformed(ActionEvent event) 
                 {
                     //
+                    // Set the title
+                    //
+                    JTextField title = new JTextField(getTitle());
+                    JPanel titlePanel;
+                    {
+                        DefaultFormBuilder builder =
+                                                new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
+                        builder.append("Title:", title);
+                        titlePanel = builder.getPanel();
+                    }
+
+                    //
                     // SpinnerNumberModel to set a refresh period.
                     //
                     // min value is 500 ms == 0.5 seconds
@@ -469,10 +468,10 @@ public class GraphView extends JFrame
                     // SpinnerNumberModel to set the number of symbols to keep in X axis.
                     //
                     // min value is 10
-                    // max value is 100
+                    // max value is 1000
                     //
                     SpinnerNumberModel horizontalAxisSymbolCount = 
-                                                            new SpinnerNumberModel(_horizontaSymbolsCount, 5, 100, 1);
+                                                            new SpinnerNumberModel(_horizontaSymbolsCount, 5, 1000, 1);
 
                     //
                     // JComboBox to select time format used in X Axis
@@ -492,10 +491,10 @@ public class GraphView extends JFrame
                     FormLayout layout = new FormLayout("fill:pref:grow", "pref");
                     final DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.border(Borders.DIALOG);
-                    builder.appendSeparator("Refresh Thread");
+                    builder.append(titlePanel);
+                    builder.nextLine();
                     builder.append(refreshPanel);
                     builder.nextLine();
-                    builder.appendSeparator("Horizontal Axis");
                     builder.append(xAxisPanel);
 
                     if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Graph Preferences", 
@@ -504,7 +503,8 @@ public class GraphView extends JFrame
                         return;
                     }
 
-                    setRefreshPeriod(refreshPeriod.getNumber().longValue());
+                    setTitle(title.getText());
+                    setRefreshPeriod(refreshPeriod.getNumber().intValue());
                     setHorizontalSymbolsCount(horizontalAxisSymbolCount.getNumber().intValue());
                     setDateFormat((String)dateFormats.getSelectedItem());
                 }
@@ -642,21 +642,23 @@ public class GraphView extends JFrame
         _legendTable.setDefaultRenderer(Color.class, new ColorRenderer(true));
         _legendTable.setDefaultEditor(Color.class, new ColorEditor());
 
-        setTransferHandler(new TransferHandler());
+        
         _legendTable.setAutoCreateRowSorter(true);
 
         final JFXPanel fxPanel = new JFXPanel();
-
+        fxPanel.setMinimumSize(new Dimension(0, 200));
         //
         // Build the split pane, with the chart graph and the legend table.
         //
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setTopComponent(fxPanel);
-        splitPane.setBottomComponent(new JScrollPane(_legendTable));
-        splitPane.setResizeWeight(0.9);
+        _splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        _splitPane.setTopComponent(fxPanel);
+        JScrollPane scrollPane = new JScrollPane(_legendTable);
+        scrollPane.setTransferHandler(new TransferHandler());
+        scrollPane.setMinimumSize(new Dimension(0, 50));
+        _splitPane.setBottomComponent(scrollPane);
         
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("fill:pref:grow", "fill:pref:grow, pref"));
-        builder.append(splitPane);
+        builder.append(_splitPane);
         builder.nextLine();
 
         JPanel panel = builder.getPanel();
@@ -677,14 +679,53 @@ public class GraphView extends JFrame
                     _yAxis = new NumberAxis();
 
                     _chart = new LineChart<Number, Number>(_xAxis, _yAxis);
-
+                    _chart.setCreateSymbols(false);
                     _xAxis.setLabel("Time (" + getDateFormat() + ")");
                     _xAxis.setTickLabelFormatter(_timeFormater);
                     _xAxis.setForceZeroInRange(false);
                     _chart.setAnimated(true);
                     _chart.setLegendVisible(false);
 
-                    fxPanel.setScene(new Scene(_chart));
+                    final Scene scene = new Scene(_chart);
+                    scene.setOnDragOver(
+                        new EventHandler<DragEvent>()
+                            {
+                                public void handle(DragEvent event)
+                                {
+                                    Dragboard db = event.getDragboard();
+                                    if(event.getGestureSource() != scene && db.hasContent(LocalObjectMimeType))
+                                    {
+                                        Object object = db.getContent(LocalObjectMimeType);
+                                        if(object instanceof MetricsViewTransferableData)
+                                        {
+                                            event.acceptTransferModes(TransferMode.COPY);
+                                        }
+                                    }
+                                    event.consume();
+                                }
+                            });
+
+                    scene.setOnDragDropped(
+                        new EventHandler<DragEvent>()
+                            {
+                                public void handle(DragEvent event)
+                                {
+                                    boolean success = false;
+                                    Dragboard db = event.getDragboard();
+                                    if(event.getGestureSource() != scene && db.hasContent(LocalObjectMimeType))
+                                    {
+                                        Object object = db.getContent(LocalObjectMimeType);
+                                        if(object instanceof MetricsViewTransferableData)
+                                        {
+                                            addSeries((MetricsViewTransferableData)object);
+                                            success = true;                                            
+                                        }
+                                    }
+                                    event.setDropCompleted(success);
+                                    event.consume();
+                                }
+                            });
+                    fxPanel.setScene(scene);
                 }
             }, true);
 
@@ -701,10 +742,9 @@ public class GraphView extends JFrame
             {
                 setLocationRelativeTo(_coordinator.getMainFrame());
             }
+            _splitPane.setDividerLocation(600);
         }
         setVisible(true);
-
-        splitPane.setDividerLocation(0.8);
 
         //
         // Show info dialog if required.
@@ -712,7 +752,7 @@ public class GraphView extends JFrame
         if(showInfo())
         {
             JCheckBox checkbox = new JCheckBox("Do not show this message again.");  
-            String message = "Drop metrics cells on the table to add them to the graph.";  
+            String message = "Drop metrics cells to add them to the graph.";  
 
             JOptionPane.showConfirmDialog(this, new Object[]{message, checkbox}, "Information", 
                                           JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);  
@@ -743,11 +783,23 @@ public class GraphView extends JFrame
     {
         Preferences preferences = _preferences.node("GraphView");
         Rectangle rect = getBounds();
+
+        for(int i = _columnNames.length -1; i >= 0; --i)
+        {
+            preferences.putInt("colPos" + Integer.toString(i), _legendTable.convertColumnIndexToModel(i));
+            preferences.putInt("colWidth" + Integer.toString(i), _legendTable.getColumnModel().getColumn(i).getWidth());
+        }
+
         preferences.putInt("x", rect.x);
         preferences.putInt("y", rect.y);
         preferences.putInt("width", rect.width);
         preferences.putInt("height", rect.height);
         preferences.putBoolean("maximized", getExtendedState() == Frame.MAXIMIZED_BOTH);
+        preferences.putInt("splitLocation", _splitPane.getDividerLocation());
+
+        preferences.putInt("refreshPeriod", getRefreshPeriod());
+        preferences.putInt("horizontalSymbolsCount", getHorizontalSymbolsCount());
+        preferences.put("dateFormat", getDateFormat());
     }
 
     public boolean loadPreferences()
@@ -765,6 +817,7 @@ public class GraphView extends JFrame
         }
 
         Preferences preferences = _preferences.node("GraphView");
+
         int x = preferences.getInt("x", 0);
         int y = preferences.getInt("y", 0);
         int width = preferences.getInt("width", 0);
@@ -774,6 +827,23 @@ public class GraphView extends JFrame
         {
             setExtendedState(Frame.MAXIMIZED_BOTH);
         }
+        _splitPane.setDividerLocation(_preferences.node("GraphView").getInt("splitLocation", 600));
+        for(int i = _columnNames.length -1; i >= 0; --i)
+        {
+            int pos = _legendTable.convertColumnIndexToView(preferences.getInt("columnPos" + Integer.toString(i), i));
+            if(i != pos)
+            {
+                _legendTable.getColumnModel().moveColumn(pos, i);
+            }            
+            int columnWidth = preferences.getInt("colWidth" + Integer.toString(i), -1);
+            if(columnWidth != -1)
+            {
+                _legendTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
+            }
+        }
+        setRefreshPeriod(preferences.getInt("refreshPeriod", getRefreshPeriod()));
+        setHorizontalSymbolsCount(preferences.getInt("horizontalSymbolsCount", getHorizontalSymbolsCount()));
+        setDateFormat(preferences.get("dateFormat", getDateFormat()));
         return true;
     }
 
@@ -786,7 +856,7 @@ public class GraphView extends JFrame
         dispose();
     }
 
-    private void addSeries(final MetricsViewTransferableData data)
+    public void addSeries(final MetricsViewTransferableData data)
     {
         //
         // Must run in JavaFX thread.
@@ -938,20 +1008,6 @@ public class GraphView extends JFrame
                                         {
                                             row.series.getData().remove(0);
                                         }
-
-                                        //
-                                        // Set the style so that new created nodes has the right style.
-                                        //
-                                        final String cssClass = getSeriesClass(row.series);
-                                        setNodesStyle(cssClass);
-
-                                        //
-                                        // If the series isn't visible ensure that new created nodes are hidden.
-                                        //
-                                        if(!row.visible)
-                                        {
-                                            setNodesVisible(cssClass, false);
-                                        }
                                     }
                                     catch(java.lang.RuntimeException ex)
                                     {
@@ -969,7 +1025,8 @@ public class GraphView extends JFrame
                                 {
                                     _legendModel.fireTableChanged(
                                                 new TableModelEvent(_legendModel, 0, _legendModel.getRowCount() - 1, 
-                                                                    TableModelEvent.ALL_COLUMNS, TableModelEvent.UPDATE));
+                                                                    TableModelEvent.ALL_COLUMNS, 
+                                                                    TableModelEvent.UPDATE));
                                 }
                             }, false);
                     }
@@ -995,12 +1052,12 @@ public class GraphView extends JFrame
         }
     }
 
-    synchronized long getRefreshPeriod()
+    synchronized int getRefreshPeriod()
     {
         return _refreshPeriod;
     }
 
-    synchronized void setRefreshPeriod(long refreshPeriod)
+    synchronized void setRefreshPeriod(int refreshPeriod)
     {
         _refreshPeriod = refreshPeriod;
         if(_refreshThread != null)
@@ -1554,7 +1611,7 @@ public class GraphView extends JFrame
     private RefreshThread _refreshThread;
 
     private int _horizontaSymbolsCount = 10;
-    private long _refreshPeriod = 5000;
+    private int _refreshPeriod = 5000;
 
     private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];
@@ -1597,6 +1654,7 @@ public class GraphView extends JFrame
 
     private final JTable _legendTable;
     private final LegendTableModel _legendModel = new LegendTableModel();
+    private JSplitPane _splitPane;
 
     private final Map<String, String> _styles = new HashMap<String, String>();
 
@@ -1621,5 +1679,7 @@ public class GraphView extends JFrame
                                                   1000000000.0d};
     private final WorkQueue _queue;
     private final Preferences _preferences;
+
+    private final static DataFormat LocalObjectMimeType = new DataFormat("application/x-java-jvm-local-objectref");
 }
 

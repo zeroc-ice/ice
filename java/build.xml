@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="main" default="all" basedir=".">
+<project name="main" default="all" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="."/>
@@ -606,10 +606,6 @@
         </jar>
     </target>
 
-   <target name="icegridadmin-setup" depends="icegrid-compile, icebox-compile">
-    <echo message="JAVA_HOME: ${java.home}"/>
-    <echo message="JavaFX: ${javafx.jar}"/>
-   </target>
     <target name="icegridadmin-compile" depends="icegrid-compile, icebox-compile" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
@@ -691,16 +687,13 @@
            </mapper>
         </pathconvert>
 
-        <manifest file="${lib.dir}/icegridgui.mf">
-            <attribute name="Main-Class" value="IceGridGUI.Main"/>
-            <attribute name="Class-Path" value="../help/ ../resources/ ../doc/ice-${ice.version}/help/ ../doc/packages/ice-${ice.version}/help/"/>
-        </manifest>
-        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
         </jar>
-        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
-            update="true">
+
+        <jar jarfile="${lib.dir}/IceGridGUItemp.jar" basedir="resources" update="true">
             <include name="icons/**"/>
+            <include name="metrics.config"/>
         </jar>
 
         <taskdef resource="proguard/ant/task.properties"/>
@@ -727,11 +720,41 @@
             <fileset dir="${lib.dir}" includes="**/*.java"/>
         </delete>
         <delete file="${lib.dir}/IceGridGUI.jar"/>
-        <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}/tmp" level="9">
-            <include name="**/**"/>
-        </jar>
-        <delete file="${lib.dir}/icegridgui.mf" />
+        <delete dir="${lib.dir}/tmp/META-INF"/>
+
+        <fx:application id="IceGridGUI" name="IceGrid Admin" mainClass="IceGridGUI.Main" toolkit="swing"/>
+
+        <fx:resources id="IceGridGUI.resources">
+        </fx:resources>
+
+        <fx:jar destfile="${lib.dir}/dist/IceGridGUI.jar">
+            <!-- Details about application -->
+            <fx:application refid="IceGridGUI"/>
+
+            <fx:platform javafx="2.2+" j2se="7.0"/>
+     
+            <!-- Define what auxilary resources are needed -->
+            <fx:resources refid="IceGridGUI.resources"/>
+
+            <!-- What to include into result jar file? Everything in the build tree -->
+            <fileset dir="${lib.dir}/tmp/">
+                <include name="**"/>
+            </fileset>
+
+            <!-- Customize jar manifest (optional) -->
+            <manifest>
+                <attribute name="Class-Path" value="../help/ ../resources/ ../doc/ice-${ice.version}/help/ ../doc/packages/ice-${ice.version}/help/"/>
+            </manifest>
+        </fx:jar>
+
+        <fx:deploy outdir="${lib.dir}/dist" outfile="IceGrid" offlineAllowed="true">
+            <fx:info title="IceGrid Administrative Tool"/>
+            <fx:application refid="IceGridGUI"/>
+            <fx:resources refid="IceGridGUI.resources"/>
+        </fx:deploy>
+        <copy file="${lib.dir}/dist/IceGridGUI.jar" todir="${lib.dir}"/>
         <delete dir="${lib.dir}/tmp"/>
+        <delete dir="${lib.dir}/dist"/>
     </target>
 
     <target name="compile" depends="ice-compile, icebox-compile, glacier2-compile, icestorm-compile, icegrid-compile, 
