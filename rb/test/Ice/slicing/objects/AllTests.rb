@@ -109,9 +109,13 @@ def allTests(communicator)
     STDOUT.flush
     begin
         o = t.SUnknownAsObject()
-        test(false)
+        test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)
+        test(o.is_a?(Ice::UnknownSlicedObject))
+        test(o.unknownTypeId == "::Test::SUnknown")
+        test(o._ice_slicedData != nil)
+        t.checkSUnknown(o)
     rescue Ice::NoObjectFactoryException
-        # expected
+        test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
     rescue Ice::Exception
         test(false)
     end

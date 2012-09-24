@@ -105,7 +105,9 @@ public:
 
     virtual bool validate(VALUE) = 0;
 
-    virtual bool usesClasses(); // Default implementation returns false.
+    virtual bool variableLength() const = 0;
+    virtual int wireSize() const = 0;
+    virtual Ice::OptionalType optionalType() const = 0;
 
     virtual void unmarshaled(VALUE, VALUE, void*); // Default implementation is assert(false).
 
@@ -121,8 +123,8 @@ public:
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise
     // AbortMarshaling if an error occurs.
     //
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*) = 0;
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*) = 0;
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool) = 0;
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool) = 0;
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*) = 0;
 };
@@ -154,8 +156,12 @@ public:
 
     virtual bool validate(VALUE);
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
+
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -174,18 +180,24 @@ class EnumInfo : public TypeInfo
 {
 public:
 
+    EnumInfo(VALUE, VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
+
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
-    std::string id;
-    EnumeratorList enumerators;
-    VALUE rubyClass;
+    const std::string id;
+    const EnumeratorList enumerators;
+    const VALUE rubyClass;
 };
 typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
 
@@ -198,6 +210,8 @@ public:
     std::string name;
     TypeInfoPtr type;
     ID rubyID;
+    bool optional;
+    int tag;
 };
 typedef IceUtil::Handle<DataMember> DataMemberPtr;
 typedef std::vector<DataMemberPtr> DataMemberList;
@@ -209,22 +223,31 @@ class StructInfo : public TypeInfo
 {
 public:
 
+    StructInfo(VALUE, VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
-    std::string id;
-    DataMemberList members;
-    VALUE rubyClass;
+    const std::string id;
+    const DataMemberList members;
+    const VALUE rubyClass;
+
+private:
+
+    bool _variableLength;
+    int _wireSize;
 };
 typedef IceUtil::Handle<StructInfo> StructInfoPtr;
 
@@ -235,22 +258,26 @@ class SequenceInfo : public TypeInfo
 {
 public:
 
+    SequenceInfo(VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
-    std::string id;
-    TypeInfoPtr elementType;
+    const std::string id;
+    const TypeInfoPtr elementType;
 
 private:
 
@@ -267,15 +294,19 @@ class DictionaryInfo : public TypeInfo
 {
 public:
 
+    DictionaryInfo(VALUE, VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
     void marshalElement(VALUE, VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
@@ -293,9 +324,14 @@ public:
     };
     typedef IceUtil::Handle<KeyCallback> KeyCallbackPtr;
 
-    std::string id;
-    TypeInfoPtr keyType;
-    TypeInfoPtr valueType;
+    const std::string id;
+    const TypeInfoPtr keyType;
+    const TypeInfoPtr valueType;
+
+private:
+
+    bool _variableLength;
+    int _wireSize;
 };
 typedef IceUtil::Handle<DictionaryInfo> DictionaryInfoPtr;
 
@@ -305,14 +341,20 @@ class ClassInfo : public TypeInfo
 {
 public:
 
+    ClassInfo(VALUE, bool);
+
+    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
@@ -322,17 +364,18 @@ public:
 
     bool isA(const ClassInfoPtr&);
 
-    std::string id;
-    bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
-    bool isLocal;
-    bool isAbstract;
-    bool preserve;
-    ClassInfoPtr base;
-    ClassInfoList interfaces;
-    DataMemberList members;
-    VALUE rubyClass;
-    VALUE typeObj;
-    bool defined;
+    const std::string id;
+    const bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
+    const bool isLocal;
+    const bool isAbstract;
+    const bool preserve;
+    const ClassInfoPtr base;
+    const ClassInfoList interfaces;
+    const DataMemberList members;
+    const DataMemberList optionalMembers;
+    const VALUE rubyClass;
+    const VALUE typeObj;
+    const bool defined;
 };
 
 //
@@ -342,21 +385,29 @@ class ProxyInfo : public TypeInfo
 {
 public:
 
+    ProxyInfo(VALUE);
+
+    void define(VALUE, VALUE);
+
     virtual std::string getId() const;
 
     virtual bool validate(VALUE);
 
-    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*);
-    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalType optionalType() const;
+
+    virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
+    virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
-    std::string id;
-    VALUE rubyClass;
-    ClassInfoPtr classInfo;
-    VALUE typeObj;
+    const std::string id;
+    const VALUE rubyClass;
+    const ClassInfoPtr classInfo;
+    const VALUE typeObj;
 };
 typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
@@ -376,7 +427,7 @@ public:
     bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
-    bool usesClasses;
+    DataMemberList optionalMembers;
     VALUE rubyClass;
 };
 
@@ -394,6 +445,8 @@ public:
     virtual void write(const Ice::OutputStreamPtr&) const;
 
 private:
+
+    void writeMembers(const Ice::OutputStreamPtr&, const DataMemberList&) const;
 
     VALUE _object;
     ObjectMap* _map;
@@ -437,11 +490,9 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
-    virtual bool usesClasses() const;
-    virtual void usesClasses(bool);
 
     virtual std::string ice_name() const;
-    virtual ExceptionReader* ice_clone() const;
+    virtual Ice::UserException* ice_clone() const;
     virtual void ice_throw() const;
 
     VALUE getException() const;
@@ -457,6 +508,8 @@ private:
 
 ClassInfoPtr lookupClassInfo(const std::string&);
 ExceptionInfoPtr lookupExceptionInfo(const std::string&);
+
+extern VALUE Unset;
 
 bool initTypes(VALUE);
 

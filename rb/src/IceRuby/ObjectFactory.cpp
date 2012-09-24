@@ -32,7 +32,20 @@ IceRuby::ObjectFactory::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = lookupClassInfo(id);
+    ClassInfoPtr info;
+    if(id == Ice::Object::ice_staticId())
+    {
+        //
+        // When the ID is that of Ice::Object, it indicates that the stream has not
+        // found a factory and is providing us an opportunity to preserve the object.
+        //
+        info = lookupClassInfo("::Ice::UnknownSlicedObject");
+    }
+    else
+    {
+        info = lookupClassInfo(id);
+    }
+
     if(!info)
     {
         return 0;

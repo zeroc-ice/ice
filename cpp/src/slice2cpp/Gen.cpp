@@ -4581,7 +4581,17 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
         {
             if((*i)->type()->usesClasses())
             {
-                emitGCInsertCode((*i)->type(), getDataMemberRef(*i), "", 0);
+                if((*i)->optional())
+                {
+                    C << nl << "if(" << fixKwd((*i)->name()) << ')';
+                    C << sb;
+                    emitGCInsertCode((*i)->type(), getDataMemberRef(*i), "", 0);
+                    C << eb;
+                }
+                else
+                {
+                    emitGCInsertCode((*i)->type(), getDataMemberRef(*i), "", 0);
+                }
             }
         }
         C << eb;
@@ -4617,7 +4627,17 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
         {
             if((*j)->type()->usesClasses())
             {
-                emitGCClearCode((*j)->type(), getDataMemberRef(*j), "", 0);
+                if((*j)->optional())
+                {
+                    C << nl << "if(" << fixKwd((*j)->name()) << ')';
+                    C << sb;
+                    emitGCClearCode((*j)->type(), getDataMemberRef(*j), "", 0);
+                    C << eb;
+                }
+                else
+                {
+                    emitGCClearCode((*j)->type(), getDataMemberRef(*j), "", 0);
+                }
             }
         }
         C << eb;

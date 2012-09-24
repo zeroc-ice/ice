@@ -77,15 +77,13 @@ public:
     ParamInfoPtr returnType;
     ExceptionInfoList exceptions;
     string dispatchName;
-    bool sendsClasses;
-    bool returnsClasses;
     bool pseudoOp;
 
 private:
 
     string _deprecateMessage;
 
-    static void convertParams(PyObject*, ParamInfoList&, int, bool&);
+    static void convertParams(PyObject*, ParamInfoList&, int);
     static ParamInfoPtr convertParam(PyObject*, int);
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
@@ -1079,21 +1077,17 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     if(ret != Py_None)
     {
         returnType = convertParam(ret, 0);
-        if(!returnsClasses)
-        {
-            returnsClasses = returnType->type->usesClasses();
-        }
     }
 
     //
     // inParams
     //
-    convertParams(in, inParams, 0, sendsClasses);
+    convertParams(in, inParams, 0);
 
     //
     // outParams
     //
-    convertParams(out, outParams, returnType ? 1 : 0, returnsClasses);
+    convertParams(out, outParams, returnType ? 1 : 0);
 
     class SortFn
     {
@@ -1159,19 +1153,14 @@ IcePy::Operation::deprecate(const string& msg)
 }
 
 void
-IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset, bool& usesClasses)
+IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset)
 {
-    usesClasses = false;
     int sz = static_cast<int>(PyTuple_GET_SIZE(p));
     for(int i = 0; i < sz; ++i)
     {
         PyObject* item = PyTuple_GET_ITEM(p, i);
         ParamInfoPtr param = convertParam(item, i + posOffset);
         params.push_back(param);
-        if(!usesClasses)
-        {
-            usesClasses = param->type->usesClasses();
-        }
     }
 }
 

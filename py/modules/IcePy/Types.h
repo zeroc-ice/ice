@@ -103,8 +103,6 @@ public:
 
     virtual bool validate(PyObject*) = 0;
 
-    virtual bool usesClasses(); // Default implementation returns false.
-
     virtual bool variableLength() const = 0;
     virtual int wireSize() const = 0;
     virtual Ice::OptionalType optionalType() const = 0;
@@ -233,8 +231,6 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalType optionalType() const;
 
-    virtual bool usesClasses();
-
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
                            const Ice::StringSeq* = 0);
@@ -270,8 +266,6 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalType optionalType() const;
-
-    virtual bool usesClasses();
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
@@ -331,8 +325,6 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalType optionalType() const;
 
-    virtual bool usesClasses();
-
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
                            const Ice::StringSeq* = 0);
@@ -362,8 +354,6 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalType optionalType() const;
-
-    virtual bool usesClasses();
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
@@ -408,8 +398,6 @@ public:
     virtual std::string getId() const;
 
     virtual bool validate(PyObject*);
-
-    virtual bool usesClasses();
 
     virtual bool variableLength() const;
     virtual int wireSize() const;
@@ -488,7 +476,6 @@ public:
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
-    bool usesClasses;
     PyObjectHandle pythonType;
 
 private:
@@ -557,7 +544,6 @@ public:
     ~ExceptionWriter() throw();
 
     virtual void write(const Ice::OutputStreamPtr&) const;
-    virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
     virtual Ice::UserException* ice_clone() const;
@@ -568,7 +554,6 @@ private:
     PyObjectHandle _ex;
     ExceptionInfoPtr _info;
     ObjectMap _objects;
-    bool _usesClasses;
 };
 
 //
@@ -582,8 +567,6 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
-    virtual bool usesClasses() const;
-    virtual void usesClasses(bool);
 
     virtual std::string ice_name() const;
     virtual Ice::UserException* ice_clone() const;

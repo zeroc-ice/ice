@@ -80,18 +80,6 @@ UserExceptionReader::__read(BasicStream* is)
     read(stream);
 }
 
-bool
-UserExceptionReader::__usesClasses() const
-{
-    return usesClasses();
-}
-
-void
-UserExceptionReader::__usesClasses(bool b)
-{
-    usesClasses(b);
-}
-
 //
 // InputStreamI
 //
@@ -789,10 +777,4 @@ void
 UserExceptionWriter::__read(BasicStream*)
 {
     assert(false);
-}
-
-bool
-UserExceptionWriter::__usesClasses() const
-{
-    return usesClasses();
 }

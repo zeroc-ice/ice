@@ -35,9 +35,12 @@ public:
     virtual void unmarshaled(VALUE, VALUE, void*);
 
     TypeInfoPtr type;
+    bool optional;
+    int tag;
+    int pos;
 };
 typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
-typedef vector<ParamInfoPtr> ParamInfoList;
+typedef list<ParamInfoPtr> ParamInfoList;
 
 class OperationI : public Operation
 {
@@ -56,14 +59,16 @@ private:
     bool _amd;
     Ice::FormatType _format;
     ParamInfoList _inParams;
+    ParamInfoList _optionalInParams;
     ParamInfoList _outParams;
+    ParamInfoList _optionalOutParams;
     ParamInfoPtr _returnType;
     ExceptionInfoList _exceptions;
     string _dispatchName;
-    bool _sendsClasses;
-    bool _returnsClasses;
     string _deprecateMessage;
 
+    void convertParams(VALUE, ParamInfoList&, int);
+    ParamInfoPtr convertParam(VALUE, int);
     void prepareRequest(const Ice::ObjectPrx&, VALUE, vector<Ice::Byte>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
     VALUE unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
@@ -212,55 +217,63 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
         _format = static_cast<Ice::FormatType>(FIX2LONG(formatValue));
     }
 
-    long i;
-
-    //
-    // inParams
-    //
-    _sendsClasses = false;
-    for(i = 0; i < RARRAY_LEN(inParams); ++i)
-    {
-        ParamInfoPtr param = new ParamInfo;
-        param->type = getType(RARRAY_PTR(inParams)[i]);
-        _inParams.push_back(param);
-        if(!_sendsClasses)
-        {
-            _sendsClasses = param->type->usesClasses();
-        }
-    }
-
-    //
-    // outParams
-    //
-    _returnsClasses = false;
-    for(i = 0; i < RARRAY_LEN(outParams); ++i)
-    {
-        ParamInfoPtr param = new ParamInfo;
-        param->type = getType(RARRAY_PTR(outParams)[i]);
-        _outParams.push_back(param);
-        if(!_returnsClasses)
-        {
-            _returnsClasses = param->type->usesClasses();
-        }
-    }
-
     //
     // returnType
     //
     if(!NIL_P(returnType))
     {
-        _returnType = new ParamInfo;
-        _returnType->type = getType(returnType);
-        if(!_returnsClasses)
-        {
-            _returnsClasses = _returnType->type->usesClasses();
-        }
+        _returnType = convertParam(returnType, 0);
     }
+
+    //
+    // inParams
+    //
+    convertParams(inParams, _inParams, 0);
+
+    //
+    // outParams
+    //
+    convertParams(outParams, _outParams, NIL_P(returnType) ? 0 : 1);
+
+    class SortFn
+    {
+    public:
+        static bool compare(const ParamInfoPtr& lhs, const ParamInfoPtr& rhs)
+        {
+            return lhs->tag < rhs->tag;
+        }
+
+        static bool isRequired(const ParamInfoPtr& i)
+        {
+            return !i->optional;
+        }
+    };
+
+    //
+    // The inParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters.
+    //
+    ParamInfoList l = _inParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(_optionalInParams));
+    _optionalInParams.sort(SortFn::compare);
+
+    //
+    // The outParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters. If the return value is
+    // optional, we must include it in this list.
+    //
+    l = _outParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(_optionalOutParams));
+    if(_returnType && _returnType->optional)
+    {
+        _optionalOutParams.push_back(_returnType);
+    }
+    _optionalOutParams.sort(SortFn::compare);
 
     //
     // exceptions
     //
-    for(i = 0; i < RARRAY_LEN(exceptions); ++i)
+    for(long i = 0; i < RARRAY_LEN(exceptions); ++i)
     {
         _exceptions.push_back(getException(RARRAY_PTR(exceptions)[i]));
     }
@@ -279,7 +292,7 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 
     if(!_deprecateMessage.empty())
     {
-        rb_warning(_deprecateMessage.c_str());
+        rb_warning("%s", _deprecateMessage.c_str());
         _deprecateMessage.clear(); // Only show the warning once.
     }
 
@@ -355,6 +368,30 @@ IceRuby::OperationI::deprecate(const string& msg)
 }
 
 void
+IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset)
+{
+    assert(TYPE(v) == T_ARRAY);
+
+    for(long i = 0; i < RARRAY_LEN(v); ++i)
+    {
+        ParamInfoPtr param = convertParam(RARRAY_PTR(v)[i], i + posOffset);
+        params.push_back(param);
+    }
+}
+
+ParamInfoPtr
+IceRuby::OperationI::convertParam(VALUE v, int pos)
+{
+    assert(TYPE(v) == T_ARRAY);
+    ParamInfoPtr param = new ParamInfo;
+    param->type = getType(RARRAY_PTR(v)[0]);
+    param->optional = static_cast<bool>(RTEST(RARRAY_PTR(v)[1]));
+    param->tag = static_cast<int>(getInteger(RARRAY_PTR(v)[2]));
+    param->pos = pos;
+    return param;
+}
+
+void
 IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vector<Ice::Byte>& bytes)
 {
     //
@@ -377,17 +414,47 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
         os->startEncapsulation(proxy->ice_getEncodingVersion(), _format);
 
         ObjectMap objectMap;
-        long i = 0;
-        for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
+        ParamInfoList::iterator p;
+
+        //
+        // Validate the supplied arguments.
+        //
+        for(p = _inParams.begin(); p != _inParams.end(); ++p)
         {
-            volatile VALUE arg = RARRAY_PTR(args)[i];
-            if(!(*p)->type->validate(arg))
+            ParamInfoPtr info = *p;
+            volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+            if((!info->optional || arg != Unset) && !info->type->validate(arg))
             {
                 string opName = fixIdent(_name, IdentNormal);
-                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'", i + 1,
+                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'", info->pos + 1,
                                     opName.c_str());
             }
-            (*p)->type->marshal(arg, os, &objectMap);
+        }
+
+        //
+        // Marshal the required parameters.
+        //
+        for(p = _inParams.begin(); p != _inParams.end(); ++p)
+        {
+            ParamInfoPtr info = *p;
+            if(!info->optional)
+            {
+                volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+                info->type->marshal(arg, os, &objectMap, false);
+            }
+        }
+
+        //
+        // Marshal the optional parameters.
+        //
+        for(p = _optionalInParams.begin(); p != _optionalInParams.end(); ++p)
+        {
+            ParamInfoPtr info = *p;
+            volatile VALUE arg = RARRAY_PTR(args)[info->pos];
+            if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+            {
+                info->type->marshal(arg, os, &objectMap, true);
+            }
         }
 
         os->endEncapsulation();
@@ -398,8 +465,11 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
 VALUE
 IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
 {
-    int i = _returnType ? 1 : 0;
-    int numResults = static_cast<int>(_outParams.size()) + i;
+    int numResults = static_cast<int>(_outParams.size());
+    if(_returnType)
+    {
+        numResults++;
+    }
     assert(numResults > 0);
 
     volatile VALUE results = createArray(numResults);
@@ -420,15 +490,46 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
 
     is->startEncapsulation();
 
-    for(ParamInfoList::iterator p = _outParams.begin(); p != _outParams.end(); ++p, ++i)
+    ParamInfoList::iterator p;
+
+    //
+    // Unmarshal the required out parameters.
+    //
+    for(p = _outParams.begin(); p != _outParams.end(); ++p)
     {
-        void* closure = reinterpret_cast<void*>(i);
-        (*p)->type->unmarshal(is, *p, results, closure);
+        ParamInfoPtr info = *p;
+        if(!info->optional)
+        {
+            void* closure = reinterpret_cast<void*>(info->pos);
+            info->type->unmarshal(is, info, results, closure, false);
+        }
     }
 
-    if(_returnType)
+    //
+    // Unmarshal the required return value, if any.
+    //
+    if(_returnType && !_returnType->optional)
     {
-        _returnType->type->unmarshal(is, _returnType, results, 0);
+        assert(_returnType->pos == 0);
+        void* closure = reinterpret_cast<void*>(_returnType->pos);
+        _returnType->type->unmarshal(is, _returnType, results, closure, false);
+    }
+
+    //
+    // Unmarshal the optional results. This includes an optional return value.
+    //
+    for(p = _optionalOutParams.begin(); p != _optionalOutParams.end(); ++p)
+    {
+        ParamInfoPtr info = *p;
+        if(is->readOptional(info->tag, info->type->optionalType()))
+        {
+            void* closure = reinterpret_cast<void*>(info->pos);
+            info->type->unmarshal(is, info, results, closure, true);
+        }
+        else
+        {
+            RARRAY_PTR(results)[info->pos] = Unset;
+        }
     }
 
     is->endEncapsulation();

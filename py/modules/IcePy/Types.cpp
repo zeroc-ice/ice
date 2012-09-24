@@ -165,31 +165,6 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
-static bool
-getUsesClasses(PyObject* ex, bool dflt)
-{
-    if(PyObject_HasAttrString(ex, STRCAST("_ice_usesClasses")))
-    {
-        PyObjectHandle m = PyObject_GetAttrString(ex, STRCAST("_ice_usesClasses"));
-        assert(m.get());
-        int isTrue = PyObject_IsTrue(m.get());
-        assert(isTrue >= 0);
-        return isTrue ? true : false;
-    }
-
-    return dflt;
-}
-
-static void
-setUsesClasses(PyObject* ex, bool v)
-{
-    if(PyObject_SetAttrString(ex, STRCAST("_ice_usesClasses"), v ? getTrue() : getFalse()) < 0)
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-}
-
 //
 // addClassInfo()
 //
@@ -526,12 +501,6 @@ IcePy::UnmarshalCallback::~UnmarshalCallback()
 //
 IcePy::TypeInfo::TypeInfo()
 {
-}
-
-bool
-IcePy::TypeInfo::usesClasses()
-{
-    return false;
 }
 
 void
@@ -1187,20 +1156,6 @@ IcePy::StructInfo::validate(PyObject* val)
 }
 
 bool
-IcePy::StructInfo::usesClasses()
-{
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-        if((*q)->type->usesClasses())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 IcePy::StructInfo::variableLength() const
 {
     return _variableLength;
@@ -1362,12 +1317,6 @@ bool
 IcePy::SequenceInfo::validate(PyObject* val)
 {
     return val == Py_None || PySequence_Check(val) == 1;
-}
-
-bool
-IcePy::SequenceInfo::usesClasses()
-{
-    return elementType->usesClasses();
 }
 
 bool
@@ -2264,12 +2213,6 @@ IcePy::CustomInfo::validate(PyObject* val)
 }
 
 bool
-IcePy::CustomInfo::usesClasses()
-{
-    return false;
-}
-
-bool
 IcePy::CustomInfo::variableLength() const
 {
     return true;
@@ -2433,12 +2376,6 @@ bool
 IcePy::DictionaryInfo::validate(PyObject* val)
 {
     return val == Py_None || PyDict_Check(val) == 1;
-}
-
-bool
-IcePy::DictionaryInfo::usesClasses()
-{
-    return valueType->usesClasses();
 }
 
 bool
@@ -2701,12 +2638,6 @@ bool
 IcePy::ClassInfo::validate(PyObject* val)
 {
     return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
-}
-
-bool
-IcePy::ClassInfo::usesClasses()
-{
-    return true;
 }
 
 bool
@@ -3504,8 +3435,6 @@ IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator
         _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
         assert(_info);
     }
-
-    _usesClasses = getUsesClasses(_ex.get(), _info->usesClasses);
 }
 
 IcePy::ExceptionWriter::~ExceptionWriter() throw()
@@ -3521,12 +3450,6 @@ IcePy::ExceptionWriter::write(const Ice::OutputStreamPtr& os) const
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     _info->marshal(_ex.get(), os, const_cast<ObjectMap*>(&_objects));
-}
-
-bool
-IcePy::ExceptionWriter::usesClasses() const
-{
-    return _usesClasses;
 }
 
 string
@@ -3572,21 +3495,6 @@ IcePy::ExceptionReader::read(const Ice::InputStreamPtr& is) const
     const_cast<PyObjectHandle&>(_ex) = _info->unmarshal(is);
 
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
-}
-
-bool
-IcePy::ExceptionReader::usesClasses() const
-{
-    return _info->usesClasses;
-}
-
-void
-IcePy::ExceptionReader::usesClasses(bool b)
-{
-    if(_info->preserve)
-    {
-        setUsesClasses(_ex.get(), b);
-    }
 }
 
 string
@@ -4122,8 +4030,6 @@ IcePy_defineException(PyObject*, PyObject* args)
         info->base = ExceptionInfoPtr::dynamicCast(getException(base));
         assert(info->base);
     }
-
-    info->usesClasses = false;
 
     convertDataMembers(members, info->members, info->optionalMembers, true);
 

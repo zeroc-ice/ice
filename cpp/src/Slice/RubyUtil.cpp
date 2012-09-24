@@ -622,8 +622,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Interfaces
     //
-    // TODO: Necessary?
-    //
     {
         int interfaceCount = 0;
         for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
@@ -644,7 +642,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as an array:
     //
-    //   ['MemberName', MemberType]
+    //   ['MemberName', MemberType, Optional, Tag]
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -663,7 +661,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
             writeType((*q)->type());
-            _out << ']';
+            _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
+                 << ']';
         }
     }
     if(members.size() > 1)
@@ -677,7 +676,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define each operation. The arguments to __defineOperation are:
     //
-    // 'opName', Mode, IsAmd, FormatType, [InParams], [OutParams], ReturnType, [Exceptions]
+    // 'opName', Mode, IsAmd, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
@@ -747,7 +746,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         _out << ", ";
                     }
+                    _out << '[';
                     writeType((*t)->type());
+                    _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
+                         << ((*t)->optional() ? (*t)->tag() : 0) << ']';
                     ++count;
                 }
             }
@@ -760,7 +762,10 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         _out << ", ";
                     }
+                    _out << '[';
                     writeType((*t)->type());
+                    _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
+                         << ((*t)->optional() ? (*t)->tag() : 0) << ']';
                     ++count;
                 }
             }
@@ -768,7 +773,15 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             TypePtr returnType = (*s)->returnType();
             if(returnType)
             {
+                //
+                // The return type has the same format as an in/out parameter:
+                //
+                // Type, Optional?, OptionalTag
+                //
+                _out << '[';
                 writeType(returnType);
+                _out << ", " << ((*s)->returnIsOptional() ? "true" : "false") << ", "
+                     << ((*s)->returnIsOptional() ? (*s)->returnTag() : 0) << ']';
             }
             else
             {
@@ -932,7 +945,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as an array:
     //
-    //   ['MemberName', MemberType]
+    //   ['MemberName', MemberType, Optional, Tag]
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -944,7 +957,8 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         _out << "[\"" << fixIdent((*dmli)->name(), IdentNormal) << "\", ";
         writeType((*dmli)->type());
-        _out << ']';
+        _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", " << ((*dmli)->optional() ? (*dmli)->tag() : 0)
+             << ']';
     }
     if(members.size() > 1)
     {
@@ -1603,6 +1617,10 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         if(member->defaultValueType())
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
+        }
+        else if(member->optional())
+        {
+            _out << "::Ice::Unset";
         }
         else
         {

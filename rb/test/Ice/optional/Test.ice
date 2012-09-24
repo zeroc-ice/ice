@@ -9,8 +9,6 @@
 
 #pragma once
 
-[["cpp:include:list"]]
-
 module Test
 {
 
@@ -39,7 +37,7 @@ struct VarStruct
     string m;
 };
 
-["cpp:class"] struct ClassVarStruct
+struct ClassVarStruct
 {
     int a;
 };
@@ -54,9 +52,9 @@ sequence<double> DoubleSeq;
 sequence<string> StringSeq;
 sequence<MyEnum> MyEnumSeq;
 sequence<SmallStruct> SmallStructSeq;
-["cpp:type:std::list< ::Test::SmallStruct>"] sequence<SmallStruct> SmallStructList;
+sequence<SmallStruct> SmallStructList;
 sequence<FixedStruct> FixedStructSeq;
-["cpp:type:std::list< ::Test::FixedStruct>"] sequence<FixedStruct> FixedStructList;
+sequence<FixedStruct> FixedStructList;
 sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
@@ -72,7 +70,7 @@ dictionary<int, OneOptional*> IntOneOptionalPrxDict;
 class MultiOptional
 {
     optional(1) byte a;
-    optional(2) bool  b;
+    optional(2) bool b;
     optional(3) short c;
     optional(4) int d;
     optional(5) long e;
@@ -153,10 +151,12 @@ exception RequiredException extends OptionalException
 
 class OptionalWithCustom
 {
-    ["cpp:type:std::list< ::Ice::Byte>"] optional(1) ByteSeq bs;
-    optional(2) ClassVarStruct s;
+    optional(1) SmallStructList l;
+    ["protected"] optional(2) SmallStructList lp;
+    optional(3) ClassVarStruct s;
 };
 
+["ami"]
 class Initial
 {
     void shutdown();
@@ -200,45 +200,31 @@ class Initial
 
     optional(1) OneOptional* opOneOptionalProxy(optional(2) OneOptional* p1, out optional(3) OneOptional* p3);
 
-    // Custom mapping operations
-    ["cpp:array"] optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1,
-                                                out ["cpp:array"] optional(3) ByteSeq p3);
+    optional(1) ByteSeq opByteSeq(optional(2) ByteSeq p1, out optional(3) ByteSeq p3);
 
-    ["cpp:array"] optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1,
-                                                out ["cpp:array"] optional(3) BoolSeq p3);
+    optional(1) BoolSeq opBoolSeq(optional(2) BoolSeq p1, out optional(3) BoolSeq p3);
 
-    ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
-                                                  out ["cpp:array"] optional(3) ShortSeq p3);
+    optional(1) ShortSeq opShortSeq(optional(2) ShortSeq p1, out optional(3) ShortSeq p3);
 
-    ["cpp:range:array"] optional(1) IntSeq opIntSeq(["cpp:range:array"] optional(2) IntSeq p1,
-                                                    out ["cpp:range:array"] optional(3) IntSeq p3);
+    optional(1) IntSeq opIntSeq(optional(2) IntSeq p1, out optional(3) IntSeq p3);
 
-    ["cpp:range:array"] optional(1) LongSeq opLongSeq(["cpp:range:array"] optional(2) LongSeq p1,
-                                                      out ["cpp:range:array"] optional(3) LongSeq p3);
+    optional(1) LongSeq opLongSeq(optional(2) LongSeq p1, out optional(3) LongSeq p3);
 
-    ["cpp:range:array"] optional(1) FloatSeq opFloatSeq(["cpp:range:array"] optional(2) FloatSeq p1,
-                                                        out ["cpp:range:array"] optional(3) FloatSeq p3);
+    optional(1) FloatSeq opFloatSeq(optional(2) FloatSeq p1, out optional(3) FloatSeq p3);
 
-    ["cpp:range:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:range:array"] optional(2) DoubleSeq p1,
-                                                          out ["cpp:range:array"] optional(3) DoubleSeq p3);
+    optional(1) DoubleSeq opDoubleSeq(optional(2) DoubleSeq p1, out optional(3) DoubleSeq p3);
 
-    ["cpp:range"] optional(1) StringSeq opStringSeq(["cpp:range"] optional(2) StringSeq p1,
-                                                    out ["cpp:range"] optional(3) StringSeq p3);
+    optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
-                                                              out ["cpp:array"] optional(3) SmallStructSeq p3);
+    optional(1) SmallStructSeq opSmallStructSeq(optional(2) SmallStructSeq p1, out optional(3) SmallStructSeq p3);
 
-    ["cpp:array"] optional(1) SmallStructList opSmallStructList(["cpp:array"] optional(2) SmallStructList p1,
-                                                                out ["cpp:array"] optional(3) SmallStructList p3);
+    optional(1) SmallStructList opSmallStructList(optional(2) SmallStructList p1, out optional(3) SmallStructList p3);
 
-    ["cpp:array"] optional(1) FixedStructSeq opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1,
-                                                              out ["cpp:array"] optional(3) FixedStructSeq p3);
+    optional(1) FixedStructSeq opFixedStructSeq(optional(2) FixedStructSeq p1, out optional(3) FixedStructSeq p3);
 
-    ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
-                                                                out ["cpp:array"] optional(3) FixedStructList p3);
+    optional(1) FixedStructList opFixedStructList(optional(2) FixedStructList p1, out optional(3) FixedStructList p3);
 
-    ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
-                                                          out ["cpp:range"] optional(3) VarStructSeq p3);
+    optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 

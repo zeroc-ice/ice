@@ -113,6 +113,18 @@ module Ice
     T_LocalObject.defineClass(nil, true, false, nil, [], [])
 
     #
+    # UnknownSlicedObject.
+    #
+    class UnknownSlicedObject
+        include ::Ice::Object_mixin
+
+        attr_accessor :unknownTypeId
+    end
+    T_UnknownSlicedObject = Ice.__declareClass('::Ice::UnknownSlicedObject')
+    T_UnknownSlicedObject.defineClass(UnknownSlicedObject, false, true, nil, [], [])
+    UnknownSlicedObject::ICE_TYPE = T_UnknownSlicedObject
+
+    #
     # InitializationData.
     #
     class InitializationData
@@ -639,7 +651,7 @@ module Ice
     Encoding_1_1 = EncodingVersion.new(1, 1)
 end
 
-Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [::Ice::T_string], [], ::Ice::T_bool, [])
+Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [[::Ice::T_string, false, 0]], [], [::Ice::T_bool, false, 0], [])
 Ice::Object_mixin::OP_ice_ping = ::Ice::__defineOperation('ice_ping', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], nil, [])
-Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], ::Ice::T_StringSeq, [])
-Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], ::Ice::T_string, [])
+Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_StringSeq, false, 0], [])
+Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_string, false, 0], [])

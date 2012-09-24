@@ -116,7 +116,6 @@ struct StreamTrait
     static const bool fixedLength = false;
 };
 
-
 //
 // StreamTrait specialization for array / range mapped sequences
 // The type can be a std::pair<T, T> or a 
