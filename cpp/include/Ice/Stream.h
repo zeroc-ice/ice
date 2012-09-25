@@ -17,7 +17,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/SlicedDataF.h>
 #include <IceUtil/Shared.h>
-#include <Ice/StreamTraits.h>
+#include <Ice/StreamHelpers.h>
 
 namespace Ice
 {
@@ -196,21 +196,21 @@ public:
     virtual void read(::std::pair<const Float*, const Float*>&, ::IceUtil::ScopedArray<Float>&) = 0;
     virtual void read(::std::pair<const Double*, const Double*>&, ::IceUtil::ScopedArray<Double>&) = 0;
 
-    virtual bool readOptional(Int, OptionalType) = 0; 
+    virtual bool readOptional(Int, OptionalFormat) = 0; 
 
     template<typename T> inline void read(T& v)
     {
-        StreamHelper<T, StreamTrait<T>::type>::read(this, v);
+        StreamHelper<T, StreamableTraits<T>::helper>::read(this, v);
     }
 
     template<typename T> inline void read(Ice::Int tag, IceUtil::Optional<T>& v)
     {
         if(readOptional(tag, StreamOptionalHelper<T, 
-                                                  Ice::StreamTrait<T>::type, 
-                                                  Ice::StreamTrait<T>::fixedLength>::optionalType))
+                                                  Ice::StreamableTraits<T>::helper, 
+                                                  Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
-            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::read(this, *v);
+            StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
         }
     }
 
@@ -315,14 +315,14 @@ public:
     virtual void write(const Float*, const Float*) = 0;
     virtual void write(const Double*, const Double*) = 0;
 
-    virtual bool writeOptional(Int, OptionalType) = 0;
+    virtual bool writeOptional(Int, OptionalFormat) = 0;
 
     virtual void startSize() = 0;
     virtual void endSize() = 0;
 
     template<typename T> inline void write(const T& v)
     {
-        StreamHelper<T, StreamTrait<T>::type>::write(this, v);
+        StreamHelper<T, StreamableTraits<T>::helper>::write(this, v);
     }
 
     template<typename T> inline void write(Ice::Int tag, const IceUtil::Optional<T>& v)
@@ -330,9 +330,9 @@ public:
         if(v)
         {
             writeOptional(tag, StreamOptionalHelper<T,
-                                                    Ice::StreamTrait<T>::type, 
-                                                    Ice::StreamTrait<T>::fixedLength>::optionalType);
-            StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::write(this, *v);
+                                                    Ice::StreamableTraits<T>::helper, 
+                                                    Ice::StreamableTraits<T>::fixedLength>::optionalFormat);
+            StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
 

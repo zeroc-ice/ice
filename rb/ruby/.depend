@@ -1,5 +1,5 @@
-Ice/LocalException.rb: $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice
-Ice/Communicator.rb: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/PluginF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Properties.ice $(slicedir)/Ice/BuiltinSequences.ice
+Ice/LocalException.rb: $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Version.ice $(slicedir)/Ice/BuiltinSequences.ice
+Ice/Communicator.rb: $(slicedir)/Ice/Communicator.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/StatsF.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ObjectFactoryF.ice $(slicedir)/Ice/RouterF.ice $(slicedir)/Ice/LocatorF.ice $(slicedir)/Ice/PluginF.ice $(slicedir)/Ice/ImplicitContextF.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Version.ice $(slicedir)/Ice/Properties.ice $(slicedir)/Ice/BuiltinSequences.ice
 Ice/CommunicatorF.rb: $(slicedir)/Ice/CommunicatorF.ice
 Ice/Logger.rb: $(slicedir)/Ice/Logger.ice
 Ice/LoggerF.rb: $(slicedir)/Ice/LoggerF.ice
@@ -10,9 +10,9 @@ Ice/PropertiesF.rb: $(slicedir)/Ice/PropertiesF.ice
 Ice/ObjectFactory.rb: $(slicedir)/Ice/ObjectFactory.ice
 Ice/ObjectFactoryF.rb: $(slicedir)/Ice/ObjectFactoryF.ice
 Ice/Identity.rb: $(slicedir)/Ice/Identity.ice
-Ice/Current.rb: $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice
+Ice/Current.rb: $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ConnectionF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Version.ice
 Ice/ImplicitContextF.rb: $(slicedir)/Ice/ImplicitContextF.ice
-Ice/ImplicitContext.rb: $(slicedir)/Ice/ImplicitContext.ice $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ConnectionF.ice
+Ice/ImplicitContext.rb: $(slicedir)/Ice/ImplicitContext.ice $(slicedir)/Ice/LocalException.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Version.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Current.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/ConnectionF.ice
 Ice/Router.rb: $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice
 Ice/RouterF.rb: $(slicedir)/Ice/RouterF.ice
 Ice/Plugin.rb: $(slicedir)/Ice/Plugin.ice $(slicedir)/Ice/LoggerF.ice $(slicedir)/Ice/BuiltinSequences.ice
@@ -24,12 +24,13 @@ Ice/Stats.rb: $(slicedir)/Ice/Stats.ice
 Ice/Process.rb: $(slicedir)/Ice/Process.ice
 Ice/ProcessF.rb: $(slicedir)/Ice/ProcessF.ice
 Ice/FacetMap.rb: $(slicedir)/Ice/FacetMap.ice
-Ice/Connection.rb: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
+Ice/Connection.rb: $(slicedir)/Ice/Connection.ice $(slicedir)/Ice/ObjectAdapterF.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/Version.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
 Ice/ConnectionF.rb: $(slicedir)/Ice/ConnectionF.ice
 Ice/SliceChecksumDict.rb: $(slicedir)/Ice/SliceChecksumDict.ice
-Ice/Endpoint.rb: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
+Ice/Endpoint.rb: $(slicedir)/Ice/Endpoint.ice $(slicedir)/Ice/Version.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/EndpointF.ice
 Ice/EndpointF.rb: $(slicedir)/Ice/EndpointF.ice
 Ice/EndpointTypes.rb: $(slicedir)/Ice/EndpointTypes.ice
+Ice/Version.rb: $(slicedir)/Ice/Version.ice
 Glacier2/RouterF.rb: $(slicedir)/Glacier2/RouterF.ice
 Glacier2/Router.rb: $(slicedir)/Glacier2/Router.ice $(slicedir)/Ice/Router.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice
 Glacier2/Session.rb: $(slicedir)/Glacier2/Session.ice $(slicedir)/Ice/BuiltinSequences.ice $(slicedir)/Ice/Identity.ice $(slicedir)/Glacier2/SSLInfo.ice

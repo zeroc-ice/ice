@@ -1572,7 +1572,7 @@ IceInternal::BasicStream::sliceObjects(bool doSlice)
 
 
 bool
-IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
+IceInternal::BasicStream::readOptImpl(Int readTag, OptionalFormat expectedFormat)
 {
     if(getReadEncoding() == Encoding_1_0)
     {
@@ -1580,7 +1580,7 @@ IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
     }
 
     Int tag = 0;
-    OptionalType type;
+    OptionalFormat format;
     do
     {
         if(i >= b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
@@ -1590,42 +1590,42 @@ IceInternal::BasicStream::readOptImpl(Int readTag, OptionalType expectedType)
 
         Byte v;
         read(v);
-        type = static_cast<OptionalType>(v & 0x07); // First 3 bits.
+        format = static_cast<OptionalFormat>(v & 0x07); // First 3 bits.
         tag = static_cast<Int>(v >> 3);
         if(tag == 31)
         {
             tag = readSize();
         }
     }
-    while(type != OptionalTypeEndMarker && tag < readTag && skipOpt(type)); // Skip optional data members
+    while(format != OptionalFormatEndMarker && tag < readTag && skipOpt(format)); // Skip optional data members
     
-    if(type == OptionalTypeEndMarker || tag > readTag)
+    if(format == OptionalFormatEndMarker || tag > readTag)
     {
         //
         // Rewind the stream to correctly read the next optional data
-        // member tag & type next time.
+        // member tag & format next time.
         //
         i -= tag < 31 ? 1 : (tag < 255 ? 2 : 6);
         return false; // No optional data members with the requested tag.
     } 
     
     assert(readTag == tag);
-    if(type != expectedType)
+    if(format != expectedFormat)
     {
         ostringstream os;
-        os << "invalid optional data member `" << tag << "': unexpected type";
+        os << "invalid optional data member `" << tag << "': unexpected format";
         throw MarshalException(__FILE__, __LINE__, os.str());
     }
 
     //
     // We have an optional data member with the requested tag and
-    // type.
+    // format.
     // 
     return true;
 }
 
 bool
-IceInternal::BasicStream::writeOptImpl(Int tag, OptionalType type)
+IceInternal::BasicStream::writeOptImpl(Int tag, OptionalFormat type)
 {
     if(getWriteEncoding() == Encoding_1_0)
     {
@@ -1648,42 +1648,42 @@ IceInternal::BasicStream::writeOptImpl(Int tag, OptionalType type)
 }
 
 bool
-IceInternal::BasicStream::skipOpt(OptionalType type)
+IceInternal::BasicStream::skipOpt(OptionalFormat type)
 {
     int sz;
     switch(type)
     {
-    case Ice::OptionalTypeF1:
+    case Ice::OptionalFormatF1:
     {
         sz = 1;
         break;
     }
-    case Ice::OptionalTypeF2:
+    case Ice::OptionalFormatF2:
     {
         sz = 2;
         break;
     }
-    case Ice::OptionalTypeF4:
+    case Ice::OptionalFormatF4:
     {
         sz = 4;
         break;
     }
-    case Ice::OptionalTypeF8:
+    case Ice::OptionalFormatF8:
     {
         sz = 8;
         break;
     }
-    case Ice::OptionalTypeSize:
+    case Ice::OptionalFormatSize:
     {
         skipSize();
         return true;
     }
-    case Ice::OptionalTypeVSize:
+    case Ice::OptionalFormatVSize:
     {
         sz = readSize();
         break;
     }
-    case Ice::OptionalTypeFSize:
+    case Ice::OptionalFormatFSize:
     {
         read(sz);
         break;
@@ -1703,7 +1703,7 @@ BasicStream::skipOpts()
     //
     // Skip remaining un-read optional members.
     // 
-    OptionalType type;
+    OptionalFormat format;
     do
     {
         if(i >= b.begin() + _currentReadEncaps->start + _currentReadEncaps->sz)
@@ -1713,14 +1713,14 @@ BasicStream::skipOpts()
 
         Byte v;
         read(v);
-        type = static_cast<OptionalType>(v & 0x07); // Read first 3 bits.
+        format = static_cast<OptionalFormat>(v & 0x07); // Read first 3 bits.
         if(static_cast<Int>(v >> 3) == 31)
         {
             skipSize();
         }
     }
-    while(skipOpt(type));
-    assert(type == OptionalTypeEndMarker);
+    while(skipOpt(format));
+    assert(format == OptionalFormatEndMarker);
     return true;
 }
 
@@ -1984,7 +1984,7 @@ IceInternal::BasicStream::EncapsEncoder::endSlice()
     if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
     {
         assert(_encaps->encoding != Encoding_1_0);
-        _stream->write(static_cast<Byte>(OptionalTypeEndMarker));
+        _stream->write(static_cast<Byte>(OptionalFormatEndMarker));
     }
 
     //
@@ -2060,7 +2060,7 @@ IceInternal::BasicStream::EncapsEncoder::writePendingObjects()
         // Write end marker for encapsulation optionals before encoding 
         // the pending objects.
         //
-        _stream->write(static_cast<Byte>(OptionalTypeEndMarker));
+        _stream->write(static_cast<Byte>(OptionalFormatEndMarker));
     }
 
     while(!_toBeMarshaledMap.empty())

@@ -1549,7 +1549,7 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
             {
                 ParamInfoPtr info = *p;
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
-                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true, &info->metaData);
                 }
@@ -1628,7 +1628,7 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
         for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
         {
             ParamInfoPtr info = *p;
-            if(is->readOptional(info->tag, info->type->optionalType()))
+            if(is->readOptional(info->tag, info->type->optionalFormat()))
             {
                 void* closure = reinterpret_cast<void*>(info->pos);
                 info->type->unmarshal(is, info, results.get(), closure, true, &info->metaData);
@@ -3240,7 +3240,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
             for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
             {
                 ParamInfoPtr info = *p;
-                if(is->readOptional(info->tag, info->type->optionalType()))
+                if(is->readOptional(info->tag, info->type->optionalFormat()))
                 {
                     void* closure = reinterpret_cast<void*>(info->pos + offset);
                     info->type->unmarshal(is, info, args.get(), closure, true, &info->metaData);
@@ -3452,7 +3452,7 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
             {
                 ParamInfoPtr info = *p;
                 PyObject* arg = PyTuple_GET_ITEM(t.get(), info->pos);
-                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+                if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
                 {
                     info->type->marshal(arg, os, &objectMap, true, &info->metaData);
                 }

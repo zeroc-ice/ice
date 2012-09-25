@@ -357,7 +357,7 @@ Slice::Gen::generate(const UnitPtr& p)
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/Exception.h>";
     H << "\n#include <Ice/LocalObject.h>";
-    H << "\n#include <Ice/StreamTraits.h>";
+    H << "\n#include <Ice/StreamHelpers.h>";
 
     if(p->usesProxies())
     {
@@ -6089,9 +6089,9 @@ Slice::Gen::StreamVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         string scoped = p->scoped();
         H << nl << "template<>";
-        H << nl << "struct StreamTrait< " << fixKwd(scoped) << ">";
+        H << nl << "struct StreamableTraits< " << fixKwd(scoped) << ">";
         H << sb;
-        H << nl << "static const ::Ice::StreamTraitType type = ::Ice::StreamTraitTypeUserException;";
+        H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryUserException;";
         H << eb << ";" << nl;
     }
     return false;
@@ -6107,20 +6107,20 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
         H << nl << "template<>";
         if(classMetaData)
         {
-            H << nl << "struct StreamTrait< " << fixKwd(scoped + "Ptr") << ">";
+            H << nl << "struct StreamableTraits< " << fixKwd(scoped + "Ptr") << ">";
         }
         else
         {
-            H << nl << "struct StreamTrait< " << fixKwd(scoped) << ">";
+            H << nl << "struct StreamableTraits< " << fixKwd(scoped) << ">";
         }
         H << sb;
         if(classMetaData)
         {
-            H << nl << "static const StreamTraitType type = StreamTraitTypeStructClass;";
+            H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStructClass;";
         }
         else
         {
-            H << nl << "static const StreamTraitType type = StreamTraitTypeStruct;";
+            H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStruct;";
         }
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         if(p->isVariableLength())
@@ -6141,9 +6141,9 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = fixKwd(p->scoped());
     H << nl << "template<>";
-    H << nl << "struct StreamTrait< " << scoped << ">";
+    H << nl << "struct StreamableTraits< " << scoped << ">";
     H << sb;
-    H << nl << "static const StreamTraitType type = StreamTraitTypeEnum;";
+    H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
     H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
     H << nl << "static const bool fixedLength = false;";

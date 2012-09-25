@@ -18,7 +18,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/SlicedDataF.h>
 #include <Ice/UserExceptionFactory.h>
-#include <Ice/StreamTraits.h>
+#include <Ice/StreamHelpers.h>
 
 namespace Ice
 {
@@ -502,11 +502,11 @@ public:
 
     template<typename T> void write(const T& v)
     {
-        Ice::StreamHelper<T, Ice::StreamTrait<T>::type>::write(this, v);
+        Ice::StreamHelper<T, Ice::StreamableTraits<T>::helper>::write(this, v);
     }
     template<typename T> void read(T& v)
     {
-        Ice::StreamHelper<T, Ice::StreamTrait<T>::type>::read(this, v);
+        Ice::StreamHelper<T, Ice::StreamableTraits<T>::helper>::read(this, v);
     }
 
     template<typename T> void write(Ice::Int tag, const IceUtil::Optional<T>& v)
@@ -517,20 +517,20 @@ public:
         }
 
         if(writeOpt(tag, Ice::StreamOptionalHelper<T,
-                                                   Ice::StreamTrait<T>::type, 
-                                                   Ice::StreamTrait<T>::fixedLength>::optionalType))
+                                                   Ice::StreamableTraits<T>::helper, 
+                                                   Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
-            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::write(this, *v);
+            Ice::StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::write(this, *v);
         }
     }
     template<typename T> void read(Ice::Int tag, IceUtil::Optional<T>& v)
     {
         if(readOpt(tag, Ice::StreamOptionalHelper<T, 
-                                                  Ice::StreamTrait<T>::type, 
-                                                  Ice::StreamTrait<T>::fixedLength>::optionalType))
+                                                  Ice::StreamableTraits<T>::helper, 
+                                                  Ice::StreamableTraits<T>::fixedLength>::optionalFormat))
         {
             v.__setIsSet();
-            Ice::StreamOptionalHelper<T, Ice::StreamTrait<T>::type, Ice::StreamTrait<T>::fixedLength>::read(this, *v);
+            Ice::StreamOptionalHelper<T, Ice::StreamableTraits<T>::helper, Ice::StreamableTraits<T>::fixedLength>::read(this, *v);
         }
         else
         {
@@ -562,28 +562,28 @@ public:
     }
 
     // Read/write type and tag for optionals
-    bool writeOpt(Ice::Int tag, Ice::OptionalType type)
+    bool writeOpt(Ice::Int tag, Ice::OptionalFormat format)
     {
         assert(_currentWriteEncaps);
         if(_currentWriteEncaps->encoder)
         {
-            return _currentWriteEncaps->encoder->writeOpt(tag, type);
+            return _currentWriteEncaps->encoder->writeOpt(tag, format);
         }
         else
         {
-            return writeOptImpl(tag, type);
+            return writeOptImpl(tag, format);
         }
     }
-    bool readOpt(Ice::Int tag, Ice::OptionalType expectedType)
+    bool readOpt(Ice::Int tag, Ice::OptionalFormat expectedFormat)
     {
         assert(_currentReadEncaps);
         if(_currentReadEncaps->decoder)
         {
-            return _currentReadEncaps->decoder->readOpt(tag, expectedType);
+            return _currentReadEncaps->decoder->readOpt(tag, expectedFormat);
         }
         else
         {
-            return readOptImpl(tag, expectedType);
+            return readOptImpl(tag, expectedFormat);
         }
     }
 
@@ -816,9 +816,9 @@ public:
     void sliceObjects(bool);
 
     // Read/write/skip optionals
-    bool readOptImpl(Ice::Int, Ice::OptionalType);
-    bool writeOptImpl(Ice::Int, Ice::OptionalType);
-    bool skipOpt(Ice::OptionalType);
+    bool readOptImpl(Ice::Int, Ice::OptionalFormat);
+    bool writeOptImpl(Ice::Int, Ice::OptionalFormat);
+    bool skipOpt(Ice::OptionalFormat);
     bool skipOpts();
     
     // Skip bytes from the stream
@@ -926,15 +926,15 @@ private:
         void endSlice();
         void skipSlice();
 
-        bool readOpt(Ice::Int readTag, Ice::OptionalType expectedType)
+        bool readOpt(Ice::Int readTag, Ice::OptionalFormat expectedFormat)
         {
             if(_sliceType == NoSlice)
             {
-                return _stream->readOptImpl(readTag, expectedType);
+                return _stream->readOptImpl(readTag, expectedFormat);
             }
             else if(_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS)
             {
-                return _stream->readOptImpl(readTag, expectedType);
+                return _stream->readOptImpl(readTag, expectedFormat);
             }
             return false;
         }
@@ -996,15 +996,15 @@ private:
         void startSlice(const std::string&, bool);
         void endSlice();
 
-        bool writeOpt(Ice::Int tag, Ice::OptionalType type)
+        bool writeOpt(Ice::Int tag, Ice::OptionalFormat format)
         {
             if(_sliceType == NoSlice)
             {
-                return _stream->writeOptImpl(tag, type);
+                return _stream->writeOptImpl(tag, format);
             }
             else
             {
-                if(_stream->writeOptImpl(tag, type))
+                if(_stream->writeOptImpl(tag, format))
                 {
                     _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
                     return true;

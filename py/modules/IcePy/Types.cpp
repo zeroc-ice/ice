@@ -678,30 +678,30 @@ IcePy::PrimitiveInfo::wireSize() const
     return 0;
 }
 
-Ice::OptionalType
-IcePy::PrimitiveInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::PrimitiveInfo::optionalFormat() const
 {
     switch(kind)
     {
     case KindBool:
     case KindByte:
-        return Ice::OptionalTypeF1;
+        return Ice::OptionalFormatF1;
     case KindShort:
-        return Ice::OptionalTypeF2;
+        return Ice::OptionalFormatF2;
     case KindInt:
-        return Ice::OptionalTypeF4;
+        return Ice::OptionalFormatF4;
     case KindLong:
-        return Ice::OptionalTypeF8;
+        return Ice::OptionalFormatF8;
     case KindFloat:
-        return Ice::OptionalTypeF4;
+        return Ice::OptionalFormatF4;
     case KindDouble:
-        return Ice::OptionalTypeF8;
+        return Ice::OptionalFormatF8;
     case KindString:
-        return Ice::OptionalTypeVSize;
+        return Ice::OptionalFormatVSize;
     }
 
     assert(false);
-    return Ice::OptionalTypeF1;
+    return Ice::OptionalFormatF1;
 }
 
 void
@@ -925,10 +925,10 @@ IcePy::EnumInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::EnumInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::EnumInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeSize;
+    return Ice::OptionalFormatSize;
 }
 
 void
@@ -1167,10 +1167,10 @@ IcePy::StructInfo::wireSize() const
     return _wireSize;
 }
 
-Ice::OptionalType
-IcePy::StructInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::StructInfo::optionalFormat() const
 {
-    return _variableLength ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 void
@@ -1331,10 +1331,10 @@ IcePy::SequenceInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::SequenceInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::SequenceInfo::optionalFormat() const
 {
-    return elementType->variableLength() ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return elementType->variableLength() ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 void
@@ -2224,10 +2224,10 @@ IcePy::CustomInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::CustomInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::CustomInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeVSize;
+    return Ice::OptionalFormatVSize;
 }
 
 void
@@ -2390,10 +2390,10 @@ IcePy::DictionaryInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::DictionaryInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::DictionaryInfo::optionalFormat() const
 {
-    return _variableLength ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 void
@@ -2652,10 +2652,10 @@ IcePy::ClassInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::ClassInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::ClassInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeSize;
+    return Ice::OptionalFormatSize;
 }
 
 void
@@ -2866,10 +2866,10 @@ IcePy::ProxyInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IcePy::ProxyInfo::optionalType() const
+Ice::OptionalFormat
+IcePy::ProxyInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeFSize;
+    return Ice::OptionalFormatFSize;
 }
 
 void
@@ -3054,7 +3054,7 @@ IcePy::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMemb
             }
         }
         else if(member->optional &&
-                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalType())))
+                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3129,7 +3129,7 @@ IcePy::ObjectReader::read(const Ice::InputStreamPtr& is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOptional(member->tag, member->type->optionalType()))
+                if(is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true, &member->metaData);
                 }
@@ -3319,7 +3319,7 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p, const Ice::OutputStreamPtr& os, 
             }
         }
         else if(member->optional &&
-                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalType())))
+                (val.get() == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -3359,7 +3359,7 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOptional(member->tag, member->type->optionalType()))
+            if(is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, p.get(), 0, true, &member->metaData);
             }

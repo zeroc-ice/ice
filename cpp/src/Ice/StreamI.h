@@ -93,7 +93,7 @@ public:
     using InputStream::read;
 #endif
 
-    virtual bool readOptional(Int, OptionalType);
+    virtual bool readOptional(Int, OptionalFormat);
 
     virtual void closure(void*);
     virtual void* closure() const;
@@ -148,7 +148,7 @@ public:
     using OutputStream::write;
 #endif
 
-    virtual bool writeOptional(Int, OptionalType);
+    virtual bool writeOptional(Int, OptionalFormat);
 
     virtual void startObject(const SlicedDataPtr&);
     virtual void endObject();

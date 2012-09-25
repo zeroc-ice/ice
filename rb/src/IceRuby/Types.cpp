@@ -481,30 +481,30 @@ IceRuby::PrimitiveInfo::wireSize() const
     return 0;
 }
 
-Ice::OptionalType
-IceRuby::PrimitiveInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::PrimitiveInfo::optionalFormat() const
 {
     switch(kind)
     {
     case KindBool:
     case KindByte:
-        return Ice::OptionalTypeF1;
+        return Ice::OptionalFormatF1;
     case KindShort:
-        return Ice::OptionalTypeF2;
+        return Ice::OptionalFormatF2;
     case KindInt:
-        return Ice::OptionalTypeF4;
+        return Ice::OptionalFormatF4;
     case KindLong:
-        return Ice::OptionalTypeF8;
+        return Ice::OptionalFormatF8;
     case KindFloat:
-        return Ice::OptionalTypeF4;
+        return Ice::OptionalFormatF4;
     case KindDouble:
-        return Ice::OptionalTypeF8;
+        return Ice::OptionalFormatF8;
     case KindString:
-        return Ice::OptionalTypeVSize;
+        return Ice::OptionalFormatVSize;
     }
 
     assert(false);
-    return Ice::OptionalTypeF1;
+    return Ice::OptionalFormatF1;
 }
 
 void
@@ -740,10 +740,10 @@ IceRuby::EnumInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IceRuby::EnumInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::EnumInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeSize;
+    return Ice::OptionalFormatSize;
 }
 
 void
@@ -934,10 +934,10 @@ IceRuby::StructInfo::wireSize() const
     return _wireSize;
 }
 
-Ice::OptionalType
-IceRuby::StructInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::StructInfo::optionalFormat() const
 {
-    return _variableLength ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 void
@@ -1087,10 +1087,10 @@ IceRuby::SequenceInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IceRuby::SequenceInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::SequenceInfo::optionalFormat() const
 {
-    return elementType->variableLength() ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return elementType->variableLength() ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 void
@@ -1616,10 +1616,10 @@ IceRuby::DictionaryInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IceRuby::DictionaryInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::DictionaryInfo::optionalFormat() const
 {
-    return _variableLength ? Ice::OptionalTypeFSize : Ice::OptionalTypeVSize;
+    return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
 namespace
@@ -1951,10 +1951,10 @@ IceRuby::ClassInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IceRuby::ClassInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::ClassInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeSize;
+    return Ice::OptionalFormatSize;
 }
 
 void
@@ -2201,10 +2201,10 @@ IceRuby::ProxyInfo::wireSize() const
     return 1;
 }
 
-Ice::OptionalType
-IceRuby::ProxyInfo::optionalType() const
+Ice::OptionalFormat
+IceRuby::ProxyInfo::optionalFormat() const
 {
-    return Ice::OptionalTypeFSize;
+    return Ice::OptionalFormatFSize;
 }
 
 void
@@ -2349,7 +2349,7 @@ IceRuby::ObjectWriter::writeMembers(const Ice::OutputStreamPtr& os, const DataMe
 
         volatile VALUE val = callRuby(rb_ivar_get, _object, member->rubyID);
 
-        if(member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalType())))
+        if(member->optional && (val == Unset || !os->writeOptional(member->tag, member->type->optionalFormat())))
         {
             continue;
         }
@@ -2413,7 +2413,7 @@ IceRuby::ObjectReader::read(const Ice::InputStreamPtr& is)
             for(p = info->optionalMembers.begin(); p != info->optionalMembers.end(); ++p)
             {
                 DataMemberPtr member = *p;
-                if(is->readOptional(member->tag, member->type->optionalType()))
+                if(is->readOptional(member->tag, member->type->optionalFormat()))
                 {
                     member->type->unmarshal(is, member, _object, 0, true);
                 }
@@ -2553,7 +2553,7 @@ IceRuby::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
         for(q = info->optionalMembers.begin(); q != info->optionalMembers.end(); ++q)
         {
             DataMemberPtr member = *q;
-            if(is->readOptional(member->tag, member->type->optionalType()))
+            if(is->readOptional(member->tag, member->type->optionalFormat()))
             {
                 member->type->unmarshal(is, member, obj, 0, true);
             }

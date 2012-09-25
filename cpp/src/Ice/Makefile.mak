@@ -187,6 +187,7 @@ clean::
 	-del /q SliceChecksumDict.cpp $(HDIR)\SliceChecksumDict.h
 	-del /q StatsF.cpp $(HDIR)\StatsF.h
 	-del /q Stats.cpp $(HDIR)\Stats.h
+        -del /q Version.cpp $(HDIR)\Version.h
 	-del /q Ice.res
 
 install:: all

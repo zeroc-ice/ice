@@ -451,7 +451,7 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
         {
             ParamInfoPtr info = *p;
             volatile VALUE arg = RARRAY_PTR(args)[info->pos];
-            if(arg != Unset && os->writeOptional(info->tag, info->type->optionalType()))
+            if(arg != Unset && os->writeOptional(info->tag, info->type->optionalFormat()))
             {
                 info->type->marshal(arg, os, &objectMap, true);
             }
@@ -521,7 +521,7 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     for(p = _optionalOutParams.begin(); p != _optionalOutParams.end(); ++p)
     {
         ParamInfoPtr info = *p;
-        if(is->readOptional(info->tag, info->type->optionalType()))
+        if(is->readOptional(info->tag, info->type->optionalFormat()))
         {
             void* closure = reinterpret_cast<void*>(info->pos);
             info->type->unmarshal(is, info, results, closure, true);

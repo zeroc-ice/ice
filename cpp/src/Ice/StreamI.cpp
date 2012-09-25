@@ -271,9 +271,9 @@ InputStreamI::read(pair<const Double*, const Double*>& p,
 }
 
 bool
-InputStreamI::readOptional(Int tag, OptionalType type)
+InputStreamI::readOptional(Int tag, OptionalFormat format)
 {
-    return _is->readOpt(tag, type);
+    return _is->readOpt(tag, format);
 }
 
 void
@@ -571,9 +571,9 @@ OutputStreamI::write(const Double* begin, const Double* end)
 }
 
 bool
-OutputStreamI::writeOptional(Int tag, OptionalType type)
+OutputStreamI::writeOptional(Int tag, OptionalFormat format)
 {
-    return _os->writeOpt(tag, type);
+    return _os->writeOpt(tag, format);
 }
 
 void
