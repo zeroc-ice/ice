@@ -125,7 +125,7 @@ protected:
     //
     // Returns the optional type corresponding to the given Slice type.
     //
-    std::string getOptionalType(const TypePtr&);
+    std::string getOptionalFormat(const TypePtr&);
 
     //
     // Get the Java name for a type. If an optional scope is provided,

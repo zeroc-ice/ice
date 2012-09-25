@@ -320,9 +320,9 @@ public class InputStreamI implements InputStream
     }
 
     public boolean
-    readOptional(int tag, OptionalType type)
+    readOptional(int tag, OptionalFormat format)
     {
-        return _is.readOpt(tag, type);
+        return _is.readOpt(tag, format);
     }
 
     public int

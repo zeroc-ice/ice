@@ -568,7 +568,7 @@ Slice::JavaGenerator::useOptionalMapping(const OperationPtr& p)
 }
 
 string
-Slice::JavaGenerator::getOptionalType(const TypePtr& type)
+Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
     if(bp)
@@ -578,33 +578,33 @@ Slice::JavaGenerator::getOptionalType(const TypePtr& type)
         case Builtin::KindByte:
         case Builtin::KindBool:
         {
-            return "Ice.OptionalType.F1";
+            return "Ice.OptionalFormat.F1";
         }
         case Builtin::KindShort:
         {
-            return "Ice.OptionalType.F2";
+            return "Ice.OptionalFormat.F2";
         }
         case Builtin::KindInt:
         case Builtin::KindFloat:
         {
-            return "Ice.OptionalType.F4";
+            return "Ice.OptionalFormat.F4";
         }
         case Builtin::KindLong:
         case Builtin::KindDouble:
         {
-            return "Ice.OptionalType.F8";
+            return "Ice.OptionalFormat.F8";
         }
         case Builtin::KindString:
         {
-            return "Ice.OptionalType.VSize";
+            return "Ice.OptionalFormat.VSize";
         }
         case Builtin::KindObject:
         {
-            return "Ice.OptionalType.Size";
+            return "Ice.OptionalFormat.Size";
         }
         case Builtin::KindObjectProxy:
         {
-            return "Ice.OptionalType.FSize";
+            return "Ice.OptionalFormat.FSize";
         }
         case Builtin::KindLocalObject:
         {
@@ -616,36 +616,36 @@ Slice::JavaGenerator::getOptionalType(const TypePtr& type)
 
     if(EnumPtr::dynamicCast(type))
     {
-        return "Ice.OptionalType.Size";
+        return "Ice.OptionalFormat.Size";
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        return seq->type()->isVariableLength() ? "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+        return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
         return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
-            "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+            "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-        return st->isVariableLength() ? "Ice.OptionalType.FSize" : "Ice.OptionalType.VSize";
+        return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
     }
 
     if(ProxyPtr::dynamicCast(type))
     {
-        return "Ice.OptionalType.FSize";
+        return "Ice.OptionalFormat.FSize";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     assert(cl);
-    return "Ice.OptionalType.Size";
+    return "Ice.OptionalFormat.Size";
 }
 
 string
@@ -1240,7 +1240,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalMapping)
                 {
                     out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalType(type) << "))";
+                        << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << stream << ".startSize();";
                     out << nl << typeS << "Helper.__write(" << stream << ", " << v << ".get());";
@@ -1249,7 +1249,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << stream << ".startSize();";
                     out << nl << typeS << "Helper.__write(" << stream << ", " << v << ");";
@@ -1272,7 +1272,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         {
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
                 out << nl << stream << ".skip(4);";
                 out << nl << v << ".set(" << typeS << "Helper.__read(" << stream << "));";
@@ -1317,7 +1317,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             if(optionalParam)
             {
                 string typeS = typeToString(type, TypeModeIn, package);
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
                 out << nl << stream << ".readObject(new Ice.OptionalObject(" << v << ", " << typeS << ".class, "
                     << getStaticId(type, package) << "));";
@@ -1366,12 +1366,12 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     if(optionalMapping)
                     {
                         out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
-                            << tag << ", " << getOptionalType(type) << "))";
+                            << tag << ", " << getOptionalFormat(type) << "))";
                         val = v + ".get()";
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                         val = v;
                     }
 
@@ -1410,7 +1410,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
 
                 if(st->isVariableLength())
@@ -1468,14 +1468,14 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalMapping)
                 {
                     out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt(" << tag
-                        << ", " << getOptionalType(type) << "))";
+                        << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << v << ".get().__write(" << stream << ");";
                     out << eb;
                 }
                 else
                 {
-                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << v << ".__write(" << stream << ");";
                     out << eb;
@@ -1492,7 +1492,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
 
             if(optionalParam)
             {
-                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                 out << sb;
                 out << nl << v << ".set(" << typeS << ".__read(" << stream << "));";
                 out << eb;
@@ -1528,12 +1528,12 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     if(optionalMapping)
                     {
                         out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
-                            << tag << ", " << getOptionalType(type) << "))";
+                            << tag << ", " << getOptionalFormat(type) << "))";
                         out << sb;
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                         out << sb;
                     }
                 }
@@ -1576,7 +1576,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalParam)
                 {
                     tmpName = "__optDict";
-                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << tmpName << ';';
                 }
@@ -1686,11 +1686,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     if(optionalMapping)
                     {
                         out << nl << "if(" << v << " != null && " << v << ".isSet() && " << stream << ".writeOpt("
-                            << tag << ", " << getOptionalType(type) << "))";
+                            << tag << ", " << getOptionalFormat(type) << "))";
                     }
                     else
                     {
-                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalType(type) << "))";
+                        out << nl << "if(" << stream << ".writeOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                     }
 
                     out << sb;
@@ -1803,7 +1803,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 if(optionalParam)
                 {
                     tmpName = "__optSeq";
-                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalType(type) << "))";
+                    out << nl << "if(" << stream << ".readOpt(" << tag << ", " << getOptionalFormat(type) << "))";
                     out << sb;
                     out << nl << typeS << ' ' << tmpName << ';';
                 }

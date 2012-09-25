@@ -238,9 +238,9 @@ public class OutputStreamI implements OutputStream
     }
 
     public boolean
-    writeOptional(int tag, Ice.OptionalType type)
+    writeOptional(int tag, Ice.OptionalFormat format)
     {
-        return _os.writeOpt(tag, type);
+        return _os.writeOpt(tag, format);
     }
 
     public int

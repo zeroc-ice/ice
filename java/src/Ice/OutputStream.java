@@ -263,9 +263,9 @@ public interface OutputStream
      * Write the header information for an optional value.
      *
      * @param tag The numeric tag associated with the value.
-     * @param type The optional type of the value.
+     * @param type The optional format of the value.
      **/
-    boolean writeOptional(int tag, Ice.OptionalType type);
+    boolean writeOptional(int tag, Ice.OptionalFormat format);
 
     /**
      * Determines the current position in the stream.

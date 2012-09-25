@@ -772,32 +772,32 @@ public class BasicStream
         }
     }
 
-    // Read/write type and tag for optionals
+    // Read/write format and tag for optionals
     public boolean
-    writeOpt(int tag, Ice.OptionalType type)
+    writeOpt(int tag, Ice.OptionalFormat format)
     {
         assert(_writeEncapsStack != null);
         if(_writeEncapsStack.encoder != null)
         {
-            return _writeEncapsStack.encoder.writeOpt(tag, type);
+            return _writeEncapsStack.encoder.writeOpt(tag, format);
         }
         else
         {
-            return writeOptImpl(tag, type);
+            return writeOptImpl(tag, format);
         }
     }
 
     public boolean
-    readOpt(int tag, Ice.OptionalType expectedType)
+    readOpt(int tag, Ice.OptionalFormat expectedFormat)
     {
         assert(_readEncapsStack != null);
         if(_readEncapsStack.decoder != null)
         {
-            return _readEncapsStack.decoder.readOpt(tag, expectedType);
+            return _readEncapsStack.decoder.readOpt(tag, expectedFormat);
         }
         else
         {
-            return readOptImpl(tag, expectedType);
+            return readOptImpl(tag, expectedFormat);
         }
     }
 
@@ -820,7 +820,7 @@ public class BasicStream
     public void
     writeByte(int tag, byte v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F1))
+        if(writeOpt(tag, Ice.OptionalFormat.F1))
         {
             writeByte(v);
         }
@@ -859,7 +859,7 @@ public class BasicStream
     public void
     writeByteSeq(int tag, byte[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeByteSeq(v);
         }
@@ -903,7 +903,7 @@ public class BasicStream
     public void
     readByte(int tag, Ice.ByteOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F1))
+        if(readOpt(tag, Ice.OptionalFormat.F1))
         {
             v.set(readByte());
         }
@@ -932,7 +932,7 @@ public class BasicStream
     public void
     readByteSeq(int tag, Ice.Optional<byte[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             v.set(readByteSeq());
         }
@@ -981,7 +981,7 @@ public class BasicStream
     public void
     writeBool(int tag, boolean v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F1))
+        if(writeOpt(tag, Ice.OptionalFormat.F1))
         {
             writeBool(v);
         }
@@ -1023,7 +1023,7 @@ public class BasicStream
     public void
     writeBoolSeq(int tag, boolean[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeBoolSeq(v);
         }
@@ -1045,7 +1045,7 @@ public class BasicStream
     public void
     readBool(int tag, Ice.BooleanOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F1))
+        if(readOpt(tag, Ice.OptionalFormat.F1))
         {
             v.set(readBool());
         }
@@ -1077,7 +1077,7 @@ public class BasicStream
     public void
     readBoolSeq(int tag, Ice.Optional<boolean[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             v.set(readBoolSeq());
         }
@@ -1106,7 +1106,7 @@ public class BasicStream
     public void
     writeShort(int tag, short v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F2))
+        if(writeOpt(tag, Ice.OptionalFormat.F2))
         {
             writeShort(v);
         }
@@ -1141,7 +1141,7 @@ public class BasicStream
     public void
     writeShortSeq(int tag, short[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 2 + (v.length > 254 ? 5 : 1));
             writeShortSeq(v);
@@ -1164,7 +1164,7 @@ public class BasicStream
     public void
     readShort(int tag, Ice.ShortOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F2))
+        if(readOpt(tag, Ice.OptionalFormat.F2))
         {
             v.set(readShort());
         }
@@ -1195,7 +1195,7 @@ public class BasicStream
     public void
     readShortSeq(int tag, Ice.Optional<short[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             skipSize();
             v.set(readShortSeq());
@@ -1225,7 +1225,7 @@ public class BasicStream
     public void
     writeInt(int tag, int v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F4))
+        if(writeOpt(tag, Ice.OptionalFormat.F4))
         {
             writeInt(v);
         }
@@ -1266,7 +1266,7 @@ public class BasicStream
     public void
     writeIntSeq(int tag, int[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeIntSeq(v);
@@ -1289,7 +1289,7 @@ public class BasicStream
     public void
     readInt(int tag, Ice.IntOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F4))
+        if(readOpt(tag, Ice.OptionalFormat.F4))
         {
             v.set(readInt());
         }
@@ -1320,7 +1320,7 @@ public class BasicStream
     public void
     readIntSeq(int tag, Ice.Optional<int[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             skipSize();
             v.set(readIntSeq());
@@ -1350,7 +1350,7 @@ public class BasicStream
     public void
     writeLong(int tag, long v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F8))
+        if(writeOpt(tag, Ice.OptionalFormat.F8))
         {
             writeLong(v);
         }
@@ -1385,7 +1385,7 @@ public class BasicStream
     public void
     writeLongSeq(int tag, long[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeLongSeq(v);
@@ -1408,7 +1408,7 @@ public class BasicStream
     public void
     readLong(int tag, Ice.LongOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F8))
+        if(readOpt(tag, Ice.OptionalFormat.F8))
         {
             v.set(readLong());
         }
@@ -1439,7 +1439,7 @@ public class BasicStream
     public void
     readLongSeq(int tag, Ice.Optional<long[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             skipSize();
             v.set(readLongSeq());
@@ -1469,7 +1469,7 @@ public class BasicStream
     public void
     writeFloat(int tag, float v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F4))
+        if(writeOpt(tag, Ice.OptionalFormat.F4))
         {
             writeFloat(v);
         }
@@ -1504,7 +1504,7 @@ public class BasicStream
     public void
     writeFloatSeq(int tag, float[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 4 + (v.length > 254 ? 5 : 1));
             writeFloatSeq(v);
@@ -1527,7 +1527,7 @@ public class BasicStream
     public void
     readFloat(int tag, Ice.FloatOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F4))
+        if(readOpt(tag, Ice.OptionalFormat.F4))
         {
             v.set(readFloat());
         }
@@ -1558,7 +1558,7 @@ public class BasicStream
     public void
     readFloatSeq(int tag, Ice.Optional<float[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             skipSize();
             v.set(readFloatSeq());
@@ -1588,7 +1588,7 @@ public class BasicStream
     public void
     writeDouble(int tag, double v)
     {
-        if(writeOpt(tag, Ice.OptionalType.F8))
+        if(writeOpt(tag, Ice.OptionalFormat.F8))
         {
             writeDouble(v);
         }
@@ -1623,7 +1623,7 @@ public class BasicStream
     public void
     writeDoubleSeq(int tag, double[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeSize(v == null || v.length == 0 ? 1 : v.length * 8 + (v.length > 254 ? 5 : 1));
             writeDoubleSeq(v);
@@ -1646,7 +1646,7 @@ public class BasicStream
     public void
     readDouble(int tag, Ice.DoubleOptional v)
     {
-        if(readOpt(tag, Ice.OptionalType.F8))
+        if(readOpt(tag, Ice.OptionalFormat.F8))
         {
             v.set(readDouble());
         }
@@ -1677,7 +1677,7 @@ public class BasicStream
     public void
     readDoubleSeq(int tag, Ice.Optional<double[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             skipSize();
             v.set(readDoubleSeq());
@@ -1766,7 +1766,7 @@ public class BasicStream
     public void
     writeString(int tag, String v)
     {
-        if(writeOpt(tag, Ice.OptionalType.VSize))
+        if(writeOpt(tag, Ice.OptionalFormat.VSize))
         {
             writeString(v);
         }
@@ -1801,7 +1801,7 @@ public class BasicStream
     public void
     writeStringSeq(int tag, String[] v)
     {
-        if(writeOpt(tag, Ice.OptionalType.FSize))
+        if(writeOpt(tag, Ice.OptionalFormat.FSize))
         {
             startSize();
             writeStringSeq(v);
@@ -1890,7 +1890,7 @@ public class BasicStream
     public void
     readString(int tag, Ice.Optional<String> v)
     {
-        if(readOpt(tag, Ice.OptionalType.VSize))
+        if(readOpt(tag, Ice.OptionalFormat.VSize))
         {
             v.set(readString());
         }
@@ -1915,7 +1915,7 @@ public class BasicStream
     public void
     readStringSeq(int tag, Ice.Optional<String[]> v)
     {
-        if(readOpt(tag, Ice.OptionalType.FSize))
+        if(readOpt(tag, Ice.OptionalFormat.FSize))
         {
             skip(4);
             v.set(readStringSeq());
@@ -1944,7 +1944,7 @@ public class BasicStream
     public void
     writeProxy(int tag, Ice.ObjectPrx v)
     {
-        if(writeOpt(tag, Ice.OptionalType.FSize))
+        if(writeOpt(tag, Ice.OptionalFormat.FSize))
         {
             startSize();
             writeProxy(v);
@@ -1961,7 +1961,7 @@ public class BasicStream
     public void
     readProxy(int tag, Ice.Optional<Ice.ObjectPrx> v)
     {
-        if(readOpt(tag, Ice.OptionalType.FSize))
+        if(readOpt(tag, Ice.OptionalFormat.FSize))
         {
             skip(4);
             v.set(readProxy());
@@ -2039,7 +2039,7 @@ public class BasicStream
     public void
     writeObject(int tag, Ice.Object v)
     {
-        if(writeOpt(tag, Ice.OptionalType.Size))
+        if(writeOpt(tag, Ice.OptionalFormat.Size))
         {
             writeObject(v);
         }
@@ -2056,7 +2056,7 @@ public class BasicStream
     public void
     readObject(int tag, Ice.Optional<Ice.Object> v)
     {
-        if(readOpt(tag, Ice.OptionalType.Size))
+        if(readOpt(tag, Ice.OptionalFormat.Size))
         {
             Ice.OptionalObject opt = new Ice.OptionalObject(v, Ice.Object.class, Ice.ObjectImpl.ice_staticId());
             readObject(opt);
@@ -2089,7 +2089,7 @@ public class BasicStream
     }
 
     public boolean
-    readOptImpl(int readTag, Ice.OptionalType expectedType)
+    readOptImpl(int readTag, Ice.OptionalFormat expectedFormat)
     {
         if(isReadEncoding_1_0())
         {
@@ -2097,7 +2097,7 @@ public class BasicStream
         }
 
         int tag = 0;
-        Ice.OptionalType type;
+        Ice.OptionalFormat format;
         do
         {
             if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
@@ -2107,20 +2107,20 @@ public class BasicStream
 
             final byte b = readByte();
             final int v = b < 0 ? (int)b + 256 : b;
-            type = Ice.OptionalType.valueOf(v & 0x07); // First 3 bits.
+            format = Ice.OptionalFormat.valueOf(v & 0x07); // First 3 bits.
             tag = v >> 3;
             if(tag == 31)
             {
                 tag = readSize();
             }
         }
-        while(type != Ice.OptionalType.EndMarker && tag < readTag && skipOpt(type)); // Skip optional data members
+        while(format != Ice.OptionalFormat.EndMarker && tag < readTag && skipOpt(format)); // Skip optional data members
 
-        if(type == Ice.OptionalType.EndMarker || tag > readTag)
+        if(format == Ice.OptionalFormat.EndMarker || tag > readTag)
         {
             //
             // Rewind the stream to correctly read the next optional data
-            // member tag & type next time.
+            // member tag & format next time.
             //
             int offset = tag < 31 ? 1 : (tag < 255 ? 2 : 6);
             _buf.b.position(_buf.b.position() - offset);
@@ -2128,28 +2128,28 @@ public class BasicStream
         }
 
         assert(readTag == tag);
-        if(type != expectedType)
+        if(format != expectedFormat)
         {
-            String msg = "invalid optional data member `" + tag + "': unexpected type";
+            String msg = "invalid optional data member `" + tag + "': unexpected format";
             throw new Ice.MarshalException(msg);
         }
 
         //
         // We have an optional data member with the requested tag and
-        // type.
+        // format.
         //
         return true;
     }
 
     public boolean
-    writeOptImpl(int tag, Ice.OptionalType type)
+    writeOptImpl(int tag, Ice.OptionalFormat format)
     {
         if(isWriteEncoding_1_0())
         {
             return false; // Optional members aren't supported with the 1.0 encoding.
         }
 
-        int v = type.value();
+        int v = format.value();
         if(tag < 31)
         {
             v |= tag << 3;
@@ -2165,10 +2165,10 @@ public class BasicStream
     }
 
     public boolean
-    skipOpt(Ice.OptionalType type)
+    skipOpt(Ice.OptionalFormat format)
     {
         int sz;
-        switch(type)
+        switch(format)
         {
         case F1:
         {
@@ -2220,7 +2220,7 @@ public class BasicStream
         //
         // Skip remaining un-read optional members.
         //
-        Ice.OptionalType type;
+        Ice.OptionalFormat format;
         do
         {
             if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
@@ -2230,14 +2230,14 @@ public class BasicStream
 
             final byte b = readByte();
             final int v = b < 0 ? (int)b + 256 : b;
-            type = Ice.OptionalType.valueOf(v & 0x07); // Read first 3 bits.
+            format = Ice.OptionalFormat.valueOf(v & 0x07); // Read first 3 bits.
             if((v >> 3) == 31)
             {
                 skipSize();
             }
         }
-        while(skipOpt(type));
-        assert(type == Ice.OptionalType.EndMarker);
+        while(skipOpt(format));
+        assert(format == Ice.OptionalFormat.EndMarker);
         return true;
     }
 
@@ -2805,16 +2805,16 @@ public class BasicStream
     }
 
     //
-    // Optional data member type.
+    // Optional data member format.
     //
-    private static final int MemberTypeF1           = 0;
-    private static final int MemberTypeF2           = 1;
-    private static final int MemberTypeF4           = 2;
-    private static final int MemberTypeF8           = 3;
-    private static final int MemberTypeVSize        = 4;
-    private static final int MemberTypeFSize        = 5;
-    private static final int MemberTypeReserved     = 6;
-    private static final int MemberTypeEndMarker    = 7;
+    private static final int MemberFormatF1           = 0;
+    private static final int MemberFormatF2           = 1;
+    private static final int MemberFormatF4           = 2;
+    private static final int MemberFormatF8           = 3;
+    private static final int MemberFormatVSize        = 4;
+    private static final int MemberFormatFSize        = 5;
+    private static final int MemberFormatReserved     = 6;
+    private static final int MemberFormatEndMarker    = 7;
 
     private Instance _instance;
     private Buffer _buf;
@@ -3264,15 +3264,15 @@ public class BasicStream
             }
         }
 
-        boolean readOpt(int readTag, Ice.OptionalType expectedType)
+        boolean readOpt(int readTag, Ice.OptionalFormat expectedFormat)
         {
             if(_sliceType == SliceType.NoSlice)
             {
-                return _stream.readOptImpl(readTag, expectedType);
+                return _stream.readOptImpl(readTag, expectedFormat);
             }
             else if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
-                return _stream.readOptImpl(readTag, expectedType);
+                return _stream.readOptImpl(readTag, expectedFormat);
             }
             return false;
         }
@@ -3588,37 +3588,37 @@ public class BasicStream
             return new Ice.SlicedData(arr);
         }
 
-        private boolean skipOpt(int type)
+        private boolean skipOpt(int format)
         {
             int sz;
-            switch(type)
+            switch(format)
             {
-            case MemberTypeF1:
+            case MemberFormatF1:
             {
                 sz = 1;
                 break;
             }
-            case MemberTypeF2:
+            case MemberFormatF2:
             {
                 sz = 2;
                 break;
             }
-            case MemberTypeF4:
+            case MemberFormatF4:
             {
                 sz = 4;
                 break;
             }
-            case MemberTypeF8:
+            case MemberFormatF8:
             {
                 sz = 8;
                 break;
             }
-            case MemberTypeVSize:
+            case MemberFormatVSize:
             {
                 sz = _stream.readSize();
                 break;
             }
-            case MemberTypeFSize:
+            case MemberFormatFSize:
             {
                 sz = _stream.readInt();
                 break;
@@ -3892,7 +3892,7 @@ public class BasicStream
             if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
             {
                 assert(!_encaps.encoding_1_0);
-                _stream.writeByte((byte)Ice.OptionalType.EndMarker.value());
+                _stream.writeByte((byte)Ice.OptionalFormat.EndMarker.value());
             }
 
             //
@@ -3939,15 +3939,15 @@ public class BasicStream
             }
         }
 
-        boolean writeOpt(int tag, Ice.OptionalType type)
+        boolean writeOpt(int tag, Ice.OptionalFormat format)
         {
             if(_sliceType == SliceType.NoSlice)
             {
-                return _stream.writeOptImpl(tag, type);
+                return _stream.writeOptImpl(tag, format);
             }
             else
             {
-                if(_stream.writeOptImpl(tag, type))
+                if(_stream.writeOptImpl(tag, format))
                 {
                     _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
                     return true;
@@ -3984,7 +3984,7 @@ public class BasicStream
                 // Write end marker for encapsulation optionals before encoding
                 // the pending objects.
                 //
-                _stream.writeByte((byte)Ice.OptionalType.EndMarker.value());
+                _stream.writeByte((byte)Ice.OptionalFormat.EndMarker.value());
             }
 
             while(_toBeMarshaledMap.size() > 0)

@@ -508,7 +508,7 @@ public class AllTests
                 os = Ice.Util.createOutputStream(communicator);
                 os.startEncapsulation();
                 os.writeObject(a);
-                os.writeOptional(1, Ice.OptionalType.Size);
+                os.writeOptional(1, Ice.OptionalFormat.Size);
                 os.writeObject(new DObjectWriter());
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -546,16 +546,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F1);
+            os.writeOptional(2, Ice.OptionalFormat.F1);
             os.writeByte(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opByte", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F1));
+            test(in.readOptional(1, Ice.OptionalFormat.F1));
             test(in.readByte() == (byte)56);
-            test(in.readOptional(3, Ice.OptionalType.F1));
+            test(in.readOptional(3, Ice.OptionalFormat.F1));
             test(in.readByte() == (byte)56);
             in.endEncapsulation();
 
@@ -587,16 +587,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F1);
+            os.writeOptional(2, Ice.OptionalFormat.F1);
             os.writeBool(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opBool", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F1));
+            test(in.readOptional(1, Ice.OptionalFormat.F1));
             test(in.readBool() == true);
-            test(in.readOptional(3, Ice.OptionalType.F1));
+            test(in.readOptional(3, Ice.OptionalFormat.F1));
             test(in.readBool() == true);
             in.endEncapsulation();
 
@@ -628,16 +628,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F2);
+            os.writeOptional(2, Ice.OptionalFormat.F2);
             os.writeShort(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opShort", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F2));
+            test(in.readOptional(1, Ice.OptionalFormat.F2));
             test(in.readShort() == 56);
-            test(in.readOptional(3, Ice.OptionalType.F2));
+            test(in.readOptional(3, Ice.OptionalFormat.F2));
             test(in.readShort() == 56);
             in.endEncapsulation();
 
@@ -669,16 +669,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F4);
+            os.writeOptional(2, Ice.OptionalFormat.F4);
             os.writeInt(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opInt", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F4));
+            test(in.readOptional(1, Ice.OptionalFormat.F4));
             test(in.readInt() == 56);
-            test(in.readOptional(3, Ice.OptionalType.F4));
+            test(in.readOptional(3, Ice.OptionalFormat.F4));
             test(in.readInt() == 56);
             in.endEncapsulation();
 
@@ -710,16 +710,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(1, Ice.OptionalType.F8);
+            os.writeOptional(1, Ice.OptionalFormat.F8);
             os.writeLong(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opLong", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(2, Ice.OptionalType.F8));
+            test(in.readOptional(2, Ice.OptionalFormat.F8));
             test(in.readLong() == 56);
-            test(in.readOptional(3, Ice.OptionalType.F8));
+            test(in.readOptional(3, Ice.OptionalFormat.F8));
             test(in.readLong() == 56);
             in.endEncapsulation();
 
@@ -751,16 +751,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F4);
+            os.writeOptional(2, Ice.OptionalFormat.F4);
             os.writeFloat(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFloat", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F4));
+            test(in.readOptional(1, Ice.OptionalFormat.F4));
             test(in.readFloat() == 1.0);
-            test(in.readOptional(3, Ice.OptionalType.F4));
+            test(in.readOptional(3, Ice.OptionalFormat.F4));
             test(in.readFloat() == 1.0);
             in.endEncapsulation();
 
@@ -792,16 +792,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.F8);
+            os.writeOptional(2, Ice.OptionalFormat.F8);
             os.writeDouble(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opDouble", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.F8));
+            test(in.readOptional(1, Ice.OptionalFormat.F8));
             test(in.readDouble() == 1.0);
-            test(in.readOptional(3, Ice.OptionalType.F8));
+            test(in.readOptional(3, Ice.OptionalFormat.F8));
             test(in.readDouble() == 1.0);
             in.endEncapsulation();
 
@@ -833,16 +833,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeString(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opString", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             test(in.readString().equals("test"));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             test(in.readString().equals("test"));
             in.endEncapsulation();
 
@@ -874,16 +874,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.Size);
+            os.writeOptional(2, Ice.OptionalFormat.Size);
             p1.get().ice_write(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opMyEnum", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.Size));
+            test(in.readOptional(1, Ice.OptionalFormat.Size));
             test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
-            test(in.readOptional(3, Ice.OptionalType.Size));
+            test(in.readOptional(3, Ice.OptionalFormat.Size));
             test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
             in.endEncapsulation();
 
@@ -915,7 +915,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(1);
             p1.get().ice_write(os);
             os.endEncapsulation();
@@ -923,12 +923,12 @@ public class AllTests
             initial.ice_invoke("opSmallStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             SmallStruct f = new SmallStruct();
             f.ice_read(in);
             test(f.m == (byte)56);
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             f.ice_read(in);
             test(f.m == (byte)56);
@@ -962,7 +962,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(4);
             p1.get().ice_write(os);
             os.endEncapsulation();
@@ -970,12 +970,12 @@ public class AllTests
             initial.ice_invoke("opFixedStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             FixedStruct f = new FixedStruct();
             f.ice_read(in);
             test(f.m == 56);
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             f.ice_read(in);
             test(f.m == 56);
@@ -1009,7 +1009,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
             os.startSize();
             p1.get().ice_write(os);
             os.endSize();
@@ -1018,12 +1018,12 @@ public class AllTests
             initial.ice_invoke("opVarStruct", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             VarStruct v = new VarStruct();
             v.ice_read(in);
             test(v.m.equals("test"));
-            test(in.readOptional(3, Ice.OptionalType.FSize));
+            test(in.readOptional(3, Ice.OptionalFormat.FSize));
             in.skip(4);
             v.ice_read(in);
             test(v.m.equals("test"));
@@ -1057,17 +1057,17 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.Size);
+            os.writeOptional(2, Ice.OptionalFormat.Size);
             os.writeObject(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opOneOptional", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.Size));
+            test(in.readOptional(1, Ice.OptionalFormat.Size));
             ReadObjectCallbackI p2cb = new ReadObjectCallbackI();
             in.readObject(p2cb);
-            test(in.readOptional(3, Ice.OptionalType.Size));
+            test(in.readOptional(3, Ice.OptionalFormat.Size));
             ReadObjectCallbackI p3cb = new ReadObjectCallbackI();
             in.readObject(p3cb);
             in.endEncapsulation();
@@ -1101,7 +1101,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
             os.startSize();
             os.writeProxy(p1.get());
             os.endSize();
@@ -1110,10 +1110,10 @@ public class AllTests
             initial.ice_invoke("opOneOptionalProxy", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             test(in.readProxy().equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.FSize));
+            test(in.readOptional(3, Ice.OptionalFormat.FSize));
             in.skip(4);
             test(in.readProxy().equals(p1.get()));
             in.endEncapsulation();
@@ -1147,16 +1147,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeByteSeq(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opByteSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             test(java.util.Arrays.equals(in.readByteSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             test(java.util.Arrays.equals(in.readByteSeq(), p1.get()));
             in.endEncapsulation();
 
@@ -1188,16 +1188,16 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeBoolSeq(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opBoolSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             test(java.util.Arrays.equals(in.readBoolSeq(), p1.get()));
             in.endEncapsulation();
 
@@ -1230,7 +1230,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 2 + (p1.get().length > 254 ? 5 : 1));
             os.writeShortSeq(p1.get());
             os.endEncapsulation();
@@ -1238,10 +1238,10 @@ public class AllTests
             initial.ice_invoke("opShortSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readShortSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readShortSeq(), p1.get()));
             in.endEncapsulation();
@@ -1275,7 +1275,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
             os.writeIntSeq(p1.get());
             os.endEncapsulation();
@@ -1283,10 +1283,10 @@ public class AllTests
             initial.ice_invoke("opIntSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readIntSeq(), p1.get()));
             in.endEncapsulation();
@@ -1320,7 +1320,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
             os.writeLongSeq(p1.get());
             os.endEncapsulation();
@@ -1328,10 +1328,10 @@ public class AllTests
             initial.ice_invoke("opLongSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readLongSeq(), p1.get()));
             in.endEncapsulation();
@@ -1365,7 +1365,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
             os.writeFloatSeq(p1.get());
             os.endEncapsulation();
@@ -1373,10 +1373,10 @@ public class AllTests
             initial.ice_invoke("opFloatSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readFloatSeq(), p1.get()));
             in.endEncapsulation();
@@ -1410,7 +1410,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 8 + (p1.get().length > 254 ? 5 : 1));
             os.writeDoubleSeq(p1.get());
             os.endEncapsulation();
@@ -1418,10 +1418,10 @@ public class AllTests
             initial.ice_invoke("opDoubleSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             test(java.util.Arrays.equals(in.readDoubleSeq(), p1.get()));
             in.endEncapsulation();
@@ -1455,7 +1455,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
             os.startSize();
             os.writeStringSeq(p1.get());
             os.endSize();
@@ -1464,10 +1464,10 @@ public class AllTests
             initial.ice_invoke("opStringSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             test(java.util.Arrays.equals(in.readStringSeq(), p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.FSize));
+            test(in.readOptional(3, Ice.OptionalFormat.FSize));
             in.skip(4);
             test(java.util.Arrays.equals(in.readStringSeq(), p1.get()));
             in.endEncapsulation();
@@ -1516,7 +1516,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length + (p1.get().length > 254 ? 5 : 1));
             SmallStructSeqHelper.write(os, p1.get());
             os.endEncapsulation();
@@ -1524,14 +1524,14 @@ public class AllTests
             initial.ice_invoke("opSmallStructSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             SmallStruct[] arr = SmallStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 test(arr[i].equals(p1.get()[i]));
             }
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             arr = SmallStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
@@ -1572,7 +1572,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().size() + (p1.get().size() > 254 ? 5 : 1));
             SmallStructListHelper.write(os, p1.get());
             os.endEncapsulation();
@@ -1580,11 +1580,11 @@ public class AllTests
             initial.ice_invoke("opSmallStructList", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             java.util.List<SmallStruct> arr = SmallStructListHelper.read(in);
             test(arr.equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             arr = SmallStructListHelper.read(in);
             test(arr.equals(p1.get()));
@@ -1634,7 +1634,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().length * 4 + (p1.get().length > 254 ? 5 : 1));
             FixedStructSeqHelper.write(os, p1.get());
             os.endEncapsulation();
@@ -1642,14 +1642,14 @@ public class AllTests
             initial.ice_invoke("opFixedStructSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             FixedStruct[] arr = FixedStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 test(arr[i].equals(p1.get()[i]));
             }
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             arr = FixedStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
@@ -1690,7 +1690,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().size() * 4 + (p1.get().size() > 254 ? 5 : 1));
             FixedStructListHelper.write(os, p1.get());
             os.endEncapsulation();
@@ -1698,11 +1698,11 @@ public class AllTests
             initial.ice_invoke("opFixedStructList", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             java.util.List<FixedStruct> arr = FixedStructListHelper.read(in);
             test(arr.equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             arr = FixedStructListHelper.read(in);
             test(arr.equals(p1.get()));
@@ -1752,7 +1752,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
             os.startSize();
             VarStructSeqHelper.write(os, p1.get());
             os.endSize();
@@ -1761,14 +1761,14 @@ public class AllTests
             initial.ice_invoke("opVarStructSeq", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             VarStruct[] arr = VarStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
             {
                 test(arr[i].equals(p1.get()[i]));
             }
-            test(in.readOptional(3, Ice.OptionalType.FSize));
+            test(in.readOptional(3, Ice.OptionalFormat.FSize));
             in.skip(4);
             arr = VarStructSeqHelper.read(in);
             for(int i = 0; i < p1.get().length; ++i)
@@ -1805,17 +1805,17 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSerializable(p1.get());
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSerializable", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             SerializableClass sc = SerializableHelper.read(in);
             test(sc.equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             sc = SerializableHelper.read(in);
             test(sc.equals(p1.get()));
             in.endEncapsulation();
@@ -1850,7 +1850,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.VSize);
+            os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(p1.get().size() * 8 + (p1.get().size() > 254 ? 5 : 1));
             IntIntDictHelper.write(os, p1.get());
             os.endEncapsulation();
@@ -1858,11 +1858,11 @@ public class AllTests
             initial.ice_invoke("opIntIntDict", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.VSize));
+            test(in.readOptional(1, Ice.OptionalFormat.VSize));
             in.skipSize();
             java.util.Map<Integer, Integer> m = IntIntDictHelper.read(in);
             test(m.equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.VSize));
+            test(in.readOptional(3, Ice.OptionalFormat.VSize));
             in.skipSize();
             m = IntIntDictHelper.read(in);
             test(m.equals(p1.get()));
@@ -1898,7 +1898,7 @@ public class AllTests
 
             os = Ice.Util.createOutputStream(communicator);
             os.startEncapsulation();
-            os.writeOptional(2, Ice.OptionalType.FSize);
+            os.writeOptional(2, Ice.OptionalFormat.FSize);
             os.startSize();
             StringIntDictHelper.write(os, p1.get());
             os.endSize();
@@ -1907,11 +1907,11 @@ public class AllTests
             initial.ice_invoke("opStringIntDict", Ice.OperationMode.Normal, inEncaps, outEncaps);
             in = Ice.Util.createInputStream(communicator, outEncaps.value);
             in.startEncapsulation();
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             java.util.Map<String, Integer> m = StringIntDictHelper.read(in);
             test(m.equals(p1.get()));
-            test(in.readOptional(3, Ice.OptionalType.FSize));
+            test(in.readOptional(3, Ice.OptionalFormat.FSize));
             in.skip(4);
             m = StringIntDictHelper.read(in);
             test(m.equals(p1.get()));
@@ -2016,14 +2016,14 @@ public class AllTests
             out.startSlice("::Test::D", false);
             String s = "test";
             out.writeString("test");
-            out.writeOptional(1, Ice.OptionalType.FSize);
+            out.writeOptional(1, Ice.OptionalFormat.FSize);
             String[] o = { "test1", "test2", "test3", "test4" };
             out.startSize();
             out.writeStringSeq(o);
             out.endSize();
             A a = new A();
             a.setMc(18);
-            out.writeOptional(1000, Ice.OptionalType.Size);
+            out.writeOptional(1000, Ice.OptionalFormat.Size);
             out.writeObject(a);
             out.endSlice();
             // ::Test::B
@@ -2048,12 +2048,12 @@ public class AllTests
             in.startSlice();
             String s = in.readString();
             test(s.equals("test"));
-            test(in.readOptional(1, Ice.OptionalType.FSize));
+            test(in.readOptional(1, Ice.OptionalFormat.FSize));
             in.skip(4);
             String[] o = in.readStringSeq();
             test(o.length == 4 &&
                  o[0].equals("test1") && o[1].equals("test2") && o[2].equals("test3") && o[3].equals("test4"));
-            test(in.readOptional(1000, Ice.OptionalType.Size));
+            test(in.readOptional(1000, Ice.OptionalFormat.Size));
             in.readObject(a);
             in.endSlice();
             // ::Test::B

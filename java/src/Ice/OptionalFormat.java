@@ -12,12 +12,12 @@ package Ice;
 /**
  * The optional type.
  *
- * An optional value is encoded with a specific optional type. This optional
- * type describes how the data is encoded and how it can be skipped by the
+ * An optional value is encoded with a specific optional format. This optional
+ * format describes how the data is encoded and how it can be skipped by the
  * unmarshaling code if the optional is not known to the receiver.
  *
  **/
-public enum OptionalType
+public enum OptionalFormat
 {
     F1(0),
     F2(1),
@@ -29,7 +29,7 @@ public enum OptionalType
     EndMarker(7);
 
     private
-    OptionalType(int value)
+    OptionalFormat(int value)
     {
         _value = value;
     }
@@ -40,7 +40,7 @@ public enum OptionalType
         return _value;
     }
 
-    public static OptionalType
+    public static OptionalFormat
     valueOf(int v)
     {
         switch(v)

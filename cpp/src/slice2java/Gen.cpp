@@ -475,7 +475,7 @@ Slice::JavaVisitor::writeMarshalDataMember(Output& out, const string& package, c
     else
     {
         out << nl << "if(__has_" << member->name() << " && __os.writeOpt(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
+            << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), true,
                                   iter, false, member->getMetaData());
@@ -507,7 +507,7 @@ Slice::JavaVisitor::writeUnmarshalDataMember(Output& out, const string& package,
     else
     {
         out << nl << "if(__has_" << member->name() << " = __is.readOpt(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
+            << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeMarshalUnmarshalCode(out, package, member->type(), OptionalMember, false, 0, fixKwd(member->name()), false,
                                   iter, false, member->getMetaData(), patchParams);
@@ -527,7 +527,7 @@ Slice::JavaVisitor::writeStreamMarshalDataMember(Output& out, const string& pack
     else
     {
         out << nl << "if(__has_" << member->name() << " && __outS.writeOptional(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
+            << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
                                         true, iter, false, member->getMetaData());
@@ -559,7 +559,7 @@ Slice::JavaVisitor::writeStreamUnmarshalDataMember(Output& out, const string& pa
     else
     {
         out << nl << "if(__has_" << member->name() << " = __inS.readOptional(" << member->tag() << ", "
-            << getOptionalType(member->type()) << "))";
+            << getOptionalFormat(member->type()) << "))";
         out << sb;
         writeStreamMarshalUnmarshalCode(out, package, member->type(), true, member->tag(), fixKwd(member->name()),
                                         false, iter, false, member->getMetaData(), patchParams);
