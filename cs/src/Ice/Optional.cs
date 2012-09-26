@@ -200,13 +200,13 @@ namespace Ice
     }
 
     /// <summary>
-    /// The optional type.
+    /// The optional format.
     ///
-    /// An optional value is encoded with a specific optional type. This optional
-    /// type describes how the data is encoded and how it can be skipped by the
+    /// An optional value is encoded with a specific optional format. This optional
+    /// format describes how the data is encoded and how it can be skipped by the
     /// unmarshaling code if the optional is not known to the receiver.
     /// </summary>
-    public enum OptionalType
+    public enum OptionalFormat
     {
         F1 = 0,
         F2 = 1,

@@ -308,7 +308,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     if(builtin)
     {
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
         if(builtin->kind() == Builtin::KindObjectProxy)
         {
@@ -332,7 +332,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
         const string length = isArray ? value + ".Length" : value + ".Count";
 
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
 
         BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
@@ -399,7 +399,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     if(d)
     {
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
 
         if(d->keyType()->isVariableLength() || d->valueType()->isVariableLength())
@@ -426,7 +426,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     if(st)
     {
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
 
         if(st->isVariableLength())
@@ -451,7 +451,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     if(en)
     {
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
         _out << eb;
@@ -462,7 +462,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     if(pr)
     {
         _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-             << getOptionalType(member->type()) << "))";
+             << getOptionalFormat(member->type()) << "))";
         _out << sb;
         _out << nl << "outS__.startSize();";
         writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
@@ -474,7 +474,7 @@ Slice::CsVisitor::writeStreamMarshalDataMember(const DataMemberPtr& member, cons
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(member->type());
     assert(cl);
     _out << nl << "if(" << flag << " && outS__.writeOptional(" << member->tag() << ", "
-         << getOptionalType(member->type()) << "))";
+         << getOptionalFormat(member->type()) << "))";
     _out << sb;
     writeMarshalUnmarshalCode(_out, member->type(), value, true, true);
     _out << eb;
@@ -506,7 +506,7 @@ Slice::CsVisitor::writeStreamUnmarshalDataMember(const DataMemberPtr& member, co
     }
 
     _out << nl << "if(inS__.readOptional(" << member->tag() << ", "
-         << getOptionalType(member->type()) << "))";
+         << getOptionalFormat(member->type()) << "))";
     _out << sb;
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());

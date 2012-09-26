@@ -265,9 +265,9 @@ namespace Ice
             _is.skipSize();
         }
 
-        public bool readOptional(int tag, OptionalType type)
+        public bool readOptional(int tag, OptionalFormat format)
         {
-            return _is.readOpt(tag, type);
+            return _is.readOpt(tag, format);
         }
 
         public int pos()
@@ -480,9 +480,9 @@ namespace Ice
             _os.writePendingObjects();
         }
 
-        public bool writeOptional(int tag, OptionalType type)
+        public bool writeOptional(int tag, OptionalFormat format)
         {
-            return _os.writeOpt(tag, type);
+            return _os.writeOpt(tag, format);
         }
 
         public int pos()

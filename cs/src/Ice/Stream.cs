@@ -287,9 +287,9 @@ namespace Ice
         /// Determine if an optional value is available for reading.
         /// </summary>
         /// <param name="tag">The tag associated with the value.</param>
-        /// <param name="type">The optional type for the value.</param>
+        /// <param name="format">The optional format for the value.</param>
         /// <returns>True if the value is present, false otherwise.</returns>
-        bool readOptional(int tag, OptionalType type);
+        bool readOptional(int tag, OptionalFormat format);
 
         /// <summary>
         /// Determine the current position in the stream.
@@ -525,9 +525,9 @@ namespace Ice
         /// Write the header information for an optional value.
         /// </summary>
         /// <param name="tag">The numeric tag associated with the value.</param>
-        /// <param name="type">The optional type of the value.</param>
+        /// <param name="format">The optional format of the value.</param>
         /// <returns>True if the optional should be written, false otherwise.</returns>
-        bool writeOptional(int tag, OptionalType type);
+        bool writeOptional(int tag, OptionalFormat format);
 
         /// <summary>
         /// Determines the current position in the stream.

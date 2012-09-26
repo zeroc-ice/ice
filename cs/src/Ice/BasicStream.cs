@@ -793,29 +793,29 @@ namespace IceInternal
         }
 
         // Read/write type and tag for optionals
-        public bool writeOpt(int tag, Ice.OptionalType type)
+        public bool writeOpt(int tag, Ice.OptionalFormat format)
         {
             Debug.Assert(_writeEncapsStack != null);
             if(_writeEncapsStack.encoder != null)
             {
-                return _writeEncapsStack.encoder.writeOpt(tag, type);
+                return _writeEncapsStack.encoder.writeOpt(tag, format);
             }
             else
             {
-                return writeOptImpl(tag, type);
+                return writeOptImpl(tag, format);
             }
         }
 
-        public bool readOpt(int tag, Ice.OptionalType expectedType)
+        public bool readOpt(int tag, Ice.OptionalFormat expectedFormat)
         {
             Debug.Assert(_readEncapsStack != null);
             if(_readEncapsStack.decoder != null)
             {
-                return _readEncapsStack.decoder.readOpt(tag, expectedType);
+                return _readEncapsStack.decoder.readOpt(tag, expectedFormat);
             }
             else
             {
-                return readOptImpl(tag, expectedType);
+                return readOptImpl(tag, expectedFormat);
             }
         }
 
@@ -835,7 +835,7 @@ namespace IceInternal
 
         public void writeByte(int tag, byte v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F1))
+            if(writeOpt(tag, Ice.OptionalFormat.F1))
             {
                 writeByte(v);
             }
@@ -929,7 +929,7 @@ namespace IceInternal
         public void writeByteSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<byte>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeByteSeq(count, v.Value);
             }
@@ -937,7 +937,7 @@ namespace IceInternal
 
         public void writeByteSeq(int tag, byte[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeByteSeq(v);
             }
@@ -945,7 +945,7 @@ namespace IceInternal
 
         public void writeByteSeq(int tag, int count, IEnumerable<byte> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeByteSeq(count, v);
             }
@@ -989,7 +989,7 @@ namespace IceInternal
 
         public Ice.Optional<byte> readByte(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F1))
+            if(readOpt(tag, Ice.OptionalFormat.F1))
             {
                 return new Ice.Optional<byte>(readByte());
             }
@@ -1001,7 +1001,7 @@ namespace IceInternal
 
         public void readByte(int tag, out bool isset, out byte v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F1))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F1))
             {
                 v = readByte();
             }
@@ -1072,7 +1072,7 @@ namespace IceInternal
 
         public Ice.Optional<byte[]> readByteSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 return new Ice.Optional<byte[]>(readByteSeq());
             }
@@ -1084,7 +1084,7 @@ namespace IceInternal
 
         public void readByteSeq(int tag, out bool isset, out byte[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 v = readByteSeq();
             }
@@ -1133,7 +1133,7 @@ namespace IceInternal
 
         public void writeBool(int tag, bool v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F1))
+            if(writeOpt(tag, Ice.OptionalFormat.F1))
             {
                 writeBool(v);
             }
@@ -1227,7 +1227,7 @@ namespace IceInternal
         public void writeBoolSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<bool>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeBoolSeq(count, v.Value);
             }
@@ -1235,7 +1235,7 @@ namespace IceInternal
 
         public void writeBoolSeq(int tag, bool[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeBoolSeq(v);
             }
@@ -1243,7 +1243,7 @@ namespace IceInternal
 
         public void writeBoolSeq(int tag, int count, IEnumerable<bool> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeBoolSeq(count, v);
             }
@@ -1263,7 +1263,7 @@ namespace IceInternal
 
         public Ice.Optional<bool> readBool(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F1))
+            if(readOpt(tag, Ice.OptionalFormat.F1))
             {
                 return new Ice.Optional<bool>(readBool());
             }
@@ -1275,7 +1275,7 @@ namespace IceInternal
 
         public void readBool(int tag, out bool isset, out bool v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F1))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F1))
             {
                 v = readBool();
             }
@@ -1346,7 +1346,7 @@ namespace IceInternal
 
         public Ice.Optional<bool[]> readBoolSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 return new Ice.Optional<bool[]>(readBoolSeq());
             }
@@ -1358,7 +1358,7 @@ namespace IceInternal
 
         public void readBoolSeq(int tag, out bool isset, out bool[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 v = readBoolSeq();
             }
@@ -1384,7 +1384,7 @@ namespace IceInternal
 
         public void writeShort(int tag, short v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F2))
+            if(writeOpt(tag, Ice.OptionalFormat.F2))
             {
                 writeShort(v);
             }
@@ -1473,7 +1473,7 @@ namespace IceInternal
         public void writeShortSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<short>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
                 writeShortSeq(count, v.Value);
@@ -1482,7 +1482,7 @@ namespace IceInternal
 
         public void writeShortSeq(int tag, short[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 2 + (v.Length > 254 ? 5 : 1));
                 writeShortSeq(v);
@@ -1491,7 +1491,7 @@ namespace IceInternal
 
         public void writeShortSeq(int tag, int count, IEnumerable<short> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 2 + (count > 254 ? 5 : 1));
                 writeShortSeq(count, v);
@@ -1512,7 +1512,7 @@ namespace IceInternal
 
         public Ice.Optional<short> readShort(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F2))
+            if(readOpt(tag, Ice.OptionalFormat.F2))
             {
                 return new Ice.Optional<short>(readShort());
             }
@@ -1524,7 +1524,7 @@ namespace IceInternal
 
         public void readShort(int tag, out bool isset, out short v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F2))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F2))
             {
                 v = readShort();
             }
@@ -1595,7 +1595,7 @@ namespace IceInternal
 
         public Ice.Optional<short[]> readShortSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 return new Ice.Optional<short[]>(readShortSeq());
@@ -1608,7 +1608,7 @@ namespace IceInternal
 
         public void readShortSeq(int tag, out bool isset, out short[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 v = readShortSeq();
@@ -1635,7 +1635,7 @@ namespace IceInternal
 
         public void writeInt(int tag, int v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F4))
+            if(writeOpt(tag, Ice.OptionalFormat.F4))
             {
                 writeInt(v);
             }
@@ -1729,7 +1729,7 @@ namespace IceInternal
         public void writeIntSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<int>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeIntSeq(count, v.Value);
@@ -1738,7 +1738,7 @@ namespace IceInternal
 
         public void writeIntSeq(int tag, int[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeIntSeq(v);
@@ -1747,7 +1747,7 @@ namespace IceInternal
 
         public void writeIntSeq(int tag, int count, IEnumerable<int> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeIntSeq(count, v);
@@ -1768,7 +1768,7 @@ namespace IceInternal
 
         public Ice.Optional<int> readInt(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F4))
+            if(readOpt(tag, Ice.OptionalFormat.F4))
             {
                 return new Ice.Optional<int>(readInt());
             }
@@ -1780,7 +1780,7 @@ namespace IceInternal
 
         public void readInt(int tag, out bool isset, out int v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F4))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F4))
             {
                 v = readInt();
             }
@@ -1871,7 +1871,7 @@ namespace IceInternal
 
         public Ice.Optional<int[]> readIntSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 return new Ice.Optional<int[]>(readIntSeq());
@@ -1884,7 +1884,7 @@ namespace IceInternal
 
         public void readIntSeq(int tag, out bool isset, out int[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 v = readIntSeq();
@@ -1911,7 +1911,7 @@ namespace IceInternal
 
         public void writeLong(int tag, long v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F8))
+            if(writeOpt(tag, Ice.OptionalFormat.F8))
             {
                 writeLong(v);
             }
@@ -2000,7 +2000,7 @@ namespace IceInternal
         public void writeLongSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<long>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeLongSeq(count, v.Value);
@@ -2009,7 +2009,7 @@ namespace IceInternal
 
         public void writeLongSeq(int tag, long[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeLongSeq(v);
@@ -2018,7 +2018,7 @@ namespace IceInternal
 
         public void writeLongSeq(int tag, int count, IEnumerable<long> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeLongSeq(count, v);
@@ -2039,7 +2039,7 @@ namespace IceInternal
 
         public Ice.Optional<long> readLong(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F8))
+            if(readOpt(tag, Ice.OptionalFormat.F8))
             {
                 return new Ice.Optional<long>(readLong());
             }
@@ -2051,7 +2051,7 @@ namespace IceInternal
 
         public void readLong(int tag, out bool isset, out long v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F8))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F8))
             {
                 v = readLong();
             }
@@ -2142,7 +2142,7 @@ namespace IceInternal
 
         public Ice.Optional<long[]> readLongSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 return new Ice.Optional<long[]>(readLongSeq());
@@ -2155,7 +2155,7 @@ namespace IceInternal
 
         public void readLongSeq(int tag, out bool isset, out long[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 v = readLongSeq();
@@ -2182,7 +2182,7 @@ namespace IceInternal
 
         public void writeFloat(int tag, float v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F4))
+            if(writeOpt(tag, Ice.OptionalFormat.F4))
             {
                 writeFloat(v);
             }
@@ -2271,7 +2271,7 @@ namespace IceInternal
         public void writeFloatSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<float>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeFloatSeq(count, v.Value);
@@ -2280,7 +2280,7 @@ namespace IceInternal
 
         public void writeFloatSeq(int tag, float[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 4 + (v.Length > 254 ? 5 : 1));
                 writeFloatSeq(v);
@@ -2289,7 +2289,7 @@ namespace IceInternal
 
         public void writeFloatSeq(int tag, int count, IEnumerable<float> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 4 + (count > 254 ? 5 : 1));
                 writeFloatSeq(count, v);
@@ -2310,7 +2310,7 @@ namespace IceInternal
 
         public Ice.Optional<float> readFloat(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F4))
+            if(readOpt(tag, Ice.OptionalFormat.F4))
             {
                 return new Ice.Optional<float>(readFloat());
             }
@@ -2322,7 +2322,7 @@ namespace IceInternal
 
         public void readFloat(int tag, out bool isset, out float v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F4))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F4))
             {
                 v = readFloat();
             }
@@ -2413,7 +2413,7 @@ namespace IceInternal
 
         public Ice.Optional<float[]> readFloatSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 return new Ice.Optional<float[]>(readFloatSeq());
@@ -2426,7 +2426,7 @@ namespace IceInternal
 
         public void readFloatSeq(int tag, out bool isset, out float[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 v = readFloatSeq();
@@ -2453,7 +2453,7 @@ namespace IceInternal
 
         public void writeDouble(int tag, double v)
         {
-            if(writeOpt(tag, Ice.OptionalType.F8))
+            if(writeOpt(tag, Ice.OptionalFormat.F8))
             {
                 writeDouble(v);
             }
@@ -2542,7 +2542,7 @@ namespace IceInternal
         public void writeDoubleSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<double>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.VSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeDoubleSeq(count, v.Value);
@@ -2551,7 +2551,7 @@ namespace IceInternal
 
         public void writeDoubleSeq(int tag, double[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || v.Length == 0 ? 1 : v.Length * 8 + (v.Length > 254 ? 5 : 1));
                 writeDoubleSeq(v);
@@ -2560,7 +2560,7 @@ namespace IceInternal
 
         public void writeDoubleSeq(int tag, int count, IEnumerable<double> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeSize(v == null || count == 0 ? 1 : count * 8 + (count > 254 ? 5 : 1));
                 writeDoubleSeq(count, v);
@@ -2581,7 +2581,7 @@ namespace IceInternal
 
         public Ice.Optional<double> readDouble(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.F8))
+            if(readOpt(tag, Ice.OptionalFormat.F8))
             {
                 return new Ice.Optional<double>(readDouble());
             }
@@ -2593,7 +2593,7 @@ namespace IceInternal
 
         public void readDouble(int tag, out bool isset, out double v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.F8))
+            if(isset = readOpt(tag, Ice.OptionalFormat.F8))
             {
                 v = readDouble();
             }
@@ -2684,7 +2684,7 @@ namespace IceInternal
 
         public Ice.Optional<double[]> readDoubleSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 return new Ice.Optional<double[]>(readDoubleSeq());
@@ -2697,7 +2697,7 @@ namespace IceInternal
 
         public void readDoubleSeq(int tag, out bool isset, out double[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 skipSize();
                 v = readDoubleSeq();
@@ -2733,7 +2733,7 @@ namespace IceInternal
 
         public void writeString(int tag, string v)
         {
-            if(writeOpt(tag, Ice.OptionalType.VSize))
+            if(writeOpt(tag, Ice.OptionalFormat.VSize))
             {
                 writeString(v);
             }
@@ -2778,7 +2778,7 @@ namespace IceInternal
         public void writeStringSeq<T>(int tag, int count, Ice.Optional<T> v)
             where T : IEnumerable<string>
         {
-            if(v.HasValue && writeOpt(tag, Ice.OptionalType.FSize))
+            if(v.HasValue && writeOpt(tag, Ice.OptionalFormat.FSize))
             {
                 startSize();
                 writeStringSeq(count, v.Value);
@@ -2788,7 +2788,7 @@ namespace IceInternal
 
         public void writeStringSeq(int tag, string[] v)
         {
-            if(writeOpt(tag, Ice.OptionalType.FSize))
+            if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
                 startSize();
                 writeStringSeq(v);
@@ -2798,7 +2798,7 @@ namespace IceInternal
 
         public void writeStringSeq(int tag, int count, IEnumerable<string> v)
         {
-            if(writeOpt(tag, Ice.OptionalType.FSize))
+            if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
                 startSize();
                 writeStringSeq(count, v);
@@ -2848,7 +2848,7 @@ namespace IceInternal
 
         public Ice.Optional<string> readString(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.VSize))
+            if(readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 return new Ice.Optional<string>(readString());
             }
@@ -2860,7 +2860,7 @@ namespace IceInternal
 
         public void readString(int tag, out bool isset, out string v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.VSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.VSize))
             {
                 v = readString();
             }
@@ -2942,7 +2942,7 @@ namespace IceInternal
 
         public Ice.Optional<string[]> readStringSeq(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.FSize))
+            if(readOpt(tag, Ice.OptionalFormat.FSize))
             {
                 skip(4);
                 return new Ice.Optional<string[]>(readStringSeq());
@@ -2955,7 +2955,7 @@ namespace IceInternal
 
         public void readStringSeq(int tag, out bool isset, out string[] v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.FSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.FSize))
             {
                 skip(4);
                 v = readStringSeq();
@@ -2981,7 +2981,7 @@ namespace IceInternal
 
         public void writeProxy(int tag, Ice.ObjectPrx v)
         {
-            if(writeOpt(tag, Ice.OptionalType.FSize))
+            if(writeOpt(tag, Ice.OptionalFormat.FSize))
             {
                 startSize();
                 writeProxy(v);
@@ -2996,7 +2996,7 @@ namespace IceInternal
 
         public Ice.Optional<Ice.ObjectPrx> readProxy(int tag)
         {
-            if(readOpt(tag, Ice.OptionalType.FSize))
+            if(readOpt(tag, Ice.OptionalFormat.FSize))
             {
                 skip(4);
                 return new Ice.Optional<Ice.ObjectPrx>(readProxy());
@@ -3009,7 +3009,7 @@ namespace IceInternal
 
         public void readProxy(int tag, out bool isset, out Ice.ObjectPrx v)
         {
-            if(isset = readOpt(tag, Ice.OptionalType.FSize))
+            if(isset = readOpt(tag, Ice.OptionalFormat.FSize))
             {
                 skip(4);
                 v = readProxy();
@@ -3045,7 +3045,7 @@ namespace IceInternal
 
         public void writeEnum(int tag, int v, int limit)
         {
-            if(writeOpt(tag, Ice.OptionalType.Size))
+            if(writeOpt(tag, Ice.OptionalFormat.Size))
             {
                 writeEnum(v, limit);
             }
@@ -3091,7 +3091,7 @@ namespace IceInternal
 
         public void writeObject(int tag, Ice.Object v)
         {
-            if(writeOpt(tag, Ice.OptionalType.Size))
+            if(writeOpt(tag, Ice.OptionalFormat.Size))
             {
                 writeObject(v);
             }
@@ -3106,7 +3106,7 @@ namespace IceInternal
 
         public void readObject(int tag, IPatcher patcher)
         {
-            if(readOpt(tag, Ice.OptionalType.Size))
+            if(readOpt(tag, Ice.OptionalFormat.Size))
             {
                 readObject(patcher);
             }
@@ -3129,7 +3129,7 @@ namespace IceInternal
             _sliceObjects = b;
         }
 
-        public bool readOptImpl(int readTag, Ice.OptionalType expectedType)
+        public bool readOptImpl(int readTag, Ice.OptionalFormat expectedFormat)
         {
             if(isReadEncoding_1_0())
             {
@@ -3137,7 +3137,7 @@ namespace IceInternal
             }
 
             int tag = 0;
-            Ice.OptionalType type;
+            Ice.OptionalFormat format;
             do
             {
                 if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
@@ -3146,20 +3146,20 @@ namespace IceInternal
                 }
 
                 int v = readByte();
-                type = (Ice.OptionalType)(v & 0x07); // First 3 bits.
+                format = (Ice.OptionalFormat)(v & 0x07); // First 3 bits.
                 tag = v >> 3;
                 if(tag == 31)
                 {
                     tag = readSize();
                 }
             }
-            while(type != Ice.OptionalType.EndMarker && tag < readTag && skipOpt(type)); // Skip optional data members
+            while(format != Ice.OptionalFormat.EndMarker && tag < readTag && skipOpt(format)); // Skip optional data members
 
-            if(type == Ice.OptionalType.EndMarker || tag > readTag)
+            if(format == Ice.OptionalFormat.EndMarker || tag > readTag)
             {
                 //
                 // Rewind the stream to correctly read the next optional data
-                // member tag & type next time.
+                // member tag & format next time.
                 //
                 int offset = tag < 31 ? 1 : (tag < 255 ? 2 : 6);
                 _buf.b.position(_buf.b.position() - offset);
@@ -3167,27 +3167,27 @@ namespace IceInternal
             }
 
             Debug.Assert(readTag == tag);
-            if(type != expectedType)
+            if(format != expectedFormat)
             {
-                string msg = "invalid optional data member `" + tag + "': unexpected type";
+                string msg = "invalid optional data member `" + tag + "': unexpected format";
                 throw new Ice.MarshalException(msg);
             }
 
             //
             // We have an optional data member with the requested tag and
-            // type.
+            // format.
             //
             return true;
         }
 
-        public bool writeOptImpl(int tag, Ice.OptionalType type)
+        public bool writeOptImpl(int tag, Ice.OptionalFormat format)
         {
             if(isWriteEncoding_1_0())
             {
                 return false; // Optional members aren't supported with the 1.0 encoding.
             }
 
-            int v = (int)type;
+            int v = (int)format;
             if(tag < 31)
             {
                 v |= tag << 3;
@@ -3202,42 +3202,42 @@ namespace IceInternal
             return true;
         }
 
-        public bool skipOpt(Ice.OptionalType type)
+        public bool skipOpt(Ice.OptionalFormat format)
         {
             int sz;
-            switch(type)
+            switch(format)
             {
-            case Ice.OptionalType.F1:
+            case Ice.OptionalFormat.F1:
             {
                 sz = 1;
                 break;
             }
-            case Ice.OptionalType.F2:
+            case Ice.OptionalFormat.F2:
             {
                 sz = 2;
                 break;
             }
-            case Ice.OptionalType.F4:
+            case Ice.OptionalFormat.F4:
             {
                 sz = 4;
                 break;
             }
-            case Ice.OptionalType.F8:
+            case Ice.OptionalFormat.F8:
             {
                 sz = 8;
                 break;
             }
-            case Ice.OptionalType.Size:
+            case Ice.OptionalFormat.Size:
             {
                 skipSize();
                 return true;
             }
-            case Ice.OptionalType.VSize:
+            case Ice.OptionalFormat.VSize:
             {
                 sz = readSize();
                 break;
             }
-            case Ice.OptionalType.FSize:
+            case Ice.OptionalFormat.FSize:
             {
                 sz = readInt();
                 break;
@@ -3256,7 +3256,7 @@ namespace IceInternal
             //
             // Skip remaining un-read optional members.
             //
-            Ice.OptionalType type;
+            Ice.OptionalFormat format;
             do
             {
                 if(_buf.b.position() >= _readEncapsStack.start + _readEncapsStack.sz)
@@ -3265,14 +3265,14 @@ namespace IceInternal
                 }
 
                 int v = readByte();
-                type = (Ice.OptionalType)(v & 0x07); // Read first 3 bits.
+                format = (Ice.OptionalFormat)(v & 0x07); // Read first 3 bits.
                 if((v >> 3) == 31)
                 {
                     skipSize();
                 }
             }
-            while(skipOpt(type));
-            Debug.Assert(type == Ice.OptionalType.EndMarker);
+            while(skipOpt(format));
+            Debug.Assert(format == Ice.OptionalFormat.EndMarker);
             return true;
         }
 
@@ -3657,14 +3657,14 @@ namespace IceInternal
         //
         // Optional data member type.
         //
-        internal const int MemberTypeF1           = 0;
-        internal const int MemberTypeF2           = 1;
-        internal const int MemberTypeF4           = 2;
-        internal const int MemberTypeF8           = 3;
-        internal const int MemberTypeVSize        = 4;
-        internal const int MemberTypeFSize        = 5;
-        internal const int MemberTypeReserved     = 6;
-        internal const int MemberTypeEndMarker    = 7;
+        internal const int MemberFormatF1           = 0;
+        internal const int MemberFormatF2           = 1;
+        internal const int MemberFormatF4           = 2;
+        internal const int MemberFormatF8           = 3;
+        internal const int MemberFormatVSize        = 4;
+        internal const int MemberFormatFSize        = 5;
+        internal const int MemberFormatReserved     = 6;
+        internal const int MemberFormatEndMarker    = 7;
 
         private Instance instance_;
         private Buffer _buf;
@@ -4111,15 +4111,15 @@ namespace IceInternal
                 }
             }
 
-            internal bool readOpt(int readTag, Ice.OptionalType expectedType)
+            internal bool readOpt(int readTag, Ice.OptionalFormat expectedFormat)
             {
                 if(_sliceType == SliceType.NoSlice)
                 {
-                    return _stream.readOptImpl(readTag, expectedType);
+                    return _stream.readOptImpl(readTag, expectedFormat);
                 }
                 else if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
-                    return _stream.readOptImpl(readTag, expectedType);
+                    return _stream.readOptImpl(readTag, expectedFormat);
                 }
                 return false;
             }
@@ -4432,37 +4432,37 @@ namespace IceInternal
                 return new Ice.SlicedData(_slices.ToArray());
             }
 
-            private bool skipOpt(int type)
+            private bool skipOpt(int format)
             {
                 int sz;
-                switch(type)
+                switch(format)
                 {
-                case MemberTypeF1:
+                case MemberFormatF1:
                 {
                     sz = 1;
                     break;
                 }
-                case MemberTypeF2:
+                case MemberFormatF2:
                 {
                     sz = 2;
                     break;
                 }
-                case MemberTypeF4:
+                case MemberFormatF4:
                 {
                     sz = 4;
                     break;
                 }
-                case MemberTypeF8:
+                case MemberFormatF8:
                 {
                     sz = 8;
                     break;
                 }
-                case MemberTypeVSize:
+                case MemberFormatVSize:
                 {
                     sz = _stream.readSize();
                     break;
                 }
-                case MemberTypeFSize:
+                case MemberFormatFSize:
                 {
                     sz = _stream.readInt();
                     break;
@@ -4736,7 +4736,7 @@ namespace IceInternal
                 if((_sliceFlags & FLAG_HAS_OPTIONAL_MEMBERS) != 0)
                 {
                     Debug.Assert(!_encaps.encoding_1_0);
-                    _stream.writeByte((byte)Ice.OptionalType.EndMarker);
+                    _stream.writeByte((byte)Ice.OptionalFormat.EndMarker);
                 }
 
                 //
@@ -4783,15 +4783,15 @@ namespace IceInternal
                 }
             }
 
-            internal bool writeOpt(int tag, Ice.OptionalType type)
+            internal bool writeOpt(int tag, Ice.OptionalFormat format)
             {
                 if(_sliceType == SliceType.NoSlice)
                 {
-                    return _stream.writeOptImpl(tag, type);
+                    return _stream.writeOptImpl(tag, format);
                 }
                 else
                 {
-                    if(_stream.writeOptImpl(tag, type))
+                    if(_stream.writeOptImpl(tag, format))
                     {
                         _sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
                         return true;
@@ -4828,7 +4828,7 @@ namespace IceInternal
                     // Write end marker for encapsulation optionals before encoding
                     // the pending objects.
                     //
-                    _stream.writeByte((byte)Ice.OptionalType.EndMarker);
+                    _stream.writeByte((byte)Ice.OptionalFormat.EndMarker);
                 }
 
                 while(_toBeMarshaledMap.Count > 0)
