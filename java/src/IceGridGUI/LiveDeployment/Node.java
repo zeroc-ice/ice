@@ -428,7 +428,7 @@ class Node extends ListTreeNode
                 else
                 {
                     removeDescriptor(nodeDesc, oldServer);
-                    oldServer.rebuild(server);
+                    oldServer.rebuild(server, true);
                     freshServers.add(oldServer);
                     nodeDesc.servers.add(desc);
                 }

@@ -338,12 +338,29 @@ public class GraphView extends JFrame
 
                             public void exception(final Ice.LocalException e)
                             {
+                                _queue.enqueue(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            removeRows(m);
+                                        }
+                                    }, false);
                                 handleError(m, e.toString());
                             }
 
                             public void exception(final Ice.UserException e)
                             {
-                                handleError(m, e.toString());
+                                _queue.enqueue(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            removeRows(m);
+                                        }
+                                    }, false);
+                                if(!(e instanceof IceMX.UnknownMetricsView))
+                                {
+                                    handleError(m, e.toString());
+                                }
                             }
                         };
                     try
@@ -354,6 +371,13 @@ public class GraphView extends JFrame
                     }
                     catch(Ice.LocalException e)
                     {
+                        _queue.enqueue(new Runnable()
+                            {
+                                public void run()
+                                {
+                                    removeRows(m);
+                                }
+                            }, false);
                         handleError(m, e.toString());
                     }
                 }
@@ -452,10 +476,10 @@ public class GraphView extends JFrame
                     //
                     // SpinnerNumberModel to set a refresh period.
                     //
-                    // min value is 500 ms == 0.5 seconds
+                    // min value is 1000 ms == 1 seconds
                     // max value is 60 * 1000 ms == 60 seconds == 1 minute
                     //
-                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), 500, 60 * 1000, 1);
+                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), 1000, 60 * 1000, 1);
                     JPanel refreshPanel;
                     {
                         DefaultFormBuilder builder =
@@ -524,7 +548,6 @@ public class GraphView extends JFrame
                     {
                         selectedRows[i] = _legendTable.convertRowIndexToModel(selectedRows[i]);
                     }
-
                     //
                     // Remove selected rows from the legend model.
                     //
@@ -647,6 +670,7 @@ public class GraphView extends JFrame
 
         final JFXPanel fxPanel = new JFXPanel();
         fxPanel.setMinimumSize(new Dimension(0, 200));
+        fxPanel.setPreferredSize(new Dimension(800, 400));
         //
         // Build the split pane, with the chart graph and the legend table.
         //
@@ -655,6 +679,7 @@ public class GraphView extends JFrame
         JScrollPane scrollPane = new JScrollPane(_legendTable);
         scrollPane.setTransferHandler(new TransferHandler());
         scrollPane.setMinimumSize(new Dimension(0, 50));
+        scrollPane.setPreferredSize(new Dimension(800, 200));
         _splitPane.setBottomComponent(scrollPane);
         
         DefaultFormBuilder builder = new DefaultFormBuilder(new FormLayout("fill:pref:grow", "fill:pref:grow, pref"));
@@ -665,7 +690,7 @@ public class GraphView extends JFrame
         panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         getContentPane().add(new ToolBar(), BorderLayout.PAGE_START);
         getContentPane().add(panel, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(1024, 768));
+        setPreferredSize(new Dimension(800, 600));
 
         //
         // initialize the scene in JavaFX thread.
@@ -742,7 +767,7 @@ public class GraphView extends JFrame
             {
                 setLocationRelativeTo(_coordinator.getMainFrame());
             }
-            _splitPane.setDividerLocation(600);
+            _splitPane.setDividerLocation(400);
         }
         setVisible(true);
 
@@ -761,6 +786,59 @@ public class GraphView extends JFrame
                 _preferences.node("GraphView").putBoolean("showInfo", false);
             }
         }
+    }
+
+    private void removeRows(MetricsViewInfo info)
+    {
+        //
+        // Remove rows from series hash maps
+        //
+        Map<String, Map<String, Map<String, MetricsRow>>> j = _series.remove(info);
+        if(j == null)
+        {
+            return;
+        }
+
+        final List<MetricsRow> rows = new ArrayList<MetricsRow>();
+        for(Map.Entry<String, Map<String, Map<String, MetricsRow>>> i : j.entrySet())
+        {
+            for(Map.Entry<String, Map<String, MetricsRow>> k : i.getValue().entrySet())
+            {
+                for(Map.Entry<String, MetricsRow> l : k.getValue().entrySet())
+                {
+                    rows.add(l.getValue());
+                }
+            }
+        }
+
+        int rowIndexes[] = new int[rows.size()];
+        for(int i = 0; i < rows.size(); ++i)
+        {
+            rowIndexes[i] = _legendModel.getRowIndex(rows.get(i));
+        }
+        _legendModel.removeRows(rowIndexes);
+
+        //
+        // Remove series from the chart, in JavaFx thread.
+        //
+        _queue.enqueue(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    for(MetricsRow row : rows)
+                    {
+                         String seriesClass = getSeriesClass(row.series);
+                        _styles.remove(seriesClass);
+                        //
+                        // Don't remove the XYChart.Series object here, to avoid the series style classes 
+                        // to be reasign by JavaFX.
+                        //
+                        // _chart.getData().remove(row.series);
+                        row.series.getData().clear();
+                    }
+                }
+            }, true);
     }
 
     private boolean showInfo()

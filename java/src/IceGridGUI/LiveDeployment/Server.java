@@ -777,6 +777,20 @@ public class Server extends ListArrayTreeNode
         }
     }
 
+    void rebuild(Server server, boolean fetchMetricsViewNames)
+    {
+        _metrics.clear();
+        rebuild(server);
+        if(fetchMetricsViewNames)
+        {
+            _metricsRetrieved = false;
+            if(getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
+        }
+    }
+
     void rebuild(Server server)
     {
         _resolver = server._resolver;
