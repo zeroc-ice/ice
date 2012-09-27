@@ -31,10 +31,6 @@ public class Client
     
     public static int Main(string[] args)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         App app = new App();
         return app.main(args);
     }

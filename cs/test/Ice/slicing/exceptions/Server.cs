@@ -29,10 +29,6 @@ public class Server
         int status = 0;
         Ice.Communicator communicator = null;
 
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         try
         {
             communicator = Ice.Util.initialize(ref args);

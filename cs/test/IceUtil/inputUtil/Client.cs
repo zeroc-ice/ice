@@ -22,10 +22,6 @@ public class Client
 
     public static void Main(string[] argvs)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         System.Console.Out.Write("testing string to command line arguments... ");
         System.Console.Out.Flush();
         string[] args;

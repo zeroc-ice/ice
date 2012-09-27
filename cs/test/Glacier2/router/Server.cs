@@ -41,10 +41,6 @@ public class Server
 
     public static int Main(string[] args)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties(ref args);
 

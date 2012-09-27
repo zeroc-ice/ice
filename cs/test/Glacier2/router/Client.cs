@@ -431,10 +431,6 @@ public class Client
 
     public static int Main(string[] args)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         //
         // We must disable connection warnings, because we attempt to
         // ping the router before session establishment, as well as

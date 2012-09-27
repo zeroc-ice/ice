@@ -30,10 +30,6 @@ public class Client
     {
         int status = 0;
 
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         try
         {
             status = run(args);

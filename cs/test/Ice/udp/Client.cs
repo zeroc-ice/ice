@@ -45,10 +45,6 @@ public class Client
         int status = 0;
         Ice.Communicator communicator = null;
 
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         try
         {
             Ice.InitializationData initData = new Ice.InitializationData();

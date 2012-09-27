@@ -32,10 +32,6 @@ public class Client
 
     public static int Main(string[] args)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         Ice.InitializationData data = new Ice.InitializationData();
 #if COMPACT
         //

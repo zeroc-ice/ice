@@ -41,10 +41,6 @@ public class Server
 
     public static int Main(string[] args)
     {
-#if !COMPACT
-        Debug.Listeners.Add(new ConsoleTraceListener());
-#endif
-
         App server = new App();
         return server.main(args);
     }
