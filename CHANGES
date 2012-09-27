@@ -91,6 +91,9 @@ C++ Changes
 - slice2cpp --depend option now include generated header file in 
   Makefile dependencies.
 
+- Deprecated ice_getHash, users should create is hash implementations
+  when needed.
+
 
 Visual Studio Add-in Changes
 ============================

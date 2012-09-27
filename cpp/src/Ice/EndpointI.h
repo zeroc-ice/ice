@@ -149,7 +149,7 @@ public:
     //
     virtual bool operator==(const Ice::LocalObject&) const = 0;
     virtual bool operator<(const Ice::LocalObject&) const = 0;
-    virtual ::Ice::Int ice_getHash() const;
+    virtual ICE_DEPRECATED_API ::Ice::Int ice_getHash() const;
 
 protected:
     
