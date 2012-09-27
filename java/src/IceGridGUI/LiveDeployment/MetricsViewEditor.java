@@ -1157,7 +1157,7 @@ public class MetricsViewEditor extends Editor
 
         public void setScaleFactor(String scaleFactor) throws java.lang.NumberFormatException
         {
-            _scaleFactor = Float.parseFloat(scaleFactor);
+            _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
         public Object getValue(IceMX.Metrics m)
@@ -1172,7 +1172,7 @@ public class MetricsViewEditor extends Editor
             }
         }
 
-	    private float _scaleFactor = 1.0f;
+	    private double _scaleFactor = 1.0d;
 	    private String _columnName;
         private TableCellRenderer _cellRenderer;
     }
@@ -1214,7 +1214,7 @@ public class MetricsViewEditor extends Editor
 
         public void setScaleFactor(String scaleFactor) throws java.lang.NumberFormatException
         {
-            _scaleFactor = Float.parseFloat(scaleFactor);
+            _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
         public Object getValue(IceMX.Metrics m)
@@ -1264,17 +1264,27 @@ public class MetricsViewEditor extends Editor
                 //
                 return null;
             }
-            else if(d2.value - d1.value == 0 || d2.timestamp - d1.timestamp == 0)
+
+            //
+            // If the elapsed period is less than the refresh period, don't
+            // calculate a new value.
+            //
+            if(d2.timestamp - d1.timestamp >= 5000)
             {
-                return 0.0f;
+                if(d2.value - d1.value == 0 || d2.timestamp - d1.timestamp == 0)
+                {
+                    _last = 0.0;
+                }
+                else
+                {
+                    _last = (double)((d2.value - d1.value) / (double)((d2.timestamp - d1.timestamp) /  _scaleFactor));
+                }
             }
-            else
-            {
-                return (float)((d2.value - d1.value) / (float)((d2.timestamp - d1.timestamp) /  _scaleFactor));
-            }
+            return _last;
         }
 
-        private float _scaleFactor = 1.0f;
+        private Double _last = 0.0d;
+        private double _scaleFactor = 1.0d;
         private String _dataField;
         private final Map<String, DeltaMeasurement> _deltas = new HashMap<String, DeltaMeasurement>();
         private TableCellRenderer _cellRenderer;
