@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["java:package:test.Ice.hash"]]
 module Test
 {
 

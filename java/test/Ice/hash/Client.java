@@ -9,6 +9,8 @@
 
 package test.Ice.hash;
 
+import test.Ice.hash.Test.*;
+
 public class Client
 {
     private static void
@@ -235,12 +237,12 @@ public class Client
 
             System.out.print("testing struct hash algorithm collisions... ");
             {
-                java.util.Map<Integer,Test.PointF> seenPointF = new java.util.HashMap<Integer, Test.PointF>();
+                java.util.Map<Integer, PointF> seenPointF = new java.util.HashMap<Integer, PointF>();
                 java.util.Random rand = new java.util.Random();
                 int structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointF pf = new Test.PointF(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+                    PointF pf = new PointF(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
                     if(seenPointF.containsKey(pf.hashCode()))
                     {
                         if(pf.equals(seenPointF.get(pf.hashCode())))
@@ -260,12 +262,12 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
 
-                java.util.Map<Integer,Test.PointD> seenPointD = new java.util.HashMap<Integer, Test.PointD>();
+                java.util.Map<Integer, PointD> seenPointD = new java.util.HashMap<Integer, PointD>();
                 rand = new java.util.Random();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointD pd = new Test.PointD(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
+                    PointD pd = new PointD(rand.nextDouble(), rand.nextDouble(), rand.nextDouble());
                     if(seenPointD.containsKey(pd.hashCode()))
                     {
                         if(pd.equals(seenPointF.get(pd.hashCode())))
@@ -285,17 +287,17 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
 
-                java.util.Map<Integer,Test.Polyline> seenPolyline = new java.util.HashMap<Integer, Test.Polyline>();
+                java.util.Map<Integer, Polyline> seenPolyline = new java.util.HashMap<Integer, Polyline>();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.Polyline polyline = new Test.Polyline();
-                    java.util.List<Test.Point> vertices = new java.util.ArrayList<Test.Point>();
+                    Polyline polyline = new Polyline();
+                    java.util.List<Point> vertices = new java.util.ArrayList<Point>();
                     for(int j = 0; j < 100; ++j)
                     {
-                        vertices.add(new Test.Point(rand.nextInt(100), rand.nextInt(100)));
+                        vertices.add(new Point(rand.nextInt(100), rand.nextInt(100)));
                     }
-                    polyline.vertices = new Test.Point[vertices.size()];
+                    polyline.vertices = new Point[vertices.size()];
                     vertices.toArray(polyline.vertices);
 
                     if(seenPolyline.containsKey(polyline.hashCode()))
@@ -317,15 +319,15 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
 
-                java.util.Map<Integer,Test.ColorPalette> seenColorPalette = new java.util.HashMap<Integer, Test.ColorPalette>();
+                java.util.Map<Integer, ColorPalette> seenColorPalette = new java.util.HashMap<Integer, ColorPalette>();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.ColorPalette colorPalette = new Test.ColorPalette();
-                    colorPalette.colors = new java.util.HashMap<Integer, Test.Color>();
+                    ColorPalette colorPalette = new ColorPalette();
+                    colorPalette.colors = new java.util.HashMap<Integer, Color>();
                     for(int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors.put(j, new Test.Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+                        colorPalette.colors.put(j, new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
                     }
 
                     if(seenColorPalette.containsKey(colorPalette.hashCode()))
@@ -347,12 +349,12 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
 
-                java.util.Map<Integer,Test.Color> seenColor = new java.util.HashMap<Integer, Test.Color>();
+                java.util.Map<Integer, Color> seenColor = new java.util.HashMap<Integer, Color>();
                 rand = new java.util.Random();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.Color c = new Test.Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
+                    Color c = new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255));
                     if(seenColor.containsKey(c.hashCode()))
                     {
                         if(c.equals(seenColor.get(c.hashCode())))
@@ -373,14 +375,14 @@ public class Client
                 test(structCollisions < maxCollisions);
             
                 structCollisions = 0;
-                java.util.Map<Integer,Test.Draw> seenDraw = new java.util.HashMap<Integer, Test.Draw>();
+                java.util.Map<Integer, Draw> seenDraw = new java.util.HashMap<Integer, Draw>();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.Draw draw =  new Test.Draw(
-                        new Test.Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
-                        new Test.Pen(rand.nextInt(10), 
-                                     new Test.Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))),
+                    Draw draw =  new Draw(
+                        new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
+                        new Pen(rand.nextInt(10), 
+                                     new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))),
                                      false);
 
                     if(seenDraw.containsKey(draw.hashCode()))
@@ -426,3 +428,4 @@ public class Client
         System.exit(status);
     }
 }
+
