@@ -646,9 +646,7 @@
 
     <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icegrid-jar, icegridadmin-compile"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
-        <condition property="library.jarfiles" value="classes.jar,jsse.jar,jfxrt.jar">
-            <os family="mac"/>
-        </condition>
+    
         <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
             <!-- Library jar files for Sun JDK -->
             <and>
@@ -676,11 +674,8 @@
                 <equals arg1="${os.arch}" arg2="amd64"/>
             </and>
         </condition>
-        <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
-            <os family="mac"/>
-        </condition>
         <pathconvert property="library.jars">
-           <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
+           <filelist dir="${java.home}/lib" files="${library.jarfiles}"/>
            <mapper>
               <!-- Add quotes around the path of each JAR file (necessary for Windows) -->
               <globmapper from="*" to="&quot;*&quot;"/>
