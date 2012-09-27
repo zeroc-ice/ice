@@ -176,6 +176,12 @@ class Initial
     void opOptionalException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
         throws OptionalException;
 
+    void opDerivedException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+        throws OptionalException;
+
+    void opRequiredException(optional(1) int a, optional(2) string b, optional(3) OneOptional o)
+        throws OptionalException;
+
     optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
 
     optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
@@ -239,6 +245,12 @@ class Initial
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     void opClassAndUnknownOptional(A p);
+
+    bool supportsRequiredParams();
+
+    bool supportsJavaSerializable();
+
+    bool supportsCsharpSerializable();
 };
 
 };

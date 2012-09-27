@@ -52,377 +52,453 @@ public final class AMDInitialI extends Initial
     }
 
     public void
-    opByte_async(AMD_Initial_opByte cb, Ice.ByteOptional p1, Ice.Current current)
+    opDerivedException_async(AMD_Initial_opDerivedException cb, Ice.IntOptional a, Ice.Optional<String> b,
+                             Ice.Optional<OneOptional> o, Ice.Current current)
+        throws OptionalException
     {
-        cb.ice_response(p1.get(), p1.get());
+        DerivedException ex = new DerivedException();
+        if(a.isSet())
+        {
+            ex.setA(a.get());
+        }
+        else
+        {
+            ex.clearA(); // The member "a" has a default value.
+        }
+        if(b.isSet())
+        {
+            ex.setB(b.get());
+            ex.setSs(b.get());
+        }
+        else
+        {
+            ex.clearSs(); // The member "ss" has a default value.
+        }
+        if(o.isSet())
+        {
+            ex.setO(o.get());
+            ex.setO2(o.get());
+        }
+        cb.ice_exception(ex);
     }
 
     public void
-    opByteOpt_async(AMD_Initial_opByteOpt cb, Ice.ByteOptional p1, Ice.Current current)
+    opRequiredException_async(AMD_Initial_opRequiredException cb, Ice.IntOptional a, Ice.Optional<String> b,
+                              Ice.Optional<OneOptional> o, Ice.Current current)
+        throws OptionalException
+    {
+        RequiredException ex = new RequiredException();
+        if(a.isSet())
+        {
+            ex.setA(a.get());
+        }
+        else
+        {
+            ex.clearA(); // The member "a" has a default value.
+        }
+        if(b.isSet())
+        {
+            ex.setB(b.get());
+            ex.ss = b.get();
+        }
+        if(o.isSet())
+        {
+            ex.setO(o.get());
+            ex.o2 = o.get();
+        }
+        cb.ice_exception(ex);
+    }
+
+    public void
+    opByte_async(AMD_Initial_opByte cb, Ice.ByteOptional p1, Ice.Current current)
     {
         cb.ice_response(p1, p1);
+    }
+
+    public void
+    opByteReq_async(AMD_Initial_opByteReq cb, Ice.ByteOptional p1, Ice.Current current)
+    {
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opBool_async(AMD_Initial_opBool cb, Ice.BooleanOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opBoolOpt_async(AMD_Initial_opBoolOpt cb, Ice.BooleanOptional p1, Ice.Current current)
+    opBoolReq_async(AMD_Initial_opBoolReq cb, Ice.BooleanOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opShort_async(AMD_Initial_opShort cb, Ice.ShortOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opShortOpt_async(AMD_Initial_opShortOpt cb, Ice.ShortOptional p1, Ice.Current current)
+    opShortReq_async(AMD_Initial_opShortReq cb, Ice.ShortOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opInt_async(AMD_Initial_opInt cb, Ice.IntOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opIntOpt_async(AMD_Initial_opIntOpt cb, Ice.IntOptional p1, Ice.Current current)
+    opIntReq_async(AMD_Initial_opIntReq cb, Ice.IntOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opLong_async(AMD_Initial_opLong cb, Ice.LongOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opLongOpt_async(AMD_Initial_opLongOpt cb, Ice.LongOptional p1, Ice.Current current)
+    opLongReq_async(AMD_Initial_opLongReq cb, Ice.LongOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opFloat_async(AMD_Initial_opFloat cb, Ice.FloatOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opFloatOpt_async(AMD_Initial_opFloatOpt cb, Ice.FloatOptional p1, Ice.Current current)
+    opFloatReq_async(AMD_Initial_opFloatReq cb, Ice.FloatOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opDouble_async(AMD_Initial_opDouble cb, Ice.DoubleOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opDoubleOpt_async(AMD_Initial_opDoubleOpt cb, Ice.DoubleOptional p1, Ice.Current current)
+    opDoubleReq_async(AMD_Initial_opDoubleReq cb, Ice.DoubleOptional p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opString_async(AMD_Initial_opString cb, Ice.Optional<String> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opStringOpt_async(AMD_Initial_opStringOpt cb, Ice.Optional<String> p1, Ice.Current current)
+    opStringReq_async(AMD_Initial_opStringReq cb, Ice.Optional<String> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opMyEnum_async(AMD_Initial_opMyEnum cb, Ice.Optional<MyEnum> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opMyEnumOpt_async(AMD_Initial_opMyEnumOpt cb, Ice.Optional<MyEnum> p1, Ice.Current current)
+    opMyEnumReq_async(AMD_Initial_opMyEnumReq cb, Ice.Optional<MyEnum> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opSmallStruct_async(AMD_Initial_opSmallStruct cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opSmallStructOpt_async(AMD_Initial_opSmallStructOpt cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
+    opSmallStructReq_async(AMD_Initial_opSmallStructReq cb, Ice.Optional<SmallStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opFixedStruct_async(AMD_Initial_opFixedStruct cb, Ice.Optional<FixedStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opFixedStructOpt_async(AMD_Initial_opFixedStructOpt cb, Ice.Optional<FixedStruct> p1, Ice.Current current)
+    opFixedStructReq_async(AMD_Initial_opFixedStructReq cb, Ice.Optional<FixedStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opVarStruct_async(AMD_Initial_opVarStruct cb, Ice.Optional<VarStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opVarStructOpt_async(AMD_Initial_opVarStructOpt cb, Ice.Optional<VarStruct> p1, Ice.Current current)
+    opVarStructReq_async(AMD_Initial_opVarStructReq cb, Ice.Optional<VarStruct> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opOneOptional_async(AMD_Initial_opOneOptional cb, Ice.Optional<OneOptional> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opOneOptionalOpt_async(AMD_Initial_opOneOptionalOpt cb, Ice.Optional<OneOptional> p1, Ice.Current current)
+    opOneOptionalReq_async(AMD_Initial_opOneOptionalReq cb, Ice.Optional<OneOptional> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opOneOptionalProxy_async(AMD_Initial_opOneOptionalProxy cb, Ice.Optional<OneOptionalPrx> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opOneOptionalProxyOpt_async(AMD_Initial_opOneOptionalProxyOpt cb, Ice.Optional<OneOptionalPrx> p1,
+    opOneOptionalProxyReq_async(AMD_Initial_opOneOptionalProxyReq cb, Ice.Optional<OneOptionalPrx> p1,
                                 Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opByteSeq_async(AMD_Initial_opByteSeq cb, Ice.Optional<byte[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opByteSeqOpt_async(AMD_Initial_opByteSeqOpt cb, Ice.Optional<byte[]> p1, Ice.Current current)
+    opByteSeqReq_async(AMD_Initial_opByteSeqReq cb, Ice.Optional<byte[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opBoolSeq_async(AMD_Initial_opBoolSeq cb, Ice.Optional<boolean[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opBoolSeqOpt_async(AMD_Initial_opBoolSeqOpt cb, Ice.Optional<boolean[]> p1, Ice.Current current)
+    opBoolSeqReq_async(AMD_Initial_opBoolSeqReq cb, Ice.Optional<boolean[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opShortSeq_async(AMD_Initial_opShortSeq cb, Ice.Optional<short[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opShortSeqOpt_async(AMD_Initial_opShortSeqOpt cb, Ice.Optional<short[]> p1, Ice.Current current)
+    opShortSeqReq_async(AMD_Initial_opShortSeqReq cb, Ice.Optional<short[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opIntSeq_async(AMD_Initial_opIntSeq cb, Ice.Optional<int[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opIntSeqOpt_async(AMD_Initial_opIntSeqOpt cb, Ice.Optional<int[]> p1, Ice.Current current)
+    opIntSeqReq_async(AMD_Initial_opIntSeqReq cb, Ice.Optional<int[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opLongSeq_async(AMD_Initial_opLongSeq cb, Ice.Optional<long[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opLongSeqOpt_async(AMD_Initial_opLongSeqOpt cb, Ice.Optional<long[]> p1, Ice.Current current)
+    opLongSeqReq_async(AMD_Initial_opLongSeqReq cb, Ice.Optional<long[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opFloatSeq_async(AMD_Initial_opFloatSeq cb, Ice.Optional<float[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opFloatSeqOpt_async(AMD_Initial_opFloatSeqOpt cb, Ice.Optional<float[]> p1, Ice.Current current)
+    opFloatSeqReq_async(AMD_Initial_opFloatSeqReq cb, Ice.Optional<float[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opDoubleSeq_async(AMD_Initial_opDoubleSeq cb, Ice.Optional<double[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opDoubleSeqOpt_async(AMD_Initial_opDoubleSeqOpt cb, Ice.Optional<double[]> p1, Ice.Current current)
+    opDoubleSeqReq_async(AMD_Initial_opDoubleSeqReq cb, Ice.Optional<double[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opStringSeq_async(AMD_Initial_opStringSeq cb, Ice.Optional<String[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opStringSeqOpt_async(AMD_Initial_opStringSeqOpt cb, Ice.Optional<String[]> p1, Ice.Current current)
+    opStringSeqReq_async(AMD_Initial_opStringSeqReq cb, Ice.Optional<String[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opSmallStructSeq_async(AMD_Initial_opSmallStructSeq cb, Ice.Optional<SmallStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opSmallStructSeqOpt_async(AMD_Initial_opSmallStructSeqOpt cb, Ice.Optional<SmallStruct[]> p1, Ice.Current current)
+    opSmallStructSeqReq_async(AMD_Initial_opSmallStructSeqReq cb, Ice.Optional<SmallStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opSmallStructList_async(AMD_Initial_opSmallStructList cb, Ice.Optional<java.util.List<SmallStruct>> p1,
                             Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opSmallStructListOpt_async(AMD_Initial_opSmallStructListOpt cb, Ice.Optional<java.util.List<SmallStruct>> p1,
+    opSmallStructListReq_async(AMD_Initial_opSmallStructListReq cb, Ice.Optional<java.util.List<SmallStruct>> p1,
                                Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opFixedStructSeq_async(AMD_Initial_opFixedStructSeq cb, Ice.Optional<FixedStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opFixedStructSeqOpt_async(AMD_Initial_opFixedStructSeqOpt cb, Ice.Optional<FixedStruct[]> p1, Ice.Current current)
+    opFixedStructSeqReq_async(AMD_Initial_opFixedStructSeqReq cb, Ice.Optional<FixedStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opFixedStructList_async(AMD_Initial_opFixedStructList cb, Ice.Optional<java.util.List<FixedStruct>> p1,
                             Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opFixedStructListOpt_async(AMD_Initial_opFixedStructListOpt cb, Ice.Optional<java.util.List<FixedStruct>> p1,
+    opFixedStructListReq_async(AMD_Initial_opFixedStructListReq cb, Ice.Optional<java.util.List<FixedStruct>> p1,
                                Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opVarStructSeq_async(AMD_Initial_opVarStructSeq cb, Ice.Optional<VarStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opVarStructSeqOpt_async(AMD_Initial_opVarStructSeqOpt cb, Ice.Optional<VarStruct[]> p1, Ice.Current current)
+    opVarStructSeqReq_async(AMD_Initial_opVarStructSeqReq cb, Ice.Optional<VarStruct[]> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opSerializable_async(AMD_Initial_opSerializable cb, Ice.Optional<SerializableClass> p1, Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opSerializableOpt_async(AMD_Initial_opSerializableOpt cb, Ice.Optional<SerializableClass> p1, Ice.Current current)
+    opSerializableReq_async(AMD_Initial_opSerializableReq cb, Ice.Optional<SerializableClass> p1, Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opIntIntDict_async(AMD_Initial_opIntIntDict cb, Ice.Optional<java.util.Map<Integer, Integer>> p1,
                        Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opIntIntDictOpt_async(AMD_Initial_opIntIntDictOpt cb, Ice.Optional<java.util.Map<Integer, Integer>> p1,
+    opIntIntDictReq_async(AMD_Initial_opIntIntDictReq cb, Ice.Optional<java.util.Map<Integer, Integer>> p1,
                           Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opStringIntDict_async(AMD_Initial_opStringIntDict cb, Ice.Optional<java.util.Map<String, Integer>> p1,
                           Ice.Current current)
     {
-        cb.ice_response(p1.get(), p1.get());
+        cb.ice_response(p1, p1);
     }
 
     public void
-    opStringIntDictOpt_async(AMD_Initial_opStringIntDictOpt cb, Ice.Optional<java.util.Map<String, Integer>> p1,
+    opStringIntDictReq_async(AMD_Initial_opStringIntDictReq cb, Ice.Optional<java.util.Map<String, Integer>> p1,
                              Ice.Current current)
     {
-        cb.ice_response(p1, p1);
+        cb.ice_response(p1.get(), p1.get());
     }
 
     public void
     opClassAndUnknownOptional_async(AMD_Initial_opClassAndUnknownOptional cb, A p, Ice.Current current)
     {
         cb.ice_response();
+    }
+
+    public void
+    supportsRequiredParams_async(AMD_Initial_supportsRequiredParams cb, Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
+
+    public void
+    supportsJavaSerializable_async(AMD_Initial_supportsJavaSerializable cb, Ice.Current current)
+    {
+        cb.ice_response(true);
+    }
+
+    public void
+    supportsCsharpSerializable_async(AMD_Initial_supportsCsharpSerializable cb, Ice.Current current)
+    {
+        cb.ice_response(false);
     }
 }

@@ -27,24 +27,33 @@ public class InitialI : Test.Initial
                                                    Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
                                                    Ice.Current current)
     {
-        Test.OptionalException ex = new Test.OptionalException();
-        if(a.HasValue)
-        {
-            ex.a = a.Value;
-        }
-        else
-        {
-            ex.a = Ice.Util.None; // The member "a" has a default value.
-        }
+        cb.ice_exception(new Test.OptionalException(a, b, o));
+    }
+
+    public override void opDerivedException_async(Test.AMD_Initial_opDerivedException cb, Ice.Optional<int> a,
+                                                  Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
+                                                  Ice.Current current)
+    {
+        cb.ice_exception(new Test.DerivedException(a, b, o, b, o));
+    }
+
+    public override void opRequiredException_async(Test.AMD_Initial_opRequiredException cb, Ice.Optional<int> a,
+                                                   Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
+                                                   Ice.Current current)
+    {
+        Test.RequiredException e = new Test.RequiredException();
+        e.a = a;
+        e.b = b;
+        e.o = o;
         if(b.HasValue)
         {
-            ex.b = b.Value;
+            e.ss = b.Value;
         }
         if(o.HasValue)
         {
-            ex.o = o.Value;
+            e.o2 = o.Value;
         }
-        cb.ice_exception(ex);
+        cb.ice_exception(e);
     }
 
     public override void opByte_async(Test.AMD_Initial_opByte cb, Ice.Optional<byte> p1, Ice.Current current)
@@ -225,5 +234,22 @@ public class InitialI : Test.Initial
                                                          Ice.Current current)
     {
         cb.ice_response();
+    }
+
+    public override void supportsRequiredParams_async(Test.AMD_Initial_supportsRequiredParams cb, Ice.Current current)
+    {
+        cb.ice_response(false);
+    }
+
+    public override void supportsJavaSerializable_async(Test.AMD_Initial_supportsJavaSerializable cb,
+                                                        Ice.Current current)
+    {
+        cb.ice_response(false);
+    }
+
+    public override void supportsCsharpSerializable_async(Test.AMD_Initial_supportsCsharpSerializable cb,
+                                                          Ice.Current current)
+    {
+        cb.ice_response(true);
     }
 }

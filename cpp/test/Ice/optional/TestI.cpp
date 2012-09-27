@@ -318,27 +318,46 @@ InitialI::opVarStructSeq(const Optional<pair<VarStructSeq::const_iterator, VarSt
     return p3;
 }
 
+Optional<Serializable>
+InitialI::opSerializable(const Optional<Serializable>& p1, Optional<Serializable>& p3, const Current&)
+{
+    p3 = p1;
+    return p3;
+}
+
 Optional<IntIntDict>
 InitialI::opIntIntDict(const Optional<IntIntDict>& p1, Optional<IntIntDict>& p3, const Current&)
 {
-    if(p1)
-    {
-        p3 = p1;
-    }
+    p3 = p1;
     return p3;
 }
 
 Optional<StringIntDict>
 InitialI::opStringIntDict(const Optional<StringIntDict>& p1, Optional<StringIntDict>& p3, const Current&)
 {
-    if(p1)
-    {
-        p3 = p1;
-    }
+    p3 = p1;
     return p3;
 }
 
 void
 InitialI::opClassAndUnknownOptional(const APtr& a, const Ice::Current&)
 {
+}
+
+bool
+InitialI::supportsRequiredParams(const Ice::Current&)
+{
+    return false;
+}
+
+bool
+InitialI::supportsJavaSerializable(const Ice::Current&)
+{
+    return true;
+}
+
+bool
+InitialI::supportsCsharpSerializable(const Ice::Current&)
+{
+    return true;
 }

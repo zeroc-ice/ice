@@ -920,6 +920,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(!p2 && !p3);
 
         bool bs[100];
+        fill(&bs[0], &bs[0] + 100, 56);
         vector<bool> bsv(&bs[0], &bs[0] + 100);
 #if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
         std::pair<const bool*, const bool*> cpair(&bs[0], &bs[0] + 100);

@@ -1678,6 +1678,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             }
 
             string ignore;
+            const size_t wireSize = elemType->minWireSize();
 
             if(marshal)
             {
@@ -1722,24 +1723,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         tmpName = v;
                     }
 
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
+                    if(wireSize > 1)
                     {
                         out << nl << "final int __optSize = " << tmpName << " == null ? 0 : " << tmpName << ".size();";
-                        const size_t wireSize = elemType->minWireSize();
-
-                        if(wireSize > 1)
-                        {
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
-                                << " + 5 : __optSize * " << wireSize << " + 1);";
-                        }
-                        else
-                        {
-                            //
-                            // The element type could be a struct with a wire size of 1.
-                            //
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize + 5 : __optSize + 1);";
-                        }
+                        out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
+                            << " + 5 : __optSize * " << wireSize << " + 1);";
                     }
                     writeSequenceMarshalUnmarshalCode(out, package, seq, tmpName, marshal, iter, true, metaData);
                 }
@@ -1769,24 +1757,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                         tmpName = v;
                     }
 
-                    if(!elemBuiltin || (elemBuiltin->kind() != Builtin::KindByte &&
-                       elemBuiltin->kind() != Builtin::KindBool))
+                    if(wireSize > 1)
                     {
                         out << nl << "final int __optSize = " << tmpName << " == null ? 0 : " << tmpName << ".length;";
-                        const size_t wireSize = elemType->minWireSize();
-
-                        if(wireSize > 1)
-                        {
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
-                                << " + 5 : __optSize * " << wireSize << " + 1);";
-                        }
-                        else
-                        {
-                            //
-                            // The element type could be a struct with a wire size of 1.
-                            //
-                            out << nl << stream << ".writeSize(__optSize > 254 ? __optSize + 5 : __optSize + 1);";
-                        }
+                        out << nl << stream << ".writeSize(__optSize > 254 ? __optSize * " << wireSize
+                            << " + 5 : __optSize * " << wireSize << " + 1);";
                     }
 
                     writeSequenceMarshalUnmarshalCode(out, package, seq, tmpName, marshal, iter, true, metaData);
@@ -1816,25 +1791,19 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 {
                     out << nl << stream << ".skip(4);";
                 }
-                else if(findMetaData("java:type:", metaData, ignore) ||
-                        findMetaData("java:type:", seq->getMetaData(), ignore))
+                else if(wireSize > 1)
                 {
-                    //
-                    // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
-                    // If the element type is bool or byte, we do NOT write an extra size.
-                    //
-
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
+                    if(findMetaData("java:type:", metaData, ignore) ||
+                       findMetaData("java:type:", seq->getMetaData(), ignore))
                     {
+                        //
+                        // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
+                        //
+
                         out << nl << stream << ".skipSize();";
                     }
-                }
-                else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignore) &&
-                        !findMetaData("java:serializable:", seq->getMetaData(), ignore))
-                {
-                    if(!elemBuiltin ||
-                       (elemBuiltin->kind() != Builtin::KindByte && elemBuiltin->kind() != Builtin::KindBool))
+                    else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignore) &&
+                            !findMetaData("java:serializable:", seq->getMetaData(), ignore))
                     {
                         out << nl << stream << ".skipSize();";
                     }

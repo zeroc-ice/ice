@@ -59,6 +59,8 @@ sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
+sequence<byte> Serializable;
+
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
@@ -101,6 +103,8 @@ class MultiOptional
     optional(28) IntOneOptionalPrxDict ioopd;
 
     optional(29) BoolSeq bos;
+
+    optional(30) Serializable ser;
 };
 
 class A
@@ -231,6 +235,12 @@ class Initial
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     void opClassAndUnknownOptional(A p);
+
+    bool supportsRequiredParams();
+
+    bool supportsJavaSerializable();
+
+    bool supportsCsharpSerializable();
 };
 
 };

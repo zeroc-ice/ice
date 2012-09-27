@@ -291,6 +291,7 @@ crossTests = [ "Ice/adapterDeactivation",
                "Ice/timeout",
                "Ice/slicing/exceptions",
                "Ice/slicing/objects",
+               "Ice/optional",
                ]
 
 def run(tests, root = False):

@@ -155,6 +155,11 @@ public:
         IceUtil::Optional< ::Test::VarStructSeq>&,
         const ::Ice::Current& = ::Ice::Current());
 
+    virtual IceUtil::Optional< ::Test::Serializable> opSerializable(
+        const IceUtil::Optional< ::Test::Serializable>&,
+        IceUtil::Optional< ::Test::Serializable>&,
+        const ::Ice::Current& = ::Ice::Current());
+
     virtual IceUtil::Optional< ::Test::IntIntDict> opIntIntDict(
         const IceUtil::Optional< ::Test::IntIntDict>&,
         IceUtil::Optional< ::Test::IntIntDict>&,
@@ -166,6 +171,12 @@ public:
         const ::Ice::Current& = ::Ice::Current());
 
     virtual void opClassAndUnknownOptional(const Test::APtr&, const Ice::Current&);
+
+    virtual bool supportsRequiredParams(const Ice::Current&);
+
+    virtual bool supportsJavaSerializable(const Ice::Current&);
+
+    virtual bool supportsCsharpSerializable(const Ice::Current&);
 };
 
 #endif

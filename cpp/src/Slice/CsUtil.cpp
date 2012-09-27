@@ -1975,7 +1975,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << stream << ".startSize();";
             }
-            else
+            else if(st->minWireSize() > 1)
             {
                 out << nl << stream << ".writeSize(" << param << ".Value == null ? 1 : " << length << " * "
                     << st->minWireSize() << " + (" << length << " > 254 ? 5 : 1));";
@@ -1995,7 +1995,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << stream << ".skip(4);";
             }
-            else
+            else if(st->minWireSize() > 1)
             {
                 out << nl << stream << ".skipSize();";
             }

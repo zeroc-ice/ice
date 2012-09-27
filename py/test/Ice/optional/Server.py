@@ -29,15 +29,15 @@ class InitialI(Test.Initial):
         raise Test.DerivedException(a, b, o, b, o)
 
     def opRequiredException(self, a, b, o, current=None):
-        if b == Ice.Unset:
-            ss = "none"
-        else:
-            ss = b
-        if o == Ice.Unset:
-            o2 = None
-        else:
-            o2 = o
-        raise Test.RequiredException(a, b, o, ss, o2)
+        e = Test.RequiredException()
+        e.a = a
+        e.b = b
+        e.o = o
+        if b != Ice.Unset:
+            e.ss = b
+        if o != Ice.Unset:
+            e.o2 = o
+        raise e
 
     def opByte(self, p1, current=None):
         return (p1, p1)
@@ -120,6 +120,9 @@ class InitialI(Test.Initial):
     def opVarStructSeq(self, p1, current=None):
         return (p1, p1)
 
+    def opSerializable(self, p1, current=None):
+        return (p1, p1)
+
     def opIntIntDict(self, p1, current=None):
         return (p1, p1)
 
@@ -128,6 +131,15 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional(self, p, current=None):
         pass
+
+    def supportsRequiredParams(self, current=None):
+        return False
+
+    def supportsJavaSerializable(self, current=None):
+        return True
+
+    def supportsCsharpSerializable(self, current=None):
+        return True
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

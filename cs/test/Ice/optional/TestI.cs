@@ -28,6 +28,30 @@ public class InitialI : Test.Initial
         throw new Test.OptionalException(a, b, o);
     }
 
+    public override void opDerivedException(Ice.Optional<int> a, Ice.Optional<string> b,
+                                            Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    {
+        throw new Test.DerivedException(a, b, o, b, o);
+    }
+
+    public override void opRequiredException(Ice.Optional<int> a, Ice.Optional<string> b,
+                                             Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    {
+        Test.RequiredException e = new Test.RequiredException();
+        e.a = a;
+        e.b = b;
+        e.o = o;
+        if(b.HasValue)
+        {
+            e.ss = b.Value;
+        }
+        if(o.HasValue)
+        {
+            e.o2 = o.Value;
+        }
+        throw e;
+    }
+
     public override Ice.Optional<byte> opByte(Ice.Optional<byte> p1, out Ice.Optional<byte> p3, Ice.Current current)
     {
         p3 = p1;
@@ -250,5 +274,20 @@ public class InitialI : Test.Initial
 
     public override void opClassAndUnknownOptional(Test.A p, Ice.Current current)
     {
+    }
+
+    public override bool supportsRequiredParams(Ice.Current current)
+    {
+        return false;
+    }
+
+    public override bool supportsJavaSerializable(Ice.Current current)
+    {
+        return false;
+    }
+
+    public override bool supportsCsharpSerializable(Ice.Current current)
+    {
+        return true;
     }
 }

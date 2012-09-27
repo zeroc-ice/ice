@@ -61,6 +61,8 @@ sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
+sequence<byte> Serializable;
+
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
 dictionary<int, MyEnum> IntEnumDict;
@@ -103,6 +105,8 @@ class MultiOptional
     optional(28) IntOneOptionalPrxDict ioopd;
 
     optional(29) BoolSeq bos;
+
+    optional(30) Serializable ser;
 };
 
 class A
@@ -153,8 +157,9 @@ exception RequiredException extends OptionalException
 
 class OptionalWithCustom
 {
-    ["cpp:type:std::list< ::Ice::Byte>"] optional(1) ByteSeq bs;
-    optional(2) ClassVarStruct s;
+    optional(1) SmallStructList l;
+    ["protected"] optional(2) SmallStructList lp;
+    optional(3) ClassVarStruct s;
 };
 
 class Initial
@@ -240,11 +245,19 @@ class Initial
     ["cpp:range"] optional(1) VarStructSeq opVarStructSeq(["cpp:range"] optional(2) VarStructSeq p1,
                                                           out ["cpp:range"] optional(3) VarStructSeq p3);
 
+    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
+
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     void opClassAndUnknownOptional(A p);
+
+    bool supportsRequiredParams();
+
+    bool supportsJavaSerializable();
+
+    bool supportsCsharpSerializable();
 };
 
 };

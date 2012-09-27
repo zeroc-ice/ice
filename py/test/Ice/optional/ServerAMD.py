@@ -30,15 +30,15 @@ class InitialI(Test.Initial):
         cb.ice_exception(Test.DerivedException(a, b, o, b, o))
 
     def opRequiredException_async(self, cb, a, b, o, current=None):
-        if b == Ice.Unset:
-            ss = "none"
-        else:
-            ss = b
-        if o == Ice.Unset:
-            o2 = None
-        else:
-            o2 = o
-        cb.ice_exception(Test.RequiredException(a, b, o, ss, o2))
+        e = Test.RequiredException()
+        e.a = a
+        e.b = b
+        e.o = o
+        if b != Ice.Unset:
+            e.ss = b
+        if o != Ice.Unset:
+            e.o2 = o
+        cb.ice_exception(e)
 
     def opByte_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
@@ -121,6 +121,9 @@ class InitialI(Test.Initial):
     def opVarStructSeq_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
 
+    def opSerializable(self, cb, p1, current=None):
+        cb.ice_response(p1, p1)
+
     def opIntIntDict_async(self, cb, p1, current=None):
         cb.ice_response(p1, p1)
 
@@ -129,6 +132,15 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional_async(self, cb, p, current=None):
         cb.ice_response()
+
+    def supportsRequiredParams_async(self, cb, current=None):
+        cb.ice_response(False)
+
+    def supportsJavaSerializable(self, cb, current=None):
+        cb.ice_response(True)
+
+    def supportsCsharpSerializable(self, cb, current=None):
+        cb.ice_response(True)
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")

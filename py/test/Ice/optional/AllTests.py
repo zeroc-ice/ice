@@ -693,12 +693,12 @@ def allTests(communicator):
         test(ex.o2 == Ice.Unset)
 
     try:
-        initial.opDerivedException(30, "test", Test.OneOptional(53))
+        initial.opDerivedException(30, "test2", Test.OneOptional(53))
     except Test.DerivedException as ex:
         test(ex.a == 30)
-        test(ex.b == "test")
+        test(ex.b == "test2")
         test(ex.o.a == 53)
-        test(ex.ss == "test")
+        test(ex.ss == "test2")
         test(ex.o2 == ex.o)
 
     try:
@@ -707,16 +707,16 @@ def allTests(communicator):
         test(ex.a == Ice.Unset)
         test(ex.b == Ice.Unset)
         test(ex.o == Ice.Unset)
-        test(ex.ss != Ice.Unset)
-        test(ex.o2 != Ice.Unset)
+        test(ex.ss == "test")
+        test(ex.o2 == None)
 
     try:
-        initial.opRequiredException(30, "test", Test.OneOptional(53))
+        initial.opRequiredException(30, "test2", Test.OneOptional(53))
     except Test.RequiredException as ex:
         test(ex.a == 30)
-        test(ex.b == "test")
+        test(ex.b == "test2")
         test(ex.o.a == 53)
-        test(ex.ss == "test")
+        test(ex.ss == "test2")
         test(ex.o2 == ex.o)
 
     print("ok")

@@ -186,6 +186,12 @@ public class AllTests : TestCommon.TestApp
 
 #if !SILVERLIGHT
         test(!mo4.ser.HasValue);
+
+        bool supportsCsharpSerializable = initial.supportsCsharpSerializable();
+        if(!supportsCsharpSerializable)
+        {
+            mo1.ser = Ice.Util.None;
+        }
 #endif
 
         Test.MultiOptional mo5 = (Test.MultiOptional)initial.pingPong(mo1);
@@ -222,7 +228,10 @@ public class AllTests : TestCommon.TestApp
         test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
 
 #if !SILVERLIGHT
-        test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
+        if(supportsCsharpSerializable)
+        {
+            test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
+        }
 #endif
 
         // Clear the first half of the optional members
@@ -301,7 +310,10 @@ public class AllTests : TestCommon.TestApp
         mo8.ioopd = mo5.ioopd;
 
 #if !SILVERLIGHT
-        mo8.ser = new Test.SerializableClass(56);
+        if(supportsCsharpSerializable)
+        {
+            mo8.ser = new Test.SerializableClass(56);
+        }
 #endif
 
         Test.MultiOptional mo9 = (Test.MultiOptional)initial.pingPong(mo8);
@@ -339,7 +351,10 @@ public class AllTests : TestCommon.TestApp
         test(!mo9.bos.HasValue);
 
 #if !SILVERLIGHT
-        test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
+        if(supportsCsharpSerializable)
+        {
+            test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
+        }
 #endif
 
         {
@@ -1850,6 +1865,7 @@ public class AllTests : TestCommon.TestApp
         }
 
 #if !SILVERLIGHT
+        if(supportsCsharpSerializable)
         {
             Ice.Optional<Test.SerializableClass> p1 = new Ice.Optional<Test.SerializableClass>();
             Ice.Optional<Test.SerializableClass> p3;
@@ -2031,6 +2047,70 @@ public class AllTests : TestCommon.TestApp
                 test(ex.a.Value == 30);
                 test(ex.b.Value.Equals("test"));
                 test(ex.o.Value.a.Value == 53);
+            }
+
+            try
+            {
+                Ice.Optional<int> a = new Ice.Optional<int>();
+                Ice.Optional<string> b = new Ice.Optional<string>();
+                Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
+                initial.opDerivedException(a, b, o);
+            }
+            catch(Test.DerivedException ex)
+            {
+                test(!ex.a.HasValue);
+                test(!ex.b.HasValue);
+                test(!ex.o.HasValue);
+                test(!ex.ss.HasValue);
+                test(!ex.o2.HasValue);
+            }
+
+            try
+            {
+                Ice.Optional<int> a = new Ice.Optional<int>(30);
+                Ice.Optional<string> b = new Ice.Optional<string>("test2");
+                Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
+                initial.opDerivedException(a, b, o);
+            }
+            catch(Test.DerivedException ex)
+            {
+                test(ex.a.Value == 30);
+                test(ex.b.Value.Equals("test2"));
+                test(ex.o.Value.a.Value == 53);
+                test(ex.ss.Value.Equals("test2"));
+                test(ex.o2.Value.a.Value == 53);
+            }
+
+            try
+            {
+                Ice.Optional<int> a = new Ice.Optional<int>();
+                Ice.Optional<string> b = new Ice.Optional<string>();
+                Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>();
+                initial.opRequiredException(a, b, o);
+            }
+            catch(Test.RequiredException ex)
+            {
+                test(!ex.a.HasValue);
+                test(!ex.b.HasValue);
+                test(!ex.o.HasValue);
+                test(ex.ss.Equals("test"));
+                test(ex.o2 == null);
+            }
+
+            try
+            {
+                Ice.Optional<int> a = new Ice.Optional<int>(30);
+                Ice.Optional<string> b = new Ice.Optional<string>("test2");
+                Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
+                initial.opRequiredException(a, b, o);
+            }
+            catch(Test.RequiredException ex)
+            {
+                test(ex.a.Value == 30);
+                test(ex.b.Value.Equals("test2"));
+                test(ex.o.Value.a.Value == 53);
+                test(ex.ss.Equals("test2"));
+                test(ex.o2.a.Value == 53);
             }
         }
         WriteLine("ok");
