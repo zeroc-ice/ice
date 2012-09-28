@@ -232,6 +232,15 @@ public final class ThreadPool
     }
 
     public synchronized void
+    updateObservers()
+    {
+        for(EventHandlerThread thread : _threads)
+        {
+            thread.updateObserver();
+        }
+    }
+
+    public synchronized void
     initialize(EventHandler handler)
     {
         assert(!_destroyed);
@@ -301,12 +310,13 @@ public final class ThreadPool
     private void
     run(EventHandlerThread thread)
     {
-        ThreadPoolCurrent current = new ThreadPoolCurrent(_instance, this);
+        ThreadPoolCurrent current = new ThreadPoolCurrent(_instance, this, thread);
         boolean select = false;
         while(true)
         {
             if(current._handler != null)
             {
+                thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                 try
                 {
                     current._handler.message(current);
@@ -324,6 +334,7 @@ public final class ThreadPool
             }
             else if(select)
             {
+                thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
                 try
                 {
                     _selector.select(_serverIdleTime);
@@ -351,7 +362,7 @@ public final class ThreadPool
                         _nextHandler = _handlers.iterator();
                         select = false;
                     }
-                    else if(!current._leader && followerWait(thread, current))
+                    else if(!current._leader && followerWait(current))
                     {
                         return; // Wait timed-out.
                     }
@@ -382,7 +393,7 @@ public final class ThreadPool
                         --_inUse;
                     }
 
-                    if(!current._leader && followerWait(thread, current))
+                    if(!current._leader && followerWait(current))
                     {
                         return; // Wait timed-out.
                     }
@@ -445,6 +456,8 @@ public final class ThreadPool
     ioCompleted(ThreadPoolCurrent current)
     {
         current._ioCompleted = true; // Set the IO completed flag to specify that ioCompleted() has been called.
+
+        current._thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
 
         if(_sizeMax > 1)
         {
@@ -539,9 +552,11 @@ public final class ThreadPool
     }
 
     private synchronized boolean
-    followerWait(EventHandlerThread thread, ThreadPoolCurrent current)
+    followerWait(ThreadPoolCurrent current)
     {
         assert(!current._leader);
+
+        current._thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
 
         //
         // It's important to clear the handler before waiting to make sure that
@@ -573,8 +588,8 @@ public final class ThreadPool
                                 _instance.initializationData().logger.trace(_instance.traceLevels().threadPoolCat, s);
                             }
                             assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
-                            _threads.remove(thread);
-                            _workQueue.queue(new JoinThreadWorkItem(thread));
+                            _threads.remove(current._thread);
+                            _workQueue.queue(new JoinThreadWorkItem(current._thread));
                             return true;
                         }
                     }
@@ -600,11 +615,40 @@ public final class ThreadPool
     private final String _threadPrefix;
     private final Selector _selector;
 
-    private final class EventHandlerThread implements Runnable
+    final class EventHandlerThread implements Runnable
     {
         EventHandlerThread(String name)
         {
             _name = name;
+            _state = Ice.Instrumentation.ThreadState.ThreadStateIdle;
+            updateObserver();
+        }
+
+        public void
+        updateObserver()
+        {
+            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+            if(obsv != null)
+            {
+                _observer = obsv.getThreadObserver(_prefix, _name, _state, _observer);
+                if(_observer != null)
+                {
+                    _observer.attach();
+                }
+            }
+        }
+
+        void
+        setState(Ice.Instrumentation.ThreadState s)
+        {
+            if(_observer != null)
+            {
+                if(_state != s)
+                {
+                    _observer.stateChanged(_state, s);
+                }
+            }
+            _state = s;
         }
 
         public void
@@ -658,6 +702,11 @@ public final class ThreadPool
                 _instance.initializationData().logger.error(s);
             }
 
+            if(_observer != null)
+            {
+                _observer.detach();
+            }
+
             if(_instance.initializationData().threadHook != null)
             {
                 try
@@ -675,6 +724,8 @@ public final class ThreadPool
 
         final private String _name;
         private Thread _thread;
+        private Ice.Instrumentation.ThreadState _state;
+        private Ice.Instrumentation.ThreadObserver _observer;
     }
 
     private final int _size; // Number of threads that are pre-created.

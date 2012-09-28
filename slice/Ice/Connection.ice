@@ -189,13 +189,13 @@ local interface Connection
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
-    string localAddress;
+    string localAddress = "";
 
     /** The local port. */
     int localPort = -1;
 
     /** The remote address. */
-    string remoteAddress;
+    string remoteAddress = "";
 
     /** The remote port. */
     int remotePort = -1;

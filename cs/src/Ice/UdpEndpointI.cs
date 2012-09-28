@@ -20,7 +20,7 @@ namespace IceInternal
     sealed class UdpEndpointI : EndpointI
     {
         public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, Ice.ProtocolVersion pv,
-                            Ice.EncodingVersion ev, bool conn, string conId, bool co) : base(pv, ev)
+                            Ice.EncodingVersion ev, bool conn, string conId, bool co) : base(pv, ev, conId)
         {
             instance_ = instance;
             _host = ho;
@@ -28,13 +28,13 @@ namespace IceInternal
             _mcastInterface = mif;
             _mcastTtl = mttl;
             _connect = conn;
-            _connectionId = conId;
+            connectionId_ = conId;
             _compress = co;
             calcHashValue();
         }
         
         public UdpEndpointI(Instance instance, string str, bool oaEndpoint) :
-            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding)
+            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "")
         {
             instance_ = instance;
             _host = null;
@@ -400,7 +400,7 @@ namespace IceInternal
             else
             {
                 return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                        _connect, _connectionId, compress);
+                                        _connect, connectionId_, compress);
             }
         }
 
@@ -409,7 +409,7 @@ namespace IceInternal
         //
         public override EndpointI connectionId(string connectionId)
         {
-            if(connectionId == _connectionId)
+            if(connectionId == connectionId_)
             {
                 return this;
             }
@@ -457,7 +457,7 @@ namespace IceInternal
         {
             UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
             endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
-                                        protocol_, encoding_, _connect, _connectionId, _compress);
+                                        protocol_, encoding_, _connect, connectionId_, _compress);
             return p;
         }
 
@@ -511,7 +511,7 @@ namespace IceInternal
                 foreach(string h in hosts)
                 {
                     endps.Add(new UdpEndpointI(instance_, h, _port, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                               _connect, _connectionId, _compress));
+                                               _connect, connectionId_, _compress));
                 }
             }
             return endps;
@@ -537,7 +537,7 @@ namespace IceInternal
             foreach(EndPoint addr in addresses)
             {
                 connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                                _connectionId));
+                                                connectionId_));
             }
             return connectors;
         }
@@ -589,9 +589,9 @@ namespace IceInternal
                 return 1;
             }
             
-            if(!_connectionId.Equals(p._connectionId))
+            if(!connectionId_.Equals(p.connectionId_))
             {
-                return string.Compare(_connectionId, p._connectionId, StringComparison.Ordinal);
+                return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
             }
 
             if(!_compress && p._compress)
@@ -632,7 +632,7 @@ namespace IceInternal
             IceInternal.HashUtil.hashAdd(ref h, _connect);
             IceInternal.HashUtil.hashAdd(ref h, protocol_);
             IceInternal.HashUtil.hashAdd(ref h, encoding_);
-            IceInternal.HashUtil.hashAdd(ref h, _connectionId);
+            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             IceInternal.HashUtil.hashAdd(ref h, _compress);
             _hashCode = h;
         }
@@ -643,7 +643,6 @@ namespace IceInternal
         private string _mcastInterface = "";
         private int _mcastTtl = -1;
         private bool _connect;
-        private string _connectionId = "";
         private bool _compress;
         private int _hashCode;
     }

@@ -295,6 +295,12 @@ public class AsyncResult
                 __error(exc);
             }
         }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
     }
 
     protected final void __sentInternal()
@@ -321,6 +327,19 @@ public class AsyncResult
             catch(OutOfMemoryError exc)
             {
                 __error(exc);
+            }
+        }
+    }
+
+    public void 
+    __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+    {
+        if(_observer != null)
+        {
+            _remoteObserver = _observer.getRemoteObserver(info, endpt);
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.attach();
             }
         }
     }
@@ -420,6 +439,12 @@ public class AsyncResult
                 __error(exc);
             }
         }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
     }
 
     protected final void __warning(RuntimeException ex)
@@ -454,5 +479,8 @@ public class AsyncResult
     protected boolean _sentSynchronously;
     protected LocalException _exception;
 
+    protected Ice.Instrumentation.InvocationObserver _observer;
+    protected Ice.Instrumentation.Observer _remoteObserver;
+    
     private IceInternal.CallbackBase _callback;
 }

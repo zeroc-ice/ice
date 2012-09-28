@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
+    using System;
 
     public interface EndpointI_connectors
     {
@@ -22,10 +23,11 @@ namespace IceInternal
 
     public abstract class EndpointI : Ice.Endpoint, System.IComparable<EndpointI>
     {    
-        public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding)
+        public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, string connectionId)
         {
             protocol_ = protocol;
             encoding_ = encoding;
+            connectionId_ = connectionId;
         }
 
         public EndpointI()
@@ -56,6 +58,7 @@ namespace IceInternal
             int h = 5381;
             IceInternal.HashUtil.hashAdd(ref h, protocol_);
             IceInternal.HashUtil.hashAdd(ref h, encoding_);
+            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             return h;
         }
 
@@ -95,6 +98,11 @@ namespace IceInternal
             else if(p.encoding_.minor < encoding_.minor)
             {
                 return 1;
+            }
+
+            if(!connectionId_.Equals(p.connectionId_))
+            {
+                return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
             }
 
             return 0;
@@ -165,6 +173,14 @@ namespace IceInternal
         public Ice.EncodingVersion encoding()
         {
             return encoding_;
+        }
+
+        //
+        // Return the connection ID.
+        //
+        public string connectionId()
+        {
+            return connectionId_;
         }
 
         //
@@ -257,6 +273,7 @@ namespace IceInternal
 
         protected Ice.ProtocolVersion protocol_;
         protected Ice.EncodingVersion encoding_;
+        protected string connectionId_ = "";
     }
 
 }

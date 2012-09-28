@@ -4838,6 +4838,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         _out << nl << "context__ = emptyContext_;";
         _out << eb;
+        _out << nl << "Ice.Instrumentation.InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __";
+        _out << op->name() << "_name, context__);";
         _out << nl << "int cnt__ = 0;";
         _out << nl << "while(true)";
         _out << sb;
@@ -4846,7 +4848,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         if(op->returnsData())
         {
-            _out << nl << "checkTwowayOnly__(\"" << op->name() << "\");";
+            _out << nl << "checkTwowayOnly__(__" << op->name() << "_name);";
         }
         _out << nl << "delBase__ = getDelegate__(false);";
         _out << nl << name << "Del_ del__ = (" << name << "Del_)delBase__;";
@@ -4855,7 +4857,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "return ";
         }
-        _out << "del__." << opName << spar << args << "context__" << epar << ';';
+        _out << "del__." << opName << spar << args << "context__" << "observer__" << epar << ';';
         if(!ret)
         {
             _out << nl << "return;";
@@ -4865,16 +4867,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            _out << nl << "handleExceptionWrapperRelaxed__(delBase__, ex__, true, ref cnt__);";
+            _out << nl << "handleExceptionWrapperRelaxed__(delBase__, ex__, true, ref cnt__, observer__);";
         }
         else
         {
-            _out << nl << "handleExceptionWrapper__(delBase__, ex__);";
+            _out << nl << "handleExceptionWrapper__(delBase__, ex__, observer__);";
         }
         _out << eb;
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
-        _out << nl << "handleException__(delBase__, ex__, true, ref cnt__);";
+        _out << nl << "handleException__(delBase__, ex__, true, ref cnt__, observer__);";
         _out << eb;
         _out << eb;
 
@@ -5886,7 +5888,9 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParams(op);
 
         _out << sp << nl << retS << ' ' << opName << spar << params
-             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
+             << "_System.Collections.Generic.Dictionary<string, string> context__" 
+             << "Ice.Instrumentation.InvocationObserver observer__"
+             << epar << ';';
     }
 
     return true;
@@ -5985,11 +5989,13 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParams(op);
 
         _out << sp << nl << "public " << retS << ' ' << opName << spar << params
-             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
+             << "_System.Collections.Generic.Dictionary<string, string> context__" 
+             << "Ice.Instrumentation.InvocationObserver observer__"
+             << epar;
         _out << sb;
 
         _out << nl << "IceInternal.Outgoing og__ = handler__.getOutgoing(\"" << op->name() << "\", "
-             << sliceModeToIceMode(op->sendMode()) << ", context__);";
+             << sliceModeToIceMode(op->sendMode()) << ", context__, observer__);";
         _out << nl << "try";
         _out << sb;
         if(!inParams.empty())
@@ -6207,7 +6213,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp;
         _out << nl << "[_System.Diagnostics.CodeAnalysis.SuppressMessage(\"Microsoft.Design\", \"CA1031\")]";
         _out << nl << "public " << retS << ' ' << opName << spar << params
-             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
+             << "_System.Collections.Generic.Dictionary<string, string> context__"
+             << "Ice.Instrumentation.InvocationObserver observer__"
+             << epar;
         _out << sb;
         if(containingClass->hasMetaData("amd") || op->hasMetaData("amd"))
         {

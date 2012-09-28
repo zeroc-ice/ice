@@ -919,6 +919,44 @@ namespace Ice
             }
         }
 
+        public void updateConnectionObservers()
+        {
+            List<IceInternal.IncomingConnectionFactory> f;
+            _m.Lock();
+            try
+            {
+                f = new List<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+
+            foreach(IceInternal.IncomingConnectionFactory p in f)
+            {
+                p.updateConnectionObservers();
+            }
+        }
+    
+        public void  updateThreadObservers()
+        {
+            IceInternal.ThreadPool threadPool = null;
+            _m.Lock();
+            try
+            {
+                threadPool = _threadPool;
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+
+            if(threadPool != null)
+            {
+                threadPool.updateObservers();
+            }
+        }
+
         public void incDirectCount()
         {
             _m.Lock();
@@ -972,7 +1010,7 @@ namespace Ice
             }
             else
             {
-                return instance_.serverThreadPool();
+                return instance_.serverThreadPool(true);
             }
             
         }

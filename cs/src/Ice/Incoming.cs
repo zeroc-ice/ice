@@ -66,6 +66,9 @@ namespace IceInternal
             instance_ = inc.instance_;
             //inc.instance_ = null; // Don't reset instance_.
 
+            observer_ = inc.observer_;
+            inc.observer_ = null;
+
             servant_ = inc.servant_;
             inc.servant_ = null;
 
@@ -151,6 +154,10 @@ namespace IceInternal
 
         public void writeUserException__(Ice.UserException ex, Ice.FormatType format)
         {
+            if(observer_ != null)
+            {
+                observer_.failed(ex.ice_name());
+            } 
             BasicStream os__ = startWriteParams__(format);
             os__.writeUserException(ex);
             endWriteParams__(false);
@@ -195,6 +202,8 @@ namespace IceInternal
             locator_ = null;
 
             cookie_ = null;
+
+            observer_ = null;
 
             if(os_ != null)
             {
@@ -244,6 +253,11 @@ namespace IceInternal
             {
                 Debug.Assert(connection_ != null);
 
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
+
                 //
                 // The operation may have already marshaled a reply; we must overwrite that reply.
                 //
@@ -261,6 +275,11 @@ namespace IceInternal
                     connection_.sendNoResponse();
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.detach();
+                    observer_ = null;
+                }
                 connection_ = null;
             }
             catch(System.Exception ex)
@@ -300,6 +319,11 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
+
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
 
                 if(response_)
                 {
@@ -352,6 +376,11 @@ namespace IceInternal
                     warning__(ex);
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
+
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -371,6 +400,11 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
+
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
 
                 if(response_)
                 {
@@ -392,6 +426,11 @@ namespace IceInternal
                     warning__(ex);
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
+
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -411,6 +450,11 @@ namespace IceInternal
                 {
                     warning__(ex);
                 }
+
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
 
                 if(response_)
                 {
@@ -432,6 +476,11 @@ namespace IceInternal
                     warning__(ex);
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.ice_name());
+                } 
+
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -452,6 +501,11 @@ namespace IceInternal
                     warning__(ex);
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.failed(ex.GetType().FullName);
+                } 
+
                 if(response_)
                 {
                     os_.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -465,6 +519,11 @@ namespace IceInternal
                 }
             }
 
+            if(observer_ != null)
+            {
+                observer_.detach();
+                observer_ = null;
+            }
             connection_ = null;
         }
 
@@ -473,6 +532,7 @@ namespace IceInternal
         protected internal Ice.Object servant_;
         protected internal Ice.ServantLocator locator_;
         protected internal System.Object cookie_;
+        protected internal Ice.Instrumentation.Observer observer_;
 
         protected internal bool response_;
         protected internal byte compress_;
@@ -589,6 +649,16 @@ namespace IceInternal
                 current_.ctx[first] = second;
             }
 
+            Ice.Instrumentation.CommunicatorObserver obsv = instance_.initializationData().observer;
+            if(obsv != null)
+            {
+                observer_ = obsv.getDispatchObserver(current_);
+                if(observer_ != null)
+                {
+                    observer_.attach();
+                }
+            }
+
             //
             // Don't put the code above into the try block below. Exceptions
             // in the code above are considered fatal, and must propagate to
@@ -616,6 +686,11 @@ namespace IceInternal
                         {
                             Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
                             
+                            if(observer_ != null)
+                            {
+                                observer_.failed(ex.ice_name());
+                            }
+
                             if(response_)
                             {
                                 os_.writeByte(ReplyStatus.replyUserException);
@@ -629,6 +704,11 @@ namespace IceInternal
                                 connection_.sendNoResponse();
                             }
 
+                            if(observer_ != null)
+                            {
+                                observer_.detach();
+                                observer_ = null;
+                            }
                             connection_ = null;
                             return;
                         }
@@ -708,6 +788,11 @@ namespace IceInternal
                 connection_.sendNoResponse();
             }
 
+            if(observer_ != null)
+            {
+                observer_.detach();
+                observer_ = null;
+            }
             connection_ = null;
         }
 

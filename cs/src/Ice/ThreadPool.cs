@@ -251,6 +251,14 @@ namespace IceInternal
             }
         }
 
+        public void updateObservers()
+        {
+            foreach(WorkerThread t in _threads)
+            {
+                t.updateObserver();
+            }
+        }
+
         public void destroy()
         {
             _m.Lock();
@@ -362,7 +370,7 @@ namespace IceInternal
             }
             else
             {
-                execute(delegate() { call(); });
+                execute(() => { call(); });
             }
         }
 
@@ -476,6 +484,10 @@ namespace IceInternal
                     {
                         Debug.Assert(_inUse > 0);
                         --_inUse;
+                        if(_workItems.Count == 0)
+                        {
+                            thread.setState(Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                        }
                     }
 
                     workItem = null;
@@ -551,6 +563,8 @@ namespace IceInternal
 
                     Debug.Assert(_inUse >= 0);
                     ++_inUse;
+
+                    thread.setState(Ice.Instrumentation.ThreadState.ThreadStateInUseForUser);
                     
                     if(_sizeMax > 1 && _inUse == _sizeWarn)
                     {
@@ -725,11 +739,41 @@ namespace IceInternal
         private sealed class WorkerThread
         {
             private ThreadPool _threadPool;
+            private Ice.Instrumentation.ThreadObserver _observer;
+            private Ice.Instrumentation.ThreadState _state;
 
             internal WorkerThread(ThreadPool threadPool, string name) : base()
             {
                 _threadPool = threadPool;
                 _name = name;
+                _state = Ice.Instrumentation.ThreadState.ThreadStateIdle;
+                updateObserver();
+            }
+
+            public void updateObserver()
+            {
+                Ice.Instrumentation.CommunicatorObserver obsv = _threadPool._instance.initializationData().observer;
+                if(obsv != null)
+                {
+                    _observer = obsv.getThreadObserver(_threadPool._prefix, _name, _state, _observer);
+                    if(_observer != null)
+                    {
+                        _observer.attach();
+                    }
+                }
+            }
+
+            public void
+            setState(Ice.Instrumentation.ThreadState s)
+            {
+                if(_observer != null)
+                {
+                    if(_state != s)
+                    {
+                        _observer.stateChanged(_state, s);
+                    }
+                }
+                _state = s;
             }
 
             public void join()
@@ -787,6 +831,11 @@ namespace IceInternal
                 {
                     string s = "exception in `" + _threadPool._prefix + "' thread " + _thread.Name + ":\n" + ex;
                     _threadPool._instance.initializationData().logger.error(s);
+                }
+                
+                if(_observer != null)
+                {
+                    _observer.detach();
                 }
 
                 if(_threadPool._instance.initializationData().threadHook != null)

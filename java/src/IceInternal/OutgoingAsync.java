@@ -31,6 +31,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             ctx = _emptyContext;
         }
 
+        _observer = ObserverHelper.get(_proxy, operation, ctx);
+
         //
         // Can't call async via a batch proxy.
         //
@@ -106,6 +108,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             {
                 if(!_proxy.ice_isTwoway())
                 {
+                    if(_remoteObserver != null)
+                    {
+                        _remoteObserver.detach();
+                        _remoteObserver = null;
+                    }
                     _state |= Done | OK;
                 }
                 else if(connection.timeout() > 0)
@@ -131,6 +138,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     public void __sent()
     {
         __sentInternal();
+        if(_observer != null && !_proxy.ice_isTwoway())
+        {
+            _observer.detach();
+            _observer = null;
+        }
     }
 
     public void __finished(Ice.LocalException exc, boolean sent)
@@ -138,6 +150,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         synchronized(_monitor)
         {
             assert((_state & Done) == 0);
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.detach();
+                _remoteObserver = null;
+            }
             if(_timerTaskConnection != null)
             {
                 _instance.timer().cancel(_timerTask);
@@ -176,7 +193,13 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         // calling on the callback. The LocalExceptionWrapper exception is only called
         // before the invocation is sent.
         //
-
+        
+        if(_remoteObserver != null)
+        {
+            _remoteObserver.detach();
+            _remoteObserver = null;
+        }
+        
         try
         {
             int interval = handleException(exc); // This will throw if the invocation can't be retried.
@@ -205,6 +228,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             synchronized(_monitor)
             {
                 assert(_exception == null && (_state & Done) == 0);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
 
                 if(_timerTaskConnection != null)
                 {
@@ -461,16 +489,16 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         {
             if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
             {
-                _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, interval, _cnt);
+                _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, interval, _cnt, _observer);
             }
             else
             {
-                _proxy.__handleExceptionWrapper(_delegate, ex);
+                _proxy.__handleExceptionWrapper(_delegate, ex, _observer);
             }
         }
         catch(Ice.LocalException ex)
         {
-            _cnt = _proxy.__handleException(_delegate, ex, interval, _cnt);
+            _cnt = _proxy.__handleException(_delegate, ex, interval, _cnt, _observer);
         }
         return interval.value;
     }
@@ -480,11 +508,11 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         Ice.IntHolder interval = new Ice.IntHolder(0);
         if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent)
         {
-            _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, interval, _cnt);
+            _cnt = _proxy.__handleExceptionWrapperRelaxed(_delegate, ex, interval, _cnt, _observer);
         }
         else
         {
-            _proxy.__handleExceptionWrapper(_delegate, ex);
+            _proxy.__handleExceptionWrapper(_delegate, ex, _observer);
         }
         return interval.value;
     }

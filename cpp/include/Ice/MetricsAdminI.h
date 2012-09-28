@@ -62,12 +62,12 @@ public:
             {
                 return !reject;
             }
-            return match(value, reject);
+            return match(value);
         }
 
     private:
 
-        bool match(const std::string&, bool);
+        bool match(const std::string&);
         
         const std::string _attribute;
 #ifdef ICE_CPP11_REGEXP
@@ -135,20 +135,23 @@ public:
         {
         }
 
-        void destroy()
+        void 
+        destroy()
         {
             Lock sync(*this);
             _map = 0;
         }
 
-        void  failed(const std::string& exceptionName)
+        void  
+        failed(const std::string& exceptionName)
         {
             Lock sync(*this);
             ++_object->failures;
             ++_failures[exceptionName];
         }
 
-        IceMX::MetricsFailures getFailures() const
+        IceMX::MetricsFailures 
+        getFailures() const
         {
             IceMX::MetricsFailures f;
     
@@ -161,27 +164,31 @@ public:
         template<typename MemberMetricsType> typename MetricsMapT<MemberMetricsType>::EntryTPtr
         getMatching(const std::string& mapName, const IceMX::MetricsHelperT<MemberMetricsType>& helper)
         {
-            typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p = 
-                _subMaps.find(mapName);
-            if(p == _subMaps.end())
+            MetricsMapIPtr m;
             {
                 Lock sync(*this);
-                if(_map == 0)
+                typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p = 
+                    _subMaps.find(mapName);
+                if(p == _subMaps.end())
+                {
+                    if(_map == 0)
+                    {
+                        return 0;
+                    }
+                    std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
+                    if(map.first)
+                    {
+                        p = _subMaps.insert(make_pair(mapName, map)).first;
+                    }
+                }
+                if(p == _subMaps.end())
                 {
                     return 0;
                 }
-                std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
-                if(map.first)
-                {
-                    p = _subMaps.insert(make_pair(mapName, map)).first;
-                }
+                m = p->second.first;
             }
-            if(p == _subMaps.end())
-            {
-                return 0;
-            }
-
-            MetricsMapT<MemberMetricsType>* map = dynamic_cast<MetricsMapT<MemberMetricsType>*>(p->second.first.get());
+                
+            MetricsMapT<MemberMetricsType>* map = dynamic_cast<MetricsMapT<MemberMetricsType>*>(m.get());
             assert(map);
             return map->getMatching(helper);
         }
@@ -214,7 +221,8 @@ public:
             }
         }
 
-        bool isDetached() const
+        bool 
+        isDetached() const
         {
             Lock sync(*this);
             return _object->current == 0;
@@ -561,13 +569,24 @@ public:
     template<class MemberMetricsType, class MetricsType> void
     registerSubMap(const std::string& map, const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
-        Lock sync(*this);
-
-        std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
-        if(p != _factories.end())
+        bool updated;
+        IceUtil::Handle<MetricsMapFactoryT<MetricsType> > factory;
         {
-            MetricsMapFactoryT<MetricsType>* factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
+            Lock sync(*this);
+            
+            std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
+            if(p == _factories.end())
+            {
+                return;
+            }
+            factory = dynamic_cast<MetricsMapFactoryT<MetricsType>*>(p->second.get());
             factory->template registerSubMap<MemberMetricsType>(subMap, member);
+            removeMap(map);
+            updated = addOrUpdateMap(map, factory);
+        }
+        if(updated)
+        {
+            factory->update();
         }
     }
 

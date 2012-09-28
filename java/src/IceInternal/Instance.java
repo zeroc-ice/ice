@@ -11,6 +11,36 @@ package IceInternal;
 
 public final class Instance
 {
+    private class ObserverUpdaterI implements Ice.Instrumentation.ObserverUpdater
+    {
+        ObserverUpdaterI(Instance instance)
+        {
+            _instance = instance;
+        }
+
+        @Override public void 
+        updateConnectionObservers()
+        {
+            _instance.outgoingConnectionFactory().updateConnectionObservers();
+            _instance.objectAdapterFactory().updateConnectionObservers();
+        }
+
+        @Override public void 
+        updateThreadObservers()
+        {
+            _instance.clientThreadPool().updateObservers();
+            ThreadPool serverThreadPool = _instance.serverThreadPool(false);
+            if(serverThreadPool != null)
+            {
+                serverThreadPool.updateObservers();
+            }
+            _instance.objectAdapterFactory().updateThreadObservers();
+            _instance.endpointHostResolver().updateObserver();
+        }
+
+        final private Instance _instance;
+    }
+
     public Ice.InitializationData
     initializationData()
     {
@@ -159,14 +189,14 @@ public final class Instance
     }
 
     public synchronized ThreadPool
-    serverThreadPool()
+    serverThreadPool(boolean create)
     {
         if(_state == StateDestroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        if(_serverThreadPool == null) // Lazy initialization.
+        if(_serverThreadPool == null && create) // Lazy initialization.
         {
             int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
             _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
@@ -726,9 +756,30 @@ public final class Instance
                 _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
             }
 
-            _adminFacets.put("Properties", new PropertiesAdminI("Properties", _initData.properties, _initData.logger));
             _adminFacets.put("Process", new ProcessI(communicator));
 
+            MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
+            _adminFacets.put("MetricsAdmin", admin);
+            
+            PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+            _adminFacets.put("Properties", props);
+            
+            //
+            // Setup the communicator observer only if the user didn't already set an
+            // Ice observer resolver and if the admininistrative endpoints are set.
+            //
+            if(_initData.observer == null && 
+               (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("MetricsAdmin")) &&
+               _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
+            {
+                IceMX.CommunicatorObserverI observer = new IceMX.CommunicatorObserverI(admin);
+                _initData.observer = observer;
+
+                //
+                // Make sure the admin plugin receives property updates.
+                //
+                props.addUpdateCallback(admin);
+            }
         }
         catch(Ice.LocalException ex)
         {
@@ -778,6 +829,14 @@ public final class Instance
         assert(_serverThreadPool == null);
         Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
+
+        //
+        // Set observer updater
+        //
+        if(_initData.observer != null)
+        {
+            _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
+        }
 
         //
         // Create threads.

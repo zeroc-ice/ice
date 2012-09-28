@@ -129,6 +129,46 @@ namespace IceInternal
                 _m.Unlock();
             }
         }
+
+        public void
+        updateConnectionObservers()
+        {
+            List<Ice.ObjectAdapterI> adapters;
+            _m.Lock();
+            try
+            {
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+            
+            foreach(Ice.ObjectAdapterI adapter in adapters)
+            {
+                adapter.updateConnectionObservers();
+            }
+        }
+        
+        public void
+        updateThreadObservers()
+        {
+            List<Ice.ObjectAdapterI> adapters;
+            _m.Lock();
+            try
+            {
+                adapters = new List<Ice.ObjectAdapterI>(_adapters);
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+            
+            foreach(Ice.ObjectAdapterI adapter in adapters)
+            {
+                adapter.updateThreadObservers();
+            }
+        }
         
         public Ice.ObjectAdapter createObjectAdapter(string name, Ice.RouterPrx router)
         {

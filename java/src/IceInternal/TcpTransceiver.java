@@ -225,20 +225,17 @@ final class TcpTransceiver implements Transceiver
     public Ice.ConnectionInfo
     getInfo()
     {
-        assert(_fd != null);
         Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-        java.net.Socket socket = _fd.socket();
-        info.localAddress = socket.getLocalAddress().getHostAddress();
-        info.localPort = socket.getLocalPort();
-        if(socket.getInetAddress() != null)
+        if(_fd != null)
         {
-            info.remoteAddress = socket.getInetAddress().getHostAddress();
-            info.remotePort = socket.getPort();
-        }
-        else
-        {
-            info.remoteAddress = "";
-            info.remotePort = -1;
+            java.net.Socket socket = _fd.socket();
+            info.localAddress = socket.getLocalAddress().getHostAddress();
+            info.localPort = socket.getLocalPort();
+            if(socket.getInetAddress() != null)
+            {
+                info.remoteAddress = socket.getInetAddress().getHostAddress();
+                info.remotePort = socket.getPort();
+            }
         }
         return info;
     }

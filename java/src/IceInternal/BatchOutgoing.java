@@ -9,22 +9,27 @@
 
 package IceInternal;
 
+import Ice.Instrumentation.Observer;
+import Ice.Instrumentation.InvocationObserver;
+
 public final class BatchOutgoing implements OutgoingMessageCallback
 {
     public
-    BatchOutgoing(Ice.ConnectionI connection, Instance instance)
+    BatchOutgoing(Ice.ConnectionI connection, Instance instance, InvocationObserver observer)
     {
         _connection = connection;
         _sent = false;
         _os = new BasicStream(instance, Protocol.currentProtocolEncoding);
+        _observer = observer;
     }
 
     public
-    BatchOutgoing(RequestHandler handler)
+    BatchOutgoing(RequestHandler handler, InvocationObserver observer)
     {
         _handler = handler;
         _sent = false;
         _os = new BasicStream(handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
+        _observer = observer;
     }
 
     public void
@@ -48,6 +53,11 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     }
                 }
                 
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
                 if(_exception != null)
                 {
                     throw _exception;
@@ -86,9 +96,26 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         return _os;
     }
 
+    public void 
+    attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+    {
+        if(_observer != null)
+        {
+            _remoteObserver = _observer.getRemoteObserver(info, endpt);
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.attach();
+            }
+        }
+    }
+
     private RequestHandler _handler;
     private Ice.ConnectionI _connection;
     private BasicStream _os;
     private boolean _sent;
     private Ice.LocalException _exception;
+
+    private InvocationObserver _observer;
+    private Observer _remoteObserver;
+
 }

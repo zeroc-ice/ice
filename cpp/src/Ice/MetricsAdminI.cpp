@@ -67,10 +67,10 @@ validateProperties(const string& prefix, const PropertiesPtr& properties, const 
         }
     }
 
-    if(!unknownProps.empty())
+    if(!unknownProps.empty() && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
     {
         Warning out(getProcessLogger());
-        out << "found unknown Ice metrics properties for '" << prefix.substr(0, prefix.size() - 1) << "':";
+        out << "found unknown IceMX properties for '" << prefix.substr(0, prefix.size() - 1) << "':";
         for(vector<string>::const_iterator p = unknownProps.begin(); p != unknownProps.end(); ++p)
         {
             out << "\n    " << *p;
@@ -120,7 +120,7 @@ MetricsMapI::RegExp::~RegExp()
 }
 
 bool
-MetricsMapI::RegExp::match(const string& value, bool reject)
+MetricsMapI::RegExp::match(const string& value)
 {
 #ifndef ICE_CPP11_REGEXP
     return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;

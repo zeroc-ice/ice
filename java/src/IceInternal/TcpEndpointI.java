@@ -15,12 +15,11 @@ final class TcpEndpointI extends EndpointI
     TcpEndpointI(Instance instance, String ho, int po, int ti, Ice.ProtocolVersion pv, Ice.EncodingVersion ev,
                  String conId, boolean co)
     {
-        super(pv, ev);
+        super(pv, ev, conId);
         _instance = instance;
         _host = ho;
         _port = po;
         _timeout = ti;
-        _connectionId = conId;
         _compress = co;
         calcHashValue();
     }
@@ -28,7 +27,7 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
-        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding);
+        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "");
         _instance = instance;
         _host = null;
         _port = 0;
@@ -172,7 +171,7 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(BasicStream s)
     {
-        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion());
+        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion(), "");
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
@@ -525,11 +524,6 @@ final class TcpEndpointI extends EndpointI
             return 1;
         }
 
-        if(!_connectionId.equals(p._connectionId))
-        {
-            return _connectionId.compareTo(p._connectionId);
-        }
-
         if(!_compress && p._compress)
         {
             return -1;
@@ -572,7 +566,6 @@ final class TcpEndpointI extends EndpointI
     private String _host;
     private int _port;
     private int _timeout;
-    private String _connectionId = "";
     private boolean _compress;
     private int _hashCode;
 }

@@ -16,6 +16,13 @@ using namespace std;
 using namespace Ice;
 using namespace Ice::Instrumentation;
 
+namespace
+{
+
+Ice::Context emptyCtx;
+
+}
+
 IceInternal::InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy, const string& op, const Context* ctx)
 {
     const CommunicatorObserverPtr& obsv = proxy->__reference()->getInstance()->initializationData().observer;
@@ -26,11 +33,11 @@ IceInternal::InvocationObserver::InvocationObserver(IceProxy::Ice::Object* proxy
 
     if(ctx)
     {
-        attach(obsv->getInvocationObserverWithContext(proxy, op, *ctx));
+        attach(obsv->getInvocationObserver(proxy, op, *ctx));
     }
     else
     {
-        attach(obsv->getInvocationObserver(proxy, op));
+        attach(obsv->getInvocationObserver(proxy, op, emptyCtx));
     }
 }
 
@@ -42,7 +49,7 @@ IceInternal::InvocationObserver::InvocationObserver(IceInternal::Instance* insta
         return;
     }
 
-    attach(obsv->getInvocationObserver(0, op));
+    attach(obsv->getInvocationObserver(0, op, emptyCtx));
 }
 
 void
@@ -56,11 +63,11 @@ IceInternal::InvocationObserver::attach(IceProxy::Ice::Object* proxy, const stri
 
     if(ctx)
     {
-        attach(obsv->getInvocationObserverWithContext(proxy, op, *ctx));
+        attach(obsv->getInvocationObserver(proxy, op, *ctx));
     }
     else
     {
-        attach(obsv->getInvocationObserver(proxy, op));
+        attach(obsv->getInvocationObserver(proxy, op, emptyCtx));
     }
 }
 
@@ -73,5 +80,5 @@ IceInternal::InvocationObserver::attach(IceInternal::Instance* instance, const s
         return;
     }
 
-    attach(obsv->getInvocationObserver(0, op));
+    attach(obsv->getInvocationObserver(0, op, emptyCtx));
 }

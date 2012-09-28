@@ -14,7 +14,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/Exception.h>
-#include <IceUtil/StopWatch.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>

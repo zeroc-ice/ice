@@ -350,27 +350,12 @@ local interface CommunicatorObserver
      *
      * @param operation The name of the invocation
      *
-     * @return The invocation observer object.
-     *
-     **/
-    InvocationObserver getInvocationObserver(Object* prx, string operation);
-
-    /**
-     * 
-     * This method should return an invocation observer for the given
-     * invocation. The Ice run-time calls this method for each new
-     * invocation on a proxy if a context is provided.
-     *
-     * @param prx The proxy used for the invocation
-     *
-     * @param operation The name of the invocation
-     *
-     * @param ctx The context passed to the Ice invocation
+     * @param ctx The context specified by the user
      *
      * @return The invocation observer object.
      *
      **/
-    InvocationObserver getInvocationObserverWithContext(Object* prx, string operation, Context ctx);
+    InvocationObserver getInvocationObserver(Object* prx, string operation, Context ctx);
 
     /**
      * 

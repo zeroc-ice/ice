@@ -215,6 +215,7 @@ IceInternal::EndpointHostResolver::resolve(const string& host, int port, const E
     catch(const Ice::LocalException& ex)
     {
         observer.failed(ex.ice_name());
+        throw;
     }
     return connectors;
 }
@@ -337,9 +338,13 @@ IceInternal::EndpointHostResolver::run()
             p->observer->failed(ex.ice_name());
             p->observer->detach();
         }
-
     }
     _queue.clear();
+
+    if(_observer)
+    {
+        _observer.detach();
+    }
 }
 
 void

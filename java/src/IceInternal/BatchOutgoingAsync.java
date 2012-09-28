@@ -21,6 +21,11 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
         synchronized(_monitor)
         {
             _state |= Done | OK | Sent;
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.detach();
+                _remoteObserver = null;
+            }
             _monitor.notifyAll();
             return true;
         }
@@ -33,6 +38,11 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     
     public void __finished(Ice.LocalException exc, boolean sent)
     {
+        if(_remoteObserver != null)
+        {
+            _remoteObserver.detach();
+            _remoteObserver = null;
+        }
         __exception(exc);
     }
 }

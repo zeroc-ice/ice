@@ -578,14 +578,16 @@ namespace IceInternal
         public Ice.ConnectionInfo
         getInfo()
         {
-            Debug.Assert(_fd != null);
             Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-            EndPoint localEndpoint = Network.getLocalAddress(_fd);
-            info.localAddress = Network.endpointAddressToString(localEndpoint);
-            info.localPort = Network.endpointPort(localEndpoint);
-            EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
-            info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-            info.remotePort = Network.endpointPort(remoteEndpoint);
+            if(_fd != null)
+            {
+                EndPoint localEndpoint = Network.getLocalAddress(_fd);
+                info.localAddress = Network.endpointAddressToString(localEndpoint);
+                info.localPort = Network.endpointPort(localEndpoint);
+                EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
+                info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
+                info.remotePort = Network.endpointPort(remoteEndpoint);
+            }
             return info;
         }
 

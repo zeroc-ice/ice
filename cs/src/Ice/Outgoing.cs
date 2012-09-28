@@ -13,6 +13,7 @@ namespace IceInternal
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
+    using Ice.Instrumentation;
 
     public interface OutgoingMessageCallback
     {
@@ -23,11 +24,12 @@ namespace IceInternal
     public class Outgoing : OutgoingMessageCallback
     {
         public Outgoing(RequestHandler handler, string operation, Ice.OperationMode mode,
-                        Dictionary<string, string> context)
+                        Dictionary<string, string> context, InvocationObserver observer)
         {
             _state = StateUnsent;
             _sent = false;
             _handler = handler;
+            _observer = observer;
             _encoding = handler.getReference().getEncoding();
             _os = new BasicStream(_handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
 
@@ -38,12 +40,13 @@ namespace IceInternal
         // These functions allow this object to be reused, rather than reallocated.
         //
         public void reset(RequestHandler handler, string operation, Ice.OperationMode mode,
-                          Dictionary<string, string> context)
+                          Dictionary<string, string> context, InvocationObserver observer)
         {
             _state = StateUnsent;
             _exception = null;
             _sent = false;
             _handler = handler;
+            _observer = observer;
             _encoding = handler.getReference().getEncoding();
 
             writeHeader(operation, mode, context);
@@ -270,6 +273,12 @@ namespace IceInternal
                 //
                 _sent = true;
             }
+
+            if(_remoteObserver != null && _handler.getReference().getMode() != Reference.Mode.ModeTwoway)
+            {
+                _remoteObserver.detach();
+                _remoteObserver = null;
+            }
         }
 
         public void finished(BasicStream istr)
@@ -280,6 +289,12 @@ namespace IceInternal
                 Debug.Assert(_handler.getReference().getMode() == Reference.Mode.ModeTwoway); // Only for twoways.
 
                 Debug.Assert(_state <= StateInProgress);
+
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
 
                 if(_is == null)
                 {
@@ -423,6 +438,11 @@ namespace IceInternal
             try
             {
                 Debug.Assert(_state <= StateInProgress);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
                 _state = StateFailed;
                 _exception = ex;
                 _sent = sent;
@@ -500,10 +520,26 @@ namespace IceInternal
                 _is.startReadEncaps();
                 _is.throwException(null);
             }
-            catch(Ice.UserException)
+            catch(Ice.UserException ex)
             {
+                if(_observer != null)
+                {
+                    _observer.failed(ex.ice_name());
+                }
                 _is.endReadEncaps();
                 throw;
+            }
+        }
+
+        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+        {
+            if(_observer != null)
+            {
+                _remoteObserver = _observer.getRemoteObserver(info, endpt);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.attach();
+                }
             }
         }
 
@@ -596,6 +632,9 @@ namespace IceInternal
         private const int StateFailed = 5;
         private int _state;
 
+        private InvocationObserver _observer;
+        private Observer _remoteObserver;
+
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
 
         public Outgoing next; // For use by Ice.ObjectDelM_
@@ -603,17 +642,19 @@ namespace IceInternal
 
     public class BatchOutgoing : OutgoingMessageCallback
     {
-        public BatchOutgoing(Ice.ConnectionI connection, Instance instance)
+        public BatchOutgoing(Ice.ConnectionI connection, Instance instance, InvocationObserver observer)
         {
             _connection = connection;
             _sent = false;
+            _observer = observer;
             _os = new BasicStream(instance, Ice.Util.currentProtocolEncoding);
         }
 
-        public BatchOutgoing(RequestHandler handler)
+        public BatchOutgoing(RequestHandler handler, InvocationObserver observer)
         {
             _handler = handler;
             _sent = false;
+            _observer = observer;
             _os = new BasicStream(handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
         }
 
@@ -632,6 +673,11 @@ namespace IceInternal
                         _m.Wait();
                     }
 
+                    if(_remoteObserver != null)
+                    {
+                        _remoteObserver.detach();
+                        _remoteObserver = null;
+                    }
                     if(_exception != null)
                     {
                         throw _exception;
@@ -684,11 +730,26 @@ namespace IceInternal
             return _os;
         }
 
+        public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+        {
+            if(_observer != null)
+            {
+                _remoteObserver = _observer.getRemoteObserver(info, endpt);
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.attach();
+                }
+            }
+        }
+
         private RequestHandler _handler;
         private Ice.ConnectionI _connection;
         private BasicStream _os;
         private bool _sent;
         private Ice.LocalException _exception;
+
+        private InvocationObserver _observer;
+        private Observer _remoteObserver;
 
         private readonly IceUtilInternal.Monitor _m = new IceUtilInternal.Monitor();
     }

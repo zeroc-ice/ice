@@ -745,6 +745,34 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    public void
+    updateConnectionObservers()
+    {
+        java.util.List<IceInternal.IncomingConnectionFactory> f;
+        synchronized(this)
+        {
+            f = new java.util.ArrayList<IceInternal.IncomingConnectionFactory>(_incomingConnectionFactories);
+        }
+        for(IceInternal.IncomingConnectionFactory p : f)
+        {
+            p.updateConnectionObservers();
+        }
+    }
+    
+    public void 
+    updateThreadObservers()
+    {
+        IceInternal.ThreadPool threadPool = null;
+        synchronized(this)
+        {
+            threadPool = _threadPool;
+        }
+        if(threadPool != null)
+        {
+            threadPool.updateObservers();
+        }
+    }
+
     public synchronized void
     incDirectCount()
     {
@@ -785,7 +813,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         else
         {
-            return _instance.serverThreadPool();
+            return _instance.serverThreadPool(true);
         }
     }
 

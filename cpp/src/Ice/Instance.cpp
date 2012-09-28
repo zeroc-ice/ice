@@ -1096,7 +1096,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
 
-        IceInternal::MetricsAdminIPtr admin = new IceInternal::MetricsAdminI(_initData.properties, _initData.logger);
+        MetricsAdminIPtr admin = new MetricsAdminI(_initData.properties, _initData.logger);
         _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
 
         PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
