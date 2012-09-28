@@ -123,7 +123,7 @@ import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransferableData;
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
 
-public class GraphView extends JFrame
+public class GraphView extends JFrame implements MetricsFieldContext
 {
     class WorkQueue extends Thread
     {
@@ -385,7 +385,7 @@ public class GraphView extends JFrame
                 {
                     try
                     {
-                        wait(_period);
+                        wait(_period * 1000);
                     }
                     catch(InterruptedException ex)
                     {
@@ -420,7 +420,6 @@ public class GraphView extends JFrame
                                         "Error retrieving metrics view from `" + metrics.toString() + "'\n" + error, 
                                         "Error",
                                         JOptionPane.ERROR_MESSAGE);
-                        //removeMetrics(metrics);
                     }
                 }, false);
         }
@@ -476,26 +475,20 @@ public class GraphView extends JFrame
                     //
                     // SpinnerNumberModel to set a refresh period.
                     //
-                    // min value is 1000 ms == 1 seconds
-                    // max value is 60 * 1000 ms == 60 seconds == 1 minute
-                    //
-                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), 1000, 60 * 1000, 1);
+                    SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), _minRefreshPeriod, 
+                                                                              _maxRefreshPeriod, 1);
                     JPanel refreshPanel;
                     {
                         DefaultFormBuilder builder =
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                        builder.append("Refresh period (ms):", new JSpinner(refreshPeriod));
+                        builder.append("Refresh period (s):", new JSpinner(refreshPeriod));
                         refreshPanel = builder.getPanel();
                     }
 
                     //
-                    // SpinnerNumberModel to set the number of symbols to keep in X axis.
+                    // SpinnerNumberModel to set the duration of samples to keep in X axis.
                     //
-                    // min value is 10
-                    // max value is 1000
-                    //
-                    SpinnerNumberModel horizontalAxisSymbolCount = 
-                                                            new SpinnerNumberModel(_horizontaSymbolsCount, 5, 1000, 1);
+                    SpinnerNumberModel duration = new SpinnerNumberModel(getDuration(), _minDuration, _maxDuration, 1);
 
                     //
                     // JComboBox to select time format used in X Axis
@@ -506,7 +499,7 @@ public class GraphView extends JFrame
                     {
                         DefaultFormBuilder builder = 
                                                 new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                        builder.append("Number of horizontal symbols:", new JSpinner(horizontalAxisSymbolCount));
+                        builder.append("Duration (min):", new JSpinner(duration));
                         builder.append("Time format:", dateFormats);
 
                         xAxisPanel = builder.getPanel();
@@ -529,7 +522,7 @@ public class GraphView extends JFrame
 
                     setTitle(title.getText());
                     setRefreshPeriod(refreshPeriod.getNumber().intValue());
-                    setHorizontalSymbolsCount(horizontalAxisSymbolCount.getNumber().intValue());
+                    setDuration(duration.getNumber().intValue());
                     setDateFormat((String)dateFormats.getSelectedItem());
                 }
             };
@@ -876,7 +869,7 @@ public class GraphView extends JFrame
         preferences.putInt("splitLocation", _splitPane.getDividerLocation());
 
         preferences.putInt("refreshPeriod", getRefreshPeriod());
-        preferences.putInt("horizontalSymbolsCount", getHorizontalSymbolsCount());
+        preferences.putInt("horizontalSymbolsCount", getDuration());
         preferences.put("dateFormat", getDateFormat());
     }
 
@@ -919,8 +912,21 @@ public class GraphView extends JFrame
                 _legendTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
             }
         }
-        setRefreshPeriod(preferences.getInt("refreshPeriod", getRefreshPeriod()));
-        setHorizontalSymbolsCount(preferences.getInt("horizontalSymbolsCount", getHorizontalSymbolsCount()));
+
+        int refreshPeriod = preferences.getInt("refreshPeriod", _defaultRefreshPeriod);
+        if(refreshPeriod < _minRefreshPeriod || refreshPeriod > _maxRefreshPeriod)
+        {
+            refreshPeriod = _defaultRefreshPeriod;
+        }
+        setRefreshPeriod(refreshPeriod);
+
+        int duration = preferences.getInt("duration", _defaultDuration);
+        if(duration < _minDuration || duration > _maxDuration)
+        {
+            duration = _defaultDuration;
+        }
+        setDuration(duration);
+
         setDateFormat(preferences.get("dateFormat", getDateFormat()));
         return true;
     }
@@ -982,7 +988,7 @@ public class GraphView extends JFrame
                                 setNodesStyle(styleClass);
 
                                 columns.put(j.getField().getFieldName(), row);
-
+                                j.getField().setContext(GraphView.this);
                                 //
                                 // When a line is clicked we select the correspoding row in the legend table.
                                 //
@@ -1081,7 +1087,7 @@ public class GraphView extends JFrame
                                                                                     timestamp, 
                                                                                     value));
 
-                                        final int n = getHorizontalSymbolsCount();
+                                        final int n = (getDuration() * 60) / getRefreshPeriod();
                                         while(row.series.getData().size() > n)
                                         {
                                             row.series.getData().remove(0);
@@ -1130,13 +1136,38 @@ public class GraphView extends JFrame
         }
     }
 
-    synchronized int getRefreshPeriod()
+    public synchronized int getRefreshPeriod()
     {
         return _refreshPeriod;
     }
 
     synchronized void setRefreshPeriod(int refreshPeriod)
     {
+        if(refreshPeriod == _refreshPeriod)
+        {
+            return;
+        }
+        else if(refreshPeriod > _refreshPeriod)
+        {
+            //
+            // Number of symbos to keep is duration / refresh period.
+            //
+            final int count = (getDuration() * 60) / refreshPeriod;
+            _queue.enqueue(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        for(XYChart.Series<Number, Number> series : _chart.getData())
+                        {
+                            while(series.getData().size() > count)
+                            {
+                                series.getData().remove(0);
+                            }
+                        }
+                    }
+                }, true);
+        }
         _refreshPeriod = refreshPeriod;
         if(_refreshThread != null)
         {
@@ -1166,14 +1197,18 @@ public class GraphView extends JFrame
             }, true);
     }
 
-    synchronized private void setHorizontalSymbolsCount(final int count)
+    synchronized private void setDuration(final int duration)
     {
-        if(count < _horizontaSymbolsCount)
+        if(duration == _duration)
+        {
+            return;
+        }
+        else if(duration < _duration)
         {
             //
-            // When the number of symbolls decreases, we remove the oldest symbols
-            // of all series.
+            // Number of symbos to keep is duration / refresh period.
             //
+            final int count = (duration * 60) / getRefreshPeriod();
             _queue.enqueue(new Runnable()
                 {
                     @Override
@@ -1189,13 +1224,13 @@ public class GraphView extends JFrame
                     }
                 }, true);
         }
-        _horizontaSymbolsCount = count;
+        _duration = duration;
         
     }
 
-    synchronized private int getHorizontalSymbolsCount()
+    synchronized private int getDuration()
     {
-        return _horizontaSymbolsCount;
+        return _duration;
     }
 
     class MetricsRow
@@ -1688,8 +1723,15 @@ public class GraphView extends JFrame
     private final Coordinator _coordinator;
     private RefreshThread _refreshThread;
 
-    private int _horizontaSymbolsCount = 10;
-    private int _refreshPeriod = 5000;
+    private final static int _minDuration = 5;        //  5 minutes
+    private final static int _maxDuration = 60;       // 60 minutes = 1 hour
+    private final static int _defaultDuration = 5;    //  5 minutes
+    private int _duration = _defaultDuration;
+
+    private final static int _minRefreshPeriod = 1;     //    1 second
+    private final static int _maxRefreshPeriod = 120;   //  120 second = 2 minutes
+    private final static int _defaultRefreshPeriod = 5; //    5 second
+    private int _refreshPeriod = _defaultRefreshPeriod;
 
     private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];

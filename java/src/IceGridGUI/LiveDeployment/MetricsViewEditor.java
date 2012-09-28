@@ -71,7 +71,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import IceGrid.*;
 import IceGridGUI.*;
 
-public class MetricsViewEditor extends Editor
+public class MetricsViewEditor extends Editor implements MetricsFieldContext
 {
     private class RefreshThread extends Thread
     {
@@ -94,7 +94,7 @@ public class MetricsViewEditor extends Editor
                 {
                     try
                     {
-                        wait(_period);
+                        wait(_period * 1000);
                     }
                     catch(InterruptedException ex)
                     {
@@ -249,11 +249,16 @@ public class MetricsViewEditor extends Editor
         }
     }
 
+    public int getRefreshPeriod()
+    {
+        return _refreshPeriod;
+    }
+
     void startRefreshThread()
     {
         if(_refreshThread == null)
         {
-            _refreshThread = new RefreshThread(5000);
+            _refreshThread = new RefreshThread(_refreshPeriod);
             _refreshThread.start();
         }
     }
@@ -612,7 +617,7 @@ public class MetricsViewEditor extends Editor
                 catch(NoSuchFieldException ex)
                 {
                 }
-                MetricsField field = createField(node, prefix + "." + name, entry.getKey(), name, objectField);
+                MetricsField field = createField(node, prefix + "." + name, entry.getKey(), name, objectField, this);
                 if(field != null)
                 {
                     model.addField(field);
@@ -749,9 +754,8 @@ public class MetricsViewEditor extends Editor
         }
     }
 
-    private static MetricsField createField(MetricsView node, String prefix, 
-                                            String mapName, String name, 
-                                            Field objectField)
+    private static MetricsField createField(MetricsView node, String prefix, String mapName, String name, 
+                                            Field objectField, MetricsFieldContext context)
     {
         String className = _properties.getPropertyWithDefault(
                                                     prefix + ".fieldClass",
@@ -768,6 +772,7 @@ public class MetricsViewEditor extends Editor
             java.lang.reflect.Constructor<?> ctor = cls.getDeclaredConstructor(MetricsView.class, String.class, 
                                                                                String.class, String.class, Field.class);
             MetricsField field = (MetricsField)ctor.newInstance(node, prefix, mapName, name, objectField);
+            field.setContext(context);
             Map<String, String> properties = _properties.getPropertiesForPrefix(prefix);
             for(Map.Entry<String, String> propEntry : properties.entrySet())
             {
@@ -1005,6 +1010,10 @@ public class MetricsViewEditor extends Editor
         // Set up a field identical to this but without the transient data.
         //
         public MetricsField createField();
+
+        public MetricsFieldContext getContext();
+
+        public void setContext(MetricsFieldContext context);
     }
 
     static public abstract class AbstractField implements MetricsField
@@ -1045,12 +1054,22 @@ public class MetricsViewEditor extends Editor
 
         public MetricsField createField()
         {
-            return createField(_node, _prefix, _metricsName, _fieldName, _objectField);
+            return createField(_node, _prefix, _metricsName, _fieldName, _objectField, _context);
         }
 
         public String getPropertyPrefix()
         {
             return _prefix;
+        }
+
+        public MetricsFieldContext getContext()
+        {
+            return _context;
+        }
+
+        public void setContext(MetricsFieldContext context)
+        {
+            _context = context;
         }
 
         private final MetricsView _node;
@@ -1059,6 +1078,7 @@ public class MetricsViewEditor extends Editor
         private final String _fieldName;
         private final Field _objectField;
         private String _columnName;
+        private MetricsFieldContext _context;
     }
 
     static public class DeclaredMetricsField extends AbstractField
@@ -1269,24 +1289,37 @@ public class MetricsViewEditor extends Editor
             // If the elapsed period is less than the refresh period, don't
             // calculate a new value.
             //
-            if(d2.timestamp - d1.timestamp >= 5000)
+            Double last = _last.get(m.id);
+            if(last == null)
             {
-                if(d2.value - d1.value == 0 || d2.timestamp - d1.timestamp == 0)
+                if(d2.timestamp - d1.timestamp >= getContext().getRefreshPeriod() * 1000)
                 {
-                    _last = 0.0;
+                    last = 0.0d;
                 }
                 else
                 {
-                    _last = (double)((d2.value - d1.value) / (double)((d2.timestamp - d1.timestamp) /  _scaleFactor));
+                    return null;
                 }
             }
-            return _last;
+            if(d2.timestamp - d1.timestamp >= getContext().getRefreshPeriod() * 1000)
+            {
+                if(d2.value - d1.value == 0 || d2.timestamp - d1.timestamp == 0)
+                {
+                    last = 0.0d;
+                }
+                else
+                {
+                    last = (double)((d2.value - d1.value) / (double)((d2.timestamp - d1.timestamp) /  _scaleFactor));
+                }
+            }
+            _last.put(m.id, last);
+            return last;
         }
 
-        private Double _last = 0.0d;
         private double _scaleFactor = 1.0d;
         private String _dataField;
         private final Map<String, DeltaMeasurement> _deltas = new HashMap<String, DeltaMeasurement>();
+        private final Map<String, Double> _last = new HashMap<String, Double>();
         private TableCellRenderer _cellRenderer;
     }
 
@@ -1469,7 +1502,8 @@ public class MetricsViewEditor extends Editor
                                     MetricsField field = MetricsViewEditor.createField(getMetricsNode(),
                                                                                        prefix + "." + name, 
                                                                                        getFieldName(), name, 
-                                                                                       objectField);
+                                                                                       objectField,
+                                                                                       getContext());
                                     if(field != null)
                                     {
                                         model.addField(field);
@@ -1520,6 +1554,7 @@ public class MetricsViewEditor extends Editor
         private static final TableCellRenderer _cellRenderer = new ButtonRenderer();
     }
 
+    private static final int _refreshPeriod = 5;
     private static Ice.Properties _properties;
     private static String[] _sectionSort;
     private static Map<String, String> _sectionNames = new HashMap<String, String>();
