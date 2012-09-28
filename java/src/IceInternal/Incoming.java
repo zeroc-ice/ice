@@ -9,6 +9,8 @@
 
 package IceInternal;
 
+import Ice.Instrumentation.CommunicatorObserver;
+
 final public class Incoming extends IncomingBase implements Ice.Request
 {
     public
@@ -119,6 +121,16 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _current.ctx.put(first, second);
         }
 
+        CommunicatorObserver obsv = _instance.initializationData().observer;
+        if(obsv != null)
+        {
+            _observer = obsv.getDispatchObserver(_current);
+            if(_observer != null)
+            {
+                _observer.attach();
+            }
+        }
+
         //
         // Don't put the code above into the try block below. Exceptions
         // in the code above are considered fatal, and must propagate to
@@ -145,7 +157,12 @@ final public class Incoming extends IncomingBase implements Ice.Request
                     catch(Ice.UserException ex)
                     {
                         Ice.EncodingVersion encoding = _is.skipEncaps(); // Required for batch requests.
-                    
+
+                        if(_observer != null)
+                        {
+                            _observer.failed(ex.ice_name());
+                        }
+
                         if(_response)
                         {
                             _os.writeByte(ReplyStatus.replyUserException);
@@ -159,6 +176,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             _connection.sendNoResponse();
                         }
 
+                        if(_observer != null)
+                        {
+                            _observer.detach();
+                            _observer = null;
+                        }
                         _connection = null;
                         return;
                     }
@@ -238,6 +260,11 @@ final public class Incoming extends IncomingBase implements Ice.Request
             _connection.sendNoResponse();
         }
 
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
         _connection = null;
     }
 

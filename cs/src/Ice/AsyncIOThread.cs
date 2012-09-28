@@ -22,6 +22,7 @@ namespace IceInternal
             _instance = instance;
 
             _thread = new HelperThread(this);
+            updateObserver();
 #if !SILVERLIGHT
             if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
             {
@@ -36,6 +37,31 @@ namespace IceInternal
 #else
             _thread.Start();
 #endif
+        }
+
+        public void
+        updateObserver()
+        {
+            _m.Lock();
+            try
+            {
+                Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+                if(obsv != null)
+                {
+                    _observer = obsv.getThreadObserver("Communicator", 
+                                                       _thread.getName(), 
+                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                                                       _observer);
+                    if(_observer != null)
+                    {
+                        _observer.attach();
+                    }
+                }
+            } 
+            finally
+            {
+                _m.Unlock();
+            }
         }
 
         public void queue(ThreadPoolWorkItem callback)
@@ -79,11 +105,19 @@ namespace IceInternal
         public void run()
         {
             LinkedList<ThreadPoolWorkItem> queue = new LinkedList<ThreadPoolWorkItem>();
+            bool inUse = false;
             while(true)
             {
                 _m.Lock();
                 try
                 {
+                    if(_observer != null && inUse)
+                    {
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO, 
+                                               Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                        inUse = false;
+                    }
+
                     if(_destroyed && _queue.Count == 0)
                     {
                         break;
@@ -97,6 +131,13 @@ namespace IceInternal
                     LinkedList<ThreadPoolWorkItem> tmp = queue;
                     queue = _queue;
                     _queue = tmp;
+
+                    if(_observer != null)
+                    {
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                                               Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
+                        inUse = true;
+                    }
                 }
                 finally
                 {
@@ -122,11 +163,17 @@ namespace IceInternal
                 }
                 queue.Clear();
             }
+
+            if(_observer != null)
+            {
+                    _observer.detach();
+            }
         }
 
         private Instance _instance;
         private bool _destroyed;
         private LinkedList<ThreadPoolWorkItem> _queue = new LinkedList<ThreadPoolWorkItem>();
+        private Ice.Instrumentation.ThreadObserver _observer;
 
         private sealed class HelperThread
         {
@@ -144,6 +191,11 @@ namespace IceInternal
             public void Join()
             {
                 _thread.Join();
+            }
+
+            public string getName()
+            {
+                return _name;
             }
 
 #if !SILVERLIGHT

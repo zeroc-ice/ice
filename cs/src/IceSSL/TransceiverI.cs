@@ -435,37 +435,37 @@ namespace IceSSL
 
         private NativeConnectionInfo getNativeConnectionInfo()
         {
-            Debug.Assert(_fd != null && _stream != null);
             IceSSL.NativeConnectionInfo info = new IceSSL.NativeConnectionInfo();
-            IPEndPoint localEndpoint = (IPEndPoint)IceInternal.Network.getLocalAddress(_fd);
-            info.localAddress = localEndpoint.Address.ToString();
-            info.localPort = localEndpoint.Port;
-            IPEndPoint remoteEndpoint = (IPEndPoint)IceInternal.Network.getRemoteAddress(_fd);
-            if(remoteEndpoint != null)
+            if(_fd != null)
             {
-                info.remoteAddress = remoteEndpoint.Address.ToString();
-                info.remotePort = remoteEndpoint.Port;
-            }
-            else
-            {
-                info.remoteAddress = "";
-                info.remotePort = -1;
-            }
-            info.cipher = _stream.CipherAlgorithm.ToString();
-            info.nativeCerts = _chain;
-            List<string> certs = new List<string>();
-            if(info.nativeCerts != null)
-            {
-                foreach(X509Certificate2 cert in info.nativeCerts)
+                IPEndPoint localEndpoint = (IPEndPoint)IceInternal.Network.getLocalAddress(_fd);
+                info.localAddress = localEndpoint.Address.ToString();
+                info.localPort = localEndpoint.Port;
+                IPEndPoint remoteEndpoint = (IPEndPoint)IceInternal.Network.getRemoteAddress(_fd);
+                if(remoteEndpoint != null)
                 {
-                    StringBuilder s = new StringBuilder();
-                    s.Append("-----BEGIN CERTIFICATE-----\n");
-                    s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
-                    s.Append("\n-----END CERTIFICATE-----");
-                    certs.Add(s.ToString());
+                    info.remoteAddress = remoteEndpoint.Address.ToString();
+                    info.remotePort = remoteEndpoint.Port;
                 }
             }
-            info.certs = certs.ToArray();
+            if(_stream != null)
+            {
+                info.cipher = _stream.CipherAlgorithm.ToString();
+                info.nativeCerts = _chain;
+                List<string> certs = new List<string>();
+                if(info.nativeCerts != null)
+                {
+                    foreach(X509Certificate2 cert in info.nativeCerts)
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.Append("-----BEGIN CERTIFICATE-----\n");
+                        s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
+                        s.Append("\n-----END CERTIFICATE-----");
+                        certs.Add(s.ToString());
+                    }
+                }
+                info.certs = certs.ToArray();
+            }
             info.adapterName = _adapterName;
             info.incoming = _adapterName != null;
             return info;

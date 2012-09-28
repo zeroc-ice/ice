@@ -15,14 +15,13 @@ final class UdpEndpointI extends EndpointI
     UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, Ice.ProtocolVersion p, 
                  Ice.EncodingVersion e, boolean conn, String conId, boolean co)
     {
-        super(p, e);
+        super(p, e, conId);
         _instance = instance;
         _host = ho;
         _port = po;
         _mcastInterface = mif;
         _mcastTtl = mttl;
         _connect = conn;
-        _connectionId = conId;
         _compress = co;
         calcHashValue();
     }
@@ -30,7 +29,7 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
-        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding);
+        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "");
         _instance = instance;
         _host = null;
         _port = 0;
@@ -188,7 +187,7 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(BasicStream s)
     {
-        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion());
+        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion(), "");
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
@@ -536,11 +535,6 @@ final class UdpEndpointI extends EndpointI
             return 1;
         }
 
-        if(!_connectionId.equals(p._connectionId))
-        {
-            return _connectionId.compareTo(p._connectionId);
-        }
-
         if(!_compress && p._compress)
         {
             return -1;
@@ -603,7 +597,6 @@ final class UdpEndpointI extends EndpointI
     private String _mcastInterface = "";
     private int _mcastTtl = -1;
     private boolean _connect;
-    private String _connectionId = "";
     private boolean _compress;
     private int _hashCode;
 }

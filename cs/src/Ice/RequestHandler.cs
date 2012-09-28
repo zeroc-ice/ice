@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Collections.Generic;
+using Ice.Instrumentation;
 
 namespace IceInternal
 {
@@ -27,7 +28,8 @@ namespace IceInternal
 
         Ice.ConnectionI getConnection(bool wait);
 
-        Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context);
+        Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context, 
+                             InvocationObserver observer);
 
         void reclaimOutgoing(Outgoing @out);
     }

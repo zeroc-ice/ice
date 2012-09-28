@@ -445,6 +445,16 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
+    if(_protocol != p->_protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != p->_encoding) 
+    {
+        return false;
+    }
+
     if(_host != p->_host)
     {
         return false;
@@ -488,6 +498,24 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
     }
 
     if(this == p)
+    {
+        return false;
+    }
+
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol) 
+    {
+        return false;
+    }
+
+    if(_encoding < p->_encoding) 
+    {
+        return true;
+    }
+    else if(p->_encoding < _encoding) 
     {
         return false;
     }

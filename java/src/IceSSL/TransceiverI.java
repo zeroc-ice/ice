@@ -370,56 +370,48 @@ final class TransceiverI implements IceInternal.Transceiver
         //
         // This can only be called on an open transceiver.
         //
-        assert(_fd != null);
-
         NativeConnectionInfo info = new NativeConnectionInfo();
-        java.net.Socket socket = _fd.socket();
-        if(socket.getLocalAddress() != null)
+        if(_fd != null)
         {
-            info.localAddress = socket.getLocalAddress().getHostAddress();
-            info.localPort = socket.getLocalPort();
-        }
-        else
-        {
+            java.net.Socket socket = _fd.socket();
             //
             // On some platforms (e.g., early Android releases), sockets don't
             // correctly return address information.
             //
-            info.localAddress = "";
-            info.localPort = -1;
-        }
-
-        if(socket.getInetAddress() != null)
-        {
-            info.remoteAddress = socket.getInetAddress().getHostAddress();
-            info.remotePort = socket.getPort();
-        }
-        else
-        {
-            info.remoteAddress = "";
-            info.remotePort = -1;
-        }
-        SSLSession session = _engine.getSession();
-        info.cipher = session.getCipherSuite();
-        try
-        {
-            java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
-            info.nativeCerts = session.getPeerCertificates();
-            for(java.security.cert.Certificate c : info.nativeCerts)
+            if(socket.getLocalAddress() != null)
             {
-                StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
-                s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
-                s.append("\n-----END CERTIFICATE-----");
-                certs.add(s.toString());
+                info.localAddress = socket.getLocalAddress().getHostAddress();
+                info.localPort = socket.getLocalPort();
             }
-            info.certs = certs.toArray(new String[0]);
-        }
-        catch(java.security.cert.CertificateEncodingException ex)
-        {
-        }
-        catch(javax.net.ssl.SSLPeerUnverifiedException ex)
-        {
-            // No peer certificates.
+            
+            if(socket.getInetAddress() != null)
+            {
+                info.remoteAddress = socket.getInetAddress().getHostAddress();
+                info.remotePort = socket.getPort();
+            }
+
+            SSLSession session = _engine.getSession();
+            info.cipher = session.getCipherSuite();
+            try
+            {
+                java.util.ArrayList<String> certs = new java.util.ArrayList<String>();
+                info.nativeCerts = session.getPeerCertificates();
+                for(java.security.cert.Certificate c : info.nativeCerts)
+                {
+                    StringBuffer s = new StringBuffer("-----BEGIN CERTIFICATE-----\n");
+                    s.append(IceUtilInternal.Base64.encode(c.getEncoded()));
+                    s.append("\n-----END CERTIFICATE-----");
+                    certs.add(s.toString());
+                }
+                info.certs = certs.toArray(new String[0]);
+            }
+            catch(java.security.cert.CertificateEncodingException ex)
+            {
+            }
+            catch(javax.net.ssl.SSLPeerUnverifiedException ex)
+            {
+                // No peer certificates.
+            }
         }
         info.adapterName = _adapterName;
         info.incoming = _incoming;

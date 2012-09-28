@@ -16,6 +16,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
               callback);
         _proxy = prx;
+        _observer = ObserverHelper.get(prx, operation);
     }
 
     public void __send()
@@ -41,7 +42,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         }
         catch(Ice.LocalException __ex)
         {
-            cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(delegate, __ex, null, cnt);
+            cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(delegate, __ex, null, cnt, _observer);
         }
     }
 

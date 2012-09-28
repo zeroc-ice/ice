@@ -9,6 +9,8 @@
 
 package IceInternal;
 
+import Ice.Instrumentation.InvocationObserver;
+
 public class ConnectionRequestHandler implements RequestHandler
 {
     public void
@@ -64,10 +66,11 @@ public class ConnectionRequestHandler implements RequestHandler
     }
 
     public Outgoing
-    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
+    getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context, 
+                InvocationObserver observer)
         throws LocalExceptionWrapper
     {
-        return _connection.getOutgoing(this, operation, mode, context);
+        return _connection.getOutgoing(this, operation, mode, context, observer);
     }
 
     public void

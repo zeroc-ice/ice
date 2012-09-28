@@ -453,6 +453,55 @@ namespace IceUtilInternal
             return 0; // Not quoted
         }
 
+        public static bool match(string s, string pat, bool emptyMatch)
+        {
+            Debug.Assert(s.Length > 0);
+            Debug.Assert(pat.Length > 0);
+
+            //
+            // If pattern does not contain a wildcard just compare strings.
+            //
+            int beginIndex = pat.IndexOf('*');
+            if(beginIndex < 0)
+            {
+                return s.Equals(pat);
+            }
+
+            //
+            // Make sure start of the strings match
+            //
+            if(beginIndex > s.Length || !s.Substring(0, beginIndex).Equals(pat.Substring(0, beginIndex)))
+            {
+                return false;
+            }
+
+            //
+            // Make sure there is something present in the middle to match the
+            // wildcard. If emptyMatch is true, allow a match of "".
+            //
+            int endLength = pat.Length - beginIndex - 1;
+            if(endLength > s.Length)
+            {
+                return false;
+            }
+            int endIndex = s.Length - endLength;
+            if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
+            {
+                return false;
+            }
+
+            //
+            // Make sure end of the strings match
+            //
+            if(!s.Substring(endIndex, s.Length - endIndex).Equals(
+                   pat.Substring(beginIndex + 1, pat.Length - beginIndex - 1)))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         private class OrdinalStringComparerImpl : System.Collections.Generic.IComparer<string>
         {
             public int Compare(string l, string r)

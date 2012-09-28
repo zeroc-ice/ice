@@ -12,7 +12,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/StopWatch.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>

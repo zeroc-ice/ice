@@ -461,8 +461,6 @@ public:
             return 0;
         }
 
-        std::sort(metricsObjects.begin(), metricsObjects.end());
-
         ObserverImplPtrType obsv = new ObserverImplType();
         obsv->init(helper, metricsObjects);
         return obsv;
@@ -487,8 +485,6 @@ public:
         {
             return 0;
         }
-
-        std::sort(metricsObjects.begin(), metricsObjects.end());
 
         ObserverImplPtrType obsv = ObserverImplPtrType::dynamicCast(observer);
         if(!obsv)

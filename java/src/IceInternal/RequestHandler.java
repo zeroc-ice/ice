@@ -9,6 +9,8 @@
 
 package IceInternal;
 
+import Ice.Instrumentation.InvocationObserver;
+
 public interface RequestHandler
 {
     void prepareBatchRequest(BasicStream out)
@@ -29,7 +31,8 @@ public interface RequestHandler
 
     Ice.ConnectionI getConnection(boolean wait);
 
-    Outgoing getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context)
+    Outgoing getOutgoing(String operation, Ice.OperationMode mode, java.util.Map<String, String> context, 
+                         InvocationObserver observer)
         throws LocalExceptionWrapper;
 
     void reclaimOutgoing(Outgoing out);

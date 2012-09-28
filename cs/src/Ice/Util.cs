@@ -81,6 +81,11 @@ namespace Ice
         public Logger logger;
 
         /// <summary>
+        /// The communicator observer used by the Ice run-time.
+        /// </summary>
+        public Ice.Instrumentation.CommunicatorObserver observer;
+
+        /// <summary>
         /// The Stats instance for the communicator.
         /// </summary>
         public Stats stats;

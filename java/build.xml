@@ -189,7 +189,7 @@
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
         <!-- NOTE: adding . in srcdir for depend is necessary for test dependencies -->
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Ice/*.java"/>
             <include name="IceMX/*.java"/>
             <include name="Ice/Instrumentation/*.java"/>
@@ -239,7 +239,7 @@
 
     <target name="freeze-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Freeze/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -271,7 +271,7 @@
     <target name="glacier2-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Glacier2/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -298,7 +298,7 @@
     <target name="icebox-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceBox/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -325,7 +325,7 @@
     <target name="icestorm-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceStorm/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -352,7 +352,7 @@
     <target name="icegrid-compile" depends="ice-compile, glacier2-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceGrid/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -379,7 +379,7 @@
     <target name="icepatch2-compile" depends="ice-compile" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-        <depend srcdir=".:${src.dir}:${generated.dir}" destdir="${lib.dir}" cache="${cache.dir}">
+        <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IcePatch2/**"/>
         </depend>
         <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
@@ -646,9 +646,7 @@
 
     <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icegrid-jar, icegridadmin-compile"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
-        <condition property="library.jarfiles" value="classes.jar,jsse.jar,jfxrt.jar">
-            <os family="mac"/>
-        </condition>
+    
         <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
             <!-- Library jar files for Sun JDK -->
             <and>
@@ -676,11 +674,8 @@
                 <equals arg1="${os.arch}" arg2="amd64"/>
             </and>
         </condition>
-        <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
-            <os family="mac"/>
-        </condition>
         <pathconvert property="library.jars">
-           <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
+           <filelist dir="${java.home}/lib" files="${library.jarfiles}"/>
            <mapper>
               <!-- Add quotes around the path of each JAR file (necessary for Windows) -->
               <globmapper from="*" to="&quot;*&quot;"/>

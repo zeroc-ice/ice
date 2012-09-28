@@ -16,7 +16,7 @@ namespace IceInternal
 
     sealed class OpaqueEndpointI : EndpointI
     {
-        public OpaqueEndpointI(string str) : base(new Ice.ProtocolVersion(0, 0), new Ice.EncodingVersion(0, 0))
+        public OpaqueEndpointI(string str) : base(new Ice.ProtocolVersion(0, 0), new Ice.EncodingVersion(0, 0), "")
         {
             int topt = 0;
             int vopt = 0;

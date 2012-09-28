@@ -118,6 +118,11 @@ namespace IceInternal
                     connection_.sendNoResponse();
                 }
 
+                if(observer_ != null)
+                {
+                    observer_.detach();
+                    observer_ = null;
+                }
                 connection_ = null;
             }
             catch(Ice.LocalException ex)

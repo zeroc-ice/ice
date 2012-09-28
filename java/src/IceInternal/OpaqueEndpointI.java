@@ -14,7 +14,7 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(String str)
     {
-        super(Protocol_0_0, Encoding_0_0);
+        super(Protocol_0_0, Encoding_0_0, "");
 
         _rawEncoding = Protocol.currentEncoding;
 
@@ -148,7 +148,7 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(short type, BasicStream s)
     {
-        super(Protocol_0_0, Encoding_0_0);
+        super(Protocol_0_0, Encoding_0_0, "");
         _type = type;
         _rawEncoding = s.startReadEncaps();
         int sz = s.getReadEncapsSize();

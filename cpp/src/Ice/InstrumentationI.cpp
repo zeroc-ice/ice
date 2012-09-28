@@ -837,25 +837,7 @@ CommunicatorObserverI::getThreadObserver(const string& parent,
 }
 
 InvocationObserverPtr 
-CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const string& op)
-{
-    if(_invocations.isEnabled())
-    {
-        try
-        {
-            return _invocations.getObserver(InvocationHelper(proxy, op));
-        }
-        catch(const exception& ex)
-        {
-            Error error(_metrics->getLogger());
-            error << "unexpected exception trying to obtain observer:\n" << ex;
-        }
-    }
-    return 0;
-}
-
-InvocationObserverPtr 
-CommunicatorObserverI::getInvocationObserverWithContext(const ObjectPrx& proxy, const string& op, const Context& ctx)
+CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const string& op, const Context& ctx)
 {
     if(_invocations.isEnabled())
     {

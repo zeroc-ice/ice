@@ -107,6 +107,36 @@ public final class ObjectAdapterFactory
         }
     }
     
+    public void
+    updateConnectionObservers()
+    {
+        java.util.List<Ice.ObjectAdapterI> adapters;
+        synchronized(this)
+        {
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
+        }
+
+        for(Ice.ObjectAdapterI adapter : adapters)
+        {
+            adapter.updateConnectionObservers();
+        }
+    }
+
+    public void
+    updateThreadObservers()
+    {
+        java.util.List<Ice.ObjectAdapterI> adapters;
+        synchronized(this)
+        {
+            adapters = new java.util.LinkedList<Ice.ObjectAdapterI>(_adapters);
+        }
+
+        for(Ice.ObjectAdapterI adapter : adapters)
+        {
+            adapter.updateThreadObservers();
+        }
+    }
+
     public synchronized Ice.ObjectAdapter
     createObjectAdapter(String name, Ice.RouterPrx router)
     {

@@ -121,6 +121,11 @@ public class IncomingAsync extends IncomingBase implements Ice.AMDCallback
                 _connection.sendNoResponse();
             }
 
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
             _connection = null;
         }
         catch(Ice.LocalException ex)
