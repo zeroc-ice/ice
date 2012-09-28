@@ -593,7 +593,7 @@ public:
     void unregisterMap(const std::string&);
 
     virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
-    virtual IceMX::MetricsView getMetricsView(const std::string&, const ::Ice::Current&);
+    virtual IceMX::MetricsView getMetricsView(const std::string&, Ice::Long&, const ::Ice::Current&);
     virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(const std::string&, const std::string&, 
                                                             const ::Ice::Current&);
     virtual IceMX::MetricsFailures getMetricsFailures(const std::string&, const std::string&, const std::string&,

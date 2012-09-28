@@ -589,7 +589,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_connects.isEnabled())
         {
-            return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverI.class);
+            try
+            {
+                return _connects.getObserver(new EndpointHelper(endpt, connector), ObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
         }
         return null;
     }
@@ -599,7 +606,15 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_endpointLookups.isEnabled())
         {
-            return _endpointLookups.getObserver(new EndpointHelper(endpt), ObserverI.class);
+            try
+            {
+                return _endpointLookups.getObserver(new EndpointHelper(endpt), ObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
+
         }
         return null;
     }
@@ -610,7 +625,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_connections.isEnabled())
         {
-            return _connections.getObserver(new ConnectionHelper(c, e, s), o, ConnectionObserverI.class);
+            try
+            {
+                return _connections.getObserver(new ConnectionHelper(c, e, s), o, ConnectionObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
         }
         return null;
     }
@@ -620,7 +642,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_threads.isEnabled())
         {
-            return _threads.getObserver(new ThreadHelper(parent, id, s), o, ThreadObserverI.class);
+            try
+            {
+                return _threads.getObserver(new ThreadHelper(parent, id, s), o, ThreadObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
         }
         return null;
     }
@@ -630,7 +659,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_invocations.isEnabled())
         {
-            return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), InvocationObserverI.class);
+            try
+            {
+                return _invocations.getObserver(new InvocationHelper(prx, operation, ctx), InvocationObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
         }
         return null;
     }
@@ -640,7 +676,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     {
         if(_dispatch.isEnabled())
         {
-            return _dispatch.getObserver(new DispatchHelper(c), ObserverI.class);
+            try
+            {
+                return _dispatch.getObserver(new DispatchHelper(c), ObserverI.class);
+            }
+            catch(Exception ex)
+            {
+                _metrics.getLogger().error("unexpected exception trying to obtain observer:\n" + ex);
+            }
         }
         return null;
     }
@@ -662,6 +705,11 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     updater.updateThreadObservers();
                 }
             });
+    }
+
+    public IceInternal.MetricsAdminI getMetricsAdmin()
+    {
+        return _metrics;
     }
 
     final private IceInternal.MetricsAdminI _metrics;

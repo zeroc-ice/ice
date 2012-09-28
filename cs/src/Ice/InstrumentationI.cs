@@ -717,7 +717,6 @@ namespace IceMX
         public CommunicatorObserverI(IceInternal.MetricsAdminI metrics)
         {
             _metrics = metrics;
-            
             _connections = new ObserverFactory<ConnectionMetrics, ConnectionObserverI>(metrics, "Connection");
             _dispatch = new ObserverFactory<Metrics, ObserverI>(metrics, "Dispatch");
             _invocations = new ObserverFactory<InvocationMetrics, InvocationObserverI>(metrics, "Invocation");
@@ -798,6 +797,11 @@ namespace IceMX
         {
             _connections.setUpdater(updater.updateConnectionObservers);
             _threads.setUpdater(updater.updateThreadObservers);
+        }
+
+        public IceInternal.MetricsAdminI getMetricsAdmin()
+        {
+            return _metrics;
         }
 
         readonly private IceInternal.MetricsAdminI _metrics;

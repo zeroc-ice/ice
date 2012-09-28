@@ -118,9 +118,14 @@ interface MetricsAdmin
      *
      * Get the metrics objects for the given metrics view. This
      * returns a map of metric maps for each metrics class configured
-     * with the view.
+     * with the view. The timestamp allows the client to compute
+     * averages which are not dependent of the invocation latency for
+     * this operation.
      *
      * @param view The name of the metrics view to retrieve.
+     *
+     * @param timestamp The local time of the process when the metrics
+     * object were retrieved.
      *
      * @return The metrics view data.
      *
@@ -128,7 +133,7 @@ interface MetricsAdmin
      * found.
      *
      **/
-    MetricsView getMetricsView(string view)
+    MetricsView getMetricsView(string view, out long timestamp)
         throws UnknownMetricsView;
 
     /**
