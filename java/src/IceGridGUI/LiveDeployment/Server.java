@@ -410,6 +410,8 @@ public class Server extends ListArrayTreeNode
         {
             return;
         }
+        final IceMX.MetricsAdminPrx metricsAdmin = 
+                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
                 public void response(final String[] names)
@@ -419,7 +421,7 @@ public class Server extends ListArrayTreeNode
                             public void run()
                             {
                                 _metricsNames = names;
-                                createMetrics();
+                                createMetrics(metricsAdmin);
                                 rebuild(Server.this);
                             }
                         });
@@ -452,8 +454,6 @@ public class Server extends ListArrayTreeNode
             };
         try
         {
-            IceMX.MetricsAdminPrx metricsAdmin = 
-                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
             metricsAdmin.begin_getMetricsViewNames(cb);
         }
         catch(Ice.LocalException e)
@@ -868,7 +868,7 @@ public class Server extends ListArrayTreeNode
             updateServices();
 
             _metrics.clear();
-            createMetrics();
+
             getRoot().getTreeModel().nodeStructureChanged(this);
         }
         else if(serviceTemplates != null && serviceTemplates.size() > 0 &&
@@ -1140,13 +1140,13 @@ public class Server extends ListArrayTreeNode
         return Utils.getIntVersion(Utils.substitute(_serverDescriptor.iceVersion, _resolver));
     }
 
-    private void createMetrics()
+    private void createMetrics(IceMX.MetricsAdminPrx metricsAdmin)
     {
         if(_metricsNames != null)
         {
             for(String name : _metricsNames)
             {
-                insertSortedChild(new MetricsView(Server.this, name), _metrics, null);
+                insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
             }
         }
     }

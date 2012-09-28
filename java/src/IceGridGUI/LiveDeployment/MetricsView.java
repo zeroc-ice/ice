@@ -29,7 +29,7 @@ class MetricsView extends TreeNode
 {
     public Editor getEditor()
     {
-        _editor.show(this);
+        _editor.show(this, _data, _timestamp);
         return _editor;
     }
 
@@ -51,15 +51,33 @@ class MetricsView extends TreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    MetricsView(TreeNode parent, String name)
+    MetricsView(TreeNode parent, String name, IceMX.MetricsAdminPrx admin)
     {
         super(parent, name);
         _name = name;
+        _admin = admin;
+
         if(_editor == null)
         {
             _editor = new MetricsViewEditor(getRoot());
         }
         fetchMetricsView();
+    }
+
+    public void startRefreshThread()
+    {
+        if(_editor != null)
+        {
+            _editor.startRefreshThread();
+        }
+    }
+
+    public void stopRefreshThread()
+    {
+        if(_editor != null)
+        {
+            _editor.startRefreshThread();
+        }
     }
     
     public String name()
@@ -67,128 +85,111 @@ class MetricsView extends TreeNode
         return _name;
     }
 
-    Ice.ObjectPrx getServerAdmin()
+    IceMX.MetricsAdminPrx getMetricsAdmin()
     {
-        if(_parent instanceof Server)
-        {
-            return ((Server)_parent).getServerAdmin();
-        }
-        else
-        {
-            return null;
-        }
-    }
-
-    public java.util.Map<java.lang.String, IceMX.Metrics[]> data()
-    {
-        return _data;
+        return _admin;
     }
 
     public void fetchMetricsFailures(String map, String id, IceMX.Callback_MetricsAdmin_getMetricsFailures cb)
     {
-        Ice.ObjectPrx admin = getServerAdmin();
-        if(admin == null)
+        IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
+        if(metricsAdmin != null)
         {
-            return;
-        }
-
-        try
-        {
-            IceMX.MetricsAdminPrx metricsAdmin = 
-                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
-            metricsAdmin.begin_getMetricsFailures(_name, map, id, cb);
-        }
-        catch(Ice.LocalException e)
-        {
-            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
-                                          JOptionPane.ERROR_MESSAGE);
+            try
+            {
+                metricsAdmin.begin_getMetricsFailures(_name, map, id, cb);
+            }
+            catch(Ice.LocalException e)
+            {
+                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
+                                              JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     public void fetchMetricsView()
     {
-        Ice.ObjectPrx admin = getServerAdmin();
-        if(admin == null)
+        IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
+        if(metricsAdmin != null)
         {
-            return;
-        }
-
-        IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
-            {
-                public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
-                                     long timestamp)
+            IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
                 {
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
+                    public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
+                                         final long timestamp)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                _data = data;
-                                if(_editor != null && _editor.currentView() == MetricsView.this)
+                                public void run()
                                 {
-                                    _editor.show(MetricsView.this);
+                                    _data = data;
+                                    _timestamp = timestamp; 
+                                    if(_editor != null && _editor.currentView() == MetricsView.this)
+                                    {
+                                        _editor.show(MetricsView.this, data, timestamp);
+                                    }
                                 }
-                            }
-                        });
-                }
+                            });
+                    }
 
-                public void exception(final Ice.LocalException e)
-                {
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
+                    public void exception(final Ice.LocalException e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
                             {
-                                e.printStackTrace();
-                                if(e instanceof Ice.ObjectNotExistException)
+                                public void run()
                                 {
-                                    // Server is down.
+                                    stopRefreshThread();
+                                    if(e instanceof Ice.ObjectNotExistException)
+                                    {
+                                        // Server is down.
+                                    }
+                                    else if(e instanceof Ice.FacetNotExistException)
+                                    {
+                                        // MetricsAdmin facet not present.
+                                    }
+                                    else
+                                    {
+                                        e.printStackTrace();
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                                                      "Error: " + e.toString(), "Error",
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                    }
                                 }
-                                else if(e instanceof Ice.FacetNotExistException)
+                            });
+                    }
+
+                    public void exception(final Ice.UserException e)
+                    {
+                        SwingUtilities.invokeLater(new Runnable()
+                            {
+                                public void run()
                                 {
-                                    // MetricsAdmin facet not present.
-                                }
-                                else
-                                {
+                                    stopRefreshThread();
                                     e.printStackTrace();
                                     JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
-                                                                  "Error: " + e.toString(), "Error",
-                                                                  JOptionPane.ERROR_MESSAGE);
+                                                                    "Error: " + e.toString(), "Error",
+                                                                    JOptionPane.ERROR_MESSAGE);
                                 }
-                            }
-                        });
-                }
-
-                public void exception(final Ice.UserException e)
-                {
-                    SwingUtilities.invokeLater(new Runnable()
-                        {
-                            public void run()
-                            {
-                                e.printStackTrace();
-                                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
-                                                                "Error: " + e.toString(), "Error",
-                                                                JOptionPane.ERROR_MESSAGE);
-                            }
-                        });
-                }
-            };
-        try
-        {
-            IceMX.MetricsAdminPrx metricsAdmin = 
-                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
-            metricsAdmin.begin_getMetricsView(_name, cb);
-        }
-        catch(Ice.LocalException e)
-        {
-            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
-                                          JOptionPane.ERROR_MESSAGE);
+                            });
+                    }
+                };
+            try
+            {
+                metricsAdmin.begin_getMetricsView(_name, cb);
+            }
+            catch(Ice.LocalException e)
+            {
+                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
+                                              JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
 
     private String _name;
+    private IceMX.MetricsAdminPrx _admin;
     private String _toolTip;
     private MetricsViewEditor _editor;
     private java.util.Map<java.lang.String, IceMX.Metrics[]> _data;
-
+    private long _timestamp;
     static private DefaultTreeCellRenderer _cellRenderer;
 }

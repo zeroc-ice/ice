@@ -181,6 +181,10 @@ public class Root extends ListArrayTreeNode
                     {
                         ((Server)node).fetchMetricsViewNames();
                     }
+                    else if(node instanceof Service)
+                    {
+                        ((Service)node).fetchMetricsViewNames();
+                    }
                 }
 
                 public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)

@@ -225,16 +225,33 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         public void valueChanged(TreeSelectionEvent e)
         {
-            stopRefreshThread();
+            TreePath path = e.getPath();
+            if(_node != null)
+            {
+                _node.stopRefreshThread();
+                _node = null;
+            }
+            if(e != null)
+            {
+                TreeNode node = (TreeNode)path.getLastPathComponent();
+                if(node instanceof MetricsView)
+                {
+                    _node = ((MetricsView)node);
+                    ((MetricsView)node).startRefreshThread();
+                }
+            }
         }
+
+        private MetricsView _node;
     }
 
     MetricsViewEditor(Root root)
     {
-        JTree tree = root.getTree();
-        tree.addTreeSelectionListener(new SelectionListener());
         if(_properties == null)
         {
+            JTree tree = root.getTree();
+            tree.addTreeSelectionListener(new SelectionListener());
+
             _properties = Ice.Util.createProperties();
             _properties.load("metrics.config");
             _sectionSort = _properties.getPropertyAsList("IceGridGUI.Metrics");
@@ -281,9 +298,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         public MetricsViewInfo(MetricsView view)
         {
-            this.node = ((Node)view.getParent().getParent()).getId();
-            this.server = ((Server)view.getParent()).getId();
+            if(view.getParent() instanceof Server)
+            {
+                this.node = ((Node)view.getParent().getParent()).getId();
+                this.server = ((Server)view.getParent()).getId();
+            }
+            else
+            {
+                this.node = ((Node)view.getParent().getParent().getParent()).getId();
+                this.server = ((Server)view.getParent().getParent()).getId() + "/" +
+                              ((Service)view.getParent()).getId();
+            }
             this.view = view.getId();
+            this.admin = view.getMetricsAdmin();
         }
 
         @Override
@@ -316,6 +343,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         public String node;
         public String server;
         public String view;
+        public IceMX.MetricsAdminPrx admin;
     }
 
     public static class MetricsCell
@@ -372,9 +400,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = scaleFactor;
         }
 
-        public Number getValue(IceMX.Metrics m)
+        public Number getValue(IceMX.Metrics m, long timestamp)
         {
-            Number value = ((Number)getField().getValue(m));
+            Number value = ((Number)getField().getValue(m, timestamp));
             if(value == null)
             {
                 return value;
@@ -583,11 +611,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
     }
 
-    public void show(MetricsView node)
+    public void show(MetricsView node, final Map<java.lang.String, IceMX.Metrics[]> data, final long timestamp)
     {
         startRefreshThread();
         _node = node;
-        final Map<java.lang.String, IceMX.Metrics[]> data = node.data();
+        if(data == null)
+        {
+            return;
+        }
 
         boolean rebuildPanel = false;
 
@@ -728,7 +759,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             model.fireTableDataChanged();
             for(IceMX.Metrics m : values)
             {
-                model.addMetrics(m);
+                model.addMetrics(m, timestamp);
             }
 
             int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(
@@ -886,13 +917,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _metricsName = metricsName;
         }
 
-        public void addMetrics(IceMX.Metrics m)
+        public void addMetrics(IceMX.Metrics m, long timestamp)
         {
             Object[] row = new Object[_fields.size()];
 
             for(Map.Entry<Integer, MetricsField> entry : _fields.entrySet())
             {
-                Object value = entry.getValue().getValue(m);
+                Object value = entry.getValue().getValue(m, timestamp);
                 if(value == null)
                 {
                     Class c = getColumnClass(entry.getKey().intValue());
@@ -1004,7 +1035,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         //
         // Return the value of the field for the given metrics object.
         //
-	    public Object getValue(IceMX.Metrics m);
+	    public Object getValue(IceMX.Metrics m, long timestamp);
 
         //
         // Set up a field identical to this but without the transient data.
@@ -1131,7 +1162,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _cellRenderer;
         }
 
-        public Object getValue(IceMX.Metrics m)
+        public Object getValue(IceMX.Metrics m, long timestamp)
         {
             try
             {
@@ -1180,7 +1211,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
-        public Object getValue(IceMX.Metrics m)
+        public Object getValue(IceMX.Metrics m, long timestamp)
         {
             if(m.totalLifetime == 0 || m.total - m.current == 0)
             {
@@ -1237,7 +1268,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
-        public Object getValue(IceMX.Metrics m)
+        public Object getValue(IceMX.Metrics m, long timestamp)
         {
             DeltaMeasurement d1 = _deltas.get(m.id);
             DeltaMeasurement d2 = new DeltaMeasurement();
@@ -1271,8 +1302,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 ex.printStackTrace();
                 return null;
             }
-            d2.timestamp = System.currentTimeMillis();
-
+            d2.timestamp =  timestamp;
 
             _deltas.put(m.id, d2);
             
@@ -1340,7 +1370,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _cellRenderer;
         }
 
-	    public Object getValue(final IceMX.Metrics m)
+	    public Object getValue(final IceMX.Metrics m, long timestamp)
 	    {
             JButton button = new JButton("Show Failures " + Integer.toString(m.failures));
             if(m.failures > 0)
@@ -1473,7 +1503,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _cellRenderer;
         }
 
-        public Object getValue(final IceMX.Metrics m)
+        public Object getValue(final IceMX.Metrics m, final long timestamp)
         {
             try
             {
@@ -1529,7 +1559,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
                                 for(IceMX.Metrics m : objects)
                                 {
-                                    model.addMetrics(m);
+                                    model.addMetrics(m, timestamp);
                                 }
 
                                 JScrollPane scrollPane = new JScrollPane(table);

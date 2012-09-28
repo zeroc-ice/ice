@@ -46,6 +46,8 @@ import javax.swing.border.Border;
 import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListCellRenderer;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
@@ -327,14 +329,12 @@ public class GraphView extends JFrame implements MetricsFieldContext
 
                 for(final MetricsViewInfo m : metrics)
                 {
-                    Ice.Identity adminId = new Ice.Identity(m.server, _coordinator.getServerAdminCategory());
-                    Ice.ObjectPrx admin = _coordinator.getAdmin().ice_identity(adminId);
                     IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
                         {
                             public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
                                                  long timestamp)
                             {
-                                addData(m, data, System.currentTimeMillis());
+                                addData(m, data, timestamp);
                             }
 
                             public void exception(final Ice.LocalException e)
@@ -366,9 +366,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                         };
                     try
                     {
-                        IceMX.MetricsAdminPrx metricsAdmin = 
-                            IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
-                        metricsAdmin.begin_getMetricsView(m.view, cb);
+                        m.admin.begin_getMetricsView(m.view, cb);
                     }
                     catch(Ice.LocalException e)
                     {
@@ -478,18 +476,44 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     //
                     SpinnerNumberModel refreshPeriod = new SpinnerNumberModel(getRefreshPeriod(), _minRefreshPeriod, 
                                                                               _maxRefreshPeriod, 1);
-                    JPanel refreshPanel;
-                    {
-                        DefaultFormBuilder builder =
-                                                new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
-                        builder.append("Refresh period (s):", new JSpinner(refreshPeriod));
-                        refreshPanel = builder.getPanel();
-                    }
 
                     //
                     // SpinnerNumberModel to set the duration of samples to keep in X axis.
                     //
-                    SpinnerNumberModel duration = new SpinnerNumberModel(getDuration(), _minDuration, _maxDuration, 1);
+                    final SpinnerNumberModel duration = new SpinnerNumberModel(getDuration(), _minDuration, 
+                                                                               _maxDuration, 1);
+
+
+                    JPanel refreshPanel;
+                    {
+                        DefaultFormBuilder builder =
+                                                new DefaultFormBuilder(new FormLayout("pref,2dlu,pref:grow", "pref"));
+                        final JSpinner spinner = new JSpinner(refreshPeriod);
+                        builder.append("Refresh period (s):", spinner);
+                        spinner.addChangeListener(new ChangeListener()
+                            {
+                                @Override
+                                public void stateChanged(ChangeEvent e)
+                                {
+                                    int refreshPeriod = ((Number)spinner.getValue()).intValue();
+                                    _maxDuration = (_maxPoints * refreshPeriod) / 60;
+                                    _minDuration = Math.max((refreshPeriod * 2) / 60, 1);
+                                    int value = ((Number)duration.getValue()).intValue();
+                                    if(value > _maxDuration)
+                                    {
+                                        duration.setValue(_maxDuration);    
+                                    }
+                                    else if(value < _minDuration)
+                                    {
+                                        duration.setValue(_minDuration);
+                                    }
+                                    duration.setMinimum(_minDuration);
+                                    duration.setMaximum(_maxDuration);
+                                
+                                }
+                            });
+                        refreshPanel = builder.getPanel();
+                    }
 
                     //
                     // JComboBox to select time format used in X Axis
@@ -913,18 +937,29 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 _legendTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidth);
             }
         }
-
+        
         int refreshPeriod = preferences.getInt("refreshPeriod", _defaultRefreshPeriod);
-        if(refreshPeriod < _minRefreshPeriod || refreshPeriod > _maxRefreshPeriod)
+        if(refreshPeriod < _minRefreshPeriod)
         {
-            refreshPeriod = _defaultRefreshPeriod;
+            refreshPeriod = _minRefreshPeriod;
+        }
+        else if(refreshPeriod > _maxRefreshPeriod)
+        {
+            refreshPeriod = _maxRefreshPeriod;
         }
         setRefreshPeriod(refreshPeriod);
 
+        _maxDuration = (_maxPoints * _refreshPeriod) / 60;
+        _minDuration = Math.max((_refreshPeriod * 2) / 60, 1);
+
         int duration = preferences.getInt("duration", _defaultDuration);
-        if(duration < _minDuration || duration > _maxDuration)
+        if(duration < _minDuration)
         {
-            duration = _defaultDuration;
+            duration = _minDuration;
+        }
+        else if(duration > _maxDuration)
+        {
+            duration = _maxDuration;
         }
         setDuration(duration);
 
@@ -1079,7 +1114,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                     try
                                     {
                                         MetricsRow row = j.getValue();
-                                        Number value = row.cell.getValue(metrics);
+                                        Number value = row.cell.getValue(metrics, timestamp);
                                         if(value == null)
                                         {
                                             continue;
@@ -1724,15 +1759,22 @@ public class GraphView extends JFrame implements MetricsFieldContext
     private final Coordinator _coordinator;
     private RefreshThread _refreshThread;
 
-    private final static int _minDuration = 5;        //  5 minutes
-    private final static int _maxDuration = 60;       // 60 minutes = 1 hour
-    private final static int _defaultDuration = 5;    //  5 minutes
-    private int _duration = _defaultDuration;
+    //
+    // The max number of points for a series, it is calculate dividing the duration,
+    // by the refresh period. 
+    //
+    private final static int _maxPoints = 5000;
+    private final static int _minPoints = 2;
 
-    private final static int _minRefreshPeriod = 1;     //    1 second
-    private final static int _maxRefreshPeriod = 120;   //  120 second = 2 minutes
-    private final static int _defaultRefreshPeriod = 5; //    5 second
+    private final static int _minRefreshPeriod = 1;         //     1 seconds
+    private final static int _maxRefreshPeriod = 60 * 60;   //  3600 seconds = 1 hour.
+    private final static int _defaultRefreshPeriod = 5;     //     5 seconds
     private int _refreshPeriod = _defaultRefreshPeriod;
+
+    private int _minDuration = Math.max((_refreshPeriod * 2) / 60, 1);   //   1 minutes
+    private int _maxDuration = (_maxPoints * _refreshPeriod) / 60;      // 100 points.
+    private int _defaultDuration = 5;                                   //   5 minutes.
+    private int _duration = _defaultDuration;
 
     private String[] _dateFormats = new String[]{"HH:mm:ss", "mm:ss"};
     private String _dateFormat = _dateFormats[0];
