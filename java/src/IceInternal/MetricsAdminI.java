@@ -180,7 +180,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
     }
 
     synchronized public java.util.Map<String, IceMX.Metrics[]> 
-    getMetricsView(String viewName, Ice.Current current)
+    getMetricsView(String viewName, Ice.LongHolder holder, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
         MetricsViewI view = _views.get(viewName);
@@ -188,6 +188,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         {
             throw new IceMX.UnknownMetricsView();
         }
+        holder.value = IceInternal.Time.currentMonotonicTimeMillis();
         return view.getMetrics();
     }
 

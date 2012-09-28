@@ -331,7 +331,8 @@ public class GraphView extends JFrame
                     Ice.ObjectPrx admin = _coordinator.getAdmin().ice_identity(adminId);
                     IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
                         {
-                            public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data)
+                            public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
+                                                 long timestamp)
                             {
                                 addData(m, data, System.currentTimeMillis());
                             }

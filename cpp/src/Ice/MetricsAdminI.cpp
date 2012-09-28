@@ -476,7 +476,7 @@ MetricsAdminI::getMetricsViewNames(const Current&)
 }
 
 MetricsView
-MetricsAdminI::getMetricsView(const string& view, const Current&)
+MetricsAdminI::getMetricsView(const string& view, Ice::Long& timestamp, const Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -484,6 +484,7 @@ MetricsAdminI::getMetricsView(const string& view, const Current&)
     {
         throw UnknownMetricsView();
     }
+    timestamp = IceUtil::Time::now().toMilliSeconds();
     return p->second->getMetrics();
 }
 

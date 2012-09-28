@@ -115,7 +115,8 @@ class MetricsView extends TreeNode
 
         IceMX.Callback_MetricsAdmin_getMetricsView cb = new IceMX.Callback_MetricsAdmin_getMetricsView()
             {
-                public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data)
+                public void response(final java.util.Map<java.lang.String, IceMX.Metrics[]> data,
+                                     long timestamp)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {

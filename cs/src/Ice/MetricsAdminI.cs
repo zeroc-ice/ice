@@ -858,7 +858,8 @@ namespace IceInternal
             }
         }
 
-        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, Ice.Current current)
+        override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp, 
+                                                                           Ice.Current current)
         {
             lock(this)
             {
@@ -867,6 +868,7 @@ namespace IceInternal
                 {
                     throw new IceMX.UnknownMetricsView();
                 }
+                timestamp = IceInternal.Time.currentMonotonicTimeMillis();
                 return view.getMetrics();
             }
         }

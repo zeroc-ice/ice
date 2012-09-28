@@ -119,7 +119,8 @@ waitForCurrent(const IceMX::MetricsAdminPrx& metrics, const string& viewName, co
 {
     while(true)
     {
-        IceMX::MetricsView view = metrics->getMetricsView(viewName);
+        Ice::Long timestamp;
+        IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
         test(view.find(map) != view.end());
         bool ok = true;
         for(IceMX::MetricsMap::const_iterator m = view[map].begin(); m != view[map].end(); ++m)
@@ -161,8 +162,8 @@ testAttribute(const IceMX::MetricsAdminPrx& metrics,
     }
 
     func();
-
-    IceMX::MetricsView view = metrics->getMetricsView("View");
+    Ice::Long timestamp;
+    IceMX::MetricsView view = metrics->getMetricsView("View", timestamp);
     if(view.find(map) == view.end())
     {
         if(!value.empty())
@@ -351,8 +352,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     props["IceMX.Metrics.View.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update, props);
-
-    IceMX::MetricsView view = clientMetrics->getMetricsView("View");
+    
+    Ice::Long timestamp;
+    IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
     test(view["Connection"].size() == 1 && view["Connection"][0]->current == 1 && view["Connection"][0]->total == 1);
     test(view["Thread"].size() == 1 && view["Thread"][0]->current == 4 && view["Thread"][0]->total == 4);
     cout << "ok" << endl;
@@ -368,7 +370,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     metrics->ice_connectionId("Con1")->ice_ping();
     metrics->ice_connectionId("Con1")->ice_ping();
 
-    view = clientMetrics->getMetricsView("View");
+    view = clientMetrics->getMetricsView("View", timestamp);
     test(view["Thread"].size() == 4);
     test(view["Connection"].size() == 2);
     test(view["Invocation"].size() == 1);
@@ -379,7 +381,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(invoke->remotes[0]->total = 2);
     test(invoke->remotes[1]->total = 3);
 
-    view = serverMetrics->getMetricsView("View");
+    view = serverMetrics->getMetricsView("View", timestamp);
     test(view["Thread"].size() > 4);
     test(view["Connection"].size() == 2);
     test(view["Dispatch"].size() == 1);
@@ -401,20 +403,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update, props, "Connection");
 
-    test(clientMetrics->getMetricsView("View")["Connection"].empty());
-    test(serverMetrics->getMetricsView("View")["Connection"].empty());
+    test(clientMetrics->getMetricsView("View", timestamp)["Connection"].empty());
+    test(serverMetrics->getMetricsView("View", timestamp)["Connection"].empty());
 
     metrics->ice_ping();
 
     IceMX::ConnectionMetricsPtr cm1, sm1, cm2, sm2;
-    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     test(cm1->total == 1 && sm1->total == 1);
 
     metrics->ice_ping();
 
-    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
 
     test(cm2->sentBytes - cm1->sentBytes == 45); // 45 for ice_ping request
     test(cm2->receivedBytes - cm1->receivedBytes == 25); // 25 bytes for ice_ping response
@@ -427,8 +429,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test::ByteSeq bs;
     metrics->opByteS(bs);
 
-    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     Ice::Long requestSz = cm2->sentBytes - cm1->sentBytes;
     Ice::Long replySz = cm2->receivedBytes - cm1->receivedBytes;
 
@@ -438,8 +440,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     bs.resize(456);
     metrics->opByteS(bs);
 
-    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
 
     test(cm2->sentBytes - cm1->sentBytes == requestSz + bs.size() + 4); // 4 is for the seq variable size
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
@@ -452,8 +454,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     bs.resize(1024 * 1024 * 10); // Try with large amount of data which should be sent in several chunks
     metrics->opByteS(bs);
 
-    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
-    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+    cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
 
     test(cm2->sentBytes - cm1->sentBytes == requestSz + bs.size() + 4); // 4 is for the seq variable size
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
@@ -465,28 +467,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     map<string, IceMX::MetricsPtr> map;
     
-    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
 
     test(map["active"]->current == 1);
 
     ControllerPrx controller = ControllerPrx::checkedCast(communicator->stringToProxy("controller:default -p 12011"));
     controller->hold();
 
-    map = toMap(clientMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
     test(map["active"]->current == 1);
-    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
     test(map["holding"]->current == 1);
 
     metrics->ice_getConnection()->close(false);
 
-    map = toMap(clientMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
     test(map["closing"]->current == 1);
-    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
     test(map["holding"]->current == 1);
 
     controller->resume();
 
-    map = toMap(serverMetrics->getMetricsView("View")["Connection"]);
+    map = toMap(serverMetrics->getMetricsView("View", timestamp)["Connection"]);
     test(map["holding"]->current == 0);
 
     props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "none";
@@ -506,10 +508,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     controller->resume();
 
-    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View")["Connection"][0]);
+    cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     while(true)
     {
-        sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View")["Connection"][0]);
+        sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         if(sm1-> failures >= 2)
         {
             break;
@@ -562,12 +564,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
     updateProps(clientProps, serverProps, update, props, "ConnectionEstablishment");
-    test(clientMetrics->getMetricsView("View")["ConnectionEstablishment"].empty());
+    test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].empty());
 
     metrics->ice_ping();
     
-    test(clientMetrics->getMetricsView("View")["ConnectionEstablishment"].size() == 1);
-    IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View")["ConnectionEstablishment"][0];
+    test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 1);
+    IceMX::MetricsPtr m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
     test(m1->current == 0 && m1->total == 1 && m1->id == "127.0.0.1:12010");
 
     metrics->ice_getConnection()->close(false);
@@ -584,8 +586,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         test(false);
     }
-    test(clientMetrics->getMetricsView("View")["ConnectionEstablishment"].size() == 2);
-    m1 = clientMetrics->getMetricsView("View")["ConnectionEstablishment"][1];
+    test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 2);
+    m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][1];
     test(m1->id == "127.0.0.50:12010" && m1->total == 2 && m1->failures == 2);
 
     checkFailure(clientMetrics, "ConnectionEstablishment", m1->id, "Ice::ConnectTimeoutException", 2);
@@ -612,13 +614,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
     updateProps(clientProps, serverProps, update, props, "EndpointLookup");
-    test(clientMetrics->getMetricsView("View")["EndpointLookup"].empty());
+    test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].empty());
 
     Ice::ObjectPrx prx = communicator->stringToProxy("metrics:default -p 12010 -h localhost");
     prx->ice_ping();
     
-    test(clientMetrics->getMetricsView("View")["EndpointLookup"].size() == 1);
-    m1 = clientMetrics->getMetricsView("View")["EndpointLookup"][0];
+    test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 1);
+    m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][0];
     test(m1->current == 0 && m1->total == 1 && m1->id == "tcp -e 1.1 -h localhost -p 12010");
 
     prx->ice_getConnection()->close(false);
@@ -635,8 +637,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         test(false);
     }
-    test(clientMetrics->getMetricsView("View")["EndpointLookup"].size() == 2);
-    m1 = clientMetrics->getMetricsView("View")["EndpointLookup"][1];
+    test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 2);
+    m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][1];
     test(m1->id == "tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010" && m1->total == 2 && m1->failures == 2);
     
     checkFailure(clientMetrics, "EndpointLookup", m1->id, "Ice::DNSException", 2);
@@ -664,7 +666,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     props["IceMX.Metrics.View.Map.Dispatch.GroupBy"] = "operation";
     updateProps(clientProps, serverProps, update, props, "Dispatch");
-    test(serverMetrics->getMetricsView("View")["Dispatch"].empty());
+    test(serverMetrics->getMetricsView("View", timestamp)["Dispatch"].empty());
 
     metrics->op();
     try
@@ -708,7 +710,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    map = toMap(serverMetrics->getMetricsView("View")["Dispatch"]);
+    map = toMap(serverMetrics->getMetricsView("View", timestamp)["Dispatch"]);
     test(map.size() == 6);
 
     m1 = map["op"];
@@ -773,7 +775,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
     props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
     updateProps(clientProps, serverProps, update, props, "Invocation");
-    test(serverMetrics->getMetricsView("View")["Invocation"].empty());
+    test(serverMetrics->getMetricsView("View", timestamp)["Invocation"].empty());
 
     metrics->op();
     try
@@ -817,7 +819,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    map = toMap(clientMetrics->getMetricsView("View")["Invocation"]);
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 6);
 
     IceMX::InvocationMetricsPtr im1;
