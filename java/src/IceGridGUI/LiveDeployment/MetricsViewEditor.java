@@ -75,9 +75,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 {
     private class RefreshThread extends Thread
     {
-        RefreshThread(long period)
+        RefreshThread(long period, MetricsView node)
         {
             _period = period;
+            _node = node;
             _done = false;
         }
 
@@ -86,10 +87,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         {
             while(true)
             {
-                if(_node != null && _propertiesPanel != null && _propertiesPanel.isVisible())
-                {
-                    _node.fetchMetricsView();
-                }
+                _node.fetchMetricsView();
                 if(!_done)
                 {
                     try
@@ -119,9 +117,9 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         private final long _period;
+        private final MetricsView _node;
         private boolean _done = false;
     }
-
 
     //
     // This class allow to render a button in JTable cell.
@@ -225,20 +223,19 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         public void valueChanged(TreeSelectionEvent e)
         {
-            TreePath path = e.getPath();
-            if(_node != null)
+
+            //
+            // Stop the refresh thread.
+            //
+            stopRefreshThread();
+
+            //
+            // If selected node is a MetricsView start the refresh thread.
+            //
+            if(e.isAddedPath() && e.getPath().getLastPathComponent() instanceof MetricsView)
             {
-                _node.stopRefreshThread();
-                _node = null;
-            }
-            if(e != null)
-            {
-                TreeNode node = (TreeNode)path.getLastPathComponent();
-                if(node instanceof MetricsView)
-                {
-                    _node = ((MetricsView)node);
-                    ((MetricsView)node).startRefreshThread();
-                }
+                _node = (MetricsView)e.getPath().getLastPathComponent();
+                startRefreshThread(_node);
             }
         }
 
@@ -271,13 +268,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         return _refreshPeriod;
     }
 
-    void startRefreshThread()
+    void startRefreshThread(MetricsView node)
     {
-        if(_refreshThread == null)
-        {
-            _refreshThread = new RefreshThread(_refreshPeriod);
-            _refreshThread.start();
-        }
+        _node = node;
+        _refreshThread = new RefreshThread(_refreshPeriod, _node);
+        _refreshThread.start();
     }
 
     void stopRefreshThread()
@@ -287,11 +282,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _refreshThread.done();
             _refreshThread = null;
         }
-    }
-
-    public MetricsView currentView()
-    {
-        return _node;
     }
 
     public static class MetricsViewInfo
@@ -613,8 +603,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     public void show(MetricsView node, final Map<java.lang.String, IceMX.Metrics[]> data, final long timestamp)
     {
-        startRefreshThread();
-        _node = node;
         if(data == null)
         {
             return;
@@ -634,7 +622,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 continue;
             }
-
             TableModel model = new TableModel(entry.getKey());
             String prefix = "IceGridGUI.Metrics." + entry.getKey();
             String[] names = _properties.getPropertyAsList(prefix + ".fields");

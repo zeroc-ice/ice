@@ -29,7 +29,6 @@ class MetricsView extends TreeNode
 {
     public Editor getEditor()
     {
-        _editor.show(this, _data, _timestamp);
         return _editor;
     }
 
@@ -56,28 +55,7 @@ class MetricsView extends TreeNode
         super(parent, name);
         _name = name;
         _admin = admin;
-
-        if(_editor == null)
-        {
-            _editor = new MetricsViewEditor(getRoot());
-        }
-        fetchMetricsView();
-    }
-
-    public void startRefreshThread()
-    {
-        if(_editor != null)
-        {
-            _editor.startRefreshThread();
-        }
-    }
-
-    public void stopRefreshThread()
-    {
-        if(_editor != null)
-        {
-            _editor.startRefreshThread();
-        }
+        _editor = new MetricsViewEditor(getRoot());
     }
     
     public String name()
@@ -121,12 +99,7 @@ class MetricsView extends TreeNode
                             {
                                 public void run()
                                 {
-                                    _data = data;
-                                    _timestamp = timestamp; 
-                                    if(_editor != null && _editor.currentView() == MetricsView.this)
-                                    {
-                                        _editor.show(MetricsView.this, data, timestamp);
-                                    }
+                                    _editor.show(MetricsView.this, data, timestamp);
                                 }
                             });
                     }
@@ -137,7 +110,7 @@ class MetricsView extends TreeNode
                             {
                                 public void run()
                                 {
-                                    stopRefreshThread();
+                                    _editor.stopRefreshThread();
                                     if(e instanceof Ice.ObjectNotExistException)
                                     {
                                         // Server is down.
@@ -145,6 +118,9 @@ class MetricsView extends TreeNode
                                     else if(e instanceof Ice.FacetNotExistException)
                                     {
                                         // MetricsAdmin facet not present.
+                                    }
+                                    else if(e instanceof Ice.CommunicatorDestroyedException)
+                                    {
                                     }
                                     else
                                     {
@@ -163,7 +139,7 @@ class MetricsView extends TreeNode
                             {
                                 public void run()
                                 {
-                                    stopRefreshThread();
+                                    _editor.stopRefreshThread();
                                     e.printStackTrace();
                                     JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
                                                                     "Error: " + e.toString(), "Error",
@@ -175,6 +151,9 @@ class MetricsView extends TreeNode
             try
             {
                 metricsAdmin.begin_getMetricsView(_name, cb);
+            }
+            catch(Ice.CommunicatorDestroyedException e)
+            {
             }
             catch(Ice.LocalException e)
             {
@@ -189,7 +168,5 @@ class MetricsView extends TreeNode
     private IceMX.MetricsAdminPrx _admin;
     private String _toolTip;
     private MetricsViewEditor _editor;
-    private java.util.Map<java.lang.String, IceMX.Metrics[]> _data;
-    private long _timestamp;
     static private DefaultTreeCellRenderer _cellRenderer;
 }

@@ -344,10 +344,11 @@ public class Service extends ListArrayTreeNode
     {
         if(_started)
         {
-            _metricsRetrieved = false;
-            _metrics.clear();
-            rebuild(this);
             _started = false;
+            if(getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
             getRoot().getTreeModel().nodeChanged(this);
         }
     }
@@ -480,9 +481,9 @@ public class Service extends ListArrayTreeNode
 
     public void fetchMetricsViewNames()
     {
-        if(!_started || _metricsRetrieved)
+        if(_metricsRetrieved)
         {
-            return; // Already loaded or not started.
+            return; // Already loaded.
         }
         _metricsRetrieved = true;
 
@@ -553,20 +554,6 @@ public class Service extends ListArrayTreeNode
             for(String name : _metricsNames)
             {
                 insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
-            }
-        }
-    }
-
-    void rebuild(Service service, boolean fetchMetricsViewNames)
-    {
-        _metrics.clear();
-        rebuild(service);
-        if(fetchMetricsViewNames)
-        {
-            _metricsRetrieved = false;
-            if(getRoot().getTree().isExpanded(getPath()))
-            {
-                fetchMetricsViewNames();
             }
         }
     }

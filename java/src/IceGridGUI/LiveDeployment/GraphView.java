@@ -121,6 +121,7 @@ import IceGridGUI.*;
 import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewInfo;
 import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsCell;
 import IceGridGUI.LiveDeployment.MetricsViewEditor.MetricsViewTransferableData;
+import IceGridGUI.LiveDeployment.MetricsViewEditor.FormatedNumberRenderer;
 
 import java.util.prefs.Preferences;
 import java.util.prefs.BackingStoreException;
@@ -346,7 +347,11 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                             removeRows(m);
                                         }
                                     }, false);
-                                handleError(m, e.toString());
+                                if(!(e instanceof Ice.ObjectNotExistException) &&
+                                   !(e instanceof Ice.CommunicatorDestroyedException))
+                                {
+                                    handleError(m, e.toString());
+                                }
                             }
 
                             public void exception(final Ice.UserException e)
@@ -377,7 +382,10 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                     removeRows(m);
                                 }
                             }, false);
-                        handleError(m, e.toString());
+                        if(!(e instanceof Ice.CommunicatorDestroyedException))
+                        {
+                            handleError(m, e.toString());
+                        }
                     }
                 }
                 if(!_done)
@@ -671,6 +679,11 @@ public class GraphView extends JFrame implements MetricsFieldContext
         setJMenuBar(menuBar);
 
         //
+        // Set default renderer for numeric values.
+        //
+        _legendTable.setDefaultRenderer(Double.class, new FormatedNumberRenderer("#0.000"));
+
+        //
         // Set a combobox to edit the scale factors.
         //
         JComboBox<Double> scales = new JComboBox<Double>(_scales);
@@ -682,7 +695,6 @@ public class GraphView extends JFrame implements MetricsFieldContext
         //
         _legendTable.setDefaultRenderer(Color.class, new ColorRenderer(true));
         _legendTable.setDefaultEditor(Color.class, new ColorEditor());
-
         
         _legendTable.setAutoCreateRowSorter(true);
 
@@ -853,7 +865,14 @@ public class GraphView extends JFrame implements MetricsFieldContext
                         // to be reasign by JavaFX.
                         //
                         // _chart.getData().remove(row.series);
-                        row.series.getData().clear();
+                        if(row.series == null || row.series.getData() == null)
+                        {
+                            continue;
+                        }
+                        while(row.series.getData().size() > 0)
+                        {
+                            row.series.getData().remove(0);
+                        }
                     }
                 }
             }, true);
@@ -1664,7 +1683,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         }
 
         private ListCellRenderer _renderer;
-        private static final DecimalFormat _format = new DecimalFormat("#,###,###,##0.00#######");
+        private static final DecimalFormat _format = new DecimalFormat("#,###,###,##0.0########");
     }
 
     public class ColorEditor extends AbstractCellEditor implements TableCellEditor, ActionListener
@@ -1763,7 +1782,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
     // The max number of points for a series, it is calculate dividing the duration,
     // by the refresh period. 
     //
-    private final static int _maxPoints = 5000;
+    private final static int _maxPoints = 300;
     private final static int _minPoints = 2;
 
     private final static int _minRefreshPeriod = 1;         //     1 seconds
