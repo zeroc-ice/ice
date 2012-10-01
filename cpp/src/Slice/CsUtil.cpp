@@ -136,7 +136,8 @@ Slice::CsGenerator::fixId(const ContainedPtr& cont, int baseTypes, bool mangleCa
 {
     ContainerPtr container = cont->container();
     ContainedPtr contained = ContainedPtr::dynamicCast(container);
-    if(contained && contained->hasMetaData("clr:property"))
+    if(contained && contained->hasMetaData("clr:property") &&
+       (contained->containedType() == Contained::ContainedTypeClass || contained->containedType() == Contained::ContainedTypeStruct))
     {
         return cont->name() + "__prop";
     }
