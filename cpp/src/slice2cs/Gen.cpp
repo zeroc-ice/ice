@@ -31,7 +31,10 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
-static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
+namespace
+{
+
+string
 sliceModeToIceMode(Operation::Mode opMode)
 {
     string mode;
@@ -61,7 +64,7 @@ sliceModeToIceMode(Operation::Mode opMode)
     return mode;
 }
 
-static string
+string
 opFormatTypeToString(const OperationPtr& op)
 {
     switch(op->format())
@@ -79,14 +82,14 @@ opFormatTypeToString(const OperationPtr& op)
     return "???";
 }
 
-static bool
+bool
 isClassType(const TypePtr type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     return (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type);
 }
 
-static string
+string
 getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string& type)
 {
     string deprecateMetadata, deprecateReason;
@@ -103,7 +106,7 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
     return deprecateReason;
 }
 
-static void
+void
 emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const string& type)
 {
     string reason = getDeprecateReason(p1, p2, type);
@@ -111,6 +114,8 @@ emitDeprecate(const ContainedPtr& p1, const ContainedPtr& p2, Output& out, const
     {
         out << nl << "[_System.Obsolete(\"" << reason << "\")]";
     }
+}
+
 }
 
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out)

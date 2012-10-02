@@ -388,23 +388,13 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(p != m.end() && p->second == 3);
 
     test(m.find('a') == m.end());
-    ByteIntMap::value_type i1('a', 1);
-
-    m.put(i1);
-    //
-    // Note: VC++ won't accept this
-    //
-    //m.put(ByteIntMap::value_type('a', 1));
+    m.put(ByteIntMap::value_type('a', 1));
 
     p = m.find('a');
     test(p != m.end() && p->second == 1);
 
-    ByteIntMap::value_type i2('a', 0);
-    m.put(i2);
-    //
-    // Note: VC++ won't accept this
-    //
-    //m.put(ByteIntMap::value_type('a', 0));
+    
+    m.put(ByteIntMap::value_type('a', 0));
     
     p = m.find('a');
     test(p != m.end() && p->second == 0);
