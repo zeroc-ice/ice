@@ -58,7 +58,7 @@ IceInternal::EndpointI::protocol() const
 }
 
 Ice::Int
-IceInternal::EndpointI::ice_getHash() const
+IceInternal::EndpointI::internal_getHash() const
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(hashMutex);
     if(!_hashInitialized)

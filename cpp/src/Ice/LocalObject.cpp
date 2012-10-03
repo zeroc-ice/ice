@@ -28,7 +28,7 @@ Ice::LocalObject::operator<(const LocalObject& r) const
 }
 
 Int
-Ice::LocalObject::ice_getHash() const
+Ice::LocalObject::internal_getHash() const
 {
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }

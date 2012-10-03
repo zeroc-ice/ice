@@ -149,10 +149,11 @@ public:
     //
     virtual bool operator==(const Ice::LocalObject&) const = 0;
     virtual bool operator<(const Ice::LocalObject&) const = 0;
-    virtual ICE_DEPRECATED_API ::Ice::Int ice_getHash() const;
 
 protected:
     
+    virtual ::Ice::Int internal_getHash() const;
+
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 

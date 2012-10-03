@@ -232,7 +232,7 @@ public:
     bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
-    ::Ice::Int ice_getHash() const;
+    ICE_DEPRECATED_API ::Ice::Int ice_getHash() const;
 
     ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
