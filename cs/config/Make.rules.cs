@@ -73,9 +73,14 @@ DSEP = /
 
 bindir = $(top_srcdir)/bin
 
-install_bindir		= $(prefix)/bin
+assembliesdir           = $(top_srcdir)/Assemblies
 
-install_libdir		= $(prefix)/lib
+install_bindir		    = $(prefix)/bin
+
+install_assembliesdir   = $(prefix)/Assemblies
+
+install_libdir		    = $(prefix)/lib
+
 
 install_pkgconfigdir    = $(prefix)/lib/pkgconfig
 
@@ -83,13 +88,13 @@ ifeq ($(ice_dir),/usr)
     ref = -pkg:$(1)
 else
     ifdef ice_src_dist
-        ref = -r:$(bindir)/$(1).dll
+        ref = -r:$(assembliesdir)/$(1).dll
     else
         ifeq ($(shell test -d $(ice_dir)/lib/pkgconfig && echo 0),0)
             export PKG_CONFIG_PATH := $(ice_dir)/lib/pkgconfig:$(PKG_CONFIG_PATH)
             ref = -pkg:$(1)
         else
-            ref = -r:$(ice_dir)/bin/$(1).dll
+            ref = -r:$(ice_dir)/Assemblies/$(1).dll
         endif
     endif
 endif
@@ -109,15 +114,15 @@ ifeq ($(GACINSTALL),yes)
         installpolicy = $(GACUTIL) -i $(1).dll -f -root $(GAC_ROOT)
     endif
 else
-    installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_bindir); \
-    			  chmod a+rx $(install_bindir)/$(notdir $(1))
-    installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_bindir); \
-                          $(INSTALL_LIBRARY) $(1) $(install_bindir); \
-    			  chmod a+rx $(install_bindir)/$(notdir $(1).dll); \
-    			  chmod a+r $(install_bindir)/$(notdir $(1))
+    installassembly 	= $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
+    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1))
+    installpolicy 	= $(INSTALL_LIBRARY) $(1).dll $(install_assembliesdir); \
+                          $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
+    			  chmod a+rx $(install_assembliesdir)/$(notdir $(1).dll); \
+    			  chmod a+r $(install_assembliesdir)/$(notdir $(1))
     ifeq ($(DEBUG),yes)
-        installmdb      = $(INSTALL_LIBRARY) $(1) $(install_bindir); \
-                          chmod a+rx $(install_bindir)/$(notdir $(1))
+        installmdb      = $(INSTALL_LIBRARY) $(1) $(install_assembliesdir); \
+                          chmod a+rx $(install_assembliesdir)/$(notdir $(1))
     endif
 endif
 
@@ -168,7 +173,7 @@ else
 			   sn -q -t tmp.pub | sed 's/^.* //'; \
 			   rm tmp.pub)
     else
-	publicKeyToken = $(shell sn -q -T $(bindir)/Ice.dll >tmp.pub; \
+	publicKeyToken = $(shell sn -q -T $(assembliesdir)/Ice.dll >tmp.pub; \
 	                   sed 's/^.* //' <tmp.pub; \
 			   rm tmp.pub)
     endif
@@ -176,7 +181,7 @@ endif
 
 ifneq ($(POLICY_TARGET),)
 
-$(bindir)/$(POLICY_TARGET):
+$(assembliesdir)/$(POLICY_TARGET):
 	@echo -e " \
 <configuration> \n \
   <runtime> \n \
@@ -192,10 +197,10 @@ $(bindir)/$(POLICY_TARGET):
 	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
 	chmod a+r $(POLICY)
 	chmod a+rx $(POLICY_TARGET)
-	mv $(POLICY) $(POLICY_TARGET) $(bindir)
+	mv $(POLICY) $(POLICY_TARGET) $(assembliesdir)
 
 clean::
-	-rm -f $(bindir)/$(POLICY) $(bindir)/$(POLICY_TARGET)
+	-rm -f $(assembliesdir)/$(POLICY) $(assembliesdir)/$(POLICY_TARGET)
 
 endif
 
@@ -223,7 +228,7 @@ all:: $(TARGETS)
 
 ifeq ($(generate_policies),yes)
     ifneq ($(POLICY_TARGET),)
-all:: $(bindir)/$(POLICY_TARGET)
+all:: $(assembliesdir)/$(POLICY_TARGET)
     endif
 endif
 

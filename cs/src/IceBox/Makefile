@@ -12,7 +12,7 @@ top_srcdir	= ../..
 PKG		= IceBox
 LIBNAME		= $(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
-TARGETS		= $(ICEBOXNET) $(bindir)/$(LIBNAME)
+TARGETS		= $(ICEBOXNET) $(assembliesdir)/$(LIBNAME)
 POLICY_TARGET	= $(POLICY).dll
 
 L_SRCS		= AssemblyInfo.cs
@@ -27,22 +27,22 @@ include $(top_srcdir)/config/Make.rules.cs
 
 EXE_MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-LIB_MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(bindir)/$(LIBNAME)
+LIB_MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(assembliesdir)/$(LIBNAME)
 LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
-LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) /doc:$(bindir)/$(PKG).xml /nowarn:1591
+LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
-$(ICEBOXNET): $(I_SRCS) $(bindir)/$(LIBNAME)
+$(ICEBOXNET): $(I_SRCS) $(assembliesdir)/$(LIBNAME)
 	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,Ice) $(I_SRCS)
 
-$(bindir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
-	$(MCS) $(LIB_MCSFLAGS) $(call ref,Glacier2) $(call ref,Ice) $(subst /,$(DSEP),$^)
+$(assembliesdir)/$(LIBNAME): $(L_SRCS) $(GEN_SRCS)
+	$(MCS) $(LIB_MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 install:: all
-	(cd $(bindir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
+	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
 	 $(call installmdb,$(LIBNAME).mdb); \
-	 $(call installdata,$(PKG).xml,$(install_bindir)))
+	 $(call installdata,$(PKG).xml,$(install_assembliesdir)))
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
@@ -54,6 +54,6 @@ install:: all
 endif
 
 clean::
-	-rm -f $(bindir)/$(PKG).xml
+	-rm -f $(assembliesdir)/$(PKG).xml
 
 include .depend

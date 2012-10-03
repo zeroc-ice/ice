@@ -17,10 +17,13 @@ SUBDIRS		= src
 SUBDIRS		= $(SUBDIRS) test demo
 !endif
 
+INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)"
+
 install:: install-common
-	@if not exist "$(install_bindir)" \
-	    @echo "Creating $(install_bindir)..." && \
-	    mkdir "$(install_bindir)"
+	@for %i in ( $(INSTALL_SUBDIRS) ) do \
+	    @if not exist %i \
+		@echo "Creating %i..." && \
+		mkdir %i
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

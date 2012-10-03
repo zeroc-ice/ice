@@ -679,9 +679,9 @@ namespace Ice.VisualStudio
 #endif
         }
 
-        private static readonly string _csBinDirs = "\\bin\\";
-        private static readonly string _csCompactFrameworkBinDirs = "\\bin\\cf\\";
-        private static readonly string _slBinDirs = "\\bin\\sl\\";
+        private static readonly string _csBinDirs = "\\Assemblies\\";
+        private static readonly string _csCompactFrameworkBinDirs = "\\Assemblies\\cf\\";
+        private static readonly string _slBinDirs = "\\Assemblies\\sl\\";
 
         public static bool addDotNetReference(Project project, string component, bool development)
         {

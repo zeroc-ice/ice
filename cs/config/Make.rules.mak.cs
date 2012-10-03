@@ -103,14 +103,16 @@ slice_translator = slice2cs.exe
 !endif
 
 bindir			= $(top_srcdir)\bin
+assembliesdir   = $(top_srcdir)\Assemblies
 
-install_bindir		= $(prefix)\bin
-install_libdir		= $(prefix)\lib
+install_bindir          = $(prefix)\bin
+install_assembliesdir   = $(prefix)\Assemblies
+install_libdir		    = $(prefix)\lib
 
 !if "$(ice_src_dist)" != ""
-refdir = $(bindir)
+refdir = $(assembliesdir)
 !else
-refdir = $(ice_dir)\bin
+refdir = $(ice_dir)\Assemblies
 !endif
 
 !if "$(VERSION_PATCH)" != "0" && "$(VERSION_PATCH)" != "51"
@@ -206,7 +208,7 @@ AL      = al
 POLICY  = policy.$(SHORT_VERSION).$(PKG)
 
 !if "$(generate_policies)" == "yes" && "$(POLICY_TARGET)" != ""
-all:: $(bindir)/$(POLICY_TARGET)
+all:: $(assembliesdir)/$(POLICY_TARGET)
 !endif
 
 clean::
@@ -235,7 +237,7 @@ clean::
 
 !if "$(generate_policies)" == "yes" && "$(POLICY_TARGET)" != ""
 
-$(bindir)/$(POLICY_TARGET):
+$(assembliesdir)/$(POLICY_TARGET):
 !if "$(PUBLIC_KEY_TOKEN)" == ""
 !if "$(ice_src_dist)" != ""
 	@sn -q -p $(KEYFILE) tmp.pub && \
@@ -245,7 +247,7 @@ $(bindir)/$(POLICY_TARGET):
 	del tmp.pub tmp.publicKeyToken && \
 	nmake /nologo /f Makefile.mak policy"
 !else
-	@sn -q -T $(ice_dir)\bin\Ice.dll > tmp.publicKeyToken && \
+	@sn -q -T $(ice_dir)\Assemblies\Ice.dll > tmp.publicKeyToken && \
 	set /P TMP_TOKEN= < tmp.publicKeyToken && \
         cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
 	del tmp.publicKeyToken && \
@@ -270,11 +272,11 @@ policy:
 </configuration>
 <<KEEP
 	$(AL) /link:$(POLICY) /version:0.0.0.0 /out:$(POLICY_TARGET) /keyfile:$(KEYFILE)
-	move $(POLICY) $(bindir)
-	move $(POLICY_TARGET) $(bindir)
+	move $(POLICY) $(assembliesdir)
+	move $(POLICY_TARGET) $(assembliesdir)
 
 clean::
-	del /q $(bindir)\$(POLICY) $(bindir)\$(POLICY_TARGET)
+	del /q $(assembliesdir)\$(POLICY) $(assembliesdir)\$(POLICY_TARGET)
 
 !endif
 

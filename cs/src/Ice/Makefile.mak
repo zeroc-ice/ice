@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 PKG		= Ice
 LIBNAME		= $(PKG).dll
-TARGETS		= $(bindir)\$(LIBNAME)
+TARGETS		= $(assembliesdir)\$(LIBNAME)
 POLICY_TARGET   = $(POLICY).dll
 
 SRCS		= Acceptor.cs \
@@ -144,7 +144,7 @@ GDIR		= generated
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(KEYFILE)
-MCSFLAGS	= $(MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
+MCSFLAGS	= $(MCSFLAGS) /doc:$(assembliesdir)\$(PKG).xml /nowarn:1591
 
 !if "$(MANAGED)" == "yes"
 MCSFLAGS	= $(MCSFLAGS) -define:MANAGED
@@ -159,21 +159,21 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb
+	del /q $(assembliesdir)\$(PKG).pdb
 !endif
 
 clean::
-	del /q $(bindir)\$(PKG).xml
+	del /q $(assembliesdir)\$(PKG).xml
 
 install:: all
-	copy $(bindir)\$(LIBNAME) "$(install_bindir)"
-	copy $(bindir)\$(PKG).xml "$(install_bindir)"
+	copy $(assembliesdir)\$(LIBNAME) "$(install_assembliesdir)"
+	copy $(assembliesdir)\$(PKG).xml "$(install_assembliesdir)"
 !if "$(generate_policies)" == "yes"
-	copy $(bindir)\$(POLICY) "$(install_bindir)"
-	copy $(bindir)\$(POLICY_TARGET) "$(install_bindir)"
+	copy $(assembliesdir)\$(POLICY) "$(install_assembliesdir)"
+	copy $(assembliesdir)\$(POLICY_TARGET) "$(install_assembliesdir)"
 !endif
 !if "$(DEBUG)" == "yes"
-	copy $(bindir)\$(PKG).pdb "$(install_bindir)"
+	copy $(assembliesdir)\$(PKG).pdb "$(install_assembliesdir)"
 !endif
 
 $(GDIR)\BuiltinSequences.cs: $(SDIR)\BuiltinSequences.ice $(SLICE2CS) $(SLICEPARSERLIB)

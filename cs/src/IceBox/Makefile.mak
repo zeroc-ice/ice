@@ -10,7 +10,7 @@
 top_srcdir	= ..\..
 
 PKG		= IceBox
-LIBNAME		= $(bindir)\$(PKG).dll
+LIBNAME		= $(assembliesdir)\$(PKG).dll
 ICEBOXNET	= $(bindir)\iceboxnet.exe
 TARGETS		= $(LIBNAME) $(ICEBOXNET)
 POLICY_TARGET   = $(POLICY).dll
@@ -23,13 +23,16 @@ GEN_SRCS	= $(GDIR)\IceBox.cs
 SDIR		= $(slicedir)\IceBox
 GDIR		= generated
 
+
 !include $(top_srcdir)/config/Make.rules.mak.cs
+
+all:: $(ICEBOXNET).config
 
 EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(LIBNAME)
 LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(KEYFILE)
-LIB_MCSFLAGS	= $(LIB_MCSFLAGS) /doc:$(bindir)\$(PKG).xml /nowarn:1591
+LIB_MCSFLAGS	= $(LIB_MCSFLAGS) /doc:$(assembliesdir)\$(PKG).xml /nowarn:1591
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
@@ -41,29 +44,62 @@ $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 
 !if "$(DEBUG)" == "yes"
 clean::
-	del /q $(bindir)\$(PKG).pdb
+	del /q $(assembliesdir)\$(PKG).pdb
 	del /q $(bindir)\iceboxnet.pdb
 !endif
 
 clean::
-	del /q $(bindir)\$(PKG).xml
+	del /q $(assembliesdir)\$(PKG).xml
+	
+!if "$(PUBLIC_KEY_TOKEN)" == ""
+$(ICEBOXNET).config:
+	@sn -q -T $(assembliesdir)\Ice.dll > tmp.publicKeyToken && \
+	set /P TMP_TOKEN= < tmp.publicKeyToken && \
+        cmd /c "set PUBLIC_KEY_TOKEN=%TMP_TOKEN:~-16% && \
+	del tmp.publicKeyToken && \
+	nmake /nologo /f Makefile.mak iceboxnetconfig"
+!endif
 
+publicKeyToken = $(PUBLIC_KEY_TOKEN: =)
+
+iceboxnetconfig:
+        echo <<$(ICEBOXNET).config
+<?xml version="1.0"?>
+<configuration>
+   <runtime>
+      <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+         <dependentAssembly>
+            <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+            <codeBase version="$(VERSION).0" href="..\Assemblies\Ice.dll"/>
+         </dependentAssembly>
+	 <dependentAssembly>
+            <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
+            <codeBase version="3.4.2.0" href="..\Assemblies\IceBox.dll"/>
+         </dependentAssembly>
+      </assemblyBinding>
+   </runtime>
+</configuration>
+<<KEEP
 
 install:: all
-	copy $(LIBNAME) "$(install_bindir)"
-	copy $(bindir)\$(PKG).xml "$(install_bindir)"
+	copy $(LIBNAME) "$(install_assembliesdir)"
+	copy $(assembliesdir)\$(PKG).xml "$(install_assembliesdir)"
 !if "$(generate_policies)" == "yes"
-	copy $(bindir)\$(POLICY) "$(install_bindir)"
-	copy $(bindir)\$(POLICY_TARGET) "$(install_bindir)"
+	copy $(assembliesdir)\$(POLICY) "$(install_assembliesdir)"
+	copy $(assembliesdir)\$(POLICY_TARGET) "$(install_assembliesdir)"
 !endif
 !if "$(DEBUG)" == "yes"
-	copy $(bindir)\$(PKG).pdb "$(install_bindir)"
+	copy $(assembliesdir)\$(PKG).pdb "$(install_assembliesdir)"
 !endif
 
 install:: all
 	copy $(ICEBOXNET) "$(install_bindir)"
+    copy $(ICEBOXNET).config "$(install_bindir)"
 !if "$(DEBUG)" == "yes"
 	copy $(bindir)\iceboxnet.pdb "$(install_bindir)"
 !endif
+
+clean::
+	del /q $(ICEBOXNET).config
 
 !include .depend.mak

@@ -231,9 +231,9 @@ def configurePaths():
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
     if isWin32():
-        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "bin"))
+        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
     else:
-        addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "bin"))
+        addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "Assemblies"))
 
     #
     # On Windows x64, set PYTHONPATH to python/x64.
