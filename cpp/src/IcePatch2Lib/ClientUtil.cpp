@@ -450,10 +450,8 @@ IcePatch2::Patcher::patch(const string& d)
     {
         string dirWithSlash = simplify(dir + '/');
 
-        FileInfoSeq::const_iterator p;
-
         FileInfoSeq remove;
-        for(p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
+        for(FileInfoSeq::const_iterator p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -466,7 +464,7 @@ IcePatch2::Patcher::patch(const string& d)
         }
 
         FileInfoSeq update;
-        for(p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
+        for(FileInfoSeq::const_iterator p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -479,7 +477,7 @@ IcePatch2::Patcher::patch(const string& d)
         }
 
         FileInfoSeq updateFlag;
-        for(p = _updateFlags.begin(); p != _updateFlags.end(); ++p)
+        for(FileInfoSeq::const_iterator p = _updateFlags.begin(); p != _updateFlags.end(); ++p)
         {
             if(p->path == dir)
             {
@@ -674,12 +672,10 @@ IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 bool
 IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
 {
-    FileInfoSeq::const_iterator p;
-    
     Long total = 0;
     Long updated = 0;
     
-    for(p = files.begin(); p != files.end(); ++p)
+    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size > 0) // Regular, non-empty file?
         {
@@ -690,7 +686,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
     AsyncResultPtr curCB;
     AsyncResultPtr nxtCB;
 
-    for(p = files.begin(); p != files.end(); ++p)
+    for(FileInfoSeq::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         if(p->size < 0) // Directory?
         {

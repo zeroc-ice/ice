@@ -409,7 +409,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     ClassDefPtr base;
     OperationList ops = p->operations();
-    OperationList::iterator oli;
     bool isAbstract = p->isInterface() || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
 
     //
@@ -560,7 +559,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Emit a placeholder for each operation.
         //
-        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
             if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
@@ -657,7 +656,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << "):";
         _out.inc();
 
-        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
             if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
@@ -1056,7 +1055,6 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     DataMemberList members = p->dataMembers();
-    DataMemberList::iterator dmli;
 
     //
     // __init__
@@ -1140,7 +1138,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for(dmli = members.begin(); dmli != members.end(); ++dmli)
+    for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
     {
         if(dmli != members.begin())
         {
@@ -1179,7 +1177,6 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     string abs = getAbsolute(p);
     string name = fixIdent(p->name());
     MemberInfoList memberList;
-    MemberInfoList::iterator r;
 
     {
         DataMemberList members = p->dataMembers();
@@ -1208,7 +1205,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << "):";
     _out.inc();
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeAssign(*r);
     }
@@ -1218,7 +1215,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "_h = 0";
     int iter = 0;
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         string s = "self." + r->fixedName;
         writeHash(s, r->dataMember->type(), iter);
@@ -1249,7 +1246,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         if(!memberList.empty())
         {
             _out << nl << "return ";
-            for(r = memberList.begin(); r != memberList.end(); ++r)
+            for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
             {
                 if(r != memberList.begin())
                 {
@@ -1314,7 +1311,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl;
     }
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         if(r != memberList.begin())
         {

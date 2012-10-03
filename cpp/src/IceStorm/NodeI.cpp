@@ -580,8 +580,7 @@ NodeI::mergeContinue()
     // updates.
     int maxid = -1;
     LogUpdate maxllu = { -1, 0 };
-    set<GroupNodeInfo>::const_iterator p;
-    for(p = tmpSet.begin(); p != tmpSet.end(); ++p)
+    for(set<GroupNodeInfo>::const_iterator p = tmpSet.begin(); p != tmpSet.end(); ++p)
     {
         if(_traceLevels->election > 0)
         {
@@ -674,7 +673,7 @@ NodeI::mergeContinue()
     }
 
     // Tell each node to go.
-    for(p = tmpSet.begin(); p != tmpSet.end(); ++p)
+    for(set<GroupNodeInfo>::const_iterator p = tmpSet.begin(); p != tmpSet.end(); ++p)
     {
         try
         {

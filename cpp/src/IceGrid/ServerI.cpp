@@ -2245,8 +2245,8 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                     throw "couldn't create configuration file `" + file + "'";
                 }
                 
-                PropertyDescriptorSeq::const_iterator p;
-                for(p = (*q)->properties.begin(); p != (*q)->properties.end(); ++p)
+                for(PropertyDescriptorSeq::const_iterator p = (*q)->properties.begin();
+                    p != (*q)->properties.end(); ++p)
                 {
                     if(!p->name.empty())
                     {

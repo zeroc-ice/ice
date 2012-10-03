@@ -302,9 +302,8 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     vector<string> members;
     vector<string> capitalizedMembers;
     vector<string> indexNames;
-    size_t i;
 
-    for(i = 0; i < dict.indices.size(); ++i)
+    for(size_t i = 0; i < dict.indices.size(); ++i)
     {
         const DictIndex& index = dict.indices[i];
         const string& member = index.member;
@@ -463,13 +462,13 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sp;
         out << nl << "/**"
             << nl << " * This constructor accepts a comparator for each index key.";
-        for(i = 0; i < dict.indices.size(); ++i)
+        for(size_t i = 0; i < dict.indices.size(); ++i)
         {
             out << nl << " * @param " << members[i] << "Comparator Comparator for <code>" << members[i] << "</code>.";
         }
         out << nl << " */";
         out << nl << "public" << nl << "IndexComparators(";
-        for(i = 0; i < dict.indices.size(); ++i)
+        for(size_t i = 0; i < dict.indices.size(); ++i)
         {
             if(i > 0)
             {
@@ -480,14 +479,14 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         }
         out << ")";
         out << sb;
-        for(i = 0; i < dict.indices.size(); ++i)
+        for(size_t i = 0; i < dict.indices.size(); ++i)
         {
             out << nl << "this." << members[i] << "Comparator = " << members[i] << "Comparator;";
         }
         out << eb;
 
         out << sp;
-        for(i = 0; i < dict.indices.size(); ++i)
+        for(size_t i = 0; i < dict.indices.size(); ++i)
         {
             out << nl << "/** Comparator for <code>" << members[i] << "</code>. */";
             out << nl << "public java.util.Comparator<" << typeToObjectString(indexTypes[i]) << "> " << members[i]
@@ -513,7 +512,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     if(dict.indices.size() > 0)
     {
         out << nl << "_indices = new Freeze.MapIndex[" << dict.indices.size() << "];";
-        for(i = 0; i < dict.indices.size(); ++i)
+        for(size_t i = 0; i < dict.indices.size(); ++i)
         {
             out << nl << "_" << members[i] << "Index = new " << capitalizedMembers[i] << "Index(\"" << indexNames[i]
                 << "\", __indexComparators == null ? null : __indexComparators." << members[i] << "Comparator);";
@@ -677,7 +676,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Index methods
     //
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string indexClassName = capitalizedMembers[i] + "Index";
         string indexTypeS = typeToString(indexTypes[i], TypeModeIn);
@@ -870,7 +869,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Top-level encode/decode
     //
-    for(i = 0; i < 2; i++)
+    for(size_t i = 0; i < 2; i++)
     {
         string keyValue;
         TypePtr type;
@@ -1035,7 +1034,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     //
     // Inner index classes
     //
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string indexClassName = capitalizedMembers[i] + "Index";
         string indexKeyTypeS = typeToObjectString(indexTypes[i]);
@@ -1269,7 +1268,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     {
         out << sp << nl << "private Freeze.MapIndex[] _indices;";
     }
-    for(i = 0; i < dict.indices.size(); ++i)
+    for(size_t i = 0; i < dict.indices.size(); ++i)
     {
         out << nl << "private " << capitalizedMembers[i] << "Index _" << members[i] << "Index;";
     }
@@ -1523,20 +1522,19 @@ compile(int argc, char* argv[])
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    vector<string>::const_iterator i;
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(i = includePaths.begin(); i != includePaths.end(); ++i)
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -1547,7 +1545,7 @@ compile(int argc, char* argv[])
 
     vector<Dict> dicts;
     optargs = opts.argVec("dict");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         string s = IceUtilInternal::removeWhitespace(*i);
 
@@ -1594,7 +1592,7 @@ compile(int argc, char* argv[])
 
     vector<Index> indices;
     optargs = opts.argVec("index");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         string s = IceUtilInternal::removeWhitespace(*i);
 

@@ -352,8 +352,8 @@ Slice::Preprocessor::printMakefileDependencies(Language lang, const vector<strin
     }
 
     vector<string> fullIncludePaths;
-    vector<string>::const_iterator p;
-    for(p = includePaths.begin(); p != includePaths.end(); ++p)
+
+    for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         fullIncludePaths.push_back(fullPath(*p));
     }

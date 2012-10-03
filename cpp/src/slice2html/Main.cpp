@@ -134,20 +134,19 @@ compile(int argc, char* argv[])
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    vector<string>::const_iterator i;
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     optargs = opts.argVec("I");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }

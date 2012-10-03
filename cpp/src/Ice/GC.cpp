@@ -331,25 +331,22 @@ IceInternal::GC::collectGarbage()
     //
     // What is left in the counts map can be garbage collected.
     //
+    for(GCCountMap::const_iterator i = counts.begin(); i != counts.end(); ++i)
     {
-        GCCountMap::const_iterator i;
-        for(i = counts.begin(); i != counts.end(); ++i)
-        {
-            //
-            // For classes with members that point at potentially-cyclic instances, __gcClear()
-            // decrements the reference count of the pointed-at instances as many times as they are
-            // pointed at and clears the corresponding Ptr members in the pointing class.
-            // For classes that cannot be part of a cycle (because they do not contain class members)
-            // and are therefore true leaves, __gcClear() assigns 0 to the corresponding class member,
-            // which either decrements the ref count or, if it reaches zero, deletes the instance as usual.
-            //
-            i->first->__gcClear();
-        }
-        for(i = counts.begin(); i != counts.end(); ++i)
-        {
-            gcObjects->erase(i->first); // Remove this object from candidate set.
-            delete i->first; // Delete this object.
-        }
+        //
+        // For classes with members that point at potentially-cyclic instances, __gcClear()
+        // decrements the reference count of the pointed-at instances as many times as they are
+        // pointed at and clears the corresponding Ptr members in the pointing class.
+        // For classes that cannot be part of a cycle (because they do not contain class members)
+        // and are therefore true leaves, __gcClear() assigns 0 to the corresponding class member,
+        // which either decrements the ref count or, if it reaches zero, deletes the instance as usual.
+        //
+        i->first->__gcClear();
+    }
+    for(GCCountMap::const_iterator i = counts.begin(); i != counts.end(); ++i)
+    {
+        gcObjects->erase(i->first); // Remove this object from candidate set.
+        delete i->first; // Delete this object.
     }
 
     if(_statsCallback)

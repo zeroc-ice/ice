@@ -1986,8 +1986,7 @@ Slice::Container::visit(ParserVisitor* visitor, bool all)
 void
 Slice::Container::containerRecDependencies(set<ConstructedPtr>& dependencies)
 {
-    ContainedList::iterator p;
-    for(p = _contents.begin(); p != _contents.end(); ++p)
+    for(ContainedList::iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
         if(constructed && dependencies.find(constructed) != dependencies.end())
@@ -2738,8 +2737,7 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
     {
         _definition->containerRecDependencies(dependencies);
         ClassList bases = _definition->bases();
-        ClassList::iterator p;
-        for(p = bases.begin(); p != bases.end(); ++p)
+        for(ClassList::iterator p = bases.begin(); p != bases.end(); ++p)
         {
             (*p)->declaration()->recDependencies(dependencies);
         }
@@ -4967,9 +4965,7 @@ Slice::Operation::uses(const ContainedPtr& contained) const
         }
     }
 
-    ExceptionList::const_iterator q;
-
-    for(q = _throws.begin(); q != _throws.end(); ++q)
+    for(ExceptionList::const_iterator q = _throws.begin(); q != _throws.end(); ++q)
     {
         ContainedPtr contained2 = ContainedPtr::dynamicCast(*q);
         if(contained2 && contained2 == contained)
@@ -5699,8 +5695,7 @@ Slice::Unit::removeContent(const ContainedPtr& contained)
     string scoped = IceUtilInternal::toLower(contained->scoped());
     map<string, ContainedList>::iterator p = _contentMap.find(scoped);
     assert(p != _contentMap.end());
-    ContainedList::iterator q;
-    for(q = p->second.begin(); q != p->second.end(); ++q)
+    for(ContainedList::iterator q = p->second.begin(); q != p->second.end(); ++q)
     {
         if(q->get() == contained.get())
         {

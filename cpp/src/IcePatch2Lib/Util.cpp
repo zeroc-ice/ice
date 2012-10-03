@@ -1152,9 +1152,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
         tree1.files.clear();
         tree1.checksum.resize(20);
         
-        FileInfoSeq::const_iterator p;
-        
-        for(p = infoSeq.begin(); p != infoSeq.end(); ++p)
+        for(FileInfoSeq::const_iterator p = infoSeq.begin(); p != infoSeq.end(); ++p)
         {
             if(i == static_cast<int>(p->checksum[0]))
             {
@@ -1166,7 +1164,7 @@ IcePatch2::getFileTree0(const FileInfoSeq& infoSeq, FileTree0& tree0)
         allChecksums1.resize(tree1.files.size() * 21); // 20 bytes for the checksum + 1 byte for the flag
         ByteSeq::iterator c1 = allChecksums1.begin();
 
-        for(p = tree1.files.begin(); p != tree1.files.end(); ++p, c1 += 21)
+        for(FileInfoSeq::const_iterator p = tree1.files.begin(); p != tree1.files.end(); ++p, c1 += 21)
         {
             copy(p->checksum.begin(), p->checksum.end(), c1);
             *(c1 + 20) = p->executable;

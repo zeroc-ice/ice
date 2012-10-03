@@ -453,8 +453,7 @@ Activator::activate(const string& name,
     // Compose command line.
     //
     string cmd;
-    StringSeq::const_iterator p;
-    for(p = args.begin(); p != args.end(); ++p)
+    for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p)
     {
         if(p != args.begin())
         {
@@ -519,7 +518,7 @@ Activator::activate(const string& name,
             var++; // Skip the '\0' byte
         }
         FreeEnvironmentStringsW(static_cast<wchar_t*>(parentEnv));
-        for(p = envs.begin(); p != envs.end(); ++p)
+        for(StringSeq::const_iterator p = envs.begin(); p != envs.end(); ++p)
         {
             wstring s = IceUtil::stringToWstring(*p);
             wstring::size_type pos = s.find(L'=');

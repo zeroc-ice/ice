@@ -172,7 +172,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassList bases = p->bases();
     ClassDefPtr base;
     OperationList ops = p->operations();
-    OperationList::iterator oli;
     DataMemberList members = p->dataMembers();
     bool isInterface = p->isInterface();
     bool isAbstract = isInterface || p->allOperations().size() > 0; // Don't use isAbstract() - see bug 3739
@@ -200,7 +199,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
         }
         _out << sb;
-        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
             _out << nl << "public function " << fixIdent((*oli)->name()) << '(';
             ParamDeclList params = (*oli)->parameters();
@@ -298,7 +297,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!ops.empty())
         {
             _out << sp;
-            for(oli = ops.begin(); oli != ops.end(); ++oli)
+            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
             {
                 _out << nl << "abstract public function " << fixIdent((*oli)->name()) << '(';
                 ParamDeclList params = (*oli)->parameters();
@@ -468,7 +467,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!ops.empty())
         {
             _out << sp;
-            for(oli = ops.begin(); oli != ops.end(); ++oli)
+            for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
             {
                 ParamDeclList params = (*oli)->parameters();
                 ParamDeclList::iterator t;
@@ -603,7 +602,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sb;
 
     DataMemberList members = p->dataMembers();
-    DataMemberList::iterator dmli;
 
     //
     // __construct
@@ -661,7 +659,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!members.empty())
     {
         _out << sp;
-        for(dmli = members.begin(); dmli != members.end(); ++dmli)
+        for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
         {
             _out << nl << "public $" << fixIdent((*dmli)->name()) << ";";
         }
@@ -694,7 +692,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!members.empty())
     {
         _out << "array(";
-        for(dmli = members.begin(); dmli != members.end(); ++dmli)
+        for(DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
         {
             if(dmli != members.begin())
             {
@@ -729,7 +727,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
     MemberInfoList memberList;
-    MemberInfoList::iterator r;
 
     {
         DataMemberList members = p->dataMembers();
@@ -753,7 +750,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << ")";
     _out << sb;
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeAssign(*r);
     }
@@ -771,7 +768,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     if(!memberList.empty())
     {
         _out << sp;
-        for(r = memberList.begin(); r != memberList.end(); ++r)
+        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
         {
             _out << nl << "public $" << r->fixedName << ';';
         }
@@ -790,7 +787,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for(r = memberList.begin(); r != memberList.end(); ++r)
+    for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
     {
         if(r != memberList.begin())
         {
@@ -897,8 +894,6 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);
     EnumeratorList enums = p->getEnumerators();
-    EnumeratorList::iterator q;
-    long i;
 
     startNamespace(p);
 
@@ -906,13 +901,16 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sb;
     _out << nl << "class " << name;
     _out << sb;
-
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
+    
     {
-        string fixedEnum = fixIdent((*q)->name());
-        ostringstream idx;
-        idx << i;
-        _out << nl << "const " << fixedEnum << " = " << idx.str() << ';';
+        long i = 0;
+        for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
+        {
+            string fixedEnum = fixIdent((*q)->name());
+            ostringstream idx;
+            idx << i;
+            _out << nl << "const " << fixedEnum << " = " << idx.str() << ';';
+        }
     }
 
     _out << eb;
@@ -921,7 +919,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     // Emit the type information.
     //
     _out << sp << nl << type << " = IcePHP_defineEnum('" << scoped << "', array(";
-    for(q = enums.begin(); q != enums.end(); ++q)
+    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
     {
         if(q != enums.begin())
         {
@@ -1310,8 +1308,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                 val = val.substr(colon + 1);
             }
             Slice::EnumeratorList l = en->getEnumerators();
-            Slice::EnumeratorList::iterator q;
-            for(q = l.begin(); q != l.end(); ++q)
+            for(Slice::EnumeratorList::iterator q = l.begin(); q != l.end(); ++q)
             {
                 if((*q)->name() == val)
                 {
@@ -1591,20 +1588,19 @@ compile(int argc, char* argv[])
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    vector<string>::const_iterator i;
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(i = includePaths.begin(); i != includePaths.end(); ++i)
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -1639,7 +1635,7 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    for(i = args.begin(); i != args.end(); ++i)
+    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.

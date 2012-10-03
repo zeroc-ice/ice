@@ -139,8 +139,7 @@ encodeChar(string::value_type b, string& s, const string& special)
 string
 IceUtilInternal::escapeString(const string& s, const string& special)
 {
-    string::size_type i;
-    for(i = 0; i < special.size(); ++i)
+    for(string::size_type i = 0; i < special.size(); ++i)
     {
         if(static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
         {
@@ -149,7 +148,7 @@ IceUtilInternal::escapeString(const string& s, const string& special)
     }
     
     string result;
-    for(i = 0; i < s.size(); ++i)
+    for(string::size_type i = 0; i < s.size(); ++i)
     {
         encodeChar(s[i], result, special);
     }

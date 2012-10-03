@@ -1126,8 +1126,7 @@ IceInternal::RoutableReference::toString() const
 
     if(!_endpoints.empty())
     {
-        vector<EndpointIPtr>::const_iterator p;
-        for(p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for(vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             string endp = (*p)->toString();
             if(!endp.empty())

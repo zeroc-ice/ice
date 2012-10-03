@@ -676,8 +676,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
 
     StringSeq unknownProps;
     PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix + ".");
-    PropertyDict::const_iterator p;
-    for(p = props.begin(); p != props.end(); ++p)
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
         for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)

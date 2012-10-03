@@ -594,9 +594,8 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
     {
         try
         {
-            set<ServerIPtr>::iterator s = servers.begin(); 
             vector<string> running;
-            while(s != servers.end())
+            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end();)
             {
                 try
                 {
@@ -628,7 +627,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                 }
             }
 
-            for(s = servers.begin(); s != servers.end(); ++s)
+            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end(); ++s)
             {
                 (*s)->waitForPatch();
             }
@@ -651,7 +650,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
             //
             // Patch the server(s).
             //
-            for(s = servers.begin(); s != servers.end(); ++s)
+            for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end(); ++s)
             {
                 InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
                 if(dist && (server.empty() || (*s)->getId() == server))
@@ -1253,8 +1252,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
     
     c = readDirectory(_serversDir + "/" + name + "/config");
-    Ice::StringSeq::const_iterator p;
-    for(p = c.begin() ; p != c.end(); ++p)
+    for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
     {
         if(p->find("config") != 0)
         {
@@ -1263,7 +1261,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
     
     c = readDirectory(_serversDir + "/" + name + "/dbs");
-    for(p = c.begin() ; p != c.end(); ++p)
+    for(Ice::StringSeq::const_iterator p = c.begin() ; p != c.end(); ++p)
     {
         try
         {

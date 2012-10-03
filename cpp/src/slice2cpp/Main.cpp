@@ -138,23 +138,22 @@ compile(int argc, char* argv[])
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    vector<string>::const_iterator i;
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths;
     includePaths = opts.argVec("I");
-    for(i = includePaths.begin(); i != includePaths.end(); ++i)
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
+        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
 
     bool preprocess = opts.isSet("E");
@@ -191,7 +190,7 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    for(i = args.begin(); i != args.end(); ++i)
+    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.

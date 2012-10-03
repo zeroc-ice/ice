@@ -184,8 +184,7 @@ IceSSL::DHParams::DHParams() :
 
 IceSSL::DHParams::~DHParams()
 {
-    ParamList::iterator p;
-    for(p = _params.begin(); p != _params.end(); ++p)
+    for(ParamList::iterator p = _params.begin(); p != _params.end(); ++p)
     {
         DH_free(p->second);
     }
@@ -226,8 +225,7 @@ IceSSL::DHParams::get(int keyLength)
     // First check the set of parameters specified by the user.
     // Return the first set whose key length is at least keyLength.
     //
-    ParamList::iterator p;
-    for(p = _params.begin(); p != _params.end(); ++p)
+    for(ParamList::iterator p = _params.begin(); p != _params.end(); ++p)
     {
         if(p->first >= keyLength)
         {

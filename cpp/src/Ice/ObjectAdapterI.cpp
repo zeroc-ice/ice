@@ -718,19 +718,19 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
         // Proxies which have at least one endpoint in common with the
         // endpoints used by this object adapter are considered local.
         //
-        vector<EndpointIPtr>::const_iterator p;
-        for(p = endpoints.begin(); p != endpoints.end(); ++p)
+        for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-            vector<IncomingConnectionFactoryPtr>::const_iterator q;
-            for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+            for(vector<IncomingConnectionFactoryPtr>::const_iterator q = _incomingConnectionFactories.begin(); 
+                q != _incomingConnectionFactories.end(); ++q)
             {
                 if((*p)->equivalent((*q)->endpoint()))
                 {
                     return true;
                 }
             }
-            vector<EndpointIPtr>::const_iterator r;
-            for(r = _publishedEndpoints.begin(); r != _publishedEndpoints.end(); ++r)
+
+            for(vector<EndpointIPtr>::const_iterator r = _publishedEndpoints.begin();
+                r != _publishedEndpoints.end(); ++r)
             {
                 if((*p)->equivalent(*r))
                 {
@@ -746,10 +746,9 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
         //
         if(_routerInfo && _routerInfo->getRouter() == proxy->ice_getRouter())
         {
-            for(p = endpoints.begin(); p != endpoints.end(); ++p)
+            for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
-                vector<EndpointIPtr>::const_iterator r;
-                for(r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
+                for(vector<EndpointIPtr>::const_iterator r = _routerEndpoints.begin(); r != _routerEndpoints.end(); ++r)
                 {
                     if((*p)->equivalent(*r))
                     {
@@ -1487,8 +1486,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 
     bool noProps = true;
     PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
-    PropertyDict::const_iterator p;
-    for(p = props.begin(); p != props.end(); ++p)
+    for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
         for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)

@@ -433,8 +433,8 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
         + name + "KeyCodec, " + compare + " >";
 
     vector<string> capitalizedMembers;
-    size_t i;
-    for(i = 0; i < dict.indices.size(); ++i)
+
+    for(size_t i = 0; i < dict.indices.size(); ++i)
     {
         const string& member = dict.indices[i].member;
         if(!member.empty())
@@ -474,7 +474,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     // Nested index classes
     //
 
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string className = capitalizedMembers[i] + "Index";
 
@@ -537,7 +537,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     H << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
       << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, this->_communicator, this->_encoding);";
     H << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string indexName = dict.indices[i].member;
         if(indexName.empty())
@@ -568,7 +568,7 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     //
     // Find, begin, lowerBound, upperBound, equalRange and count functions
     //
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         H << sp;
         H << nl << "iterator findBy" << capitalizedMembers[i]
@@ -627,8 +627,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
         + name + "KeyCodec, " + compare + " >";
     
     vector<string> capitalizedMembers;
-    size_t i;
-    for(i = 0; i < dict.indices.size(); ++i)
+    for(size_t i = 0; i < dict.indices.size(); ++i)
     {
         const string& member = dict.indices[i].member;
         if(!member.empty())
@@ -647,7 +646,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     //
     // Nested index classes
     //
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string className = capitalizedMembers[i] + "Index";
 
@@ -779,7 +778,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     C << nl << "Freeze::KeyCompareBasePtr __keyCompare = "
       << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, _communicator, _encoding);";
     C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string indexName = dict.indices[i].member;
         if(indexName.empty())
@@ -807,7 +806,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
       << "new Freeze::KeyCompare" << keyCompareParams << "(__compare, __connection->getCommunicator()"
       <<", __connection->getEncoding());";
     C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {
         string indexName = dict.indices[i].member;
         if(indexName.empty())
@@ -826,7 +825,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     //
     // Find and count functions
     //
-    for(i = 0; i < capitalizedMembers.size(); ++i)
+    for(size_t i = 0; i < capitalizedMembers.size(); ++i)
     {   
         string indexClassName = capitalizedMembers[i] + "Index";
         
@@ -997,9 +996,7 @@ writeDict(const string& n, const UnitPtr& u, const Dict& dict, Output& H, Output
     }
     TypePtr valueType = valueTypes.front();
     
-    vector<string>::const_iterator q;
-    
-    for(q = scope.begin(); q != scope.end(); ++q)
+    for(vector<string>::const_iterator q = scope.begin(); q != scope.end(); ++q)
     {
         H << sp;
         H << nl << "namespace " << *q << nl << '{';
@@ -1146,7 +1143,7 @@ writeDict(const string& n, const UnitPtr& u, const Dict& dict, Output& H, Output
     }
 
 
-    for(q = scope.begin(); q != scope.end(); ++q)
+    for(vector<string>::const_iterator q = scope.begin(); q != scope.end(); ++q)
     {
         H << sp;
         H << nl << '}';
@@ -1354,10 +1351,8 @@ writeIndex(const string& n, const UnitPtr& u, const Index& index, Output& H, Out
             throw os.str();
         }
     }
-   
-    vector<string>::const_iterator q;
     
-    for(q = scope.begin(); q != scope.end(); ++q)
+    for(vector<string>::const_iterator q = scope.begin(); q != scope.end(); ++q)
     {
         H << sp;
         H << nl << "namespace " << *q << nl << '{';
@@ -1365,7 +1360,7 @@ writeIndex(const string& n, const UnitPtr& u, const Index& index, Output& H, Out
 
     writeIndexH(inputTypeToString(dataMember->type(), false), name, H, dllExport);
     
-    for(q = scope.begin(); q != scope.end(); ++q)
+    for(vector<string>::const_iterator q = scope.begin(); q != scope.end(); ++q)
     {
         H << sp;
         H << nl << '}';
@@ -1470,11 +1465,9 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         H << "\n#include <Freeze/Index.h>";
     }
 
+    for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
     {
-        for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
-        {
-            H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
-        }
+        H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
     }
 
     CPP << "\n#include <Ice/BasicStream.h>";
@@ -1495,16 +1488,14 @@ gen(const string& name, const UnitPtr& u, const vector<string>& includePaths, co
         dllExport += " ";
     }
 
+    for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
     {
-        for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
-        {
-            writeDict(name, u, *p, H, CPP, dllExport);
-        } 
+        writeDict(name, u, *p, H, CPP, dllExport);
+    } 
 
-        for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
-        {
-            writeIndex(name, u, *q, H, CPP, dllExport);
-        }
+    for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
+    {
+        writeIndex(name, u, *q, H, CPP, dllExport);
     }
 
     H << "\n\n#endif\n";
@@ -1567,30 +1558,28 @@ compile(int argc, char* argv[])
     vector<string> cppArgs;
     vector<string> extraHeaders = opts.argVec("add-header");
     vector<string> optargs = opts.argVec("D");
-    vector<string>::const_iterator i;
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for(i = includePaths.begin(); i != includePaths.end(); ++i)
+    for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
 
     // Convert include paths to full paths.
+    for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
-        for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
-        {
-            *p = fullPath(*p);
-        }
+        *p = fullPath(*p);
     }
 
     bool preprocess= opts.isSet("E");
@@ -1601,7 +1590,7 @@ compile(int argc, char* argv[])
 
     vector<Dict> dicts;
     optargs = opts.argVec("dict");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         string s = IceUtilInternal::removeWhitespace(*i);
         
@@ -1733,7 +1722,7 @@ compile(int argc, char* argv[])
     
     vector<Index> indices;
     optargs = opts.argVec("index");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         string s = IceUtilInternal::removeWhitespace(*i);
         
@@ -1800,7 +1789,7 @@ compile(int argc, char* argv[])
     }
 
     optargs = opts.argVec("dict-index");
-    for(i = optargs.begin(); i != optargs.end(); ++i)
+    for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
     {
         string s = IceUtilInternal::removeWhitespace(*i);
         

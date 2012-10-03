@@ -388,23 +388,21 @@ FreezeScript::AnalyzeTransformVisitor::compareMembers(const DataMemberList& oldM
                                                       const DataMemberList& newMembers)
 {
     map<string, DataMemberPtr> oldMap, newMap;
-    map<string, DataMemberPtr>::iterator q;
-    DataMemberList::const_iterator p;
 
-    for(p = oldMembers.begin(); p != oldMembers.end(); ++p)
+    for(DataMemberList::const_iterator p = oldMembers.begin(); p != oldMembers.end(); ++p)
     {
         oldMap.insert(pair<string, DataMemberPtr>((*p)->name(), *p));
     }
 
-    for(p = newMembers.begin(); p != newMembers.end(); ++p)
+    for(DataMemberList::const_iterator p = newMembers.begin(); p != newMembers.end(); ++p)
     {
         newMap.insert(pair<string, DataMemberPtr>((*p)->name(), *p));
     }
 
-    for(p = oldMembers.begin(); p != oldMembers.end(); ++p)
+    for(DataMemberList::const_iterator p = oldMembers.begin(); p != oldMembers.end(); ++p)
     {
         string name = (*p)->name();
-        q = newMap.find(name);
+        map<string, DataMemberPtr>::iterator q = newMap.find(name);
         if(q == newMap.end())
         {
             _out.newline();
@@ -428,7 +426,7 @@ FreezeScript::AnalyzeTransformVisitor::compareMembers(const DataMemberList& oldM
     // Iterate over the remaining entries in newMap. These represent
     // members that were added in the new definition.
     //
-    for(q = newMap.begin(); q != newMap.end(); ++q)
+    for(map<string, DataMemberPtr>::iterator q = newMap.begin(); q != newMap.end(); ++q)
     {
         _out.newline();
         _out << "<!-- NOTICE: " << q->first << " has been added -->";

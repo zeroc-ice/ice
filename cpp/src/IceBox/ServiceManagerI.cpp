@@ -171,9 +171,7 @@ IceBox::ServiceManagerI::startService(const string& name, const Current&)
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-        vector<ServiceInfo>::iterator p;
-        for(p = _services.begin(); p != _services.end(); ++p)
+        for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
         {
             if(p->name == name)
             {
@@ -249,9 +247,7 @@ IceBox::ServiceManagerI::stopService(const string& name, const Current&)
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-        vector<ServiceInfo>::iterator p;
-        for(p = _services.begin(); p != _services.end(); ++p)
+        for(vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
         {
             if(p->name == name)
             {
@@ -744,7 +740,6 @@ IceBox::ServiceManagerI::stopAll()
     //
     // Services are stopped in the reverse order from which they are started.
     //
-    vector<ServiceInfo>::reverse_iterator p;
 
     vector<string> stoppedServices;
 
@@ -752,7 +747,7 @@ IceBox::ServiceManagerI::stopAll()
     // First, for each service, we call stop on the service and flush its database environment to
     // the disk.
     //
-    for(p = _services.rbegin(); p != _services.rend(); ++p)
+    for(vector<ServiceInfo>::reverse_iterator p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
 
@@ -778,7 +773,7 @@ IceBox::ServiceManagerI::stopAll()
         }
     }
 
-    for(p = _services.rbegin(); p != _services.rend(); ++p)
+    for(vector<ServiceInfo>::reverse_iterator p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
 

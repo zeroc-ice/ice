@@ -1905,7 +1905,6 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 
     string keyS = typeToString(key, TypeModeIn, package);
     string valueS = typeToString(value, TypeModeIn, package);
-    int i;
 
     ostringstream o;
     o << iter;
@@ -1926,7 +1925,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
             << ".entrySet())";
         out << sb;
-        for(i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++)
         {
             string arg;
             TypePtr type;
@@ -1951,7 +1950,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "int __sz" << iterS << " = __is.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
-        for(i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++)
         {
             string arg;
             TypePtr type;
@@ -2988,7 +2987,6 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
 
     string keyS = typeToString(key, TypeModeIn, package);
     string valueS = typeToString(value, TypeModeIn, package);
-    int i;
 
     ostringstream o;
     o << iter;
@@ -3009,7 +3007,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
             << ".entrySet())";
         out << sb;
-        for(i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++)
         {
             string arg;
             TypePtr type;
@@ -3034,7 +3032,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "int __sz" << iterS << " = __inS.readSize();";
         out << nl << "for(int __i" << iterS << " = 0; __i" << iterS << " < __sz" << iterS << "; __i" << iterS << "++)";
         out << sb;
-        for(i = 0; i < 2; i++)
+        for(int i = 0; i < 2; i++)
         {
             string arg;
             TypePtr type;

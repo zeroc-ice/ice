@@ -196,7 +196,6 @@ main(int argc, char* argv[])
 
     try
     {
-        StringSeq::iterator p;
         string absDataDir = dataDir;
     
         string cwd;
@@ -210,7 +209,7 @@ main(int argc, char* argv[])
             absDataDir = simplify(cwd + '/' + absDataDir);
         }
         
-        for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
             if(!IceUtilInternal::isAbsolutePath(*p))
             {
@@ -225,7 +224,7 @@ main(int argc, char* argv[])
         //
         string absDataDirWithSlash = simplify(absDataDir + '/');
 
-        for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
             if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
             {
@@ -249,7 +248,7 @@ main(int argc, char* argv[])
         {
             loadFileInfoSeq(absDataDir, infoSeq);
 
-            for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+            for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
             {
                 FileInfoSeq partialInfoSeq;
 

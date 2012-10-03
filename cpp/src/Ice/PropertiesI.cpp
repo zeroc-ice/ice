@@ -126,8 +126,7 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
     IceUtil::Mutex::Lock sync(*this);
 
     PropertyDict result;
-    map<string, PropertyValue>::iterator p;
-    for(p = _properties.begin(); p != _properties.end(); ++p)
+    for(map<string, PropertyValue>::iterator p = _properties.begin(); p != _properties.end(); ++p)
     {
         if(prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
         {
@@ -244,8 +243,7 @@ Ice::PropertiesI::getCommandLineOptions()
 
     StringSeq result;
     result.reserve(_properties.size());
-    map<string, PropertyValue>::const_iterator p;
-    for(p = _properties.begin(); p != _properties.end(); ++p)
+    for(map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
     {
         result.push_back("--" + p->first + "=" + p->second.value);
     }
@@ -263,8 +261,7 @@ Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq&
     pfx = "--" + pfx;
     
     StringSeq result;
-    StringSeq::size_type i;
-    for(i = 0; i < options.size(); i++)
+    for(StringSeq::size_type i = 0; i < options.size(); i++)
     {
         string opt = options[i];
        

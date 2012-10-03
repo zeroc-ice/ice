@@ -167,8 +167,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm,
         assert(!q->id.empty());
         _adapterCache.addServerAdapter(*q, server, application);
 
-        ObjectDescriptorSeq::const_iterator r;
-        for(r = q->objects.begin(); r != q->objects.end(); ++r)
+        for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
             ObjectInfo info;
             info.type = r->type;
@@ -176,7 +175,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm,
             _objectCache.add(info, application);
         }
 
-        for(r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
             ObjectInfo info;
             info.type = r->type;
@@ -191,12 +190,11 @@ ServerCache::removeCommunicator(const CommunicatorDescriptorPtr& comm, const Ser
 {
     for(AdapterDescriptorSeq::const_iterator q = comm->adapters.begin() ; q != comm->adapters.end(); ++q)
     {
-        ObjectDescriptorSeq::const_iterator r;
-        for(r = q->objects.begin(); r != q->objects.end(); ++r)
+        for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
             _objectCache.remove(r->id);
         }
-        for(r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
             _allocatableObjectCache.remove(r->id);
         }

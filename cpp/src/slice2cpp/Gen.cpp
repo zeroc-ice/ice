@@ -662,20 +662,18 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
     bool hasDefaultValues = p->hasDefaultValues();
-    DataMemberList::const_iterator q;
 
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
     vector<string> baseParams;
-    vector<string>::const_iterator pi;
 
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
     }
 
-    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
         allTypes.push_back(typeName);
@@ -685,7 +683,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(base)
     {
         DataMemberList baseDataMembers = base->allDataMembers();
-        for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
         {
             baseParams.push_back("__ice_" + fixKwd((*q)->name()));
         }
@@ -786,7 +784,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 {
                     upcall += "__file, __line";
                 }
-                for(pi = baseParams.begin(); pi != baseParams.end(); ++pi)
+                for(vector<string>::const_iterator pi = baseParams.begin(); pi != baseParams.end(); ++pi)
                 {
                     if(p->isLocal() || pi != baseParams.begin())
                     {
@@ -802,7 +800,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             emitUpcall(base, upcall, p->isLocal());
         }
-        for(pi = params.begin(); pi != params.end(); ++pi)
+        for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
         {
             if(pi != params.begin())
             {
@@ -1149,10 +1147,9 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     //
     if(!dataMembers.empty() && (findMetaData(p->getMetaData()) == "%class" || p->hasDefaultValues()))
     {
-        DataMemberList::const_iterator q;
         vector<string> paramDecls;
         vector<string> types;
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
             types.push_back(typeName);
@@ -1171,7 +1168,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         H << fixKwd(p->name()) << spar << paramDecls << epar << " :";
         H.inc();
 
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
             {
@@ -1200,12 +1197,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     string scope = fixKwd(p->scope());
 
     DataMemberList dataMembers = p->dataMembers();
-    DataMemberList::const_iterator q;
 
     vector<string> params;
     vector<string>::const_iterator pi;
 
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
     }
@@ -1222,7 +1218,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << sb;
     H << nl << "return true;";
     H << eb;
-    for(pi = params.begin(); pi != params.end(); ++pi)
+    for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
     {
         H << nl << "if(" << *pi << " != __rhs." << *pi << ')';
         H << sb;
@@ -1237,7 +1233,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << sb;
     H << nl << "return false;";
     H << eb;
-    for(pi = params.begin(); pi != params.end(); ++pi)
+    for(vector<string>::const_iterator pi = params.begin(); pi != params.end(); ++pi)
     {
         H << nl << "if(" << *pi << " < __rhs." << *pi << ')';
         H << sb;
@@ -1284,7 +1280,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
         C << sb;
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             writeMarshalUnmarshalDataMember(C, *q, true);
         }
@@ -1292,7 +1288,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
         C << sb;
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             writeMarshalUnmarshalDataMember(C, *q, false);
         }
@@ -1302,7 +1298,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
             C << sb;
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 C << nl << "__os->write(" << fixKwd((*q)->name()) << ");";
             }
@@ -1310,7 +1306,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
             C << sb;
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 C << nl << "__is->read(" << fixKwd((*q)->name()) << ");";
             }
@@ -3407,14 +3403,13 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> params;
     vector<string> allTypes;
     vector<string> allParamDecls;
-    DataMemberList::const_iterator q;
 
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         params.push_back(fixKwd((*q)->name()));
     }
 
-    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
         allTypes.push_back(typeName);
@@ -3635,8 +3630,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << nl << "const ::std::string " << flatName << '[' << ids.size() << "] =";
         C << sb;
 
-        StringList::const_iterator r = ids.begin();
-        while(r != ids.end())
+        for(StringList::const_iterator r = ids.begin(); r != ids.end();)
         {
             C << nl << '"' << *r << '"';
             if(++r != ids.end())
@@ -3724,8 +3718,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             allOpNames.sort();
             allOpNames.unique();
 
-            StringList::const_iterator q;
-
             H << sp;
             H << nl
               << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
@@ -3735,8 +3727,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "{";
             C << nl << "const ::std::string " << flatName << "[] =";
             C << sb;
-            q = allOpNames.begin();
-            while(q != allOpNames.end())
+
+            for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
             {
                 C << nl << '"' << *q << '"';
                 if(++q != allOpNames.end())
@@ -3763,7 +3755,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "switch(r.first - " << flatName << ')';
             C << sb;
             int i = 0;
-            for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
+            for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end(); ++q)
             {
                 C << nl << "case " << i++ << ':';
                 C << sb;
@@ -3803,8 +3795,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 C << nl << "const int " << opAttrFlatName << "[] = ";
                 C << sb;
 
-                q = allOpNames.begin();
-                while(q != allOpNames.end())
+                for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
                 {
                     int attributes = 0;
                     string opName = *q;
@@ -4058,9 +4049,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     bool inProtected = false;
     DataMemberList dataMembers = p->dataMembers();
-    DataMemberList::const_iterator q;
     bool prot = p->hasMetaData("protected");
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if(prot || (*q)->hasMetaData("protected"))
         {
@@ -4806,8 +4796,7 @@ Slice::Gen::ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& p, boo
     }
 
     string upcall = "(";
-    DataMemberList::const_iterator q;
-    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
     {
         if(q != allDataMembers.begin())
         {
@@ -4830,10 +4819,9 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 
     if(!allDataMembers.empty())
     {
-        DataMemberList::const_iterator q;
         vector<string> allParamDecls;
 
-        for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
             string typeName = inputTypeToString((*q)->type(), (*q)->optional(), (*q)->getMetaData(), _useWstring);
             allParamDecls.push_back(typeName + " __ice_" + (*q)->name());
@@ -4866,7 +4854,7 @@ Slice::Gen::ObjectVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << nl;
         }
-        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if(q != dataMembers.begin())
             {
@@ -5481,9 +5469,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.inc();
 
     OperationList ops = p->operations();
-    OperationList::const_iterator r;
 
-    for(r = ops.begin(); r != ops.end(); ++r)
+    for(OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = (*r);
         string opName = op->name();
@@ -5497,8 +5484,8 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H.useCurrentPosAsIndent();
             H << "const " << classScopedAMD << '_' << opName << "Ptr&";
             ParamDeclList paramList = op->parameters();
-            ParamDeclList::const_iterator q;
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(!(*q)->isOutParam())
                 {
@@ -5516,7 +5503,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << sp << nl << "void" << nl << scope << name << "I::" << opName << "_async(";
             C.useCurrentPosAsIndent();
             C << "const " << classScopedAMD << '_' << opName << "Ptr& " << opName << "CB";
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(!(*q)->isOutParam())
                 {
@@ -5530,7 +5517,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << sb;
 
             string result = "r";
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if((*q)->name() == result)
                 {
@@ -5542,7 +5529,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 writeDecl(C, result, ret, op->getMetaData());
             }
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if((*q)->isOutParam())
                 {
@@ -5555,7 +5542,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 C << result;
             }
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if((*q)->isOutParam())
                 {
@@ -5575,8 +5562,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << sp << nl << "virtual " << retS << ' ' << fixKwd(opName) << '(';
             H.useCurrentPosAsIndent();
             ParamDeclList paramList = op->parameters();
-            ParamDeclList::const_iterator q;
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(q != paramList.begin())
                 {
@@ -5611,7 +5597,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << sp << nl << retS << nl;
             C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
             C.useCurrentPosAsIndent();
-            for(q = paramList.begin(); q != paramList.end(); ++q)
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
             {
                 if(q != paramList.begin())
                 {
@@ -6016,8 +6002,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
             << "::ice_exception(const ::std::exception& ex)";
         C << sb;
-        ExceptionList::const_iterator r;
-        for(r = throws.begin(); r != throws.end(); ++r)
+        for(ExceptionList::const_iterator r = throws.begin(); r != throws.end(); ++r)
         {
             C << nl;
             if(r != throws.begin())

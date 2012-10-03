@@ -32,8 +32,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current
     // in a rejection.
     //
     ObjectProxySeq proxies; 
-    ObjectProxySeq::const_iterator prx;
-    for(prx = unfiltered.begin(); prx != unfiltered.end(); ++prx)
+    for(ObjectProxySeq::const_iterator prx = unfiltered.begin(); prx != unfiltered.end(); ++prx)
     {
         if(!*prx) // We ignore null proxies.
         {
@@ -50,7 +49,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current
     }
 
     ObjectProxySeq evictedProxies;
-    for(prx = proxies.begin(); prx != proxies.end(); ++prx)
+    for(ObjectProxySeq::const_iterator prx = proxies.begin(); prx != proxies.end(); ++prx)
     {
         ObjectPrx proxy = *prx;
         EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());

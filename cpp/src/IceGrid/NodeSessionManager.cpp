@@ -350,8 +350,8 @@ NodeSessionManager::destroy()
     {
         _thread->terminate();
     }
-    NodeSessionMap::const_iterator p;
-    for(p = sessions.begin(); p != sessions.end(); ++p)
+
+    for(NodeSessionMap::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
         p->second->terminate();
     }
@@ -360,7 +360,7 @@ NodeSessionManager::destroy()
     {
         _thread->getThreadControl().join();
     }
-    for(p = sessions.begin(); p != sessions.end(); ++p)
+    for(NodeSessionMap::const_iterator p = sessions.begin(); p != sessions.end(); ++p)
     {
         p->second->getThreadControl().join();
     }

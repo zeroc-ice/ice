@@ -335,8 +335,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     //
     ObjectAdapterPtr adapter = routerInfo->getAdapter();
     vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints();
-    vector<EndpointIPtr>::const_iterator p;
-    for(p = endpoints.begin(); p != endpoints.end(); ++p)
+    for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         EndpointIPtr endpoint = *p;
 
@@ -359,8 +358,8 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         //
         endpoint = endpoint->compress(false);
 
-        multimap<ConnectorPtr, ConnectionIPtr>::const_iterator q;
-        for(q = _connections.begin(); q != _connections.end(); ++q)
+        for(multimap<ConnectorPtr, ConnectionIPtr>::const_iterator q = _connections.begin(); 
+            q != _connections.end(); ++q)
         {
             if(q->second->endpoint() == endpoint)
             {
@@ -717,13 +716,12 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
             }
         }
 
-        set<ConnectCallbackPtr>::iterator r;
-        for(r = connectionCallbacks.begin(); r != connectionCallbacks.end(); ++r)
+        for(set<ConnectCallbackPtr>::iterator r = connectionCallbacks.begin(); r != connectionCallbacks.end(); ++r)
         {
             (*r)->removeFromPending();
             callbacks.erase(*r);
         }
-        for(r = callbacks.begin(); r != callbacks.end(); ++r)
+        for(set<ConnectCallbackPtr>::iterator r = callbacks.begin(); r != callbacks.end(); ++r)
         {
             (*r)->removeFromPending();
         }
@@ -741,12 +739,11 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         compress = ci.endpoint->compress();
     }
 
-    set<ConnectCallbackPtr>::const_iterator p;
-    for(p = callbacks.begin(); p != callbacks.end(); ++p)
+    for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
     {
         (*p)->getConnection();
     }
-    for(p = connectionCallbacks.begin(); p != connectionCallbacks.end(); ++p)
+    for(set<ConnectCallbackPtr>::const_iterator p = connectionCallbacks.begin(); p != connectionCallbacks.end(); ++p)
     {
         (*p)->setConnection(connection, compress);
     }
@@ -793,13 +790,12 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(const vector<Connect
         }
         notifyAll();
     }
-        
-    set<ConnectCallbackPtr>::const_iterator p;
-    for(p = callbacks.begin(); p != callbacks.end(); ++p)
+    
+    for(set<ConnectCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
     {
         (*p)->getConnection();
     }
-    for(p = failedCallbacks.begin(); p != failedCallbacks.end(); ++p)
+    for(set<ConnectCallbackPtr>::const_iterator p = failedCallbacks.begin(); p != failedCallbacks.end(); ++p)
     {
         (*p)->setException(ex);
     }

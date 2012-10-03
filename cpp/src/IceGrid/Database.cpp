@@ -1924,8 +1924,7 @@ Database::reload(const ApplicationHelper& oldApp,
     map<string, ServerInfo> oldServers = oldApp.getServerInfos(uuid, revision);
     map<string, ServerInfo> newServers = newApp.getServerInfos(uuid, revision);
     vector<ServerInfo> load;
-    map<string, ServerInfo>::const_iterator p;
-    for(p = newServers.begin(); p != newServers.end(); ++p)
+    for(map<string, ServerInfo>::const_iterator p = newServers.begin(); p != newServers.end(); ++p)
     {
         map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
         if(q == oldServers.end())
@@ -1944,7 +1943,7 @@ Database::reload(const ApplicationHelper& oldApp,
             entries.push_back(server);
         }
     }
-    for(p = oldServers.begin(); p != oldServers.end(); ++p)
+    for(map<string, ServerInfo>::const_iterator p = oldServers.begin(); p != oldServers.end(); ++p)
     {
         map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
         if(q == newServers.end())
@@ -1958,8 +1957,7 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     const ReplicaGroupDescriptorSeq& oldAdpts = oldApp.getInstance().replicaGroups;
     const ReplicaGroupDescriptorSeq& newAdpts = newApp.getInstance().replicaGroups;
-    ReplicaGroupDescriptorSeq::const_iterator r;
-    for(r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    for(ReplicaGroupDescriptorSeq::const_iterator r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
         ReplicaGroupDescriptorSeq::const_iterator t;
         for(t = newAdpts.begin(); t != newAdpts.end(); ++t)
@@ -1983,8 +1981,8 @@ Database::reload(const ApplicationHelper& oldApp,
     // Remove all the node descriptors.
     //
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
-    NodeDescriptorDict::const_iterator n;
-    for(n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    
+    for(NodeDescriptorDict::const_iterator n = oldNodes.begin(); n != oldNodes.end(); ++n)
     {
         _nodeCache.get(n->first)->removeDescriptor(application);
     }
@@ -1993,7 +1991,7 @@ Database::reload(const ApplicationHelper& oldApp,
     // Add back node descriptors.
     //
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
-    for(n = newNodes.begin(); n != newNodes.end(); ++n)
+    for(NodeDescriptorDict::const_iterator n = newNodes.begin(); n != newNodes.end(); ++n)
     {
         _nodeCache.get(n->first, true)->addDescriptor(application, n->second);
     }
@@ -2001,7 +1999,7 @@ Database::reload(const ApplicationHelper& oldApp,
     //
     // Add back replica groups.
     //
-    for(r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    for(ReplicaGroupDescriptorSeq::const_iterator r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
         try
         {

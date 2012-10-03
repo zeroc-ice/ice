@@ -349,18 +349,17 @@ RegistryI::startImpl()
     // Get the saved replica/node proxies.
     //
     ObjectProxySeq proxies;
-    ObjectProxySeq::const_iterator p;
 
     NodePrxSeq nodes;
     proxies = _database->getInternalObjectsByType(Node::ice_staticId());
-    for(p = proxies.begin(); p != proxies.end(); ++p)
+    for(ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         nodes.push_back(NodePrx::uncheckedCast(*p));
     }
 
     InternalRegistryPrxSeq replicas;
     proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
-    for(p = proxies.begin(); p != proxies.end(); ++p)
+    for(ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
         replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
     }

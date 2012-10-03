@@ -155,9 +155,7 @@ Client::run(int argc, char* argv[])
         }
     }
 
-    
-    vector<string>::const_iterator r;
-    for(r = commands.begin(); r != commands.end(); ++r)
+    for(vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
     {
         if((*r) == "shutdown")
         {
