@@ -37,6 +37,7 @@ sgenerated
 /cppe/bin
 /cppe/lib
 /cs/bin
+/cs/Assemblies
 *#
 .#*
 *~
