@@ -56,7 +56,12 @@
 
     <target name="proguard-jar" depends="jar" if="proguard-found">
         <condition property="library.jarfiles" value="classes.jar,jsse.jar">
-            <os family="mac"/>
+            <and>
+                <os family="mac"/>
+                <not>
+                    <available file="${java.home}/lib/rt.jar"/>
+                </not>
+            </and>
         </condition>
         <condition property="library.jarfiles" value="rt.jar,jsse.jar">
             <!-- Library jar files for Sun JDK -->
@@ -82,7 +87,12 @@
             </and>
         </condition>
         <condition property="library.jarpath" value="${java.home}/../Classes" else="${java.home}/lib">
-            <os family="mac"/>
+            <and>
+                <os family="mac"/>
+                <not>
+                    <available file="${java.home}/lib/rt.jar"/>
+                </not>
+            </and>
         </condition>
         <pathconvert property="library.jars">
            <filelist dir="${library.jarpath}" files="${library.jarfiles}"/>
