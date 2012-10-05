@@ -270,8 +270,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     void startRefreshThread(MetricsView node)
     {
-        _node = node;
-        _refreshThread = new RefreshThread(_refreshPeriod, _node);
+        _refreshThread = new RefreshThread(_refreshPeriod, node);
         _refreshThread.start();
     }
 
@@ -569,6 +568,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     class TransferHandler extends javax.swing.TransferHandler
     {
+        public TransferHandler(MetricsView node)
+        {
+            _node = node;
+        }
+
         @Override
         public int
         getSourceActions(JComponent component)
@@ -599,9 +603,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         {
             // Does nothing as we don't support move action.
         }
+
+        private MetricsView _node;
     }
 
-    public void show(MetricsView node, final Map<java.lang.String, IceMX.Metrics[]> data, final long timestamp)
+    public void show(final MetricsView node, final Map<java.lang.String, IceMX.Metrics[]> data, final long timestamp)
     {
         if(data == null)
         {
@@ -653,7 +659,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             table.setCellSelectionEnabled(true);
             table.addMouseListener(new ButtonMouseListener(table));
             table.setAutoCreateRowSorter(true);
-            table.setTransferHandler(new TransferHandler());
+            table.setTransferHandler(new TransferHandler(node));
             table.addMouseListener(new MouseAdapter()
                 {
                     @Override
@@ -682,14 +688,14 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     {
                                         public void actionPerformed(ActionEvent e)
                                         {
-                                            GraphView view = _node.getCoordinator().createGraphView();
-                                            view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(_node), 
+                                            GraphView view = node.getCoordinator().createGraphView();
+                                            view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
                                                                                            entry.getKey(), rows));
                                         }
                                     });
                             addToGraph.add(newGraph);
 
-                            GraphView[] graphs = _node.getCoordinator().getGraphViews();
+                            GraphView[] graphs = node.getCoordinator().getGraphViews();
                             for(final GraphView view : graphs)
                             {
                                 JMenuItem item = new JMenuItem(view.getTitle());
@@ -698,7 +704,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     {
                                         public void actionPerformed(ActionEvent e)
                                         {
-                                            view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(_node), 
+                                            view.addSeries(new MetricsViewTransferableData(new MetricsViewInfo(node), 
                                                                                            entry.getKey(), rows));
                                         }
                                     });
@@ -968,7 +974,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
     private RefreshThread _refreshThread;
     private Map<String, JTable> _tables = new HashMap<String, JTable>();
-    private MetricsView _node;
+    
 
     static class ColumnInfo
     {

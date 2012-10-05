@@ -19,9 +19,6 @@
         <adapter name="Hello" endpoints="tcp -h localhost">
           <object identity="hello" type="::Demo::Hello" property="Identity"/>
         </adapter>
-        <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
-        <property name="IceMX.Metrics.OnParent.GroupBy" value="parent"/>
-        <property name="IceMX.Metrics.PerOperation.Map.Dispatch.GroupBy" value="operation"/>
       </server>
       
     </node>

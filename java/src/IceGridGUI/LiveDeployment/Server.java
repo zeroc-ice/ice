@@ -123,7 +123,7 @@ public class Server extends ListArrayTreeNode
                 public void response()
                 {
                     amiSuccess(prefix);
-                    rebuild(Server.this);
+                    rebuild(Server.this, false);
                 }
 
                 public void exception(Ice.UserException e)
@@ -422,7 +422,7 @@ public class Server extends ListArrayTreeNode
                             {
                                 _metricsNames = names;
                                 createMetrics(metricsAdmin);
-                                rebuild(Server.this);
+                                rebuild(Server.this, false);
                             }
                         });
                 }
@@ -777,21 +777,16 @@ public class Server extends ListArrayTreeNode
         }
     }
 
-    void rebuild(Server server, boolean fetchMetricsViewNames)
+    void updateMetrics()
     {
-        _metrics.clear();
-        rebuild(server);
-        if(fetchMetricsViewNames)
+        _metricsRetrieved = false;
+        if(getRoot().getTree().isExpanded(getPath()))
         {
-            _metricsRetrieved = false;
-            if(getRoot().getTree().isExpanded(getPath()))
-            {
-                fetchMetricsViewNames();
-            }
+            fetchMetricsViewNames();
         }
     }
 
-    void rebuild(Server server)
+    void rebuild(Server server, boolean fetchMetrics)
     {
         _resolver = server._resolver;
         _instanceDescriptor = server._instanceDescriptor;
@@ -832,8 +827,13 @@ public class Server extends ListArrayTreeNode
         }
 
         updateServices();
-
+        
         getRoot().getTreeModel().nodeStructureChanged(this);
+
+        if(fetchMetrics)
+        {
+            updateMetrics();
+        }
     }
 
     void rebuild(Utils.Resolver resolver, boolean variablesChanged, java.util.Set<String> serviceTemplates,
@@ -870,16 +870,19 @@ public class Server extends ListArrayTreeNode
             _metrics.clear();
 
             getRoot().getTreeModel().nodeStructureChanged(this);
+            updateMetrics();
         }
         else if(serviceTemplates != null && serviceTemplates.size() > 0 &&
                 _serverDescriptor instanceof IceBoxDescriptor)
         {
+            _metrics.clear();
             _services.clear();
             _servicePropertySets.clear();
             createServices();
             updateServices();
 
             getRoot().getTreeModel().nodeStructureChanged(this);
+            updateMetrics();
         }
     }
 
@@ -911,7 +914,7 @@ public class Server extends ListArrayTreeNode
                 if(_metrics.size() > 0)
                 {
                     _metrics.clear();
-                    rebuild(this);
+                    rebuild(this, false);
                 }
             }
 

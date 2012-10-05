@@ -44,7 +44,7 @@ validateProperties(const string& prefix, const PropertiesPtr& properties)
     for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
-        for(int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
+        for(size_t i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + suffixes[i];
             if(IceUtilInternal::match(p->first, prop))
