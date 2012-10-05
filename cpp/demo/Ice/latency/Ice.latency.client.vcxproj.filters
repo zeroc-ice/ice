@@ -18,14 +18,9 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Latency.cpp">
+    <ClCompile Include="generated\client\Latency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Latency.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Latency.ice">
@@ -33,5 +28,10 @@
     </None>
     <None Include="README" />
     <None Include="config.client" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\client\Latency.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

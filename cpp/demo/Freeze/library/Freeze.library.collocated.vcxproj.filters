@@ -24,13 +24,7 @@
     <ClCompile Include="Grammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Library.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LibraryI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="LibraryTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Parser.cpp">
@@ -42,6 +36,12 @@
     <ClCompile Include="Scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\collocated\Library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\collocated\LibraryTypes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BookFactory.h">
@@ -50,16 +50,16 @@
     <ClInclude Include="Grammar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LibraryI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LibraryTypes.h">
+    <ClInclude Include="Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
+    <ClInclude Include="generated\collocated\Library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\collocated\LibraryTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

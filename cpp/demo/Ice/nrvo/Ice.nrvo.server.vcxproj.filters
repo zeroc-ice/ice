@@ -18,21 +18,21 @@
     <ClCompile Include="MyStringSeq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nrvo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NrvoI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Nrvo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Nrvo.h">
+    <ClInclude Include="NrvoI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NrvoI.h">
+    <ClInclude Include="generated\server\Nrvo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

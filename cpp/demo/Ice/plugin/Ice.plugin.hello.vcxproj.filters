@@ -15,22 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Hello.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HelloPluginI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Hello.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="generated\helloplugin\Hello.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Hello.ice">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\helloplugin\Hello.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

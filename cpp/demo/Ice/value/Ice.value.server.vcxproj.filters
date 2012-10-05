@@ -18,18 +18,18 @@
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Value.cpp">
+    <ClCompile Include="ValueI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ValueI.cpp">
+    <ClCompile Include="generated\server\Value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Value.h">
+    <ClInclude Include="ValueI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ValueI.h">
+    <ClInclude Include="generated\server\Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

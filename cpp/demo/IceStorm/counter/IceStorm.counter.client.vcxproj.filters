@@ -18,18 +18,18 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Counter.cpp">
+    <ClCompile Include="CounterObserverI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CounterObserverI.cpp">
+    <ClCompile Include="generated\client\Counter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Counter.h">
+    <ClInclude Include="CounterObserverI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CounterObserverI.h">
+    <ClInclude Include="generated\client\Counter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

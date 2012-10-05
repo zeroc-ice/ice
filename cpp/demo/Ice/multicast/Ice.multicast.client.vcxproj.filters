@@ -18,20 +18,12 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Discovery.cpp">
+    <ClCompile Include="generated\client\Hello.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hello.cpp">
+    <ClCompile Include="generated\client\Discovery.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Discovery.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Hello.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Hello.ice">
@@ -40,5 +32,13 @@
     <None Include="Discovery.ice" />
     <None Include="README" />
     <None Include="config.client" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\client\Hello.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\client\Discovery.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Greet.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GreetI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Greet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Greet.h">
+    <ClInclude Include="GreetI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GreetI.h">
+    <ClInclude Include="generated\server\Greet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -24,13 +24,7 @@
     <ClCompile Include="Grammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NameIndex.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Parser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PhoneBook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PhoneBookI.cpp">
@@ -42,6 +36,12 @@
     <ClCompile Include="Scanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\collocated\PhoneBook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\collocated\NameIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContactFactory.h">
@@ -50,21 +50,22 @@
     <ClInclude Include="Grammar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NameIndex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Parser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PhoneBook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PhoneBookI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="generated\collocated\PhoneBook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\collocated\NameIndex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+    <None Include="config.collocated" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PhoneBook.ice">

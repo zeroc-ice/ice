@@ -15,17 +15,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Chat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Chat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="generated\client\Chat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Chat.ice">
@@ -33,5 +28,10 @@
     </None>
     <None Include="README" />
     <None Include="config.client" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\client\Chat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

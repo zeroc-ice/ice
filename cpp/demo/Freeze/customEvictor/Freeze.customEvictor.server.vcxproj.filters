@@ -18,28 +18,28 @@
     <ClCompile Include="CurrentDatabase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Database.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Evictor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EvictorBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Item.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ItemI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ItemInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SimpleEvictor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\ItemInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\Item.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\Database.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -53,16 +53,19 @@
     <ClInclude Include="EvictorBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Item.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ItemI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ItemInfo.h">
+    <ClInclude Include="SimpleEvictor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SimpleEvictor.h">
+    <ClInclude Include="generated\server\ItemInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\Item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\Database.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

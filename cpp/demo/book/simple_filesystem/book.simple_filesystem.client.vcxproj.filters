@@ -18,19 +18,19 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
+    <ClCompile Include="generated\client\Filesystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Filesystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Filesystem.ice">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\client\Filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

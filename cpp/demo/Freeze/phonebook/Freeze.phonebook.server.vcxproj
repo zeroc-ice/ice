@@ -45,19 +45,19 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(ALLUSERSPROFILE)\ZeroC\ice.props" />
+    <Import Project="$(ALLUSERSPROFILE)\ZeroC\Ice.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(ALLUSERSPROFILE)\ZeroC\ice.props" />
+    <Import Project="$(ALLUSERSPROFILE)\ZeroC\Ice.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(ALLUSERSPROFILE)\ZeroC\ice.props" />
+    <Import Project="$(ALLUSERSPROFILE)\ZeroC\Ice.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(ALLUSERSPROFILE)\ZeroC\ice.props" />
+    <Import Project="$(ALLUSERSPROFILE)\ZeroC\Ice.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -78,7 +78,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\generated\server;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -110,7 +110,7 @@
     </BuildLog>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\generated\server;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;_DEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -139,7 +139,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\generated\server;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -170,7 +170,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
-      <AdditionalIncludeDirectories>.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;.\generated\server;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CONSOLE;NDEBUG;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -200,13 +200,8 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
-    <ClCompile Include="NameIndex.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="PhoneBook.cpp" />
+    <ClCompile Include="generated\server\NameIndex.cpp" />
+    <ClCompile Include="generated\server\PhoneBook.cpp" />
     <ClCompile Include="PhoneBookI.cpp">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -222,40 +217,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ContactFactory.h" />
-    <ClInclude Include="NameIndex.h" />
-    <ClInclude Include="PhoneBook.h" />
+    <ClInclude Include="generated\server\NameIndex.h" />
+    <ClInclude Include="generated\server\PhoneBook.h" />
     <ClInclude Include="PhoneBookI.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="PhoneBook.ice">
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
-</Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NameIndex.cpp;NameIndex.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\server" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">generated\server\NameIndex.cpp;generated\server\NameIndex.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\server" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">generated\server\NameIndex.cpp;generated\server\NameIndex.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\server" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">generated\server\NameIndex.cpp;generated\server\NameIndex.h;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(IceBin)\slice2freeze.exe" --output-dir="generated\server" -I. -I"$(IceHome)\slice" --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">generated\server\NameIndex.cpp;generated\server\NameIndex.h;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="config.server" />
     <None Include="README" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Freeze.phonebook.collocated.vcxproj">
-      <Project>{5eb31f0a-a3d4-4553-83af-45e30549a7ad}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_ProjectVersion="1" />
+      <UserProperties ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_ProjectVersion="1" ZerocIce_OutputDir=".\generated\server" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

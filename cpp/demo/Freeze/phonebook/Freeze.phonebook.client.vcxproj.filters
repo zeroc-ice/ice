@@ -24,13 +24,13 @@
     <ClCompile Include="Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PhoneBook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RunParser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Scanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\client\PhoneBook.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PhoneBook.h">
+    <ClInclude Include="generated\client\PhoneBook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Nested.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="NestedI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Nested.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Nested.h">
+    <ClInclude Include="NestedI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NestedI.h">
+    <ClInclude Include="generated\server\Nested.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

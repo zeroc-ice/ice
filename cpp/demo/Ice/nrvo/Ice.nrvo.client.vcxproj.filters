@@ -21,7 +21,7 @@
     <ClCompile Include="MyStringSeq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Nrvo.cpp">
+    <ClCompile Include="generated\client\Nrvo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClInclude Include="MyStringSeq.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Nrvo.h">
+    <ClInclude Include="generated\client\Nrvo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

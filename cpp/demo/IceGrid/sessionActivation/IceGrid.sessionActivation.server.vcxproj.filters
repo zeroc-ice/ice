@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Hello.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HelloI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Hello.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Hello.h">
+    <ClInclude Include="HelloI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HelloI.h">
+    <ClInclude Include="generated\server\Hello.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

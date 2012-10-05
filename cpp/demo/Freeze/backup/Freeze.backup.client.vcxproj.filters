@@ -18,18 +18,18 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dummy.cpp">
+    <ClCompile Include="generated\IntLongMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IntLongMap.cpp">
+    <ClCompile Include="generated\dummy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dummy.h">
+    <ClInclude Include="generated\IntLongMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IntLongMap.h">
+    <ClInclude Include="generated\dummy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="NewContactData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="NewContacts.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="recreate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\recreate\NewContactData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\recreate\NewContacts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NewContactData.h">
+    <ClInclude Include="generated\recreate\NewContactData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NewContacts.h">
+    <ClInclude Include="generated\recreate\NewContacts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

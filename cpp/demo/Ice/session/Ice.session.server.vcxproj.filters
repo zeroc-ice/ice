@@ -21,13 +21,13 @@
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Session.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SessionFactoryI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SessionI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\Session.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +35,13 @@
     <ClInclude Include="ReapTask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Session.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SessionFactoryI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SessionI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\Session.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -21,10 +21,10 @@
     <ClCompile Include="ObjectFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Value.cpp">
+    <ClCompile Include="ValueI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ValueI.cpp">
+    <ClCompile Include="generated\client\Value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +32,10 @@
     <ClInclude Include="ObjectFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Value.h">
+    <ClInclude Include="ValueI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ValueI.h">
+    <ClInclude Include="generated\client\Value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

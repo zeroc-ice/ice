@@ -80,10 +80,10 @@ CurrentDatabase::get()
         _dbList.push_back(db);
 #ifdef USE_PTHREAD_KEY
 #ifdef NDEBUG
-	pthread_setspecific(dbKey, db);
+    pthread_setspecific(dbKey, db);
 #else
-	int rs = pthread_setspecific(dbKey, db);
-	assert(rs == 0);
+    int rs = pthread_setspecific(dbKey, db);
+    assert(rs == 0);
 #endif
 #endif
     }

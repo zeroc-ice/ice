@@ -18,18 +18,18 @@
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Throughput.cpp">
+    <ClCompile Include="ThroughputI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThroughputI.cpp">
+    <ClCompile Include="generated\server\Throughput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Throughput.h">
+    <ClInclude Include="ThroughputI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ThroughputI.h">
+    <ClInclude Include="generated\server\Throughput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

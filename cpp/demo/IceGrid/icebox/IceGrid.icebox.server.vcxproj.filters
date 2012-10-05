@@ -15,20 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Hello.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="HelloI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="HelloServiceI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Hello.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="generated\helloservice\Hello.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Hello.ice">
@@ -37,5 +32,10 @@
     <None Include="README" />
     <None Include="config.grid" />
     <None Include="application.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\helloservice\Hello.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

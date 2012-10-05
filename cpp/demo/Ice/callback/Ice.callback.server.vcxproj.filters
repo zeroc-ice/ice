@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Callback.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CallbackSenderI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Callback.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Callback.h">
+    <ClInclude Include="CallbackSenderI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CallbackSenderI.h">
+    <ClInclude Include="generated\server\Callback.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

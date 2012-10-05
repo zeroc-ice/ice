@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Chat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ChatSessionI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\Chat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Chat.h">
+    <ClInclude Include="ChatSessionI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChatSessionI.h">
+    <ClInclude Include="generated\server\Chat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

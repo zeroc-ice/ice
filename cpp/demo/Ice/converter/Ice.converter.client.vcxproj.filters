@@ -18,18 +18,18 @@
     <ClCompile Include="Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Greet.cpp">
+    <ClCompile Include="StringConverterI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StringConverterI.cpp">
+    <ClCompile Include="generated\client\Greet.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Greet.h">
+    <ClInclude Include="StringConverterI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="StringConverterI.h">
+    <ClInclude Include="generated\client\Greet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

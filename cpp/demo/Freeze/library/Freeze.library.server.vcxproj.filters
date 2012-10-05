@@ -18,16 +18,16 @@
     <ClCompile Include="BookFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Library.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LibraryI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LibraryTypes.cpp">
+    <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="generated\server\Library.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\LibraryTypes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -35,13 +35,13 @@
     <ClInclude Include="BookFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Library.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="LibraryI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LibraryTypes.h">
+    <ClInclude Include="generated\server\Library.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\LibraryTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

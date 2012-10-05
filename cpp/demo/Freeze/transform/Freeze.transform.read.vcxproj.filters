@@ -15,21 +15,21 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ContactData.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Contacts.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="read.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\read\ContactData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\read\Contacts.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ContactData.h">
+    <ClInclude Include="generated\read\ContactData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Contacts.h">
+    <ClInclude Include="generated\read\Contacts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

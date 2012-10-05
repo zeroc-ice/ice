@@ -15,39 +15,39 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FilesystemDB.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FilesystemI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IdentityDirectoryEntryMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="IdentityFileEntryMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="generated\server\FilesystemDB.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\Filesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\IdentityDirectoryEntryMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="generated\server\IdentityFileEntryMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Filesystem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FilesystemDB.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="FilesystemI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IdentityDirectoryEntryMap.h">
+    <ClInclude Include="generated\server\FilesystemDB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IdentityFileEntryMap.h">
+    <ClInclude Include="generated\server\Filesystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\IdentityDirectoryEntryMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="generated\server\IdentityFileEntryMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
