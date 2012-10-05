@@ -104,6 +104,9 @@ slice_translator = slice2cs.exe
 
 bindir			= $(top_srcdir)\bin
 assembliesdir   = $(top_srcdir)\Assemblies
+!if "$(SILVERLIGHT)" == "yes"
+assembliesdir   = $(assembliesdir)\sl
+!endif
 
 install_bindir          = $(prefix)\bin
 install_assembliesdir   = $(prefix)\Assemblies

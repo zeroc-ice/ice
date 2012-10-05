@@ -9,6 +9,8 @@ Ice for .NET has been built and tested with:
 
 - Microsoft Visual Studio 2008 SP1 and .NET Compact Framework Version 3.5 SP1
 
+- Microsoft Visual Studio 2010 SP1 and .NET Silverlight 5.0
+
 Unpack the archive. The .NET sources will be contained in the
 Ice-@ver@\cs subdirectory.
 
@@ -213,43 +215,78 @@ if it detects a bzip2.dll format mismatch during start-up.)
 
 
 .NET Compact Framework
-----------------------
+------------------------
 
 The default configuration in config\Make.rules.mak.cs produces an
 Ice assembly for use with .NET. If you wish to use Ice with the .NET
 Compact Framework, you must re-build the sources.
 
-The build processes for both Ice for .NET and Ice for .NET Compact
-Framework generate the same assembly in bin\Ice.dll. If you intend to
-use both versions of Ice, ensure that you make a copy of bin\Ice.dll
-prior to re-building the sources.
-
-Similarly, the installation process described in "Installation" above
-will overwrite the Ice.dll assembly, therefore we recommend that you
-set a different value for the "prefix" variable prior to installing
-the .NET Compact Framework version of Ice.dll.
-
-If you have already built Ice for .NET and intend to re-build the
-sources for the .NET Compact Framework, you should first clean the
-source tree as shown below:
-
- > nmake /f Makefile.mak clean
-
 To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
 and set COMPACT=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
+ 
+The .NET Compact Framework assemblies are generated into Assemblies\cf
+directory.
 
-This distribution includes a sample program that demonstrates the use
-of Ice for .NET Compact Framework. The source code for this demo can
-be found in cs\demo\Ice\compact. Note however that this demo is not
-built by the NMAKE build process. Instead, start Visual Studio and
-open the solution demo\democf.sln to build the demo. The README file
-in cs\demo\Ice\compact provides more information.
+To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
+and set  COMPACT=yes. Run nmake as before:
+
+ > nmake /f Makefile.mak
+
+To build the demos you must use the Visual Studio solution located in
+demo\democf.sln, README.txt files of each demo provided more information
+about the demos.
+
+
+Silverlight
+---------
+
+The default configuration in config\Make.rules.mak.cs produces an
+Ice assemblies for use with .NET. If you wish to use Ice with the Silverlight,
+you must re-build the sources.
+
+The Silverlight assemblies are generated into Assemblies\sl directory.
+
+To build Ice for Silverlight, open config\Make.rules.mak.cs and set 
+SILVERLIGHT=yes. Run nmake as before:
+
+ > nmake /f Makefile.mak
+
+To install Ice for Silverlight simply run "nmake /f Makefile.mak install"
+This will install Ice for .NET in the directory specified by the "prefix" 
+variable in config\Make.rules.mak.cs. The Ice Silverlight assemblies will be
+located in <prefix>\Assemblies\sl directory.
+ 
+To build the tests and demos you must use the Visual Studio solutions 
+located in test\testsl.sln and demo\demosl.sln. 
+
+  * Running the tests
+
+     Silverlight has no server side support, you must use a server from
+     another language mapping:
+
+     To run a test, open a command window and change to the test
+     directory. At the command prompt, execute:
+
+     > server
+
+     Open test\testsl.sln in Visual Studio and start the corresponding
+     test, using the "Debug > Start new instance" command. In the test
+     application, click "Run"
+
+     If everything worked out, you should see lots of "ok" messages. In
+     case of a failure, the tests abort with "failed".
+
+
+  * Running the demos
+
+     To run the demos, open demo\demosl.sln Solution and follow the
+     instructions in the README.txt files of each demo.
 
 
 Binary compatibility of patch releases
---------------------------------------
+------------------------------------
 
 Ice patch releases are binary compatible. For example, Ice version 
 @mmver@.1 is compatible with @mmver@.0: you can run an application built 

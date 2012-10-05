@@ -75,9 +75,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Custom.cs" />
+    <Compile Include="generated\Test.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializable.cs" />
-    <Compile Include="Test.cs" />
     <Compile Include="Twoways.cs" />
     <Compile Include="TwowaysAMI.cs" />
     <Compile Include="TwowaysNewAMI.cs" />
@@ -114,7 +114,7 @@
       <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
         <SilverlightProjectProperties />
       </FlavorProperties>
-      <UserProperties ZerocIce_ExtraOptions="-DSILVERLIGHT" ZerocIce_Enabled="True" />
+      <UserProperties ZerocIce_OutputDir=".\generated" ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_ExtraOptions="-DSILVERLIGHT" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

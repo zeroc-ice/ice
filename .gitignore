@@ -44,6 +44,7 @@ sgenerated
 *.lib
 *.idb
 *.suo
+*.xap
 core.*
 cpp/src/Ice/EventLoggerMsg.res
 tmp_*.xml
