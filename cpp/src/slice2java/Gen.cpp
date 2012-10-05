@@ -4368,7 +4368,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "__ctx = _emptyContext;";
         out << eb;
         out << nl << "final Ice.Instrumentation.InvocationObserver __observer = IceInternal.ObserverHelper.get(this, ";
-        out << "\"" << opName << "\");";
+        out << "\"" << opName << "\", __ctx);";
         out << nl << "int __cnt = 0;";
         out << nl << "try";
         out << sb;

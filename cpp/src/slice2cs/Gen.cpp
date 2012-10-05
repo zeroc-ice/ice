@@ -4841,6 +4841,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "Ice.Instrumentation.InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __";
         _out << op->name() << "_name, context__);";
         _out << nl << "int cnt__ = 0;";
+        _out << nl << "try";
+        _out << sb;
         _out << nl << "while(true)";
         _out << sb;
         _out << nl << "Ice.ObjectDel_ delBase__ = null;";
@@ -4877,6 +4879,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "catch(Ice.LocalException ex__)";
         _out << sb;
         _out << nl << "handleException__(delBase__, ex__, true, ref cnt__, observer__);";
+        _out << eb;
+        _out << eb;
+        _out << eb;
+        _out << nl << "finally";
+        _out << sb;
+        _out << nl << "if(observer__ != null)";
+        _out << sb;
+        _out << nl << "observer__.detach();";
         _out << eb;
         _out << eb;
 

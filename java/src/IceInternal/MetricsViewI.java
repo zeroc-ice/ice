@@ -36,14 +36,19 @@ public class MetricsViewI
             if(mapProps.isEmpty())
             {
                 // This map isn't configured for this view.
-                _maps.remove(mapName);
-                return true;
+                return _maps.remove(mapName) != null;
             }
         }
         else
         {
             mapPrefix = viewPrefix;
             mapProps = properties.getPropertiesForPrefix(mapPrefix);
+        }
+
+        if(properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
+        {
+            // This map is disabled for this view.
+            return _maps.remove(mapName) != null;
         }
         
         MetricsMap<?> m = _maps.get(mapName);

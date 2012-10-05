@@ -68,6 +68,7 @@ tests = [
     ("Ice/hash", ["once"]),
     ("Ice/optional", ["once"]),
     ("Ice/admin", ["core"]),
+    ("Ice/metrics", ["core", "nossl", "noipv6"]),
     ("IceBox/admin", ["core", "noipv6"]),
     ("IceBox/configuration", ["core", "noipv6"]),
     ("Freeze/dbmap", ["once"]),

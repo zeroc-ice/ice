@@ -1201,7 +1201,7 @@ namespace Ice
                                 return;
                             }
                             Debug.Assert(!_readStream.getBuffer().b.hasRemaining());
-                            _readHeader = true;
+                            _readHeader = false;
 
                             if(_observer != null)
                             {
@@ -1790,8 +1790,10 @@ namespace Ice
             _timer = instance.timer();
             _writeTimeout = new TimeoutCallback(this);
             _writeTimeoutScheduled = false;
+            _writeStreamPos = -1;
             _readTimeout = new TimeoutCallback(this);
             _readTimeoutScheduled = false;
+            _readStreamPos = -1;
             _warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
             _warnUdp = initData.properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
             _cacheBuffers = initData.properties.getPropertyAsIntWithDefault("Ice.CacheMessageBuffers", 1) == 1;
@@ -2773,7 +2775,7 @@ namespace Ice
 
         private void observerStartRead(int pos)
         {
-            if(_readStreamPos > 0)
+            if(_readStreamPos >= 0)
             {
                 _observer.receivedBytes(pos - _readStreamPos);
             }
@@ -2784,12 +2786,12 @@ namespace Ice
         {
             Debug.Assert(pos >= _readStreamPos);
             _observer.receivedBytes(pos - _readStreamPos);
-            _readStreamPos = 0;
+            _readStreamPos = -1;
         }
 
         private void observerStartWrite(int pos)
         {
-            if(_writeStreamPos > 0)
+            if(_writeStreamPos >= 0)
             {
                 _observer.sentBytes(pos - _writeStreamPos);
             }
@@ -2800,7 +2802,7 @@ namespace Ice
         {
             Debug.Assert(pos >= _writeStreamPos);
             _observer.sentBytes(pos - _writeStreamPos);
-            _writeStreamPos = 0;
+            _writeStreamPos = -1;
         }
 
         private IceInternal.Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)

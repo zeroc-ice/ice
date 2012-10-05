@@ -23,8 +23,8 @@ namespace IceMX
             r.add("endpointType", cl.GetMethod("getEndpointInfo"), cli.GetMethod("type"));
             r.add("endpointIsDatagram", cl.GetMethod("getEndpointInfo"), cli.GetMethod("datagram"));
             r.add("endpointIsSecure", cl.GetMethod("getEndpointInfo"), cli.GetMethod("secure"));
-            r.add("endpointProtocolVersion", cl.GetMethod("getEndpointInfo"), cli.GetField("protocol"));
-            r.add("endpointEncodingVersion", cl.GetMethod("getEndpointInfo"), cli.GetField("encoding"));
+            r.add("endpointProtocolVersion", cl.GetMethod("getEndpointProtocolVersion"));
+            r.add("endpointEncodingVersion", cl.GetMethod("getEndpointEncodingVersion"));
             r.add("endpointTimeout", cl.GetMethod("getEndpointInfo"), cli.GetField("timeout"));
             r.add("endpointCompress", cl.GetMethod("getEndpointInfo"), cli.GetField("compress"));
             
@@ -161,6 +161,16 @@ namespace IceMX
             }
             return _endpointInfo;
         }
+
+        public string getEndpointProtocolVersion()
+        {
+            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
+        }
+
+        public string getEndpointEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
+        }
     
         readonly private Ice.ConnectionInfo _connectionInfo;
         readonly private Ice.Endpoint _endpoint;
@@ -266,6 +276,16 @@ namespace IceMX
             return _endpointInfo;
         }
 
+        public string getEndpointProtocolVersion()
+        {
+            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
+        }
+
+        public string getEndpointEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
+        }
+
         public Ice.Current getCurrent()
         {
             return _current;
@@ -298,7 +318,7 @@ namespace IceMX
                         
                     Type cli = typeof(Ice.ObjectPrx);
                     add("facet", cl.GetMethod("getProxy"), cli.GetMethod("ice_getFacet"));
-                    add("encoding", cl.GetMethod("getProxy"), cli.GetMethod("ice_getEncodingVersion"));
+                    add("encoding", cl.GetMethod("getEncodingVersion"));
                     add("mode", cl.GetMethod("getMode"));
                     add("proxy", cl.GetMethod("getProxy"));
                 }
@@ -397,6 +417,11 @@ namespace IceMX
         public Ice.ObjectPrx getProxy()
         {
             return _proxy;
+        }
+
+        public string getEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
         }
         
         public string getIdentity()
@@ -513,6 +538,16 @@ namespace IceMX
             }
             return _endpointInfo;
         }
+
+        public string getEndpointProtocolVersion()
+        {
+            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
+        }
+
+        public string getEndpointEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
+        }
         
         public string getParent()
         {
@@ -608,6 +643,16 @@ namespace IceMX
                 _endpointInfo = _endpoint.getInfo();
             }
             return _endpointInfo;
+        }
+
+        public string getEndpointProtocolVersion()
+        {
+            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
+        }
+
+        public string getEndpointEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
     
         readonly private Ice.ConnectionInfo _connectionInfo;

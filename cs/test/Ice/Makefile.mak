@@ -45,7 +45,8 @@ SUBDIRS         = application \
                   threadPoolPriority \
 		  plugin \
 		  admin \
-		  optional
+		  optional \
+		  metrics
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

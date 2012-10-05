@@ -512,6 +512,10 @@ public final class StringUtil
         // wildcard. If emptyMatch is true, allow a match of "".
         //
         int endLength = pat.length() - beginIndex - 1;
+        if(endLength == 0)
+        {
+            return true;
+        }
         if(endLength > s.length())
         {
             return false;

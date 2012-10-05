@@ -809,22 +809,32 @@ namespace Ice
 
             InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_isA_name, context__);
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    checkTwowayOnly__(__ice_isA_name);
-                    del__ = getDelegate__(false);
-                    return del__.ice_isA(id__, context__, observer__);
+                    ObjectDel_ del__ = null;
+                    try
+                    {
+                        checkTwowayOnly__(__ice_isA_name);
+                        del__ = getDelegate__(false);
+                        return del__.ice_isA(id__, context__, observer__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                    }
                 }
-                catch(IceInternal.LocalExceptionWrapper ex__)
+            }
+            finally
+            {
+                if(observer__ != null)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                }
-                catch(LocalException ex__)
-                {
-                    handleException__(del__, ex__, true, ref cnt__, observer__);
+                    observer__.detach();
                 }
             }
         }
@@ -949,22 +959,32 @@ namespace Ice
 
             InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_ping_name, context__);
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    del__ = getDelegate__(false);
-                    del__.ice_ping(context__, observer__);
-                    return;
+                    ObjectDel_ del__ = null;
+                    try
+                    {
+                        del__ = getDelegate__(false);
+                        del__.ice_ping(context__, observer__);
+                        return;
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                    }
                 }
-                catch(IceInternal.LocalExceptionWrapper ex__)
+            }
+            finally
+            {
+                if(observer__ != null)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                }
-                catch(LocalException ex__)
-                {
-                    handleException__(del__, ex__, true, ref cnt__, observer__);
+                    observer__.detach();
                 }
             }
         }
@@ -1060,22 +1080,32 @@ namespace Ice
 
             InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_ids_name, context__);
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    checkTwowayOnly__(__ice_ids_name);
-                    del__ = getDelegate__(false);
-                    return del__.ice_ids(context__, observer__);
+                    ObjectDel_ del__ = null;
+                    try
+                    {
+                        checkTwowayOnly__(__ice_ids_name);
+                        del__ = getDelegate__(false);
+                        return del__.ice_ids(context__, observer__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                    }
                 }
-                catch(IceInternal.LocalExceptionWrapper ex__)
+            }
+            finally
+            {
+                if(observer__ != null)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                }
-                catch(LocalException ex__)
-                {
-                    handleException__(del__, ex__, true, ref cnt__, observer__);
+                    observer__.detach();
                 }
             }
         }
@@ -1200,22 +1230,32 @@ namespace Ice
 
             InvocationObserver observer__ = IceInternal.ObserverHelper.get(this, __ice_id_name, context__);
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    checkTwowayOnly__(__ice_id_name);
-                    del__ = getDelegate__(false);
-                    return del__.ice_id(context__, observer__);
+                    ObjectDel_ del__ = null;
+                    try
+                    {
+                        checkTwowayOnly__(__ice_id_name);
+                        del__ = getDelegate__(false);
+                        return del__.ice_id(context__, observer__);
+                    }
+                    catch(IceInternal.LocalExceptionWrapper ex__)
+                    {
+                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer__);
+                    }
                 }
-                catch(IceInternal.LocalExceptionWrapper ex__)
+            }
+            finally
+            {
+                if(observer__ != null)
                 {
-                    handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer__);
-                }
-                catch(LocalException ex__)
-                {
-                    handleException__(del__, ex__, true, ref cnt__, observer__);
+                    observer__.detach();
                 }
             }
         }
@@ -1360,28 +1400,38 @@ namespace Ice
 
             InvocationObserver observer = IceInternal.ObserverHelper.get(this, __ice_invoke_name, context);
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    del__ = getDelegate__(false);
-                    return del__.ice_invoke(operation, mode, inEncaps, out outEncaps, context, observer);
-                }
-                catch(IceInternal.LocalExceptionWrapper ex__)
-                {
-                    if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
+                    ObjectDel_ del__ = null;
+                    try
                     {
-                        handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer);
+                        del__ = getDelegate__(false);
+                        return del__.ice_invoke(operation, mode, inEncaps, out outEncaps, context, observer);
                     }
-                    else
+                    catch(IceInternal.LocalExceptionWrapper ex__)
                     {
-                        handleExceptionWrapper__(del__, ex__, observer);
+                        if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
+                        {
+                            handleExceptionWrapperRelaxed__(del__, ex__, true, ref cnt__, observer);
+                        }
+                        else
+                        {
+                            handleExceptionWrapper__(del__, ex__, observer);
+                        }
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer);
                     }
                 }
-                catch(LocalException ex__)
+            }
+            finally
+            {
+                if(observer != null)
                 {
-                    handleException__(del__, ex__, true, ref cnt__, observer);
+                    observer.detach();
                 }
             }
         }
@@ -2120,18 +2170,28 @@ namespace Ice
         {
             InvocationObserver observer = IceInternal.ObserverHelper.get(this, "ice_getConnection");
             int cnt__ = 0;
-            while(true)
+            try
             {
-                ObjectDel_ del__ = null;
-                try
+                while(true)
                 {
-                    del__ = getDelegate__(false);
-                    // Wait for the connection to be established.
-                    return del__.getRequestHandler__().getConnection(true);
+                    ObjectDel_ del__ = null;
+                    try
+                    {
+                        del__ = getDelegate__(false);
+                        // Wait for the connection to be established.
+                        return del__.getRequestHandler__().getConnection(true);
+                    }
+                    catch(LocalException ex__)
+                    {
+                        handleException__(del__, ex__, true, ref cnt__, observer);
+                    }
                 }
-                catch(LocalException ex__)
+            }
+            finally
+            {
+                if(observer != null)
                 {
-                    handleException__(del__, ex__, true, ref cnt__, observer);
+                    observer.detach();
                 }
             }
         }
@@ -2188,6 +2248,13 @@ namespace Ice
             catch(LocalException ex__)
             {
                 handleException__(del__, ex__, true, ref cnt__, observer);
+            }
+            finally
+            {
+                if(observer != null)
+                {
+                    observer.detach();
+                }
             }
         }
 

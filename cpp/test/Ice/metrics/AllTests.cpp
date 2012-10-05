@@ -172,7 +172,7 @@ testAttribute(const IceMX::MetricsAdminPrx& metrics,
             test(false);
         }
     }
-    else if(view[map][0]->id != value)
+    else if(view[map].size() != 1 || view[map][0]->id != value)
     {
         cerr << "invalid attribute value: " << attr << " = " << value << " got " << view[map][0]->id << endl;
         test(false);

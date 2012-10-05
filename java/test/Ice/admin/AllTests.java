@@ -87,7 +87,7 @@ public class AllTests
             //
             Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
-            init.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+            init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             Ice.Communicator com = Ice.Util.initialize(init);
             testFacets(com);
@@ -99,7 +99,7 @@ public class AllTests
             //
             Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
-            init.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+            init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
             Ice.Communicator com = Ice.Util.initialize(init);
@@ -120,7 +120,7 @@ public class AllTests
             //
             Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
-            init.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+            init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
             Ice.Communicator com = Ice.Util.initialize(init);
@@ -142,7 +142,7 @@ public class AllTests
             // Test: Verify that Process::shutdown() operation shuts down the communicator.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
@@ -157,7 +157,7 @@ public class AllTests
         System.out.flush();
         {
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Prop1", "1");
             props.put("Prop2", "2");
@@ -177,7 +177,7 @@ public class AllTests
             //
             java.util.Map<String, String> pd = pa.getPropertiesForPrefix("");
             test(pd.size() == 5);
-            test(pd.get("Ice.Admin.Endpoints").equals("tcp"));
+            test(pd.get("Ice.Admin.Endpoints").equals("tcp -h 127.0.0.1"));
             test(pd.get("Ice.Admin.InstanceName").equals("Test"));
             test(pd.get("Prop1").equals("1"));
             test(pd.get("Prop2").equals("2"));
@@ -222,7 +222,7 @@ public class AllTests
             // Test: Verify that the custom facet is present.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
             Ice.ObjectPrx obj = com.getAdmin();
@@ -240,7 +240,7 @@ public class AllTests
             // meaning no other facet is available.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Properties");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
@@ -257,7 +257,7 @@ public class AllTests
             // meaning no other facet is available.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Process");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
@@ -274,7 +274,7 @@ public class AllTests
             // meaning no other facet is available.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "TestFacet");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
@@ -291,7 +291,7 @@ public class AllTests
             // facet names.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "Properties TestFacet");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);
@@ -310,7 +310,7 @@ public class AllTests
             // facet names.
             //
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
-            props.put("Ice.Admin.Endpoints", "tcp");
+            props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             props.put("Ice.Admin.InstanceName", "Test");
             props.put("Ice.Admin.Facets", "TestFacet, Process");
             RemoteCommunicatorPrx com = factory.createCommunicator(props);

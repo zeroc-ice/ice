@@ -41,6 +41,7 @@ public final class Outgoing implements OutgoingMessageCallback
         _exception = null;
         _sent = false;
         _handler = handler;
+        _observer = observer;
         _encoding = handler.getReference().getEncoding();
 
         writeHeader(operation, mode, context);

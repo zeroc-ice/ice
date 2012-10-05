@@ -78,7 +78,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData init;
         init.properties = Ice::createProperties();
-        init.properties->setProperty("Ice.Admin.Endpoints", "tcp");
+        init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         Ice::CommunicatorPtr com = Ice::initialize(init);
         testFacets(com);
@@ -90,7 +90,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData init;
         init.properties = Ice::createProperties();
-        init.properties->setProperty("Ice.Admin.Endpoints", "tcp");
+        init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.Facets", "Properties");
         Ice::CommunicatorPtr com = Ice::initialize(init);
@@ -111,7 +111,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData init;
         init.properties = Ice::createProperties();
-        init.properties->setProperty("Ice.Admin.Endpoints", "tcp");
+        init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
         init.properties->setProperty("Ice.Admin.DelayCreation", "1");
         Ice::CommunicatorPtr com = Ice::initialize(init);
@@ -132,7 +132,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test: Verify that Process::shutdown() operation shuts down the communicator.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
         Ice::ObjectPrx obj = com->getAdmin();
@@ -146,7 +146,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing properties facet... " << flush;
     {
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Prop1"] = "1";
         props["Prop2"] = "2";
@@ -166,7 +166,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::PropertyDict pd = pa->getPropertiesForPrefix("");
         test(pd.size() == 5);
-        test(pd["Ice.Admin.Endpoints"] == "tcp");
+        test(pd["Ice.Admin.Endpoints"] == "tcp -h 127.0.0.1");
         test(pd["Ice.Admin.InstanceName"] == "Test");
         test(pd["Prop1"] == "1");
         test(pd["Prop2"] == "2");
@@ -210,7 +210,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Test: Verify that the custom facet is present.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
         Ice::ObjectPrx obj = com->getAdmin();
@@ -227,7 +227,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // meaning no other facet is available.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
@@ -244,7 +244,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // meaning no other facet is available.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Process";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
@@ -261,7 +261,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // meaning no other facet is available.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
@@ -278,7 +278,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // facet names.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "Properties TestFacet";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);
@@ -297,7 +297,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // facet names.
         //
         Ice::PropertyDict props;
-        props["Ice.Admin.Endpoints"] = "tcp";
+        props["Ice.Admin.Endpoints"] = "tcp -h 127.0.0.1";
         props["Ice.Admin.InstanceName"] = "Test";
         props["Ice.Admin.Facets"] = "TestFacet, Process";
         RemoteCommunicatorPrx com = factory->createCommunicator(props);

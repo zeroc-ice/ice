@@ -108,14 +108,6 @@ namespace IceInternal
 
     public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
-        private string[] mapSuffixes =
-            {
-                "GroupBy",
-                "Accept.*",
-                "Reject.*",
-                "RetainDetached",
-            };
-    
         public class Entry : IComparable<Entry>
         {
             internal Entry(MetricsMap<T> map, T obj)
@@ -252,6 +244,7 @@ namespace IceInternal
 
         internal MetricsMap(string mapPrefix, Ice.Properties props, Dictionary<string, ISubMapFactory> subMaps)
         {
+            MetricsAdminI.validateProperties(mapPrefix, props);
             _properties = props.getPropertiesForPrefix(mapPrefix);
         
             _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
@@ -325,7 +318,6 @@ namespace IceInternal
 
                     _subMaps.Add(e.Key, e.Value.createCloneFactory(subMapPrefix, props));
                 }
-                validateProperties(mapPrefix, props, subMapNames);
             }
             else
             {
@@ -344,24 +336,6 @@ namespace IceInternal
             _subMaps = map._subMaps;
         }
 
-        private void validateProperties(string prefix, Ice.Properties props, ICollection<string> subMaps)
-        {
-            if(subMaps.Count == 0)
-            {
-                MetricsAdminI.validateProperties(prefix, props, mapSuffixes);
-                return;
-            }
-
-            List<string> suffixes = new List<string>(mapSuffixes);
-            foreach(string s in subMaps)
-            {
-                string suffix = "Map." + s + ".";
-                MetricsAdminI.validateProperties(prefix + suffix, props, mapSuffixes);
-                suffixes.Add(suffix + '*');
-            }
-            MetricsAdminI.validateProperties(prefix, props, suffixes.ToArray());
-        }
-        
         public Dictionary<string, string> getProperties()
         {
             return _properties;
@@ -371,6 +345,10 @@ namespace IceInternal
         {
             lock(this)
             {
+                if(_objects.Count == 0)
+                {
+                    return null;
+                }
                 IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.Count];
                 int i = 0;
                 foreach(Entry e in _objects.Values)
@@ -434,16 +412,14 @@ namespace IceInternal
             {
                 if(!match(e.Key, e.Value, helper, false))
                 {
-                    System.Console.Out.WriteLine("No accept match");
                     return null;
                 }
             }
         
             foreach(KeyValuePair<string, Regex> e in _reject)
             {
-                if(match(e.Key, e.Value, helper, false))
+                if(match(e.Key, e.Value, helper, true))
                 {
-                    System.Console.Out.WriteLine("No reject match");
                     return null;
                 }
             }
@@ -477,7 +453,7 @@ namespace IceInternal
             {
                 return null;
             }
-
+            
             //
             // Lookup the metrics object.
             // 
@@ -604,14 +580,19 @@ namespace IceInternal
                 if(mapProps.Count == 0)
                 {
                     // This map isn't configured for this view.
-                    _maps.Remove(mapName);
-                    return true;
+                    return _maps.Remove(mapName);
                 }
             }
             else
             {
                 mapPrefix = viewPrefix;
                 mapProps = properties.getPropertiesForPrefix(mapPrefix);
+            }
+
+            if(properties.getPropertyAsInt(mapPrefix + "Disabled") > 0)
+            {
+                // This map is disabled for this view.
+                return _maps.Remove(mapName);
             }
             
             IMetricsMap m;
@@ -634,9 +615,7 @@ namespace IceInternal
         
         internal bool removeMap(string mapName)
         {
-            bool removed = _maps.ContainsKey(mapName);
-            _maps.Remove(mapName);
-            return removed;
+            return _maps.Remove(mapName);
         }
 
         internal Dictionary<string, IceMX.Metrics[]> getMetrics()
@@ -694,7 +673,7 @@ namespace IceInternal
 
     public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
     {
-        readonly static private string[] viewSuffixes =
+        readonly static private string[] suffixes =
             {
                 "Disabled",
                 "GroupBy",
@@ -704,7 +683,7 @@ namespace IceInternal
                 "Map.*",
             };
 
-        public static void validateProperties(string prefix, Ice.Properties properties, string[] suffixes)
+        public static void validateProperties(string prefix, Ice.Properties properties)
         {
             Dictionary<string, string> props = properties.getPropertiesForPrefix(prefix);
             List<string> unknownProps = new List<string>();
@@ -797,7 +776,7 @@ namespace IceInternal
                         continue; // View already configured.
                     }
                 
-                    validateProperties(viewsPrefix + viewName + ".", _properties, viewSuffixes);
+                    validateProperties(viewsPrefix + viewName + ".", _properties);
                 
                     if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                     {
@@ -812,7 +791,7 @@ namespace IceInternal
                     {
                         v = new MetricsViewI(viewName);
                     }
-                    views.Add(viewName, v);
+                    views[viewName] = v;
 
                     foreach(KeyValuePair<string, IMetricsMapFactory> f in _factories)
                     {

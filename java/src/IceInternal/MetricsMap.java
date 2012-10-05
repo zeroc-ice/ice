@@ -11,14 +11,6 @@ package IceInternal;
 
 public class MetricsMap<T extends IceMX.Metrics>
 {
-    final private String[] mapSuffixes =
-    {
-        "GroupBy",
-        "Accept.*",
-        "Reject.*",
-        "RetainDetached",
-    };
-    
     public class Entry implements Comparable<Entry>
     {
         Entry(T obj)
@@ -202,6 +194,7 @@ public class MetricsMap<T extends IceMX.Metrics>
 
     MetricsMap(String mapPrefix, Class<T> cl, Ice.Properties props, java.util.Map<String, SubMapFactory<?>> subMaps)
     {
+        MetricsAdminI.validateProperties(mapPrefix, props);
         _properties = props.getPropertiesForPrefix(mapPrefix);
         
         _retain = props.getPropertyAsIntWithDefault(mapPrefix + "RetainDetached", 10);
@@ -276,7 +269,6 @@ public class MetricsMap<T extends IceMX.Metrics>
 
                 _subMaps.put(e.getKey(), e.getValue().createCloneFactory(subMapPrefix, props));
             }
-            validateProperties(mapPrefix, props, subMapNames);
         }
         else
         {
@@ -296,25 +288,6 @@ public class MetricsMap<T extends IceMX.Metrics>
         _subMaps = map._subMaps;
     }
 
-    private void
-    validateProperties(String prefix, Ice.Properties props, java.util.Collection<String> subMaps)
-    {
-        if(subMaps.isEmpty())
-        {
-            MetricsAdminI.validateProperties(prefix, props, mapSuffixes);
-            return;
-        }
-
-        java.util.List<String> suffixes = new java.util.ArrayList<String>(java.util.Arrays.asList(mapSuffixes));
-        for(String s : subMaps)
-        {
-            String suffix = "Map." + s + ".";
-            MetricsAdminI.validateProperties(prefix + suffix, props, mapSuffixes);
-            suffixes.add(suffix + '*');
-        }
-        MetricsAdminI.validateProperties(prefix, props, suffixes.toArray(new String[suffixes.size()]));
-    }
-
     java.util.Map<String, String>
     getProperties()
     {
@@ -324,6 +297,11 @@ public class MetricsMap<T extends IceMX.Metrics>
     synchronized IceMX.Metrics[]
     getMetrics()
     {
+        if(_objects.isEmpty())
+        {
+            return null;
+        }
+
         IceMX.Metrics[] metrics = new IceMX.Metrics[_objects.size()];
         int i = 0;
         for(Entry e : _objects.values())
@@ -388,10 +366,10 @@ public class MetricsMap<T extends IceMX.Metrics>
                 return null;
             }
         }
-        
+
         for(java.util.Map.Entry<String, java.util.regex.Pattern> e : _reject.entrySet())
         {
-            if(match(e.getKey(), e.getValue(), helper, false))
+            if(match(e.getKey(), e.getValue(), helper, true))
             {
                 return null;
             }

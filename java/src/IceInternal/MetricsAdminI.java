@@ -11,7 +11,7 @@ package IceInternal;
 
 public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.PropertiesAdminUpdateCallback
 {
-    final static private String[] viewSuffixes =
+    final static private String[] suffixes =
     {
         "Disabled",
         "GroupBy",
@@ -22,7 +22,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
     };
 
     static void
-    validateProperties(String prefix, Ice.Properties properties, String[] suffixes)
+    validateProperties(String prefix, Ice.Properties properties)
     {
         java.util.Map<String, String> props = properties.getPropertiesForPrefix(prefix);
         java.util.List<String> unknownProps = new java.util.ArrayList<String>();
@@ -120,7 +120,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                     continue; // View already configured.
                 }
                 
-                validateProperties(viewsPrefix + viewName + ".", _properties, viewSuffixes);
+                validateProperties(viewsPrefix + viewName + ".", _properties);
                 
                 if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                 {

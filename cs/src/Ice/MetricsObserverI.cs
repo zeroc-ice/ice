@@ -255,37 +255,38 @@ namespace IceMX
         public void update(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects)
         {
             objects.Sort();
-            int p = objects.Count == 0 ? -1 : 0;
-            int q = _objects.Count == 0 ? -1 : 0;
+            int p = 0;
+            int q = 0;
             long delay = (long)(ElapsedTicks / (Frequency / 1000000.0));
-            while(p >= 0)
+            while(p < objects.Count)
             {
-                if(q >= 0 || objects[p].CompareTo(objects[q]) < 0) // New metrics object
+                if(q == _objects.Count || objects[p].CompareTo(_objects[q]) < 0) // New metrics object
                 {
                     _objects.Insert(q, objects[p]);
                     objects[p].attach(helper);
                     ++p;
                     ++q;
                 }
-                else if(objects[p] == objects[q]) // Same metrics object
+                else if(objects[p] == _objects[q]) // Same metrics object
                 {
                     ++p;
                     ++q;
                 }
                 else // Removed metrics object
                 {
-                    objects[q].detach(delay);
+                    _objects[q].detach(delay);
                     _objects.RemoveAt(q);
                 }
-                p = p < objects.Count ? p : -1;
-                q = q < _objects.Count ? q : -1;
             }
-            p = q;
-            while(q < _objects.Count)
+            if(q < _objects.Count)
             {
-                _objects[q++].detach(delay);
+                p = q;
+                while(q < _objects.Count)
+                {
+                    _objects[q++].detach(delay);
+                }
+                _objects.RemoveRange(p, _objects.Count - p);
             }
-            _objects.RemoveRange(p, _objects.Count - p);
         }
 
         public ObserverImpl getObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)

@@ -73,14 +73,24 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         while(p.hasNext())
         {
             MetricsMap<T>.Entry pe = p.next();
-            MetricsMap<T>.Entry qe = q.hasNext() ? q.next() : null;
-            if(qe == null || pe.compareTo(qe) < 0) // New metrics object
+            MetricsMap<T>.Entry qe;
+            int comp = 0;
+            if(q.hasNext())
+            {
+                qe = q.next();
+                comp = pe.compareTo(qe);
+            }
+            else
+            {
+                qe = null;
+            }
+
+            if(qe == null || comp < 0) // New metrics object
             {
                 q.add(pe);
-                q.previous();
                 pe.attach(helper);
             }
-            else if(pe == qe) // Same metrics object
+            else if(comp == 0) // Same metrics object
             {
                 // Nothing to do.
             }

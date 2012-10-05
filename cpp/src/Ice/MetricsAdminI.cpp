@@ -26,7 +26,7 @@ using namespace IceMX;
 namespace 
 {
 
-const string viewSuffixes[] =
+const string suffixes[] =
 {
     "Disabled",
     "GroupBy",
@@ -36,23 +36,15 @@ const string viewSuffixes[] =
     "Map.*",
 };
 
-const string mapSuffixes[] =
-{
-    "GroupBy",
-    "Accept.*",
-    "Reject.*",
-    "RetainDetached",
-};
-
 void
-validateProperties(const string& prefix, const PropertiesPtr& properties, const string* suffixes, int cnt)
+validateProperties(const string& prefix, const PropertiesPtr& properties)
 {
     vector<string> unknownProps;
     PropertyDict props = properties->getPropertiesForPrefix(prefix);
     for(PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
     {
         bool valid = false;
-        for(int i = 0; i < cnt; ++i)
+        for(int i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
         {
             string prop = prefix + suffixes[i];
             if(IceUtilInternal::match(p->first, prop))
@@ -135,6 +127,8 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
     _accept(parseRule(properties, mapPrefix + "Accept")),
     _reject(parseRule(properties, mapPrefix + "Reject"))
 {
+    validateProperties(mapPrefix, properties);
+
     string groupBy = properties->getPropertyWithDefault(mapPrefix + "GroupBy", "id");
     vector<string>& groupByAttributes = const_cast<vector<string>&>(_groupByAttributes);
     vector<string>& groupBySeparators = const_cast<vector<string>&>(_groupBySeparators);
@@ -189,25 +183,6 @@ MetricsMapI::MetricsMapI(const MetricsMapI& map) :
 {
 }
 
-void
-MetricsMapI::validateProperties(const string& prefix, const Ice::PropertiesPtr& props, const vector<string>& subMaps)
-{
-    if(subMaps.empty())
-    {
-        ::validateProperties(prefix, props, mapSuffixes, sizeof(mapSuffixes) / sizeof(*mapSuffixes));
-        return;
-    }
-
-    vector<string> suffixes(mapSuffixes, mapSuffixes + sizeof(mapSuffixes) / sizeof(*mapSuffixes));
-    for(vector<string>::const_iterator p = subMaps.begin(); p != subMaps.end(); ++p)
-    {
-        const string suffix = "Map." + *p + ".";
-        ::validateProperties(prefix + suffix, props, mapSuffixes, sizeof(mapSuffixes) / sizeof(*mapSuffixes));
-        suffixes.push_back(suffix + '*');
-    }
-    ::validateProperties(prefix, props, &suffixes[0], suffixes.size());
-}
-
 const Ice::PropertyDict&
 MetricsMapI::getProperties() const
 {
@@ -249,14 +224,31 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
         if(mapProps.empty())
         {
             // This map isn't configured for this view.
-            _maps.erase(mapName);
-            return true;
+            map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+            if(q != _maps.end())
+            {
+                _maps.erase(q);
+                return true;
+            }
+            return false;
         }
     }
     else
     {
         mapPrefix = viewPrefix;
         mapProps = properties->getPropertiesForPrefix(mapPrefix);
+    }
+
+    if(properties->getPropertyAsInt(mapPrefix + "Disabled") > 0)
+    {
+        // This map is disabled for this view.
+        map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+        if(q != _maps.end())
+        {
+            _maps.erase(q);
+            return true;
+        }
+        return false;
     }
 
     map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
@@ -384,8 +376,7 @@ MetricsAdminI::updateViews()
                 continue; // View already configured.
             }
 
-            validateProperties(viewsPrefix + viewName + ".", _properties, viewSuffixes, sizeof(viewSuffixes) /
-                               sizeof(*viewSuffixes));
+            validateProperties(viewsPrefix + viewName + ".", _properties);
 
             if(_properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
             {

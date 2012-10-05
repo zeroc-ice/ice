@@ -87,7 +87,19 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             }
             return _endpointInfo;
         }
+
+        String
+        getEndpointEncodingVersion()
+        {
+            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
+        }
     
+        String
+        getEndpointProtocolVersion()
+        {
+            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
+        }
+
         final private Ice.ConnectionInfo _connectionInfo;
         final private Ice.Endpoint _endpoint;
         private String _id;

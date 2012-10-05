@@ -87,7 +87,6 @@ public:
 
     virtual MetricsMapI* clone() const = 0;
 
-    void validateProperties(const std::string&, const Ice::PropertiesPtr&, const std::vector<std::string>&);
     const Ice::PropertyDict& getProperties() const;
 
 protected:
@@ -286,7 +285,6 @@ public:
                                            std::make_pair(p->second.first, 
                                                           p->second.second->create(subMapPrefix, properties))));
         }
-        validateProperties(mapPrefix, properties, subMapNames);
     }
 
     MetricsMapT(const MetricsMapT& other) : MetricsMapI(other)
@@ -404,7 +402,7 @@ public:
                 key = os.str();
             }
         }
-        catch(const std::exception&)
+        catch(const std::exception& ex)
         {
             return 0;
         }
