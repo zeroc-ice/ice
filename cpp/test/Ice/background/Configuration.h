@@ -10,12 +10,10 @@
 #ifndef TEST_CONFIGURATION_H
 #define TEST_CONFIGURATION_H
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
+#include <IceUtil/IceUtil.h>
 
 #include <Ice/LocalException.h>
 #include <Ice/Selector.h>
-#include <memory>
 
 class Configuration;
 typedef IceUtil::Handle<Configuration> ConfigurationPtr;
@@ -52,15 +50,15 @@ public:
 
 private:
 
-    std::auto_ptr<Ice::LocalException> _connectorsException;
-    std::auto_ptr<Ice::LocalException> _connectException;
+    IceUtil::UniquePtr<Ice::LocalException> _connectorsException;
+    IceUtil::UniquePtr<Ice::LocalException> _connectException;
     IceInternal::SocketOperation _initializeSocketOperation;
     int _initializeResetCount;
-    std::auto_ptr<Ice::LocalException> _initializeException;
+    IceUtil::UniquePtr<Ice::LocalException> _initializeException;
     int _readReadyCount;
-    std::auto_ptr<Ice::LocalException> _readException;
+    IceUtil::UniquePtr<Ice::LocalException> _readException;
     int _writeReadyCount;
-    std::auto_ptr<Ice::LocalException> _writeException;
+    IceUtil::UniquePtr<Ice::LocalException> _writeException;
 
     static Configuration* _instance;
 };

@@ -12,6 +12,11 @@
 #include <Test.h>
 #include <TestCommon.h>
 
+#ifdef _MSC_VER
+// For 'Ice::Object::ice_getHash': was declared deprecated
+#pragma warning( disable : 4996 )
+#endif
+
 using namespace std;
 using namespace Test;
 

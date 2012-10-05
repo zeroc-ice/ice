@@ -429,7 +429,7 @@ ReplicaSessionPrx
 ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     ReplicaSessionPrx session;
-    auto_ptr<Ice::Exception> exception;
+    IceUtil::UniquePtr<Ice::Exception> exception;
     try
     {
         if(_traceLevels && _traceLevels->replica > 1)

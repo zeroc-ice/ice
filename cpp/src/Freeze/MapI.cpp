@@ -205,7 +205,7 @@ Freeze::MapHelper::recreate(const Freeze::ConnectionPtr& connection,
                 oldDb.open(txn, Ice::nativeToUTF8(connectionI->communicator(), oldDbName).c_str(), 0, DB_BTREE,
                            DB_THREAD, FREEZE_DB_MODE);
                     
-                auto_ptr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
+                IceUtil::UniquePtr<MapDb> newDb(new MapDb(connectionI, dbName, key, value, keyCompare, indices, true));
                 
                 if(connectionI->trace() >= 2)
                 {
@@ -325,7 +325,7 @@ Freeze::IteratorHelper::create(const MapHelper& m, bool readOnly)
 {
     const MapHelperI& actualMap = dynamic_cast<const MapHelperI&>(m);
 
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(actualMap, readOnly, 
+    IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(actualMap, readOnly, 
                                                     0, false));
     if(r->next())
     {
@@ -1049,7 +1049,7 @@ Freeze::MapHelperI::find(const Key& k, bool readOnly) const
     {
         try
         {  
-            auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
+            IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
             if(r->find(k))
             {
                 return r.release();
@@ -1089,7 +1089,7 @@ Freeze::MapHelperI::lowerBound(const Key& k, bool readOnly) const
     {
         try
         {  
-            auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
+            IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
             if(r->lowerBound(k))
             {
                 return r.release();
@@ -1129,7 +1129,7 @@ Freeze::MapHelperI::upperBound(const Key& k, bool readOnly) const
     {
         try
         {  
-            auto_ptr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
+            IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(*this, readOnly, 0, false));
             if(r->upperBound(k))
             {
                 return r.release();
@@ -1709,7 +1709,7 @@ Freeze::MapIndexI::~MapIndexI()
 IteratorHelper* 
 Freeze::MapIndexI::begin(bool ro, const MapHelperI& m) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+    IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
 
     if(r->next())
     {
@@ -1725,7 +1725,7 @@ IteratorHelper*
 Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& m, 
                                bool onlyDups) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, onlyDups));
+    IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, onlyDups));
 
     if(r->find(k))
     {
@@ -1740,7 +1740,7 @@ Freeze::MapIndexI::untypedFind(const Key& k, bool ro, const MapHelperI& m,
 IteratorHelper* 
 Freeze::MapIndexI::untypedLowerBound(const Key& k, bool ro, const MapHelperI& m) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+    IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
 
     if(r->lowerBound(k))
     {
@@ -1755,7 +1755,7 @@ Freeze::MapIndexI::untypedLowerBound(const Key& k, bool ro, const MapHelperI& m)
 IteratorHelper* 
 Freeze::MapIndexI::untypedUpperBound(const Key& k, bool ro, const MapHelperI& m) const
 {
-    auto_ptr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
+    IceUtil::UniquePtr<IteratorHelperI> r(new IteratorHelperI(m, ro, _index, false));
 
     if(r->upperBound(k))
     {

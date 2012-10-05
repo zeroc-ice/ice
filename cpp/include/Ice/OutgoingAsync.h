@@ -14,6 +14,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/Exception.h>
+#include <IceUtil/UniquePtr.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ReferenceF.h>
@@ -22,7 +23,6 @@
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
 
-#include <memory>
 #ifdef ICE_CPP11
 #   include <functional> // for std::function
 #endif
@@ -152,7 +152,7 @@ protected:
 
     unsigned char _state;
     bool _sentSynchronously;
-    std::auto_ptr<Exception> _exception;
+    IceUtil::UniquePtr<Exception> _exception;
 };
 
 }

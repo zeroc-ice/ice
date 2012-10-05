@@ -165,7 +165,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         return connection;
     }
 
-    auto_ptr<Ice::LocalException> exception;
+    IceUtil::UniquePtr<Ice::LocalException> exception;
 
     //
     // If we didn't find a connection with the endpoints, we create the connectors

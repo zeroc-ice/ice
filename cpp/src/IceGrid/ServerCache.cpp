@@ -275,7 +275,7 @@ ServerEntry::update(const ServerInfo& info)
 {
     Lock sync(*this);
 
-    auto_ptr<ServerInfo> descriptor(new ServerInfo());
+    IceUtil::UniquePtr<ServerInfo> descriptor(new ServerInfo());
     *descriptor = info;
 
     _updated = true;

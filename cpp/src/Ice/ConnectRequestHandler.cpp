@@ -47,7 +47,7 @@ public:
 private:
     
     const ConnectRequestHandlerPtr _handler;
-    const auto_ptr<Ice::LocalException> _exception;
+    const IceUtil::UniquePtr<Ice::LocalException> _exception;
 };
 
 class FlushRequestsWithExceptionWrapper : public DispatchWorkItem

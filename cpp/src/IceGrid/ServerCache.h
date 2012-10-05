@@ -86,9 +86,9 @@ private:
 
     ServerCache& _cache;
     const std::string _id;
-    std::auto_ptr<ServerInfo> _loaded;
-    std::auto_ptr<ServerInfo> _load;
-    std::auto_ptr<ServerInfo> _destroy;
+    IceUtil::UniquePtr<ServerInfo> _loaded;
+    IceUtil::UniquePtr<ServerInfo> _load;
+    IceUtil::UniquePtr<ServerInfo> _destroy;
 
     ServerPrx _proxy;
     AdapterPrxDict _adapters;
@@ -97,7 +97,7 @@ private:
 
     bool _synchronizing;
     bool _updated;
-    std::auto_ptr<Ice::Exception> _exception;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
     std::vector<SynchronizationCallbackPtr> _callbacks;
 
     SessionIPtr _session;

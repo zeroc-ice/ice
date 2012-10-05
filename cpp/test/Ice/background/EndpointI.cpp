@@ -13,6 +13,11 @@
 #include <Acceptor.h>
 #include <Ice/BasicStream.h>
 
+#ifdef _MSC_VER
+// For 'Ice::Object::ice_getHash': was declared deprecated
+#pragma warning( disable : 4996 )
+#endif
+
 using namespace std;
 
 Ice::Short EndpointI::TYPE_BASE = 100;

@@ -73,7 +73,7 @@ protected:
 
 private:
     
-    std::auto_ptr<Db> _db;
+    IceUtil::UniquePtr<Db> _db;
     std::string _facet;
     std::string _dbName;
     EvictorIBase* _evictor;

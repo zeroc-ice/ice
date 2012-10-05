@@ -265,7 +265,7 @@ Freeze::TransactionalEvictorContext::ServantHolder::ServantHolder() :
 }
 
 
-Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
+Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder() ICE_NOEXCEPT_FALSE
 {
     if(_ownBody && _body.ownServant)
     {

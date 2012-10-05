@@ -10,13 +10,10 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Glacier2/SessionHelper.h>
 
-#include <IceUtil/UUID.h>
-#include <IceUtil/CountDownLatch.h>
-
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 
 #include <algorithm> // required by max
-#include <memory> // required by auto_ptr
 
 using namespace std;
 
@@ -525,7 +522,7 @@ private:
     
     const Glacier2::SessionCallbackPtr _callback;
     const Glacier2::SessionHelperPtr _session;
-    std::auto_ptr<Ice::Exception> _ex;
+    IceUtil::UniquePtr<Ice::Exception> _ex;
 };
 
 class CreatedCommunicator : public Ice::DispatcherCall

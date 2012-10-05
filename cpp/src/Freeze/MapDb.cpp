@@ -210,7 +210,7 @@ Freeze::MapDb::MapDb(const ConnectionIPtr& connection,
                 indexBase->_communicator = connection->communicator();
                 indexBase->_encoding = connection->encoding();
                 
-                auto_ptr<MapIndexI> indexI;
+                IceUtil::UniquePtr<MapIndexI> indexI;
 
                 try
                 {

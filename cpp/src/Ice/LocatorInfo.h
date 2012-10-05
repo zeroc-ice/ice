@@ -20,7 +20,7 @@
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
 
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 
 namespace IceInternal
 {
@@ -130,7 +130,7 @@ public:
         bool _sent;
         bool _response;
         Ice::ObjectPrx _proxy;
-        std::auto_ptr<Ice::Exception> _exception;
+        IceUtil::UniquePtr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 

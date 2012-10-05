@@ -19,7 +19,7 @@
 #include <Ice/ProxyF.h>
 #include <Ice/BasicStream.h>
 
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 #include <deque>
 
 namespace IceInternal
@@ -76,7 +76,7 @@ private:
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
-    std::auto_ptr<Ice::LocalException> _exception;
+    IceUtil::UniquePtr<Ice::LocalException> _exception;
     bool _initialized;
     bool _flushing;
 

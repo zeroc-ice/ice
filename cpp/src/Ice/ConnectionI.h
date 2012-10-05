@@ -33,7 +33,7 @@
 #include <Ice/ConnectionAsync.h>
 
 #include <deque>
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 
 namespace IceInternal
 {
@@ -319,7 +319,7 @@ private:
     std::map<Int, IceInternal::OutgoingAsyncPtr> _asyncRequests;
     std::map<Int, IceInternal::OutgoingAsyncPtr>::iterator _asyncRequestsHint;
 
-    std::auto_ptr<LocalException> _exception;
+    IceUtil::UniquePtr<LocalException> _exception;
 
     const bool _batchAutoFlush;
     IceInternal::BasicStream _batchStream;

@@ -38,7 +38,7 @@ NodeSessionPrx
 NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
     NodeSessionPrx session;
-    auto_ptr<Ice::Exception> exception;
+    IceUtil::UniquePtr<Ice::Exception> exception;
     TraceLevelsPtr traceLevels = _node->getTraceLevels();
     try
     {

@@ -16,7 +16,7 @@
 #include <Ice/LocalObjectF.h>
 #include <Ice/Current.h>
 
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 
 namespace IceInternal
 {
@@ -51,7 +51,7 @@ private:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
-    std::auto_ptr<Ice::UserException> _userException;
+    IceUtil::UniquePtr<Ice::UserException> _userException;
 };
 
 }

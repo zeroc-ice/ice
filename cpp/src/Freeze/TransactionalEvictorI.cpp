@@ -351,7 +351,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         {
         }
         
-        ~CtxHolder()
+        ~CtxHolder() ICE_NOEXCEPT_FALSE
         {
             if(_ownCtx)
             {

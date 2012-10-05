@@ -14,7 +14,7 @@
 #include <IceUtil/Cond.h>
 #include <IceUtil/ArgVector.h>
 #include <Ice/GC.h>
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 
 using namespace std;
 using namespace Ice;

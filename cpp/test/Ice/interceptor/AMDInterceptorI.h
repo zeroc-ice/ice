@@ -33,7 +33,7 @@ private:
 
     Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
     Ice::DispatchStatus _actualStatus;
-    std::auto_ptr<IceUtil::Exception> _exception;
+    IceUtil::UniquePtr<IceUtil::Exception> _exception;
   
     IceUtil::Mutex _mutex;
 };

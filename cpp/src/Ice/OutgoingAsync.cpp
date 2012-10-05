@@ -68,7 +68,7 @@ public:
 private:
 
     const Ice::AsyncResultPtr _result;
-    const auto_ptr<Ice::Exception> _exception;
+    const IceUtil::UniquePtr<Ice::Exception> _exception;
 };
 
 class AsynchronousSent : public DispatchWorkItem
@@ -634,7 +634,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                 string operation;
                 _is.read(operation, false);
 
-                auto_ptr<RequestFailedException> ex;
+                IceUtil::UniquePtr<RequestFailedException> ex;
                 switch(replyStatus)
                 {
                     case replyObjectNotExist:
@@ -675,7 +675,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                 string unknown;
                 _is.read(unknown, false);
 
-                auto_ptr<UnknownException> ex;
+                IceUtil::UniquePtr<UnknownException> ex;
                 switch(replyStatus)
                 {
                     case replyUnknownException:

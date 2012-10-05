@@ -318,7 +318,7 @@ private:
     std::vector<AMD_Node_loadServerPtr> _loadCB;
     bool _clearDir;
     InternalServerDescriptorPtr _desc;
-    std::auto_ptr<DeploymentException> _exception;
+    IceUtil::UniquePtr<DeploymentException> _exception;
 };
 
 }

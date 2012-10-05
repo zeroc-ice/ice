@@ -55,6 +55,16 @@
 #   define ICE_CPP11
 #endif
 
+#if defined(ICE_CPP11) && !defined(_MSC_VER)
+
+// Visual Studio does not support noexcept yet
+#   define ICE_NOEXCEPT noexcept
+#   define ICE_NOEXCEPT_FALSE noexcept(false)
+#else
+#   define ICE_NOEXCEPT throw()
+#   define ICE_NOEXCEPT_FALSE /**/
+#endif
+
 
 #if defined(_MSC_VER) && (_MSC_VER >= 1700) // Visual Studio 2012 or later
 //

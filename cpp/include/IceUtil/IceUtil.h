@@ -31,6 +31,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/ScopedArray.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/ThreadException.h>
@@ -38,5 +39,6 @@
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/UniquePtr.h>
 
 #endif

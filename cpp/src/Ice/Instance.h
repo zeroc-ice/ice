@@ -38,7 +38,7 @@
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
-#include <memory>
+#include <IceUtil/UniquePtr.h>
 
 namespace Ice
 {

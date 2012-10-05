@@ -66,7 +66,7 @@ public:
         notifyAll();
     }
 
-    auto_ptr<Ice::LocalException>
+    Ice::LocalException*
     waitUntilFinished()
     {
         Lock sync(*this);
@@ -74,13 +74,13 @@ public:
         {
             wait();
         }
-        return _exception;
+        return _exception.release();
     }
 
 private:
     
     Ice::ObjectPrx _proxy;
-    auto_ptr<Ice::LocalException> _exception;
+    IceUtil::UniquePtr<Ice::LocalException> _exception;
     bool _finished;
     int _nRepetitions;
 };
@@ -464,7 +464,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -480,7 +480,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -496,7 +496,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         threads.resize(0);
@@ -549,7 +549,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            auto_ptr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
         admin->stopServer("server-activation-timeout");

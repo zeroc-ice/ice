@@ -1674,7 +1674,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
         // connection for one of the endpoints.
         //
 
-        auto_ptr<LocalException> exception;
+        IceUtil::UniquePtr<LocalException> exception;
         vector<EndpointIPtr> endpoint;
         endpoint.push_back(0);
 
@@ -1832,7 +1832,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             const vector<EndpointIPtr> _endpoints;
             const GetConnectionCallbackPtr _callback;
             size_t _i;
-            std::auto_ptr<Ice::LocalException> _exception;
+            IceUtil::UniquePtr<Ice::LocalException> _exception;
         };
 
         //

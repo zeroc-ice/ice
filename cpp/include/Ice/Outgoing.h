@@ -12,13 +12,13 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/UniquePtr.h>
 #include <Ice/RequestHandlerF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
-#include <memory>
 
 namespace Ice
 {
@@ -58,7 +58,7 @@ private:
 
     const LocalExceptionWrapper& operator=(const LocalExceptionWrapper&);
 
-    std::auto_ptr<Ice::LocalException> _ex;
+    IceUtil::UniquePtr<Ice::LocalException> _ex;
     bool _retry;
 };
 
@@ -144,7 +144,7 @@ private:
     //
     RequestHandler* _handler;
 
-    std::auto_ptr<Ice::LocalException> _exception;
+    IceUtil::UniquePtr<Ice::LocalException> _exception;
 
     enum
     {
@@ -191,7 +191,7 @@ private:
     RequestHandler* _handler;
     Ice::ConnectionI* _connection;
     bool _sent;
-    std::auto_ptr<Ice::LocalException> _exception;
+    IceUtil::UniquePtr<Ice::LocalException> _exception;
 
     BasicStream _os;
 };

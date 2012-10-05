@@ -169,7 +169,7 @@ private:
     int _synchronizeCount;
     int _synchronizedCount;
     int _nReplicas;
-    std::auto_ptr<Ice::Exception> _exception;
+    IceUtil::UniquePtr<Ice::Exception> _exception;
 };
 typedef IceUtil::Handle<ReplicaGroupSyncCallback> ReplicaGroupSyncCallbackPtr;
 

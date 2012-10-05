@@ -23,7 +23,6 @@
 #include <Ice/StringConverter.h>
 
 #include <cstdlib>
-#include <memory>
 
 
 using namespace std;
@@ -149,7 +148,7 @@ Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator, const string& envN
     //
     // MapKey not found, let's create and open a new DbEnv
     //
-    auto_ptr<SharedDbEnv> result(new SharedDbEnv(envName, communicator, env));
+    IceUtil::UniquePtr<SharedDbEnv> result(new SharedDbEnv(envName, communicator, env));
     
     //
     // Insert it into the map
@@ -246,7 +245,7 @@ Freeze::SharedDbEnv::getSharedMapDb(const string& dbName,
     
     ConnectionIPtr insertConnection = new ConnectionI(this);
     
-    auto_ptr<MapDb> result(new MapDb(insertConnection, dbName, key, value, 
+    IceUtil::UniquePtr<MapDb> result(new MapDb(insertConnection, dbName, key, value, 
                                      keyCompare, indices, createDb));
     
     //
