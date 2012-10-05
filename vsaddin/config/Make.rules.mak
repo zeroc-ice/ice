@@ -91,9 +91,9 @@ VS_HOME 		= $(VSINSTALLDIR)
 PKG_PREFIX 		= $(VSTARGET)
 
 !if "$(VS)" == "VS2008"
-PROPERTY_SHEET = "ice.vsprops"
+PROPERTY_SHEET = "Ice.vsprops"
 !else
-PROPERTY_SHEET = "ice.props"
+PROPERTY_SHEET = "Ice.props"
 !endif
 
 bindir 			= ..\bin

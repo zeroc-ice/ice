@@ -662,8 +662,6 @@ namespace Ice.VisualStudio
             {
                 _opening = true;
                 DependenciesMap dependenciesMap = getDependenciesMap();
-                _reverseDependencyMap = new Dictionary<ProjectItem, List<Project>>();
-
                 initDocumentEvents();
                 List<Project> projects = Util.buildOrder(_applicationObject.Solution);
                 foreach(Project p in projects)
@@ -3488,7 +3486,7 @@ namespace Ice.VisualStudio
         private int _errorCount;
         private FileTracker _fileTracker;
         private DependenciesMap _dependenciesMap;
-        private Dictionary<ProjectItem, List<Project>> _reverseDependencyMap;
+
         private string _deletedFile;
         private OutputWindowPane _output;
 

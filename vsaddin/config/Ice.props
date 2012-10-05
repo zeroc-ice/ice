@@ -2,17 +2,17 @@
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">  
 
     <PropertyGroup Condition="!Exists('$(IceSourceHome)')">
-        <IceHome>C:\Program Files\ZeroC\Ice-3.4.2</IceHome>
+        <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.4.2@InstallDir)</IceHome>
         <IceInclude>$(IceHome)\include</IceInclude>
     </PropertyGroup>
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(MinimumVisualStudioVersion)' == 10.0">
-        <IceLib>$(IceHome)\lib\vc100</IceLib>
-        <IceBin>$(IceHome)\bin\vc100</IceBin>
+        <IceLib>$(IceHome)\lib</IceLib>
+        <IceBin>$(IceHome)\bin</IceBin>
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(MinimumVisualStudioVersion)' == 10.0">
-        <IceLib>$(IceHome)\lib\vc100\$(Platform)</IceLib>
-        <IceBin>$(IceHome)\bin\vc100\$(Platform)</IceBin>
+        <IceLib>$(IceHome)\lib\$(Platform)</IceLib>
+        <IceBin>$(IceHome)\bin\$(Platform)</IceBin>
     </PropertyGroup>
     
     <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(MinimumVisualStudioVersion)' == 11.0">
@@ -50,4 +50,10 @@
             <EnvironmentVariable>true</EnvironmentVariable>
         </BuildMacro>
     </ItemGroup>
+
+    <PropertyGroup>
+        <IncludePath>$(IceInclude);$(IncludePath)</IncludePath>
+        <LibraryPath>$(IceLib);$(LibraryPath)</LibraryPath> 
+        <ExecutablePath>$(IceBin);$(ExecutablePath)</ExecutablePath>
+    </PropertyGroup>
 </Project>

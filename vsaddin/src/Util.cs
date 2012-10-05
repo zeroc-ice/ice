@@ -378,16 +378,25 @@ namespace Ice.VisualStudio
 
         public static string getIceHome()
         {
-            string defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            if(defaultIceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
+            string iceSourceHome = System.Environment.GetEnvironmentVariable("IceSourceHome");
+            if (iceSourceHome != null && System.IO.Directory.Exists(iceSourceHome) &&
+               System.IO.File.Exists(Path.Combine(iceSourceHome, "cpp", "bin", slice2cpp)))
             {
-                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin".Length);
+                return iceSourceHome;
             }
-            else if(defaultIceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
+            else
             {
-                defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin\bin".Length);
+                string defaultIceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (defaultIceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin".Length);
+                }
+                else if (defaultIceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    defaultIceHome = defaultIceHome.Substring(0, defaultIceHome.Length - "\\vsaddin\bin".Length);
+                }
+                return defaultIceHome;
             }
-            return defaultIceHome;
         }
 
         public static string getProjectOutputDirRaw(Project project)
@@ -469,7 +478,7 @@ namespace Ice.VisualStudio
         {
             VCProject vcProj = (VCProject)project.Object;
 
-            string propSheetFileName = "$(ALLUSERSPROFILE)\\ZeroC\\ice";
+            string propSheetFileName = "$(ALLUSERSPROFILE)\\ZeroC\\Ice";
 
 #if VS2008
             propSheetFileName += ".vsprops";
@@ -568,12 +577,6 @@ namespace Ice.VisualStudio
             return path.ToString();
         }
 
-        private static readonly string iceIncludeDir = 
-#if VS2008
-            "$(IceHome)\\include";
-#else
-            "$(IceInclude)";
-#endif
         public static bool addCppIncludes(VCCLCompilerTool tool, Project project)
         {            
             if(tool == null || project == null)
@@ -581,15 +584,8 @@ namespace Ice.VisualStudio
                 return false;
             }
 
-            bool winrt = isWinRTProject(project);
             bool changed = false;
             ComponentList includes = new ComponentList(tool.AdditionalIncludeDirectories);
-
-            if(!winrt && !includes.Contains(iceIncludeDir) && !includes.Contains(quote(iceIncludeDir)))
-            {
-                changed = true;
-                includes.Add(quote(iceIncludeDir));
-            }
 
             string outputDir = getProjectOutputDirRaw(project);
             if(outputDir.Equals(""))
@@ -621,11 +617,6 @@ namespace Ice.VisualStudio
             ComponentList includes = new ComponentList(tool.AdditionalIncludeDirectories);
 
             if(includes.Remove(quote(iceHome + "\\include")) || includes.Remove(iceHome + "\\include"))
-            {
-                changed = true;
-            }
-
-            if(includes.Remove(quote(iceIncludeDir)) || includes.Remove(iceIncludeDir))
             {
                 changed = true;
             }
@@ -663,7 +654,7 @@ namespace Ice.VisualStudio
             IVCCollection sheets = (IVCCollection)configuration.PropertySheets;
             foreach(VCPropertySheet s in sheets)
             {
-                if(!s.PropertySheetFile.Equals(configuration.Evaluate("$(ALLUSERSPROFILE)\\ZeroC\\IceCommon.props"),
+                if(!s.PropertySheetFile.Equals(configuration.Evaluate("$(ALLUSERSPROFILE)\\ZeroC\\Ice.props"),
                                                StringComparison.CurrentCultureIgnoreCase))
                 {
                     continue;
@@ -1004,74 +995,6 @@ namespace Ice.VisualStudio
                 debugSettings.Environment = value;
             }
             return;
-        }
-
-        public static bool addIceCppLibraryDir(LinkerAdapter tool, Project project, CPUType arch)
-        {
-            if(tool == null || project == null)
-            {
-                return false;
-            }
-
-
-#if VS2010 || VS2012
-            string iceLibDir = isWinRTProject(project) ? "$(IceLib)\\winrt" : "$(IceLib)";
-#else
-            if(arch == CPUType.x64CPUType)
-            {
-                iceLibDir += "\\x64";
-            }
-#endif
-            string additionalLibraryDirectories = tool.AdditionalLibraryDirectories;
-            if(String.IsNullOrEmpty(additionalLibraryDirectories))
-            {
-                tool.AdditionalLibraryDirectories = quote(iceLibDir);
-                return true;
-            }
-
-            ComponentList libs = new ComponentList(additionalLibraryDirectories);
-            bool changed = false;
-#if !VS2010 && !VS2012
-            //
-            // Remove Ice lib directories that doesn't match the current ice lib dir.
-            //
-            ComponentList remove = new ComponentList();
-
-            foreach(string lib in libs)
-            {
-                if(lib.Equals(iceLibDir) ||
-                   lib.Equals(quote(iceLibDir)))
-                {
-                    continue;
-                }
-                if(lib.StartsWith("$(IceHome)") ||
-                   lib.StartsWith("\"$(IceHome)"))
-                {
-                    remove.Add(lib);
-                }            
-            }
-
-            foreach(string lib in remove)
-            {
-                if(libs.Remove(lib))
-                {
-                    changed = true;
-                }
-            }
-#endif
-            if(!libs.Contains(iceLibDir) && 
-               !libs.Contains(quote(iceLibDir)))
-            {
-                libs.Add(quote(iceLibDir));
-                changed = true;
-            }
-
-            if(changed)
-            {
-                tool.AdditionalLibraryDirectories = libs.ToString();
-            }
-
-            return changed;
         }
 
         public static void removeIceCppLibraryDir(LinkerAdapter tool, string iceHome)

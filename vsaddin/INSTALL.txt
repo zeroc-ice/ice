@@ -183,9 +183,9 @@ Configuration
 
    > copy C:\Ice-@ver@\vsaddin\config\ice.vsprops .
 
-   For VS 2010 and VS 2012 the property sheet is ice.props
+   For VS 2010 and VS 2012 the property sheet is Ice.props
 
-   > copy C:\Ice-@ver@\vsaddin\config\ice.props .
+   > copy C:\Ice-@ver@\vsaddin\config\Ice.props .
 
    After copy the files, you must edit the property sheet 
    files to reflect your installation path.
@@ -193,7 +193,7 @@ Configuration
    For ice.vsprops set the "Value" attribute of the UserMacro 
    to your Ice installation path.
 
-   For ice.props set the content of the element IceHome to your Ice
+   For Ice.props set the content of the element IceHome to your Ice
    installation path.
 
 5) This completes the configuration. The add-in is available once you
