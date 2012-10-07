@@ -233,7 +233,12 @@ else
 	      DB_FLAGS          = -I/usr/include/db48
 	      DB_LIBS           = -L/usr/$(libsubdir)/db48 -ldb_cxx
 	   else
-	      DB_LIBS           = -ldb_cxx
+              ifeq ($(shell if [ -d /usr/local/include/db48 -a -d /usr/local/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
+                   DB_FLAGS          = -I/usr/local/include/db48
+                   DB_LIBS           = -L/usr/local/$(libsubdir)/db48 -ldb_cxx
+              else
+	           DB_LIBS      = -ldb_cxx
+              endif
 	   endif
 	endif
 	EXPAT_FLAGS             = $(if $(EXPAT_HOME),-I$(EXPAT_HOME)/include)
