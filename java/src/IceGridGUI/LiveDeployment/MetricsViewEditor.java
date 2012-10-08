@@ -1204,21 +1204,30 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _scaleFactor = Double.parseDouble(scaleFactor);
         }
 
-        public Object getValue(IceMX.Metrics m, long timestamp)
+        public Object getValue(IceMX.Metrics m2, long timestamp)
         {
-            if(m.totalLifetime == 0 || m.total - m.current == 0)
+            IceMX.Metrics m1 = _deltas.get(m2.id);
+            _deltas.put(m2.id, m2);
+            if(m1 == null)
+            {
+                return null;
+            }
+            if((m2.total - m1.total) - (m2.current - m1.current) == 0 ||
+               (m2.totalLifetime - m1.totalLifetime) == 0)
             {
                 return 0.0f;
             }
             else
             {
-                return (float)((m.totalLifetime / _scaleFactor) / (m.total - m.current));
+                return (float)(((m2.totalLifetime - m1.totalLifetime) / _scaleFactor) /
+                                (m2.total - m1.total) - (m2.current - m1.current)); 
             }
-        }
+        } 
 
 	    private double _scaleFactor = 1.0d;
 	    private String _columnName;
         private TableCellRenderer _cellRenderer;
+        private final Map<String, IceMX.Metrics> _deltas = new HashMap<String, IceMX.Metrics>();
     }
 
     static public class DeltaMeasurement
