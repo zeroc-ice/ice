@@ -18,7 +18,26 @@ public class HelloI : HelloDisp_
 
     public override void sayHello(Ice.Current current)
     {
-        System.Console.Out.WriteLine("Hello from " + _serviceName);
+        string lang = System.Environment.GetEnvironmentVariable("LANG") != null ? 
+                                                            System.Environment.GetEnvironmentVariable("LANG") : "en";
+        string greeting = "Hello, ";
+        if(lang.Equals("fr"))
+        {
+            greeting = "Bonjour, ";
+        }
+        else if(lang.Equals("de"))
+        {
+            greeting = "Hallo, ";
+        }
+        else if(lang.Equals("es"))
+        {
+            greeting = "Hola, ";
+        }
+        else if(lang.Equals("it"))
+        {
+            greeting = "Ciao, ";
+        }
+        System.Console.Out.WriteLine(greeting + _serviceName);
     }
 
     private string _serviceName;

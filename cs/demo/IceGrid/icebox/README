@@ -23,6 +23,14 @@ Note for Mono:
 This demo shows a very simple IceGrid deployment, with a single
 IceBox server hosting a number of IceBox services.
 
+The demo also demostrate how to use an environment variable in a
+server descriptor.
+
+In applicationx.xml, <env>LANG=en</env>, defines a enviroment variable
+named "LANG" with value "en", the Hello object implementation HelloI
+reads the value of "LANG" and show the message in the corresponding 
+language; you can try to update the value to fr, de, es or it.
+
 Note for 64 bit Windows:
 
 In order to run this demo under 64 bit Windows you must add

@@ -51,6 +51,7 @@
             <service-instance template="HelloService" name="Bart"/>
             <service-instance template="HelloService" name="Lisa"/>
             <service-instance template="HelloService" name="Maggie"/>
+            <env>LANG=en</env>
          </icebox>
       </node>
    </application>
