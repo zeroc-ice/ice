@@ -154,8 +154,10 @@ Slice::Preprocessor::preprocess(bool keepComments)
     }
     args.push_back("-e");
     args.push_back("en_us.utf8");
+    ostringstream version;
+    version << "-DICE_VERSION=" << ICE_INT_VERSION;
+    args.push_back(version.str());
     args.push_back(_fileName);
-
     const char** argv = new const char*[args.size() + 1];
     argv[0] = "mcpp";
     for(unsigned int i = 0; i < args.size(); ++i)
