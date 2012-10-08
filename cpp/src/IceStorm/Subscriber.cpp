@@ -242,8 +242,8 @@ SubscriberBatch::doFlush()
     
     if(_observer)
     {
-        _outstandingCount = v.size();
-        _observer->outstanding(v.size());
+        _outstandingCount = static_cast<Ice::Int>(v.size());
+        _observer->outstanding(_outstandingCount);
     }
 
     try
@@ -517,7 +517,7 @@ SubscriberLink::flush()
             ++_outstanding;
             if(_observer)
             {
-                _outstandingCount = v.size();
+                _outstandingCount = static_cast<Ice::Int>(v.size());
                 _observer->outstanding(_outstandingCount);
             }
             _obj->begin_forward(v, Ice::newCallback(static_cast<Subscriber*>(this), &Subscriber::completed));
@@ -685,7 +685,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
         copy(events.begin(), events.end(), back_inserter(_events));
         if(_observer)
         {
-            _observer->queued(events.size());
+            _observer->queued(static_cast<Ice::Int>(events.size()));
         }
         flush();
         break;
