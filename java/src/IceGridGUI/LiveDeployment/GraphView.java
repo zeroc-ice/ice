@@ -313,7 +313,8 @@ public class GraphView extends JFrame implements MetricsFieldContext
 
         synchronized void setRefreshPeriod(int period)
         {
-           _period = period;
+            _period = period;
+            notify();
         }
 
         synchronized public void
@@ -321,7 +322,6 @@ public class GraphView extends JFrame implements MetricsFieldContext
         {
             while(true)
             {
-            
                 java.util.Set<MetricsViewInfo> metrics = null;
                 synchronized(GraphView.this)
                 {
