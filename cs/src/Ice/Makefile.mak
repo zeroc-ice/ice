@@ -52,9 +52,12 @@ SRCS		= Acceptor.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
 		  Instance.cs \
+		  InstrumentationI.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
+		  MetricsAdminI.cs \
+		  MetricsObserverI.cs \
 		  Monitor.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \

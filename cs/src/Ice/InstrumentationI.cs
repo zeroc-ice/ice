@@ -17,7 +17,7 @@ namespace IceMX
     static class Util
     {
         public static void
-        addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl)
+        addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
             Type cli = typeof(Ice.EndpointInfo);
             r.add("endpointType", cl.GetMethod("getEndpointInfo"), cli.GetMethod("type"));
@@ -34,7 +34,7 @@ namespace IceMX
         }
 
         public static void
-        addConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl)
+        addConnectionAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
             Type cli = typeof(Ice.ConnectionInfo);
             r.add("incoming", cl.GetMethod("getConnectionInfo"), cli.GetField("incoming"));

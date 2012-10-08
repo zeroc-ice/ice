@@ -402,7 +402,7 @@ public:
                 key = os.str();
             }
         }
-        catch(const std::exception& ex)
+        catch(const std::exception&)
         {
             return 0;
         }
