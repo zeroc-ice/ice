@@ -39,7 +39,7 @@ public:
     virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&);
 };
 
-class CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
+class ICE_API CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
 {
 public:
 

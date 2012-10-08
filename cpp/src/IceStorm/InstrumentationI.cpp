@@ -172,7 +172,7 @@ public:
             {
                 _id = _proxy->ice_toString();
             }
-            catch(const Ice::FixedProxyException& ex)
+            catch(const Ice::FixedProxyException&)
             {
                 _id = _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
             }

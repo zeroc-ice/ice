@@ -740,6 +740,7 @@ InvocationObserverI::getRemoteObserver(const ConnectionInfoPtr& connection, cons
 }
 
 CommunicatorObserverI::CommunicatorObserverI(const IceInternal::MetricsAdminIPtr& metrics) : 
+    _metrics(metrics),
     _connections(metrics, "Connection"),
     _dispatch(metrics, "Dispatch"),
     _invocations(metrics, "Invocation"),

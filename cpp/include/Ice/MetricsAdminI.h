@@ -39,11 +39,11 @@ template<typename T> class MetricsHelperT;
 namespace IceInternal
 {
 
-class MetricsMapI : public IceUtil::Shared
+class ICE_API MetricsMapI : public IceUtil::Shared
 {
 public:
 
-    class RegExp : public IceUtil::Shared
+    class ICE_API RegExp : public IceUtil::Shared
     {
     public:
         
@@ -100,7 +100,7 @@ protected:
 };
 typedef IceUtil::Handle<MetricsMapI> MetricsMapIPtr;
 
-class MetricsMapFactory : public Ice::LocalObject
+class ICE_API MetricsMapFactory : public Ice::LocalObject
 {
 public:
 
@@ -539,7 +539,8 @@ private:
 };
 typedef IceUtil::Handle<MetricsViewI> MetricsViewIPtr;
 
-class MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, private IceUtil::Mutex
+class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::PropertiesAdminUpdateCallback, 
+                              private IceUtil::Mutex
 {
 public:
 

@@ -90,6 +90,9 @@ toSubscriberState(Subscriber::SubscriberState s)
     case Subscriber::SubscriberStateError:
     case Subscriber::SubscriberStateReaped:
         return IceStorm::Instrumentation::SubscriberStateError;
+    default:
+        assert(false);
+        return IceStorm::Instrumentation::SubscriberStateError;
     }
 }
 
