@@ -407,25 +407,26 @@ IceServiceInstaller::initializeSid(const string& name)
 {
     {
         DWORD sidSize = 32;
-        _sid = auto_ptr<SID>(new SID[sidSize]);
+        _sidBuffer.reset(new IceUtil::Byte[sidSize]);
 
         DWORD domainNameSize = 32;
-        auto_ptr<wchar_t> domainName(new wchar_t[domainNameSize]);
+        IceUtil::ScopedArray<wchar_t> domainName(new wchar_t[domainNameSize]);
 
         SID_NAME_USE nameUse;
-        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(), _sid.get(), &sidSize, domainName.get(),
+        while(LookupAccountNameW(0, IceUtil::stringToWstring(name).c_str(), _sidBuffer.get(), &sidSize, domainName.get(),
               &domainNameSize, &nameUse) == false)
         {
             DWORD res = GetLastError();
 
             if(res == ERROR_INSUFFICIENT_BUFFER)
             {
-                _sid =  auto_ptr<SID>(new SID[sidSize]);
-                domainName  = auto_ptr<wchar_t>(new wchar_t[domainNameSize]);
+                _sidBuffer.reset(new IceUtil::Byte[sidSize]);
+                domainName.reset(new wchar_t[domainNameSize]);
                 continue;
             }
             throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
         }
+        _sid = reinterpret_cast<SID*>(_sidBuffer.get());
     }
 
     //
@@ -451,7 +452,7 @@ IceServiceInstaller::initializeSid(const string& name)
         DWORD domainLen = 1024;
 
         SID_NAME_USE nameUse;
-        if(LookupAccountSidW(0, _sid.get(), accountName, &accountNameLen, domainName, &domainLen, &nameUse) == false)
+        if(LookupAccountSidW(0, _sid, accountName, &accountNameLen, domainName, &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
             throw "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res);
@@ -464,7 +465,7 @@ IceServiceInstaller::initializeSid(const string& name)
     {
         Trace trace(_communicator->getLogger(), "IceServiceInstaller");
         wchar_t* sidString = 0;
-        ConvertSidToStringSidW(_sid.get(), &sidString);
+        ConvertSidToStringSidW(_sid, &sidString);
         trace << "SID: " << IceUtil::wstringToString(sidString) << "; ";
         LocalFree(sidString);
         trace << "Full name: " << _sidName;
@@ -521,7 +522,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         // Now check if _sid can read this file/dir/key
         //
         TRUSTEE_W trustee;
-        BuildTrusteeWithSidW(&trustee, _sid.get());
+        BuildTrusteeWithSidW(&trustee, _sid);
 
         ACCESS_MASK accessMask = 0;
         res = GetEffectiveRightsFromAclW(acl, &trustee, &accessMask);

@@ -11,6 +11,7 @@
 #define ICE_SERVICE_INSTALLER_H
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <AccCtrl.h>
 
 class IceServiceInstaller
@@ -62,7 +63,9 @@ private:
     std::string _nodeName;
     std::string _glacier2InstanceName;
 
-    std::auto_ptr<SID> _sid;
+    SID* _sid;
+    IceUtil::ScopedArray<IceUtil::Byte> _sidBuffer;
+
     std::string _sidName;
 
     bool _debug;

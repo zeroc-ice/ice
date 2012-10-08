@@ -1105,7 +1105,7 @@ template<typename T> InParamPtr newInParam(const T& v)
     return new InParamT<T>(v);
 } 
 
-template<typename T> const T& getIn(const T&, const InParamPtr& cookie)
+template<typename T> const T& getIn(const InParamPtr& cookie)
 {
     return dynamic_cast<InParamT<T>* >(cookie.get())->in;
 } 
@@ -1118,7 +1118,7 @@ public:
                        const ::std::pair<const double*, const double*>& out,
                        const InParamPtr& cookie)
     {
-        const ::std::pair<const double*, const double*>& in = getIn(ret, cookie);
+        const ::std::pair<const double*, const double*>& in = getIn<std::pair<const double*, const double*> >(cookie);
         test(arrayRangeEquals<double>(out, in));
         test(arrayRangeEquals<double>(ret, in));
         called();
@@ -1128,7 +1128,7 @@ public:
                      const ::std::pair<const bool*, const bool*>& out,
                      const InParamPtr& cookie)
     {
-        const ::std::pair<const bool*, const bool*>& in = getIn(ret, cookie);
+        const ::std::pair<const bool*, const bool*>& in = getIn<std::pair<const bool*, const bool*> >(cookie);
         test(arrayRangeEquals<bool>(out, in));
         test(arrayRangeEquals<bool>(ret, in));
         called();
@@ -1138,7 +1138,7 @@ public:
                      const pair<const Ice::Byte*, const Ice::Byte*>& out,
                      const InParamPtr& cookie)
     {
-        const pair<const Ice::Byte*, const Ice::Byte*>& in = getIn(ret, cookie);
+        const pair<const Ice::Byte*, const Ice::Byte*>& in = getIn<pair<const Ice::Byte*, const Ice::Byte*> >(cookie);
         test(arrayRangeEquals<Ice::Byte>(out, in));
         test(arrayRangeEquals<Ice::Byte>(ret, in));
         called();
@@ -1148,7 +1148,8 @@ public:
                          const pair<const Test::Variable*, const Test::Variable*>& out,
                          const InParamPtr& cookie)
     {
-        const pair<const Test::Variable*, const Test::Variable*>& in = getIn(ret, cookie);
+        const pair<const Test::Variable*, const Test::Variable*>& in = 
+            getIn<pair<const Test::Variable*, const Test::Variable*> >(cookie);
         test(arrayRangeEquals<Test::Variable>(out, in));
         test(arrayRangeEquals<Test::Variable>(ret, in));
         called();
@@ -1158,7 +1159,8 @@ public:
                      const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& out,
                      const InParamPtr& cookie)
     {
-        const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& in = getIn(ret, cookie);
+        const pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator>& in 
+            = getIn<pair<Test::BoolSeq::const_iterator, Test::BoolSeq::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
@@ -1168,7 +1170,8 @@ public:
                      const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out,
                      const InParamPtr& cookie)
     {
-        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = getIn(ret, cookie);
+        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = 
+            getIn<pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
@@ -1178,7 +1181,8 @@ public:
                          const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& out,
                          const InParamPtr& cookie)
     {
-        const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& in = getIn(ret, cookie);
+        const pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>& in = 
+            getIn<pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
@@ -1188,7 +1192,7 @@ public:
                          const pair<const bool*, const bool*>& out,
                          const InParamPtr& cookie)
     {
-        const pair<const bool*, const bool*>& in = getIn(ret, cookie);
+        const pair<const bool*, const bool*>& in = getIn<pair<const bool*, const bool*> >(cookie);
         test(arrayRangeEquals<bool>(out, in));
         test(arrayRangeEquals<bool>(ret, in));
         called();
@@ -1198,7 +1202,8 @@ public:
                          const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& out,
                          const InParamPtr& cookie)
     {
-        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = getIn(ret, cookie);
+        const pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& in = 
+            getIn<pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator> >(cookie);
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
@@ -1210,8 +1215,9 @@ public:
                              deque<Test::Variable>::const_iterator>& out,
                              const InParamPtr& cookie)
     {
-        const pair<deque<Test::Variable>::const_iterator, 
-            deque<Test::Variable>::const_iterator>& in = getIn(ret, cookie);
+        const pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator>& in = 
+            getIn<pair<deque<Test::Variable>::const_iterator, deque<Test::Variable>::const_iterator> >(cookie);
+
         test(equal(out.first, out.second, in.first));
         test(equal(ret.first, ret.second, in.first));
         called();
@@ -1219,7 +1225,7 @@ public:
 
     void opBoolSeq(const deque<bool>& ret, const deque<bool>& out, const InParamPtr& cookie)
     {
-        const deque<bool>& in = getIn(ret, cookie);
+        const deque<bool>& in = getIn<deque<bool> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1227,7 +1233,7 @@ public:
 
     void opBoolList(const list<bool>& ret, const list<bool>& out, const InParamPtr& cookie)
     {
-        const list<bool>& in = getIn(ret, cookie);
+        const list<bool>& in = getIn<list<bool> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1235,7 +1241,7 @@ public:
     
     void opByteSeq(const deque<Ice::Byte>& ret, const deque<Ice::Byte>& out, const InParamPtr& cookie)
     {
-        const deque<Ice::Byte>& in = getIn(ret, cookie);
+        const deque<Ice::Byte>& in = getIn< deque<Ice::Byte> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1243,7 +1249,7 @@ public:
 
     void opByteList(const list<Ice::Byte>& ret, const list<Ice::Byte>& out, const InParamPtr& cookie)
     {
-        const list<Ice::Byte>& in = getIn(ret, cookie);
+        const list<Ice::Byte>& in = getIn<list<Ice::Byte> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1251,7 +1257,7 @@ public:
 
     void opMyByteSeq(const MyByteSeq& ret, const MyByteSeq& out, const InParamPtr& cookie)
     {
-        const MyByteSeq& in = getIn(ret, cookie);
+        const MyByteSeq& in = getIn<MyByteSeq>(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1259,7 +1265,7 @@ public:
 
     void opStringSeq(const deque<string>& ret, const deque<string>& out, const InParamPtr& cookie)
     {
-        const deque<string>& in = getIn(ret, cookie);
+        const deque<string>& in = getIn<deque<string> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1267,7 +1273,7 @@ public:
     
     void opStringList(const list<string>& ret, const list<string>& out, const InParamPtr& cookie)
     {
-        const list<string>& in = getIn(ret, cookie);
+        const list<string>& in = getIn<list<string> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1275,7 +1281,7 @@ public:
 
     void opFixedSeq(const deque<Test::Fixed>& ret, const deque<Test::Fixed>& out, const InParamPtr& cookie)
     {
-        const deque<Test::Fixed>& in = getIn(ret, cookie);
+        const deque<Test::Fixed>& in = getIn<deque<Test::Fixed> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1283,7 +1289,7 @@ public:
 
     void opFixedList(const list<Test::Fixed>& ret, const list<Test::Fixed>& out, const InParamPtr& cookie)
     {
-        const list<Test::Fixed>& in = getIn(ret, cookie);
+        const list<Test::Fixed>& in = getIn<list<Test::Fixed> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1292,7 +1298,7 @@ public:
     void opVariableSeq(const deque<Test::Variable>& ret, const deque<Test::Variable>& out,
                        const InParamPtr& cookie)
     {
-        const deque<Test::Variable>& in = getIn(ret, cookie);
+        const deque<Test::Variable>& in = getIn<deque<Test::Variable> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1300,7 +1306,7 @@ public:
 
     void opVariableList(const list<Test::Variable>& ret, const list<Test::Variable>& out, const InParamPtr& cookie)
     {
-        const list<Test::Variable>& in = getIn(ret, cookie);
+        const list<Test::Variable>& in = getIn<list<Test::Variable> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1309,7 +1315,7 @@ public:
     void opStringStringDictSeq(const deque<Test::StringStringDict>& ret, const deque<Test::StringStringDict>& out,
                                const InParamPtr& cookie)
     {
-        const deque<Test::StringStringDict>& in = getIn(ret, cookie);
+        const deque<Test::StringStringDict>& in = getIn<deque<Test::StringStringDict> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1318,7 +1324,7 @@ public:
     void opStringStringDictList(const list<Test::StringStringDict>& ret, const list<Test::StringStringDict>& out,
                                 const InParamPtr& cookie)
     {
-        const list<Test::StringStringDict>& in = getIn(ret, cookie);
+        const list<Test::StringStringDict>& in = getIn<list<Test::StringStringDict> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1326,7 +1332,7 @@ public:
 
     void opESeq(const deque<Test::E>& ret, const deque<Test::E>& out, const InParamPtr& cookie)
     {
-        const deque<Test::E>& in = getIn(ret, cookie);
+        const deque<Test::E>& in = getIn<deque<Test::E> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1334,7 +1340,7 @@ public:
 
     void opEList(const list<Test::E>& ret, const list<Test::E>& out, const InParamPtr& cookie)
     {
-        const list<Test::E>& in = getIn(ret, cookie);
+        const list<Test::E>& in = getIn<list<Test::E> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1342,7 +1348,7 @@ public:
 
     void opCPrxSeq(const deque<Test::CPrx>& ret, const deque<Test::CPrx>& out, const InParamPtr& cookie)
     {
-        const deque<Test::CPrx>& in = getIn(ret, cookie);
+        const deque<Test::CPrx>& in = getIn<deque<Test::CPrx> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1350,7 +1356,7 @@ public:
 
     void opCPrxList(const list<Test::CPrx>& ret, const list<Test::CPrx>& out, const InParamPtr& cookie)
     {
-        const list<Test::CPrx>& in = getIn(ret, cookie);
+        const list<Test::CPrx>& in = getIn<list<Test::CPrx> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1358,7 +1364,7 @@ public:
 
     void opCSeq(const deque<Test::CPtr>& ret, const deque<Test::CPtr>& out, const InParamPtr& cookie)
     {
-        const deque<Test::CPtr>& in = getIn(ret, cookie);
+        const deque<Test::CPtr>& in = getIn<deque<Test::CPtr> >(cookie);
         test(out.size() == in.size());
         test(ret.size() == in.size());
         for(unsigned int i = 1; i < in.size(); ++i)
@@ -1371,7 +1377,7 @@ public:
 
     void opCList(const list<Test::CPtr>& ret, const list<Test::CPtr>& out, const InParamPtr& cookie)
     {
-        const list<Test::CPtr>& in = getIn(ret, cookie);
+        const list<Test::CPtr>& in = getIn<list<Test::CPtr> >(cookie);
         test(out.size() == in.size());
         test(ret.size() == in.size());
         list<Test::CPtr>::const_iterator p1;
@@ -1388,8 +1394,8 @@ public:
                        const ::Test::ClassStructSeq& seq,
                        const InParamPtr& cookie)
     {
-        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in;
-        in = getIn(in, cookie);
+        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in = 
+            getIn<pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> >(cookie);
         test(ret == in.first);
         test(cs1 == in.first);
         test(seq == in.second);
@@ -1398,7 +1404,7 @@ public:
     
     void opString(const wstring& ret, const wstring& out, const InParamPtr& cookie)
     {
-        const wstring& in = getIn(ret, cookie);
+        const wstring& in = getIn<wstring>(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -1406,8 +1412,7 @@ public:
     
     void opOutArrayByteSeq(const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& data, const InParamPtr& cookie)
     {
-        Test::ByteSeq dummy;
-        const Test::ByteSeq& in = getIn(dummy, cookie);
+        const Test::ByteSeq& in = getIn<Test::ByteSeq>(cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
@@ -1422,8 +1427,7 @@ public:
     void opOutRangeByteSeq(const ::std::pair< ::Test::ByteSeq::const_iterator, ::Test::ByteSeq::const_iterator>& data, 
                            const InParamPtr& cookie)
     {
-        Test::ByteSeq dummy;
-        const Test::ByteSeq& in = getIn(dummy, cookie);
+        const Test::ByteSeq& in = getIn<Test::ByteSeq>(cookie);
         Test::ByteSeq out(data.first, data.second);
         Test::ByteSeq::const_iterator p1;
         Test::ByteSeq::const_iterator p2;
@@ -1437,8 +1441,7 @@ public:
 
     void opIntStringDict(const Test::IntStringDict& ret, const Test::IntStringDict& out, const InParamPtr& cookie)
     {
-        Test::IntStringDict dummy; // just for type
-        const Test::IntStringDict& in = getIn(dummy, cookie);
+        const Test::IntStringDict& in = getIn<Test::IntStringDict>(cookie);
         
         test(ret == in);
         test(out == in);
@@ -1448,8 +1451,7 @@ public:
     void opVarDict(const Test::CustomMap<Ice::Long, Ice::Long>& ret, 
                    const Test::CustomMap<std::string, Ice::Int>& out, const InParamPtr& cookie)
     {
-        Test::CustomMap<std::string, Ice::Int> dummy; // just for type
-        const Test::CustomMap<std::string, Ice::Int>& in = getIn(dummy, cookie);
+        const Test::CustomMap<std::string, Ice::Int>& in = getIn<Test::CustomMap<std::string, Ice::Int> >(cookie);
         
         test(out == in);
 
@@ -1465,8 +1467,7 @@ public:
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
-        wstring in;
-        in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
+        const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
         try
         {
             Test1::WstringClassPrx t = Test1::WstringClassPrx::uncheckedCast(result->getProxy());
@@ -1502,8 +1503,7 @@ public:
 
     void throwExcept2(const Ice::AsyncResultPtr& result)
     {
-        wstring in;
-        in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
+        const wstring& in = getIn<wstring>(InParamPtr::dynamicCast(result->getCookie()));
         try
         {
             Test2::WstringClassPrx t = Test2::WstringClassPrx::uncheckedCast(result->getProxy());
