@@ -86,8 +86,8 @@ class CommunicatorHelper
 {
 public:
 
-    CommunicatorHelper(const CommunicatorDescriptorPtr&);
-    CommunicatorHelper() { }
+    CommunicatorHelper(const CommunicatorDescriptorPtr&, bool = false);
+    CommunicatorHelper() : _ignoreProps(false) { }
     virtual ~CommunicatorHelper() { }
 
     virtual bool operator==(const CommunicatorHelper&) const;
@@ -110,13 +110,14 @@ protected:
 private:
 
     CommunicatorDescriptorPtr _desc;
+    bool _ignoreProps;
 };
 
 class ServiceHelper : public CommunicatorHelper
 {
 public:
 
-    ServiceHelper(const ServiceDescriptorPtr&);
+    ServiceHelper(const ServiceDescriptorPtr&, bool = false);
     ServiceHelper() { }
 
     virtual bool operator==(const CommunicatorHelper&) const;
@@ -144,7 +145,7 @@ class ServerHelper : public CommunicatorHelper, public IceUtil::SimpleShared
 {
 public:
 
-    ServerHelper(const ServerDescriptorPtr&);
+    ServerHelper(const ServerDescriptorPtr&, bool = false);
     ServerHelper() { }
 
     virtual bool operator==(const CommunicatorHelper&) const;
@@ -186,7 +187,7 @@ class ServiceInstanceHelper : public InstanceHelper
 {
 public:
 
-    ServiceInstanceHelper(const ServiceInstanceDescriptor&);
+    ServiceInstanceHelper(const ServiceInstanceDescriptor&, bool);
 
     bool operator==(const ServiceInstanceHelper&) const;
     bool operator!=(const ServiceInstanceHelper&) const;
@@ -208,7 +209,7 @@ class IceBoxHelper : public ServerHelper
 {
 public:
 
-    IceBoxHelper(const IceBoxDescriptorPtr&);
+    IceBoxHelper(const IceBoxDescriptorPtr&, bool = false);
     IceBoxHelper() { }
 
     virtual bool operator==(const CommunicatorHelper&) const;
@@ -340,8 +341,9 @@ private:
     NodeHelperDict _nodes;
 };
 
-bool descriptorEqual(const ServerDescriptorPtr&, const ServerDescriptorPtr&);
+bool descriptorEqual(const ServerDescriptorPtr&, const ServerDescriptorPtr&, bool = false);
 ServerHelperPtr createHelper(const ServerDescriptorPtr&);
+bool isServerUpdated(const ServerInfo&, const ServerInfo&, bool = false);
 
 }
 

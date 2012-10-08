@@ -50,7 +50,7 @@ class SessionKeeper
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long keepAliveperiod, boolean routed, Component parent)
+        Session(AdminSessionPrx session, Component parent)
         {
             _session = session;
 
@@ -68,7 +68,10 @@ class SessionKeeper
                     JOptionPane.ERROR_MESSAGE);
                 throw e;
             }
+        }
 
+        public void init(long keepAliveperiod, boolean routed, Component parent)
+        {
             try
             {
                 if(!routed)
@@ -1054,7 +1057,7 @@ class SessionKeeper
                     catch(java.io.IOException e)
                     {}
                 }
-                _alias.setModel(new DefaultComboBoxModel(aliasVector));
+                _alias.setModel(new DefaultComboBoxModel<String>(aliasVector));
                 if(selectedAlias != null)
                 {
                     _alias.setSelectedItem(selectedAlias);
@@ -1068,7 +1071,7 @@ class SessionKeeper
 
         private void clearAlias()
         {
-            _alias.setModel(new DefaultComboBoxModel());
+            _alias.setModel(new DefaultComboBoxModel<String>());
         }
 
         private void selectRegistryUseSSL(boolean selected)
@@ -1171,7 +1174,7 @@ class SessionKeeper
         private JPasswordField _advancedKeyPassword = new JPasswordField(_keyPassword.getDocument(), null, 30);
 
         private JPasswordField _keystorePassword = new JPasswordField(30);
-        private JComboBox _alias = new JComboBox();
+        private JComboBox<String> _alias = new JComboBox<String>();
 
         private JTextField _truststore = new JTextField(30);
         private JPasswordField _truststorePassword = new JPasswordField(30);
@@ -1348,7 +1351,8 @@ class SessionKeeper
 
             try
             {
-                _session = new Session(session, keepAlivePeriodHolder.value, _loginInfo.routed, parent);
+                _session = new Session(session, parent);
+                _session.init(keepAlivePeriodHolder.value, _loginInfo.routed, parent);
             }
             catch(Ice.LocalException e)
             {
@@ -1389,7 +1393,7 @@ class SessionKeeper
     }
 
     AdminPrx getAdmin()
-    {
+    {         
         return _session == null ? null : _session.getAdmin();
     }
 

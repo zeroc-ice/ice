@@ -16,6 +16,7 @@
 #include <Ice/PropertiesF.h>
 #include <IceUtil/Time.h>
 #include <IceStorm/Election.h>
+#include <IceStorm/Instrumentation.h>
 
 namespace IceUtil
 {
@@ -72,6 +73,7 @@ public:
     Ice::ObjectPrx topicReplicaProxy() const;
     Ice::ObjectPrx publisherReplicaProxy() const;
     ConnectionPoolPtr connectionPool() const;
+    IceStorm::Instrumentation::TopicManagerObserverPtr observer() const;
 
     IceUtil::Time discardInterval() const;
     IceUtil::Time flushInterval() const;
@@ -100,6 +102,7 @@ private:
     IceStormElection::ObserversPtr _observers;
     IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;
+    IceStorm::Instrumentation::TopicManagerObserverPtr _observer;
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 

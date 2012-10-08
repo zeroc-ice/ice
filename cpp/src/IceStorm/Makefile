@@ -32,6 +32,9 @@ OBJS		= NodeI.o \
 		  Election.o \
 		  SubscriberRecord.o \
 		  IceStormInternal.o \
+		  Instrumentation.o \
+		  InstrumentationI.o \
+		  Metrics.o \
 		  Util.o
 
 AOBJS		= Admin.o \
@@ -46,10 +49,15 @@ AOBJS		= Admin.o \
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 
-SLICE_SRCS	= ../IceStorm/Election.ice \
+SLICE_SRCS	= $(SDIR)/Metrics.ice \
+		  ../IceStorm/Instrumentation.ice \
+		  ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
 		  ../IceStorm/LLURecord.ice \
 		  ../IceStorm/SubscriberRecord.ice
+
+HDIR		= $(headerdir)/IceStorm
+SDIR		= $(slicedir)/IceStorm
 
 include $(top_srcdir)/config/Make.rules
 

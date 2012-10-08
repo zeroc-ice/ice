@@ -40,6 +40,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 clean::
-	-rm -rf db/registry/* db/node/* certs/*
+	-rm -rf db/master/* db/slave/* db/node/* certs/*
 
 include .depend

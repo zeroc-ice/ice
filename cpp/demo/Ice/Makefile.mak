@@ -18,6 +18,7 @@ SUBDIRS		= minimal \
 		  value \
 		  callback \
 		  nested \
+		  invoke \
 		  bidir \
 		  session \
 		  converter \
@@ -26,7 +27,8 @@ SUBDIRS		= minimal \
 		  nrvo \
 		  plugin \
 		  interleaved \
-		  invoke
+		  properties
+
 
 !if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \

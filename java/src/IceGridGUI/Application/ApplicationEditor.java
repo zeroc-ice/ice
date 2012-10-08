@@ -100,7 +100,7 @@ class ApplicationEditor extends Editor
         //
         // Distrib
         //
-        _distrib = new JComboBox(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
+        _distrib = new JComboBox<Object>(new Object[]{NO_DISTRIB, DEFAULT_DISTRIB});
         _distrib.setEditable(true);
         _distrib.setToolTipText("The proxy to the IcePatch2 server holding your files");
 
@@ -253,6 +253,6 @@ class ApplicationEditor extends Editor
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
     private SimpleMapField _variables;
-    private JComboBox _distrib;
+    private JComboBox<Object> _distrib;
     private ListTextField _distribDirs = new ListTextField(20);
 }

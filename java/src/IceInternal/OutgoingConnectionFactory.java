@@ -68,6 +68,18 @@ public final class OutgoingConnectionFactory
         notifyAll();
     }
 
+    public synchronized void
+    updateConnectionObservers()
+    {
+        for(java.util.List<Ice.ConnectionI> connectionList : _connections.values())
+        {
+            for(Ice.ConnectionI connection : connectionList)
+            {
+                connection.updateObserver();
+            }
+        }
+    }
+
     public void
     waitUntilFinished()
     {
@@ -214,15 +226,32 @@ public final class OutgoingConnectionFactory
         // Try to establish the connection to the connectors.
         //
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
         java.util.Iterator<ConnectorInfo> q = connectors.iterator();
         ConnectorInfo ci = null;
         while(q.hasNext())
         {
             ci = q.next();
+
+            Ice.Instrumentation.Observer observer = null;
+            if(obsv != null)
+            {
+                observer = obsv.getConnectionEstablishmentObserver(ci.endpoint, ci.connector.toString());
+                if(observer != null)
+                {
+                    observer.attach();
+                }
+            }
+
             try
             {
                 connection = createConnection(ci.connector.connect(), ci);
                 connection.start(null);
+
+                if(observer != null)
+                {
+                    observer.detach();
+                }
 
                 if(defaultsAndOverrides.overrideCompress)
                 {
@@ -237,6 +266,11 @@ public final class OutgoingConnectionFactory
             }
             catch(Ice.CommunicatorDestroyedException ex)
             {
+                if(observer != null)
+                {
+                    observer.failed(ex.ice_name());
+                    observer.detach();
+                }
                 exception = ex;
                 handleConnectionException(exception, hasMore || p.hasNext());
                 connection = null;
@@ -244,6 +278,11 @@ public final class OutgoingConnectionFactory
             }
             catch(Ice.LocalException ex)
             {
+                if(observer != null)
+                {
+                    observer.failed(ex.ice_name());
+                    observer.detach();
+                }
                 exception = ex;
                 handleConnectionException(exception, hasMore || p.hasNext());
                 connection = null;
@@ -979,6 +1018,10 @@ public final class OutgoingConnectionFactory
         public void
         connectionStartCompleted(Ice.ConnectionI connection)
         {
+            if(_observer != null)
+            {
+                _observer.detach();
+            }
             connection.activate();
             _factory.finishGetConnection(_connectors, _current, connection, this);
         }
@@ -987,6 +1030,12 @@ public final class OutgoingConnectionFactory
         connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
         {
             assert(_current != null);
+
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+                _observer.detach();
+            }
 
             _factory.handleConnectionException(ex, _hasMore || _iter.hasNext());
             if(ex instanceof Ice.CommunicatorDestroyedException) // No need to continue.
@@ -1180,6 +1229,18 @@ public final class OutgoingConnectionFactory
             {
                 assert(_iter.hasNext());
                 _current = _iter.next();
+                
+                Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
+                if(obsv != null)
+                {
+                    _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 
+                                                                        _current.connector.toString());
+                    if(_observer != null)
+                    {
+                        _observer.attach();
+                    }
+                }
+                
                 connection = _factory.createConnection(_current.connector.connect(), _current);
                 connection.start(this);
             }
@@ -1199,6 +1260,7 @@ public final class OutgoingConnectionFactory
         private java.util.List<ConnectorInfo> _connectors = new java.util.ArrayList<ConnectorInfo>();
         private java.util.Iterator<ConnectorInfo> _iter;
         private ConnectorInfo _current;
+        private Ice.Instrumentation.Observer _observer;
     }
 
     private Ice.Communicator _communicator;

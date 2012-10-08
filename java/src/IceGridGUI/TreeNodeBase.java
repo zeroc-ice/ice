@@ -180,7 +180,6 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
             }
         }
         children.add(i, newChild);
-
         if(treeModel != null)
         {
             treeModel.nodesWereInserted(this, new int[]{getIndex(newChild)});

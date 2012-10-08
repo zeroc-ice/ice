@@ -71,6 +71,7 @@ private:
     void observerRemoved(const ServiceObserverPrx&, const std::exception&);
 
     Ice::PropertiesPtr createServiceProperties(const std::string&);
+    void destroyServiceCommunicator(const std::string&, const Ice::CommunicatorPtr&);
     
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::CommunicatorPtr _sharedCommunicator;

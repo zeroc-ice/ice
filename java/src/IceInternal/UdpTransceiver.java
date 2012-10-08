@@ -228,47 +228,33 @@ final class UdpTransceiver implements Transceiver
     public Ice.ConnectionInfo
     getInfo()
     {
-        assert(_fd != null);
-
         Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
-        java.net.DatagramSocket socket = _fd.socket();
-        info.localAddress = socket.getLocalAddress().getHostAddress();
-        info.localPort = socket.getLocalPort();
-        if(_state == StateNotConnected)
+        if(_fd != null)
         {
-            if(_peerAddr != null)
+            java.net.DatagramSocket socket = _fd.socket();
+            info.localAddress = socket.getLocalAddress().getHostAddress();
+            info.localPort = socket.getLocalPort();
+            if(_state == StateNotConnected)
             {
-                info.remoteAddress = _peerAddr.getAddress().getHostAddress();
-                info.remotePort = _peerAddr.getPort();
+                if(_peerAddr != null)
+                {
+                    info.remoteAddress = _peerAddr.getAddress().getHostAddress();
+                    info.remotePort = _peerAddr.getPort();
+                }
             }
             else
             {
-                info.remoteAddress = "";
-                info.remotePort = -1;
-            }
-        }
-        else
-        {
-            if(socket.getInetAddress() != null)
-            {
-                info.remoteAddress = socket.getInetAddress().getHostAddress();
-                info.remotePort = socket.getPort();
-            }
-            else
-            {
-                info.remoteAddress = "";
-                info.remotePort = -1;
+                if(socket.getInetAddress() != null)
+                {
+                    info.remoteAddress = socket.getInetAddress().getHostAddress();
+                    info.remotePort = socket.getPort();
+                }
             }
         }
         if(_mcastAddr != null)
         {
             info.mcastAddress = _mcastAddr.getAddress().getHostAddress();
             info.mcastPort = _mcastAddr.getPort();
-        }
-        else
-        {
-            info.mcastAddress = "";
-            info.mcastPort = -1;
         }
         return info;
     }

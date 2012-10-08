@@ -641,51 +641,37 @@ namespace IceInternal
         public Ice.ConnectionInfo
         getInfo()
         {
-            Debug.Assert(_fd != null);
             Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
-            EndPoint localEndpoint = Network.getLocalAddress(_fd);
-            info.localAddress = Network.endpointAddressToString(localEndpoint);
-            info.localPort = Network.endpointPort(localEndpoint);
-            if(_state == StateNotConnected)
+            if(_fd != null)
             {
-                if(_peerAddr != null)
+                EndPoint localEndpoint = Network.getLocalAddress(_fd);
+                info.localAddress = Network.endpointAddressToString(localEndpoint);
+                info.localPort = Network.endpointPort(localEndpoint);
+                if(_state == StateNotConnected)
                 {
-                    info.remoteAddress = Network.endpointAddressToString(_peerAddr);
-                    info.remotePort = Network.endpointPort(_peerAddr);
+                    if(_peerAddr != null)
+                    {
+                        info.remoteAddress = Network.endpointAddressToString(_peerAddr);
+                        info.remotePort = Network.endpointPort(_peerAddr);
+                    }
                 }
                 else
                 {
-                    info.remoteAddress = "";
-                    info.remotePort = -1;
+                    EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
+                    if(remoteEndpoint != null)
+                    {
+                        info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
+                        info.remotePort = Network.endpointPort(remoteEndpoint);
+                    }
                 }
             }
-            else
-            {
-                EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
-                if(remoteEndpoint != null)
-                {
-                    info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                    info.remotePort = Network.endpointPort(remoteEndpoint);
-                }
-                else
-                {
-                    info.remoteAddress = "";
-                    info.remotePort = -1;
-                }
-            }
-
 #if !SILVERLIGHT
             if(_mcastAddr != null)
             {
                 info.mcastAddress = Network.endpointAddressToString(_mcastAddr);
                 info.mcastPort = Network.endpointPort(_mcastAddr);
             }
-            else
 #endif
-            {
-                info.mcastAddress = "";
-                info.mcastPort = -1;
-            }
             return info;
         }
 

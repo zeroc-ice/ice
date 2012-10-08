@@ -374,6 +374,7 @@ void
 NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
                         const InternalServerDescriptorPtr& descriptor,
                         const string& replicaName,
+                        bool noRestart,
                         const Ice::Current& current)
 {
     ServerCommandPtr command;
@@ -418,7 +419,7 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
             
             try
             {
-                command = server->load(amdCB, descriptor, replicaName);
+                command = server->load(amdCB, descriptor, replicaName, noRestart);
             }
             catch(const Ice::ObjectNotExistException&)
             {
@@ -450,9 +451,57 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
 }
 
 void
-NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, 
-                           const string& serverId, 
-                           const string& uuid, 
+NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
+                        const InternalServerDescriptorPtr& descriptor,
+                        const string& replicaName,
+                        const Ice::Current& current)
+{
+    loadServer_async(amdCB, descriptor, replicaName, false, current);
+}
+
+void
+NodeI::loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr& amdCB,
+                                      const InternalServerDescriptorPtr& descriptor,
+                                      const string& replicaName,
+                                      const Ice::Current& current)
+{
+    class LoadServerCB : public AMD_Node_loadServer
+    {
+    public:
+
+        LoadServerCB(const AMD_Node_loadServerWithoutRestartPtr& cb) : _cb(cb)
+        {
+        }
+
+        virtual void 
+        ice_response(const ServerPrx& server, const AdapterPrxDict& adapters, Ice::Int actTimeout, Ice::Int deacTimeout)
+        {
+            _cb->ice_response(server, adapters, actTimeout, deacTimeout);
+        };
+
+        virtual void 
+        ice_exception(const ::std::exception& ex)
+        {
+            _cb->ice_exception(ex);
+        }
+
+        virtual void 
+        ice_exception()
+        {
+            _cb->ice_exception();
+        }
+
+    private:
+
+        const AMD_Node_loadServerWithoutRestartPtr _cb;
+    };
+    loadServer_async(new LoadServerCB(amdCB), descriptor, replicaName, true, current);
+}
+
+void
+NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
+                           const string& serverId,
+                           const string& uuid,
                            int revision,
                            const string& replicaName,
                            const Ice::Current& current)

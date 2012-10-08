@@ -29,8 +29,10 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  udp \
+		  admin \
 		  plugin \
-		  stream
+		  stream \
+		  metrics
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
@@ -49,6 +51,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  defaultValue \
 		  optional
 !endif
+
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

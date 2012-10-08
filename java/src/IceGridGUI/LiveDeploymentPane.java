@@ -26,6 +26,8 @@ import javax.swing.plaf.basic.BasicSplitPaneUI;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.TreePath;
+import javax.swing.event.TreeWillExpandListener;
+import javax.swing.event.TreeExpansionEvent;
 
 import com.jgoodies.forms.factories.Borders;
 
@@ -33,6 +35,7 @@ import IceGrid.*;
 import IceGridGUI.LiveDeployment.Editor;
 import IceGridGUI.LiveDeployment.Root;
 import IceGridGUI.LiveDeployment.TreeNode;
+import IceGridGUI.LiveDeployment.Server;
 
 public class LiveDeploymentPane extends JSplitPane implements Tab
 {
@@ -53,6 +56,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         c.getCloseApplicationAction().setEnabled(false);
         c.getSaveAction().setEnabled(false);
         c.getSaveToRegistryAction().setEnabled(false);
+        c.getSaveToRegistryWithoutRestartAction().setEnabled(false);
         c.getSaveToFileAction().setEnabled(false);
         c.getDiscardUpdatesAction().setEnabled(false);
 
@@ -174,7 +178,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
         assert false;
     }
 
-    public void saveToRegistry()
+    public void saveToRegistry(boolean restart)
     {
         assert false;
     }

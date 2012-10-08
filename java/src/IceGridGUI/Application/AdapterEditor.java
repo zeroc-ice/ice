@@ -343,7 +343,7 @@ class AdapterEditor extends CommunicatorChildEditor
     private void refreshId()
     {
         Object id = _id.getSelectedItem();
-        _id.setModel(new DefaultComboBoxModel(new Object[]{DEFAULT_ADAPTER_ID}));
+        _id.setModel(new DefaultComboBoxModel<Object>(new Object[]{DEFAULT_ADAPTER_ID}));
         _id.setSelectedItem(id);
     }
 
@@ -603,14 +603,14 @@ class AdapterEditor extends CommunicatorChildEditor
     private JTextField _name = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
 
-    private JComboBox _id = new JComboBox(new Object[] {DEFAULT_ADAPTER_ID});
-    private JComboBox _replicaGroupId = new JComboBox();
+    private JComboBox<Object> _id = new JComboBox<Object>(new Object[] {DEFAULT_ADAPTER_ID});
+    private JComboBox<Object> _replicaGroupId = new JComboBox<Object>();
     private JButton _replicaGroupButton;
 
     private JTextField _priority = new JTextField(20);
 
     private JTextField _endpoints = new JTextField(20);
-    private JComboBox _publishedEndpoints = new JComboBox(new Object[]{PUBLISH_ACTUAL});
+    private JComboBox<Object> _publishedEndpoints = new JComboBox<Object>(new Object[]{PUBLISH_ACTUAL});
 
     private JTextField _currentStatus = new JTextField(20);
     private JTextField _currentEndpoints = new JTextField(20);

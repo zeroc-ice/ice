@@ -23,6 +23,7 @@
         <ant dir="multicast"/>
         <ant dir="nested"/>
         <ant dir="plugin"/>
+        <ant dir="properties"/>
         <ant dir="serialize"/>
         <ant dir="session"/>
         <ant dir="swing"/>
@@ -42,6 +43,7 @@
         <ant dir="multicast" target="clean"/>
         <ant dir="nested" target="clean"/>
         <ant dir="plugin" target="clean"/>
+        <ant dir="properties" target="clean"/>
         <ant dir="serialize" target="clean"/>
         <ant dir="session" target="clean"/>
         <ant dir="swing" target="clean"/>

@@ -15,11 +15,15 @@ namespace IceInternal
     public sealed class ConnectionReaper
     {
         public void
-        add(Ice.ConnectionI connection)
+        add(Ice.ConnectionI connection, Ice.Instrumentation.Observer observer)
         {
             lock(this)
             {
                 _connections.Add(connection);
+                if(observer != null)
+                {
+                    observer.detach();
+                }
             }
         }
 

@@ -110,6 +110,19 @@ IceInternal::ObjectAdapterFactory::destroy()
     }
 }
 
+void
+IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
+{
+    list<ObjectAdapterIPtr> adapters;
+
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        adapters = _adapters;
+    }
+
+    for_each(adapters.begin(), adapters.end(), IceUtil::voidMemFun(fn));
+}
+
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const RouterPrx& router)
 {

@@ -162,9 +162,9 @@ public class ParameterValuesField extends JTable
 
     private static final String _notSet = "Not set";
 
-    private JComboBox _useDefaultCombo = new JComboBox(new Object[]{_useDefault});
+    private JComboBox<String> _useDefaultCombo = new JComboBox<String>(new String[]{_useDefault});
 
-    private JComboBox _notSetCombo = new JComboBox(new Object[]{_notSet});
+    private JComboBox<String> _notSetCombo = new JComboBox<String>(new String[]{_notSet});
 
     private TableCellEditor _useDefaultEditor = new DefaultCellEditor(_useDefaultCombo);
     private TableCellEditor _notSetEditor = new DefaultCellEditor(_notSetCombo);

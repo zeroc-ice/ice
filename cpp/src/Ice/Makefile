@@ -66,6 +66,9 @@ OBJS		= Acceptor.o \
 		  LoggerI.o \
 		  Logger.o \
 		  LoggerUtil.o \
+		  Metrics.o \
+		  MetricsAdminI.o \
+		  MetricsObserverI.o \
 		  Network.o \
 		  ObjectAdapterFactory.o \
 		  ObjectAdapterI.o \
@@ -73,12 +76,16 @@ OBJS		= Acceptor.o \
 		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
 		  Object.o \
+		  Instrumentation.o \
+		  ObserverHelper.o \
+		  InstrumentationI.o \
 		  OpaqueEndpointI.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \
 		  PluginManagerI.o \
 		  Plugin.o \
 		  Process.o \
+		  PropertiesAdminI.o \
 		  PropertiesI.o \
 		  Properties.o \
 		  PropertyNames.o \
@@ -143,10 +150,13 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Logger.ice \
+		  $(SDIR)/Metrics.ice \
 		  $(SDIR)/ObjectAdapterF.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectFactoryF.ice \
 		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/Instrumentation.ice \
+		  $(SDIR)/InstrumentationF.ice \
 		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/ProcessF.ice \
@@ -160,8 +170,7 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice \
-		  $(SDIR)/Version.ice
-
+		  $(SDIR)/Version.ice \
 
 HDIR		= $(headerdir)/Ice
 SDIR		= $(slicedir)/Ice
@@ -176,7 +185,7 @@ CPPFLAGS	:= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
 LINKWITH        := $(ICE_OS_LIBS) -l$(ICEUTIL_LIBNAME) $(BZIP2_LIBS) 
 $(DLLNAME): $(OBJS)
 	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
-	
+
 install:: all
 	$(call installprogram,$(DLLNAME),$(install_bindir))
 else
@@ -201,5 +210,10 @@ $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(
 	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)/BuiltinSequences.ice
 	mv BuiltinSequences.h $(HDIR)
+
+$(HDIR)/Metrics.h Metrics.cpp: $(SDIR)/Metrics.ice $(SLICE2CPP) $(SLICEPARSERLIB)
+	rm -f $(HDIR)/Metrics.h Metrics.cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)/Metrics.ice
+	mv Metrics.h $(HDIR)
 
 include .depend

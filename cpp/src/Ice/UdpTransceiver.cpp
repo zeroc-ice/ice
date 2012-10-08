@@ -784,7 +784,11 @@ IceInternal::UdpTransceiver::getInfo() const
         return info;
     }
 #endif
-    assert(_fd != INVALID_SOCKET);
+    if(_fd == INVALID_SOCKET)
+    {
+        return info;
+    }
+
     if(_state == StateNotConnected)
     {
         Address localAddr;

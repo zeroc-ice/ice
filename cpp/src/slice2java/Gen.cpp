@@ -4335,7 +4335,11 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         out << nl << "__ctx = _emptyContext;";
         out << eb;
+        out << nl << "final Ice.Instrumentation.InvocationObserver __observer = IceInternal.ObserverHelper.get(this, ";
+        out << "\"" << opName << "\", __ctx);";
         out << nl << "int __cnt = 0;";
+        out << nl << "try";
+        out << sb;
         out << nl << "while(true)";
         out << sb;
         out << nl << "Ice._ObjectDel __delBase = null;";
@@ -4352,7 +4356,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << "__del." << opName << spar << args << "__ctx" << epar << ';';
+        out << "__del." << opName << spar << args << "__ctx" << "__observer" << epar << ';';
         if(!ret)
         {
             out << nl << "return;";
@@ -4362,16 +4366,24 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__delBase, __ex, null, __cnt);";
+            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__delBase, __ex, null, __cnt, __observer);";
         }
         else
         {
-            out << nl << "__handleExceptionWrapper(__delBase, __ex);";
+            out << nl << "__handleExceptionWrapper(__delBase, __ex, __observer);";
         }
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__cnt = __handleException(__delBase, __ex, null, __cnt);";
+        out << nl << "__cnt = __handleException(__delBase, __ex, null, __cnt, __observer);";
+        out << eb;
+        out << eb;
+        out << eb;
+        out << nl << "finally";
+        out << sb;
+        out << nl << "if(__observer != null)";
+        out << sb;
+        out << nl << "__observer.detach();";
         out << eb;
         out << eb;
         out << eb;
@@ -5359,6 +5371,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     string contextParam = "java.util.Map<String, String> __ctx";
+    string observerParam = "Ice.Instrumentation.InvocationObserver __obsv";
 
     OperationList ops = p->operations();
     for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
@@ -5375,7 +5388,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
 
         out << sp;
-        out << nl << retS << ' ' << opName << spar << params << contextParam << epar;
+        out << nl << retS << ' ' << opName << spar << params << contextParam << observerParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << ';';
     }
@@ -5411,6 +5424,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     string contextParam = "java.util.Map<String, String> __ctx";
+    string observerParam = "Ice.Instrumentation.InvocationObserver __observer";
 
     OperationList ops = p->allOperations();
     for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
@@ -5457,12 +5471,12 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> params = getParamsProxy(op, package);
 
         out << sp;
-        out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << contextParam << observerParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
 
         out << nl << "IceInternal.Outgoing __og = __handler.getOutgoing(\"" << op->name() << "\", "
-            << sliceModeToIceMode(op->sendMode()) << ", __ctx);";
+            << sliceModeToIceMode(op->sendMode()) << ", __ctx, __observer);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -5584,6 +5598,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
 
     string contextParam = "java.util.Map<String, String> __ctx";
+    string observerParam = "Ice.Instrumentation.InvocationObserver __observer";
 
     OperationList ops = p->allOperations();
     for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
@@ -5620,7 +5635,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "/** @deprecated **/";
         }
-        out << nl << "public " << retS << nl << opName << spar << params << contextParam << epar;
+        out << nl << "public " << retS << nl << opName << spar << params << contextParam << observerParam << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
         if(cl->hasMetaData("amd") || op->hasMetaData("amd"))

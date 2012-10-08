@@ -922,8 +922,8 @@ Resolver::checkReserved(const string& type, const map<string, string>& values) c
     }
 }
 
-CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc) : 
-    _desc(desc)
+CommunicatorHelper::CommunicatorHelper(const CommunicatorDescriptorPtr& desc, bool ignoreProps) : 
+    _desc(desc), _ignoreProps(ignoreProps)
 {
 }
 
@@ -946,9 +946,12 @@ CommunicatorHelper::operator==(const CommunicatorHelper& helper) const
         return false;
     }
 
-    if(_desc->propertySet != helper._desc->propertySet)
+    if(!_ignoreProps)
     {
-        return false;
+        if(_desc->propertySet != helper._desc->propertySet)
+        {
+            return false;
+        }
     }
 
     if(set<DbEnvDescriptor>(_desc->dbEnvs.begin(), _desc->dbEnvs.end()) != 
@@ -1212,8 +1215,8 @@ CommunicatorHelper::getProperty(const string& name) const
     return IceGrid::getProperty(_desc->propertySet.properties, name);
 }
 
-ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor) :
-    CommunicatorHelper(descriptor),
+ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor, bool ignoreProps) :
+    CommunicatorHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
 }
@@ -1290,8 +1293,8 @@ ServiceHelper::print(const Ice::CommunicatorPtr& communicator, Output& out) cons
     out << eb;
 }
 
-ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor) :
-    CommunicatorHelper(descriptor),
+ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor, bool ignoreProps) :
+    CommunicatorHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
 }
@@ -1510,13 +1513,13 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->propertySet.properties.insert(instance->propertySet.properties.end(), props.begin(), props.end());
 }
 
-IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor) :
-    ServerHelper(descriptor),
+IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor, bool ignoreProps) :
+    ServerHelper(descriptor, ignoreProps),
     _desc(descriptor)
 {
     for(ServiceInstanceDescriptorSeq::const_iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
     {
-        _services.push_back(ServiceInstanceHelper(*p));
+        _services.push_back(ServiceInstanceHelper(*p, ignoreProps));
     }
 }
 
@@ -1677,7 +1680,7 @@ InstanceHelper::instantiateParams(const Resolver& resolve,
     return params;
 }
 
-ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc) :
+ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc, bool ignoreProps) :
     _def(desc)
 {
     //
@@ -1692,7 +1695,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& de
 
     if(_def.descriptor)
     {
-        _service = ServiceHelper(_def.descriptor);
+        _service = ServiceHelper(_def.descriptor, ignoreProps);
     }
 }
 
@@ -3144,17 +3147,17 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
 }
 
 bool
-IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs)
+IceGrid::descriptorEqual(const ServerDescriptorPtr& lhs, const ServerDescriptorPtr& rhs, bool ignoreProps)
 {
     IceBoxDescriptorPtr lhsIceBox = IceBoxDescriptorPtr::dynamicCast(lhs);
     IceBoxDescriptorPtr rhsIceBox = IceBoxDescriptorPtr::dynamicCast(rhs);
     if(lhsIceBox && rhsIceBox)
     {
-        return IceBoxHelper(lhsIceBox) == IceBoxHelper(rhsIceBox);
+        return IceBoxHelper(lhsIceBox, ignoreProps) == IceBoxHelper(rhsIceBox, ignoreProps);
     }
     else if(!lhsIceBox && !rhsIceBox)
     {
-        return ServerHelper(lhs) == ServerHelper(rhs);
+        return ServerHelper(lhs, ignoreProps) == ServerHelper(rhs, ignoreProps);
     }
     else
     {
@@ -3174,4 +3177,14 @@ IceGrid::createHelper(const ServerDescriptorPtr& desc)
     {
         return new ServerHelper(desc);
     }
+}
+
+bool 
+IceGrid::isServerUpdated(const ServerInfo& lhs, const ServerInfo& rhs, bool ignoreProps)
+{
+    if(lhs.node != rhs.node)
+    {
+        return true;
+    }
+    return !descriptorEqual(lhs.descriptor, rhs.descriptor, ignoreProps);
 }

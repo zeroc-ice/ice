@@ -69,13 +69,16 @@ tests = [
     ("Ice/invoke", ["core", "novc6"]),
     ("Ice/plugin", ["core"]),
     ("Ice/hash", ["once"]),
+    ("Ice/admin", ["core"]),
+    ("Ice/metrics", ["core", "nossl", "noipv6"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
     ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw"]),
+    ("IceBox/admin", ["core", "noipv6", "novc6", "nomingw"]),
     ("Freeze/dbmap", ["once", "novc6", "nomingw"]),
     ("Freeze/complex", ["once", "novc6", "nomingw"]),
     ("Freeze/evictor", ["core", "novc6", "nomingw"]),
     ("Freeze/fileLock", ["core", "novc6", "nomingw"]),
-    ("IceStorm/single", ["service", "novc6", "noappverifier", "nomingw"]),  # This test doensn't work with appverifier is sensitive to timeouts.
+    ("IceStorm/single", ["service", "novc6", "noappverifier", "nomingw"]),  # This test doesn't work with appverifier is sensitive to timeouts.
     ("IceStorm/federation", ["service", "novc6", "nomingw"]),
     ("IceStorm/federation2", ["service", "novc6", "nomingw"]),
     ("IceStorm/stress", ["service", "stress", "novc6", "noappverifier", "nomingw"]), # This test is very slow with appverifier.
@@ -89,6 +92,7 @@ tests = [
     ("IceGrid/deployer", ["service", "novc6", "nomingw"]),
     ("IceGrid/session", ["service", "novc6", "nomingw"]),
     ("IceGrid/update", ["service", "novc6", "nomingw"]),
+    ("IceGrid/noRestartUpdate", ["service", "novc6", "nomingw"]),
     ("IceGrid/activation", ["service", "novc6", "nomingw"]),
     ("IceGrid/replicaGroup", ["service", "novc6", "nomingw"]),
     ("IceGrid/replication", ["service", "novc6", "nomingw"]),

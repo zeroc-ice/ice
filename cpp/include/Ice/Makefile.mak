@@ -77,6 +77,7 @@ SDK_HEADERS =	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Logger.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\LoggerF.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\LoggerUtil.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Metrics.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Object.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapter.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectAdapterF.h \
@@ -84,6 +85,9 @@ SDK_HEADERS =	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\BasicStream.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectF.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectFactory.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObjectFactoryF.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Observer.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObserverF.h \
+		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ObserverHelper.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Outgoing.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutgoingAsync.h \
 		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\OutgoingAsyncF.h \

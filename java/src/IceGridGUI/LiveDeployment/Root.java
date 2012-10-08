@@ -21,6 +21,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
+import javax.swing.JComponent;
+
 import java.util.Enumeration;
 import java.util.prefs.Preferences;
 
@@ -171,6 +173,18 @@ public class Root extends ListArrayTreeNode
             {
                 public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
                 {
+                    //
+                    // Fetch metrics when Server node is expanded.
+                    //
+                    TreeNode node = (TreeNode)event.getPath().getLastPathComponent();
+                    if(node instanceof Server)
+                    {
+                        ((Server)node).fetchMetricsViewNames();
+                    }
+                    else if(node instanceof Service)
+                    {
+                        ((Service)node).fetchMetricsViewNames();
+                    }
                 }
 
                 public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)

@@ -19,10 +19,13 @@ LocatorF.h
 Locator.h
 LoggerF.h
 Logger.h
+Metrics.h
 ObjectAdapterF.h
 ObjectAdapter.h
 ObjectFactoryF.h
 ObjectFactory.h
+Instrumentation.h
+InstrumentationF.h
 PluginF.h
 Plugin.h
 ProcessF.h

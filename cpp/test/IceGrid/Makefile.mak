@@ -21,7 +21,8 @@ SUBDIRS		= simple \
 		  replicaGroup \
 		  replication \
 		  session \
-		  update
+		  update \
+		  noRestartUpdate
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

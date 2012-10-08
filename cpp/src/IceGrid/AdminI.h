@@ -37,6 +37,8 @@ public:
     virtual void addApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void syncApplication(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
+    virtual void syncApplicationWithoutRestart(const ApplicationDescriptor&, const Ice::Current&);
+    virtual void updateApplicationWithoutRestart(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, 
                                    const Ice::Current&);

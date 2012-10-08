@@ -353,7 +353,7 @@ public class Root extends ListTreeNode
     {
         if(_live)
         {
-            saveToRegistry();
+            saveToRegistry(true);
         }
         else if(_file != null)
         {
@@ -372,7 +372,7 @@ public class Root extends ListTreeNode
         }
     }
 
-    public void saveToRegistry()
+    public void saveToRegistry(final boolean restart)
     {
         //
         // To be run in GUI thread when exclusive write access is acquired
@@ -394,6 +394,7 @@ public class Root extends ListTreeNode
                         _coordinator.getSaveAction().setEnabled(isLive() && _coordinator.connectedToMaster() ||
                                                                 hasFile());
                         _coordinator.getSaveToRegistryAction().setEnabled(true);
+                        _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(true);
                         _coordinator.getDiscardUpdatesAction().setEnabled(true);
                     }
 
@@ -421,79 +422,86 @@ public class Root extends ListTreeNode
                                 final String prefix = "Updating application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
 
-                                Callback_Admin_updateApplication cb = new Callback_Admin_updateApplication()
+
+                                Ice.Callback cb = new Ice.Callback()
                                     {
-                                        public void response()
+                                        public void completed(Ice.AsyncResult result)
                                         {
-                                            if(_traceSaveToRegistry)
+                                            try
                                             {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
-                                                                                _id + ": success");
-                                            }
-
-                                            SwingUtilities.invokeLater(new Runnable()
+                                                if(restart)
                                                 {
-                                                    public void run()
-                                                    {
-                                                        commit();
-                                                        release();
-                                                        _coordinator.getStatusBar().setText(prefix + "done.");
-                                                    }
-                                                });
-                                        }
+                                                    _coordinator.getAdmin().end_updateApplication(result);
+                                                }
+                                                else
+                                                {
+                                                    _coordinator.getAdmin().end_updateApplicationWithoutRestart(result);
+                                                }
 
-                                        public void exception(final Ice.UserException e)
-                                        {
-                                            if(_traceSaveToRegistry)
+                                                if(_traceSaveToRegistry)
+                                                {
+                                                    _coordinator.traceSaveToRegistry(
+                                                        "updateApplication for application " + _id + ": success");
+                                                }
+                                                
+                                                SwingUtilities.invokeLater(new Runnable()
+                                                    {
+                                                        public void run()
+                                                        {
+                                                            commit();
+                                                            release();
+                                                            _coordinator.getStatusBar().setText(prefix + "done.");
+                                                        }
+                                                    });
+                                            }
+                                            catch(final Exception ex)
                                             {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
-                                                                                 _id + ": failed");
-                                            }
-
-                                            SwingUtilities.invokeLater(new Runnable()
+                                                if(_traceSaveToRegistry)
                                                 {
-                                                    public void run()
+                                                    _coordinator.traceSaveToRegistry(
+                                                        "updateApplication for application " + _id + ": failed");
+                                                }
+                                                
+                                                SwingUtilities.invokeLater(new Runnable()
                                                     {
-                                                        _skipUpdates--;
-                                                        handleFailure(prefix, "Update failed",
-                                                                      "IceGrid exception: " + e.toString());
-                                                    }
-
-                                                });
-                                        }
-
-                                        public void exception(final Ice.LocalException e)
-                                        {
-                                            if(_traceSaveToRegistry)
-                                            {
-                                                _coordinator.traceSaveToRegistry("updateApplication for application " +
-                                                                                 _id + ": failed");
+                                                        public void run()
+                                                        {
+                                                            _skipUpdates--;
+                                                            if(ex instanceof Ice.UserException)
+                                                            {
+                                                                handleFailure(prefix, "Update failed",
+                                                                              "IceGrid exception: " + ex.toString());
+                                                            }
+                                                            else
+                                                            {
+                                                                handleFailure(prefix, "Update failed",
+                                                                              "Communication exception: " + 
+                                                                              ex.toString());
+                                                            }
+                                                        }
+                                                        
+                                                    });
                                             }
-
-                                            SwingUtilities.invokeLater(new Runnable()
-                                                {
-                                                    public void run()
-                                                    {
-                                                        _skipUpdates--;
-                                                        handleFailure(prefix, "Update failed",
-                                                                      "Communication exception: " + e.toString());
-                                                    }
-                                                });
                                         }
-
                                     };
-
+ 
                                 if(_traceSaveToRegistry)
                                 {
-                                    _coordinator.traceSaveToRegistry("sending updateApplication for application " +
-                                                                     _id);
+                                    _coordinator.traceSaveToRegistry("sending updateApplication for application " + _id);
                                 }
 
-                                _coordinator.getAdmin().begin_updateApplication(updateDescriptor, cb);
+                                if(restart)
+                                {
+                                    _coordinator.getAdmin().begin_updateApplication(updateDescriptor, cb);
+                                }
+                                else
+                                {
+                                    _coordinator.getAdmin().begin_updateApplicationWithoutRestart(updateDescriptor, cb);
+                                }
                                 asyncRelease = true;
 
                                 //
-                                // If updateApplication fails, we know we can't get other updates
+                                // If the update fails, we know we can't get other updates
                                 // since we have exclusive write access
                                 //
                                 _skipUpdates++;
@@ -591,18 +599,29 @@ public class Root extends ListTreeNode
                             {
                                 final String prefix = "Synchronizing application '" + _id + "'...";
                                 _coordinator.getStatusBar().setText(prefix);
-
-                                Callback_Admin_syncApplication cb = new Callback_Admin_syncApplication()
+                                
+                                Ice.Callback cb = new Ice.Callback()
                                     {
-                                        public void response()
+                                        public void completed(Ice.AsyncResult result)
                                         {
-                                            if(_traceSaveToRegistry)
+                                            try
                                             {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
-                                                                                 _id + ": failed");
-                                            }
-
-                                            SwingUtilities.invokeLater(new Runnable()
+                                                if(restart)
+                                                {
+                                                    _coordinator.getAdmin().end_syncApplication(result);
+                                                }
+                                                else
+                                                {
+                                                    _coordinator.getAdmin().end_syncApplicationWithoutRestart(result);
+                                                }
+                                                
+                                                if(_traceSaveToRegistry)
+                                                {
+                                                    _coordinator.traceSaveToRegistry("syncApplication for application " +
+                                                                                     _id + ": success");
+                                                }
+                                                
+                                                SwingUtilities.invokeLater(new Runnable()
                                                 {
                                                     public void run()
                                                     {
@@ -625,65 +644,49 @@ public class Root extends ListTreeNode
                                                                 _coordinator.getMainPane().removeApplication(Root.this);
                                                                 if(selected)
                                                                 {
-                                                                    _coordinator.getMainPane()
-                                                                        .setSelectedComponent(app);
+                                                                    _coordinator.getMainPane().setSelectedComponent(app);
                                                                 }
                                                             }
                                                         }
-
+                                                        
                                                         release();
                                                         _coordinator.getStatusBar().setText(prefix + "done.");
                                                     }
-                                                });
-                                        }
-
-                                        public void exception(final Ice.UserException e)
-                                        {
-                                            if(_traceSaveToRegistry)
-                                            {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
-                                                                                 _id + ": failed");
+                                                    });
                                             }
-
-                                            SwingUtilities.invokeLater(new Runnable()
-                                                {
-                                                    public void run()
-                                                    {
-                                                        if(_live)
-                                                        {
-                                                            _skipUpdates--;
-                                                        }
-
-                                                        handleFailure(prefix, "Sync failed",
-                                                                      "IceGrid exception: " + e.toString());
-                                                    }
-
-                                                });
-                                        }
-
-                                        public void exception(final Ice.LocalException e)
-                                        {
-                                            if(_traceSaveToRegistry)
+                                            catch(final Exception ex)
                                             {
-                                                _coordinator.traceSaveToRegistry("syncApplication for application " +
-                                                                                 _id + ": failed");
-                                            }
-
-                                            SwingUtilities.invokeLater(new Runnable()
+                                                if(_traceSaveToRegistry)
                                                 {
-                                                    public void run()
+                                                    _coordinator.traceSaveToRegistry("syncApplication for application " +
+                                                                                     _id + ": failed");
+                                                }
+
+                                                SwingUtilities.invokeLater(new Runnable()
                                                     {
-                                                        if(_live)
-                                                        {
-                                                            _skipUpdates--;
-                                                        }
+                                                        public void run()
+                                                            {
+                                                                if(_live)
+                                                                {
+                                                                    _skipUpdates--;
+                                                                }
 
-                                                        handleFailure(prefix, "Sync failed",
-                                                                      "Communication exception: " + e.toString());
-                                                    }
-                                                });
+                                                                if(ex instanceof Ice.UserException)
+                                                                {
+                                                                    handleFailure(prefix, "Sync failed",
+                                                                                  "IceGrid exception: " + ex.toString());
+                                                                }
+                                                                else
+                                                                {
+                                                                    handleFailure(prefix, "Sync failed",
+                                                                                  "Communication exception: " + 
+                                                                                  ex.toString());
+                                                                }
+                                                            }
+
+                                                    });
+                                            }
                                         }
-
                                     };
 
                                 if(_traceSaveToRegistry)
@@ -691,7 +694,15 @@ public class Root extends ListTreeNode
                                     _coordinator.traceSaveToRegistry("sending syncApplication for application " + _id);
                                 }
 
-                                _coordinator.getAdmin().begin_syncApplication(_descriptor, cb);
+                                if(restart)
+                                {
+                                    _coordinator.getAdmin().begin_syncApplication(_descriptor, cb);
+                                }
+                                else
+                                {
+                                    _coordinator.getAdmin().begin_syncApplicationWithoutRestart(_descriptor, cb);
+                                }
+
                                 asyncRelease = true;
                                 if(_live)
                                 {
@@ -699,10 +710,12 @@ public class Root extends ListTreeNode
                                 }
                             }
                         }
+
                         if(isSelected())
                         {
                             _coordinator.getSaveAction().setEnabled(false);
                             _coordinator.getSaveToRegistryAction().setEnabled(false);
+                            _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(false);
                             _coordinator.getDiscardUpdatesAction().setEnabled(false);
                         }
                     }
@@ -712,7 +725,7 @@ public class Root extends ListTreeNode
                         {
                             _coordinator.traceSaveToRegistry("Ice communications exception while saving application " +
                                                              _id);
-                        }
+                        }       
 
                         JOptionPane.showMessageDialog(
                             _coordinator.getMainFrame(),
@@ -764,6 +777,7 @@ public class Root extends ListTreeNode
             _coordinator.getSaveAction().setEnabled(false);
             _coordinator.getDiscardUpdatesAction().setEnabled(false);
             _coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(_coordinator.connectedToMaster());
         }
     }
 
@@ -1171,7 +1185,10 @@ public class Root extends ListTreeNode
 
             _coordinator.getSaveAction().setEnabled(false);
             _coordinator.getDiscardUpdatesAction().setEnabled(false);
-            _coordinator.getSaveToRegistryAction().setEnabled(hasFile() && _coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryAction().setEnabled(
+                hasFile() && _coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(
+                hasFile() && _coordinator.connectedToMaster());
         }
     }
 
@@ -1286,6 +1303,7 @@ public class Root extends ListTreeNode
             _coordinator.getSaveAction().setEnabled(_live && _coordinator.connectedToMaster() || _file != null);
             _coordinator.getDiscardUpdatesAction().setEnabled(_live || _file != null);
             _coordinator.getSaveToRegistryAction().setEnabled(_coordinator.connectedToMaster());
+            _coordinator.getSaveToRegistryWithoutRestartAction().setEnabled(_coordinator.connectedToMaster());
         }
     }
 

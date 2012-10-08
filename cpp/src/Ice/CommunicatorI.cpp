@@ -258,6 +258,12 @@ Ice::CommunicatorI::getStats() const
     return _instance->initializationData().stats;
 }
 
+Ice::Instrumentation::CommunicatorObserverPtr
+Ice::CommunicatorI::getObserver() const
+{
+    return _instance->initializationData().observer;
+}
+
 RouterPrx
 Ice::CommunicatorI::getDefaultRouter() const
 {
@@ -376,6 +382,12 @@ Ice::ObjectPtr
 Ice::CommunicatorI::removeAdminFacet(const string& facet)
 {
     return _instance->removeAdminFacet(facet);
+}
+
+Ice::ObjectPtr
+Ice::CommunicatorI::findAdminFacet(const string& facet)
+{
+    return _instance->findAdminFacet(facet);
 }
 
 Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)

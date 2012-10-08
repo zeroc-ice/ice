@@ -59,6 +59,11 @@ public final class InitializationData implements Cloneable
     public Logger logger;
 
     /**
+     * The communicator observer used by the Ice run-time.
+     **/
+    public Ice.Instrumentation.CommunicatorObserver observer;
+
+    /**
      * The <Stats> instance for the communicator.
      **/
     public Stats stats;

@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= configuration
+SUBDIRS		= configuration admin
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

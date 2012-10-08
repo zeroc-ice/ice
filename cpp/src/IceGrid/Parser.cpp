@@ -51,13 +51,17 @@ const char* _commandsHelp[][3] = {
 "application describe NAME Describe application NAME.\n" 
 },
 { "application", "diff",
-"application diff DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"application diff [-s | --servers] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 "                          Print the differences betwen the application\n"
 "                          described in DESC and the current deployment.\n" 
+"                          If -s or --servers is specified, print the\n"
+"                          the list of servers affected by the differences.\n" 
 },
 { "application", "update",
-"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-"                          Update the application described in DESC.\n"
+"application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"                          Update the application described in DESC. If -n or\n"
+"                          --no-restart is specified, the update will fail if\n"
+"                          it requires to stop some servers.\n"
 },
 { "application", "patch",
 "application patch [-f | --force] NAME\n"
@@ -475,8 +479,28 @@ Parser::describeApplication(const list<string>& args)
 }
 
 void
-Parser::diffApplication(const list<string>& args)
+Parser::diffApplication(const list<string>& origArgs)
 {
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+
+    IceUtilInternal::Options opts;
+    opts.addOpt("s", "servers");
+    vector<string> args;
+    try
+    {
+        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        {
+            args.push_back(*p);
+        }
+        args = opts.parse(args);
+    }
+    catch(const IceUtilInternal::BadOptException& e)
+    {
+        error(e.reason);
+        return;
+    }
+
     if(args.size() < 1)
     {
         invalidCommand("application diff" , "requires at least one argument");
@@ -488,7 +512,7 @@ Parser::diffApplication(const list<string>& args)
         StringSeq targets;
         map<string, string> vars;
 
-        list<string>::const_iterator p = args.begin();
+        vector<string>::const_iterator p = args.begin();
         string desc = *p++;
 
         for(; p != args.end(); ++p)
@@ -511,7 +535,55 @@ Parser::diffApplication(const list<string>& args)
         ApplicationHelper oldAppHelper(_communicator, origApp.descriptor);
         
         Output out(cout);
-        newAppHelper.printDiff(out, oldAppHelper);
+        if(opts.isSet("servers"))
+        {
+            map<string, ServerInfo> oldServers = oldAppHelper.getServerInfos(origApp.uuid, origApp.revision);
+            map<string, ServerInfo> newServers = newAppHelper.getServerInfos(origApp.uuid, origApp.revision);
+
+            vector<string> messages;
+            map<string, ServerInfo>::const_iterator p;
+            for(p = oldServers.begin(); p != oldServers.end(); ++p)
+            {
+                map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
+                if(q == newServers.end())
+                {
+                    messages.push_back("server `" + p->first + "': removed");
+                }
+            }
+
+            for(p = newServers.begin(); p != newServers.end(); ++p)
+            {
+                map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
+                if(q == oldServers.end())
+                {
+                    messages.push_back("server `" + p->first + "': added");
+                }
+                else if(isServerUpdated(p->second, q->second))
+                {
+                    if(isServerUpdated(p->second, q->second, true)) // Ignore properties
+                    {
+                        messages.push_back("server `" + p->first + "': updated (restart required)");
+                    }
+                    else
+                    {
+                        messages.push_back("server `" + p->first + "': properties updated (no restart required)");
+                    }
+                }
+            }
+
+            out << "application `" << origApp.descriptor.name << "'";
+            out << sb;
+            sort(messages.begin(), messages.end());
+            for(vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
+            {
+                out << nl << *r;
+            }
+            out << eb;
+        }
+        else
+        {
+            newAppHelper.printDiff(out, oldAppHelper);
+        }
         out << nl;  
     }
     catch(const Ice::Exception& ex)
@@ -521,8 +593,28 @@ Parser::diffApplication(const list<string>& args)
 }
 
 void
-Parser::updateApplication(const list<string>& args)
+Parser::updateApplication(const list<string>& origArgs)
 {
+    list<string> copyArgs = origArgs;
+    copyArgs.push_front("icegridadmin");
+
+    IceUtilInternal::Options opts;
+    opts.addOpt("n", "no-restart");
+    vector<string> args;
+    try
+    {
+        for(list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        {
+            args.push_back(*p);
+        }
+        args = opts.parse(args);
+    }
+    catch(const IceUtilInternal::BadOptException& e)
+    {
+        error(e.reason);
+        return;
+    }
+
     if(args.size() < 1)
     {
         invalidCommand("application update", "requires at least one argument");
@@ -534,8 +626,8 @@ Parser::updateApplication(const list<string>& args)
         StringSeq targets;
         map<string, string> vars;
 
-        list<string>::const_iterator p = args.begin();
-        string desc = *p++;
+        vector<string>::const_iterator p = args.begin();
+        string xml = *p++;
 
         for(; p != args.end(); ++p)
         {
@@ -550,7 +642,19 @@ Parser::updateApplication(const list<string>& args)
             }
         }
 
-        _admin->syncApplication(DescriptorParser::parseDescriptor(desc, targets, vars, _communicator, _admin));
+        ApplicationDescriptor desc = DescriptorParser::parseDescriptor(xml, targets, vars, _communicator, _admin);
+        if(opts.isSet("no-restart"))
+        {
+            _admin->syncApplicationWithoutRestart(desc);
+        }
+        else
+        {
+            _admin->syncApplication(desc);
+        }
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+        error("registry doesn't support updates without restart");
     }
     catch(const Ice::Exception& ex)
     {

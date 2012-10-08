@@ -13,6 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/StopWatch.h>
 #include <IceUtil/Timer.h>
 
 #include <Ice/CommunicatorF.h>
@@ -30,6 +31,7 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Dispatcher.h>
+#include <Ice/ObserverHelper.h>
 #include <Ice/ConnectionAsync.h>
 
 #include <deque>
@@ -64,6 +66,23 @@ class LocalException;
 
 class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
 {
+    class Observer : public IceInternal::ObserverHelperT<Ice::Instrumentation::ConnectionObserver>
+    {
+    public:
+
+        Observer();
+
+        void startRead(Ice::Byte*);
+        void finishRead(Ice::Byte*);
+        void startWrite(Ice::Byte*);
+        void finishWrite(Ice::Byte*);
+
+    private:
+
+        Ice::Byte* _readStreamPos;
+        Ice::Byte* _writeStreamPos;
+    };
+
 public:
 
     class StartCallback : virtual public IceUtil::Shared
@@ -94,6 +113,8 @@ public:
 
     void waitUntilHolding() const;
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
+
+    void updateObserver();
 
     void monitor(const IceUtil::Time&);
 
@@ -163,6 +184,8 @@ public:
     void finish();
 
 private:
+
+    friend class IceInternal::ConnectionReaper;
 
     enum State
     {
@@ -277,6 +300,9 @@ private:
     int connectTimeout();
     int closeTimeout();
 
+    Ice::ConnectionInfoPtr initConnectionInfo() const;
+    Ice::Instrumentation::ConnectionState toConnectionState(State) const;
+        
     AsyncResultPtr __begin_flushBatchRequests(const IceInternal::CallbackBasePtr&, const LocalObjectPtr&);
 
     Ice::CommunicatorPtr _communicator;
@@ -288,6 +314,8 @@ private:
     const IceInternal::ConnectorPtr _connector;
     const IceInternal::EndpointIPtr _endpoint;
 
+    mutable Ice::ConnectionInfoPtr _info;
+    
     ObjectAdapterPtr _adapter;
     IceInternal::ServantManagerPtr _servantManager;
 
@@ -333,6 +361,8 @@ private:
     IceInternal::BasicStream _readStream;
     bool _readHeader;
     IceInternal::BasicStream _writeStream;
+
+    Observer _observer;
 
     int _dispatchCount;
 

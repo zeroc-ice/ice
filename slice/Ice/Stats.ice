@@ -47,6 +47,6 @@ local interface Stats
      **/
     void bytesReceived(string protocol, int num);
 };
-
+    
 };
 

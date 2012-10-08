@@ -12,10 +12,12 @@
 <project name="test_IceBox" default="all" basedir=".">
 
     <target name="all">
+        <ant dir="admin"/>
         <ant dir="configuration"/>
     </target>
 
     <target name="clean">
+        <ant dir="admin" target="clean"/>
         <ant dir="configuration" target="clean"/>
     </target>
 

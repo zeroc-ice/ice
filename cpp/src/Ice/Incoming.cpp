@@ -22,9 +22,11 @@
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
 #include <IceUtil/StringUtil.h>
+#include <typeinfo>
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 namespace IceUtilInternal
@@ -58,6 +60,8 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 void
 IceInternal::IncomingBase::__adopt(IncomingBase& other)
 {
+    _observer.adopt(other._observer);
+
     _servant = other._servant;
     other._servant = 0;
 
@@ -144,6 +148,11 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 void 
 IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
 {
+    if(_observer)
+    {
+        _observer.failed(ex.ice_name());
+    }
+
     ::IceInternal::BasicStream* __os = __startWriteParams(format);
     __os->write(ex);
     __endWriteParams(false);
@@ -165,7 +174,7 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
         Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
         if(ipConnInfo)
         {
-            out << "\nremote host: " << ipConnInfo->remoteAddress + " remote port: " << ipConnInfo->remotePort;
+            out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
         }
     }
 }
@@ -186,7 +195,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
         Ice::IPConnectionInfoPtr ipConnInfo = Ice::IPConnectionInfoPtr::dynamicCast(connInfo);
         if(ipConnInfo)
         {
-            out << "\nremote host: " << ipConnInfo->remoteAddress + " remote port: " << ipConnInfo->remotePort;
+            out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
         }
     }
 }
@@ -203,6 +212,11 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     catch(const UserException& ex)
     {
         assert(_connection);
+
+        if(_observer)
+        {
+            _observer.failed(ex.ice_name());
+        }
 
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
@@ -221,6 +235,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
             _connection->sendNoResponse();
         }
 
+        _observer.detach();
         _connection = 0;
     }
     catch(const std::exception& ex)
@@ -262,6 +277,11 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
         {
             __warning(*rfe);
+        }
+
+        if(_observer)
+        {
+            _observer.failed(rfe->ice_name());
         }
 
         if(_response)
@@ -309,10 +329,14 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
     }
     else if(const Exception* ex = dynamic_cast<const Exception*>(&exc))
     {
-
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             __warning(*ex);
+        }
+
+        if(_observer)
+        {
+            _observer.failed(ex->ice_name());
         }
 
         if(_response)
@@ -362,6 +386,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 str << *ex;
                 _os.write(str.str(), false);
             }
+
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -374,6 +399,11 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
             __warning(string("std::exception: ") + exc.what());
+        }
+
+        if(_observer)
+        {
+            _observer.failed(typeid(exc).name());
         }
 
         if(_response)
@@ -391,6 +421,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
         }
     }
 
+    _observer.detach();
     _connection = 0;
 }
 
@@ -403,6 +434,11 @@ IceInternal::IncomingBase::__handleException()
     }
 
     assert(_connection);
+
+    if(_observer)
+    {
+        _observer.failed("unknown");
+    }
 
     if(_response)
     {
@@ -417,6 +453,7 @@ IceInternal::IncomingBase::__handleException()
         _connection->sendNoResponse();
     }
 
+    _observer.detach();
     _connection = 0;
 }
 
@@ -541,6 +578,12 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _current.ctx.insert(_current.ctx.end(), pr);
     }
 
+    const CommunicatorObserverPtr& obsv = _is->instance()->initializationData().observer;
+    if(obsv)
+    {
+        _observer.attach(obsv->getDispatchObserver(_current));
+    }
+
     //
     // Don't put the code above into the try block below. Exceptions
     // in the code above are considered fatal, and must propagate to
@@ -568,6 +611,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 {
                     Ice::EncodingVersion encoding = _is->skipEncaps(); // Required for batch requests.
 
+                    if(_observer)
+                    {
+                        _observer.failed(ex.ice_name());
+                    }
+
                     if(_response)
                     {
                         _os.write(replyUserException);
@@ -581,6 +629,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                         _connection->sendNoResponse();
                     }
 
+                    _observer.detach();
                     _connection = 0;
                     return;
                 }
@@ -610,9 +659,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
             //
             if(_servant->__dispatch(*this, _current) == DispatchAsync)
             {            
-                //
-                // If this was an asynchronous dispatch, we're done here.
-                //
                 return;
             }
 
@@ -673,6 +719,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
         _connection->sendNoResponse();
     }
 
+    _observer.detach();
     _connection = 0;
 }
 

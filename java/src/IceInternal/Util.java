@@ -96,24 +96,6 @@ public final class Util
         }
 
         //
-        // Try using the system class loader (which knows about CLASSPATH).
-        //
-        if(c == null)
-        {
-            try
-            {
-                cl = ClassLoader.getSystemClassLoader();
-                if(cl != null)
-                {
-                    c = loadClass(className, cl);
-                }
-            }
-            catch(SecurityException ex)
-            {
-            }
-        }
-
-        //
         // Try using the current thread's class loader.
         //
         if(c == null)
@@ -132,7 +114,7 @@ public final class Util
         }
 
         //
-        // Fall back to Class.forName().
+        // Try using Class.forName().
         //
         try
         {
@@ -144,6 +126,24 @@ public final class Util
         catch(ClassNotFoundException ex)
         {
             // Ignore
+        }
+
+        //
+        // Fall back to the system class loader (which knows about CLASSPATH).
+        //
+        if(c == null)
+        {
+            try
+            {
+                cl = ClassLoader.getSystemClassLoader();
+                if(cl != null)
+                {
+                    c = loadClass(className, cl);
+                }
+            }
+            catch(SecurityException ex)
+            {
+            }
         }
 
         return c;

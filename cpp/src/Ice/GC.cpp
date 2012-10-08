@@ -15,6 +15,7 @@
 #include <set>
 
 using namespace IceUtil;
+using namespace Ice::Instrumentation;
 
 namespace 
 {
@@ -138,7 +139,7 @@ IceInternal::GCShared::__setNoDelete(bool b)
 //
 
 
-IceInternal::GC::GC(int interval, StatsCallback cb)
+IceInternal::GC::GC(int interval, StatsCallback cb) : Thread("Ice.GC")
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(numCollectorsMutex);
     if(numCollectors++ > 0)
@@ -174,6 +175,7 @@ IceInternal::GC::run()
     while(true)
     {
         bool collect = false;
+        ThreadObserverPtr observer;
         {
             Monitor<Mutex>::Lock sync(*this);
 
@@ -186,12 +188,24 @@ IceInternal::GC::run()
             {
                 collect = true;
             }
+            observer = _observer.get();
         }
         if(collect)
         {
-            collectGarbage();
+            if(observer)
+            {
+                observer->stateChanged(ThreadStateIdle, ThreadStateInUseForOther);
+                collectGarbage();
+                observer->stateChanged(ThreadStateInUseForOther, ThreadStateIdle);
+            }
+            else
+            {
+                collectGarbage();
+            }
         }
     }
+
+    _observer.detach();
 }
 
 void
@@ -368,5 +382,35 @@ IceInternal::GC::collectGarbage()
         Monitor<Mutex>::Lock sync(*this);
 
         _collecting = false;
+    }
+}
+
+void
+IceInternal::GC::updateObserver(const CommunicatorObserverPtr& observer)
+{
+    Monitor<Mutex>::Lock sync(*this);
+    assert(observer);
+
+    // Only the first communicator can observe the GC thread.
+    if(!_communicatorObserver)
+    {
+        _communicatorObserver = observer;
+    } 
+
+    if(observer == _communicatorObserver)
+    {
+        _observer.attach(observer->getThreadObserver("Communicator", name(), ThreadStateIdle, _observer.get()));
+    }
+}
+
+void
+IceInternal::GC::clearObserver(const CommunicatorObserverPtr& observer)
+{
+    Monitor<Mutex>::Lock sync(*this);
+    assert(observer);
+    if(observer == _communicatorObserver)
+    {
+        _communicatorObserver = 0;
+        _observer.detach();
     }
 }

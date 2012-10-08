@@ -19,6 +19,7 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
+#include <Ice/ObserverHelper.h>
 
 namespace Ice
 {
@@ -76,7 +77,8 @@ class ICE_API Outgoing : public OutgoingMessageCallback
 {
 public:
 
-    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*);
+    Outgoing(RequestHandler*, const std::string&, Ice::OperationMode, const Ice::Context*, InvocationObserver&);
+    ~Outgoing();
 
     bool invoke(); // Returns true if ok, false if user exception.
     void abort(const Ice::LocalException&);
@@ -136,6 +138,11 @@ public:
 
     void throwUserException();
 
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+    }
+
 private:
 
     //
@@ -143,8 +150,9 @@ private:
     // deleted while a stack-allocated Outgoing still holds it.
     //
     RequestHandler* _handler;
-
     IceUtil::UniquePtr<Ice::LocalException> _exception;
+    InvocationObserver& _observer;
+    ObserverHelperT<> _remoteObserver;
 
     enum
     {
@@ -175,8 +183,8 @@ class BatchOutgoing : public OutgoingMessageCallback
 {
 public:
 
-    BatchOutgoing(RequestHandler*);
-    BatchOutgoing(Ice::ConnectionI*, Instance*);
+    BatchOutgoing(RequestHandler*, InvocationObserver&);
+    BatchOutgoing(Ice::ConnectionI*, Instance*, InvocationObserver&);
     
     void invoke();
     
@@ -184,6 +192,11 @@ public:
     virtual void finished(const Ice::LocalException&, bool);
     
     BasicStream* os() { return &_os; }
+
+    void attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+    }
 
 private:
 
@@ -194,6 +207,9 @@ private:
     IceUtil::UniquePtr<Ice::LocalException> _exception;
 
     BasicStream _os;
+
+    InvocationObserver& _observer;
+    ObserverHelperT<> _remoteObserver;
 };
 
 }

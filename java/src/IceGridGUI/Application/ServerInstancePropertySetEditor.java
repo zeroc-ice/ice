@@ -57,11 +57,11 @@ class ServerInstancePropertySetEditor extends PropertySetEditor
 
         _id.setEnabled(true);
         _id.setEditable(true);
-        _id.setModel(new DefaultComboBoxModel(s.getServiceNames()));
+        _id.setModel(new DefaultComboBoxModel<String>(s.getServiceNames()));
         _id.setSelectedItem(Utils.substitute(unsubstitutedId, resolver));
         _id.setEditable(resolver == null);
         _id.setEnabled(resolver == null);
     }
 
-    private JComboBox _id = new JComboBox();
+    private JComboBox<String> _id = new JComboBox<String>();
 }

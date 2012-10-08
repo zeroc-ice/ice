@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import sys, os, re, getopt, time, string, threading, atexit
+import sys, os, re, getopt, time, string, threading, atexit, platform
 
 # Global flags and their default values.
 protocol = ""                   # If unset, default to TCP. Valid values are "tcp" or "ssl".
@@ -845,6 +845,13 @@ def getCommandLineProperties(exe, config):
     #components.append("--Ice.Trace.Network=3")
 
     #
+    # Turn on instrumentation
+    #
+    #components.append("--Ice.Admin.Endpoints=tcp");
+    #components.append("--Ice.Admin.InstanceName=" + config.type);
+    #components.append("--IceMX.Metrics.Debug.GroupBy=id");
+
+    #
     # Now we add additional components dependent on the desired
     # configuration.
     #
@@ -865,7 +872,9 @@ def getCommandLineProperties(exe, config):
         components.append("--Ice.ThreadPool.Server.Serialize=1")
 
     if config.type == "server" or config.type == "colloc" and config.lang == "py":
-        components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
+        components.append("--Ice.ThreadPool.Server.Size=1")
+        components.append("--Ice.ThreadPool.Server.SizeMax=3")
+        components.append("--Ice.ThreadPool.Server.SizeWarn=0")
 
     if config.type == "server":
         components.append("--Ice.PrintAdapterReady=1")
@@ -906,7 +915,10 @@ def getCommandLine(exe, config, options = ""):
         if x64:
             arch = "arch -x86_64 "
         else:
-            arch = "arch -i386 "
+            # We don't really know what architecture the binaries were
+            # built with, prefer 32 bits if --x64 is not set and if 32
+            # bits binaries aren't available, 64 bits will be used.
+            arch = "arch -i386 -x86_64 "
 
     output = getStringIO()
 
@@ -1085,6 +1097,8 @@ def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None)
 
 def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None):
     server = spawn(cmd, env, quoteArgument(cwd), lang=lang)
+    # Count + 1 if IceMX enabled
+    #cout = count + 1
     if adapter:
         server.expect("%s ready\n" % adapter)
     else:

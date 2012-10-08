@@ -408,7 +408,7 @@ class Node extends ListTreeNode
                 else
                 {
                     removeDescriptor(nodeDesc, oldServer);
-                    oldServer.rebuild(server);
+                    oldServer.rebuild(server, true);
                     freshServers.add(oldServer);
                     nodeDesc.serverInstances.add(desc);
                 }
@@ -428,7 +428,7 @@ class Node extends ListTreeNode
                 else
                 {
                     removeDescriptor(nodeDesc, oldServer);
-                    oldServer.rebuild(server);
+                    oldServer.rebuild(server, true);
                     freshServers.add(oldServer);
                     nodeDesc.servers.add(desc);
                 }
@@ -582,14 +582,20 @@ class Node extends ListTreeNode
         if(_info != null)
         {
             java.util.ListIterator<ServerDynamicInfo> p = _info.servers.listIterator();
+            boolean found = false;
             while(p.hasNext())
             {
                 ServerDynamicInfo sinfo = p.next();
                 if(sinfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
+                    found = true;
                     break;
                 }
+            }
+            if(!found)
+            {
+                _info.servers.add(updatedInfo);
             }
         }
 
@@ -605,14 +611,20 @@ class Node extends ListTreeNode
         if(_info != null)
         {
             java.util.ListIterator<AdapterDynamicInfo> p = _info.adapters.listIterator();
+            boolean found = false;
             while(p.hasNext())
             {
                 AdapterDynamicInfo ainfo = p.next();
                 if(ainfo.id.equals(updatedInfo.id))
                 {
                     p.set(updatedInfo);
+                    found = true;
                     break;
                 }
+            }
+            if(!found)
+            {
+                _info.adapters.add(updatedInfo);
             }
         }
 
@@ -906,6 +918,17 @@ class Node extends ListTreeNode
     {
         NodeDescriptor descriptor;
         Utils.Resolver resolver;
+    }
+
+    public java.util.List<Server>
+    getServers()
+    {
+        java.util.List<Server> servers = new java.util.ArrayList<Server>();
+        for(Object obj : _children)
+        {
+            servers.add((Server)obj);
+        }
+        return servers;
     }
 
     //

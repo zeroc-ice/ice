@@ -30,6 +30,8 @@ OBJS		= NodeI.obj \
 		  Election.obj \
 		  SubscriberRecord.obj \
 		  IceStormInternal.obj \
+		  Instrumentation.obj \
+		  InstrumentationI.obj \
 		  Util.obj
 
 AOBJS		= Admin.obj \

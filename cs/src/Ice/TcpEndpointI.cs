@@ -18,19 +18,18 @@ namespace IceInternal
     sealed class TcpEndpointI : EndpointI
     {
         public TcpEndpointI(Instance instance, string ho, int po, int ti, Ice.ProtocolVersion pv, 
-                            Ice.EncodingVersion ev, string conId, bool co) : base(pv, ev)
+                            Ice.EncodingVersion ev, string conId, bool co) : base(pv, ev, conId)
         {
             _instance = instance;
             _host = ho;
             _port = po;
             _timeout = ti;
-            _connectionId = conId;
             _compress = co;
             calcHashValue();
         }
 
         public TcpEndpointI(Instance instance, string str, bool oaEndpoint) :
-            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding)
+            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "")
         {
             _instance = instance;
             _host = null;
@@ -335,7 +334,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(_instance, _host, _port, timeout, protocol_, encoding_, _connectionId,
+                return new TcpEndpointI(_instance, _host, _port, timeout, protocol_, encoding_, connectionId_,
                                         _compress);
             }
         }
@@ -345,7 +344,7 @@ namespace IceInternal
         //
         public override EndpointI connectionId(string connectionId)
         {
-            if(connectionId == _connectionId)
+            if(connectionId == connectionId_)
             {
                 return this;
             }
@@ -378,7 +377,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(_instance, _host, _port, _timeout, protocol_, encoding_, _connectionId, 
+                return new TcpEndpointI(_instance, _host, _port, _timeout, protocol_, encoding_, connectionId_, 
                                         compress);
             }
         }
@@ -446,7 +445,7 @@ namespace IceInternal
 #else
             TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
             endpoint = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, protocol_, encoding_, 
-                                        _connectionId, _compress);
+                                        connectionId_, _compress);
             return p;
 #endif
         }
@@ -467,7 +466,7 @@ namespace IceInternal
             {
                 foreach(string h in hosts)
                 {
-                    endps.Add(new TcpEndpointI(_instance, h, _port, _timeout, protocol_, encoding_, _connectionId, 
+                    endps.Add(new TcpEndpointI(_instance, h, _port, _timeout, protocol_, encoding_, connectionId_, 
                                                _compress));
                 }
             }
@@ -493,7 +492,7 @@ namespace IceInternal
             List<Connector> connectors = new List<Connector>();
             foreach(EndPoint addr in addresses)
             {
-                connectors.Add(new TcpConnector(_instance, addr, _timeout, protocol_, encoding_, _connectionId));
+                connectors.Add(new TcpConnector(_instance, addr, _timeout, protocol_, encoding_, connectionId_));
             }
             return connectors;
         }
@@ -545,11 +544,6 @@ namespace IceInternal
                 return 1;
             }
 
-            if(!_connectionId.Equals(p._connectionId))
-            {
-                return string.Compare(_connectionId, p._connectionId, StringComparison.Ordinal);
-            }
-
             if(!_compress && p._compress)
             {
                 return -1;
@@ -571,7 +565,7 @@ namespace IceInternal
             IceInternal.HashUtil.hashAdd(ref h, _timeout);
             IceInternal.HashUtil.hashAdd(ref h, protocol_);
             IceInternal.HashUtil.hashAdd(ref h, encoding_);
-            IceInternal.HashUtil.hashAdd(ref h, _connectionId);
+            IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             IceInternal.HashUtil.hashAdd(ref h, _compress);
             _hashCode = h;
         }
@@ -580,7 +574,6 @@ namespace IceInternal
         private string _host;
         private int _port;
         private int _timeout;
-        private string _connectionId = "";
         private bool _compress;
         private int _hashCode;
     }

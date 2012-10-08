@@ -25,18 +25,17 @@ using namespace IceInternal;
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti,
                                         const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding,
                                         const string& conId, bool co) :
-    EndpointI(protocol, encoding),
+    EndpointI(protocol, encoding, conId),
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _connectionId(conId),
     _compress(co)
 {
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding),
+    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding, ""),
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -385,7 +384,7 @@ IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors() const
 {
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<TcpEndpointI*>(this));
 }
 
 void
@@ -449,6 +448,16 @@ IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
         return true;
     }
 
+    if(_protocol != p->_protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != p->_encoding) 
+    {
+        return false;
+    }
+
     if(_host != p->_host)
     {
         return false;
@@ -492,6 +501,24 @@ IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
     }
 
     if(this == p)
+    {
+        return false;
+    }
+
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol) 
+    {
+        return false;
+    }
+
+    if(_encoding < p->_encoding) 
+    {
+        return true;
+    }
+    else if(p->_encoding < _encoding) 
     {
         return false;
     }

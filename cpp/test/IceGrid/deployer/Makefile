@@ -35,6 +35,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= Test.ice
 
+GENPIC          = no
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)

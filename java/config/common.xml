@@ -9,7 +9,7 @@
  **********************************************************************
 -->
 
-<project name="common" basedir=".">
+<project name="common" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
 
     <property environment="env"/>
     <property name="build.sysclasspath" value="last"/>
@@ -356,6 +356,24 @@
     </target>
 
     <target name="config-init" depends="config-init-warn">
+        
+         <!-- JavaFX jar file -->
+        <condition property="javafx.jar" value="${java.home}/lib/jfxrt.jar">
+            <and>
+                <not><isset property="javafx.jar"/></not>
+                <available file="${java.home}/lib/jfxrt.jar"/>
+            </and>
+        </condition>
+
+        <condition property="ant-javafx.jar" value="${java.home}/../lib/ant-javafx.jar">
+            <and>
+                <not><isset property="ant-javafx.jar"/></not>
+                <available file="${java.home}/../lib/ant-javafx.jar"/>
+            </and>
+        </condition>
+
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" 
+                 classpath="${ant-javafx.jar}"/>
 
         <!-- Set slice.dir to the directory containing the Slice files. -->
         <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">

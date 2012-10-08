@@ -11,10 +11,11 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
-    public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding)
+    public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, String connectionId)
     {
         _protocol = protocol;
         _encoding = encoding;
+        _connectionId = connectionId;
     }
 
     public EndpointI()
@@ -94,6 +95,14 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public Ice.EncodingVersion encoding()
     {
         return _encoding;
+    }
+
+    //
+    // Return the connection ID 
+    //
+    public String connectionId()
+    {
+        return _connectionId;
     }
 
     //
@@ -182,6 +191,11 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
             return 1;
         }
 
+        if(!_connectionId.equals(p._connectionId))
+        {
+            return _connectionId.compareTo(p._connectionId);
+        }
+
         return 0;
     }
 
@@ -243,4 +257,5 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
 
     protected Ice.ProtocolVersion _protocol;
     protected Ice.EncodingVersion _encoding;
+    protected String _connectionId = "";
 }

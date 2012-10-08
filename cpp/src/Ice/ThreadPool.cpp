@@ -33,6 +33,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 ICE_DECLSPEC_EXPORT IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
@@ -370,6 +371,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _destroyed(false),
     _prefix(prefix),
     _selector(instance),
+    _nextThreadId(0),
     _size(0),
     _sizeIO(0),
     _sizeMax(0),
@@ -492,7 +494,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     {
         for(int i = 0 ; i < _size ; ++i)
         {
-            IceUtil::ThreadPtr thread = new EventHandlerThread(this);
+            EventHandlerThreadPtr thread = new EventHandlerThread(this, nextThreadId());
             if(_hasPriority)
             {
                 thread->start(_stackSize, _priority);
@@ -536,6 +538,16 @@ IceInternal::ThreadPool::destroy()
     assert(!_destroyed);
     _destroyed = true;
     _workQueue->destroy();
+}
+
+void
+IceInternal::ThreadPool::updateObservers()
+{
+    Lock sync(*this);
+    for(set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    {
+        (*p)->updateObserver();
+    }
 }
 
 void
@@ -600,7 +612,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // wouldn't be possible here anyway, because otherwise the other
     // threads would never terminate.)
     //
-    for(set<IceUtil::ThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for(set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
         (*p)->getThreadControl().join();
     }
@@ -618,16 +630,17 @@ IceInternal::ThreadPool::prefix() const
 }
 
 void
-IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
+IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 {
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
-    ThreadPoolCurrent current(_instance, this);
+    ThreadPoolCurrent current(_instance, this, thread);
     bool select = false;
     vector<pair<EventHandler*, SocketOperation> > handlers;
     while(true)
     {
         if(current._handler)
         {
+            thread->setState(ThreadStateInUseForIO);
             try
             {
                 current._handler->message(current);
@@ -642,14 +655,6 @@ IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
                 out << "exception in `" << _prefix << "':\n" << ex << "\nevent handler: " 
                     << current._handler->toString();
             }
-#ifdef ICE_OS_WINRT
-            catch(Platform::Exception^ ex)
-            {
-                Error out(_instance->initializationData().logger);
-                out << "exception in `" << _prefix << "':\n" << IceUtil::wstringToString(ex->Message->Data())
-                    << "\nevent handler: " << current._handler->toString();
-            }
-#endif
             catch(...)
             {
                 Error out(_instance->initializationData().logger);
@@ -658,6 +663,7 @@ IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
         }
         else if(select)
         {
+            thread->setState(ThreadStateIdle);
             try
             {
                 _selector.select(handlers, _serverIdleTime);
@@ -684,7 +690,7 @@ IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
                     _selector.finishSelect();
                     select = false;
                 }
-                else if(!current._leader && followerWait(thread, current))
+                else if(!current._leader && followerWait(current))
                 {
                     return; // Wait timed-out.
                 }
@@ -710,7 +716,7 @@ IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
                     --_inUse;
                 }
 
-                if(!current._leader && followerWait(thread, current))
+                if(!current._leader && followerWait(current))
                 {
                     return; // Wait timed-out.
                 }
@@ -764,7 +770,7 @@ IceInternal::ThreadPool::run(const IceUtil::ThreadPtr& thread)
         }
     }
 #else
-    ThreadPoolCurrent current(_instance, this);
+    ThreadPoolCurrent current(_instance, this, thread);
     while(true)
     {
         try
@@ -871,6 +877,8 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
 {
     current._ioCompleted = true; // Set the IO completed flag to specifiy that ioCompleted() has been called.
 
+    current._thread->setState(ThreadStateInUseForUser);
+
     if(_sizeMax > 1)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -918,7 +926,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
             
                 try
                 {
-                    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
+                    EventHandlerThreadPtr thread = new EventHandlerThread(this, nextThreadId());
                     if(_hasPriority)
                     {
                         thread->start(_stackSize, _priority);
@@ -1043,9 +1051,11 @@ IceInternal::ThreadPool::promoteFollower(ThreadPoolCurrent& current)
 }
 
 bool
-IceInternal::ThreadPool::followerWait(const IceUtil::ThreadPtr& thread, ThreadPoolCurrent& current)
+IceInternal::ThreadPool::followerWait(ThreadPoolCurrent& current)
 {
     assert(!current._leader);
+    
+    current._thread->setState(ThreadStateIdle);
 
     //
     // It's important to clear the handler before waiting to make sure that
@@ -1074,8 +1084,8 @@ IceInternal::ThreadPool::followerWait(const IceUtil::ThreadPtr& thread, ThreadPo
                         out << "shrinking " << _prefix << ": Size=" << (_threads.size() - 1);
                     }
                     assert(_threads.size() > 1); // Can only be called by a waiting follower thread.
-                    _threads.erase(thread);
-                    _workQueue->queue(new JoinThreadWorkItem(thread));
+                    _threads.erase(current._thread);
+                    _workQueue->queue(new JoinThreadWorkItem(current._thread));
                     return true;
                 }
             }
@@ -1091,10 +1101,43 @@ IceInternal::ThreadPool::followerWait(const IceUtil::ThreadPtr& thread, ThreadPo
 }
 #endif
 
-IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool) :
-    IceUtil::Thread(pool->_prefix + " thread"),
-    _pool(pool)
+string
+IceInternal::ThreadPool::nextThreadId()
 {
+    ostringstream os;
+    os << _prefix << "-" << _nextThreadId++; 
+    return os.str();
+}
+
+IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name) :
+    IceUtil::Thread(name),
+    _pool(pool),
+    _state(Ice::Instrumentation::ThreadStateIdle)
+{
+    updateObserver();
+}
+
+void
+IceInternal::ThreadPool::EventHandlerThread::updateObserver()
+{
+    const CommunicatorObserverPtr& obsv = _pool->_instance->initializationData().observer;
+    if(obsv)
+    {
+        _observer.attach(obsv->getThreadObserver(_pool->_prefix, name(), _state, _observer.get()));
+    }
+}
+
+void
+IceInternal::ThreadPool::EventHandlerThread::setState(Ice::Instrumentation::ThreadState s)
+{
+    if(_observer)
+    {
+        if(_state != s)
+        {
+            _observer->stateChanged(_state, s);
+        }
+    }
+    _state = s;
 }
 
 void
@@ -1133,6 +1176,8 @@ IceInternal::ThreadPool::EventHandlerThread::run()
         out << "unknown exception in `" << _pool->_prefix << "'"; 
     }
 
+    _observer.detach();
+
     if(_pool->_instance->initializationData().threadHook)
     {
         try
@@ -1154,10 +1199,13 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     _pool = 0; // Break cyclic dependency.
 }
 
-ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance, const ThreadPoolPtr& threadPool) :
+ThreadPoolCurrent::ThreadPoolCurrent(const InstancePtr& instance, 
+                                     const ThreadPoolPtr& threadPool,
+                                     const ThreadPool::EventHandlerThreadPtr& thread) :
     operation(SocketOperationNone), 
     stream(instance.get(), Ice::currentProtocolEncoding), 
     _threadPool(threadPool.get()), 
+    _thread(thread),
     _ioCompleted(false)
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
     , _leader(false)

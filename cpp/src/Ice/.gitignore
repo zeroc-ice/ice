@@ -19,10 +19,13 @@ LocatorF.cpp
 Locator.cpp
 LoggerF.cpp
 Logger.cpp
+Metrics.cpp
 ObjectAdapterF.cpp
 ObjectAdapter.cpp
 ObjectFactoryF.cpp
 ObjectFactory.cpp
+Instrumentation.cpp
+InstrumentationF.cpp
 PluginF.cpp
 Plugin.cpp
 ProcessF.cpp
@@ -55,10 +58,13 @@ LocatorF.h
 Locator.h
 LoggerF.h
 Logger.h
+Metrics.h
 ObjectAdapterF.h
 ObjectAdapter.h
 ObjectFactoryF.h
 ObjectFactory.h
+Instrumentation.h
+InstrumentationF.h
 PluginF.h
 Plugin.h
 ProcessF.h
@@ -72,3 +78,4 @@ ServantLocator.h
 SliceChecksumDict.h
 StatsF.h
 Stats.h
+Version.h

@@ -24,6 +24,7 @@
 #include <Ice/EventHandler.h>
 #include <Ice/Selector.h>
 #include <Ice/BasicStream.h>
+#include <Ice/ObserverHelper.h>
 
 #include <set>
 #include <list>
@@ -38,12 +39,32 @@ typedef IceUtil::Handle<ThreadPoolWorkQueue> ThreadPoolWorkQueuePtr;
 
 class ThreadPool : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 {
+    class EventHandlerThread : public IceUtil::Thread
+    {
+    public:
+        
+        EventHandlerThread(const ThreadPoolPtr&, const std::string&);
+        virtual void run();
+
+        void updateObserver();
+        void setState(Ice::Instrumentation::ThreadState);
+        
+    private:
+
+        ThreadPoolPtr _pool;
+        ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
+        Ice::Instrumentation::ThreadState _state;
+    };
+    typedef IceUtil::Handle<EventHandlerThread> EventHandlerThreadPtr;
+
 public:
 
     ThreadPool(const InstancePtr&, const std::string&, int);
     virtual ~ThreadPool();
 
     void destroy();
+
+    void updateObservers();
 
     void initialize(const EventHandlerPtr&);
     void _register(const EventHandlerPtr& handler, SocketOperation status)
@@ -64,7 +85,7 @@ public:
 
 private:
 
-    void run(const IceUtil::ThreadPtr&);
+    void run(const EventHandlerThreadPtr&);
 
     bool ioCompleted(ThreadPoolCurrent&);
 
@@ -73,26 +94,17 @@ private:
     void finishMessage(ThreadPoolCurrent&);
 #else
     void promoteFollower(ThreadPoolCurrent&);
-    bool followerWait(const IceUtil::ThreadPtr&, ThreadPoolCurrent&);
+    bool followerWait(ThreadPoolCurrent&);
 #endif
+
+    std::string nextThreadId();
 
     const InstancePtr _instance;
     ThreadPoolWorkQueuePtr _workQueue;
     bool _destroyed;
     const std::string _prefix;
     Selector _selector;
-
-    class EventHandlerThread : public IceUtil::Thread
-    {
-    public:
-        
-        EventHandlerThread(const ThreadPoolPtr&);
-        virtual void run();
-
-    private:
-
-        ThreadPoolPtr _pool;
-    };
+    int _nextThreadId;
 
     friend class EventHandlerThread;
     friend class ThreadPoolCurrent;
@@ -108,7 +120,7 @@ private:
     const int _threadIdleTime;
     const size_t _stackSize;
 
-    std::set<IceUtil::ThreadPtr> _threads; // All threads, running or not.
+    std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
     int _inUse; // Number of threads that are currently in use.
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
     int _inUseIO; // Number of threads that are currently performing IO.
@@ -123,7 +135,7 @@ class ThreadPoolCurrent
 {
 public:
 
-    ThreadPoolCurrent(const InstancePtr&, const ThreadPoolPtr&);
+    ThreadPoolCurrent(const InstancePtr&, const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
 
     SocketOperation operation;
     BasicStream stream; // A per-thread stream to be used by event handlers for optimization.
@@ -148,6 +160,7 @@ public:
 private:
 
     ThreadPool* _threadPool;
+    ThreadPool::EventHandlerThreadPtr _thread;
     EventHandlerPtr _handler;
     bool _ioCompleted;
 #if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)

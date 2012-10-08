@@ -1,3 +1,4 @@
+
 // **********************************************************************
 //
 // Copyright (c) 2003-2012 ZeroC, Inc. All rights reserved.
@@ -39,6 +40,13 @@ local class ConnectionInfo
      *
      **/
     string adapterName;
+
+    /**
+     *
+     * The connection id.
+     *
+     **/
+    string connectionId;
 };
 
 /**
@@ -181,16 +189,16 @@ local interface Connection
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
-    string localAddress;
+    string localAddress = "";
 
     /** The local port. */
-    int localPort;
+    int localPort = -1;
 
     /** The remote address. */
-    string remoteAddress;
+    string remoteAddress = "";
 
     /** The remote port. */
-    int remotePort;
+    int remotePort = -1;
 };
 
 /**
@@ -213,7 +221,7 @@ local class UDPConnectionInfo extends IPConnectionInfo
     string mcastAddress;
 
     /** The multicast port. */
-    int mcastPort;
+    int mcastPort = -1;
 };
 
 };

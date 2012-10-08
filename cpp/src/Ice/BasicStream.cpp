@@ -2887,8 +2887,8 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
     }
     else
     {
-        throw MarshalException(__FILE__, 
-                               __LINE__, 
+        throw MarshalException(__FILE__,
+                               __LINE__,
                                "compact format prevents slicing (the sender should use the sliced format instead)");
     }
 

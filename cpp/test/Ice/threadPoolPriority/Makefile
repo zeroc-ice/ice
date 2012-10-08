@@ -28,7 +28,8 @@ SCOBJS		= ServerCustomThreadPool.o \
 		  TestI.o
 
 SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp) \
+		  $(SCOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
 

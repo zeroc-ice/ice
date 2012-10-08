@@ -17,9 +17,11 @@
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>
 #include <Ice/ReplyStatus.h>
+#include <Ice/ProxyFactory.h>
 
 using namespace std;
 using namespace Ice;
+using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
 IceInternal::LocalExceptionWrapper::LocalExceptionWrapper(const LocalException& ex, bool r) :
@@ -81,8 +83,9 @@ IceInternal::LocalExceptionWrapper::retry() const
 }
 
 IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation, OperationMode mode, 
-                                const Context* context) :
+                                const Context* context, InvocationObserver& observer) :
     _handler(handler),
+    _observer(observer),
     _state(StateUnsent),
     _encoding(handler->getReference()->getEncoding()),
     _is(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
@@ -156,6 +159,10 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     {
         abort(ex);
     }
+}
+
+Outgoing::~Outgoing()
+{
 }
 
 bool
@@ -349,6 +356,11 @@ IceInternal::Outgoing::sent(bool notify)
         //
         _sent = true;
     }
+
+    if(_handler->getReference()->getMode() != Reference::ModeTwoway)
+    {
+        _remoteObserver.detach();
+    }
 }
 
 void
@@ -359,6 +371,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
     assert(_handler->getReference()->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
     assert(_state <= StateInProgress);
+    _remoteObserver.detach();
 
     _is.swap(is);
     Byte replyStatus;
@@ -510,6 +523,8 @@ IceInternal::Outgoing::finished(const LocalException& ex, bool sent)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(_state <= StateInProgress);
+    _remoteObserver.detach();
+
     _state = StateFailed;
     _exception.reset(ex.ice_clone());
     _sent = sent;
@@ -524,26 +539,32 @@ IceInternal::Outgoing::throwUserException()
         _is.startReadEncaps();
         _is.throwException();
     }
-    catch(const Ice::UserException&)
+    catch(const Ice::UserException& ex)
     {
+        if(_observer)
+        {
+            _observer.failed(ex.ice_name());
+        }
         _is.endReadEncaps();
         throw;
     }
 }
 
-IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler) :
+IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler, InvocationObserver& observer) :
     _handler(handler),
     _connection(0),
     _sent(false),
-    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding)
+    _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
+    _observer(observer)
 {
 }
 
-IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* instance) :
+IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* instance, InvocationObserver& observer) :
     _handler(0),
     _connection(connection),
     _sent(false), 
-    _os(instance, Ice::currentProtocolEncoding)
+    _os(instance, Ice::currentProtocolEncoding),
+    _observer(observer)
 {
 }
 
@@ -558,7 +579,7 @@ IceInternal::BatchOutgoing::invoke()
         {
             _monitor.wait();
         }
-        
+        _remoteObserver.detach();
         if(_exception.get())
         {
             _exception->ice_throw();

@@ -25,18 +25,17 @@ using namespace IceSSL;
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, 
                              const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding, 
                              const string& conId, bool co) :
-    IceInternal::EndpointI(protocol, encoding),
+    IceInternal::EndpointI(protocol, encoding, conId),
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _connectionId(conId),
     _compress(co)
 {
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    IceInternal::EndpointI(Ice::currentProtocol, instance->defaultEncoding()),
+    IceInternal::EndpointI(Ice::currentProtocol, instance->defaultEncoding(), ""),
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -383,7 +382,7 @@ IceSSL::EndpointI::transceiver(IceInternal::EndpointIPtr& endp) const
 vector<IceInternal::ConnectorPtr>
 IceSSL::EndpointI::connectors() const
 {
-    return connectors(IceInternal::getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<EndpointI*>(this));
 }
 
 void
@@ -446,6 +445,16 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
+    if(_protocol != p->_protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != p->_encoding) 
+    {
+        return false;
+    }
+
     if(_host != p->_host)
     {
         return false;
@@ -489,6 +498,24 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
     }
 
     if(this == p)
+    {
+        return false;
+    }
+
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol) 
+    {
+        return false;
+    }
+
+    if(_encoding < p->_encoding) 
+    {
+        return true;
+    }
+    else if(p->_encoding < _encoding) 
     {
         return false;
     }

@@ -73,21 +73,6 @@ private:
     const StringConverterPtr _converter;
 };
 
-
-class PropertiesAdminI : public PropertiesAdmin
-{
-public:
-    
-    PropertiesAdminI(const PropertiesPtr&);
-    
-    virtual std::string getProperty(const std::string&, const Current&);
-    virtual PropertyDict getPropertiesForPrefix(const std::string&, const Current&);
-    
-private:
-
-    const PropertiesPtr _properties; 
-};
-
 }
 
 #endif

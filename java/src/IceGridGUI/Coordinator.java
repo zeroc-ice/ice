@@ -66,6 +66,8 @@ import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 
 import IceGrid.*;
 
+import IceGridGUI.LiveDeployment.GraphView;
+
 //
 // This class coordinates the communications between the various objects
 // that make up the IceGrid GUI.
@@ -346,6 +348,12 @@ public class Coordinator
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVER_ICEBOX));
             _newTemplateMenu.add(_appActionsForMenu.get(IceGridGUI.Application.TreeNode.NEW_TEMPLATE_SERVICE));
 
+            //
+            // New Graph sub-menu
+            //
+            _newMenu.addSeparator();
+            _newMenu.add(_newGraph);
+
             fileMenu.addSeparator();
             fileMenu.add(_login);
             fileMenu.add(_logout);
@@ -358,6 +366,7 @@ public class Coordinator
             fileMenu.add(_save);
             fileMenu.add(_saveToFile);
             fileMenu.add(_saveToRegistry);
+            fileMenu.add(_saveToRegistryWithoutRestart);
             fileMenu.addSeparator();
             fileMenu.add(_discardUpdates);
             if(!System.getProperty("os.name").startsWith("Mac OS"))
@@ -550,6 +559,10 @@ public class Coordinator
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/save_to_registry.png"));
             add(button);
+            button = new JButton(_saveToRegistryWithoutRestart);
+            button.setText(null);
+            button.setIcon(Utils.getIcon("/icons/24x24/save_without_restart.png"));
+            add(button);
             button = new JButton(_saveToFile);
             button.setText(null);
             button.setIcon(Utils.getIcon("/icons/24x24/save_to_file.png"));
@@ -663,6 +676,11 @@ public class Coordinator
     public Action getSaveToRegistryAction()
     {
         return _saveToRegistry;
+    }
+
+    public Action getSaveToRegistryWithoutRestartAction()
+    {
+        return _saveToRegistryWithoutRestart;
     }
 
     public Action getSaveToFileAction()
@@ -1048,7 +1066,7 @@ public class Coordinator
         {
             if(_traceSaveToRegistry)
             {
-                traceSaveToRegistry("lastestSerial is " + _latestSerial);
+                traceSaveToRegistry("latestSerial is " + _latestSerial);
             }
 
             if(_writeSerial <= _latestSerial)
@@ -1208,6 +1226,7 @@ public class Coordinator
         _acquireExclusiveWriteAccess.setEnabled(false);
         _releaseExclusiveWriteAccess.setEnabled(false);
         _saveToRegistry.setEnabled(false);
+        _saveToRegistryWithoutRestart.setEnabled(false);
     }
 
     AdminSessionPrx login(SessionKeeper.LoginInfo info,
@@ -1959,6 +1978,22 @@ public class Coordinator
             {
                 public void actionPerformed(ActionEvent e)
                 {
+                    if(_graphViews.size() > 0)
+                    {
+                        if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(getMainFrame(),
+                                                                            "Close all open Graph Views and logout?",
+                                                                            "Confirm logout",
+                                                                            JOptionPane.YES_NO_OPTION))
+                        {
+                            return;
+                        }
+                        
+                        java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
+                        for(GraphView v : views)
+                        {
+                            v.close();
+                        }
+                    }
                     _sessionKeeper.logout(true);
                 }
             };
@@ -1997,6 +2032,15 @@ public class Coordinator
         _releaseExclusiveWriteAccess.putValue(Action.SHORT_DESCRIPTION,
                                               "Release exclusive write access on the registry");
         _releaseExclusiveWriteAccess.setEnabled(false);
+
+        _newGraph = new AbstractAction("Graph")
+            {
+                public void actionPerformed(ActionEvent e)
+                {
+                    createGraphView();
+                }
+            };
+        _newGraph.setEnabled(false);
 
         _showLiveDeploymentFilters = new AbstractAction("Filter live deployment")
             {
@@ -2158,15 +2202,26 @@ public class Coordinator
                        KeyStroke.getKeyStroke(KeyEvent.VK_S, MENU_MASK));
         _save.putValue(Action.SHORT_DESCRIPTION, "Save");
 
-        _saveToRegistry = new AbstractAction("Save to Registry")
+        _saveToRegistry = new AbstractAction("Save to Registry (Servers may restart)")
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    getCurrentTab().saveToRegistry();
+                    getCurrentTab().saveToRegistry(true);
                 }
             };
         _saveToRegistry.setEnabled(false);
-        _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry");
+        _saveToRegistry.putValue(Action.SHORT_DESCRIPTION, "Save to registry (servers may restart)");
+
+
+        _saveToRegistryWithoutRestart = new AbstractAction("Save to Registry (No server restart)")
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    getCurrentTab().saveToRegistry(false);
+                }
+            };
+        _saveToRegistryWithoutRestart.setEnabled(false);
+        _saveToRegistryWithoutRestart.putValue(Action.SHORT_DESCRIPTION, "Save to registry (no server restart)");
 
         _saveToFile = new AbstractAction("Save to File")
             {
@@ -2384,6 +2439,20 @@ public class Coordinator
         _mainFrame.getContentPane().add(_mainPane, BorderLayout.CENTER);
     }
 
+    public GraphView createGraphView()
+    {
+        StringBuilder title = new StringBuilder();
+        title.append("Graph");
+        if(_graphViews.size() > 0)
+        {
+            title.append(" - ");
+            title.append(Integer.toString(_graphViews.size()));
+        }
+        GraphView view = new GraphView(Coordinator.this, title.toString());
+        _graphViews.add(view);
+        return view;
+    }
+
     public LiveDeploymentPane getLiveDeploymentPane()
     {
         return _liveDeploymentPane;
@@ -2530,6 +2599,23 @@ public class Coordinator
 
     void exit(int status)
     {
+        if(_graphViews.size() > 0)
+        {
+            if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(getMainFrame(),
+                                                                       "Close all open windows and exit?",
+                                                                       "Confirm exit",
+                                                                       JOptionPane.YES_NO_OPTION))
+            {
+                return;
+            }
+            
+            java.util.List<GraphView> views = new java.util.ArrayList<GraphView>(_graphViews);
+            for(GraphView v : views)
+            {
+                v.close();
+            }
+        }
+
         if(_openChooser != null)
         {
             File dir = _openChooser.getCurrentDirectory();
@@ -2658,7 +2744,7 @@ public class Coordinator
         _newServerMenu.setEnabled(false);
         _newServiceMenu.setEnabled(false);
         _newTemplateMenu.setEnabled(false);
-
+        
         _appMenu.setEnabled(true);
 
         _nodeMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_NODE]);
@@ -2702,6 +2788,11 @@ public class Coordinator
         _serviceMenu.setEnabled(false);
     }
 
+    public void removeGraphView(GraphView view)
+    {
+        _graphViews.remove(view);
+    }
+
     public boolean traceObservers()
     {
         return _traceObservers;
@@ -2726,11 +2817,17 @@ public class Coordinator
     {
         _connected = connected;
         _statusBar.setConnected(connected);
+        _newGraph.setEnabled(connected);
     }
 
     public boolean connected()
     {
         return _connected;
+    }
+
+    public GraphView[] getGraphViews()
+    {
+        return _graphViews.toArray(new GraphView[_graphViews.size()]);
     }
 
     //
@@ -2791,12 +2888,15 @@ public class Coordinator
     private Action _acquireExclusiveWriteAccess;
     private Action _releaseExclusiveWriteAccess;
 
+    private Action _newGraph;
+
     private Action _showLiveDeploymentFilters;
     private Action _openApplicationFromFile;
     private Action _openApplicationFromRegistry;
     private Action _closeApplication;
     private Action _save;
     private Action _saveToRegistry;
+    private Action _saveToRegistryWithoutRestart;
     private Action _saveToFile;
     private Action _discardUpdates;
     private Action _exit;
@@ -2857,6 +2957,8 @@ public class Coordinator
     private Process _icegridadminProcess;
     private String _fileParser;
     private boolean _connected;
+
+    private java.util.List<GraphView> _graphViews = new java.util.ArrayList<GraphView>();
 
     static private final int HISTORY_MAX_SIZE = 20;
 }

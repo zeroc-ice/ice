@@ -33,6 +33,8 @@ Java version
 
 Ice for Java requires J2SE 1.5.0 or later.
 
+The graphical IceGrid administrative tool requires J2SE 7u6 or later.
+
 You can download Java5 and Java6 for Solaris, Windows, and Linux from:
 
   http://www.oracle.com/technetwork/java/index.html
@@ -139,9 +141,9 @@ The libraries are available here:
 The IceGrid administrative tool has been tested with the following
 versions:
 
-  JGoodies Common 1.2.0
-  JGoodies Forms 1.4.1
-  JGoodies Looks 2.4.1
+  JGoodies Common 1.4.0
+  JGoodies Forms 1.6.0
+  JGoodies Looks 2.5.2
 
 
 ProGuard
@@ -154,7 +156,7 @@ ProGuard is available here:
 
   http://proguard.sourceforge.net
 
-Ice for Java has been tested with ProGuard 4.6.
+Ice for Java has been tested with ProGuard 4.8.
 
 
 Android

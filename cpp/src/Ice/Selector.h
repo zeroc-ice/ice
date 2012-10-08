@@ -11,6 +11,8 @@
 #define ICE_SELECTOR_H
 
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/Monitor.h>
+#include <IceUtil/Mutex.h>
 
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>

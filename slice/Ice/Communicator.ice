@@ -13,6 +13,7 @@
 
 #include <Ice/LoggerF.ice>
 #include <Ice/StatsF.ice>
+#include <Ice/InstrumentationF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/RouterF.ice>
@@ -33,7 +34,7 @@
  **/
 module Ice
 {
-    
+
 /**
  *
  * The central object in Ice. One or more communicators can be
@@ -164,7 +165,7 @@ local interface Communicator
      * proxy properties.
      *
      * @param property The base property name.
-     * 
+     *
      * @return The proxy.
      *
      **/
@@ -341,13 +342,13 @@ local interface Communicator
     /**
      * Get the implicit context associated with this communicator.
      *
-     * @return The implicit context associated with this communicator; 
-     * returns null when the property Ice.ImplicitContext is not set 
+     * @return The implicit context associated with this communicator;
+     * returns null when the property Ice.ImplicitContext is not set
      * or is set to None.
      *
      **/
     ["cpp:const"] ImplicitContext getImplicitContext();
-    
+
     /**
      *
      * Get the properties for this communicator.
@@ -380,6 +381,17 @@ local interface Communicator
      *
      **/
     ["cpp:const"] Stats getStats();
+
+    /**
+     *
+     * Get the observer resolver object for this communicator.
+     *
+     * @return This communicator's observer resolver object.
+     *
+     * @see Stats
+     *
+     **/
+    ["cpp:const"] Ice::Instrumentation::CommunicatorObserver getObserver();
 
     /**
      *
@@ -469,7 +481,7 @@ local interface Communicator
     /**
      *
      * Get a proxy to the main facet of the Admin object. When Ice.Admin.DelayCreation
-     * is greater than 0, it is necessary to call getAdmin() after the communicator is 
+     * is greater than 0, it is necessary to call getAdmin() after the communicator is
      * initialized to create the Admin object. Otherwise, the Admin object is created
      * automatically after all the plug-ins are initialized.
      *
@@ -478,7 +490,7 @@ local interface Communicator
      *
      **/
     ["cpp:const"] Object* getAdmin();
-    
+
     /**
      *
      * Add a new facet to the Admin object.
@@ -486,22 +498,33 @@ local interface Communicator
      * throws {@link AlreadyRegisteredException}.
      *
      * @param servant The servant that implements the new Admin facet.
-     * @param facet The new Admin facet.
+     * @param facet The name of the new Admin facet.
      *
      **/
     void addAdminFacet(Object servant, string facet);
-    
+
     /**
      *
      * Remove the following facet to the Admin object.
      * Removing a facet that was not previously registered throws 
      * {@link NotRegisteredException}.
      *
-     * @param facet The Admin facet.
-     * @return The servant associated with this Admin facet
+     * @param facet The name of the Admin facet.
+     * @return The servant associated with this Admin facet.
      *
      **/
     Object removeAdminFacet(string facet);
+
+    /**
+     *
+     * Returns a facet of the Admin object.
+     *
+     * @param facet The name of the Admin facet.
+     * @return The servant associated with this Admin facet, or
+     * null if no facet is registered with the given name.
+     *
+     **/
+    Object findAdminFacet(string facet);
 };
 
 };

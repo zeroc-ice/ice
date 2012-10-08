@@ -29,6 +29,15 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
         setState(StateClosed);
     }
 
+    public synchronized void
+    updateConnectionObservers()
+    {
+        for(Ice.ConnectionI connection : _connections)
+        {
+            connection.updateObserver();
+        }
+    }
+
     public void
     waitUntilHolding()
     {

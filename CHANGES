@@ -27,6 +27,14 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- IceGrid and the IceGrid administrative clients have been enhanced to
+  support updating server configuration properties at runtime without
+  requiring the servers to be restarted.
+
+- Added support for updating Ice properties at runtime using the Ice
+  administrative "Properties" facet. The facet also allows the user
+  code to register a callback to be notified of the updates.
+
 - Fixed a bug where batched requests could cause invalid
   Ice::UnmarshalOutOfBoundsException exceptions if a request from the
   batch failed because no servants could be found to dispatch the

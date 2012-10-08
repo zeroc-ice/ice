@@ -443,7 +443,6 @@ IceInternal::TcpTransceiver::toString() const
 Ice::ConnectionInfoPtr 
 IceInternal::TcpTransceiver::getInfo() const
 {
-    assert(_fd != INVALID_SOCKET);
     Ice::TCPConnectionInfoPtr info = new Ice::TCPConnectionInfo();
     fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
     return info;

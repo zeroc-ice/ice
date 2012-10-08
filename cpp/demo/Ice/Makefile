@@ -26,7 +26,8 @@ SUBDIRS		= minimal \
 		  multicast \
 		  nrvo \
 		  plugin \
-		  interleaved
+		  interleaved \
+		  properties
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

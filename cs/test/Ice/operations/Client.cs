@@ -19,7 +19,7 @@ using System.Reflection;
 
 public class Client
 {
-    private static int run(String[] args, Ice.Communicator communicator)
+    private static int run(string[] args, Ice.Communicator communicator)
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator, false);
 

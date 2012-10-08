@@ -215,7 +215,7 @@ class ServerInstanceEditor extends AbstractServerEditor
         }
     }
 
-    private JComboBox _template = new JComboBox();
+    private JComboBox<Object> _template = new JComboBox<Object>();
     private JButton _templateButton;
     private ParameterValuesField _parameters;
 

@@ -52,16 +52,20 @@ SRCS		= Acceptor.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
 		  Instance.cs \
+		  InstrumentationI.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
+		  MetricsAdminI.cs \
+		  MetricsObserverI.cs \
 		  Monitor.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
-		  OPaqueEndpointI.cs \
+		  ObserverHelper.cs \
+		  OpaqueEndpointI.cs \
 		  Optional.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
@@ -126,8 +130,10 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 		  $(GDIR)\LocalException.cs \
 		  $(GDIR)\Locator.cs \
 		  $(GDIR)\Logger.cs \
+		  $(GDIR)\Metrics.cs \
 		  $(GDIR)\ObjectAdapter.cs \
 		  $(GDIR)\ObjectFactory.cs \
+		  $(GDIR)\Instrumentation.cs \
 		  $(GDIR)\Plugin.cs \
 		  $(GDIR)\Process.cs \
 		  $(GDIR)\Properties.cs \

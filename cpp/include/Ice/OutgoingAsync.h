@@ -22,6 +22,7 @@
 #include <Ice/ConnectionIF.h>
 #include <Ice/Current.h>
 #include <Ice/BasicStream.h>
+#include <Ice/ObserverHelper.h>
 
 #ifdef ICE_CPP11
 #   include <functional> // for std::function
@@ -117,8 +118,13 @@ public:
     static void __check(const AsyncResultPtr&, const Connection*, const ::std::string&);
     static void __check(const AsyncResultPtr&, const Communicator*, const ::std::string&);
 
-    void __exception(const Exception&); // Required to be public for AsynchronousException
+    virtual void __exception(const Exception&); // Required to be public for AsynchronousException
     void __sent(); // Required to be public for AsynchronousSent
+
+    virtual void __attachRemoteObserver(const Ice::ConnectionInfoPtr& connection, const Ice::EndpointPtr& endpt)
+    {
+        _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
+    }
 
 protected:
 
@@ -140,7 +146,7 @@ protected:
     const std::string& _operation;
     const IceInternal::CallbackBasePtr _callback;
     const LocalObjectPtr _cookie;
-    
+
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
     IceInternal::BasicStream _is;
     IceInternal::BasicStream _os;
@@ -153,6 +159,8 @@ protected:
     unsigned char _state;
     bool _sentSynchronously;
     IceUtil::UniquePtr<Exception> _exception;
+    IceInternal::InvocationObserver _observer;
+    IceInternal::ObserverHelperT<> _remoteObserver;
 };
 
 }
@@ -315,22 +323,19 @@ private:
     const Ice::ConnectionIPtr _connection;
 };
 
-class ICE_API CommunicatorBatchOutgoingAsync : public BatchOutgoingAsync
+class ICE_API CommunicatorBatchOutgoingAsync : public Ice::AsyncResult
 {
 public:
 
     CommunicatorBatchOutgoingAsync(const Ice::CommunicatorPtr&, const InstancePtr&, const std::string&,
                                    const CallbackBasePtr&, const Ice::LocalObjectPtr&);
 
-    void flushConnection(const Ice::ConnectionPtr&);
+    void flushConnection(const Ice::ConnectionIPtr&);
     void ready();
-
-    void completed(const Ice::AsyncResultPtr&);
-    void sent(const Ice::AsyncResultPtr&);
 
 private:
 
-    void check(const Ice::AsyncResultPtr&, const Ice::LocalException*, bool);
+    void check(bool);
 
     int _useCount;
 };

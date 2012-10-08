@@ -80,6 +80,25 @@ namespace IceInternal
             }
         }
 
+        public void updateConnectionObservers()
+        {
+            _m.Lock();
+            try
+            {
+                foreach(ICollection<Ice.ConnectionI> connections in _connections.Values)
+                {
+                    foreach(Ice.ConnectionI c in connections)
+                    {
+                        c.updateObserver();
+                    }
+                }
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+        }
+
         public void waitUntilFinished()
         {
             Dictionary<Connector, ICollection<Ice.ConnectionI>> connections = null;
@@ -241,14 +260,31 @@ namespace IceInternal
             // Try to establish the connection to the connectors.
             //
             DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+            Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
             ConnectorInfo ci = null;
             for(int i = 0; i < connectors.Count; ++i)
             {
                 ci = connectors[i];
+
+                Ice.Instrumentation.Observer observer = null;
+                if(obsv != null)
+                {
+                    observer = obsv.getConnectionEstablishmentObserver(ci.endpoint, ci.connector.ToString());
+                    if(observer != null)
+                    {
+                        observer.attach();
+                    }
+                }
+
                 try
                 {
                     connection = createConnection(ci.connector.connect(), ci);
                     connection.start(null);
+
+                    if(observer != null)
+                    {
+                        observer.detach();
+                    }
 
                     if(defaultsAndOverrides.overrideCompress)
                     {
@@ -263,6 +299,11 @@ namespace IceInternal
                 }
                 catch(Ice.CommunicatorDestroyedException ex)
                 {
+                    if(observer != null)
+                    {
+                        observer.failed(ex.ice_name());
+                        observer.detach();
+                    }
                     exception = ex;
                     handleConnectionException(exception, hasMore || i < connectors.Count - 1);
                     connection = null;
@@ -270,6 +311,11 @@ namespace IceInternal
                 }
                 catch(Ice.LocalException ex)
                 {
+                    if(observer != null)
+                    {
+                        observer.failed(ex.ice_name());
+                        observer.detach();
+                    }
                     exception = ex;
                     handleConnectionException(exception, hasMore || i < connectors.Count - 1);
                     connection = null;
@@ -1036,12 +1082,21 @@ namespace IceInternal
             //
             public void connectionStartCompleted(Ice.ConnectionI connection)
             {
+                if(_observer != null)
+                {
+                    _observer.detach();
+                }
                 connection.activate();
                 _factory.finishGetConnection(_connectors, _current, connection, this);
             }
 
             public void connectionStartFailed(Ice.ConnectionI connection, Ice.LocalException ex)
             {
+                if(_observer != null)
+                {
+                    _observer.failed(ex.ice_name());
+                    _observer.detach();
+                }
                 _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count);
                 if(ex is Ice.CommunicatorDestroyedException) // No need to continue.
                 {
@@ -1238,6 +1293,18 @@ namespace IceInternal
                 {
                     Debug.Assert(_iter < _connectors.Count);
                     _current = _connectors[_iter++];
+
+                    Ice.Instrumentation.CommunicatorObserver obsv = _factory._instance.initializationData().observer;
+                    if(obsv != null)
+                    {
+                        _observer = obsv.getConnectionEstablishmentObserver(_current.endpoint, 
+                                                                            _current.connector.ToString());
+                        if(_observer != null)
+                        {
+                            _observer.attach();
+                        }
+                    }
+
                     connection = _factory.createConnection(_current.connector.connect(), _current);
                     connection.start(this);
                 }
@@ -1257,6 +1324,7 @@ namespace IceInternal
             private List<ConnectorInfo> _connectors = new List<ConnectorInfo>();
             private int _iter;
             private ConnectorInfo _current;
+            private Ice.Instrumentation.Observer _observer;
         }
 
         private Ice.Communicator _communicator;
@@ -1311,6 +1379,22 @@ namespace IceInternal
             try
             {
                 setState(StateClosed);
+            }
+            finally
+            {
+                _m.Unlock();
+            }
+        }
+
+        public void updateConnectionObservers()
+        {
+            _m.Lock();
+            try
+            {
+                foreach(Ice.ConnectionI connection in _connections)
+                {
+                    connection.updateObserver();
+                }
             }
             finally
             {
@@ -1737,8 +1821,8 @@ namespace IceInternal
                 _transceiver = _endpoint.transceiver(ref _endpoint);
                 if(_transceiver != null)
                 {
-                    Ice.ConnectionI connection =
-                        new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, _transceiver, null, _endpoint, _adapter);
+                    Ice.ConnectionI connection = new Ice.ConnectionI(_adapter.getCommunicator(), _instance, _reaper, 
+                                                                     _transceiver, null, _endpoint, _adapter);
                     connection.start(null);
                     _connections.Add(connection);
                 }

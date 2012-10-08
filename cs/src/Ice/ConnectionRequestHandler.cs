@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections.Generic;
+using Ice.Instrumentation;
 
 namespace IceInternal
 {
@@ -56,9 +57,10 @@ namespace IceInternal
             return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
-        public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
+        public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
+                                    InvocationObserver observer)
         {
-            return _connection.getOutgoing(this, operation, mode, context);
+            return _connection.getOutgoing(this, operation, mode, context, observer);
         }
 
         public void reclaimOutgoing(Outgoing @out)

@@ -19,6 +19,35 @@ namespace IceInternal
 
     public sealed class Instance
     {
+        private class ObserverUpdaterI : Ice.Instrumentation.ObserverUpdater
+        {
+            public ObserverUpdaterI(Instance instance)
+            {
+                _instance = instance;
+            }
+            
+            public void updateConnectionObservers()
+            {
+                _instance.outgoingConnectionFactory().updateConnectionObservers();
+                _instance.objectAdapterFactory().updateConnectionObservers();
+            }
+
+            public void updateThreadObservers()
+            {
+                _instance.clientThreadPool().updateObservers();
+                ThreadPool serverThreadPool = _instance.serverThreadPool(false);
+                if(serverThreadPool != null)
+                {
+                    serverThreadPool.updateObservers();
+                }
+                _instance.objectAdapterFactory().updateThreadObservers();
+                _instance.endpointHostResolver().updateObserver();
+                _instance.asyncIOThread().updateObserver();
+            }
+            
+            private Instance _instance;
+        };
+
         public bool destroyed()
         {
             return _state == StateDestroyed;
@@ -195,7 +224,7 @@ namespace IceInternal
             }
         }
         
-        public ThreadPool serverThreadPool()
+        public ThreadPool serverThreadPool(bool create)
         {
             lock(this)
             {
@@ -204,7 +233,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
-                if(_serverThreadPool == null) // Lazy initialization.
+                if(_serverThreadPool == null && create) // Lazy initialization.
                 {
                     int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
                     _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
@@ -494,7 +523,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
             
-                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     if(_adminFacets.ContainsKey(facet))
                     {
@@ -509,7 +538,6 @@ namespace IceInternal
             }
         }
 
-
         public Ice.Object 
         removeAdminFacet(string facet)
         {
@@ -521,7 +549,7 @@ namespace IceInternal
                 }
                 
                 Ice.Object result = null;
-                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     try
                     {
@@ -537,6 +565,35 @@ namespace IceInternal
                 else
                 {
                     result = _adminAdapter.removeFacet(_adminIdentity, facet);
+                }
+                return result;
+            }
+        }
+
+        public Ice.Object 
+        findAdminFacet(string facet)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                Ice.Object result = null;
+                if(_adminAdapter == null || (_adminFacetFilter.Count > 0 && !_adminFacetFilter.Contains(facet)))
+                {
+                    try
+                    {
+                        result = _adminFacets[facet];
+                    }
+                    catch(KeyNotFoundException)
+                    {
+                    }
+                }
+                else
+                {
+                    result = _adminAdapter.findFacet(_adminIdentity, facet);
                 }
                 return result;
             }
@@ -780,8 +837,31 @@ namespace IceInternal
                         _adminFacetFilter.Add(s);
                     }
                 }
-                _adminFacets.Add("Properties", new PropertiesAdminI(_initData.properties));
+
                 _adminFacets.Add("Process", new ProcessI(communicator));
+
+                MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
+                _adminFacets.Add("MetricsAdmin", admin);
+                
+                PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+                _adminFacets.Add("Properties", props);
+
+                //
+                // Setup the communicator observer only if the user didn't already set an
+                // Ice observer resolver and if the admininistrative endpoints are set.
+                //
+                if(_initData.observer == null && 
+                   (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("MetricsAdmin")) &&
+                   _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
+                {
+                     IceMX.CommunicatorObserverI observer = new IceMX.CommunicatorObserverI(admin);
+                    _initData.observer = observer;
+
+                    //
+                    // Make sure the admin plugin receives property updates.
+                    //
+                    props.addUpdateCallback(admin);
+                }
             }
             catch(Ice.LocalException)
             {
@@ -800,7 +880,15 @@ namespace IceInternal
             Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
             pluginManagerImpl.loadPlugins(ref args);
 #endif
-            
+
+            //
+            // Set observer updater
+            //
+            if(_initData.observer != null)
+            {
+                _initData.observer.setObserverUpdater(new ObserverUpdaterI(this));
+            }
+
             //
             // Create threads.
             //

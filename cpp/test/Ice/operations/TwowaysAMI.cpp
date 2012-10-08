@@ -947,7 +947,7 @@ public:
         called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception&)
+    virtual void ice_exception(const ::Ice::Exception& ex)
     {
         test(false);
     }

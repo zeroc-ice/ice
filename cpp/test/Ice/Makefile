@@ -44,7 +44,9 @@ SUBDIRS		= proxy \
 		  threadPoolPriority \
 		  invoke \
 		  properties \
-		  plugin
+		  plugin \
+		  admin \
+		  metrics
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

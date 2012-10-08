@@ -295,6 +295,14 @@ generated from the section label.
         <suffix name="ThreadPool" class="deprecatedthreadpool"/>
     </class>
 
+    <class name="mx" prefix-only="false">
+        <suffix name="GroupBy" />
+        <suffix name="Map" />
+        <suffix name="RetainDetached" />
+        <suffix name="Accept" />
+        <suffix name="Reject" />
+    </class>
+
     <section name="Ice">
         <property name="ACM.Client" />
         <property name="ACM.Server" />
@@ -355,6 +363,7 @@ generated from the section label.
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
+        <property name="Trace.Admin.Properties" />
         <property name="Trace.GC" />
         <property name="Trace.Location" deprecated="true" deprecatedBy="Ice.Trace.Locator" />
         <property name="Trace.Locator" />
@@ -377,6 +386,10 @@ generated from the section label.
         <property name="Warn.UnknownProperties" />
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
+    </section>
+
+    <section name="IceMX">
+        <property name="Metrics.[any]" class="mx" />
     </section>
 
     <section name="IceBox">

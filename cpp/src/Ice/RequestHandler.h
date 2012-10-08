@@ -15,6 +15,7 @@
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/OutgoingAsyncF.h>
+#include <Ice/ProxyF.h>
 #include <Ice/ConnectionIF.h>
 
 namespace IceInternal
@@ -43,7 +44,7 @@ public:
     const ReferencePtr& getReference() const { return _reference; } // Inlined for performances.
 
     virtual Ice::ConnectionIPtr getConnection(bool) = 0;
-
+    
 protected:
 
     RequestHandler(const ReferencePtr&);

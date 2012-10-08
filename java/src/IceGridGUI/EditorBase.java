@@ -62,9 +62,17 @@ public abstract class EditorBase
 
         scrollPane.setBorder(Borders.DIALOG);
 
-        _propertiesPanel = new JPanel(new BorderLayout());
+        if(_propertiesPanel == null)
+        {
+            _propertiesPanel = new JPanel(new BorderLayout());
+        }
+        else
+        {
+            _propertiesPanel.removeAll();
+        }
         _propertiesPanel.add(scrollPane, BorderLayout.CENTER);
         _propertiesPanel.setBorder(Borders.EMPTY);
+        _propertiesPanel.revalidate();
     }
 
     protected JPanel _propertiesPanel;

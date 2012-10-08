@@ -26,7 +26,7 @@ import java.util.Enumeration;
 import IceGrid.*;
 import IceGridGUI.*;
 
-class Server extends ListArrayTreeNode
+public class Server extends ListArrayTreeNode
 {
     //
     // Actions
@@ -123,6 +123,7 @@ class Server extends ListArrayTreeNode
                 public void response()
                 {
                     amiSuccess(prefix);
+                    rebuild(Server.this, false);
                 }
 
                 public void exception(Ice.UserException e)
@@ -396,6 +397,72 @@ class Server extends ListArrayTreeNode
         }
     }
 
+    public void fetchMetricsViewNames()
+    {
+        if(_metricsRetrieved)
+        {
+            return; // Already loaded.
+        }
+        _metricsRetrieved = true;
+
+        Ice.ObjectPrx admin = getServerAdmin();
+        if(admin == null)
+        {
+            return;
+        }
+        final IceMX.MetricsAdminPrx metricsAdmin = 
+                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
+        IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
+            {
+                public void response(final String[] names)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                _metricsNames = names;
+                                createMetrics(metricsAdmin);
+                                rebuild(Server.this, false);
+                            }
+                        });
+                }
+
+                public void exception(final Ice.LocalException e)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                if(e instanceof Ice.ObjectNotExistException)
+                                {
+                                    // Server is down.
+                                }
+                                else if(e instanceof Ice.FacetNotExistException)
+                                {
+                                    // MetricsAdmin facet not present. Old server version?
+                                }
+                                else
+                                {
+                                    e.printStackTrace();
+                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                                                  "Error: " + e.toString(), "Error",
+                                                                  JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                        });
+                }
+            };
+        try
+        {
+            metricsAdmin.begin_getMetricsViewNames(cb);
+        }
+        catch(Ice.LocalException e)
+        {
+            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     void showRuntimeProperties()
     {
         Ice.ObjectPrx serverAdmin = getServerAdmin();
@@ -627,7 +694,7 @@ class Server extends ListArrayTreeNode
            ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
            boolean enabled)
     {
-        super(parent, serverId, 3);
+        super(parent, serverId, 4);
         _resolver = resolver;
 
         _instanceDescriptor = instanceDescriptor;
@@ -637,6 +704,7 @@ class Server extends ListArrayTreeNode
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
+        _childrenArray[3] = _metrics;
 
         update(state, pid, enabled, false);
 
@@ -709,7 +777,16 @@ class Server extends ListArrayTreeNode
         }
     }
 
-    void rebuild(Server server)
+    void updateMetrics()
+    {
+        _metricsRetrieved = false;
+        if(getRoot().getTree().isExpanded(getPath()))
+        {
+            fetchMetricsViewNames();
+        }
+    }
+
+    void rebuild(Server server, boolean fetchMetrics)
     {
         _resolver = server._resolver;
         _instanceDescriptor = server._instanceDescriptor;
@@ -719,10 +796,12 @@ class Server extends ListArrayTreeNode
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
         _services = server._services;
+        _metrics = server._metrics;
 
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
         _childrenArray[2] = _services;
+        _childrenArray[3] = _metrics;
 
         //
         // Need to re-parent all the children
@@ -742,9 +821,19 @@ class Server extends ListArrayTreeNode
             service.reparent(this);
         }
 
-        updateServices();
+        for(MetricsView metrics: _metrics)
+        {
+            metrics.reparent(this);
+        }
 
+        updateServices();
+        
         getRoot().getTreeModel().nodeStructureChanged(this);
+
+        if(fetchMetrics)
+        {
+            updateMetrics();
+        }
     }
 
     void rebuild(Utils.Resolver resolver, boolean variablesChanged, java.util.Set<String> serviceTemplates,
@@ -778,17 +867,22 @@ class Server extends ListArrayTreeNode
             createServices();
             updateServices();
 
+            _metrics.clear();
+
             getRoot().getTreeModel().nodeStructureChanged(this);
+            updateMetrics();
         }
         else if(serviceTemplates != null && serviceTemplates.size() > 0 &&
                 _serverDescriptor instanceof IceBoxDescriptor)
         {
+            _metrics.clear();
             _services.clear();
             _servicePropertySets.clear();
             createServices();
             updateServices();
 
             getRoot().getTreeModel().nodeStructureChanged(this);
+            updateMetrics();
         }
     }
 
@@ -808,6 +902,20 @@ class Server extends ListArrayTreeNode
             else
             {
                 _stateIconIndex = _state.ordinal() + 1;
+            }
+            
+            if(_state == ServerState.Active && getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
+            else
+            {
+                _metricsRetrieved = false;
+                if(_metrics.size() > 0)
+                {
+                    _metrics.clear();
+                    rebuild(this, false);
+                }
             }
 
             if(_serverDescriptor instanceof IceBoxDescriptor)
@@ -1035,6 +1143,17 @@ class Server extends ListArrayTreeNode
         return Utils.getIntVersion(Utils.substitute(_serverDescriptor.iceVersion, _resolver));
     }
 
+    private void createMetrics(IceMX.MetricsAdminPrx metricsAdmin)
+    {
+        if(_metricsNames != null)
+        {
+            for(String name : _metricsNames)
+            {
+                insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
+            }
+        }
+    }
+
     private void createAdapters()
     {
         for(AdapterDescriptor p : _serverDescriptor.adapters)
@@ -1126,7 +1245,6 @@ class Server extends ListArrayTreeNode
         {
             return null;
         }
-
         AdminPrx admin = getCoordinator().getAdmin();
         if(admin == null)
         {
@@ -1155,6 +1273,12 @@ class Server extends ListArrayTreeNode
         return result;
     }
 
+    public java.util.List<MetricsView>
+    getMetrics()
+    {
+        return new java.util.ArrayList<MetricsView>(_metrics);
+    }
+
     private ServerInstanceDescriptor _instanceDescriptor;
     private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
         new java.util.HashMap<String, PropertySetDescriptor>(); // with substituted names!
@@ -1166,14 +1290,17 @@ class Server extends ListArrayTreeNode
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
     private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
     private java.util.List<Service> _services = new java.util.LinkedList<Service>();
+    private java.util.List<MetricsView> _metrics = new java.util.LinkedList<MetricsView>();
 
     private java.util.Set<String> _startedServices = new java.util.HashSet<String>();
+    private String[] _metricsNames;
 
     private ServerState _state;
     private boolean _enabled;
     private int _stateIconIndex;
     private int _pid;
     private String _toolTip;
+    private boolean _metricsRetrieved = false;
 
     private IceBox.ServiceObserverPrx _serviceObserver;
 

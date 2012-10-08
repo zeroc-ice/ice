@@ -18,7 +18,7 @@ OBJS		= Client.o
 
 OBJFS		= ClientFail.o
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.o=.cpp) $(OBJFS:.o=.cpp)
 
 GENPIC          = no
 

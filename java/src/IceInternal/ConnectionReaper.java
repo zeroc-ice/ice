@@ -12,9 +12,13 @@ package IceInternal;
 public class ConnectionReaper
 {
     synchronized public void
-    add(Ice.ConnectionI connection)
+    add(Ice.ConnectionI connection, Ice.Instrumentation.Observer observer)
     {
         _connections.add(connection);
+        if(observer != null)
+        {
+            observer.detach();
+        }
     }
 
     synchronized public java.util.List<Ice.ConnectionI>

@@ -37,5 +37,3 @@ plugins/Plugin.dll: $(P_SRCS)
 
 clean::
 	rm -f plugins/Plugin.dll
-
-include .depend

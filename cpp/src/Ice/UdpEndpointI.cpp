@@ -25,20 +25,19 @@ using namespace IceInternal;
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, const string& mif, 
                                         Int mttl, const Ice::ProtocolVersion& protocol, 
                                         const Ice::EncodingVersion& encoding, bool conn, const string& conId, bool co) :
-    EndpointI(protocol, encoding),
+    EndpointI(protocol, encoding, conId),
     _instance(instance),
     _host(ho),
     _port(po),
     _mcastInterface(mif),
     _mcastTtl(mttl),
     _connect(conn),
-    _connectionId(conId),
     _compress(co)
 {
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding),
+    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding, ""),
     _instance(instance),
     _port(0),
     _mcastTtl(-1),
@@ -417,7 +416,7 @@ IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::UdpEndpointI::connectors() const
 {
-    return connectors(getAddresses(_host, _port, _instance->protocolSupport(), true));
+    return _instance->endpointHostResolver()->resolve(_host, _port, const_cast<UdpEndpointI*>(this));
 }
 
 void

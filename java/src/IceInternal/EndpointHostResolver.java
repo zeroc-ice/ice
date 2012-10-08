@@ -17,6 +17,7 @@ public class EndpointHostResolver
         try
         {
             _thread = new HelperThread();
+            updateObserver();
             if(_instance.initializationData().properties.getProperty("Ice.ThreadPriority").length() > 0)
             {
                 _thread.setPriority(Util.getThreadPriorityProperty(_instance.initializationData().properties, "Ice"));
@@ -31,6 +32,43 @@ public class EndpointHostResolver
         }
     }
 
+    public java.util.List<Connector> 
+    resolve(String host, int port, EndpointI endpoint)
+    {
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        Ice.Instrumentation.Observer observer = null;
+        if(obsv != null)
+        {
+            observer = obsv.getEndpointLookupObserver(endpoint);
+            if(observer != null)
+            {
+                observer.attach();
+            }
+        }
+    
+        java.util.List<Connector> connectors = null;
+        try 
+        {
+            connectors = endpoint.connectors(Network.getAddresses(host, port, _instance.protocolSupport()));
+        }
+        catch(Ice.LocalException ex)
+        {
+            if(observer != null)
+            {
+                observer.failed(ex.ice_name());
+            }
+            throw ex;
+        }
+        finally
+        {
+            if(observer != null)
+            {
+                observer.detach();
+            }
+        }
+        return connectors;
+    }
+    
     synchronized public void
     resolve(String host, int port, EndpointI endpoint, EndpointI_connectors callback)
     {
@@ -47,6 +85,17 @@ public class EndpointHostResolver
         entry.port = port;
         entry.endpoint = endpoint;
         entry.callback = callback;
+
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        if(obsv != null)
+        {
+            entry.observer = obsv.getEndpointLookupObserver(endpoint);
+            if(entry.observer != null)
+            {
+                entry.observer.attach();
+            }
+        }
+
         _queue.add(entry);
         notify();
     }
@@ -71,6 +120,10 @@ public class EndpointHostResolver
             catch(InterruptedException ex)
             {
             }
+            if(_observer != null)
+            {
+                _observer.detach();
+            }
         }
     }
 
@@ -79,7 +132,8 @@ public class EndpointHostResolver
     {
         while(true)
         {
-            ResolveEntry resolve;
+            ResolveEntry r;
+            Ice.Instrumentation.ThreadObserver threadObserver;
             synchronized(this)
             {
                 while(!_destroyed && _queue.isEmpty())
@@ -98,26 +152,72 @@ public class EndpointHostResolver
                     break;
                 }
 
-                resolve = (ResolveEntry)_queue.removeFirst();
+                r = (ResolveEntry)_queue.removeFirst();
+                threadObserver = _observer;
             }
 
+            int protocol = _instance.protocolSupport();
             try
             {
-                resolve.callback.connectors(
-                    resolve.endpoint.connectors(
-                        Network.getAddresses(resolve.host, resolve.port, _instance.protocolSupport())));
+                if(threadObserver != null)
+                {
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                }
+
+                r.callback.connectors(r.endpoint.connectors(Network.getAddresses(r.host, r.port, protocol)));
+
+                if(threadObserver != null)
+                {
+                    threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther, 
+                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
+                }
             }
             catch(Ice.LocalException ex)
             {
-                resolve.callback.exception(ex);
+                if(r.observer != null)
+                {
+                    r.observer.failed(ex.ice_name());
+                }
+                r.callback.exception(ex);
+            }
+            finally
+            {
+                if(r.observer != null)
+                {
+                    r.observer.detach();
+                }
             }
         }
 
-        for(ResolveEntry p : _queue)
+        for(ResolveEntry entry : _queue)
         {
-            p.callback.exception(new Ice.CommunicatorDestroyedException());
+            Ice.CommunicatorDestroyedException ex = new Ice.CommunicatorDestroyedException();
+            entry.callback.exception(ex);
+            if(entry.observer != null)
+            {
+                entry.observer.failed(ex.ice_name());
+                entry.observer.detach();
+            }
         }
         _queue.clear();
+    }
+
+    synchronized public void
+    updateObserver()
+    {
+        Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
+        if(obsv != null)
+        {
+            _observer = obsv.getThreadObserver("Communicator", 
+                                               _thread.getName(), 
+                                               Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                                               _observer);
+            if(_observer != null)
+            {
+                _observer.attach();
+            }
+        }
     }
 
     static class ResolveEntry
@@ -126,12 +226,14 @@ public class EndpointHostResolver
         int port;
         EndpointI endpoint;
         EndpointI_connectors callback;
+        Ice.Instrumentation.Observer observer;
     }
 
     private final Instance _instance;
     private boolean _destroyed;
     private java.util.LinkedList<ResolveEntry> _queue = new java.util.LinkedList<ResolveEntry>();
-
+    private Ice.Instrumentation.ThreadObserver _observer;
+    
     private final class HelperThread extends Thread
     {
         HelperThread()
@@ -141,7 +243,7 @@ public class EndpointHostResolver
             {
                 threadName += "-";
             }
-            setName(threadName + "Ice.EndpointHostResolverThread");
+            setName(threadName + "Ice.HostResolver");
         }
 
         public void

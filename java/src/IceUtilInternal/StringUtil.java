@@ -483,4 +483,58 @@ public final class StringUtil
         }
         return 0; // Not quoted
     }
+
+    public static boolean 
+    match(String s, String pat, boolean emptyMatch)
+    {
+        assert(s.length() > 0);
+        assert(pat.length() > 0);
+
+        //
+        // If pattern does not contain a wildcard just compare strings.
+        //
+        int beginIndex = pat.indexOf('*');
+        if(beginIndex < 0)
+        {
+            return s.equals(pat);
+        }
+
+        //
+        // Make sure start of the strings match
+        //
+        if(beginIndex > s.length() || !s.substring(0, beginIndex).equals(pat.substring(0, beginIndex)))
+        {
+            return false;
+        }
+
+        //
+        // Make sure there is something present in the middle to match the
+        // wildcard. If emptyMatch is true, allow a match of "".
+        //
+        int endLength = pat.length() - beginIndex - 1;
+        if(endLength == 0)
+        {
+            return true;
+        }
+        if(endLength > s.length())
+        {
+            return false;
+        }
+        int endIndex = s.length() - endLength;
+        if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
+        {
+            return false;
+        }
+
+        //
+        // Make sure end of the strings match
+        //
+        if(!s.substring(endIndex, s.length() - endIndex).equals(
+               pat.substring(beginIndex + 1, pat.length() - beginIndex - 1)))
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

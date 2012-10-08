@@ -163,7 +163,7 @@ class ObjectDialog extends JDialog
 
     private JTextArea _proxy = new JTextArea(3, 40);
     private JTextField _type = new JTextField(40);
-    private JComboBox _typeCombo = new JComboBox(new Object[]{QUERY_OBJECT});
+    private JComboBox<Object> _typeCombo = new JComboBox<Object>(new Object[]{QUERY_OBJECT});
     private JFrame _mainFrame;
 
     static private final Object QUERY_OBJECT = new Object()

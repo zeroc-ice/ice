@@ -49,8 +49,9 @@ main(int argc, char* argv[])
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
-    catch(const Ice::Exception&)
+    catch(const Ice::Exception& ex)
     {
+        cerr << ex << endl;
         status = EXIT_FAILURE;
     }
 

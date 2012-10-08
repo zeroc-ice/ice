@@ -12,6 +12,8 @@
 
 #include <IceStorm/IceStormInternal.h>
 #include <IceStorm/Election.h>
+#include <IceStorm/Instrumentation.h>
+#include <Ice/ObserverHelper.h>
 #include <list>
 
 namespace IceStorm
@@ -65,6 +67,9 @@ public:
 
     Ice::ObjectPtr getServant() const;
 
+    void updateObserver();
+    void updateSubscriberObservers();
+
 private:
 
     IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
@@ -80,6 +85,7 @@ private:
     const std::string _envName;
     const ConnectionPoolPtr _connectionPool; // The connection pool
 
+    IceInternal::ObserverHelperT<IceStorm::Instrumentation::TopicObserver> _observer;
 
     /*const*/ Ice::ObjectPrx _publisherPrx; // The actual publisher proxy.
     /*const*/ TopicLinkPrx _linkPrx; // The link proxy.

@@ -69,7 +69,18 @@ public:
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
                                   const InternalServerDescriptorPtr&, 
                                   const std::string&,
+                                  bool,
                                   const Ice::Current&);
+
+    virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
+                                  const InternalServerDescriptorPtr&, 
+                                  const std::string&,
+                                  const Ice::Current&);
+
+    virtual void loadServerWithoutRestart_async(const AMD_Node_loadServerWithoutRestartPtr&, 
+                                                const InternalServerDescriptorPtr&, 
+                                                const std::string&,
+                                                const Ice::Current&);
 
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, 
                                      const std::string&, 

@@ -272,7 +272,7 @@ public class Service extends ListArrayTreeNode
     Service(Server parent, String serviceName, Utils.Resolver resolver, ServiceInstanceDescriptor descriptor,
             ServiceDescriptor serviceDescriptor, PropertySetDescriptor serverInstancePSDescriptor)
     {
-        super(parent, serviceName, 2);
+        super(parent, serviceName, 3);
         _resolver = resolver;
 
         _instanceDescriptor = descriptor;
@@ -281,6 +281,7 @@ public class Service extends ListArrayTreeNode
 
         _childrenArray[0] = _adapters;
         _childrenArray[1] = _dbEnvs;
+        _childrenArray[2] = _metrics;
 
         createAdapters();
         createDbEnvs();
@@ -331,6 +332,10 @@ public class Service extends ListArrayTreeNode
         if(!_started)
         {
             _started = true;
+            if(getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
             getRoot().getTreeModel().nodeChanged(this);
         }
     }
@@ -340,6 +345,10 @@ public class Service extends ListArrayTreeNode
         if(_started)
         {
             _started = false;
+            if(getRoot().getTree().isExpanded(getPath()))
+            {
+                fetchMetricsViewNames();
+            }
             getRoot().getTreeModel().nodeChanged(this);
         }
     }
@@ -470,15 +479,127 @@ public class Service extends ListArrayTreeNode
         }
     }
 
+    public void fetchMetricsViewNames()
+    {
+        if(_metricsRetrieved)
+        {
+            return; // Already loaded.
+        }
+        _metricsRetrieved = true;
+
+        Ice.ObjectPrx serverAdmin = ((Server)_parent).getServerAdmin();
+        if(serverAdmin == null)
+        {
+            return;
+        }
+        final IceMX.MetricsAdminPrx metricsAdmin =
+                    IceMX.MetricsAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
+                        ".MetricsAdmin"));
+
+        IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
+            {
+                public void response(final String[] names)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                _metricsNames = names;
+                                createMetrics(metricsAdmin);
+                                rebuild(Service.this);
+                            }
+                        });
+                }
+
+                public void exception(final Ice.LocalException e)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                        {
+                            public void run()
+                            {
+                                if(e instanceof Ice.ObjectNotExistException)
+                                {
+                                    // Server is down.
+                                }
+                                else if(e instanceof Ice.FacetNotExistException)
+                                {
+                                    // MetricsAdmin facet not present. Old server version?
+                                }
+                                else
+                                {
+                                    e.printStackTrace();
+                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                                                  "Error: " + e.toString(), "Error",
+                                                                  JOptionPane.ERROR_MESSAGE);
+                                }
+                            }
+                        });
+                }
+            };
+        try
+        {
+            metricsAdmin.begin_getMetricsViewNames(cb);
+        }
+        catch(Ice.LocalException e)
+        {
+            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
+                                          JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void createMetrics(IceMX.MetricsAdminPrx metricsAdmin)
+    {
+        if(_metricsNames != null)
+        {
+            for(String name : _metricsNames)
+            {
+                insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
+            }
+        }
+    }
+
+    void rebuild(Service service)
+    {
+        _adapters = service._adapters;
+        _dbEnvs = service._dbEnvs;
+        _metrics = service._metrics;
+
+        _childrenArray[0] = _adapters;
+        _childrenArray[1] = _dbEnvs;
+        _childrenArray[2] = _metrics;
+
+        //
+        // Need to re-parent all the children
+        //
+        for(Adapter adapter: _adapters)
+        {
+            adapter.reparent(this);
+        }
+
+        for(DbEnv dbEnv: _dbEnvs)
+        {
+            dbEnv.reparent(this);
+        }
+
+        for(MetricsView metrics: _metrics)
+        {
+            metrics.reparent(this);
+        }
+        getRoot().getTreeModel().nodeStructureChanged(this);
+    }
+
     private final ServiceInstanceDescriptor _instanceDescriptor;
     private final ServiceDescriptor _serviceDescriptor;
     private final PropertySetDescriptor _serverInstancePSDescriptor;
     private final Utils.Resolver _resolver;
 
-    private final java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
-    private final java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
+    private java.util.List<Adapter> _adapters = new java.util.LinkedList<Adapter>();
+    private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<DbEnv>();
+    private java.util.List<MetricsView> _metrics = new java.util.LinkedList<MetricsView>();
 
     private boolean _started = false;
+    private boolean _metricsRetrieved = false;
+    private String[] _metricsNames;
 
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;

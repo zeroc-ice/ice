@@ -22,6 +22,7 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/Protocol.h>
 #include <Ice/Network.h>
+#include <Ice/ObserverHelper.h>
 
 #ifndef ICE_OS_WINRT
 #   include <deque>
@@ -150,6 +151,8 @@ public:
     virtual bool operator==(const Ice::LocalObject&) const = 0;
     virtual bool operator<(const Ice::LocalObject&) const = 0;
 
+    const std::string& connectionId() const;
+    
 protected:
     
     virtual ::Ice::Int internal_getHash() const;
@@ -157,7 +160,7 @@ protected:
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 
-    EndpointI(const Ice::ProtocolVersion&, const Ice::EncodingVersion&);
+    EndpointI(const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
     EndpointI();
 
     void parseOption(const std::string&, const std::string&, const std::string&, const std::string&);
@@ -166,6 +169,7 @@ protected:
 
     const Ice::ProtocolVersion _protocol;
     const Ice::EncodingVersion _encoding;
+    const std::string _connectionId;
 
 private:
 
@@ -193,10 +197,12 @@ public:
 
     EndpointHostResolver(const InstancePtr&);
 
+    std::vector<ConnectorPtr> resolve(const std::string&, int, const EndpointIPtr&);
     void resolve(const std::string&, int, const EndpointIPtr&, const EndpointI_connectorsPtr&);
     void destroy();
 
     virtual void run();
+    void updateObserver();
 
 private:
 
@@ -207,11 +213,13 @@ private:
         int port;
         EndpointIPtr endpoint;
         EndpointI_connectorsPtr callback;
+        Ice::Instrumentation::ObserverPtr observer;
     };
 
     const InstancePtr _instance;
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
+    ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
 #endif
 };
 

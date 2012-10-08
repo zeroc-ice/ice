@@ -21,7 +21,6 @@ CXX					= $(TOOLCHAIN_BIN_DIR)/clang++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 
-
 ifeq ($(OPTIMIZE),yes)
      #
      # By default we build binaries with both architectures when optimization is enabled.

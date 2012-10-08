@@ -18,6 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/StatsF.h>
+#include <Ice/InstrumentationF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
@@ -69,7 +70,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ProtocolSupport protocolSupport() const;
     ThreadPoolPtr clientThreadPool();
-    ThreadPoolPtr serverThreadPool();
+    ThreadPoolPtr serverThreadPool(bool create = true);
     EndpointHostResolverPtr endpointHostResolver();
     RetryQueuePtr retryQueue();
     IceUtil::TimerPtr timer();
@@ -85,6 +86,7 @@ public:
     Ice::ObjectPrx getAdmin();
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
+    Ice::ObjectPtr findAdminFacet(const std::string&);
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {

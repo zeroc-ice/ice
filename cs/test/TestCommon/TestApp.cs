@@ -21,7 +21,8 @@ namespace TestCommon
         {
             if(!b)
             {
-                throw new System.Exception();
+                //throw new System.Exception();
+                System.Diagnostics.Debug.Assert(false);
             }
         }
 

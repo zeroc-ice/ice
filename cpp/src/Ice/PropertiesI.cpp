@@ -771,26 +771,3 @@ Ice::PropertiesI::loadConfig()
     PropertyValue pv(value, true);
     _properties["Ice.Config"] = pv;
 }
-
-
-//
-// PropertiesAdminI
-//
-
-
-Ice::PropertiesAdminI::PropertiesAdminI(const PropertiesPtr& properties) :
-    _properties(properties)
-{
-}
-
-string 
-Ice::PropertiesAdminI::getProperty(const string& name, const Ice::Current&)
-{
-    return _properties->getProperty(name);
-}
-
-Ice::PropertyDict 
-Ice::PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Ice::Current&)
-{
-    return _properties->getPropertiesForPrefix(prefix);
-}

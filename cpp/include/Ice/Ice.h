@@ -40,6 +40,9 @@
 #include <Ice/Router.h>
 #include <Ice/DispatchInterceptor.h>
 #include <Ice/Plugin.h>
+#include <Ice/PropertiesAdmin.h>
+#include <Ice/Instrumentation.h>
+#include <Ice/Metrics.h>
 #ifndef ICE_OS_WINRT
 #   include <Ice/Service.h>
 #endif

@@ -38,6 +38,12 @@ Demos in this directory:
 
   This demo illustrates a minimal Ice application.
 
+- properties
+
+  Shows how to access a server's PropertiesAdmin facet in order to
+  retrieve and modify its configuration properties, and how the server
+  can receive notifications whenever its properties are changed.
+
 - session
 
   This demo shows how to use sessions to clean up client-specific

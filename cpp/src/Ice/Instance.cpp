@@ -25,6 +25,7 @@
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
 #include <Ice/PropertiesI.h>
+#include <Ice/PropertiesAdminI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
@@ -35,8 +36,12 @@
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/PropertiesI.h>
-#include <IceUtil/UUID.h>
 #include <Ice/Communicator.h>
+#include <Ice/GC.h>
+#include <Ice/MetricsAdminI.h>
+#include <Ice/InstrumentationI.h>
+ 
+#include <IceUtil/UUID.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -72,6 +77,13 @@ extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 };
 
+namespace IceInternal
+{
+
+extern IceUtil::Handle<IceInternal::GC> theCollector;
+
+}
+
 namespace
 {
 
@@ -101,6 +113,38 @@ public:
 };
 
 Init init;
+
+class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
+{
+public:
+
+    ObserverUpdaterI(InstancePtr instance) : _instance(instance)
+    {
+    }
+
+    void updateConnectionObservers()
+    {
+        _instance->outgoingConnectionFactory()->updateConnectionObservers();
+        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateConnectionObservers);
+    }
+
+    void updateThreadObservers()
+    {
+        _instance->clientThreadPool()->updateObservers();
+        ThreadPoolPtr serverThreadPool = _instance->serverThreadPool(false);
+        if(serverThreadPool)
+        {
+            serverThreadPool->updateObservers();
+        }
+        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
+        _instance->endpointHostResolver()->updateObserver();
+        theCollector->updateObserver(_instance->initializationData().observer);
+    }
+
+private:
+
+    InstancePtr _instance;
+};
 
 }
 
@@ -269,7 +313,7 @@ IceInternal::Instance::clientThreadPool()
 }
 
 ThreadPoolPtr
-IceInternal::Instance::serverThreadPool()
+IceInternal::Instance::serverThreadPool(bool create)
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -278,7 +322,7 @@ IceInternal::Instance::serverThreadPool()
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
     
-    if(!_serverThreadPool) // Lazy initialization.
+    if(!_serverThreadPool && create) // Lazy initialization.
     {
         int timeout = _initData.properties->getPropertyAsInt("Ice.ServerIdleTime");
         _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
@@ -680,6 +724,35 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     {
         result = _adminAdapter->removeFacet(_adminIdentity, facet);  
     }
+
+    return result;
+}
+
+Ice::ObjectPtr
+IceInternal::Instance::findAdminFacet(const string& facet)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    ObjectPtr result;
+
+    if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    {
+        FacetMap::iterator p = _adminFacets.find(facet);
+        if(p != _adminFacets.end())
+        {
+            result = p->second;
+        }
+    }
+    else
+    {
+        result = _adminAdapter->findFacet(_adminIdentity, facet);
+    }
+
     return result;
 } 
 
@@ -1005,7 +1078,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         
         _retryQueue = new RetryQueue(this);
 
-
         if(_initData.wstringConverter == 0)
         {
             _initData.wstringConverter = new UnicodeWstringConverter();
@@ -1022,8 +1094,30 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
         }
 
-        _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+
+        MetricsAdminIPtr admin = new MetricsAdminI(_initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
+
+        PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("Properties",props));
+
+        //
+        // Setup the communicator observer only if the user didn't already set an
+        // Ice observer resolver and if the admininistrative endpoints are set.
+        //
+        if(!_initData.observer && 
+           (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()) &&
+           _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
+        {
+            IceMX::CommunicatorObserverIPtr observer = new IceMX::CommunicatorObserverI(admin);
+            _initData.observer = observer;
+
+            //
+            // Make sure the admin plugin receives property updates.
+            //
+            props->addUpdateCallback(admin);
+        }
 
         __setNoDelete(false);
     }
@@ -1089,6 +1183,15 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+    //
+    // Set observer updater
+    //
+    if(_initData.observer)
+    {
+        theCollector->updateObserver(_initData.observer);
+        _initData.observer->setObserverUpdater(new ObserverUpdaterI(this));
+    }
 
     //
     // Create threads.
@@ -1251,6 +1354,11 @@ IceInternal::Instance::destroy()
     if(_retryQueue)
     {
         _retryQueue->destroy();
+    }
+
+    if(_initData.observer)
+    {
+        theCollector->clearObserver(_initData.observer);
     }
 
     ThreadPoolPtr serverThreadPool;

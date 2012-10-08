@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
+public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
 {
     public CommunicatorBatchOutgoingAsync(Ice.Communicator communicator, Instance instance, String operation,
                                           CallbackBase callback)
@@ -27,100 +27,113 @@ public class CommunicatorBatchOutgoingAsync extends BatchOutgoingAsync
         // Assume all connections are flushed synchronously.
         //
         _sentSynchronously = true;
+
+        //
+        // Attach observer
+        //
+        _observer = ObserverHelper.get(instance, operation);
     }
 
-    public void flushConnection(Ice.Connection con)
+    public void flushConnection(Ice.ConnectionI con)
     {
+        class BatchOutgoingAsyncI extends BatchOutgoingAsync
+        {
+            public 
+            BatchOutgoingAsyncI()
+            {
+                super(CommunicatorBatchOutgoingAsync.this._communicator, 
+                      CommunicatorBatchOutgoingAsync.this._instance, 
+                      CommunicatorBatchOutgoingAsync.this._operation, 
+                      null);
+            }
+
+            public boolean 
+            __sent(Ice.ConnectionI con)
+            {
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
+                check(false);
+                return false;
+            }
+
+            public void 
+            __finished(Ice.LocalException ex, boolean sent)
+            {
+                if(_remoteObserver != null)
+                {
+                    _remoteObserver.detach();
+                    _remoteObserver = null;
+                }
+                check(false);
+            }
+
+            public void
+            __attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt)
+            {
+                if(CommunicatorBatchOutgoingAsync.this._observer != null)
+                {
+                    _remoteObserver = CommunicatorBatchOutgoingAsync.this._observer.getRemoteObserver(info, endpt);
+                    if(_remoteObserver != null)
+                    {
+                        _remoteObserver.attach();
+                    }
+                }
+            }
+        };
+
         synchronized(_monitor)
         {
             ++_useCount;
         }
-        con.begin_flushBatchRequests(_cb);
+        
+        int status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+        if((status & AsyncStatus.Sent) > 0)
+        {
+            _sentSynchronously = false;
+        }
     }
 
     public void ready()
     {
-        check(null, null, true);
+        check(true);
     }
 
-    private void completed(Ice.AsyncResult r)
+    private void check(boolean userThread)
     {
-        Ice.Connection con = r.getConnection();
-        assert(con != null);
-
-        try
-        {
-            con.end_flushBatchRequests(r);
-            assert(false); // completed() should only be called when an exception occurs.
-        }
-        catch(Ice.LocalException ex)
-        {
-            check(r, ex, false);
-        }
-    }
-
-    private void sent(Ice.AsyncResult r)
-    {
-        check(r, null, r.sentSynchronously());
-    }
-
-    private void check(Ice.AsyncResult r, Ice.LocalException ex, boolean userThread)
-    {
-        boolean done = false;
-
         synchronized(_monitor)
         {
             assert(_useCount > 0);
-            --_useCount;
-
-            //
-            // We report that the communicator flush request was sent synchronously
-            // if all of the connection flush requests are sent synchronously.
-            //
-            if((r != null && !r.sentSynchronously()) || ex != null)
+            if(--_useCount > 0)
             {
-                _sentSynchronously = false;
+                return;
+            }
+            
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
             }
 
-            if(_useCount == 0)
-            {
-                done = true;
-                _state |= Done | OK | Sent;
-                _monitor.notifyAll();
-            }
+            _state |= Done | OK | Sent;
+            _monitor.notifyAll();
         }
 
-        if(done)
+        //
+        // sentSynchronously_ is immutable here.
+        //
+        if(!_sentSynchronously && userThread)
         {
-            //
-            // sentSynchronously_ is immutable here.
-            //
-            if(!_sentSynchronously && userThread)
-            {
-                __sentAsync();
-            }
-            else
-            {
-                assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
-                __sent();
-            }
+            __sentAsync();
+        }
+        else
+        {
+            assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
+            __sentInternal();
         }
     }
 
     private int _useCount;
-
-    private Ice.Callback _cb = new Ice.Callback()
-    {
-        @Override
-        public void completed(Ice.AsyncResult r)
-        {
-            CommunicatorBatchOutgoingAsync.this.completed(r);
-        }
-
-        @Override
-        public void sent(Ice.AsyncResult r)
-        {
-            CommunicatorBatchOutgoingAsync.this.sent(r);
-        }
-    };
 }

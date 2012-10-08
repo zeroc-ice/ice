@@ -1388,7 +1388,8 @@ public:
                        const ::Test::ClassStructSeq& seq,
                        const InParamPtr& cookie)
     {
-        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in = getIn(in, cookie);
+        pair< ::Test::ClassStructPtr, ::Test::ClassStructSeq> in;
+        in = getIn(in, cookie);
         test(ret == in.first);
         test(cs1 == in.first);
         test(seq == in.second);
@@ -1464,7 +1465,8 @@ public:
 
     void throwExcept1(const Ice::AsyncResultPtr& result)
     {
-        wstring in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
+        wstring in;
+        in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
         try
         {
             Test1::WstringClassPrx t = Test1::WstringClassPrx::uncheckedCast(result->getProxy());
@@ -1500,7 +1502,8 @@ public:
 
     void throwExcept2(const Ice::AsyncResultPtr& result)
     {
-        wstring in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
+        wstring in;
+        in = getIn(in, InParamPtr::dynamicCast(result->getCookie()));
         try
         {
             Test2::WstringClassPrx t = Test2::WstringClassPrx::uncheckedCast(result->getProxy());

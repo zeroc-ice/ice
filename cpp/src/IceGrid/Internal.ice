@@ -239,6 +239,18 @@ interface Server extends FileReader
     
     /**
      *
+     * Check if the given server can be loaded on this node.
+     *
+     * @return True if the server is inactive.
+     *
+     * @throws DeploymentException Raised if the server can't be updated.
+     *
+     **/
+    ["ami"] bool checkUpdate(InternalServerDescriptor svr, bool noRestart)
+        throws DeploymentException;
+
+    /**
+     *
      * Enable or disable the server.
      *
      **/ 
@@ -355,6 +367,22 @@ interface Node extends FileReader, ReplicaObserver
                                                  out AdapterPrxDict adapters, 
                                                  out int actTimeout, 
                                                  out int deactTimeout)
+        throws DeploymentException;
+
+    /**
+     *
+     * Load the given server and ensure the server won't be
+     * restarted. If the server resources weren't already created
+     * (database environment directories, property files, etc), they
+     * will be created. If the server can't be updated without a
+     * restart, a DeploymentException is raised.
+     *
+     **/
+    ["amd"] idempotent Server* loadServerWithoutRestart(InternalServerDescriptor svr,
+                                                        string replicaName,
+                                                        out AdapterPrxDict adapters, 
+                                                        out int actTimeout, 
+                                                        out int deactTimeout)
         throws DeploymentException;
 
     /**

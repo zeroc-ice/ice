@@ -12,6 +12,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using Ice.Instrumentation;
 
 namespace IceInternal
 {
@@ -203,14 +204,15 @@ namespace IceInternal
             return _connection.flushAsyncBatchRequests(@out, out sentCallback);
         }
 
-        public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
+        public Outgoing getOutgoing(string operation, Ice.OperationMode mode, Dictionary<string, string> context,
+                                    InvocationObserver observer)
         {
             _m.Lock();
             try
             {
                 if(!initialized())
                 {
-                    return new IceInternal.Outgoing(this, operation, mode, context);
+                    return new IceInternal.Outgoing(this, operation, mode, context, observer);
                 }
             }
             finally
@@ -218,7 +220,7 @@ namespace IceInternal
                 _m.Unlock();
             }
 
-            return _connection.getOutgoing(this, operation, mode, context);
+            return _connection.getOutgoing(this, operation, mode, context, observer);
         }
 
         public void reclaimOutgoing(Outgoing og)

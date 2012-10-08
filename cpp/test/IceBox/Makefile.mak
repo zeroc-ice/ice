@@ -12,7 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 
-SUBDIRS		= configuration
+SUBDIRS		= admin configuration
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

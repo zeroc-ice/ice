@@ -444,6 +444,56 @@ interface Admin
     void updateApplication(ApplicationUpdateDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
+
+    /**
+     *
+     * Synchronize a deployed application with the given application
+     * descriptor. This operation will replace the current descriptor
+     * with this new descriptor only if no server restarts are
+     * necessary for the update of the application. If some servers
+     * need to be restarted, the synchronization is rejected with a
+     * DeploymentException.
+     *
+     * @param descriptor The application descriptor.
+     *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
+     * @throws DeploymentException Raised if application deployment
+     * failed.
+     *
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
+     *
+     **/
+    ["ami"] void syncApplicationWithoutRestart(ApplicationDescriptor descriptor)
+        throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
+
+    /**
+     *
+     * Update a deployed application with the given update application
+     * descriptor only if no server restarts are necessary for the
+     * update of the application. If some servers need to be
+     * restarted, the synchronization is rejected with a
+     * DeploymentException.
+     *
+     * @param descriptor The update descriptor.
+     *
+     * @throws AccessDeniedException Raised if the session doesn't
+     * hold the exclusive lock or if another session is holding the
+     * lock.
+     *
+     * @throws DeploymentException Raised if application deployment
+     * failed.
+     *
+     * @throws ApplicationNotExistException Raised if the application
+     * doesn't exist.
+     *
+     **/
+    ["ami"] void updateApplicationWithoutRestart(ApplicationUpdateDescriptor descriptor)
+        throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
+
     /**
      *
      * Remove an application from IceGrid.

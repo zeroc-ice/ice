@@ -51,15 +51,19 @@ SRCS		= Acceptor.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
 		  Instance.cs \
+		  InstrumentationI.cs \
 		  LocatorInfo.cs \
 		  LoggerI.cs \
 		  LoggerPlugin.cs \
+		  MetricsAdminI.cs \
+		  MetricsObserverI.cs \
 		  Monitor.cs \
 		  Network.cs \
 		  ObjectAdapterFactory.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
+		  ObserverHelper.cs \
 		  OpaqueEndpointI.cs \
 		  Optional.cs \
 		  Options.cs \
@@ -125,8 +129,10 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/LocalException.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/Logger.ice \
+		  $(SDIR)/Metrics.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/Instrumentation.ice \
 		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/Process.ice \
 		  $(SDIR)/Properties.ice \

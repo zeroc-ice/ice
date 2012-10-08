@@ -62,6 +62,9 @@ public class IncomingBase
         _instance = other._instance;
         //other._instance = null; // Don't reset _instance.
 
+        _observer = other._observer;
+        other._observer = null;
+
         _servant = other._servant;
         other._servant = null;
 
@@ -155,6 +158,10 @@ public class IncomingBase
     public void
     __writeUserException(Ice.UserException ex, Ice.FormatType format)
     {
+        if(_observer != null)
+        {
+            _observer.failed(ex.ice_name());
+        }
         BasicStream __os = __startWriteParams(format);
         __os.writeUserException(ex);
         __endWriteParams(false);
@@ -209,6 +216,8 @@ public class IncomingBase
             _cookie.value = null;
         }
 
+        _observer = null;
+
         if(_os != null)
         {
             _os.reset();
@@ -259,6 +268,11 @@ public class IncomingBase
         {
             assert(_connection != null);
 
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+
             //
             // The operation may have already marshaled a reply; we must overwrite that reply.
             //
@@ -276,6 +290,11 @@ public class IncomingBase
                 _connection.sendNoResponse();
             }
 
+            if(_observer != null)
+            {
+                _observer.detach();
+                _observer = null;
+            }
             _connection = null;
         }
         catch(java.lang.Exception ex)
@@ -314,6 +333,11 @@ public class IncomingBase
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
             {
                 __warning(ex);
+            }
+            
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
             }
 
             if(_response)
@@ -366,6 +390,11 @@ public class IncomingBase
                 __warning(ex);
             }
 
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+
             if(_response)
             {
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -383,6 +412,11 @@ public class IncomingBase
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
+            }
+
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
             }
 
             if(_response)
@@ -404,6 +438,11 @@ public class IncomingBase
                 __warning(ex);
             }
 
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+
             if(_response)
             {
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -421,6 +460,11 @@ public class IncomingBase
             if(_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
             {
                 __warning(ex);
+            }
+
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
             }
 
             if(_response)
@@ -448,6 +492,11 @@ public class IncomingBase
                 __warning(ex);
             }
 
+            if(_observer != null)
+            {
+                _observer.failed(ex.ice_name());
+            }
+
             if(_response)
             {
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -473,6 +522,11 @@ public class IncomingBase
                 __warning(ex);
             }
 
+            if(_observer != null)
+            {
+                _observer.failed(ex.getClass().getName());
+            }
+
             if(_response)
             {
                 _os.resize(Protocol.headerSize + 4, false); // Reply status position.
@@ -491,6 +545,11 @@ public class IncomingBase
             }
         }
 
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
         _connection = null;
     }
 
@@ -499,6 +558,7 @@ public class IncomingBase
     protected Ice.Object _servant;
     protected Ice.ServantLocator _locator;
     protected Ice.LocalObjectHolder _cookie;
+    protected Ice.Instrumentation.Observer _observer;
 
     protected boolean _response;
     protected byte _compress;

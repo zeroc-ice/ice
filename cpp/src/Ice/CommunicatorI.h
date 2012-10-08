@@ -50,6 +50,7 @@ public:
     virtual PropertiesPtr getProperties() const;
     virtual LoggerPtr getLogger() const;
     virtual StatsPtr getStats() const;
+    virtual Ice::Instrumentation::CommunicatorObserverPtr getObserver() const;
 
     virtual RouterPrx getDefaultRouter() const;
     virtual void setDefaultRouter(const RouterPrx&);
@@ -79,6 +80,7 @@ public:
     virtual ObjectPrx getAdmin() const;
     virtual void addAdminFacet(const ObjectPtr&, const std::string&);
     virtual ObjectPtr removeAdminFacet(const std::string&);
+    virtual ObjectPtr findAdminFacet(const std::string&);
 
 private:
 

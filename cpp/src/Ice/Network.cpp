@@ -1047,8 +1047,7 @@ IceInternal::addrToAddressAndPort(const Address& addr, string& address, int& por
 }
 
 std::string
-IceInternal::addressesToString(const Address& localAddr, const Address& remoteAddr,
-                               bool peerConnected)
+IceInternal::addressesToString(const Address& localAddr, const Address& remoteAddr, bool peerConnected)
 {
     ostringstream s;
     s << "local address = " << addrToString(localAddr);

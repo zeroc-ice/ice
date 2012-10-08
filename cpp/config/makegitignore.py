@@ -56,18 +56,9 @@ def createGitIgnore(filename, gitIgnoreFiles):
             x = x.replace("rm -f", "", 1)
         elif x.startswith("rm -rf"):
             x = x.replace("rm -rf", "", 1)
-        elif x.startswith("make[1]: Entering directory"): # Change cwd
-            beg = x.find("`")
-            end = x.rfind("'")
-            if beg == -1 or end == -1:
-                continue
-            x = x[beg + 1:end]
-            cwdStack.append(cwd)
-            cwd = x
-            continue
-        elif x.startswith("make[1]: Leaving directory"): # Back to previous cwd
-            cwd = cwdStack.pop()
-            continue
+        elif x.startswith("making clean in"):
+            # Don't clean sub-directories
+            break
         else:
             continue
 
@@ -85,6 +76,15 @@ def createGitIgnore(filename, gitIgnoreFiles):
             else:
                 k = os.path.join(cwd, ".gitignore")
                 v = f + "\n"
+
+            if v.find(".so.") > 0:
+                continue                   
+            elif v.endswith(".so\n"):
+                v = v.replace(".so", ".*")
+            elif v.endswith(".dylib\n"):
+                v = v.replace(".dylib", ".*")
+                if v.find('.', 0, len(v) - 3) > 0:
+                    continue
 
             k = os.path.normpath(k)
             if not gitIgnoreFiles.has_key(k):
@@ -154,7 +154,8 @@ excludePath = [ os.path.join(toplevel, "cpp", "bin"), os.path.join(toplevel, "cp
 for (path, files) in gitIgnoreFiles.iteritems():
     if os.path.dirname(path) in excludePath:
         continue
-    
+    if not os.path.exists(path):
+        print files
     gitIgnore = open(path, "w")
     gitIgnore.write(preamble);
     gitIgnore.writelines(files)

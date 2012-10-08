@@ -352,20 +352,15 @@ Slice::Gen::generate(const UnitPtr& p)
     C << _base << "." << _headerExtension << ">";
 
 
-    H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/Exception.h>";
     H << "\n#include <Ice/LocalObject.h>";
     H << "\n#include <Ice/StreamHelpers.h>";
 
-    if(p->usesProxies())
-    {
-        H << "\n#include <Ice/Proxy.h>";
-    }
-
     if(p->hasNonLocalClassDefs())
     {
+        H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/Object.h>";
         H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/OutgoingAsync.h>";
@@ -379,17 +374,12 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ObjectFactory.h>";
     }
-    else if(p->hasNonLocalClassDecls())
-    {
-
-        H << "\n#include <Ice/Object.h>";
-    }
 
     if(p->hasNonLocalDataOnlyClasses() || p->hasNonLocalExceptions())
     {
         H << "\n#include <Ice/FactoryTableInit.h>";
     }
-    
+
     H << "\n#include <IceUtil/ScopedArray.h>";
     H << "\n#include <IceUtil/Optional.h>";
 
@@ -1001,14 +991,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             //
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"exception " << scoped .substr(2)<< " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
@@ -2181,6 +2171,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     
     C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
+    C << nl << "::IceInternal::InvocationObserver __observer(this, " << p->flattenedScope() << p->name() 
+      << "_name, __ctx);";
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
     C << sb;
@@ -2200,7 +2192,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << "return ";
     }
-    C << "__del->" << fixKwd(name) << spar << args << "__ctx" << epar << ';';
+    C << "__del->" << fixKwd(name) << spar << args << "__ctx" << "__observer" << epar << ';';
     if(!ret)
     {
         C << nl << "return;";
@@ -2210,16 +2202,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, true, __cnt);";
+        C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, true, __cnt, __observer);";
     }
     else
     {
-        C << nl << "__handleExceptionWrapper(__delBase, __ex);";
+        C << nl << "__handleExceptionWrapper(__delBase, __ex, __observer);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__handleException(__delBase, __ex, true, __cnt);";
+    C << nl << "__handleException(__delBase, __ex, true, __cnt, __observer);";
     C << eb;
     C << eb;
     C << eb;
@@ -2622,6 +2614,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
 
     H << sp << nl << "virtual " << retS << ' ' << name << spar << params << epar << " = 0;";
 }
@@ -2763,7 +2756,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
     paramsDecl.push_back("const ::Ice::Context* __context");
+    paramsDecl.push_back("::IceInternal::InvocationObserver& __observer");
 
     string flatName = p->flattenedScope() + p->name() + "_name";
 
@@ -2771,7 +2766,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << spar << paramsDecl << epar;
     C << sb;
     C << nl << "::IceInternal::Outgoing __og(__handler.get(), " << flatName << ", "
-      << operationModeToString(p->sendMode()) << ", __context);";
+      << operationModeToString(p->sendMode()) << ", __context, __observer);";
     if(inParams.empty())
     {
         C << nl << "__og.writeEmptyParams();";
@@ -3025,6 +3020,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     }
 
     params.push_back("const ::Ice::Context*");
+    params.push_back("::IceInternal::InvocationObserver&");
+    paramsDecl.push_back("const ::Ice::Context* __context");
+    paramsDecl.push_back("::IceInternal::InvocationObserver&");
     args.push_back("__current");
     argMembers.push_back("_current");
 
@@ -3049,8 +3047,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl
-          << "const ::Ice::Context* __context" << epar;
+        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
         C << sb;
         C << nl << "class _DirectI : public ::IceInternal::Direct";
         C << sb;
@@ -3965,7 +3962,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             //
             C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
@@ -3973,7 +3970,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp;
             C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
             C << sb;
-            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
             C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
             C << nl << "throw ex;";
             C << eb;
@@ -6124,15 +6121,18 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
-    string scoped = fixKwd(p->scoped());
-    H << nl << "template<>";
-    H << nl << "struct StreamableTraits< " << scoped << ">";
-    H << sb;
-    H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
-    H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
-    H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
-    H << nl << "static const bool fixedLength = false;";
-    H << eb << ";" << nl;
+    if(!p->isLocal())
+    {
+        string scoped = fixKwd(p->scoped());
+        H << nl << "template<>";
+        H << nl << "struct StreamableTraits< " << scoped << ">";
+        H << sb;
+        H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
+        H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
+        H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
+        H << nl << "static const bool fixedLength = false;";
+        H << eb << ";" << nl;
+    }
 }
 
 void

@@ -18,6 +18,9 @@
 #include <Ice/Object.h>
 #include <Ice/Current.h>
 #include <Ice/IncomingAsyncF.h>
+#include <Ice/ObserverHelper.h>
+
+
 #include <deque>
 
 namespace IceInternal
@@ -52,6 +55,7 @@ protected:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
+    ObserverHelperT<Ice::Instrumentation::Observer> _observer;
     bool _response;
     Ice::Byte _compress;
 
