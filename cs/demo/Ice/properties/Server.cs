@@ -28,7 +28,7 @@ public class Server : Ice.Application
 
         override public Dictionary<string, string> getChanges(Ice.Current current)
         {
-            lock(this)
+            lock(_monitor)
             {
                 //
                 // Make sure that we have received the property updates before we
@@ -51,7 +51,7 @@ public class Server : Ice.Application
 
         public void updated(Dictionary<string, string> changes)
         {
-            lock(this)
+            lock(_monitor)
             {
                 _changes = changes;
                 _called = true;

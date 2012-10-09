@@ -75,7 +75,7 @@ public class AllTests : TestCommon.TestApp
         public void
         waitForUpdate()
         {
-            lock(this)
+            lock(_monitor)
             {
                 while(!_updated)
                 {
@@ -93,7 +93,7 @@ public class AllTests : TestCommon.TestApp
         public void
         updated(Dictionary<string, string> dict)
         {
-            lock(this)
+            lock(_monitor)
             {
                 _updated = true;
                 _monitor.Notify();
