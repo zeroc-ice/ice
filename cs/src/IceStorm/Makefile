@@ -16,7 +16,8 @@ POLICY_TARGET	= $(POLICY).dll
 
 SRCS		= AssemblyInfo.cs
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice
+SLICE_SRCS	= $(SDIR)/IceStorm.ice \
+			$(SDIR)/Metrics.ice
 
 SDIR		= $(slicedir)/IceStorm
 GDIR		= generated

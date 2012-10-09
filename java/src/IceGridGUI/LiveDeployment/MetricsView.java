@@ -124,6 +124,7 @@ class MetricsView extends TreeNode
                                     }
                                     else
                                     {
+                                        _editor.stopRefreshThread();
                                         e.printStackTrace();
                                         JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
                                                                       "Error: " + e.toString(), "Error",
@@ -157,6 +158,7 @@ class MetricsView extends TreeNode
             }
             catch(Ice.LocalException e)
             {
+                _editor.stopRefreshThread();
                 JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
                                               JOptionPane.ERROR_MESSAGE);
             }

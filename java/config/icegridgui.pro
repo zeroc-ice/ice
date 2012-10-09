@@ -67,6 +67,8 @@
 -keep public class javax.**
 -keep interface javax.**
 -keep class * implements javax.**
+-keep class IceMX.**
+-keep interface IceMX.**
 
 #
 # Without this directive, the menus on Windows don't look good

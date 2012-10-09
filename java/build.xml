@@ -181,6 +181,7 @@
             </includepath>
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />
+                <include name="Metrics.ice" />
             </fileset>
         </slice2java>
     </target>
@@ -607,7 +608,7 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="icegrid-compile, icebox-compile" unless="ice.bin.dist">
+    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.5" debug="${debug}"
             includes="IceGridGUI/**"
@@ -630,11 +631,11 @@
         <not><isset property="build-icegridadmin-pro-jar"/></not>
     </condition>
 
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, icegrid-jar" 
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar" 
             if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
-            <attribute name="Class-Path" value="Ice.jar IceBox.jar Glacier2.jar IceGrid.jar ${jgoodies.forms} ${jgoodies.looks} ${jgoodies.common} ../resources/ "/>
+            <attribute name="Class-Path" value="Ice.jar IceBox.jar Glacier2.jar IceStorm.jar IceGrid.jar ${jgoodies.forms} ${jgoodies.looks} ${jgoodies.common} ../resources/ "/>
         </manifest>
         <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
             <include name="IceGridGUI/**"/>
@@ -645,7 +646,7 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icegrid-jar, icegridadmin-compile"
+    <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
     
         <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
@@ -699,6 +700,7 @@
              -injars "${lib.dir}/Ice.jar"(!META-INF/**)
              -injars "${lib.dir}/Glacier2.jar"(!META-INF/**)
              -injars "${lib.dir}/IceBox.jar"(!META-INF/**)
+             -injars "${lib.dir}/IceStorm.jar"(!META-INF/**)
              -injars "${lib.dir}/IceGrid.jar"(!META-INF/**)
              -injars "${jgoodies.looks}"(!META-INF/**)
              -injars "${jgoodies.forms}"(!META-INF/**)
