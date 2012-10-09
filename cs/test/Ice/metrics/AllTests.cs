@@ -69,6 +69,7 @@ public class AllTests : TestCommon.TestApp
         {
             _updated = false;
             _serverProps = serverProps;
+	    _monitor = new IceUtilInternal.Monitor();
         }
         
         public void
@@ -78,7 +79,7 @@ public class AllTests : TestCommon.TestApp
             {
                 while(!_updated)
                 {
-                    System.Threading.Monitor.Wait(this);
+                    _monitor.Wait();
                 }
                 // Ensure that the previous updates were committed, the setProperties call returns before 
                 // notifying the callbacks so to ensure all the update callbacks have be notified we call
@@ -95,12 +96,13 @@ public class AllTests : TestCommon.TestApp
             lock(this)
             {
                 _updated = true;
-                System.Threading.Monitor.Pulse(this);
+                _monitor.Notify();
             }
         }
         
         private bool _updated;
         private Ice.PropertiesAdminPrx _serverProps;
+	private IceUtilInternal.Monitor _monitor;
     };
     
     static void
@@ -135,7 +137,11 @@ public class AllTests : TestCommon.TestApp
                   string map, 
                   string attr,
                   string value,
+#if COMPACT
+                  Ice.VoidAction func)
+#else
                   System.Action func)
+#endif
     {
         Dictionary<string, string> dict = new Dictionary<string, string>();
         dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
@@ -559,8 +565,12 @@ public class AllTests : TestCommon.TestApp
         test(m1.id.Equals("127.0.0.50:12010") && m1.total == 2 && m1.failures == 2);
 
         checkFailure(clientMetrics, "ConnectionEstablishment", m1.id, "Ice::ConnectTimeoutException", 2);
-        
-        System.Action c = () => { connect(metrics); };
+
+#if COMPACT
+        Ice.VoidAction c = () => { connect(metrics); };
+#else
+	System.Action c = () => { connect(metrics); };
+#endif
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
@@ -705,7 +715,11 @@ public class AllTests : TestCommon.TestApp
         test(m1.current == 0 && m1.total == 1 && m1.failures == 1);
         checkFailure(serverMetrics, "Dispatch", m1.id, "System.ArgumentOutOfRangeException", 1);
 
-        System.Action op = () => { invokeOp(metrics); };
+#if COMPACT
+        Ice.VoidAction op = () => { invokeOp(metrics); };
+#else
+	System.Action op = () => { invokeOp(metrics); };
+#endif
 
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op);

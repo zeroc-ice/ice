@@ -108,14 +108,36 @@ assembliesdir   = $(top_srcdir)\Assemblies
 assembliesdir   = $(assembliesdir)\sl
 !endif
 
+!if "$(COMPACT)" == "yes"
+bindir			= $(top_srcdir)\bin\cf
+assembliesdir   = $(assembliesdir)\cf
+!endif
+
 install_bindir          = $(prefix)\bin
 install_assembliesdir   = $(prefix)\Assemblies
+install_configdir   = $(prefix)\config
+
+!if "$(COMPACT)" == "yes"
+install_bindir          = $(install_bindir)\cf
+install_assembliesdir   = $(install_assembliesdir)\cf
+!endif
+
+!if "$(SILVERLIGHT)" == "yes"
+install_bindir          = $(install_bindir)\sl
+install_assembliesdir   = $(install_assembliesdir)\sl
+!endif
+
 install_libdir		    = $(prefix)\lib
 
 !if "$(ice_src_dist)" != ""
 refdir = $(assembliesdir)
 !else
 refdir = $(ice_dir)\Assemblies
+
+!if "$(COMPACT)" == "yes"
+refdir    = $(refdir )\cf
+!endif
+
 !endif
 
 !if "$(VERSION_PATCH)" != "0" && "$(VERSION_PATCH)" != "51"

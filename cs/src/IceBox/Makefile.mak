@@ -62,6 +62,12 @@ $(ICEBOXNET).config:
 
 publicKeyToken = $(PUBLIC_KEY_TOKEN: =)
 
+!if "$(COMPACT)" == "yes"
+assembliesRelativeDir = ..\..\Assemblies\cf
+!else
+assembliesRelativeDir = ..\Assemblies
+!endif
+
 iceboxnetconfig:
         echo <<$(ICEBOXNET).config
 <?xml version="1.0"?>
@@ -70,11 +76,11 @@ iceboxnetconfig:
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
          <dependentAssembly>
             <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="$(VERSION).0" href="..\Assemblies\Ice.dll"/>
+            <codeBase version="$(VERSION).0" href="$(assembliesRelativeDir)\Ice.dll"/>
          </dependentAssembly>
 	 <dependentAssembly>
             <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="3.4.2.0" href="..\Assemblies\IceBox.dll"/>
+            <codeBase version="3.4.2.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
          </dependentAssembly>
       </assemblyBinding>
    </runtime>
@@ -93,7 +99,7 @@ install:: all
 !endif
 
 install:: all
-	copy $(ICEBOXNET) "$(install_bindir)"
+    copy $(ICEBOXNET) "$(install_bindir)"
     copy $(ICEBOXNET).config "$(install_bindir)"
 !if "$(DEBUG)" == "yes"
 	copy $(bindir)\iceboxnet.pdb "$(install_bindir)"

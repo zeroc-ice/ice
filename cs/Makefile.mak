@@ -14,10 +14,10 @@ top_srcdir	= .
 SUBDIRS		= src
 
 !if "$(SILVERLIGHT)" != "yes"
-SUBDIRS		= $(SUBDIRS) test demo
+SUBDIRS		= $(SUBDIRS) test demo config
 !endif
 
-INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)"
+INSTALL_SUBDIRS	= "$(install_bindir)" "$(install_assembliesdir)" "$(install_configdir)"
 
 install:: install-common
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \

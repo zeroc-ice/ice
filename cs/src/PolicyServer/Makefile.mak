@@ -10,7 +10,6 @@
 top_srcdir	= ..\..
 
 TARGETS		= $(bindir)\policyserver.exe
-TARGETS_CONFIG	= $(TARGETS:.exe=.exe.config)
 
 SRCS		= PolicyServer.cs \
 		  AssemblyInfo.cs
@@ -36,4 +35,10 @@ $(bindir)\policyserver.exe: $(SRCS)
 !if "$(DEBUG)" == "yes"
 clean::
 	del /q $(bindir)\policyserver.pdb
+!endif
+
+install:: all
+    copy $(bindir)\policyserver.exe "$(install_bindir)"
+!if "$(DEBUG)" == "yes"
+    copy $(bindir)\policyserver.pdb "$(install_bindir)"
 !endif

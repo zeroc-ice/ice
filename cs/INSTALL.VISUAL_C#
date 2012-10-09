@@ -218,7 +218,7 @@ if it detects a bzip2.dll format mismatch during start-up.)
 ------------------------
 
 The default configuration in config\Make.rules.mak.cs produces an
-Ice assembly for use with .NET. If you wish to use Ice with the .NET
+Ice assemblies for use with .NET. If you wish to use Ice with the .NET
 Compact Framework, you must re-build the sources.
 
 To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
@@ -226,27 +226,31 @@ and set COMPACT=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
  
-The .NET Compact Framework assemblies are generated into Assemblies\cf
-directory.
+The .NET Compact Framework assemblies and binaries are generated into 
+Assemblies\cf and bin\cf diretories respectively.
 
 To build Ice for .NET Compact Framework, open config\Make.rules.mak.cs
 and set  COMPACT=yes. Run nmake as before:
 
  > nmake /f Makefile.mak
 
+To build the demos, you must first install the Ice for Visual Studio Add-in.
+You can install the Ice Visual Studio Add-in using the Windows msi installer,
+for manual installation instructions refer to ..\vsaddin\INSTALL.txt file.
+
 To build the demos you must use the Visual Studio solution located in
-demo\democf.sln, README.txt files of each demo provided more information
-about the demos.
+demo\democf.sln.
 
 
 Silverlight
 ---------
 
 The default configuration in config\Make.rules.mak.cs produces an
-Ice assemblies for use with .NET. If you wish to use Ice with the Silverlight,
+Ice assemblies for use with .NET. If you wish to use Ice with Silverlight,
 you must re-build the sources.
 
-The Silverlight assemblies are generated into Assemblies\sl directory.
+The Silverlight assemblies and binaries are generated into Assemblies\sl and
+Assemblies\bin directories respectively.
 
 To build Ice for Silverlight, open config\Make.rules.mak.cs and set 
 SILVERLIGHT=yes. Run nmake as before:
@@ -257,7 +261,12 @@ To install Ice for Silverlight simply run "nmake /f Makefile.mak install"
 This will install Ice for .NET in the directory specified by the "prefix" 
 variable in config\Make.rules.mak.cs. The Ice Silverlight assemblies will be
 located in <prefix>\Assemblies\sl directory.
- 
+
+To build the tests and demos, you must first install the Ice for Visual Studio 
+Add-in. You can install the Ice Visual Studio Add-in using the Windows msi 
+installer, for manual installation instructions refer to ..\vsaddin\INSTALL.txt 
+file.
+
 To build the tests and demos you must use the Visual Studio solutions 
 located in test\testsl.sln and demo\demosl.sln. 
 

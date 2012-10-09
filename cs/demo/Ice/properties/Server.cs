@@ -23,6 +23,7 @@ public class Server : Ice.Application
         public PropsI()
         {
             _called = false;
+	    _monitor = new IceUtilInternal.Monitor();
         }
 
         override public Dictionary<string, string> getChanges(Ice.Current current)
@@ -35,7 +36,7 @@ public class Server : Ice.Application
                 //
                 while(!_called)
                 {
-                    Monitor.Wait(this);
+                    _monitor.Wait();
                 }
 
                 _called = false;
@@ -54,12 +55,13 @@ public class Server : Ice.Application
             {
                 _changes = changes;
                 _called = true;
-                Monitor.Pulse(this);
+                _monitor.Notify();
             }
         }
 
         Dictionary<string, string> _changes;
         private bool _called;
+	IceUtilInternal.Monitor _monitor;
     }
 
     override public int run(string[] args)
