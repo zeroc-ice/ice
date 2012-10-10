@@ -4524,8 +4524,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             if(op->returnsData())
             {
                 out << nl << "Ice.AsyncResult.__check(__result, this, __" << op->name() << "_name);";
-                out << nl;
-                out << "if(!__result.__wait())";
+                out << nl << "boolean __ok = __result.__wait();";
+                out << nl << "try";
+                out << sb;
+                out << nl << "if(!__ok)";
                 out << sb;
                 out << nl << "try";
                 out << sb;
@@ -4587,6 +4589,17 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                         out << nl << "return __ret;";
                     }
                 }
+                
+                out << eb;
+                out << nl << "catch(Ice.LocalException ex)";
+                out << sb;
+                out << nl << "Ice.Instrumentation.InvocationObserver __obsv = __result.__getObserver();";
+                out << nl << "if(__obsv != null)";
+                out << sb;
+                out << nl << "__obsv.failed(ex.ice_name());";
+                out << eb;
+                out << nl << "throw ex;";
+                out << eb;
             }
             else
             {

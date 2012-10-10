@@ -107,6 +107,11 @@ IncomingBase::__startWriteParams(FormatType format)
 void 
 IncomingBase::__endWriteParams(bool ok)
 {
+    if(!ok)
+    {
+        _observer.userException();
+    }
+
     if(_response)
     {
         *(_os.b.begin() + headerSize + 4) = ok ? replyOK : replyUserException; // Reply status position.
@@ -129,6 +134,11 @@ IncomingBase::__writeEmptyParams()
 void 
 IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 {
+    if(!ok)
+    {
+        _observer.userException();
+    }
+
     if(_response)
     {
         assert(_os.b.size() == headerSize + 4); // Reply status position.
@@ -148,11 +158,6 @@ IncomingBase::__writeParamEncaps(const Byte* v, Ice::Int sz, bool ok)
 void 
 IncomingBase::__writeUserException(const Ice::UserException& ex, Ice::FormatType format)
 {
-    if(_observer)
-    {
-        _observer.failed(ex.ice_name());
-    }
-
     ::IceInternal::BasicStream* __os = __startWriteParams(format);
     __os->write(ex);
     __endWriteParams(false);
@@ -215,7 +220,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
 
         if(_observer)
         {
-            _observer.failed(ex.ice_name());
+            _observer.userException();
         }
 
         //
@@ -613,7 +618,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
 
                     if(_observer)
                     {
-                        _observer.failed(ex.ice_name());
+                        _observer.userException();
                     }
 
                     if(_response)

@@ -40,6 +40,7 @@ public class BatchOutgoingAsync extends Ice.AsyncResult implements OutgoingAsync
     {
         if(_remoteObserver != null)
         {
+            _remoteObserver.failed(exc.ice_name());
             _remoteObserver.detach();
             _remoteObserver = null;
         }

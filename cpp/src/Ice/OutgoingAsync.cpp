@@ -241,6 +241,15 @@ Ice::AsyncResult::__sent()
             __warning();
         }
     }
+
+    if(_observer)
+    {
+        Ice::ObjectPrx proxy = getProxy();
+        if(!proxy || !proxy->ice_isTwoway())
+        {
+            _observer.detach();
+        }
+    }
 }
 
 void
@@ -527,10 +536,6 @@ void
 IceInternal::OutgoingAsync::__sent()
 {
     ::Ice::AsyncResult::__sent();
-    if(!_proxy->ice_isTwoway())
-    {
-        _observer.detach();
-    }
 }
 
 void
@@ -539,6 +544,7 @@ IceInternal::OutgoingAsync::__finished(const Ice::LocalException& exc, bool sent
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
         assert(!(_state & Done));
+        _remoteObserver.failed(exc.ice_name());
         _remoteObserver.detach();
         if(_timerTaskConnection)
         {
@@ -578,6 +584,7 @@ IceInternal::OutgoingAsync::__finished(const LocalExceptionWrapper& exc)
     // calling on the callback. The LocalExceptionWrapper exception is only called
     // before the invocation is sent.
     //
+    _remoteObserver.failed(exc.get()->ice_name());
     _remoteObserver.detach();
 
     try
@@ -622,8 +629,12 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
         switch(replyStatus)
         {
             case replyOK:
+            {
+                break;
+            }
             case replyUserException:
             {
+                _observer.userException();
                 break;
             }
 
@@ -889,15 +900,12 @@ IceInternal::BatchOutgoingAsync::__sent(Ice::ConnectionI* connection)
     _state |= Done | OK | Sent;
     _remoteObserver.detach();
     _monitor.notifyAll();
-    if(_callback && _callback->__hasSentCallback())
-    {
-        return true;
-    }
-    else
+    if(!_callback || !_callback->__hasSentCallback())
     {
         _observer.detach();
         return false;
     }
+    return true;
 }
 
 void
@@ -909,6 +917,7 @@ IceInternal::BatchOutgoingAsync::__sent()
 void
 IceInternal::BatchOutgoingAsync::__finished(const Ice::LocalException& exc, bool)
 {
+    _remoteObserver.failed(exc.ice_name());
     _remoteObserver.detach();
     __exception(exc);
 }
@@ -1030,8 +1039,9 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
             return false;
         }
 
-        virtual void __finished(const Ice::LocalException&, bool)
+        virtual void __finished(const Ice::LocalException& ex, bool)
         {
+            _remoteObserver.failed(ex.ice_name());
             _remoteObserver.detach();
             _outAsync->check(false);
         }
@@ -1074,24 +1084,29 @@ IceInternal::CommunicatorBatchOutgoingAsync::check(bool userThread)
         if(--_useCount > 0)
         {
             return;
-        }
-         
-        _observer.detach();
+        }         
         _state |= Done | OK | Sent;
         _monitor.notifyAll();
     }
 
-    //
-    // _sentSynchronously is immutable here.
-    //
-    if(!_sentSynchronously && userThread)
+    if(!_callback || !_callback->__hasSentCallback())
     {
-        __sentAsync();
+        _observer.detach();
     }
     else
     {
-        assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
-        AsyncResult::__sent();
+        //
+        // _sentSynchronously is immutable here.
+        //
+        if(!_sentSynchronously && userThread)
+        {
+            __sentAsync();
+        }
+        else
+        {
+            assert(_sentSynchronously == userThread); // sentSynchronously && !userThread is impossible.
+            AsyncResult::__sent();
+        }
     }
 }
 

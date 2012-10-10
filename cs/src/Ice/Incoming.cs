@@ -115,6 +115,11 @@ namespace IceInternal
         
         public void endWriteParams__(bool ok)
         {
+            if(!ok && observer_ != null)
+            {
+                observer_.userException();
+            }
+
             if(response_)
             {
                 int save = os_.pos();
@@ -137,6 +142,11 @@ namespace IceInternal
         
         public void writeParamEncaps__(byte[] v, bool ok)
         {
+            if(!ok && observer_ != null)
+            {
+                observer_.userException();
+            }
+
             if(response_)
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
@@ -154,10 +164,6 @@ namespace IceInternal
 
         public void writeUserException__(Ice.UserException ex, Ice.FormatType format)
         {
-            if(observer_ != null)
-            {
-                observer_.failed(ex.ice_name());
-            } 
             BasicStream os__ = startWriteParams__(format);
             os__.writeUserException(ex);
             endWriteParams__(false);
@@ -255,7 +261,7 @@ namespace IceInternal
 
                 if(observer_ != null)
                 {
-                    observer_.failed(ex.ice_name());
+                    observer_.userException();
                 } 
 
                 //
@@ -532,7 +538,7 @@ namespace IceInternal
         protected internal Ice.Object servant_;
         protected internal Ice.ServantLocator locator_;
         protected internal System.Object cookie_;
-        protected internal Ice.Instrumentation.Observer observer_;
+        protected internal Ice.Instrumentation.DispatchObserver observer_;
 
         protected internal bool response_;
         protected internal byte compress_;
@@ -688,7 +694,7 @@ namespace IceInternal
                             
                             if(observer_ != null)
                             {
-                                observer_.failed(ex.ice_name());
+                                observer_.userException();
                             }
 
                             if(response_)

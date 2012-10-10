@@ -179,9 +179,9 @@ namespace IceMX
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    class DispatchHelper : MetricsHelper<Metrics>
+    class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
-        class AttributeResolverI : MetricsHelper<Metrics>.AttributeResolver
+        class AttributeResolverI : MetricsHelper<DispatchMetrics>.AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -193,7 +193,7 @@ namespace IceMX
                     add("endpoint", cl.GetMethod("getEndpoint"));
                     add("connection", cl.GetMethod("getConnection"));
                     
-                    Util.addConnectionAttributes<Metrics>(this, cl);
+                    Util.addConnectionAttributes<DispatchMetrics>(this, cl);
                     
                     Type clc = typeof(Ice.Current);
                     add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
@@ -693,8 +693,28 @@ namespace IceMX
         private int _receivedBytes;
     };
 
+    public class DispatchObserverI : Observer<DispatchMetrics>, Ice.Instrumentation.DispatchObserver
+    {
+        public void
+        userException()
+        {
+            forEach(userException);
+        }
+
+        private void userException(DispatchMetrics v)
+        {
+            ++v.userException;
+        }
+    }
+
     public class InvocationObserverI : Observer<InvocationMetrics>, Ice.Instrumentation.InvocationObserver
     {
+        public void
+        userException()
+        {
+            forEach(userException);
+        }
+
         public void
         retried()
         {
@@ -709,6 +729,11 @@ namespace IceMX
         private void incrementRetry(InvocationMetrics v)
         {
             ++v.retry;
+        }
+
+        private void userException(InvocationMetrics v)
+        {
+            ++v.userException;
         }
     }
 
@@ -763,7 +788,7 @@ namespace IceMX
         {
             _metrics = metrics;
             _connections = new ObserverFactory<ConnectionMetrics, ConnectionObserverI>(metrics, "Connection");
-            _dispatch = new ObserverFactory<Metrics, ObserverI>(metrics, "Dispatch");
+            _dispatch = new ObserverFactory<DispatchMetrics, DispatchObserverI>(metrics, "Dispatch");
             _invocations = new ObserverFactory<InvocationMetrics, InvocationObserverI>(metrics, "Invocation");
             _threads = new ObserverFactory<ThreadMetrics, ThreadObserverI>(metrics, "Thread");
             _connects = new ObserverFactory<Metrics, ObserverI>(metrics, "ConnectionEstablishment");
@@ -829,7 +854,7 @@ namespace IceMX
             return null;
         }
     
-        public Ice.Instrumentation.Observer getDispatchObserver(Ice.Current c)
+        public Ice.Instrumentation.DispatchObserver getDispatchObserver(Ice.Current c)
         {
             if(_dispatch.isEnabled())
             {
@@ -851,7 +876,7 @@ namespace IceMX
 
         readonly private IceInternal.MetricsAdminI _metrics;
         readonly private ObserverFactory<ConnectionMetrics, ConnectionObserverI> _connections;
-        readonly private ObserverFactory<Metrics, ObserverI> _dispatch;
+        readonly private ObserverFactory<DispatchMetrics, DispatchObserverI> _dispatch;
         readonly private ObserverFactory<InvocationMetrics, InvocationObserverI> _invocations;
         readonly private ObserverFactory<ThreadMetrics, ThreadObserverI> _threads;
         readonly private ObserverFactory<Metrics, ObserverI> _connects;

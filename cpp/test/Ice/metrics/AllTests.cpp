@@ -31,6 +31,43 @@ namespace
 //     }
 // }
 
+class Callback : public IceUtil::Shared, private IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    Callback() : _wait(true)
+    {
+    }
+
+    void response()
+    {
+        Lock sync(*this);
+        _wait = false;
+        notify();
+    }
+
+    void exception(const Ice::Exception&)
+    {
+        response();
+    }
+
+    void
+    waitForResponse()
+    {
+        Lock sync(*this);
+        while(_wait)
+        {
+            wait();
+        }
+        _wait = true;
+    }
+
+private:
+
+    bool _wait;
+};
+typedef IceUtil::Handle<Callback> CallbackPtr;
+
 Ice::PropertyDict
 getClientProps(const Ice::PropertiesAdminPrx& p, const Ice::PropertyDict& orig, const string& m = string()) 
 {
@@ -713,24 +750,23 @@ allTests(const Ice::CommunicatorPtr& communicator)
     map = toMap(serverMetrics->getMetricsView("View", timestamp)["Dispatch"]);
     test(map.size() == 6);
 
-    m1 = map["op"];
-    test(m1->current == 0 && m1->total == 1 && m1->failures == 0);
+    IceMX::DispatchMetricsPtr dm1 = IceMX::DispatchMetricsPtr::dynamicCast(map["op"]);
+    test(dm1->current == 0 && dm1->total == 1 && dm1->failures == 0 && dm1->userException == 0);
 
-    m1 = map["opWithUserException"];
-    test(m1->current == 0 && m1->total == 1 && m1->failures == 1);
-    checkFailure(serverMetrics, "Dispatch", m1->id, "Test::UserEx", 1);
+    dm1 = IceMX::DispatchMetricsPtr::dynamicCast(map["opWithUserException"]);
+    test(dm1->current == 0 && dm1->total == 1 && dm1->failures == 0 && dm1->userException == 1);
 
-    m1 = map["opWithLocalException"];
-    test(m1->current == 0 && m1->total == 1 && m1->failures == 1);
-    checkFailure(serverMetrics, "Dispatch", m1->id, "Ice::SyscallException", 1);
+    dm1 = IceMX::DispatchMetricsPtr::dynamicCast(map["opWithLocalException"]);
+    test(dm1->current == 0 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
+    checkFailure(serverMetrics, "Dispatch", dm1->id, "Ice::SyscallException", 1);
 
-    m1 = map["opWithRequestFailedException"];
-    test(m1->current == 0 && m1->total == 1 && m1->failures == 1);
-    checkFailure(serverMetrics, "Dispatch", m1->id, "Ice::ObjectNotExistException", 1);
+    dm1 = IceMX::DispatchMetricsPtr::dynamicCast(map["opWithRequestFailedException"]);
+    test(dm1->current == 0 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
+    checkFailure(serverMetrics, "Dispatch", dm1->id, "Ice::ObjectNotExistException", 1);
 
-    m1 = map["opWithUnknownException"];
-    test(m1->current == 0 && m1->total == 1 && m1->failures == 1);
-    checkFailure(serverMetrics, "Dispatch", m1->id, "unknown", 1);
+    dm1 = IceMX::DispatchMetricsPtr::dynamicCast(map["opWithUnknownException"]);
+    test(dm1->current == 0 && dm1->total == 1 && dm1->failures == 1 && dm1->userException == 0);
+    checkFailure(serverMetrics, "Dispatch", dm1->id, "unknown", 1);
 
     InvokeOp op(metrics);
 
@@ -777,7 +813,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     updateProps(clientProps, serverProps, update, props, "Invocation");
     test(serverMetrics->getMetricsView("View", timestamp)["Invocation"].empty());
 
+    CallbackPtr cb = new Callback();
     metrics->op();
+    metrics->end_op(metrics->begin_op());
+    metrics->begin_op(newCallback_Metrics_op(cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
+
+    // User exception
     try
     {
         metrics->opWithUserException();
@@ -788,12 +830,38 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
+        metrics->end_opWithUserException(metrics->begin_opWithUserException());
+        test(false);
+    }
+    catch(const Test::UserEx&)
+    {
+    }
+    metrics->begin_opWithUserException(newCallback_Metrics_opWithUserException(
+                                           cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
+
+    // Request failed exception
+    try
+    {
         metrics->opWithRequestFailedException();
         test(false);
     }
     catch(const Ice::RequestFailedException&)
     {
     }
+    try
+    {
+        metrics->end_opWithRequestFailedException(metrics->begin_opWithRequestFailedException());
+        test(false);
+    }
+    catch(const Ice::RequestFailedException&)
+    {
+    }
+    metrics->begin_opWithRequestFailedException(newCallback_Metrics_opWithRequestFailedException(
+                                                    cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
+
+    // Local exception
     try
     {
         metrics->opWithLocalException();
@@ -804,6 +872,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
+        metrics->end_opWithLocalException(metrics->begin_opWithLocalException());
+        test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    metrics->begin_opWithLocalException(newCallback_Metrics_opWithLocalException(
+                                            cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
+
+    // Unknown exception
+    try
+    {
         metrics->opWithUnknownException();
         test(false);
     }
@@ -812,39 +893,73 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
+        metrics->end_opWithUnknownException(metrics->begin_opWithUnknownException());
+        test(false);
+    }
+    catch(const Ice::UnknownException&)
+    {
+    }
+    metrics->begin_opWithUnknownException(newCallback_Metrics_opWithUnknownException(
+                                              cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
+
+    // Fail
+    try
+    {
         metrics->fail();
         test(false);
     }
     catch(const Ice::ConnectionLostException&)
     {
     }
+    try
+    {
+        metrics->end_fail(metrics->begin_fail());
+        test(false);
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+    }
+    metrics->begin_fail(newCallback_Metrics_fail(cb, &Callback::response, &Callback::exception));
+    cb->waitForResponse();
 
     map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
     test(map.size() == 6);
 
     IceMX::InvocationMetricsPtr im1;
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["op"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 0 && im1->retry == 0 && im1->remotes.size() == 1);
-
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0 && im1->remotes.size() == 1);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 3 && im1->remotes[0]->failures == 0);
+    
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["opWithUserException"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 1 && im1->retry == 0 && im1->remotes.size() == 1);
-    checkFailure(clientMetrics, "Invocation", im1->id, "Test::UserEx", 1);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0 && im1->remotes.size() == 1);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 3 && im1->remotes[0]->failures == 0);
+    test(im1->userException == 3);
 
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["opWithLocalException"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 1 && im1->retry == 0 && im1->remotes.size() == 1);
-    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::UnknownLocalException", 1);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 3 && im1->retry == 0 && im1->remotes.size() == 1);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 3 && im1->remotes[0]->failures == 0);
+    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::UnknownLocalException", 3);
 
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["opWithRequestFailedException"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 1 && im1->retry == 0 && im1->remotes.size() == 1);
-    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::ObjectNotExistException", 1);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 3 && im1->retry == 0 && im1->remotes.size() == 1);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 3 && im1->remotes[0]->failures == 0);
+    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::ObjectNotExistException", 3);
 
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["opWithUnknownException"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 1 && im1->retry == 0 && im1->remotes.size() == 1);
-    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::UnknownException", 1);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 3 && im1->retry == 0 && im1->remotes.size() == 1);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 3 && im1->remotes[0]->failures == 0);
+    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::UnknownException", 3);
 
     im1 = IceMX::InvocationMetricsPtr::dynamicCast(map["fail"]);
-    test(im1->current == 0 && im1->total == 1 && im1->failures == 1 && im1->retry == 1 && im1->remotes.size() == 2);
-    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::ConnectionLostException", 1);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 3 && im1->retry == 3 && im1->remotes.size() == 6);
+    test(im1->remotes[0]->current == 0 && im1->remotes[0]->total == 1 && im1->remotes[0]->failures == 1);
+    test(im1->remotes[1]->current == 0 && im1->remotes[1]->total == 1 && im1->remotes[1]->failures == 1);
+    test(im1->remotes[2]->current == 0 && im1->remotes[2]->total == 1 && im1->remotes[2]->failures == 1);
+    test(im1->remotes[3]->current == 0 && im1->remotes[3]->total == 1 && im1->remotes[3]->failures == 1);
+    test(im1->remotes[4]->current == 0 && im1->remotes[4]->total == 1 && im1->remotes[4]->failures == 1);
+    test(im1->remotes[5]->current == 0 && im1->remotes[5]->total == 1 && im1->remotes[5]->failures == 1);
+    checkFailure(clientMetrics, "Invocation", im1->id, "Ice::ConnectionLostException", 3);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "id",

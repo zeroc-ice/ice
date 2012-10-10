@@ -19,8 +19,9 @@ EXT		= .dll
 
 CLIENT		= $(NAME_PREFIX)client
 SERVER		= $(NAME_PREFIX)server
+SERVERAMD	= $(NAME_PREFIX)serveramd
 
-TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT)
+TARGETS		= $(CLIENT)$(EXT) $(SERVER)$(EXT) $(SERVERAMD)$(EXT)
 
 COBJS		= Test.obj \
 		  Client.obj \
@@ -30,8 +31,13 @@ SOBJS		= Test.obj \
 		  TestI.obj \
 		  Server.obj
 
+SAMDOBJS	= TestAMD.obj \
+		  TestAMDI.obj \
+		  ServerAMD.obj
+
 SRCS		= $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp)
+		  $(SOBJS:.obj=.cpp) \
+		  $(SAMDOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -55,6 +61,11 @@ $(CLIENT)$(EXT): $(COBJS)
 
 $(SERVER)$(EXT): $(SOBJS)
 	$(LINK) $(LD_TESTFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
+
+$(SERVERAMD)$(EXT): $(SAMDOBJS)
+	$(LINK) $(LD_TESTFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

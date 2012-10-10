@@ -222,7 +222,7 @@ private:
 
 ConnectionHelper::Attributes ConnectionHelper::attributes;
 
-class DispatchHelper : public MetricsHelperT<Metrics>
+class DispatchHelper : public MetricsHelperT<DispatchMetrics>
 {
 public:
 
@@ -721,9 +721,21 @@ ThreadObserverI::stateChanged(ThreadState oldState, ThreadState newState)
 }
 
 void
+DispatchObserverI::userException()
+{
+    forEach(inc(&DispatchMetrics::userException));
+}
+
+void
 InvocationObserverI::retried()
 {
     forEach(inc(&InvocationMetrics::retry));
+}
+
+void
+InvocationObserverI::userException()
+{
+    forEach(inc(&InvocationMetrics::userException));
 }
 
 ObserverPtr
@@ -854,7 +866,7 @@ CommunicatorObserverI::getInvocationObserver(const ObjectPrx& proxy, const strin
     return 0;
 }
 
-ObserverPtr 
+DispatchObserverPtr 
 CommunicatorObserverI::getDispatchObserver(const Current& current)
 {
     if(_dispatch.isEnabled())

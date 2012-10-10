@@ -321,6 +321,10 @@ public final class Outgoing implements OutgoingMessageCallback
             
             case ReplyStatus.replyUserException:
             {
+                if(_observer != null)
+                {
+                    _observer.userException();
+                }
                 _state = StateUserException; // The state must be set last, in case there is an exception.
                 break;
             }
@@ -440,6 +444,7 @@ public final class Outgoing implements OutgoingMessageCallback
         assert(_state <= StateInProgress);
         if(_remoteObserver != null)
         {
+            _remoteObserver.failed(ex.ice_name());
             _remoteObserver.detach();
             _remoteObserver = null;
         }
@@ -529,10 +534,6 @@ public final class Outgoing implements OutgoingMessageCallback
         }
         catch(Ice.UserException ex)
         {
-            if(_observer != null)
-            {
-                _observer.failed(ex.ice_name());
-            }
             _is.endReadEncaps();
             throw ex;
         }

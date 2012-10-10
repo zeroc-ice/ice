@@ -434,6 +434,7 @@
                 <include name="test/Ice/invoke/Test.ice" />
                 <include name="test/Ice/location/Test.ice" />
                 <include name="test/Ice/metrics/Test.ice" />
+                <include name="test/Ice/metrics/TestAMD.ice" />
                 <include name="test/Ice/proxy/Test.ice" />
                 <include name="test/Ice/proxy/TestAMD.ice" />
                 <include name="test/Ice/retry/Test.ice" />

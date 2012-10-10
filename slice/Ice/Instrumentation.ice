@@ -193,6 +193,21 @@ local interface ConnectionObserver extends Observer
 
 /**
  *
+ * The dispatch observer.
+ *
+ **/
+local interface DispatchObserver extends Observer
+{
+    /**
+     *
+     * Notification of a user exception.
+     *
+     **/
+    void userException();
+};
+
+/**
+ *
  * The invocation observer.
  *
  **/
@@ -204,6 +219,13 @@ local interface InvocationObserver extends Observer
      *
      **/
     void retried();
+
+    /**
+     *
+     * Notification of a user exception.
+     *
+     **/
+    void userException();
 
     /**
      *
@@ -370,7 +392,7 @@ local interface CommunicatorObserver
      * @return The observer object.
      *
      **/
-    Observer getDispatchObserver(Current c); 
+    DispatchObserver getDispatchObserver(Current c); 
 
     /**
      *

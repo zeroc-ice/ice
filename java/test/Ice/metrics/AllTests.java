@@ -25,6 +25,37 @@ public class AllTests
         }
     }
 
+    static class Callback extends Ice.Callback
+    {
+        public Callback()
+        {
+            _wait = true;
+        }
+
+        synchronized public void completed(Ice.AsyncResult result)
+        {
+            _wait = false;
+            notify();
+        }
+
+        synchronized public void waitForResponse()
+        {
+            while(_wait)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+            _wait = true;
+        }
+
+        private boolean _wait;
+    };
+
     static private Map<String, String>
     getClientProps(Ice.PropertiesAdminPrx p, Map<String, String> orig, String m) 
     {
@@ -741,24 +772,23 @@ public class AllTests
         map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Dispatch"));
         test(map.size() == 6);
 
-        m1 = map.get("op");
-        test(m1.current == 0 && m1.total == 1 && m1.failures == 0);
+        IceMX.DispatchMetrics dm1 = (IceMX.DispatchMetrics)map.get("op");
+        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
 
-        m1 = map.get("opWithUserException");
-        test(m1.current == 0 &m1.total == 1 &m1.failures == 1);
-        checkFailure(serverMetrics, "Dispatch", m1.id, "Test::UserEx", 1, out);
+        dm1 = (IceMX.DispatchMetrics)map.get("opWithUserException");
+        test(dm1.current == 0 &dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
+        
+        dm1 = (IceMX.DispatchMetrics)map.get("opWithLocalException");
+        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::SyscallException", 1, out);
 
-        m1 = map.get("opWithLocalException");
-        test(m1.current == 0 && m1.total == 1 && m1.failures == 1);
-        checkFailure(serverMetrics, "Dispatch", m1.id, "Ice::SyscallException", 1, out);
+        dm1 = (IceMX.DispatchMetrics)map.get("opWithRequestFailedException");
+        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::ObjectNotExistException", 1, out);
 
-        m1 = map.get("opWithRequestFailedException");
-        test(m1.current == 0 && m1.total == 1 && m1.failures == 1);
-        checkFailure(serverMetrics, "Dispatch", m1.id, "Ice::ObjectNotExistException", 1, out);
-
-        m1 = map.get("opWithUnknownException");
-        test(m1.current == 0 && m1.total == 1 && m1.failures == 1);
-        checkFailure(serverMetrics, "Dispatch", m1.id, "java.lang.IllegalArgumentException", 1, out);
+        dm1 = (IceMX.DispatchMetrics)map.get("opWithUnknownException");
+        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        checkFailure(serverMetrics, "Dispatch", dm1.id, "java.lang.IllegalArgumentException", 1, out);
 
         InvokeOp op = new InvokeOp(metrics);
 
@@ -807,7 +837,13 @@ public class AllTests
         updateProps(clientProps, serverProps, update, props, "Invocation");
         test(serverMetrics.getMetricsView("View", timestamp).get("Invocation") == null);
 
+        Callback cb = new Callback();
+
         metrics.op();
+        metrics.end_op(metrics.begin_op());
+        metrics.begin_op(cb);
+        cb.waitForResponse();
+
         try
         {
             metrics.opWithUserException();
@@ -818,12 +854,34 @@ public class AllTests
         }
         try
         {
+            metrics.end_opWithUserException(metrics.begin_opWithUserException());
+            test(false);
+        }
+        catch(UserEx ex)
+        {
+        }
+        metrics.begin_opWithUserException(cb);
+        cb.waitForResponse();
+
+        try
+        {
             metrics.opWithRequestFailedException();
             test(false);
         }
         catch(Ice.RequestFailedException ex)
         {
         }
+        try
+        {
+            metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
+            test(false);
+        }
+        catch(Ice.RequestFailedException ex)
+        {
+        }
+        metrics.begin_opWithRequestFailedException(cb);
+        cb.waitForResponse();
+
         try
         {
             metrics.opWithLocalException();
@@ -834,6 +892,17 @@ public class AllTests
         }
         try
         {
+            metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
+            test(false);
+        }
+        catch(Ice.LocalException ex)
+        {
+        }
+        metrics.begin_opWithLocalException(cb);
+        cb.waitForResponse();
+
+        try
+        {
             metrics.opWithUnknownException();
             test(false);
         }
@@ -842,39 +911,71 @@ public class AllTests
         }
         try
         {
+            metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
+            test(false);
+        }
+        catch(Ice.UnknownException ex)
+        {
+        }
+        metrics.begin_opWithUnknownException(cb);
+        cb.waitForResponse();
+
+        try
+        {
             metrics.fail();
             test(false);
         }
         catch(Ice.ConnectionLostException ex)
         {
         }
+        try
+        {
+            metrics.end_fail(metrics.begin_fail());
+            test(false);
+        }
+        catch(Ice.ConnectionLostException ex)
+        {
+        }
+        metrics.begin_fail(cb);
+        cb.waitForResponse();
 
         map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
         test(map.size() == 6);
 
         IceMX.InvocationMetrics im1;
         im1 = (IceMX.InvocationMetrics)map.get("op");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 0 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithUserException");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 1 && im1.retry == 0 && im1.remotes.length == 1);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Test::UserEx", 1, out);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
+        test(im1.userException == 3);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithLocalException");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 1 && im1.retry == 0 && im1.remotes.length == 1);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownLocalException", 1, out);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
+        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownLocalException", 3, out);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithRequestFailedException");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 1 && im1.retry == 0 && im1.remotes.length == 1);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ObjectNotExistException", 1, out);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
+        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ObjectNotExistException", 3, out);
 
         im1 = (IceMX.InvocationMetrics)map.get("opWithUnknownException");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 1 && im1.retry == 0 && im1.remotes.length == 1);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownException", 1, out);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.length == 1);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
+        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownException", 3, out);
 
         im1 = (IceMX.InvocationMetrics)map.get("fail");
-        test(im1.current == 0 && im1.total == 1 && im1.failures == 1 && im1.retry == 1 && im1.remotes.length == 2);
-        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 1, out);
+        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.length == 6);
+        test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
+        test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
+        test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);
+        test(im1.remotes[3].current == 0 && im1.remotes[3].total == 1 && im1.remotes[3].failures == 1);
+        test(im1.remotes[4].current == 0 && im1.remotes[4].total == 1 && im1.remotes[4].failures == 1);
+        test(im1.remotes[5].current == 0 && im1.remotes[5].total == 1 && im1.remotes[5].failures == 1);
+        checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ConnectionLostException", 3, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "id",

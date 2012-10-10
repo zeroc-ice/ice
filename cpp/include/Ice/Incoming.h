@@ -55,7 +55,7 @@ protected:
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
-    ObserverHelperT<Ice::Instrumentation::Observer> _observer;
+    DispatchObserver _observer;
     bool _response;
     Ice::Byte _compress;
 

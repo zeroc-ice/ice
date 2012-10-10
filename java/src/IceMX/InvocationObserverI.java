@@ -107,6 +107,12 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
     };
 
     public void
+    userException()
+    {
+        forEach(_userException);
+    }
+
+    public void
     retried()
     {
         forEach(_incrementRetry);
@@ -124,6 +130,15 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             update(InvocationMetrics v)
             {
                 ++v.retry;
+            }
+        };
+
+    final MetricsUpdate<InvocationMetrics> _userException = new MetricsUpdate<InvocationMetrics>()
+        {
+            public void
+            update(InvocationMetrics v)
+            {
+                ++v.userException;
             }
         };
 }

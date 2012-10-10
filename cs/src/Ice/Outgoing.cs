@@ -314,6 +314,10 @@ namespace IceInternal
 
                     case ReplyStatus.replyUserException:
                     {
+                        if(_observer != null)
+                        {
+                            _observer.userException();
+                        }
                         _state = StateUserException; // The state must be set last, in case there is an exception.
                         break;
                     }
@@ -440,6 +444,7 @@ namespace IceInternal
                 Debug.Assert(_state <= StateInProgress);
                 if(_remoteObserver != null)
                 {
+                    _remoteObserver.failed(ex.ice_name());
                     _remoteObserver.detach();
                     _remoteObserver = null;
                 }
@@ -520,12 +525,8 @@ namespace IceInternal
                 _is.startReadEncaps();
                 _is.throwException(null);
             }
-            catch(Ice.UserException ex)
+            catch(Ice.UserException)
             {
-                if(_observer != null)
-                {
-                    _observer.failed(ex.ice_name());
-                }
                 _is.endReadEncaps();
                 throw;
             }
@@ -673,11 +674,6 @@ namespace IceInternal
                         _m.Wait();
                     }
 
-                    if(_remoteObserver != null)
-                    {
-                        _remoteObserver.detach();
-                        _remoteObserver = null;
-                    }
                     if(_exception != null)
                     {
                         throw _exception;
@@ -709,11 +705,22 @@ namespace IceInternal
             {
                 _sent = true;
             }
+
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.detach();
+                _remoteObserver = null;
+            }
         }
 
         public void finished(Ice.LocalException ex, bool sent)
         {
             _m.Lock();
+            if(_remoteObserver != null)
+            {
+                _remoteObserver.failed(ex.ice_name());
+                _remoteObserver.detach();
+            }
             try
             {
                 _exception = ex;

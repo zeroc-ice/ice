@@ -866,22 +866,35 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_isA_name);
-            if(!outAsync__.wait__())
+            bool ok = outAsync__.wait__();
+            try
             {
-                try
+                if(!ok)
                 {
-                    outAsync__.throwUserException__();
+                    try
+                    {
+                        outAsync__.throwUserException__();
+                    }
+                    catch(Ice.UserException ex__)
+                    {
+                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                    }
                 }
-                catch(Ice.UserException ex__)
-                {
-                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                }
+                bool ret__;
+                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+                ret__ = is__.readBool();
+                outAsync__.endReadParams__();
+                return ret__;
             }
-            bool ret__;
-            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-            ret__ = is__.readBool();
-            outAsync__.endReadParams__();
-            return ret__;
+            catch(Ice.LocalException ex)
+            {
+                InvocationObserver obsv__ = outAsync__.getObserver__();
+                if(obsv__ != null)
+                {
+                    obsv__.failed(ex.ice_name());
+                }
+                throw ex;
+            }
         }
 
         private AsyncResult<Callback_Object_ice_isA> begin_ice_isA(string id, Dictionary<string, string> context__,
@@ -1136,22 +1149,35 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_ids_name);
-            if(!outAsync__.wait__())
+            bool ok = outAsync__.wait__();
+            try
             {
-                try
+                if(!ok)
                 {
-                    outAsync__.throwUserException__();
+                    try
+                    {
+                        outAsync__.throwUserException__();
+                    }
+                    catch(Ice.UserException ex__)
+                    {
+                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                    }
                 }
-                catch(Ice.UserException ex__)
-                {
-                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                }
+                string[] ret__;
+                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+                ret__ = is__.readStringSeq();
+                outAsync__.endReadParams__();
+                return ret__;
             }
-            string[] ret__;
-            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-            ret__ = is__.readStringSeq();
-            outAsync__.endReadParams__();
-            return ret__;
+            catch(Ice.LocalException ex)
+            {
+                InvocationObserver obsv__ = outAsync__.getObserver__();
+                if(obsv__ != null)
+                {
+                    obsv__.failed(ex.ice_name());
+                }
+                throw ex;
+            }
         }
 
         private AsyncResult<Callback_Object_ice_ids> begin_ice_ids(Dictionary<string, string> context__,
@@ -1286,22 +1312,35 @@ namespace Ice
         {
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_id_name);
-            if(!outAsync__.wait__())
+            bool ok = outAsync__.wait__();
+            try
             {
-                try
+                if(!ok)
                 {
-                    outAsync__.throwUserException__();
+                    try
+                    {
+                        outAsync__.throwUserException__();
+                    }
+                    catch(Ice.UserException ex__)
+                    {
+                        throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
+                    }
                 }
-                catch(Ice.UserException ex__)
-                {
-                    throw new Ice.UnknownUserException(ex__.ice_name(), ex__);
-                }
+                string ret__;
+                IceInternal.BasicStream is__ = outAsync__.startReadParams__();
+                ret__ = is__.readString();
+                outAsync__.endReadParams__();
+                return ret__;
             }
-            string ret__;
-            IceInternal.BasicStream is__ = outAsync__.startReadParams__();
-            ret__ = is__.readString();
-            outAsync__.endReadParams__();
-            return ret__;
+            catch(Ice.LocalException ex)
+            {
+                InvocationObserver obsv__ = outAsync__.getObserver__();
+                if(obsv__ != null)
+                {
+                    obsv__.failed(ex.ice_name());
+                }
+                throw ex;
+            }
         }
 
         private AsyncResult<Callback_Object_ice_id> begin_ice_id(Dictionary<string, string> context__,
@@ -1514,15 +1553,27 @@ namespace Ice
             IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;
             IceInternal.OutgoingAsync.check__(outAsync__, this, __ice_invoke_name);
             bool ok = outAsync__.wait__();
-            if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+            try
             {
-                outEncaps = outAsync__.readParamEncaps__();
+                if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
+                {
+                    outEncaps = outAsync__.readParamEncaps__();
+                }
+                else
+                {
+                    outEncaps = null; // Satisfy compiler
+                }
+                return ok;
             }
-            else
+            catch(Ice.LocalException ex)
             {
-                outEncaps = null; // Satisfy compiler
+                InvocationObserver obsv__ = outAsync__.getObserver__();
+                if(obsv__ != null)
+                {
+                    obsv__.failed(ex.ice_name());
+                }
+                throw ex;
             }
-            return ok;
         }
 
         private AsyncResult<Callback_Object_ice_invoke> begin_ice_invoke(string operation,
@@ -2477,10 +2528,6 @@ namespace Ice
                 }
                 throw ex.get();
             }
-            else if(obsv != null)
-            {
-                obsv.retried();
-            }
 
             return 0;
         }
@@ -2500,10 +2547,6 @@ namespace Ice
                     {
                         _delegate = null;
                     }
-                }
-                if(obsv != null)
-                {
-                    obsv.retried();
                 }
                 return 0;
             }
@@ -2544,18 +2587,30 @@ namespace Ice
             bool ok = outAsync.wait__();
             if(_reference.getMode() == IceInternal.Reference.Mode.ModeTwoway)
             {
-                if(!ok)
+                try
                 {
-                    try
+                    if(!ok)
                     {
-                        outAsync.throwUserException__();
+                        try
+                        {
+                            outAsync.throwUserException__();
+                        }
+                        catch(Ice.UserException ex)
+                        {
+                            throw new Ice.UnknownUserException(ex.ice_name(), ex);
+                        }
                     }
-                    catch(Ice.UserException ex)
-                    {
-                        throw new Ice.UnknownUserException(ex.ice_name(), ex);
-                    }
+                    outAsync.readEmptyParams__();
                 }
-                outAsync.readEmptyParams__();
+                catch(Ice.LocalException ex)
+                {
+                    InvocationObserver obsv__ = outAsync.getObserver__();
+                    if(obsv__ != null)
+                    {
+                        obsv__.failed(ex.ice_name());
+                    }
+                    throw ex;
+                }
             }
         }
 

@@ -181,7 +181,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    static private final class DispatchHelper extends MetricsHelper<Metrics>
+    static private final class DispatchHelper extends MetricsHelper<DispatchMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             {
@@ -607,7 +607,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
 
         _connections = new ObserverFactory<ConnectionMetrics, ConnectionObserverI>(metrics, "Connection", 
                                                                                    ConnectionMetrics.class);
-        _dispatch = new ObserverFactory<Metrics, ObserverI>(metrics, "Dispatch", Metrics.class);
+        _dispatch = new ObserverFactory<DispatchMetrics, DispatchObserverI>(metrics, "Dispatch", DispatchMetrics.class);
         _invocations = new ObserverFactory<InvocationMetrics, InvocationObserverI>(metrics, "Invocation", 
                                                                                    InvocationMetrics.class);
         _threads = new ObserverFactory<ThreadMetrics, ThreadObserverI>(metrics, "Thread", ThreadMetrics.class);
@@ -711,14 +711,14 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         return null;
     }
     
-    public Ice.Instrumentation.Observer
+    public Ice.Instrumentation.DispatchObserver
     getDispatchObserver(Ice.Current c)
     {
         if(_dispatch.isEnabled())
         {
             try
             {
-                return _dispatch.getObserver(new DispatchHelper(c), ObserverI.class);
+                return _dispatch.getObserver(new DispatchHelper(c), DispatchObserverI.class);
             }
             catch(Exception ex)
             {
@@ -754,7 +754,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
 
     final private IceInternal.MetricsAdminI _metrics;
     final private ObserverFactory<ConnectionMetrics, ConnectionObserverI> _connections;
-    final private ObserverFactory<Metrics, ObserverI> _dispatch;
+    final private ObserverFactory<DispatchMetrics, DispatchObserverI> _dispatch;
     final private ObserverFactory<InvocationMetrics, InvocationObserverI> _invocations;
     final private ObserverFactory<ThreadMetrics, ThreadObserverI> _threads;
     final private ObserverFactory<Metrics, ObserverI> _connects;

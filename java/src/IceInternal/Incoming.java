@@ -160,7 +160,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
 
                         if(_observer != null)
                         {
-                            _observer.failed(ex.ice_name());
+                            _observer.userException();
                         }
 
                         if(_response)

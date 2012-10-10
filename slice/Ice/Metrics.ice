@@ -206,6 +206,16 @@ class ThreadMetrics extends Metrics
     int inUseForOther = 0;
 };
 
+class DispatchMetrics extends Metrics
+{
+    /**
+     *
+     * Number of dispatch that failed with a user exception.
+     *
+     **/
+    int userException = 0;
+};
+
 /**
  *
  * Invocation metrics.
@@ -219,6 +229,13 @@ class InvocationMetrics extends Metrics
      *
      **/
     int retry = 0;
+
+    /**
+     *
+     * Number of invocations that failed with a user exception.
+     *
+     **/
+    int userException = 0;
 
     /**
      *

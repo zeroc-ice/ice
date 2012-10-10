@@ -9,12 +9,14 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= client.exe server.exe
+TARGETS		= client.exe server.exe serveramd.exe
 
 C_SRCS		= AllTests.cs Client.cs ../../TestCommon/TestApp.cs
 S_SRCS		= MetricsI.cs Server.cs 
+SAMD_SRCS	= MetricsAMDI.cs Server.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
+SLICE_AMD_SRCS  = $(SDIR)/TestAMD.ice
 
 SDIR		= .
 
@@ -30,6 +32,9 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
+
+serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,Ice) $(subst /,$(DSEP),$^)
 
 include .depend

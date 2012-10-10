@@ -4973,7 +4973,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << nl << "IceInternal.OutgoingAsync outAsync__ = (IceInternal.OutgoingAsync)r__;";
             _out << nl << "IceInternal.OutgoingAsync.check__(outAsync__, this, " << flatName << ");";
-            _out << nl << "if(!outAsync__.wait__())";
+            _out << nl << "bool ok__ = outAsync__.wait__();";
+            _out << nl << "try";
+            _out << sb;
+            _out << nl << "if(!ok__)";
             _out << sb;
 
             ExceptionList throws = op->throws();
@@ -5071,6 +5074,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << "outAsync__.readEmptyParams__();";
             }
+            _out << eb;
+            _out << nl << "catch(Ice.LocalException ex)";
+            _out << sb;
+            _out << nl << "Ice.Instrumentation.InvocationObserver obsv__ = outAsync__.getObserver__();";
+            _out << nl << "if(obsv__ != null)";
+            _out << sb;
+            _out << nl << "obsv__.failed(ex.ice_name());";
+            _out << eb;
+            _out << nl << "throw ex;";
+            _out << eb;
         }
         else
         {

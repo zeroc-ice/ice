@@ -329,6 +329,15 @@ public class AsyncResult
                 __error(exc);
             }
         }
+
+        if(_observer != null)
+        {
+            Ice.ObjectPrx proxy = getProxy();
+            if(proxy == null || !proxy.ice_isTwoway())
+            {
+                _observer.detach();
+            }
+        }
     }
 
     public void 
@@ -344,6 +353,11 @@ public class AsyncResult
         }
     }
 
+    public Ice.Instrumentation.InvocationObserver __getObserver()
+    {
+        return _observer;
+    }
+    
     public final void __sentAsync()
     {
         //

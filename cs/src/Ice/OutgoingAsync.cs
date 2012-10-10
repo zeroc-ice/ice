@@ -541,6 +541,11 @@ namespace IceInternal
             }
         }
 
+        public Ice.Instrumentation.InvocationObserver getObserver__()
+        {
+            return observer_;
+        }
+
         public void sentAsync__(Ice.AsyncCallback callback)
         {
             //
@@ -652,6 +657,16 @@ namespace IceInternal
                 catch(System.Exception ex)
                 {
                     warning__(ex);
+                }
+            }
+
+            if(observer_ != null)
+            {
+                Ice.ObjectPrx proxy = getProxy();
+                if(proxy == null || !proxy.ice_isTwoway())
+                {
+                    observer_.detach();
+                    observer_ = null;
                 }
             }
         }
@@ -912,11 +927,6 @@ namespace IceInternal
         public new void sent__(Ice.AsyncCallback cb)
         {
             base.sent__(cb);
-            if(observer_ != null && !proxy_.ice_isTwoway())
-            {
-                observer_.detach();
-                observer_ = null;
-            }
         }
 
         public void finished__(Ice.LocalException exc, bool sent)
@@ -927,6 +937,7 @@ namespace IceInternal
                 Debug.Assert((state_ & Done) == 0);
                 if(remoteObserver_ != null)
                 {
+                    remoteObserver_.failed(exc.ice_name());
                     remoteObserver_.detach();
                     remoteObserver_ = null;
                 }
@@ -976,6 +987,7 @@ namespace IceInternal
 
             if(remoteObserver_ != null)
             {
+                remoteObserver_.failed(exc.get().ice_name());
                 remoteObserver_.detach();
                 remoteObserver_ = null;
             }
@@ -1033,8 +1045,16 @@ namespace IceInternal
                     switch(replyStatus)
                     {
                         case ReplyStatus.replyOK:
+                        {
+                            break;
+                        }
+
                         case ReplyStatus.replyUserException:
                         {
+                            if(observer_ != null)
+                            {
+                                observer_.userException();
+                            }
                             break;
                         }
 
@@ -1553,6 +1573,7 @@ namespace IceInternal
         {
             if(remoteObserver_ != null)
             {
+                remoteObserver_.failed(exc.ice_name());
                 remoteObserver_.detach();
                 remoteObserver_ = null;
             }
@@ -1692,11 +1713,6 @@ namespace IceInternal
                 {
                     return;
                 }
-                if(observer_ != null)
-                {
-                    observer_.detach();
-                    observer_ = null;
-                }
 
                 state_ |= (Done | OK | Sent);
                 sentCallback = sentCallback_;
@@ -1748,6 +1764,7 @@ namespace IceInternal
             {
                 if(remoteObserver_ != null)
                 {
+                    remoteObserver_.failed(ex.ice_name());
                     remoteObserver_.detach();
                     remoteObserver_ = null;
                 }

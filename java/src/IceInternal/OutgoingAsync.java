@@ -138,11 +138,6 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
     public void __sent()
     {
         __sentInternal();
-        if(_observer != null && !_proxy.ice_isTwoway())
-        {
-            _observer.detach();
-            _observer = null;
-        }
     }
 
     public void __finished(Ice.LocalException exc, boolean sent)
@@ -152,6 +147,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
             assert((_state & Done) == 0);
             if(_remoteObserver != null)
             {
+                _remoteObserver.failed(exc.ice_name());
                 _remoteObserver.detach();
                 _remoteObserver = null;
             }
@@ -196,6 +192,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         
         if(_remoteObserver != null)
         {
+            _remoteObserver.failed(exc.get().ice_name());
             _remoteObserver.detach();
             _remoteObserver = null;
         }
@@ -249,8 +246,16 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
                 switch(replyStatus)
                 {
                     case ReplyStatus.replyOK:
+                    {
+                        break;
+                    }
+
                     case ReplyStatus.replyUserException:
                     {
+                        if(_observer != null)
+                        {
+                            _observer.userException();
+                        }
                         break;
                     }
 

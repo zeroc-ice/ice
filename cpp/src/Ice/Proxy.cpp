@@ -184,22 +184,31 @@ bool
 IceProxy::Ice::Object::end_ice_isA(const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_isA_name);
-    if(!__result->__wait())
+    bool __ok = __result->__wait();
+    try
     {
-        try
+        if(!__ok)
         {
-            __result->__throwUserException();
+            try
+            {
+                __result->__throwUserException();
+            }
+            catch(const UserException& __ex)
+            {
+                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            }
         }
-        catch(const UserException& __ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-        }
+        bool __ret;
+        IceInternal::BasicStream* __is = __result->__startReadParams();
+        __is->read(__ret);
+        __result->__endReadParams();
+        return __ret;
     }
-    bool __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
-    __is->read(__ret);
-    __result->__endReadParams();
-    return __ret;
+    catch(const ::Ice::LocalException& ex)
+    {
+        __result->__getObserver().failed(ex.ice_name());
+        throw;
+    }
 }
 
 void
@@ -326,22 +335,31 @@ vector<string>
 IceProxy::Ice::Object::end_ice_ids(const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_ids_name);
-    if(!__result->__wait())
+    bool __ok = __result->__wait();
+    try
     {
-        try
+        if(!__ok)
         {
-            __result->__throwUserException();
+            try
+            {
+                __result->__throwUserException();
+            }
+            catch(const UserException& __ex)
+            {
+                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            }
         }
-        catch(const UserException& __ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-        }
+        vector<string> __ret;
+        IceInternal::BasicStream* __is = __result->__startReadParams();
+        __is->read(__ret);
+        __result->__endReadParams();
+        return __ret;
     }
-    vector<string> __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
-    __is->read(__ret);
-    __result->__endReadParams();
-    return __ret;
+    catch(const ::Ice::LocalException& ex)
+    {
+        __result->__getObserver().failed(ex.ice_name());
+        throw;
+    }
 }
 
 AsyncResultPtr
@@ -368,22 +386,32 @@ string
 IceProxy::Ice::Object::end_ice_id(const AsyncResultPtr& __result)
 {
     AsyncResult::__check(__result, this, ice_id_name);
-    if(!__result->__wait())
+    bool __ok = __result->__wait();
+    try
     {
-        try
+        if(!__ok)
         {
-            __result->__throwUserException();
+            try
+            {
+                __result->__throwUserException();
+            }
+            catch(const UserException& __ex)
+            {
+                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            }
         }
-        catch(const UserException& __ex)
-        {
-            throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-        }
+        string __ret;
+        IceInternal::BasicStream* __is = __result->__startReadParams();
+        __is->read(__ret);
+        __result->__endReadParams();
+        return __ret;
+    
     }
-    string __ret;
-    IceInternal::BasicStream* __is = __result->__startReadParams();
-    __is->read(__ret);
-    __result->__endReadParams();
-    return __ret;
+    catch(const ::Ice::LocalException& ex)
+    {
+        __result->__getObserver().failed(ex.ice_name());
+        throw;
+    }
 }
 
 bool
@@ -484,10 +512,18 @@ IceProxy::Ice::Object::end_ice_invoke(vector<Byte>& outEncaps, const AsyncResult
     bool ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
-        const Byte* v;
-        Int sz;
-        __result->__readParamEncaps(v, sz);
-        vector<Byte>(v, v + sz).swap(outEncaps);
+        try
+        {
+            const Byte* v;
+            Int sz;
+            __result->__readParamEncaps(v, sz);
+            vector<Byte>(v, v + sz).swap(outEncaps);
+        }
+        catch(const ::Ice::LocalException& ex)
+        {
+            __result->__getObserver().failed(ex.ice_name());
+            throw;
+        }
     }
     return ok;
 }
@@ -606,9 +642,17 @@ IceProxy::Ice::Object::___end_ice_invoke(pair<const Byte*, const Byte*>& outEnca
     bool ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
-        Int sz;
-        __result->__readParamEncaps(outEncaps.first, sz);
-        outEncaps.second = outEncaps.first + sz;
+        try
+        {
+            Int sz;
+            __result->__readParamEncaps(outEncaps.first, sz);
+            outEncaps.second = outEncaps.first + sz;
+        }
+        catch(const ::Ice::LocalException& ex)
+        {
+            __result->__getObserver().failed(ex.ice_name());
+            throw;
+        }
     }
     return ok;
 }
@@ -1300,10 +1344,6 @@ IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::I
         observer.failed(ex.get()->ice_name());
         ex.get()->ice_throw();
     }
-    else
-    {
-        observer.retried();
-    }
 
     return 0;
 }
@@ -1328,7 +1368,6 @@ IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Hand
                 _delegate = 0;
             }
         }
-        observer.retried();
         return 0;
     }
 }
@@ -1365,21 +1404,29 @@ void
 IceProxy::Ice::Object::__end(const ::Ice::AsyncResultPtr& __result, const std::string& operation) const
 {
     AsyncResult::__check(__result, this, operation);
-    bool ok = __result->__wait();
+    bool __ok = __result->__wait();
     if(_reference->getMode() == Reference::ModeTwoway)
     {
-        if(!ok)
+        try
         {
-            try
+            if(!__ok)
             {
-                __result->__throwUserException();
+                try
+                {
+                    __result->__throwUserException();
+                }
+                catch(const UserException& __ex)
+                {
+                    throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+                }
             }
-            catch(const UserException& __ex)
-            {
-                throw UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
-            }
+            __result->__readEmptyParams();
         }
-        __result->__readEmptyParams();
+        catch(const ::Ice::LocalException& ex)
+        {
+            __result->__getObserver().failed(ex.ice_name());
+            throw;
+        }
     }
 }
 

@@ -2263,8 +2263,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         // and Windows 64 bits when compiled with optimization (see bug 4400).
         //
         writeAllocateCode(C, ParamDeclList(), p, _useWstring | TypeContextAMIEnd);
-
-        C << nl << "if(!__result->__wait())";
+        C << nl << "bool __ok = __result->__wait();";
+        C << nl << "try";
+        C << sb;
+        C << nl << "if(!__ok)";
         C << sb;
         C << nl << "try";
         C << sb;
@@ -2309,6 +2311,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "return __ret;";
         }
+        C << eb;
+        C << nl << "catch(const ::Ice::LocalException& ex)";
+        C << sb;
+        C << nl << "__result->__getObserver().failed(ex.ice_name());";
+        C << nl << "throw;";
+        C << eb;
     }
     else
     {

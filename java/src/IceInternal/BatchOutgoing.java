@@ -53,11 +53,6 @@ public final class BatchOutgoing implements OutgoingMessageCallback
                     }
                 }
                 
-                if(_remoteObserver != null)
-                {
-                    _remoteObserver.detach();
-                    _remoteObserver = null;
-                }
                 if(_exception != null)
                 {
                     throw _exception;
@@ -81,11 +76,22 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         {
             _sent = true;
         }
+        if(_remoteObserver != null)
+        {
+            _remoteObserver.detach();
+            _remoteObserver = null;
+        }
     }
     
     public synchronized void
     finished(Ice.LocalException ex, boolean sent)
     {
+        if(_remoteObserver != null)
+        {
+            _remoteObserver.failed(ex.ice_name());
+            _remoteObserver.detach();
+            _remoteObserver = null;
+        }
         _exception = ex;
         notify();
     }

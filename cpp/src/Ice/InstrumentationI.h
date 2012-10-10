@@ -30,11 +30,20 @@ public:
     virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
 };
 
+class DispatchObserverI : public Ice::Instrumentation::DispatchObserver, public ObserverT<DispatchMetrics>
+{
+public:
+
+    virtual void userException();
+};
+
 class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, public ObserverT<InvocationMetrics>
 {
 public:
 
     virtual void retried();
+
+    virtual void userException();
 
     virtual Ice::Instrumentation::ObserverPtr getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&);
 };
@@ -66,7 +75,7 @@ public:
                                                                               const std::string&,
                                                                               const Ice::Context&);
 
-    virtual Ice::Instrumentation::ObserverPtr getDispatchObserver(const Ice::Current&);
+    virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&);
 
     const IceInternal::MetricsAdminIPtr& getMetricsAdmin() const;
 
@@ -75,7 +84,7 @@ private:
     const IceInternal::MetricsAdminIPtr _metrics;
 
     ObserverFactoryT<ConnectionObserverI> _connections;
-    ObserverFactoryT<ObserverI> _dispatch;
+    ObserverFactoryT<DispatchObserverI> _dispatch;
     ObserverFactoryT<InvocationObserverI> _invocations;
     ObserverFactoryT<ThreadObserverI> _threads;
     ObserverFactoryT<ObserverI> _connects;

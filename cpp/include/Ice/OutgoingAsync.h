@@ -126,6 +126,11 @@ public:
         _remoteObserver.attach(_observer.getRemoteObserver(connection, endpt));
     }
 
+    IceInternal::InvocationObserver& __getObserver()
+    {
+        return _observer;
+    }
+
 protected:
 
     static void __check(const AsyncResultPtr&, const ::std::string&);

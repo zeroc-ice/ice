@@ -64,6 +64,7 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             {
                 if(_remoteObserver != null)
                 {
+                    _remoteObserver.failed(ex.ice_name());
                     _remoteObserver.detach();
                     _remoteObserver = null;
                 }
@@ -110,13 +111,6 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             {
                 return;
             }
-            
-            if(_observer != null)
-            {
-                _observer.detach();
-                _observer = null;
-            }
-
             _state |= Done | OK | Sent;
             _monitor.notifyAll();
         }

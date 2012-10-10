@@ -387,6 +387,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
         
         case replyUserException:
         {
+            _observer.userException();
             _state = StateUserException; // The state must be set last, in case there is an exception.
             break;
         }
@@ -523,6 +524,7 @@ IceInternal::Outgoing::finished(const LocalException& ex, bool sent)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     assert(_state <= StateInProgress);
+    _remoteObserver.failed(ex.ice_name());
     _remoteObserver.detach();
 
     _state = StateFailed;
@@ -539,12 +541,8 @@ IceInternal::Outgoing::throwUserException()
         _is.startReadEncaps();
         _is.throwException();
     }
-    catch(const Ice::UserException& ex)
+    catch(const Ice::UserException&)
     {
-        if(_observer)
-        {
-            _observer.failed(ex.ice_name());
-        }
         _is.endReadEncaps();
         throw;
     }
@@ -579,7 +577,6 @@ IceInternal::BatchOutgoing::invoke()
         {
             _monitor.wait();
         }
-        _remoteObserver.detach();
         if(_exception.get())
         {
             _exception->ice_throw();
@@ -600,12 +597,15 @@ IceInternal::BatchOutgoing::sent(bool notify)
     {
         _sent = true;
     }
+    _remoteObserver.detach();
 }
 
 void
 IceInternal::BatchOutgoing::finished(const Ice::LocalException& ex, bool)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    _remoteObserver.failed(ex.ice_name());
+    _remoteObserver.detach();
     _exception.reset(ex.ice_clone());
     _monitor.notify();
 }

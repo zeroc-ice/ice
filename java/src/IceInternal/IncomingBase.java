@@ -114,6 +114,11 @@ public class IncomingBase
     public void 
     __endWriteParams(boolean ok)
     {
+        if(!ok && _observer != null)
+        {
+            _observer.userException();
+        }
+
         if(_response)
         {
             int save = _os.pos();
@@ -139,6 +144,11 @@ public class IncomingBase
     public void 
     __writeParamEncaps(byte[] v, boolean ok)
     {
+        if(!ok && _observer != null)
+        {
+            _observer.userException();
+        }
+
         if(_response)
         {
             assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
@@ -158,10 +168,6 @@ public class IncomingBase
     public void
     __writeUserException(Ice.UserException ex, Ice.FormatType format)
     {
-        if(_observer != null)
-        {
-            _observer.failed(ex.ice_name());
-        }
         BasicStream __os = __startWriteParams(format);
         __os.writeUserException(ex);
         __endWriteParams(false);
@@ -270,7 +276,7 @@ public class IncomingBase
 
             if(_observer != null)
             {
-                _observer.failed(ex.ice_name());
+                _observer.userException();
             }
 
             //
@@ -558,7 +564,7 @@ public class IncomingBase
     protected Ice.Object _servant;
     protected Ice.ServantLocator _locator;
     protected Ice.LocalObjectHolder _cookie;
-    protected Ice.Instrumentation.Observer _observer;
+    protected Ice.Instrumentation.DispatchObserver _observer;
 
     protected boolean _response;
     protected byte _compress;

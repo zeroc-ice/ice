@@ -96,6 +96,19 @@ protected:
     TPtr _observer;
 };
 
+class ICE_API DispatchObserver : public ObserverHelperT<Ice::Instrumentation::DispatchObserver>
+{
+public:
+    
+    void userException()
+    {
+        if(_observer)
+        {
+            _observer->userException();
+        }
+    }
+};
+
 class ICE_API InvocationObserver : public ObserverHelperT<Ice::Instrumentation::InvocationObserver>
 {
 public:
@@ -125,6 +138,15 @@ public:
             return _observer->getRemoteObserver(con, endpt);
         }
         return 0;
+    }
+
+    void
+    userException()
+    {
+        if(_observer)
+        {
+            _observer->userException();
+        }
     }
 
 private:
