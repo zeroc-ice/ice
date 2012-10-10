@@ -342,6 +342,11 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 void
 IceInternal::Outgoing::sent(bool notify)
 {
+    if(_handler->getReference()->getMode() != Reference::ModeTwoway)
+    {
+        _remoteObserver.detach();
+    }
+
     if(notify)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
@@ -355,11 +360,6 @@ IceInternal::Outgoing::sent(bool notify)
         // send mutex is locked and no other threads can call on Outgoing until it's released.
         //
         _sent = true;
-    }
-
-    if(_handler->getReference()->getMode() != Reference::ModeTwoway)
-    {
-        _remoteObserver.detach();
     }
 }
 
