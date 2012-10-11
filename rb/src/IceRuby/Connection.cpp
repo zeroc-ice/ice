@@ -10,6 +10,7 @@
 #include <Connection.h>
 #include <Endpoint.h>
 #include <Util.h>
+#include <Ice/Object.h>
 
 using namespace std;
 using namespace IceRuby;
