@@ -41,12 +41,12 @@ SRCS		= $(OBJS:.obj=.cpp) \
 HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
 
-SLICE2FREEZECMD = $(SLICE2FREEZE) -I..\.. --ice --include-dir IceStorm\FreezeDB $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) -I..\.. --ice --include-dir IceStorm/FreezeDB $(ICECPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I..\.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceStorm\FreezeDB $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceStorm/FreezeDB $(SLICE2CPPFLAGS)
 
 LINKWITH 	= icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS)
 MLINKWITH 	= freeze$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib icestorm$(LIBSUFFIX).lib $(LIBS)

@@ -1573,6 +1573,40 @@ Slice::Container::hasNonLocalClassDefs() const
 }
 
 bool
+Slice::Container::hasLocalClassDefsWithAsync() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && cl->isLocal())
+        {
+            if(cl->hasMetaData("async"))
+            {
+                return true;
+            }
+
+            OperationList ol = cl->operations();
+            for(OperationList::const_iterator q = ol.begin(); q != ol.end(); ++q)
+            {
+                cerr << (*q)->name() << endl;
+                if((*q)->hasMetaData("async"))
+                {
+                    return true;
+                }
+            }
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasLocalClassDefsWithAsync())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
 Slice::Container::hasNonLocalSequences() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)

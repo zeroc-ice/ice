@@ -349,9 +349,9 @@ public:
             _subMaps.find(subMapName);
         if(p != _subMaps.end())
         {
-            return std::make_pair(p->second.second->clone(), p->second.first);
+            return std::pair<MetricsMapIPtr, SubMapMember>(p->second.second->clone(), p->second.first);
         }
-        return std::make_pair(MetricsMapIPtr(), static_cast<SubMapMember>(0));
+        return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(), static_cast<SubMapMember>(0));
     }
 
     EntryTPtr 
@@ -506,7 +506,7 @@ public:
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
-        _subMaps[subMap] = make_pair(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
+        _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr>(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
     }
 
 private:

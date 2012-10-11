@@ -206,14 +206,4 @@ install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
 endif
 
-$(HDIR)/BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)/BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f $(HDIR)/BuiltinSequences.h BuiltinSequences.cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)/BuiltinSequences.ice
-	mv BuiltinSequences.h $(HDIR)
-
-$(HDIR)/Metrics.h Metrics.cpp: $(SDIR)/Metrics.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	rm -f $(HDIR)/Metrics.h Metrics.cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)/Metrics.ice
-	mv Metrics.h $(HDIR)
-
 include .depend

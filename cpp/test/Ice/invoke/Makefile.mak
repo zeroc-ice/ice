@@ -36,7 +36,6 @@ SRCS		= $(COBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS  = --stream $(SLICE2CPPFLAGS)
 
 !if "$(WINRT)" != "yes"
 LD_TESTFLAGS	= $(LD_EXEFLAGS) $(SETARGV)

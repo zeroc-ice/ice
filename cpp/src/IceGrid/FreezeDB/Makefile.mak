@@ -30,12 +30,12 @@ SRCS		= $(OBJS:.obj=.cpp) \
 HDIR		= $(headerdir)/IceGrid
 SDIR		= $(slicedir)/IceGrid
 
-SLICE2FREEZECMD = $(SLICE2FREEZE) -I..\.. --ice --include-dir IceGrid\FreezeDB $(ICECPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) -I..\.. --ice --include-dir IceGrid/FreezeDB $(ICECPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I..\.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceGrid\FreezeDB $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= -I..\.. --ice --include-dir IceGrid/FreezeDB $(SLICE2CPPFLAGS)
 
 LINKWITH 	= icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib icedb$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS)
 MLINKWITH 	= freeze$(LIBSUFFIX).lib icegrid$(LIBSUFFIX).lib icegriddb$(LIBSUFFIX).lib $(LIBS)

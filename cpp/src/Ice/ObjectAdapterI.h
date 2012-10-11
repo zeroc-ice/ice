@@ -26,8 +26,10 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
+#include <Ice/OutgoingAsyncF.h>
 #include <Ice/Exception.h>
 #include <Ice/BuiltinSequences.h>
+#include <Ice/Proxy.h>
 #include <list>
 
 namespace Ice

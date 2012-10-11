@@ -20,7 +20,8 @@ template<typename R> struct ReferenceWrapper
         return const_cast<R*>(&v);
     }
 };
-    
+
+/*    
 template<typename R> struct ReferenceWrapper<IceUtil::Handle<R> >
 {
     static R* get(const IceUtil::Handle<R>& v)
@@ -36,6 +37,7 @@ template<typename R> struct ReferenceWrapper<const IceUtil::Handle<R>& >
         return v.get();
     }
 };
+*/
 
 template<typename R> struct ReferenceWrapper<IceInternal::ProxyHandle<R> >
 {

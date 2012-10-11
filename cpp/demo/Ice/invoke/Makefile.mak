@@ -27,7 +27,6 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"

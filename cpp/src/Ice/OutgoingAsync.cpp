@@ -452,7 +452,7 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
 
     Reference* ref = _proxy->__reference().get();
 
-    ref->getIdentity().__write(&_os);
+    _os.write(ref->getIdentity());
 
     //
     // For compatibility with the old FacetPath.
@@ -643,7 +643,7 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
             case replyOperationNotExist:
             {
                 Identity ident;
-                ident.__read(&_is);
+                _is.read(ident);
 
                 //
                 // For compatibility with the old FacetPath.

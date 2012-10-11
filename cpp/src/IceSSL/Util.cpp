@@ -16,6 +16,7 @@
 #include <IceUtil/FileUtil.h>
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
+#include <Ice/Object.h>
 
 #ifdef _WIN32
 #   include <direct.h>

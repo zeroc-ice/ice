@@ -11,6 +11,7 @@
 #define ICE_CONNECTION_ASYNC_H
 
 #include <Ice/Connection.h>
+#include <Ice/Proxy.h>
 
 namespace Ice
 {

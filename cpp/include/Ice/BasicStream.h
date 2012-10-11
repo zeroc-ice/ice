@@ -155,7 +155,7 @@ public:
         _currentWriteEncaps->start = b.size();
 
         write(Ice::Int(0)); // Placeholder for the encapsulation length.
-        _currentWriteEncaps->encoding.__write(this);
+        write(_currentWriteEncaps->encoding);
     }
     void endWriteEncaps()
     {
@@ -186,7 +186,7 @@ public:
     {
         checkSupportedEncoding(encoding);
         write(Ice::Int(6)); // Size
-        encoding.__write(this);
+        write(encoding);
     }
     void writeEncaps(const Ice::Byte* v, Ice::Int sz)
     {
@@ -238,7 +238,7 @@ public:
         }
         _currentReadEncaps->sz = sz;
 
-        _currentReadEncaps->encoding.__read(this);
+        read(_currentReadEncaps->encoding);
         checkSupportedEncoding(_currentReadEncaps->encoding); // Make sure the encoding is supported
 
         return _currentReadEncaps->encoding;
@@ -311,7 +311,7 @@ public:
         }
 
         Ice::EncodingVersion encoding;
-        encoding.__read(this);
+        read(encoding);
         return encoding;
     }
     void endReadEncapsChecked(); // Used by public stream API.
@@ -329,7 +329,7 @@ public:
             throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
         }
 
-        encoding.__read(this);
+        read(encoding);
         i += sz - sizeof(Ice::Int) - 2;
         return encoding;
     }

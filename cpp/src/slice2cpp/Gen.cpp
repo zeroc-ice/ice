@@ -136,6 +136,12 @@ writeMarshalUnmarshalDataMember(IceUtilInternal::Output& C, const DataMemberPtr&
 }
 
 void
+writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output& C, const string& holder, const DataMemberPtr& p, bool marshal)
+{
+    writeMarshalUnmarshalCode(C, p->type(), p->optional(), p->tag(), holder + fixKwd(p->name()), marshal, p->getMetaData());
+}
+
+void
 writeMarshalUnmarshalDataMembers(IceUtilInternal::Output& C, 
                                  const DataMemberList& dataMembers, 
                                  const DataMemberList& optionalDataMembers, 
@@ -374,6 +380,11 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/LocalException.h>";
         C << "\n#include <Ice/ObjectFactory.h>";
     }
+    else if(p->hasLocalClassDefsWithAsync())
+    {
+        H << "\n#include <Ice/Proxy.h>";
+        H << "\n#include <Ice/OutgoingAsync.h>";
+    }
 
     if(p->hasNonLocalDataOnlyClasses() || p->hasNonLocalExceptions())
     {
@@ -386,13 +397,9 @@ Slice::Gen::generate(const UnitPtr& p)
     if(p->usesNonLocals())
     {
         C << "\n#include <Ice/BasicStream.h>";
-
-        if(!p->hasNonLocalClassDefs() && !p->hasNonLocalClassDecls())
-        {
-            C << "\n#include <Ice/Object.h>";
-        }
+        C << "\n#include <Ice/Object.h>";
     }
-
+    
     if(_stream || p->hasNonLocalClassDefs() || p->hasNonLocalExceptions())
     {
         if(!p->hasNonLocalClassDefs())
@@ -479,8 +486,8 @@ Slice::Gen::generate(const UnitPtr& p)
     TypesVisitor typesVisitor(H, C, _dllExport, _stream);
     p->visit(&typesVisitor, false);
 
-    StreamVisitor streamVistor(H, C);
-    p->visit(&streamVistor, false);
+    StreamVisitor streamVisitor(H, C, _dllExport);
+    p->visit(&streamVisitor, false);
 
     AsyncVisitor asyncVisitor(H, C, _dllExport);
     p->visit(&asyncVisitor, false);
@@ -1196,12 +1203,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         params.push_back(fixKwd((*q)->name()));
     }
 
-    string dllExport;
-    if(findMetaData(p->getMetaData()) != "%class")
-    {
-        dllExport = _dllExport;
-    }
-
     H << sp << nl << "bool operator==(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "if(this == &__rhs)";
@@ -1253,57 +1254,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << sb;
     H << nl << "return !operator<(__rhs);";
     H << eb;
-
-    if(!p->isLocal())
-    {
-        //
-        // None of these member functions are virtual!
-        //
-        H << sp << nl << dllExport << "void __write(::IceInternal::BasicStream*) const;";
-        H << nl << dllExport << "void __read(::IceInternal::BasicStream*);";
-
-        if(_stream)
-        {
-            H << nl << dllExport << "void __write(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << dllExport << "void __read(const ::Ice::InputStreamPtr&);";
-        }
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
-        C << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMember(C, *q, true);
-        }
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
-        C << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-        {
-            writeMarshalUnmarshalDataMember(C, *q, false);
-        }
-        C << eb;
-
-        if(_stream)
-        {
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                C << nl << "__os->write(" << fixKwd((*q)->name()) << ");";
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                C << nl << "__is->read(" << fixKwd((*q)->name()) << ");";
-            }
-            C << eb;
-        }
-    }
-
     H << eb << ';';
 
     if(findMetaData(p->getMetaData()) == "%class")
@@ -6032,10 +5982,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c) :
-    H(h), C(c)
+Slice::Gen::StreamVisitor::StreamVisitor(Output& h, Output& c, const string& dllExport) :
+    H(h),
+    C(c),
+    _dllExport(dllExport)
 {
-
 }
 
 bool
@@ -6055,6 +6006,9 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         //
         H << sp;
         H << nl << "namespace Ice" << nl << '{';
+
+        C << sp;
+        C << nl << "namespace Ice" << nl << '{';
     }
 
     return true;
@@ -6069,6 +6023,7 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
         // Only emit this for the top-level module.
         //
         H << nl << '}';
+        C << nl << '}';
     }
 }
 
@@ -6094,15 +6049,13 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
     {
         bool classMetaData = findMetaData(p->getMetaData(), false) == "%class";
         string scoped = p->scoped();
+        
+        string fullStructName = classMetaData ? fixKwd(scoped + "Ptr") : fixKwd(scoped);
+        
         H << nl << "template<>";
-        if(classMetaData)
-        {
-            H << nl << "struct StreamableTraits< " << fixKwd(scoped + "Ptr") << ">";
-        }
-        else
-        {
-            H << nl << "struct StreamableTraits< " << fixKwd(scoped) << ">";
-        }
+        
+        H << nl << "struct StreamableTraits< " << fullStructName << ">";
+        
         H << sb;
         if(classMetaData)
         {
@@ -6122,6 +6075,53 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             H << nl << "static const bool fixedLength = true;";
         }
         H << eb << ";" << nl;
+
+        DataMemberList dataMembers = p->dataMembers();
+        
+        string holder = classMetaData ? "v->" : "v.";
+
+        H << nl << "template<class S>";
+        H << nl << "struct StreamWriter< " << fullStructName << ", S>";
+        H << sb;
+        H << nl << "static void write(S* __os, const " <<  fullStructName << "& v)";
+        H << sb;
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalDataMemberInHolder(H, holder, *q, true);
+        }
+        H << eb;
+        H << eb << ";" << nl;
+
+        H << nl << "template<class S>";
+        H << nl << "struct StreamReader< " << fullStructName << ", S>";
+        H << sb;
+        H << nl << "static void read(S* __is, " << fullStructName << "& v)";
+        H << sb;
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalDataMemberInHolder(H, holder, *q, false);
+        }
+        H << eb;
+        H << eb << ";" << nl;
+
+        if(!_dllExport.empty())
+        {
+            //
+            // We tell "importers" that the implementation exports these instantiations
+            //
+            H << nl << "#if defined(ICE_HAS_DECLSPEC_IMPORT_EXPORT) && !defined(" << _dllExport.substr(0, _dllExport.size() - 1) + "_EXPORTS)";
+            H << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            H << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            H << nl << "#endif" << nl;
+
+            //
+            // The instantations:
+            //
+            C << nl << "#ifdef ICE_HAS_DECLSPEC_IMPORT_EXPORT";
+            C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
+            C << nl << "#endif" << nl;
+        }
     }
     return false;
 }

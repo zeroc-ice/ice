@@ -309,7 +309,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& exc)
                 assert(false);
             }
 
-            rfe->id.__write(&_os);
+            _os.write(rfe->id);
 
             //
             // For compatibility with the old FacetPath.
@@ -548,7 +548,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
     //
     // Read the current.
     //
-    _current.id.__read(_is);
+    _is->read(_current.id);
 
     //
     // For compatibility with the old FacetPath.

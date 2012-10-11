@@ -93,9 +93,10 @@
     (defined(__HP_aCC) && defined(__HP_WINDLL))
 #   define ICE_DECLSPEC_EXPORT __declspec(dllexport)
 #   define ICE_DECLSPEC_IMPORT __declspec(dllimport)
-#elif defined(__SUNPRO_CC) && (__SUNPRO_CC >= 0x550)
+#   define ICE_HAS_DECLSPEC_IMPORT_EXPORT
+#elif defined(__SUNPRO_CC)
 #   define ICE_DECLSPEC_EXPORT __global
-#   define ICE_DECLSPEC_IMPORT
+#   define ICE_DECLSPEC_IMPORT /**/
 #else
 #   define ICE_DECLSPEC_EXPORT /**/
 #   define ICE_DECLSPEC_IMPORT /**/

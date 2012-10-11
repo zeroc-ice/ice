@@ -275,38 +275,49 @@ struct StreamHelper<T, StreamHelperCategoryBuiltin>
     }
 };
 
-// Helper for structs, uses generated __read/__write methods
+// "helpers" for the StreamHelper<T, StreamHelperCategoryStruct[Class]> below
+// We generate specializations, which can be instantiated explicitly and exported from DLLs
+// 
+
+template<typename T, typename S> 
+struct StreamWriter;
+
+template<typename T, typename S> 
+struct StreamReader;
+
+// Helper for structs
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStruct>
 {
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        v.__write(stream);
+        StreamWriter<T, S>::write(stream, v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        v.__read(stream);
+        StreamReader<T, S>::read(stream, v);
     }
 };
 
-// Helper for class structs, uses generated __read/__write methods
+
+// Helper for class structs
 template<typename T>
 struct StreamHelper<T, StreamHelperCategoryStructClass>
 {
     template<class S> static inline void 
     write(S* stream, const T& v)
     {
-        v->__write(stream);
+        StreamWriter<T, S>::write(stream, v);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        v = new typename T::element_type();
-        v->__read(stream);
+        v = new typename T::element_type;
+        StreamReader<T, S>::read(stream, v);
     }
 };
 

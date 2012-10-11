@@ -126,6 +126,11 @@ public:
             Ice::Identity id = _communicator->stringToIdentity("does not exist");
             test(ex.id == id);
         }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
         catch(...)
         {
             test(false);

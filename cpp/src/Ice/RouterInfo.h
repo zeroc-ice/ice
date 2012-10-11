@@ -15,8 +15,10 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/RouterF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/ReferenceF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/BuiltinSequences.h>
+#include <Ice/Identity.h>
 
 #include <set>
 

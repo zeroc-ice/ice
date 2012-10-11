@@ -8,6 +8,8 @@
 // **********************************************************************
 
 #include <Ice/ImplicitContextI.h>
+#include <Ice/BasicStream.h>
+#include <Ice/Object.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
 

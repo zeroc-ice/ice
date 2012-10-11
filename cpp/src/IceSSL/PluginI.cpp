@@ -12,6 +12,7 @@
 #include <IceSSL/TransceiverI.h>
 
 #include <Ice/LocalException.h>
+#include <Ice/Object.h>
 
 using namespace std;
 using namespace Ice;

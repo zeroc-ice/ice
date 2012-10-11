@@ -14,6 +14,7 @@
 #include <IceSSL/Plugin.h>
 #include <IceSSL/Util.h>
 #include <IceSSL/RFC2253.h>
+#include <Ice/Object.h>
 
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>

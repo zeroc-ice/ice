@@ -29,7 +29,7 @@ static void
 printIdentityFacetOperation(ostream& s, BasicStream& stream)
 {
     Identity identity;
-    identity.__read(&stream);
+    stream.read(identity);
     s << "\nidentity = " << stream.instance()->identityToString(identity);
 
     vector<string> facet;

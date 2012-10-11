@@ -336,7 +336,7 @@ Freeze::ObjectStoreBase::marshal(const Identity& ident,
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
-    ident.__write(&stream);
+    stream.write(ident);
     vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
 }
     
@@ -351,7 +351,7 @@ Freeze::ObjectStoreBase::unmarshal(Identity& ident,
     stream.b.resize(bytes.size());
     memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
-    ident.__read(&stream);
+    stream.read(ident);
 }
 
 void
@@ -366,7 +366,7 @@ Freeze::ObjectStoreBase::marshal(const ObjectRecord& v,
     stream.startWriteEncaps();
     if(keepStats)
     {
-	v.__write(&stream);
+        stream.write(v);
     }
     else
     {
@@ -395,7 +395,7 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
     
     if(keepStats)
     {
-	v.__read(&stream);
+        stream.read(v);
     }
     else
     {

@@ -218,8 +218,8 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     s->startReadEncaps();
     s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Int&>(_port));
-    const_cast<Ice::ProtocolVersion&>(_protocol).__read(s);
-    const_cast<Ice::EncodingVersion&>(_encoding).__read(s);
+    s->read(const_cast<Ice::ProtocolVersion&>(_protocol));
+    s->read(const_cast<Ice::EncodingVersion&>(_encoding));
     // Not transmitted.
     //s->read(const_cast<bool&>(_connect));
     s->read(const_cast<bool&>(_compress));
@@ -233,8 +233,8 @@ IceInternal::UdpEndpointI::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host, false);
     s->write(_port);
-    _protocol.__write(s);
-    _encoding.__write(s);
+    s->write(_protocol);
+    s->write(_encoding);
     // Not transmitted.
     //s->write(_connect);
     s->write(_compress);

@@ -30,7 +30,6 @@ SLICE_SRCS	= Printer.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

@@ -402,7 +402,7 @@ private:
     {
     public:
 
-        StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&);
+        StreamVisitor(::IceUtilInternal::Output&, ::IceUtilInternal::Output&, const std::string&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -414,6 +414,7 @@ private:
 
         ::IceUtilInternal::Output& H;
         ::IceUtilInternal::Output& C;
+        std::string _dllExport;
     };
 
 private:

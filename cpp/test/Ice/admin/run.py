@@ -17,7 +17,7 @@ if len(head) > 0:
 path = [os.path.abspath(p) for p in path if os.path.exists(os.path.join(p, "scripts", "TestUtil.py")) ]
 if len(path) == 0:
     raise "can't find toplevel directory!"
-sys.path.append(os.path.join(path[0]))
-from scripts import *
+sys.path.append(os.path.join(path[0], "scripts"))
+import TestUtil
 
 TestUtil.clientServerTest()

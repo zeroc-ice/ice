@@ -444,7 +444,8 @@ getLocalAddresses(ProtocolSupport protocol)
                     struct in_addr* inaddr = &reinterpret_cast<struct sockaddr_in*>(&addr)->sin_addr;
                     if(inaddr->s_addr != 0 && inaddr->s_addr != htonl(INADDR_LOOPBACK))
                     {
-                        for(unsigned int j = 0; j < result.size(); ++j)
+                        unsigned int j;
+                        for(j = 0; j < result.size(); ++j)
                         {
                             if(compareAddress(addr, result[j]) == 0)
                             {
@@ -464,7 +465,8 @@ getLocalAddresses(ProtocolSupport protocol)
                     struct in6_addr* inaddr6 = &reinterpret_cast<struct sockaddr_in6*>(&addr)->sin6_addr;
                     if(!IN6_IS_ADDR_UNSPECIFIED(inaddr6) && !IN6_IS_ADDR_LOOPBACK(inaddr6))
                     {
-                        for(unsigned int j = 0; j < result.size(); ++j)
+                        unsigned int j;
+                        for(j = 0; j < result.size(); ++j)
                         {
                             if(compareAddress(addr, result[j]) == 0)
                             {

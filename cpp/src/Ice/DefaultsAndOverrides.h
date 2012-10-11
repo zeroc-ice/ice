@@ -15,6 +15,7 @@
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/Endpoint.h>
+#include <Ice/EndpointTypes.h>
 #include <Ice/Format.h>
 
 namespace IceInternal

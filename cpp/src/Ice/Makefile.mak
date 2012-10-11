@@ -145,11 +145,6 @@ $(DLLNAME): $(OBJS) Ice.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
-$(HDIR)\BuiltinSequences.h BuiltinSequences.cpp: $(SDIR)\BuiltinSequences.ice $(SLICE2CPP) $(SLICEPARSERLIB)
-	del /q $(HDIR)\BuiltinSequences.h BuiltinSequences.cpp
-	$(SLICE2CPP) $(SLICE2CPPFLAGS) --stream $(SDIR)\BuiltinSequences.ice
-	move BuiltinSequences.h $(HDIR)
-
 Service.obj: EventLoggerMsg.h
 
 Ice.res: EventLoggerMsg.rc

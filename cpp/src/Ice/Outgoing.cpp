@@ -112,7 +112,7 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
 
     try
     {
-        _handler->getReference()->getIdentity().__write(&_os);
+        _os.write(_handler->getReference()->getIdentity());
 
         //
         // For compatibility with the old FacetPath.
@@ -402,7 +402,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
             // exception, you will have a memory leak.
             //
             Identity ident;
-            ident.__read(&_is);
+            _is.read(ident);
 
             //
             // For compatibility with the old FacetPath.

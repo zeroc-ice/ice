@@ -73,7 +73,7 @@ ObjectPrx
 IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {
     Identity ident;
-    ident.__read(s);
+    s->read(ident);
 
     ReferencePtr ref = _instance->referenceFactory()->create(ident, s);
     return referenceToProxy(ref);
@@ -84,13 +84,13 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 {
     if(proxy)
     {
-        proxy->__reference()->getIdentity().__write(s);
+        s->write(proxy->__reference()->getIdentity());
         proxy->__reference()->streamWrite(s);
     }
     else
     {
         Identity ident;
-        ident.__write(s);
+        s->write(ident);
     }
 }
 

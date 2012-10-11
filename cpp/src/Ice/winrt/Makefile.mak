@@ -197,12 +197,6 @@ RES_FILE 	= $(SOURCE_DIR)\Ice.res
 $(LIBNAME): $(LOCAL_OBJS) $(OBJS) $(RES_FILE) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
-$(HDIR)\BuiltinSequences.h ..\BuiltinSequences.cpp: $(slicedir)\Ice\BuiltinSequences.ice $(SLICE2CPP)
-	del /q $(HDIR)\BuiltinSequences.h ..\BuiltinSequences.cpp
-	$(SLICE2CPP) $(CORE_SLICE2CPPFLAGS) --stream $(slicedir)\Ice\BuiltinSequences.ice
-	move BuiltinSequences.cpp ..
-	move BuiltinSequences.h $(HDIR)
-
 Service.obj: $(SOURCE_DIR)\EventLoggerMsg.h
 
 Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc

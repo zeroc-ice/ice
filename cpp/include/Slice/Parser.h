@@ -450,6 +450,7 @@ public:
     ContainedList contents() const;
     bool hasNonLocalClassDecls() const;
     bool hasNonLocalClassDefs() const;
+    bool hasLocalClassDefsWithAsync() const;
     bool hasNonLocalSequences() const;
     bool hasNonLocalExceptions() const;
     bool hasDictionaries() const;

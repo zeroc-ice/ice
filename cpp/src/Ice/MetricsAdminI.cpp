@@ -389,7 +389,7 @@ MetricsAdminI::updateViews()
             map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
             if(q == _views.end())
             {
-                q = views.insert(make_pair(viewName, new MetricsViewI(viewName))).first;
+                q = views.insert(map<string, MetricsViewIPtr>::value_type(viewName, new MetricsViewI(viewName))).first;
             }
             else
             {

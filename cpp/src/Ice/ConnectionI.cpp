@@ -1369,10 +1369,10 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                         throw ex;
                     }
                     ProtocolVersion pv;
-                    pv.__read(&_readStream);
+                    _readStream.read(pv);
                     checkSupportedProtocol(pv);
                     EncodingVersion ev;
-                    ev.__read(&_readStream);
+                    _readStream.read(ev);
                     checkSupportedProtocolEncoding(ev);
 
                     Byte messageType;
@@ -2218,8 +2218,8 @@ Ice::ConnectionI::initiateShutdown()
         os.write(magic[1]);
         os.write(magic[2]);
         os.write(magic[3]);
-        currentProtocol.__write(&os);
-        currentProtocolEncoding.__write(&os);
+        os.write(currentProtocol);
+        os.write(currentProtocolEncoding);
         os.write(closeConnectionMsg);
         os.write((Byte)1); // compression status: compression supported but not used.
         os.write(headerSize); // Message size.
@@ -2280,8 +2280,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 _writeStream.write(magic[1]);
                 _writeStream.write(magic[2]);
                 _writeStream.write(magic[3]);
-                currentProtocol.__write(&_writeStream);
-                currentProtocolEncoding.__write(&_writeStream);
+                _writeStream.write(currentProtocol);
+                _writeStream.write(currentProtocolEncoding);
                 _writeStream.write(validateConnectionMsg);
                 _writeStream.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
                 _writeStream.write(headerSize); // Message size.
@@ -2345,10 +2345,10 @@ Ice::ConnectionI::validate(SocketOperation operation)
                 throw ex;
             }
             ProtocolVersion pv;
-            pv.__read(&_readStream);
+            _readStream.read(pv);
             checkSupportedProtocol(pv);
             EncodingVersion ev;
-            ev.__read(&_readStream);
+            _readStream.read(ev);
             checkSupportedProtocolEncoding(ev);
             Byte messageType;
             _readStream.read(messageType);
