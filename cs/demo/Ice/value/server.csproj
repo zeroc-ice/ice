@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <PropertyGroup>
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
@@ -27,8 +28,9 @@
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>.\</OutputPath>
@@ -77,8 +79,8 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Ice, Version=3.4.2.0, Culture=neutral, PublicKeyToken=cdd571ade22f2f16, processorArchitecture=MSIL">
-      <Private>True</Private>
+    <Reference Include="Ice, Version=3.4.2.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <Private>False</Private>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
@@ -91,6 +93,9 @@
     <Compile Include="DerivedPrinterI.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="generated\server\Value.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="InitialI.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -100,9 +105,9 @@
     <Compile Include="Server.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Value.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="config.server" />
     <None Include="README" />
     <None Include="Value.ice" />
@@ -116,7 +121,7 @@
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties ZerocIce_VerboseLevel="1" ZerocIce_Enabled="True" />
+      <UserProperties ZerocIce_ProjectVersion="1" ZerocIce_Enabled="True" ZerocIce_VerboseLevel="1" ZerocIce_OutputDir=".\generated\server" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
