@@ -13,6 +13,7 @@
 #include <Util.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/LocalException.h>
+#include <Ice/Protocol.h>
 #include <IceUtil/UUID.h>
 #include <Slice/PythonUtil.h>
 #include <compile.h>
