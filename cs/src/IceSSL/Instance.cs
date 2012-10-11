@@ -55,6 +55,29 @@ namespace IceSSL
             //
             _defaultDir = properties.getProperty(prefix + "DefaultDir");
 
+
+            string keySet = properties.getPropertyWithDefault(prefix + "KeySet", "DefaultKeySet");
+            if(!keySet.Equals("DefaultKeySet") && !keySet.Equals("UserKeySet") && !keySet.Equals("MachineKeySet"))
+            {
+                keySet = "DefaultKeySet";
+                _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet");
+            }
+
+            X509KeyStorageFlags keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
+            if(keySet.Equals("UserKeySet"))
+            {
+                keyStorageFlags = X509KeyStorageFlags.UserKeySet;
+            }
+            else if(keySet.Equals("MachineKeySet"))
+            {
+                keyStorageFlags = X509KeyStorageFlags.MachineKeySet;
+            }
+
+            if(properties.getPropertyAsIntWithDefault(prefix + "PersistKeySet", 0) > 0)
+            {
+                keyStorageFlags |= X509KeyStorageFlags.PersistKeySet;
+            }
+
             //
             // Process IceSSL.ImportCert.* properties.
             //
@@ -65,7 +88,7 @@ namespace IceSSL
                 string val = entry.Value;
                 if(val.Length > 0)
                 {
-                    importCertificate(name, val);
+                    importCertificate(name, val, keyStorageFlags);
                 }
             }
 
@@ -186,6 +209,7 @@ namespace IceSSL
                 _certs = new X509Certificate2Collection();
                 string certFile = properties.getProperty(prefix + "CertFile");
                 string passwordStr = properties.getProperty(prefix + "Password");
+                
                 if(certFile.Length > 0)
                 {
                     if(!checkPath(ref certFile))
@@ -210,11 +234,11 @@ namespace IceSSL
                         X509Certificate2 cert;
                         if(password != null)
                         {
-                            cert = new X509Certificate2(certFile, password);
+                            cert = new X509Certificate2(certFile, password, keyStorageFlags);
                         }
                         else
                         {
-                            cert = new X509Certificate2(certFile);
+                            cert = new X509Certificate2(certFile, "", keyStorageFlags);
                         }
                         _certs.Add(cert);
                     }
@@ -684,7 +708,7 @@ namespace IceSSL
             return false;
         }
 
-        private void importCertificate(string propName, string propValue)
+        private void importCertificate(string propName, string propValue, X509KeyStorageFlags keyStorageFlags)
         {
             //
             // Expecting a property of the following form:
@@ -766,11 +790,11 @@ namespace IceSSL
                 X509Certificate2 cert;
                 if(password != null)
                 {
-                    cert = new X509Certificate2(file, password);
+                    cert = new X509Certificate2(file, password, keyStorageFlags);
                 }
                 else
                 {
-                    cert = new X509Certificate2(file);
+                    cert = new X509Certificate2(file, "", keyStorageFlags);
                 }
                 store.Add(cert);
             }
