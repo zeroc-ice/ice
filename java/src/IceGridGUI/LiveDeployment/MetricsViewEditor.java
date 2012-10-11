@@ -64,6 +64,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
+import javax.swing.table.JTableHeader;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
@@ -628,7 +629,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             {
                 continue;
             }
-            TableModel model = new TableModel(entry.getKey());
+            final TableModel model = new TableModel(entry.getKey());
             String prefix = "IceGridGUI.Metrics." + entry.getKey();
             String[] names = _properties.getPropertyAsList(prefix + ".fields");
             for(String name : names)
@@ -652,7 +653,23 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 continue;
             }
 
-            final JTable table = new JTable(model);
+            final JTable table = new JTable(model)
+                {
+                    //
+                    //Implement table header tool tips.
+                    //
+                    protected JTableHeader createDefaultTableHeader()
+                    {
+                        return new JTableHeader(columnModel)
+                        {
+                            public String getToolTipText(MouseEvent e)
+                            {
+                                int index = columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getModelIndex();
+                                return model.getMetricFields().get(index).getColumnToolTip();
+                            }
+                        };
+                    }
+                };
 
             table.setDragEnabled(true);
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -1016,6 +1033,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 	    public String getColumnName();
 
         //
+        // ToolTip
+        //
+        public String getColumnToolTip();
+
+        //
         // The Java class correspoding to the field, is used in the table models.
         //
 	    public Class getColumnClass();
@@ -1076,6 +1098,16 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _columnName = columnName;
         }
 
+        public String getColumnToolTip()
+        {
+            return _columnToolTip;
+        }
+
+        public void setColumnToolTip(String columnToolTip)
+        {
+            _columnToolTip = columnToolTip;
+        }
+
         public MetricsField createField()
         {
             return createField(_node, _prefix, _metricsName, _fieldName, _objectField, _context);
@@ -1102,6 +1134,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         private final String _fieldName;
         private final Field _objectField;
         private String _columnName;
+        private String _columnToolTip;
         private MetricsFieldContext _context;
     }
 
@@ -1386,6 +1419,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                             model.addColumn("Type");
                             model.addColumn("Identity");
                             JTable table = new JTable(model);
+                            
                             table.setPreferredSize(new Dimension(550, 200));
 
                             table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -1546,7 +1580,24 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     return;
                                 }
 
-                                JTable table = new JTable(model);
+                                JTable table = new JTable(model)
+                                    {
+                                        //
+                                        //Implement table header tool tips.
+                                        //
+                                        protected JTableHeader createDefaultTableHeader()
+                                        {
+                                            return new JTableHeader(columnModel)
+                                            {
+                                                public String getToolTipText(MouseEvent e)
+                                                {
+                                                    int index = columnModel.getColumn(columnModel.getColumnIndexAtX(
+                                                                                       e.getPoint().x)).getModelIndex();
+                                                    return model.getMetricFields().get(index).getColumnToolTip();
+                                                }
+                                            };
+                                        }
+                                    };
                                 table.addMouseListener(new ButtonMouseListener(table));
                                 table.setAutoCreateRowSorter(true);
 

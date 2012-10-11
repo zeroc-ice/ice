@@ -560,7 +560,21 @@ public class GraphView extends JFrame implements MetricsFieldContext
                 }
             };
 
-        _legendTable = new JTable(_legendModel);
+        _legendTable = new JTable(_legendModel)
+            {
+                //Implement table cell tool tips.
+                public String getToolTipText(java.awt.event.MouseEvent e)
+                {
+                    if(convertColumnIndexToModel(columnAtPoint(e.getPoint())) == 6)
+                    {
+                        return _legendModel.getRows(new int[]{rowAtPoint(e.getPoint())})[0].cell.getField().getColumnToolTip();
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            };
 
         //
         // Graph preferences.
