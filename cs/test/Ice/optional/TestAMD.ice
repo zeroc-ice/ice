@@ -60,9 +60,10 @@ sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
-#ifndef SILVERLIGHT
-["clr:serializable:Test.SerializableClass"] sequence<byte> Serializable;
+#if !defined(COMPACT) && !defined(SILVERLIGHT)
+["clr:serializable:Test.SerializableClass"]
 #endif
+sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;
 dictionary<string, int> StringIntDict;
@@ -107,9 +108,7 @@ class MultiOptional
 
     optional(29) BoolSeq bos;
 
-#ifndef SILVERLIGHT
     optional(30) Serializable ser;
-#endif
 };
 
 class A
@@ -236,9 +235,7 @@ class Initial
 
     optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
-#ifndef SILVERLIGHT
     optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
-#endif
 
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 

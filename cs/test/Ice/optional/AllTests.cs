@@ -98,7 +98,7 @@ public class AllTests : TestCommon.TestApp
 
         mo1.bos = new bool[] { false, true, false };
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         mo1.ser = new Test.SerializableClass(56);
 #endif
 
@@ -135,7 +135,7 @@ public class AllTests : TestCommon.TestApp
 
         test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
 #endif
 
@@ -227,7 +227,7 @@ public class AllTests : TestCommon.TestApp
 
         test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             test(mo5.ser.Value.Equals(new Test.SerializableClass(56)));
@@ -309,7 +309,7 @@ public class AllTests : TestCommon.TestApp
         mo8.ivsd = mo5.ivsd;
         mo8.ioopd = mo5.ioopd;
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             mo8.ser = new Test.SerializableClass(56);
@@ -350,7 +350,7 @@ public class AllTests : TestCommon.TestApp
 
         test(!mo9.bos.HasValue);
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             test(mo9.ser.Value.Equals(new Test.SerializableClass(56)));
@@ -1864,7 +1864,7 @@ public class AllTests : TestCommon.TestApp
             @in.endEncapsulation();
         }
 
-#if !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT
         if(supportsCsharpSerializable)
         {
             Ice.Optional<Test.SerializableClass> p1 = new Ice.Optional<Test.SerializableClass>();

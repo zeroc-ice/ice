@@ -7,25 +7,19 @@
 //
 // **********************************************************************
 
-using System;
 using System.Diagnostics;
-using System.Reflection;
-
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
 
 public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        Ice.Properties properties = communicator.getProperties();
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new InitialI(), communicator.stringToIdentity("initial"));
+        Ice.Object @object = new TestI();
+        adapter.add(@object, communicator.stringToIdentity("Test"));
         adapter.activate();
-
         communicator.waitForShutdown();
         return 0;
     }
@@ -44,14 +38,14 @@ public class Server
             // the assembly so that Ice can locate classes and exceptions.
             //
             data.properties = Ice.Util.createProperties();
-            data.properties.setProperty("Ice.FactoryAssemblies", "server");
+            data.properties.setProperty("Ice.FactoryAssemblies", "serveramd");
 #endif
             communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
         }
         catch(System.Exception ex)
         {
-            Console.Error.WriteLine(ex);
+            System.Console.Error.WriteLine(ex);
             status = 1;
         }
 
@@ -63,7 +57,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-                Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

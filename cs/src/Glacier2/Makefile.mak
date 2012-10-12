@@ -37,7 +37,7 @@ MCSFLAGS	= $(MCSFLAGS) /doc:$(assembliesdir)\$(PKG).xml /nowarn:1591
 
 # -r:WindowsBase.dll
 
-SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) /baseaddress:0x22000000 $(MCSFLAGS) -r:$(refdir)\Ice.dll $(SRCS) $(GEN_SRCS)

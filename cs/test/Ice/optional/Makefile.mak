@@ -14,7 +14,7 @@ TARGETS		= client.exe server.exe serveramd.exe
 C_SRCS		= AllTests.cs Client.cs \
 		  ..\..\TestCommon\TestApp.cs
 S_SRCS		= TestI.cs Server.cs
-SAMD_SRCS	= TestAMDI.cs Server.cs
+SAMD_SRCS	= TestAMDI.cs ServerAMD.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
 GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
@@ -25,20 +25,31 @@ GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
+!if "$(COMPACT)" != "yes"
+SERIAL_DLL	= Serializable.dll
+SERIAL_REF	= -r:$(SERIAL_DLL)
+!endif
+
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I. -I"$(slicedir)" --stream
 
+!if "$(COMPACT)" == "yes"
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -DCOMPACT
+!endif
+
 client.exe: $(C_SRCS) $(GEN_SRCS) Serializable.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:Serializable.dll $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS) Serializable.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:Serializable.dll $(S_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(S_SRCS) $(GEN_SRCS)
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS) Serializable.dll
-	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" -r:Serializable.dll $(SAMD_SRCS) $(GEN_AMD_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:"$(refdir)\Ice.dll" $(SERIAL_REF) $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
-Serializable.dll: SerializableClass.cs
-	$(MCS) $(MCSFLAGS) -target:library -out:Serializable.dll /keyfile:$(KEYFILE) SerializableClass.cs
+!if "$(COMPACT)" != "yes"
+$(SERIAL_DLL): SerializableClass.cs
+	$(MCS) $(MCSFLAGS) -target:library -out:$(SERIAL_DLL) /keyfile:$(KEYFILE) SerializableClass.cs
+!endif
 
 !include .depend.mak

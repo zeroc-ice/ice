@@ -246,7 +246,14 @@ public class InitialI : Test.Initial
         return p1;
     }
 
-#if !SILVERLIGHT
+#if COMPACT || SILVERLIGHT
+    public override Ice.Optional<byte[]> opSerializable(Ice.Optional<byte[]> p1, out Ice.Optional<byte[]> p3,
+                                                        Ice.Current current)
+    {
+        p3 = p1;
+        return p1;
+    }
+#else
     public override Ice.Optional<Test.SerializableClass> opSerializable(Ice.Optional<Test.SerializableClass> p1,
                                                                         out Ice.Optional<Test.SerializableClass> p3,
                                                                         Ice.Current current)
@@ -288,6 +295,10 @@ public class InitialI : Test.Initial
 
     public override bool supportsCsharpSerializable(Ice.Current current)
     {
+#if COMPACT || SILVERLIGHT
+        return false;
+#else
         return true;
+#endif
     }
 }

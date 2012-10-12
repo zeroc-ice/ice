@@ -35,7 +35,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -warnaserror-
 MCSFLAGS	:= $(MCSFLAGS) -keyfile:$(KEYFILE)
 MCSFLAGS	:= $(MCSFLAGS) /doc:$(assembliesdir)/$(PKG).xml /nowarn:1591
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir) --ice
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) $(call ref,Ice) $(subst /,$(DSEP),$^)

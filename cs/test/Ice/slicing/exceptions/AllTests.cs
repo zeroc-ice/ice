@@ -841,9 +841,8 @@ public class AllTests : TestCommon.TestApp
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-Write("\n\n*** Caught: " + ex);
                 test(false);
             }
 
@@ -864,9 +863,8 @@ Write("\n\n*** Caught: " + ex);
                 test(false);
             }
             */
-            catch(Exception ex)
+            catch(Exception)
             {
-Write("\n\n*** Caught: " + ex);
                 test(false);
             }
 
@@ -896,15 +894,8 @@ Write("\n\n*** Caught: " + ex);
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
-            /*
             catch(Exception)
             {
-                test(false);
-            }
-            */
-            catch(Exception ex)
-            {
-Write("\n\n*** Caught: " + ex);
                 test(false);
             }
 
@@ -934,15 +925,8 @@ Write("\n\n*** Caught: " + ex);
                 test(ex.kp.Equals("preserved"));
                 test(ex.kpd.Equals("derived"));
             }
-            /*
             catch(Exception)
             {
-                test(false);
-            }
-            */
-            catch(Exception ex)
-            {
-Write("\n\n*** Caught: " + ex);
                 test(false);
             }
 

@@ -13,7 +13,7 @@ TARGETS		= client.exe server.exe serveramd.exe
 
 C_SRCS		= AllTests.cs Client.cs ../../../TestCommon/TestApp.cs
 S_SRCS		= Server.cs TestI.cs
-SAMD_SRCS	= Server.cs TestAMDI.cs
+SAMD_SRCS	= ServerAMD.cs TestAMDI.cs
 
 SLICE_SRCS	= $(SDIR)/Test.ice
 SLICE_C_SRCS	= $(SDIR)/ClientPrivate.ice

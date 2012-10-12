@@ -208,7 +208,14 @@ public class InitialI : Test.Initial
         cb.ice_response(p1, p1);
     }
 
-#if !SILVERLIGHT
+#if COMPACT || SILVERLIGHT
+    public override void opSerializable_async(Test.AMD_Initial_opSerializable cb,
+                                              Ice.Optional<byte[]> p1,
+                                              Ice.Current current)
+    {
+        cb.ice_response(p1, p1);
+    }
+#else
     public override void opSerializable_async(Test.AMD_Initial_opSerializable cb,
                                               Ice.Optional<Test.SerializableClass> p1,
                                               Ice.Current current)
@@ -250,6 +257,10 @@ public class InitialI : Test.Initial
     public override void supportsCsharpSerializable_async(Test.AMD_Initial_supportsCsharpSerializable cb,
                                                           Ice.Current current)
     {
+#if COMPACT || SILVERLIGHT
+        cb.ice_response(false);
+#else
         cb.ice_response(true);
+#endif
     }
 }

@@ -44,7 +44,7 @@ public class Server
             // the assembly so that Ice can locate classes and exceptions.
             //
             data.properties = Ice.Util.createProperties();
-            data.properties.setProperty("Ice.FactoryAssemblies", "server");
+            data.properties.setProperty("Ice.FactoryAssemblies", "serveramd");
 #endif
             communicator = Ice.Util.initialize(ref args, data);
             status = run(args, communicator);
