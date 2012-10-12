@@ -30,7 +30,7 @@ namespace IceInternal
 {
 
 //
-// We need virtual inheritance from shared, because we use multiple
+// We need virtual inheritance from AMDCallback, because we use multiple
 // inheritance from Ice::AMDCallback for generated AMD code.
 //
 class ICE_API IncomingAsync : public IncomingBase, virtual public Ice::AMDCallback
