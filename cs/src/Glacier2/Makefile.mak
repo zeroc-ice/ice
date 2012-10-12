@@ -23,7 +23,8 @@ SRCS		= SessionFactoryHelper.cs \
 GEN_SRCS	= $(GDIR)\PermissionsVerifier.cs \
 		  $(GDIR)\Router.cs \
 		  $(GDIR)\Session.cs \
-		  $(GDIR)\SSLInfo.cs
+		  $(GDIR)\SSLInfo.cs \
+		  $(GDIR)\Metrics.cs
 
 SDIR		= $(slicedir)\Glacier2
 GDIR		= generated
