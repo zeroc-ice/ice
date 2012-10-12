@@ -18,6 +18,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace Ice::Instrumentation;
 using namespace IceMX;
 
@@ -67,39 +68,6 @@ struct ThreadStateChanged
     ThreadState newState;
 };
 
-template<typename Helper>
-void addEndpointAttributes(typename Helper::Attributes& attrs)
-{
-    attrs.add("endpointType", &Helper::getEndpointInfo, &EndpointInfo::type);
-    attrs.add("endpointIsDatagram", &Helper::getEndpointInfo, &EndpointInfo::datagram);
-    attrs.add("endpointIsSecure", &Helper::getEndpointInfo, &EndpointInfo::secure);
-    attrs.add("endpointProtocolVersion", &Helper::getEndpointInfo, &EndpointInfo::protocol);
-    attrs.add("endpointEncodingVersion", &Helper::getEndpointInfo, &EndpointInfo::encoding);
-    attrs.add("endpointTimeout", &Helper::getEndpointInfo, &EndpointInfo::timeout);
-    attrs.add("endpointCompress", &Helper::getEndpointInfo, &EndpointInfo::compress);
-    
-    attrs.add("endpointHost", &Helper::getEndpointInfo, &IPEndpointInfo::host);
-    attrs.add("endpointPort", &Helper::getEndpointInfo, &IPEndpointInfo::port);
-}
-
-template<typename Helper>
-void addConnectionAttributes(typename Helper::Attributes& attrs)
-{
-    attrs.add("incoming", &Helper::getConnectionInfo, &ConnectionInfo::incoming);
-    attrs.add("adapterName", &Helper::getConnectionInfo, &ConnectionInfo::adapterName);
-    attrs.add("connectionId", &Helper::getConnectionInfo, &ConnectionInfo::connectionId);
-    
-    attrs.add("localHost", &Helper::getConnectionInfo, &IPConnectionInfo::localAddress);
-    attrs.add("localPort", &Helper::getConnectionInfo, &IPConnectionInfo::localPort);
-    attrs.add("remoteHost", &Helper::getConnectionInfo, &IPConnectionInfo::remoteAddress);
-    attrs.add("remotePort", &Helper::getConnectionInfo, &IPConnectionInfo::remotePort);
-            
-    attrs.add("mcastHost", &Helper::getConnectionInfo, &UDPConnectionInfo::mcastAddress);
-    attrs.add("mcastPort", &Helper::getConnectionInfo, &UDPConnectionInfo::mcastPort);
-    
-    addEndpointAttributes<Helper>(attrs);
-}
-
 class ConnectionHelper : public MetricsHelperT<ConnectionMetrics>
 {
 public:
@@ -112,7 +80,6 @@ public:
         {
             add("parent", &ConnectionHelper::getParent);
             add("id", &ConnectionHelper::getId);
-            add("endpoint", &ConnectionHelper::getEndpoint);
             add("state", &ConnectionHelper::getState);
             addConnectionAttributes<ConnectionHelper>(*this);
         }
@@ -234,7 +201,6 @@ public:
         {
             add("parent", &DispatchHelper::getParent);
             add("id", &DispatchHelper::getId);
-            add("endpoint", &DispatchHelper::getEndpoint);
             add("connection", &DispatchHelper::getConnection);
 
             addConnectionAttributes<DispatchHelper>(*this);
@@ -511,7 +477,6 @@ public:
         {
             add("parent", &RemoteInvocationHelper::getParent);
             add("id", &RemoteInvocationHelper::getId);
-            add("endpoint", &RemoteInvocationHelper::getEndpoint);
             addConnectionAttributes<RemoteInvocationHelper>(*this);
         }
     };

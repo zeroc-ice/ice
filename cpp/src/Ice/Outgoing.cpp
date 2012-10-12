@@ -361,6 +361,12 @@ IceInternal::Outgoing::sent(bool notify)
         //
         _sent = true;
     }
+
+    //
+    // NOTE: At this point the stack allocated Outgoing object can be destroyed 
+    // since the notify() on the monitor will release the thread waiting on the
+    // synchronous Ice call.
+    //
 }
 
 void

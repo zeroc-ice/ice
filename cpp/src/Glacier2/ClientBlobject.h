@@ -25,19 +25,15 @@ typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
 class FilterManager;
 typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
 
-class ClientBlobjectImpl;
-
 class ClientBlobject : public Glacier2::Blobject
 {
 public:
 
-    ClientBlobject(const InstancePtr&, const FilterManagerPtr&, const Ice::Context&); 
+    ClientBlobject(const InstancePtr&, const FilterManagerPtr&, const Ice::Context&, const RoutingTablePtr&); 
     virtual ~ClientBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&,
                                   const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
-
-    Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&); // Returns evicted proxies.
 
     StringSetPtr categories();
     StringSetPtr adapterIds();

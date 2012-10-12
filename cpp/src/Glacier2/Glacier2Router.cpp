@@ -503,6 +503,11 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
     //
     _sessionRouter = new SessionRouterI(_instance, verifier, sessionManager, sslVerifier, sslSessionManager);
 
+    if(_instance->getObserver())
+    {
+        _instance->getObserver()->setObserverUpdater(_sessionRouter);
+    }
+    
     //
     // If we have an admin adapter, we add an admin object.
     //

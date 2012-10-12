@@ -354,10 +354,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 // shared communicator.
                 // 
                 IceInternal.MetricsAdminI metricsAdmin = null;
-                if(_communicator.getObserver() instanceof IceMX.CommunicatorObserverI)
+                if(_communicator.getObserver() instanceof IceInternal.CommunicatorObserverI)
                 {
                     metricsAdmin = new IceInternal.MetricsAdminI(initData.properties, Ice.Util.getProcessLogger());
-                    initData.observer = new IceMX.CommunicatorObserverI(metricsAdmin);
+                    initData.observer = new IceInternal.CommunicatorObserverI(metricsAdmin);
                 }
 
                 _sharedCommunicator = Ice.Util.initialize(initData);
@@ -565,9 +565,9 @@ public class ServiceManagerI extends _ServiceManagerDisp
         {
             assert(_sharedCommunicator != null);
             communicator = _sharedCommunicator;
-            if(communicator.getObserver() instanceof IceMX.CommunicatorObserverI)
+            if(communicator.getObserver() instanceof IceInternal.CommunicatorObserverI)
             {
-                IceMX.CommunicatorObserverI o = (IceMX.CommunicatorObserverI)communicator.getObserver();
+                IceInternal.CommunicatorObserverI o = (IceInternal.CommunicatorObserverI)communicator.getObserver();
                 metricsAdmin = o.getMetricsAdmin();
             }
         }
@@ -606,10 +606,10 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 // If Ice metrics are enabled on the IceBox communicator, we also enable them on
                 // the service communicator.
                 // 
-                if(_communicator.getObserver() instanceof IceMX.CommunicatorObserverI)
+                if(_communicator.getObserver() instanceof IceInternal.CommunicatorObserverI)
                 {
                     metricsAdmin = new IceInternal.MetricsAdminI(initData.properties, initData.logger);
-                    initData.observer = new IceMX.CommunicatorObserverI(metricsAdmin);
+                    initData.observer = new IceInternal.CommunicatorObserverI(metricsAdmin);
                 }
                 
                 //

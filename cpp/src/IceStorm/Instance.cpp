@@ -71,13 +71,14 @@ Instance::Instance(
         _timer = new IceUtil::Timer();
         
         //
-        // If an Ice metrics are setup on the communicator, also
+        // If an Ice metrics observer is setup on the communicator, also
         // enable metrics for IceStorm.
         //
-        IceMX::CommunicatorObserverIPtr o = IceMX::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+        IceInternal::CommunicatorObserverIPtr o = 
+            IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
         if(o)
         {
-            _observer = new IceMX::TopicManagerObserverI(o->getMetricsAdmin());
+            _observer = new TopicManagerObserverI(o->getMetricsAdmin());
         }
     }
     catch(...)

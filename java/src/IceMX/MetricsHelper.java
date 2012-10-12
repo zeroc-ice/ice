@@ -11,7 +11,7 @@ package IceMX;
 
 public class MetricsHelper<T>
 {
-    static class AttributeResolver
+    public static class AttributeResolver
     {
         private abstract class Resolver
         {

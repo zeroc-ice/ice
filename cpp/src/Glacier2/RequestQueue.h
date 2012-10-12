@@ -14,6 +14,8 @@
 #include <IceUtil/Monitor.h>
 #include <Ice/Ice.h>
 
+#include <Glacier2/Instrumentation.h>
+
 #include <deque>
 
 namespace Glacier2
@@ -67,6 +69,8 @@ public:
 
     void destroy();
 
+    void updateObserver(const Glacier2::Instrumentation::SessionObserverPtr&);
+
 private:
 
     void destroyInternal();
@@ -88,6 +92,7 @@ private:
     bool _pendingSend;
     RequestPtr _pendingSendRequest;
     bool _destroyed;
+    Glacier2::Instrumentation::SessionObserverPtr _observer;
 };
 typedef IceUtil::Handle<RequestQueue> RequestQueuePtr;
 

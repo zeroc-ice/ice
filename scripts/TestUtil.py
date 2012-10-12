@@ -40,6 +40,7 @@ global winrt
 winrt = False
 global serverOnly
 serverOnly = False
+mx = False
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -334,6 +335,7 @@ def run(tests, root = False):
           --silverlight           Ice for .NET uses Silverlight.
           --winrt                 Run server with configuration suite for Metro Style apps.
           --server                Run only the server.
+          --mx                    Enable IceMX when running the tests.
         """)
         sys.exit(2)
 
@@ -343,7 +345,7 @@ def run(tests, root = False):
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
                                     "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
                                     "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=",
-                                    "appverifier", "compact", "silverlight", "winrt", "server"])
+                                    "appverifier", "compact", "silverlight", "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -361,6 +363,7 @@ def run(tests, root = False):
     silverlight = "--silverlight" in opts
     winrt = "--winrt" in opts
     serverOnly = "--server" in opts
+    mx = "--mx" in opts
 
     filters = []
     for o, a in opts:
@@ -408,7 +411,7 @@ def run(tests, root = False):
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
                   "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
-                  "--server"):
+                  "--server", "--mx"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -776,6 +779,7 @@ class DriverConfig:
     sqlUser = None
     sqlPassword = None
     serviceDir = None
+    mx = False
 
     def __init__(self, type = None):
         global protocol
@@ -796,6 +800,7 @@ class DriverConfig:
         global serviceDir
         global compact
         global silverlight
+        global mx
         self.lang = getDefaultMapping()
         self.protocol = protocol
         self.compress = compress
@@ -816,6 +821,7 @@ class DriverConfig:
         self.serviceDir = serviceDir
         self.compact = compact
         self.silverlight = silverlight
+        self.mx = mx
 
 def argsToDict(argumentString, results):
     """Converts an argument string to dictionary"""
@@ -886,6 +892,16 @@ def getCommandLineProperties(exe, config):
 
     if config.type == "server":
         components.append("--Ice.PrintAdapterReady=1")
+
+    if config.mx:
+        if config.type == "server":
+            components.append("--Ice.Admin.Endpoints=default")
+            components.append("--Ice.Admin.InstanceName=Server")
+        else:
+            components.append("--Ice.Admin.Endpoints=default")
+            components.append("--Ice.Admin.InstanceName=Client")
+        components.append("--IceMX.Metrics.Debug.GroupBy=id")
+        components.append("--IceMX.Metrics.All.GroupBy=none")
 
     if config.ipv6:
         components.append("--Ice.Default.Host=0:0:0:0:0:0:0:1 --Ice.IPv6=1")
@@ -1496,6 +1512,7 @@ def processCmdLine():
           --silverlight           Ice for .NET uses Silverlight.
           --winrt                 Run server with configuration suite for Metro Style apps.
           --server                Run only the server.
+          --mx                    Enable IceMX when running the tests.
         """)
         sys.exit(2)
 
@@ -1504,7 +1521,7 @@ def processCmdLine():
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
                               "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
                               "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact", "silverlight", \
-                              "winrt", "server"])
+                              "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -1606,10 +1623,16 @@ def processCmdLine():
             global silverlight
             silverlight = True
         elif o == "--winrt":
+            global winrt
+            global serverOnly
             winrt = True
             serverOnly = True
         elif o == "--server":
+            global serverOnly
             serverOnly = True
+        elif o == "--mx":
+            global mx
+            mx = True
 
     if len(args) > 0:
         usage()

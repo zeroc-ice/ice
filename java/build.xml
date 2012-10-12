@@ -127,6 +127,7 @@
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="${slice.dir}/Glacier2">
+                <include name="Metrics.ice" />
                 <include name="PermissionsVerifier.ice" />
                 <include name="SSLInfo.ice" />
                 <include name="Router.ice" />

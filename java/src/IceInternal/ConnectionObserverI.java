@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-package IceMX;
+package IceInternal;
 
-public class ConnectionObserverI extends Observer<ConnectionMetrics> implements Ice.Instrumentation.ConnectionObserver
+public class ConnectionObserverI extends IceMX.Observer<IceMX.ConnectionMetrics> 
+    implements Ice.Instrumentation.ConnectionObserver
 {
     public void 
     sentBytes(final int num)
@@ -25,19 +26,19 @@ public class ConnectionObserverI extends Observer<ConnectionMetrics> implements 
         forEach(_receivedBytesUpdate);
     }
 
-    private MetricsUpdate<ConnectionMetrics> _sentBytesUpdate = new MetricsUpdate<ConnectionMetrics>()
+    private MetricsUpdate<IceMX.ConnectionMetrics> _sentBytesUpdate = new MetricsUpdate<IceMX.ConnectionMetrics>()
         {
             public void
-            update(ConnectionMetrics v)
+            update(IceMX.ConnectionMetrics v)
             {
                 v.sentBytes += _sentBytes;
             }
         };
 
-    private MetricsUpdate<ConnectionMetrics> _receivedBytesUpdate = new MetricsUpdate<ConnectionMetrics>()
+    private MetricsUpdate<IceMX.ConnectionMetrics> _receivedBytesUpdate = new MetricsUpdate<IceMX.ConnectionMetrics>()
         {
             public void
-            update(ConnectionMetrics v)
+            update(IceMX.ConnectionMetrics v)
             {
                 v.receivedBytes += _receivedBytes;
             }

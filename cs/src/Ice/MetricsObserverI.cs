@@ -256,8 +256,9 @@ namespace IceMX
             }
         }
 
-        public void update(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects)
+        public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T> previous)
         {
+            _objects = new List<MetricsMap<T>.Entry>(previous._objects);
             objects.Sort();
             int p = 0;
             int q = 0;
@@ -377,23 +378,22 @@ namespace IceMX
             }
 
             O obsv;
+            try
+            {
+                obsv = new O();
+            }
+            catch(Exception)
+            {
+                Debug.Assert(false);
+                return null;
+            }
             if(observer == null)
             {
-                try
-                {
-                    obsv = new O();
-                }
-                catch(Exception)
-                {
-                    Debug.Assert(false);
-                    return null;
-                }
                 obsv.init(helper, metricsObjects);
             }
             else
             {
-                obsv = (O)observer;
-                obsv.update(helper, metricsObjects);
+                obsv.init(helper, metricsObjects, (O)observer);
             }
             return obsv;
         }

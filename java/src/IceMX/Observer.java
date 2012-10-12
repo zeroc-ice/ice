@@ -65,8 +65,9 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     }
 
     public void
-    update(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects)
+    init(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects, Observer<T> previous)
     {
+        _objects = new java.util.LinkedList<MetricsMap<T>.Entry>(previous._objects);
         java.util.Collections.sort(objects);
         java.util.ListIterator<MetricsMap<T>.Entry> p = objects.listIterator();
         java.util.ListIterator<MetricsMap<T>.Entry> q = _objects.listIterator();

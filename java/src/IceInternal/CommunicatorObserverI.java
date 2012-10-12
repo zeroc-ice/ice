@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-package IceMX;
+package IceInternal;
+
+import IceMX.*;
 
 public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
 {
@@ -51,7 +53,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         addEndpointAttributes(r, cl);
     }
 
-    static private class ConnectionHelper extends MetricsHelper<ConnectionMetrics>
+    static public class ConnectionHelper extends MetricsHelper<ConnectionMetrics>
     {
         static private AttributeResolver _attributes = new AttributeResolver()
             {
@@ -80,7 +82,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             _state = state;
         }
 
-        String
+        public String
         getId()
         {
             if(_id == null)
@@ -106,7 +108,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _id;
         }
 
-        String
+        public String
         getState()
         {
             switch(_state)
@@ -127,7 +129,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
         }
     
-        String 
+        public String 
         getParent()
         {
             if(_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
@@ -140,19 +142,19 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
         }
     
-        Ice.ConnectionInfo
+        public Ice.ConnectionInfo
         getConnectionInfo()
         {
             return _connectionInfo;
         }
 
-        Ice.Endpoint
+        public Ice.Endpoint
         getEndpoint()
         {
             return _endpoint;
         }
 
-        Ice.EndpointInfo
+        public Ice.EndpointInfo
         getEndpointInfo()
         {
             if(_endpointInfo == null)
@@ -162,13 +164,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        String
+        public String
         getEndpointEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
     
-        String
+        public String
         getEndpointProtocolVersion()
         {
             return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
@@ -181,7 +183,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    static private final class DispatchHelper extends MetricsHelper<DispatchMetrics>
+    static public final class DispatchHelper extends MetricsHelper<DispatchMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             {
@@ -230,13 +232,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             throw new IllegalArgumentException(attribute);
         }
         
-        String
+        public String
         getMode()
         {
             return _current.requestId == 0 ? "oneway" : "twoway";
         }
         
-        String
+        public String
         getId()
         {
             if(_id == null)
@@ -252,31 +254,31 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _id;
         }
 
-        String 
+        public String 
         getParent()
         {
             return _current.adapter.getName();
         }
         
-        Ice.ConnectionInfo
+        public Ice.ConnectionInfo
         getConnectionInfo()
         {
             return _current.con.getInfo();
-            }
+        }
         
-        Ice.Endpoint
+        public Ice.Endpoint
         getEndpoint()
         {
             return _current.con.getEndpoint();
         }
 
-        Ice.Connection
+        public Ice.Connection
         getConnection()
         {
             return _current.con;
         }
         
-        Ice.EndpointInfo
+        public Ice.EndpointInfo
         getEndpointInfo()
         {
             if(_endpointInfo == null)
@@ -286,25 +288,25 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        String
+        public String
         getEndpointEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
 
-        String
+        public String
         getEndpointProtocolVersion()
         {
             return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
         }
     
-        Ice.Current
+        public Ice.Current
         getCurrent()
         {
             return _current;
         }
         
-        String
+        public String
         getIdentity()
         {
             return _current.adapter.getCommunicator().identityToString(_current.id);
@@ -315,7 +317,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private Ice.EndpointInfo _endpointInfo;
     };
 
-    static private final class InvocationHelper extends MetricsHelper<InvocationMetrics>
+    static public final class InvocationHelper extends MetricsHelper<InvocationMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             { 
@@ -365,7 +367,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             throw new IllegalArgumentException(attribute);
         }
         
-        String
+        public String
         getMode()
         {
             if(_proxy == null)
@@ -399,7 +401,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
         }
 
-        String
+        public String
         getId()
         {
             if(_id == null)
@@ -426,19 +428,19 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _id;
         }
         
-        String 
+        public String 
         getParent()
         {
             return "Communicator";
         }
         
-        Ice.ObjectPrx
+        public Ice.ObjectPrx
         getProxy()
         {
             return _proxy;
         }
 
-        String
+        public String
         getIdentity()
         {
             if(_proxy != null)
@@ -451,13 +453,13 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
         }
 
-        String
+        public String
         getOperation()
         {
             return _operation;
         }
 
-        String 
+        public String 
         getEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(_proxy.ice_getEncodingVersion());
@@ -469,7 +471,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         private String _id;
     };
     
-    static private final class ThreadHelper extends MetricsHelper<ThreadMetrics>
+    static public final class ThreadHelper extends MetricsHelper<ThreadMetrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             { 
@@ -513,12 +515,12 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             }
         }
         
-        final String _parent;
-        final String _id;
+        final public String _parent;
+        final public String _id;
         final private Ice.Instrumentation.ThreadState _state;
     };
 
-    static private final class EndpointHelper extends MetricsHelper<Metrics>
+    static public final class EndpointHelper extends MetricsHelper<Metrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             { 
@@ -551,7 +553,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             _endpoint = endpt;
         }
         
-        Ice.EndpointInfo
+        public Ice.EndpointInfo
         getEndpointInfo()
         {
             if(_endpointInfo == null)
@@ -561,25 +563,25 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        String
+        public String
         getEndpointEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
 
-        String
+        public String
         getEndpointProtocolVersion()
         {
             return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
         }
         
-        String
+        public String
         getParent()
         {
             return "Communicator";
         }
         
-        String
+        public String
         getId()
         {
             if(_id == null)
@@ -589,7 +591,7 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _id;
         }
         
-        String
+        public String
         getEndpoint()
         {
             return _endpoint.toString();

@@ -88,7 +88,7 @@ public:
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-        return _sessionRouter->getRouter(current.con, current.id)->getClientBlobject();
+        return _sessionRouter->getClientBlobject(current.con, current.id);
     }
 
     virtual void
@@ -118,7 +118,7 @@ public:
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-        return _sessionRouter->getRouter(current.id.category)->getServerBlobject();
+        return _sessionRouter->getServerBlobject(current.id.category);
     }
 
     virtual void
@@ -743,7 +743,7 @@ SessionRouterI::addProxies(const ObjectProxySeq& proxies, const Current& current
     //
     // Forward to the per-client router.
     //
-    return getRouter(current.con, current.id)->getClientBlobject()->add(proxies, current); 
+    return getRouter(current.con, current.id)->addProxies(proxies, current);
 }
 
 string
@@ -833,12 +833,11 @@ SessionRouterI::destroySession(const Current& current)
 void
 SessionRouterI::refreshSession(const Ice::Current& current)
 {
-    RouterIPtr router = getRouter(current.con, current.id, false);
+    RouterIPtr router = getRouter(current.con, current.id, false); // getRouter updates the session timestamp.
     if(!router)
     {
         throw SessionNotExistException();
     }
-    router->updateTimestamp();
 
     //
     // Ping the session to ensure it does not timeout.
@@ -912,46 +911,36 @@ SessionRouterI::getSessionTimeout(const Ice::Current&) const
     return _sessionTimeout.toSeconds();
 }
 
+void 
+SessionRouterI::updateSessionObservers()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+
+    Glacier2::Instrumentation::RouterObserverPtr observer = _instance->getObserver();
+    assert(observer);
+
+    for(map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin(); p != _routersByConnection.end(); ++p)
+    {
+        p->second->updateObserver(observer);
+    }   
+}
+
 RouterIPtr
 SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-    if(_destroy)
-    {
-        throw ObjectNotExistException(__FILE__, __LINE__);
-    }
-
-    map<ConnectionPtr, RouterIPtr>& routers = const_cast<map<ConnectionPtr, RouterIPtr>&>(_routersByConnection);
-
-    if(_routersByConnectionHint != routers.end() && _routersByConnectionHint->first == connection)
-    {
-        return _routersByConnectionHint->second;
-    }
-    
-    map<ConnectionPtr, RouterIPtr>::iterator p = routers.find(connection);
-
-    if(p != routers.end())
-    {
-        _routersByConnectionHint = p;
-        return p->second;
-    }
-    else if(close)
-    {
-        if(_rejectTraceLevel >= 1)
-        {
-            Trace out(_instance->logger(), "Glacier2");
-            out << "rejecting request. no session is associated with the connection.\n";
-            out << "identity: " << _instance->communicator()->identityToString(id);
-        }
-        connection->close(true);
-        throw ObjectNotExistException(__FILE__, __LINE__);
-    }
-    return 0;
+    return getRouterImpl(connection, id, close);
 }
 
-RouterIPtr
-SessionRouterI::getRouter(const string& category) const
+Ice::ObjectPtr
+SessionRouterI::getClientBlobject(const ConnectionPtr& connection, const Ice::Identity& id) const
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+    return getRouterImpl(connection, id, true)->getClientBlobject();
+}
+
+Ice::ObjectPtr
+SessionRouterI::getServerBlobject(const string& category) const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
@@ -964,7 +953,7 @@ SessionRouterI::getRouter(const string& category) const
 
     if(_routersByCategoryHint != routers.end() && _routersByCategoryHint->first == category)
     {
-        return _routersByCategoryHint->second;
+        return _routersByCategoryHint->second->getServerBlobject();
     }
     
     map<string, RouterIPtr>::iterator p = routers.find(category);
@@ -972,7 +961,7 @@ SessionRouterI::getRouter(const string& category) const
     if(p != routers.end())
     {
         _routersByCategoryHint = p;
-        return p->second;
+        return p->second->getServerBlobject();
     }
     else
     {
@@ -1036,6 +1025,44 @@ SessionRouterI::expireSessions()
         }
         (*p)->destroy(_sessionDestroyCallback);
     }
+}
+
+RouterIPtr
+SessionRouterI::getRouterImpl(const ConnectionPtr& connection, const Ice::Identity& id, bool close) const
+{
+    if(_destroy)
+    {
+        throw ObjectNotExistException(__FILE__, __LINE__);
+    }
+
+    map<ConnectionPtr, RouterIPtr>& routers = const_cast<map<ConnectionPtr, RouterIPtr>&>(_routersByConnection);
+
+    if(_routersByConnectionHint != routers.end() && _routersByConnectionHint->first == connection)
+    {
+        _routersByConnectionHint->second->updateTimestamp();
+        return _routersByConnectionHint->second;
+    }
+    
+    map<ConnectionPtr, RouterIPtr>::iterator p = routers.find(connection);
+
+    if(p != routers.end())
+    {
+        _routersByConnectionHint = p;
+        p->second->updateTimestamp();
+        return p->second;
+    }
+    else if(close)
+    {
+        if(_rejectTraceLevel >= 1)
+        {
+            Trace out(_instance->logger(), "Glacier2");
+            out << "rejecting request. no session is associated with the connection.\n";
+            out << "identity: " << _instance->communicator()->identityToString(id);
+        }
+        connection->close(true);
+        throw ObjectNotExistException(__FILE__, __LINE__);
+    }
+    return 0;
 }
 
 void
@@ -1150,7 +1177,7 @@ SessionRouterI::finishCreateSession(const ConnectionPtr& connection, const Route
         assert(rc.second);
         _routersByCategoryHint = rc.first;
     }
-    
+
     if(_sessionTraceLevel >= 1)
     {
         Trace out(_instance->logger(), "Glacier2");

@@ -854,7 +854,7 @@ namespace IceInternal
                    (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("MetricsAdmin")) &&
                    _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                 {
-                     IceMX.CommunicatorObserverI observer = new IceMX.CommunicatorObserverI(admin);
+                    CommunicatorObserverI observer = new CommunicatorObserverI(admin);
                     _initData.observer = observer;
 
                     //

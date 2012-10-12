@@ -610,10 +610,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(m1->current == 0 && m1->total == 1 && m1->id == "127.0.0.1:12010");
 
     metrics->ice_getConnection()->close(false);
-
+    controller->hold();
     try
     {
-        communicator->stringToProxy("test:tcp -p 12010 -h 127.0.0.50")->ice_timeout(10)->ice_ping();
+        communicator->stringToProxy("test:tcp -p 12010 -h 127.0.0.1")->ice_timeout(10)->ice_ping();
         test(false);
     }
     catch(const Ice::ConnectTimeoutException&)
@@ -623,9 +623,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         test(false);
     }
-    test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 2);
-    m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][1];
-    test(m1->id == "127.0.0.50:12010" && m1->total == 2 && m1->failures == 2);
+    controller->resume();
+    test(clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"].size() == 1);
+    m1 = clientMetrics->getMetricsView("View", timestamp)["ConnectionEstablishment"][0];
+    test(m1->id == "127.0.0.1:12010" && m1->total == 3 && m1->failures == 2);
 
     checkFailure(clientMetrics, "ConnectionEstablishment", m1->id, "Ice::ConnectTimeoutException", 2);
 

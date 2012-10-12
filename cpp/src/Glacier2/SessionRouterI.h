@@ -12,11 +12,16 @@
 
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
+#include <IceUtil/DisableWarnings.h>
+
 #include <Ice/Ice.h>
+
 #include <Glacier2/PermissionsVerifierF.h>
 #include <Glacier2/Router.h>
+#include <Glacier2/Instrumentation.h>
+
 #include <set>
-#include <IceUtil/DisableWarnings.h>
+
 
 namespace Glacier2
 {
@@ -36,6 +41,12 @@ typedef IceUtil::Handle<CreateSession> CreateSessionPtr;
 class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
     
+class ClientBlobject;
+typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
+
+class ServerBlobject;
+typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
+
 class CreateSession : public IceUtil::Shared
 {
 public:
@@ -79,7 +90,9 @@ typedef IceUtil::Handle<UserPasswordCreateSession> UserPasswordCreateSessionPtr;
 class SSLCreateSession;
 typedef IceUtil::Handle<SSLCreateSession> SSLCreateSessionPtr;
 
-class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
+class SessionRouterI : public Router, 
+                       public Glacier2::Instrumentation::ObserverUpdater, 
+                       private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -101,9 +114,13 @@ public:
     virtual void destroySession(const ::Ice::Current&);
     virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
 
-    RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;    
-    RouterIPtr getRouter(const std::string&) const;    
-    
+    virtual void updateSessionObservers();
+
+    RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
+
+    Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
+    Ice::ObjectPtr getServerBlobject(const std::string&) const;
+
     void expireSessions();
 
     void destroySession(const ::Ice::ConnectionPtr&);
@@ -111,6 +128,8 @@ public:
     int sessionTraceLevel() const { return _sessionTraceLevel; }
     
 private:
+
+    RouterIPtr getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;    
 
     void sessionPingException(const Ice::Exception&, const ::Ice::ConnectionPtr&);
     void sessionDestroyException(const Ice::Exception&);

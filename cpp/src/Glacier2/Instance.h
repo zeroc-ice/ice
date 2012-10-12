@@ -18,6 +18,7 @@
 #include <Glacier2/RequestQueue.h>
 #include <Glacier2/ProxyVerifier.h>
 #include <Glacier2/SessionRouterI.h>
+#include <Glacier2/Instrumentation.h>
 
 namespace Glacier2
 {
@@ -40,6 +41,8 @@ public:
     ProxyVerifierPtr proxyVerifier() const { return _proxyVerifier; }
     SessionRouterIPtr sessionRouter() const { return _sessionRouter; }
 
+    const Glacier2::Instrumentation::RouterObserverPtr& getObserver() const { return _observer; }
+
     void destroy();
     
 private:
@@ -56,6 +59,7 @@ private:
     const RequestQueueThreadPtr _serverRequestQueueThread;
     const ProxyVerifierPtr _proxyVerifier;
     const SessionRouterIPtr _sessionRouter;
+    const Glacier2::Instrumentation::RouterObserverPtr _observer;
 };
 typedef IceUtil::Handle<Instance> InstancePtr;
 

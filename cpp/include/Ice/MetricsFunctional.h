@@ -21,24 +21,6 @@ template<typename R> struct ReferenceWrapper
     }
 };
 
-/*    
-template<typename R> struct ReferenceWrapper<IceUtil::Handle<R> >
-{
-    static R* get(const IceUtil::Handle<R>& v)
-    {
-        return v.get();
-    }
-};
-
-template<typename R> struct ReferenceWrapper<const IceUtil::Handle<R>& >
-{
-    static R* get(const IceUtil::Handle<R>& v)
-    {
-        return v.get();
-    }
-};
-*/
-
 template<typename R> struct ReferenceWrapper<IceInternal::ProxyHandle<R> >
 {
     static R* get(const IceInternal::ProxyHandle<R>& v)

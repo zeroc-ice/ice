@@ -208,6 +208,10 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
             //
             if(request->override(*p))
             {
+                if(_observer)
+                {
+                    _observer->overridden(!_connection);
+                }
                 request->queued();
                 *p = request;
                 return true;
@@ -224,6 +228,10 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
     }
     _requests.push_back(request);
     request->queued();
+    if(_observer)
+    {
+        _observer->queued(!_connection);
+    }
     return false;
 }
 
@@ -263,6 +271,13 @@ Glacier2::RequestQueue::destroy()
 }
 
 void
+Glacier2::RequestQueue::updateObserver(const Glacier2::Instrumentation::SessionObserverPtr& observer)
+{
+    IceUtil::Mutex::Lock lock(*this);
+    _observer = observer;
+}
+
+void
 Glacier2::RequestQueue::destroyInternal()
 {
     //
@@ -290,6 +305,10 @@ Glacier2::RequestQueue::flush()
         try
         {
             assert(_callback);
+            if(_observer)
+            {
+                _observer->forwarded(!_connection);
+            }
             Ice::AsyncResultPtr result = (*p)->invoke(_callback);
             if(!result)
             {
@@ -342,6 +361,10 @@ Glacier2::RequestQueue::flush(set<Ice::ObjectPrx>& batchProxies)
     {
         try
         {
+            if(_observer)
+            {
+                _observer->forwarded(!_connection);
+            }
             assert(_callback);
             Ice::AsyncResultPtr result = (*p)->invoke(_callback);
             if(!result)

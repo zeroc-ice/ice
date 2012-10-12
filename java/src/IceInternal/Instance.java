@@ -772,7 +772,7 @@ public final class Instance
                (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("MetricsAdmin")) &&
                _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
             {
-                IceMX.CommunicatorObserverI observer = new IceMX.CommunicatorObserverI(admin);
+                CommunicatorObserverI observer = new CommunicatorObserverI(admin);
                 _initData.observer = observer;
 
                 //

@@ -25,31 +25,13 @@ public:
     virtual ~Blobject();
 
     void destroy();
-
-    class InvokeCookie : public Ice::LocalObject
-    {
-    public:
-        
-        InvokeCookie(const Ice::AMD_Object_ice_invokePtr& cb) :
-            _cb(cb)
-        {
-        }
-        
-        Ice::AMD_Object_ice_invokePtr cb()
-        {
-            return _cb;
-        }
-        
-    private:
-        
-        Ice::AMD_Object_ice_invokePtr _cb;
-    };
-    typedef IceUtil::Handle<InvokeCookie> InvokeCookiePtr;
     
-    void invokeResponse(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                        const InvokeCookiePtr&);
-    void invokeSent(bool, const InvokeCookiePtr&);
-    void invokeException(const Ice::Exception&, const InvokeCookiePtr&);
+    virtual void updateObserver(const Glacier2::Instrumentation::SessionObserverPtr&);
+    
+    void invokeResponse(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&, 
+                        const Ice::AMD_Object_ice_invokePtr&);
+    void invokeSent(bool, const Ice::AMD_Object_ice_invokePtr&);
+    void invokeException(const Ice::Exception&, const Ice::AMD_Object_ice_invokePtr&);
 
 protected:
 

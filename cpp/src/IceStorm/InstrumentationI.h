@@ -15,10 +15,11 @@
 #include <IceStorm/Instrumentation.h>
 #include <IceStorm/Metrics.h>
 
-namespace IceMX
+namespace IceStorm
 {
 
-class TopicObserverI : public IceStorm::Instrumentation::TopicObserver, public ObserverT<TopicMetrics>
+class TopicObserverI : public IceStorm::Instrumentation::TopicObserver, 
+                       public IceMX::ObserverT<IceMX::TopicMetrics>
 {
 public:
 
@@ -26,7 +27,8 @@ public:
     virtual void forwarded();
 };
 
-class SubscriberObserverI : public IceStorm::Instrumentation::SubscriberObserver, public ObserverT<SubscriberMetrics>
+class SubscriberObserverI : public IceStorm::Instrumentation::SubscriberObserver, 
+                            public IceMX::ObserverT<IceMX::SubscriberMetrics>
 {
 public:
 
@@ -59,8 +61,8 @@ private:
 
     const IceInternal::MetricsAdminIPtr _metrics;
 
-    ObserverFactoryT<TopicObserverI> _topics;
-    ObserverFactoryT<SubscriberObserverI> _subscribers;
+    IceMX::ObserverFactoryT<TopicObserverI> _topics;
+    IceMX::ObserverFactoryT<SubscriberObserverI> _subscribers;
 };
 typedef IceUtil::Handle<TopicManagerObserverI> TopicManagerObserverIPtr;
 

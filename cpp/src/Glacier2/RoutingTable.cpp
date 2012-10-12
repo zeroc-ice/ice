@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/RoutingTable.h>
+#include <Glacier2/Instrumentation.h>
 
 using namespace std;
 using namespace Ice;
@@ -21,10 +22,33 @@ Glacier2::RoutingTable::RoutingTable(const CommunicatorPtr& communicator, const 
 {
 }
 
-ObjectProxySeq
-Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current& current)
+void
+Glacier2::RoutingTable::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
+    if(_observer)
+    {
+        _observer->routingTableSize(-static_cast<Ice::Int>(_map.size()));
+    }
+    _observer.detach();
+}
+
+Glacier2::Instrumentation::SessionObserverPtr
+Glacier2::RoutingTable::updateObserver(const Glacier2::Instrumentation::RouterObserverPtr& obsv,
+                                       const string& userId,
+                                       const Ice::ConnectionPtr& connection)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    _observer.attach(obsv->getSessionObserver(userId, connection, static_cast<Ice::Int>(_map.size()), _observer.get()));
+    return _observer.get();
+}
+
+ObjectProxySeq
+Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& current)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    size_t sz = _map.size();
 
     //
     // We 'pre-scan' the list, applying our validation rules. The
@@ -97,6 +121,11 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Ice::Current
             _map.erase(p);
             _queue.pop_front();
         }
+    }
+
+    if(_observer)
+    {
+        _observer->routingTableSize(static_cast<Ice::Int>(_map.size()) - static_cast<Ice::Int>(sz));
     }
 
     return evictedProxies;

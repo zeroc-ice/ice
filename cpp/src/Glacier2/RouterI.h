@@ -19,13 +19,16 @@
 namespace Glacier2
 {
 
+class RoutingTable;
+typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
+
 class RouterI;
 typedef IceUtil::Handle<RouterI> RouterIPtr;
 
 class FilterManager;
 typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
 
-class RouterI : public Router, public IceUtil::Mutex
+class RouterI : public Router
 {
 public:
 
@@ -33,6 +36,7 @@ public:
             const FilterManagerPtr&, const Ice::Context&);
             
     virtual ~RouterI();
+
     void destroy(const Callback_Session_destroyPtr&);
 
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current& = Ice::Current()) const;
@@ -56,15 +60,20 @@ public:
     IceUtil::Time getTimestamp() const;
     void updateTimestamp() const;
 
+    void updateObserver(const Glacier2::Instrumentation::RouterObserverPtr&);
+
     std::string toString() const;
 
 private:
 
     const InstancePtr _instance;
+    const RoutingTablePtr _routingTable;
     const Ice::ObjectPrx _clientProxy;
     const Ice::ObjectPrx _serverProxy;
     const ClientBlobjectPtr _clientBlobject;
     const ServerBlobjectPtr _serverBlobject;
+    const bool _clientBlobjectBuffered;
+    const bool _serverBlobjectBuffered;
     const Ice::ConnectionPtr _connection;
     const std::string _userId;
     const SessionPrx _session;
@@ -72,6 +81,8 @@ private:
     const Ice::Context _context;
     const IceUtil::Mutex _timestampMutex;
     mutable IceUtil::Time _timestamp;
+    
+    Glacier2::Instrumentation::SessionObserverPtr _observer;
 };
 
 }

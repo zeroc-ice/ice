@@ -17,6 +17,8 @@ OBJS		= Blobject.o \
 		  CryptPermissionsVerifierI.o \
 		  Glacier2Router.o \
 		  Instance.o \
+		  Instrumentation.o \
+		  InstrumentationI.o \
 		  ProxyVerifier.o \
 		  RequestQueue.o \
 		  RouterI.o \
@@ -28,9 +30,12 @@ OBJS		= Blobject.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= Instrumentation.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(OPENSSL_FLAGS)
+SLICE2CPPFLAGS	:= --include-dir Glacier2 $(SLICE2CPPFLAGS)
 
 $(ROUTER): $(OBJS)
 	rm -f $@

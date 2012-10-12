@@ -7,14 +7,16 @@
 //
 // **********************************************************************
 
-namespace IceMX
+namespace IceInternal
 {
     using System;
     using System.Diagnostics;
     using System.Text;
     using System.Collections.Generic;
 
-    static class Util
+    using IceMX;
+
+    static class AttrsUtil
     {
         public static void
         addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
@@ -51,7 +53,7 @@ namespace IceMX
             r.add("mcastHost", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastAddress"));
             r.add("mcastPort", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastPort"));
             
-            Util.addEndpointAttributes<T>(r, cl);
+            AttrsUtil.addEndpointAttributes<T>(r, cl);
         }
     }
 
@@ -68,7 +70,7 @@ namespace IceMX
                     add("id", cl.GetMethod("getId"));
                     add("endpoint", cl.GetMethod("getEndpoint"));
                     add("state", cl.GetMethod("getState"));
-                    Util.addConnectionAttributes<ConnectionMetrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes<ConnectionMetrics>(this, cl);
                 }
                 catch(Exception)
                 {
@@ -193,7 +195,7 @@ namespace IceMX
                     add("endpoint", cl.GetMethod("getEndpoint"));
                     add("connection", cl.GetMethod("getConnection"));
                     
-                    Util.addConnectionAttributes<DispatchMetrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes<DispatchMetrics>(this, cl);
                     
                     Type clc = typeof(Ice.Current);
                     add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
@@ -509,7 +511,7 @@ namespace IceMX
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
                     add("endpoint", cl.GetMethod("getEndpoint"));
-                    Util.addEndpointAttributes<Metrics>(this, cl);
+                    AttrsUtil.addEndpointAttributes<Metrics>(this, cl);
                 }
                 catch(Exception)
                 {
@@ -585,7 +587,7 @@ namespace IceMX
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
                     add("endpoint", cl.GetMethod("getEndpoint"));
-                    Util.addConnectionAttributes<Metrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes<Metrics>(this, cl);
                 }
                 catch(Exception)
                 {

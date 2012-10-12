@@ -7,11 +7,14 @@
 //
 // **********************************************************************
 
-package IceMX;
+package IceInternal;
 
-public class InvocationObserverI extends Observer<InvocationMetrics> implements Ice.Instrumentation.InvocationObserver
+import IceMX.*;
+
+public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics> 
+    implements Ice.Instrumentation.InvocationObserver
 {
-    static private final class RemoteInvocationHelper extends MetricsHelper<Metrics>
+    static public final class RemoteInvocationHelper extends MetricsHelper<Metrics>
     {
         static private final AttributeResolver _attributes = new AttributeResolver()
             { 
@@ -39,7 +42,7 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             _endpoint = endpt;
         }
 
-        String
+        public String
         getId()
         {
             if(_id == null)
@@ -53,7 +56,7 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             return _id;
         }
     
-        String 
+        public String 
         getParent()
         {
             if(_connectionInfo.adapterName != null && !_connectionInfo.adapterName.isEmpty())
@@ -66,19 +69,19 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             }
         }
         
-        Ice.ConnectionInfo
+        public Ice.ConnectionInfo
         getConnectionInfo()
         {
             return _connectionInfo;
         }
         
-        Ice.Endpoint
+        public Ice.Endpoint
         getEndpoint()
         {
             return _endpoint;
         }
 
-        Ice.EndpointInfo
+        public Ice.EndpointInfo
         getEndpointInfo()
         {
             if(_endpointInfo == null)
@@ -88,13 +91,13 @@ public class InvocationObserverI extends Observer<InvocationMetrics> implements 
             return _endpointInfo;
         }
 
-        String
+        public String
         getEndpointEncodingVersion()
         {
             return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
     
-        String
+        public String
         getEndpointProtocolVersion()
         {
             return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);

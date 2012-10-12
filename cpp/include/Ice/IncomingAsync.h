@@ -16,7 +16,7 @@
 namespace Ice
 {
 
-class ICE_API AMDCallback : virtual public IceUtil::Shared
+class ICE_API AMDCallback : virtual public Ice::LocalObject
 {
 public:
 
@@ -31,9 +31,9 @@ namespace IceInternal
 
 //
 // We need virtual inheritance from shared, because we use multiple
-// inheritance from IceUtil::Shared for generated AMD code.
+// inheritance from Ice::AMDCallback for generated AMD code.
 //
-class ICE_API IncomingAsync : public IncomingBase, virtual public Ice::AMDCallback, virtual public IceUtil::Shared
+class ICE_API IncomingAsync : public IncomingBase, virtual public Ice::AMDCallback
 {
 public:
 
@@ -75,7 +75,7 @@ private:
 namespace Ice
 {
 
-class ICE_API AMD_Object_ice_invoke : virtual public Ice::AMDCallback, virtual public IceUtil::Shared
+class ICE_API AMD_Object_ice_invoke : virtual public Ice::AMDCallback
 {
 public:
     

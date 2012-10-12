@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-package IceMX;
+package IceInternal;
 
-public class ThreadObserverI extends Observer<ThreadMetrics> implements Ice.Instrumentation.ThreadObserver
+public class ThreadObserverI extends IceMX.Observer<IceMX.ThreadMetrics> implements Ice.Instrumentation.ThreadObserver
 {
     public void
     stateChanged(final Ice.Instrumentation.ThreadState oldState, final Ice.Instrumentation.ThreadState newState)
@@ -19,10 +19,10 @@ public class ThreadObserverI extends Observer<ThreadMetrics> implements Ice.Inst
         forEach(_threadStateUpdate);
     }
 
-    private MetricsUpdate<ThreadMetrics> _threadStateUpdate = new MetricsUpdate<ThreadMetrics>()
+    private MetricsUpdate<IceMX.ThreadMetrics> _threadStateUpdate = new MetricsUpdate<IceMX.ThreadMetrics>()
         {
             public void
-            update(ThreadMetrics v)
+            update(IceMX.ThreadMetrics v)
             {
                 switch(_oldState)
                 {

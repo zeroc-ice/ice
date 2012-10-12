@@ -11,11 +11,48 @@
 #define ICE_INSTRUMENTATION_I_H
 
 #include <Ice/MetricsObserverI.h>
+#include <Ice/Connection.h>
 
-namespace IceMX
+namespace IceInternal
 {
 
-class ConnectionObserverI : public Ice::Instrumentation::ConnectionObserver, public ObserverT<ConnectionMetrics>
+template<typename Helper>
+void addEndpointAttributes(typename Helper::Attributes& attrs)
+{
+    attrs.add("endpoint", &Helper::getEndpoint);
+
+    attrs.add("endpointType", &Helper::getEndpointInfo, &Ice::EndpointInfo::type);
+    attrs.add("endpointIsDatagram", &Helper::getEndpointInfo, &Ice::EndpointInfo::datagram);
+    attrs.add("endpointIsSecure", &Helper::getEndpointInfo, &Ice::EndpointInfo::secure);
+    attrs.add("endpointProtocolVersion", &Helper::getEndpointInfo, &Ice::EndpointInfo::protocol);
+    attrs.add("endpointEncodingVersion", &Helper::getEndpointInfo, &Ice::EndpointInfo::encoding);
+    attrs.add("endpointTimeout", &Helper::getEndpointInfo, &Ice::EndpointInfo::timeout);
+    attrs.add("endpointCompress", &Helper::getEndpointInfo, &Ice::EndpointInfo::compress);
+    
+    attrs.add("endpointHost", &Helper::getEndpointInfo, &Ice::IPEndpointInfo::host);
+    attrs.add("endpointPort", &Helper::getEndpointInfo, &Ice::IPEndpointInfo::port);
+}
+
+template<typename Helper>
+void addConnectionAttributes(typename Helper::Attributes& attrs)
+{
+    attrs.add("incoming", &Helper::getConnectionInfo, &Ice::ConnectionInfo::incoming);
+    attrs.add("adapterName", &Helper::getConnectionInfo, &Ice::ConnectionInfo::adapterName);
+    attrs.add("connectionId", &Helper::getConnectionInfo, &Ice::ConnectionInfo::connectionId);
+    
+    attrs.add("localHost", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::localAddress);
+    attrs.add("localPort", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::localPort);
+    attrs.add("remoteHost", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::remoteAddress);
+    attrs.add("remotePort", &Helper::getConnectionInfo, &Ice::IPConnectionInfo::remotePort);
+            
+    attrs.add("mcastHost", &Helper::getConnectionInfo, &Ice::UDPConnectionInfo::mcastAddress);
+    attrs.add("mcastPort", &Helper::getConnectionInfo, &Ice::UDPConnectionInfo::mcastPort);
+    
+    addEndpointAttributes<Helper>(attrs);
+}
+
+class ConnectionObserverI : public Ice::Instrumentation::ConnectionObserver, 
+                            public IceMX::ObserverT<IceMX::ConnectionMetrics>
 {
 public:
 
@@ -23,21 +60,24 @@ public:
     virtual void receivedBytes(Ice::Int);
 };
 
-class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, public ObserverT<ThreadMetrics>
+class ThreadObserverI : public Ice::Instrumentation::ThreadObserver, 
+                        public IceMX::ObserverT<IceMX::ThreadMetrics>
 {
 public:
 
     virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
 };
 
-class DispatchObserverI : public Ice::Instrumentation::DispatchObserver, public ObserverT<DispatchMetrics>
+class DispatchObserverI : public Ice::Instrumentation::DispatchObserver, 
+                          public IceMX::ObserverT<IceMX::DispatchMetrics>
 {
 public:
 
     virtual void userException();
 };
 
-class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, public ObserverT<InvocationMetrics>
+class InvocationObserverI : public Ice::Instrumentation::InvocationObserver, 
+                            public IceMX::ObserverT<IceMX::InvocationMetrics>
 {
 public:
 
@@ -83,12 +123,12 @@ private:
 
     const IceInternal::MetricsAdminIPtr _metrics;
 
-    ObserverFactoryT<ConnectionObserverI> _connections;
-    ObserverFactoryT<DispatchObserverI> _dispatch;
-    ObserverFactoryT<InvocationObserverI> _invocations;
-    ObserverFactoryT<ThreadObserverI> _threads;
-    ObserverFactoryT<ObserverI> _connects;
-    ObserverFactoryT<ObserverI> _endpointLookups;
+    IceMX::ObserverFactoryT<ConnectionObserverI> _connections;
+    IceMX::ObserverFactoryT<DispatchObserverI> _dispatch;
+    IceMX::ObserverFactoryT<InvocationObserverI> _invocations;
+    IceMX::ObserverFactoryT<ThreadObserverI> _threads;
+    IceMX::ObserverFactoryT<IceMX::ObserverI> _connects;
+    IceMX::ObserverFactoryT<IceMX::ObserverI> _endpointLookups;
 };
 typedef IceUtil::Handle<CommunicatorObserverI> CommunicatorObserverIPtr;
 

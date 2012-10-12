@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-package IceMX;
+package IceInternal;
 
-public class DispatchObserverI extends Observer<DispatchMetrics> implements Ice.Instrumentation.DispatchObserver
+public class DispatchObserverI extends IceMX.Observer<IceMX.DispatchMetrics> 
+    implements Ice.Instrumentation.DispatchObserver
 {
     public void
     userException()
@@ -17,10 +18,10 @@ public class DispatchObserverI extends Observer<DispatchMetrics> implements Ice.
         forEach(_userException);
     }
 
-    final MetricsUpdate<DispatchMetrics> _userException = new MetricsUpdate<DispatchMetrics>()
+    final MetricsUpdate<IceMX.DispatchMetrics> _userException = new MetricsUpdate<IceMX.DispatchMetrics>()
         {
             public void
-            update(DispatchMetrics v)
+            update(IceMX.DispatchMetrics v)
             {
                 ++v.userException;
             }

@@ -403,10 +403,10 @@ IceBox::ServiceManagerI::start()
             // shared communicator.
             // 
             IceInternal::MetricsAdminIPtr metricsAdmin;
-            if(IceMX::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
+            if(IceInternal::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
             {
                 metricsAdmin = new IceInternal::MetricsAdminI(initData.properties, getProcessLogger());
-                initData.observer = new IceMX::CommunicatorObserverI(metricsAdmin);
+                initData.observer = new IceInternal::CommunicatorObserverI(metricsAdmin);
             }
 
             _sharedCommunicator = initialize(initData);
@@ -557,7 +557,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     {
         assert(_sharedCommunicator);
         communicator = _sharedCommunicator;
-        IceMX::CommunicatorObserverIPtr o = IceMX::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+        IceInternal::CommunicatorObserverIPtr o = 
+            IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
         if(o)
         {
             metricsAdmin = o->getMetricsAdmin();
@@ -598,10 +599,10 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // If Ice metrics are enabled on the IceBox communicator, we also enable them on
             // the service communicator.
             // 
-            if(IceMX::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
+            if(IceInternal::CommunicatorObserverIPtr::dynamicCast(_communicator->getObserver()))
             {
                 metricsAdmin = new IceInternal::MetricsAdminI(initData.properties, initData.logger);
-                initData.observer = new IceMX::CommunicatorObserverI(metricsAdmin);
+                initData.observer = new IceInternal::CommunicatorObserverI(metricsAdmin);
             }
 
             //

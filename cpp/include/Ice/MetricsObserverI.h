@@ -349,8 +349,9 @@ public:
     }
 
     void
-    update(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects)
+    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, ObserverT& previous)
     {
+        _objects = previous._objects;
         std::sort(objects.begin(), objects.end());
         typename EntrySeqType::const_iterator p = objects.begin();
         typename EntrySeqType::iterator q = _objects.begin();
@@ -486,15 +487,14 @@ public:
             return 0;
         }
 
-        ObserverImplPtrType obsv = ObserverImplPtrType::dynamicCast(observer);
-        if(!obsv)
+        ObserverImplPtrType obsv = new ObserverImplType();
+        if(!observer)
         {
-            obsv = new ObserverImplType();
             obsv->init(helper, metricsObjects);
         }
         else
         {
-            obsv->update(helper, metricsObjects);
+            obsv->init(helper, metricsObjects, *ObserverImplPtrType::dynamicCast(observer));
         }
         return obsv;
     }

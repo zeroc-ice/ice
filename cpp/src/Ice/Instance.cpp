@@ -1110,7 +1110,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
            (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()) &&
            _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            IceMX::CommunicatorObserverIPtr observer = new IceMX::CommunicatorObserverI(admin);
+            CommunicatorObserverIPtr observer = new CommunicatorObserverI(admin);
             _initData.observer = observer;
 
             //

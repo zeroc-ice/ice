@@ -46,14 +46,14 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         }
     }
 
-    synchronized O
+    public synchronized O
     getObserver(MetricsHelper<T> helper, Class<O> cl)
     {
         return getObserver(helper, null, cl);
     }
 
     @SuppressWarnings("unchecked")
-    synchronized O
+    public synchronized O
     getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl)
     {
 
@@ -73,23 +73,22 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         }
 
         O obsv;
+        try
+        {
+            obsv = cl.newInstance();
+        }
+        catch(Exception ex)
+        {
+            assert(false);
+            return null;
+        }
         if(observer == null)
         {
-            try
-            {
-                obsv = cl.newInstance();
-            }
-            catch(Exception ex)
-            {
-                assert(false);
-                return null;
-            }
             obsv.init(helper, metricsObjects);
         }
         else
         {
-            obsv = (O)observer;
-            obsv.update(helper, metricsObjects);
+            obsv.init(helper, metricsObjects, (O)observer);
         }
         return obsv;
     }
@@ -127,7 +126,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         }
     }
 
-    synchronized void
+    public synchronized void
     setUpdater(Runnable updater)
     {
         _updater = updater;

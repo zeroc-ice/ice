@@ -18,10 +18,11 @@ using namespace Glacier2;
 
 Glacier2::ClientBlobject::ClientBlobject(const InstancePtr& instance,
                                          const FilterManagerPtr& filters,
-                                         const Ice::Context& sslContext):
+                                         const Ice::Context& sslContext,
+                                         const RoutingTablePtr& routingTable):
                                          
     Glacier2::Blobject(instance, 0, sslContext),
-    _routingTable(new RoutingTable(_instance->communicator(), _instance->proxyVerifier())),
+    _routingTable(routingTable),
     _filters(filters),
     _rejectTraceLevel(_instance->properties()->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
@@ -127,12 +128,6 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
         throw ex;
     }
     invoke(proxy, amdCB, inParams, current);
-}
-
-ObjectProxySeq
-Glacier2::ClientBlobject::add(const ObjectProxySeq& proxies, const Current& current)
-{
-    return _routingTable->add(proxies, current);
 }
 
 StringSetPtr 

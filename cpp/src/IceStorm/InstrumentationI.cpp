@@ -14,7 +14,7 @@
 #include <Ice/LoggerUtil.h>
 
 using namespace std;
-using namespace Ice;
+using namespace IceStorm;
 using namespace IceStorm::Instrumentation;
 using namespace IceMX;
 
@@ -180,7 +180,7 @@ public:
         return _id;
     }
 
-    const ObjectPrx&
+    const Ice::ObjectPrx&
     getProxy() const
     {
         return _proxy;
@@ -271,7 +271,10 @@ struct OutstandingUpdate
 
     void operator()(const SubscriberMetricsPtr& v)
     {
-        v->queued -= count;
+        if(v-> queued -= count)
+        {
+            v->queued -= count;
+        }
         v->outstanding += count;
     }
 
@@ -297,7 +300,10 @@ struct DeliveredUpdate
 
     void operator()(const SubscriberMetricsPtr& v)
     {
-        v->outstanding -= count;
+        if(v->outstanding > 0)
+        {
+            v->outstanding -= count;
+        }
         v->delivered += count;
     }
 
@@ -337,7 +343,7 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -361,7 +367,7 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
         }
         catch(const exception& ex)
         {
-            Error error(_metrics->getLogger());
+            Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }

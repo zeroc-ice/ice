@@ -9,10 +9,12 @@
 
 #include <Glacier2/Blobject.h>
 #include <Glacier2/SessionRouterI.h>
+#include <Glacier2/Instrumentation.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
+using namespace Glacier2::Instrumentation;
 
 namespace
 {
@@ -68,27 +70,36 @@ Glacier2::Blobject::destroy()
 }
 
 void
-Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>& outParams,
-                                   const InvokeCookiePtr& cookie)
+Glacier2::Blobject::updateObserver(const Glacier2::Instrumentation::SessionObserverPtr& observer)
 {
-    cookie->cb()->ice_response(ok, outParams);
+    if(_requestQueue)
+    {
+        _requestQueue->updateObserver(observer);
+    }
 }
 
 void
-Glacier2::Blobject::invokeSent(bool sent, const InvokeCookiePtr& cookie)
+Glacier2::Blobject::invokeResponse(bool ok, const pair<const Byte*, const Byte*>& outParams,
+                                   const AMD_Object_ice_invokePtr& amdCB)
+{
+    amdCB->ice_response(ok, outParams);
+}
+
+void
+Glacier2::Blobject::invokeSent(bool sent, const AMD_Object_ice_invokePtr& amdCB)
 {
     if(sent)
     {
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
-        cookie->cb()->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
+        amdCB->ice_response(true, pair<const Byte*, const Byte*>(nullptr, nullptr));
 #else
-        cookie->cb()->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
+        amdCB->ice_response(true, pair<const Byte*, const Byte*>(0, 0));
 #endif
     }
 }
 
 void
-Glacier2::Blobject::invokeException(const Exception& ex, const InvokeCookiePtr& cookie)
+Glacier2::Blobject::invokeException(const Exception& ex, const AMD_Object_ice_invokePtr& amdCB)
 {
     //
     // If the connection has been lost, destroy the session.
@@ -108,7 +119,7 @@ Glacier2::Blobject::invokeException(const Exception& ex, const InvokeCookiePtr& 
             }
         }
     }
-    cookie->cb()->ice_exception(ex);
+    amdCB->ice_exception(ex);
 }
 
 void
@@ -346,26 +357,22 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
                 {
                     Context ctx = current.ctx;
                     ctx.insert(_context.begin(), _context.end());
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, ctx, amiCB,
-                                            new InvokeCookie(amdCB));
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, ctx, amiCB, amdCB);
                 }
                 else
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCB,
-                                            new InvokeCookie(amdCB));
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, amiCB, amdCB);
                 }
             }
             else
             {
                 if(_context.size() > 0)
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, _context, amiCB, 
-                                            new InvokeCookie(amdCB));
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, _context, amiCB, amdCB);
                 }
                 else
                 {
-                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, amiCB, 
-                                            new InvokeCookie(amdCB));
+                    proxy->begin_ice_invoke(current.operation, current.mode, inParams, amiCB, amdCB);
                 }
             }
         }
