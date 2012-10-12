@@ -64,6 +64,7 @@ ZEND_END_ARG_INFO()
     ZEND_FE(IcePHP_defineStruct,        NULL) \
     ZEND_FE(IcePHP_defineSequence,      NULL) \
     ZEND_FE(IcePHP_defineDictionary,    NULL) \
+    ZEND_FE(IcePHP_declareProxy,        NULL) \
     ZEND_FE(IcePHP_defineProxy,         NULL) \
     ZEND_FE(IcePHP_declareClass,        NULL) \
     ZEND_FE(IcePHP_defineClass,         NULL) \
@@ -149,6 +150,7 @@ int initIceGlobals(zend_ice_globals* g)
     g->nameToClassInfoMap = 0;
     g->proxyInfoMap = 0;
     g->exceptionInfoMap = 0;
+    g->unset = 0;
     return SUCCESS;
 }
 
@@ -172,7 +174,7 @@ ZEND_MINIT_FUNCTION(ice)
         return FAILURE;
     }
 
-    if(!typesInit(TSRMLS_C))
+    if(!typesInit(INIT_FUNC_ARGS_PASSTHRU))
     {
         return FAILURE;
     }

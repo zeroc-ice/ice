@@ -87,6 +87,7 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
     void* nameToClassInfoMap;
     void* proxyInfoMap;
     void* exceptionInfoMap;
+    zval* unset;
 ZEND_END_MODULE_GLOBALS(ice)
 
 #ifdef ZTS

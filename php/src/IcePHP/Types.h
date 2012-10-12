@@ -25,6 +25,7 @@ ZEND_FUNCTION(IcePHP_defineEnum);
 ZEND_FUNCTION(IcePHP_defineStruct);
 ZEND_FUNCTION(IcePHP_defineSequence);
 ZEND_FUNCTION(IcePHP_defineDictionary);
+ZEND_FUNCTION(IcePHP_declareProxy);
 ZEND_FUNCTION(IcePHP_defineProxy);
 ZEND_FUNCTION(IcePHP_declareClass);
 ZEND_FUNCTION(IcePHP_defineClass);
@@ -112,7 +113,9 @@ public:
 
     virtual bool validate(zval* TSRMLS_DC) = 0;
 
-    virtual bool usesClasses(); // Default implementation returns false.
+    virtual bool variableLength() const = 0;
+    virtual int wireSize() const = 0;
+    virtual Ice::OptionalFormat optionalFormat() const = 0;
 
     virtual void unmarshaled(zval*, zval*, void* TSRMLS_DC); // Default implementation is assert(false).
 
@@ -128,9 +131,9 @@ public:
     // The marshal and unmarshal functions can raise Ice exceptions, and may raise
     // AbortMarshaling if an error occurs.
     //
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC) = 0;
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC) = 0;
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC) = 0;
+                           zval*, void*, bool TSRMLS_DC) = 0;
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC) = 0;
 };
@@ -147,9 +150,13 @@ public:
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
@@ -176,18 +183,24 @@ class EnumInfo : public TypeInfo
 {
 public:
 
+    EnumInfo(const std::string&, zval* TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
-    std::string id;
-    Ice::StringSeq enumerators;
+    const std::string id;
+    const Ice::StringSeq enumerators;
 };
 typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
 
@@ -197,8 +210,12 @@ public:
 
     virtual void unmarshaled(zval*, zval*, void* TSRMLS_DC);
 
+    void setMember(zval*, zval* TSRMLS_DC);
+
     std::string name;
     TypeInfoPtr type;
+    bool optional;
+    int tag;
 };
 typedef IceUtil::Handle<DataMember> DataMemberPtr;
 typedef std::vector<DataMemberPtr> DataMemberList;
@@ -210,24 +227,33 @@ class StructInfo : public TypeInfo
 {
 public:
 
+    StructInfo(const std::string&, const std::string&, zval* TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
     virtual void destroy();
 
-    std::string id;
-    std::string name; // PHP class name
-    DataMemberList members;
-    zend_class_entry* zce;
+    const std::string id;
+    const std::string name; // PHP class name
+    const DataMemberList members;
+    const zend_class_entry* zce;
+
+private:
+
+    bool _variableLength;
+    int _wireSize;
 };
 typedef IceUtil::Handle<StructInfo> StructInfoPtr;
 
@@ -238,15 +264,19 @@ class SequenceInfo : public TypeInfo
 {
 public:
 
+    SequenceInfo(const std::string&, zval* TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
@@ -254,8 +284,8 @@ public:
 
     virtual void destroy();
 
-    std::string id;
-    TypeInfoPtr elementType;
+    const std::string id;
+    const TypeInfoPtr elementType;
 
 private:
 
@@ -272,15 +302,19 @@ class DictionaryInfo : public TypeInfo
 {
 public:
 
+    DictionaryInfo(const std::string&, zval*, zval* TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
@@ -315,6 +349,11 @@ public:
     std::string id;
     TypeInfoPtr keyType;
     TypeInfoPtr valueType;
+
+private:
+
+    bool _variableLength;
+    int _wireSize;
 };
 typedef IceUtil::Handle<DictionaryInfo> DictionaryInfoPtr;
 
@@ -332,15 +371,21 @@ class ClassInfo : public TypeInfo
 {
 public:
 
+    ClassInfo(const std::string& TSRMLS_DC);
+
+    void define(const std::string&, bool, bool, zval*, zval*, zval* TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual bool usesClasses();
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
@@ -353,15 +398,16 @@ public:
     void addOperation(const std::string&, const OperationPtr&);
     OperationPtr getOperation(const std::string&) const;
 
-    std::string id;
-    std::string name; // PHP class name
-    bool isAbstract;
-    bool preserve;
-    ClassInfoPtr base;
-    ClassInfoList interfaces;
-    DataMemberList members;
+    const std::string id;
+    const std::string name; // PHP class name
+    const bool isAbstract;
+    const bool preserve;
+    const ClassInfoPtr base;
+    const ClassInfoList interfaces;
+    const DataMemberList members;
+    const DataMemberList optionalMembers;
+    const zend_class_entry* zce;
     bool defined;
-    zend_class_entry* zce;
 
     typedef std::map<std::string, OperationPtr> OperationMap;
     OperationMap operations;
@@ -374,20 +420,29 @@ class ProxyInfo : public TypeInfo
 {
 public:
 
+    ProxyInfo(const std::string& TSRMLS_DC);
+
+    void define(const ClassInfoPtr& TSRMLS_DC);
+
     virtual std::string getId() const;
 
     virtual bool validate(zval* TSRMLS_DC);
 
-    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap* TSRMLS_DC);
+    virtual bool variableLength() const;
+    virtual int wireSize() const;
+    virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
-                           zval*, void* TSRMLS_DC);
+                           zval*, void*, bool TSRMLS_DC);
 
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
     virtual void destroy();
 
-    std::string id;
-    ClassInfoPtr cls;
+    const std::string id;
+    const ClassInfoPtr cls;
+    bool defined;
 };
 typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
@@ -410,7 +465,7 @@ public:
     bool preserve;
     ExceptionInfoPtr base;
     DataMemberList members;
-    bool usesClasses;
+    DataMemberList optionalMembers;
     zend_class_entry* zce;
 };
 
@@ -418,7 +473,10 @@ ClassInfoPtr getClassInfoById(const std::string& TSRMLS_DC);
 ClassInfoPtr getClassInfoByName(const std::string& TSRMLS_DC);
 ExceptionInfoPtr getExceptionInfo(const std::string& TSRMLS_DC);
 
-bool typesInit(TSRMLS_D);
+bool isUnset(zval* TSRMLS_DC);
+void unset(zval* TSRMLS_DC);
+
+bool typesInit(INIT_FUNC_ARGS);
 bool typesRequestInit(TSRMLS_D);
 bool typesRequestShutdown(TSRMLS_D);
 
@@ -437,6 +495,8 @@ public:
     virtual void write(const Ice::OutputStreamPtr&) const;
 
 private:
+
+    void writeMembers(const Ice::OutputStreamPtr&, const DataMemberList&) const;
 
     zval* _object;
     ObjectMap* _map;
@@ -488,8 +548,6 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
-    virtual bool usesClasses() const;
-    virtual void usesClasses(bool);
 
     virtual std::string ice_name() const;
     virtual ExceptionReader* ice_clone() const;

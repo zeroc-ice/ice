@@ -756,49 +756,22 @@ IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, 
     //
     volatile VALUE val = callRuby(rb_iv_get, p, "@val");
     assert(FIXNUM_P(val));
-    long ival = FIX2LONG(val);
-    long count = static_cast<long>(enumerators.size());
+    Ice::Int ival = static_cast<Ice::Int>(FIX2LONG(val));
+    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
     if(ival < 0 || ival >= count)
     {
         throw RubyException(rb_eRangeError, "value %ld is out of range for enum %s", ival, id.c_str());
     }
 
-    if(count <= 127)
-    {
-        os->write(static_cast<Ice::Byte>(ival));
-    }
-    else if(count <= 32767)
-    {
-        os->write(static_cast<Ice::Short>(ival));
-    }
-    else
-    {
-        os->write(static_cast<Ice::Int>(ival));
-    }
+    os->writeEnum(ival, count);
 }
 
 void
 IceRuby::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
                              bool)
 {
-    Ice::Int val;
-    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    if(count <= 127)
-    {
-        Ice::Byte b;
-        is->read(b);
-        val = b;
-    }
-    else if(count <= 32767)
-    {
-        Ice::Short sh;
-        is->read(sh);
-        val = sh;
-    }
-    else
-    {
-        is->read(val);
-    }
+    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
+    Ice::Int val = is->readEnum(count);
 
     if(val < 0 || val >= count)
     {
@@ -2098,7 +2071,9 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, Prin
         base->printMembers(value, out, history);
     }
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    DataMemberList::const_iterator q;
+
+    for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
@@ -2110,6 +2085,28 @@ IceRuby::ClassInfo::printMembers(VALUE value, IceUtilInternal::Output& out, Prin
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
             member->type->print(val, out, history);
+        }
+    }
+
+    for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    {
+        DataMemberPtr member = *q;
+        out << nl << member->name << " = ";
+        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        {
+            out << "<not defined>";
+        }
+        else
+        {
+            volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+            if(val == Unset)
+            {
+                out << "<unset>";
+            }
+            else
+            {
+                member->type->print(val, out, history);
+            }
         }
     }
 }
@@ -2597,7 +2594,9 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
         base->printMembers(value, out, history);
     }
 
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    DataMemberList::const_iterator q;
+
+    for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         out << nl << member->name << " = ";
@@ -2609,6 +2608,28 @@ IceRuby::ExceptionInfo::printMembers(VALUE value, IceUtilInternal::Output& out, 
         {
             volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
             member->type->print(val, out, history);
+        }
+    }
+
+    for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    {
+        DataMemberPtr member = *q;
+        out << nl << member->name << " = ";
+        if(callRuby(rb_ivar_defined, value, member->rubyID) == Qfalse)
+        {
+            out << "<not defined>";
+        }
+        else
+        {
+            volatile VALUE val = callRuby(rb_ivar_get, value, member->rubyID);
+            if(val == Unset)
+            {
+                out << "<unset>";
+            }
+            else
+            {
+                member->type->print(val, out, history);
+            }
         }
     }
 }

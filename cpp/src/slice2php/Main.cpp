@@ -149,7 +149,7 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
         if(!p->isLocal())
         {
-            _out << nl << type << "Prx = IcePHP_defineProxy(" << type << ");";
+            _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         }
         _out << eb;
 
@@ -382,6 +382,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Emit a forward declaration for the class in case a data member refers to this type.
         //
         _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
+        if(!p->isLocal())
+        {
+            _out << nl << prxType << " = IcePHP_declareProxy('" << scoped << "');";
+        }
     }
 
     //
@@ -425,7 +429,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Data members are represented as an array:
     //
-    //   ('MemberName', MemberType)
+    //   ('MemberName', MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -436,12 +440,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             if(q != members.begin())
             {
-                _out << ',' << nl;
+                _out << ',';
             }
             _out.inc();
             _out << nl << "array('" << fixIdent((*q)->name()) << "', ";
             writeType((*q)->type());
-            _out << ')';
+            _out << ", " << ((*q)->optional() ? "true" : "false") << ", "
+                 << ((*q)->optional() ? (*q)->tag() : 0) << ')';
             _out.dec();
         }
         _out << ')';
@@ -459,7 +464,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // Define each operation. The arguments to IcePHP_defineOperation are:
         //
-        // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnType, (Exceptions)
+        // $ClassType, 'opName', Mode, SendMode, FormatType, (InParams), (OutParams), ReturnParam, (Exceptions)
         //
         // where InParams and OutParams are arrays of type descriptions, and Exceptions
         // is an array of exception type ids.
@@ -488,7 +493,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", ";
                         }
+                        _out << "array(";
                         writeType((*t)->type());
+                        _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
+                             << ((*t)->optional() ? (*t)->tag() : 0) << ')';
                         ++count;
                     }
                 }
@@ -513,7 +521,10 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         {
                             _out << ", ";
                         }
+                        _out << "array(";
                         writeType((*t)->type());
+                        _out << ", " << ((*t)->optional() ? "true" : "false") << ", "
+                             << ((*t)->optional() ? (*t)->tag() : 0) << ')';
                         ++count;
                     }
                 }
@@ -529,7 +540,15 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 TypePtr returnType = (*oli)->returnType();
                 if(returnType)
                 {
+                    //
+                    // The return type has the same format as an in/out parameter:
+                    //
+                    // Type, Optional?, OptionalTag
+                    //
+                    _out << "array(";
                     writeType(returnType);
+                    _out << ", " << ((*oli)->returnIsOptional() ? "true" : "false") << ", "
+                         << ((*oli)->returnIsOptional() ? (*oli)->returnTag() : 0) << ')';
                 }
                 else
                 {
@@ -685,7 +704,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Data members are represented as an array:
     //
-    //   ('MemberName', MemberType)
+    //   ('MemberName', MemberType, Optional, Tag)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
@@ -696,12 +715,13 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if(dmli != members.begin())
             {
-                _out << ',' << nl;
+                _out << ',';
             }
             _out.inc();
             _out << nl << "array('" << fixIdent((*dmli)->name()) << "', ";
             writeType((*dmli)->type());
-            _out << ')';
+            _out << ", " << ((*dmli)->optional() ? "true" : "false") << ", "
+                 << ((*dmli)->optional() ? (*dmli)->tag() : 0) << ')';
             _out.dec();
         }
         _out << ')';
@@ -1340,6 +1360,10 @@ CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
         }
+        else if(member->optional())
+        {
+            _out << "Ice_Unset";
+        }
         else
         {
             writeDefaultValue(member->type());
@@ -1817,4 +1841,3 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 }
-

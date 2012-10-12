@@ -7,16 +7,21 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+SLICE_SRCS	= ClientPrivate.ice Test.ice
 
 include $(top_srcdir)/config/Make.rules.php
 
-SUBDIRS		= binding checksum exceptions facets info inheritance objects operations proxy slicing defaultValue \
-		  optional
+SRCS		= ClientPrivate.php Test.php
+SLICE2PHPFLAGS  := -I. $(SLICE2PHPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+all:: $(SRCS)
+
+%.php: %.ice
+	$(SLICE2PHP) $(SLICE2PHPFLAGS) $<
+
+clean::
+	rm -f $(SRCS)
+
+include .depend

@@ -1592,7 +1592,20 @@ IcePHP::ObjectFactoryI::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr cls = getClassInfoById(id TSRMLS_CC);
+    ClassInfoPtr cls;
+    if(id == Ice::Object::ice_staticId())
+    {
+        //
+        // When the ID is that of Ice::Object, it indicates that the stream has not
+        // found a factory and is providing us an opportunity to preserve the object.
+        //
+        cls = getClassInfoById("::Ice::UnknownSlicedObject" TSRMLS_CC);
+    }
+    else
+    {
+        cls = getClassInfoById(id TSRMLS_CC);
+    }
+
     if(!cls)
     {
         return 0;
@@ -1652,7 +1665,7 @@ IcePHP::ObjectFactoryI::create(const string& id)
     MAKE_STD_ZVAL(obj);
     AutoDestroy destroy(obj);
 
-    if(object_init_ex(obj, cls->zce) != SUCCESS)
+    if(object_init_ex(obj, const_cast<zend_class_entry*>(cls->zce)) != SUCCESS)
     {
         throw AbortMarshaling();
     }

@@ -110,15 +110,24 @@ function allTests($communicator)
     echo "unknown with Object as Object... ";
     flush();
     {
+        $usocls = $NS ? "Ice\\UnknownSlicedObject" : "Ice_UnknownSlicedObject";
         try
         {
             $o = $test->SUnknownAsObject();
-            test(false);
+            test($test->ice_getEncodingVersion() != $Ice_Encoding_1_0);
+            test($o instanceof $usocls);
+            test($o->unknownTypeId == "::Test::SUnknown");
+            test($o->_ice_slicedData != null);
+            $test->checkSUnknown($o);
         }
         catch(Exception $b)
         {
             $excls = $NS ? "Ice\\NoObjectFactoryException" : "Ice_NoObjectFactoryException";
-            if(!($b instanceof $excls))
+            if($b instanceof $excls)
+            {
+                test($test->ice_getEncodingVersion() == $Ice_Encoding_1_0);
+            }
+            else
             {
                 throw $ex;
             }

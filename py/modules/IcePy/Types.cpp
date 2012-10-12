@@ -932,7 +932,7 @@ IcePy::EnumInfo::optionalFormat() const
 }
 
 void
-IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*, bool, const Ice::StringSeq*)
+IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*, bool optional, const Ice::StringSeq*)
 {
     assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
 
@@ -962,42 +962,15 @@ IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*
         throw AbortMarshaling();
     }
 
-    if(count <= 127)
-    {
-        os->write(static_cast<Ice::Byte>(ival));
-    }
-    else if(count <= 32767)
-    {
-        os->write(static_cast<Ice::Short>(ival));
-    }
-    else
-    {
-        os->write(ival);
-    }
+    os->writeEnum(ival, count);
 }
 
 void
 IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                            void* closure, bool, const Ice::StringSeq*)
 {
-    Ice::Int val;
     Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    if(count <= 127)
-    {
-        Ice::Byte b;
-        is->read(b);
-        val = b;
-    }
-    else if(count <= 32767)
-    {
-        Ice::Short sh;
-        is->read(sh);
-        val = sh;
-    }
-    else
-    {
-        is->read(val);
-    }
+    Ice::Int val = is->readEnum(count);
 
     if(val < 0 || val >= count)
     {
@@ -2815,9 +2788,13 @@ IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
         char* memberName = const_cast<char*>(member->name.c_str());
         PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
         out << nl << member->name << " = ";
-        if(!attr.get() || attr.get() == Unset)
+        if(!attr.get())
         {
             out << "<not defined>";
+        }
+        else if(attr.get() == Unset)
+        {
+            out << "<unset>";
         }
         else
         {
@@ -3404,7 +3381,9 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
         base->printMembers(value, out, history);
     }
 
-    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    DataMemberList::iterator q;
+
+    for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         char* memberName = const_cast<char*>(member->name.c_str());
@@ -3413,6 +3392,26 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
         if(!attr.get() || attr.get() == Unset)
         {
             out << "<not defined>";
+        }
+        else
+        {
+            member->type->print(attr.get(), out, history);
+        }
+    }
+
+    for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
+    {
+        DataMemberPtr member = *q;
+        char* memberName = const_cast<char*>(member->name.c_str());
+        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        out << nl << member->name << " = ";
+        if(!attr.get())
+        {
+            out << "<not defined>";
+        }
+        else if(attr.get() == Unset)
+        {
+            out << "<unset>";
         }
         else
         {

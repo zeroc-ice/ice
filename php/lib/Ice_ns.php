@@ -98,6 +98,17 @@ namespace Ice
     $Ice__t_ObjectPrx = IcePHP_defineProxy($Ice__t_Object);
     $Ice__t_ObjectProxySeq = IcePHP_defineSequence('::Ice::ObjectProxySeq', $Ice__t_ObjectPrx);
 
+    class UnknownSlicedObject extends ObjectImpl
+    {
+        public function __construct()
+        {
+        }
+
+        public $unknownTypeId;
+    }
+
+    $Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', "\\Ice\\UnknownSlicedObject", false, true, $Ice__t_Object, null, null);
+
     interface ObjectFactory
     {
         public function create($id);
@@ -157,10 +168,10 @@ $Ice_Protocol_1_0 = new Ice\ProtocolVersion(1, 0);
 $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
 $Ice_Encoding_1_1 = new Ice\EncodingVersion(1, 1);
 
-IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 2, 1, 0, array($IcePHP__t_string), array(), $IcePHP__t_bool, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_isA', 2, 1, 0, array(array($IcePHP__t_string, false, 0)), null, array($IcePHP__t_bool, false, 0), null);
 IcePHP_defineOperation($Ice__t_Object, 'ice_ping', 2, 1, 0, null, null, null, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_id', 2, 1, 0, null, null, $IcePHP__t_string, null);
-IcePHP_defineOperation($Ice__t_Object, 'ice_ids', 2, 1, 0, null, null, $Ice__t_StringSeq, null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_id', 2, 1, 0, null, null, array($IcePHP__t_string, false, 0), null);
+IcePHP_defineOperation($Ice__t_Object, 'ice_ids', 2, 1, 0, null, null, array($Ice__t_StringSeq, false, 0), null);
 }
 
 namespace Ice

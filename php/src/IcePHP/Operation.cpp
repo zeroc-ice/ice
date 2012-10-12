@@ -26,6 +26,18 @@ ZEND_FUNCTION(IcePHP_Operation_call);
 namespace IcePHP
 {
 
+class ParamInfo : public IceUtil::Shared
+{
+public:
+
+    TypeInfoPtr type;
+    bool optional;
+    int tag;
+    int pos;
+};
+typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
+typedef list<ParamInfoPtr> ParamInfoList;
+
 //
 // Receives an out parameter or return value.
 //
@@ -37,6 +49,8 @@ public:
     ~ResultCallback();
 
     virtual void unmarshaled(zval*, zval*, void* TSRMLS_DC);
+
+    void unset(TSRMLS_D);
 
     zval* zv;
 };
@@ -60,20 +74,21 @@ public:
     Ice::OperationMode mode;
     Ice::OperationMode sendMode;
     Ice::FormatType format;
-    TypeInfoList inParams;
-    TypeInfoList outParams;
-    TypeInfoPtr returnType;
+    ParamInfoList inParams;
+    ParamInfoList optionalInParams;
+    ParamInfoList outParams;
+    ParamInfoList optionalOutParams;
+    ParamInfoPtr returnType;
     ExceptionInfoList exceptions;
-    bool sendsClasses;
-    bool returnsClasses;
     int numParams;
 
 private:
 
     zend_internal_function* _zendFunction;
 
-    static void convertParams(zval*, TypeInfoList&, bool& TSRMLS_DC);
-    static void getArgInfo(zend_arg_info&, const TypeInfoPtr&, bool);
+    static void convertParams(zval*, ParamInfoList& TSRMLS_DC);
+    static ParamInfoPtr convertParam(zval*, int TSRMLS_DC);
+    static void getArgInfo(zend_arg_info&, const ParamInfoPtr&, bool);
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
@@ -188,19 +203,26 @@ IcePHP::ResultCallback::unmarshaled(zval* val, zval*, void* TSRMLS_DC)
     Z_ADDREF_P(zv);
 }
 
+void
+IcePHP::ResultCallback::unset(TSRMLS_D)
+{
+    MAKE_STD_ZVAL(zv);
+    IcePHP::unset(zv TSRMLS_DC);
+}
+
 //
 // OperationI implementation.
 //
 IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::OperationMode sm, Ice::FormatType f, zval* in,
                                zval* out, zval* ret, zval* ex TSRMLS_DC) :
-    name(n), mode(m), sendMode(sm), format(f), sendsClasses(false), returnsClasses(false), _zendFunction(0)
+    name(n), mode(m), sendMode(sm), format(f), _zendFunction(0)
 {
     //
     // inParams
     //
     if(in)
     {
-        convertParams(in, inParams, sendsClasses TSRMLS_CC);
+        convertParams(in, inParams TSRMLS_CC);
     }
 
     //
@@ -208,22 +230,53 @@ IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::Operati
     //
     if(out)
     {
-        convertParams(out, outParams, returnsClasses TSRMLS_CC);
+        convertParams(out, outParams TSRMLS_CC);
     }
-
-    numParams = static_cast<int>(inParams.size() + outParams.size());
 
     //
     // returnType
     //
     if(ret)
     {
-        returnType = Wrapper<TypeInfoPtr>::value(ret TSRMLS_CC);
-        if(!returnsClasses)
-        {
-            returnsClasses = returnType->usesClasses();
-        }
+        returnType = convertParam(ret, 0 TSRMLS_CC);
     }
+
+    numParams = static_cast<int>(inParams.size() + outParams.size());
+
+    class SortFn
+    {
+    public:
+        static bool compare(const ParamInfoPtr& lhs, const ParamInfoPtr& rhs)
+        {
+            return lhs->tag < rhs->tag;
+        }
+
+        static bool isRequired(const ParamInfoPtr& i)
+        {
+            return !i->optional;
+        }
+    };
+
+    //
+    // The inParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters.
+    //
+    ParamInfoList l = inParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalInParams));
+    optionalInParams.sort(SortFn::compare);
+
+    //
+    // The outParams list represents the parameters in the order of declaration.
+    // We also need a sorted list of optional parameters. If the return value is
+    // optional, we must include it in this list.
+    //
+    l = outParams;
+    copy(l.begin(), remove_if(l.begin(), l.end(), SortFn::isRequired), back_inserter(optionalOutParams));
+    if(returnType && returnType->optional)
+    {
+        optionalOutParams.push_back(returnType);
+    }
+    optionalOutParams.sort(SortFn::compare);
 
     //
     // exceptions
@@ -265,7 +318,7 @@ IcePHP::OperationI::function()
         zend_arg_info* argInfo = new zend_arg_info[numParams];
 
         int i = 0;
-        TypeInfoList::const_iterator p;
+        ParamInfoList::const_iterator p;
         for(p = inParams.begin(); p != inParams.end(); ++p, ++i)
         {
             getArgInfo(argInfo[i], *p, false);
@@ -302,43 +355,73 @@ IcePHP::OperationI::function()
 }
 
 void
-IcePHP::OperationI::convertParams(zval* p, TypeInfoList& params, bool& usesClasses TSRMLS_DC)
+IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params TSRMLS_DC)
 {
-    usesClasses = false;
-
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
     HashPosition pos;
     zend_hash_internal_pointer_reset_ex(arr, &pos);
     void* data;
+    int i = 0;
     while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
         zval** val = reinterpret_cast<zval**>(data);
-        TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(*val TSRMLS_CC);
-        params.push_back(type);
-        if(!usesClasses)
-        {
-            usesClasses = type->usesClasses();
-        }
+        params.push_back(convertParam(*val, i TSRMLS_CC));
         zend_hash_move_forward_ex(arr, &pos);
+        ++i;
     }
 }
 
+ParamInfoPtr
+IcePHP::OperationI::convertParam(zval* p, int pos TSRMLS_DC)
+{
+    assert(Z_TYPE_P(p) == IS_ARRAY);
+    HashTable* arr = Z_ARRVAL_P(p);
+    assert(zend_hash_num_elements(arr) == 3);
+
+    ParamInfoPtr param = new ParamInfo;
+    zval** m;
+
+    zend_hash_index_find(arr, 0, reinterpret_cast<void**>(&m));
+    param->type = Wrapper<TypeInfoPtr>::value(*m TSRMLS_CC);
+    zend_hash_index_find(arr, 1, reinterpret_cast<void**>(&m));
+    assert(Z_TYPE_PP(m) == IS_BOOL);
+    param->optional = Z_BVAL_PP(m) ? true : false;
+    zend_hash_index_find(arr, 2, reinterpret_cast<void**>(&m));
+    assert(Z_TYPE_PP(m) == IS_LONG);
+    param->tag = Z_LVAL_PP(m);
+    param->pos = pos;
+
+    return param;
+}
+
 void
-IcePHP::OperationI::getArgInfo(zend_arg_info& arg, const TypeInfoPtr& info, bool out)
+IcePHP::OperationI::getArgInfo(zend_arg_info& arg, const ParamInfoPtr& info, bool out)
 {
     arg.name = 0;
     arg.class_name = 0;
     arg.allow_null = 1;
 
-    const bool isArray = SequenceInfoPtr::dynamicCast(info) || DictionaryInfoPtr::dynamicCast(info);
+    if(!info->optional)
+    {
+        const bool isArray = SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type);
 
 #if PHP_VERSION_ID < 50400
-    arg.array_type_hint = isArray ? 1 : 0;
-    arg.return_reference = 0;
+        arg.array_type_hint = isArray ? 1 : 0;
+        arg.return_reference = 0;
 #else
-    arg.type_hint = isArray ? IS_ARRAY : 0;
+        arg.type_hint = isArray ? IS_ARRAY : 0;
 #endif
+    }
+    else
+    {
+#if PHP_VERSION_ID < 50400
+        arg.array_type_hint = 0;
+        arg.return_reference = 0;
+#else
+        arg.type_hint = 0;
+#endif
+    }
 
     arg.pass_by_reference = out ? 1 : 0;
 }
@@ -395,16 +478,47 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
             os->startEncapsulation(_prx->ice_getEncodingVersion(), _op->format);
 
             ObjectMap objectMap;
-            int i = 0;
-            for(TypeInfoList::iterator p = _op->inParams.begin(); p != _op->inParams.end(); ++p, ++i)
+            ParamInfoList::iterator p;
+
+            //
+            // Validate the supplied arguments.
+            //
+            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
             {
-                zval* arg = args[i];
-                if(!(*p)->validate(arg TSRMLS_CC))
+                ParamInfoPtr info = *p;
+                zval* arg = args[info->pos];
+                if((!info->optional || !isUnset(arg TSRMLS_CC)) && !info->type->validate(arg TSRMLS_CC))
                 {
-                    invalidArgument("invalid value for argument %d in operation `%s'" TSRMLS_CC, i, _op->name.c_str());
+                    invalidArgument("invalid value for argument %d in operation `%s'" TSRMLS_CC, info->pos + 1,
+                                    _op->name.c_str());
                     return false;
                 }
-                (*p)->marshal(arg, os, &objectMap TSRMLS_CC);
+            }
+
+            //
+            // Marshal the required parameters.
+            //
+            for(p = _op->inParams.begin(); p != _op->inParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                if(!info->optional)
+                {
+                    zval* arg = args[info->pos];
+                    info->type->marshal(arg, os, &objectMap, false TSRMLS_CC);
+                }
+            }
+
+            //
+            // Marshal the optional parameters.
+            //
+            for(p = _op->optionalInParams.begin(); p != _op->optionalInParams.end(); ++p)
+            {
+                ParamInfoPtr info = *p;
+                zval* arg = args[info->pos];
+                if(!isUnset(arg TSRMLS_CC) && os->writeOptional(info->tag, info->type->optionalFormat()))
+                {
+                    info->type->marshal(arg, os, &objectMap, true TSRMLS_CC);
+                }
             }
 
             os->endEncapsulation();
@@ -440,6 +554,8 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
 
     is->startEncapsulation();
 
+    ParamInfoList::iterator p;
+
     //
     // These callbacks collect references to the unmarshaled values. We copy them into
     // the argument list *after* any pending objects have been unmarshaled.
@@ -447,23 +563,56 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
     ResultCallbackList outParamCallbacks;
     ResultCallbackPtr retCallback;
 
+    outParamCallbacks.resize(_op->outParams.size());
+
     //
-    // Unmarshal the out parameters.
+    // Unmarshal the required out parameters.
     //
-    for(TypeInfoList::iterator p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
+    for(p = _op->outParams.begin(); p != _op->outParams.end(); ++p)
     {
-        ResultCallbackPtr cb = new ResultCallback;
-        outParamCallbacks.push_back(cb);
-        (*p)->unmarshal(is, cb, _communicator, 0, 0 TSRMLS_CC);
+        ParamInfoPtr info = *p;
+        if(!info->optional)
+        {
+            ResultCallbackPtr cb = new ResultCallback;
+            outParamCallbacks[info->pos] = cb;
+            info->type->unmarshal(is, cb, _communicator, 0, 0, false TSRMLS_CC);
+        }
     }
 
     //
-    // Unmarshal the return value.
+    // Unmarshal the required return value, if any.
     //
-    if(_op->returnType)
+    if(_op->returnType && !_op->returnType->optional)
     {
         retCallback = new ResultCallback;
-        _op->returnType->unmarshal(is, retCallback, _communicator, 0, 0 TSRMLS_CC);
+        _op->returnType->type->unmarshal(is, retCallback, _communicator, 0, 0, false TSRMLS_CC);
+    }
+
+    //
+    // Unmarshal the optional results. This includes an optional return value.
+    //
+    for(p = _op->optionalOutParams.begin(); p != _op->optionalOutParams.end(); ++p)
+    {
+        ParamInfoPtr info = *p;
+
+        ResultCallbackPtr cb = new ResultCallback;
+        if(info->tag == _op->returnType->tag)
+        {
+            retCallback = cb;
+        }
+        else
+        {
+            outParamCallbacks[info->pos] = cb;
+        }
+
+        if(is->readOptional(info->tag, info->type->optionalFormat()))
+        {
+            info->type->unmarshal(is, cb, _communicator, 0, 0, true TSRMLS_CC);
+        }
+        else
+        {
+            cb->unset(TSRMLS_C);
+        }
     }
 
     is->endEncapsulation();
@@ -695,7 +844,7 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     zval* returnType;
     zval* exceptions;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("osllla!a!o!a!"), &cls, &name, &nameLen,
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("osllla!a!a!a!"), &cls, &name, &nameLen,
                              &mode, &sendMode, &format, &inParams, &outParams, &returnType, &exceptions) == FAILURE)
     {
         return;
