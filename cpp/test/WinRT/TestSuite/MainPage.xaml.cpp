@@ -387,6 +387,7 @@ public:
         try
         {
             clientRunable->waitForCompleted();
+			clientRunable->getThreadControl().detach();
         }
         catch(...)
         {
@@ -394,6 +395,7 @@ public:
             {
                 serverRunable->shutdown();
                 serverRunable->waitForCompleted();
+				serverRunable->getThreadControl().detach();
             }
             throw;
         }
@@ -401,6 +403,7 @@ public:
         if(serverRunable)
         {
             serverRunable->waitForCompleted();
+			serverRunable->getThreadControl().detach();
         }
     }
 
@@ -412,6 +415,7 @@ public:
         RunnablePtr clientRunable = new Runnable(_test.prefix + client, cltConfig);
         clientRunable->start();
         clientRunable->waitForCompleted();
+		clientRunable->getThreadControl().detach();
     }
     
 private:
@@ -509,4 +513,5 @@ MainPage::runSelectedTest()
 
     TestRunnerPtr t = new TestRunner(allTest[TestList->SelectedIndex], config);
     t->start();
+	t->getThreadControl().detach();
 }

@@ -9,8 +9,11 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
+
+DEFINE_TEST("server")
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
@@ -20,7 +23,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::Identity id = communicator->stringToIdentity("factory");
     adapter->add(new RemoteCommunicatorFactoryI, id);
     adapter->activate();
-
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

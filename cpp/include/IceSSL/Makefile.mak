@@ -25,10 +25,14 @@ install::
 
 !else
 
-SDK_HEADERS =	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceSSL.h \
-	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\EndpointInfo.h \
-	$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\ConnectionInfo.h
+all::
+        @echo SDK_HEADERS       =  \> .headers
+        @for /f %i in ('dir /b *.h') do \
+                @echo ^ $$(SDK_INCLUDE_PATH)\$$(INCLUDE_DIR)\%i \>> .headers
 
-all::	$(SDK_HEADERS)
+
+!include .headers
+
+all:: $(SDK_HEADERS)
 
 !endif

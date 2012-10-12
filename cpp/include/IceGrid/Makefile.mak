@@ -25,17 +25,14 @@ install::
 
 !else
 
-SDK_HEADERS	= $(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Admin.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Descriptor.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Exception.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\FileParser.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\IceGrid.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Locator.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Observer.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Query.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Registry.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\Session.h \
-		$(SDK_INCLUDE_PATH)\$(INCLUDE_DIR)\UserAccountMapper.h
+all::
+        @echo SDK_HEADERS       =  \> .headers
+        @for /f %i in ('dir /b *.h') do \
+                @echo ^ $$(SDK_INCLUDE_PATH)\$$(INCLUDE_DIR)\%i \>> .headers
 
-all::	$(SDK_HEADERS)
+
+!include .headers
+
+all:: $(SDK_HEADERS)
+
 !endif

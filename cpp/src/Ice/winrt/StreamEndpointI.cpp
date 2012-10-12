@@ -241,8 +241,8 @@ IceInternal::StreamEndpointI::StreamEndpointI(BasicStream* s, Ice::Short type) :
     s->read(const_cast<bool&>(_compress));
     if(s->getReadEncoding() > Ice::Encoding_1_0)
     {
-        const_cast<Ice::ProtocolVersion&>(_protocol).__read(s);
-        const_cast<Ice::EncodingVersion&>(_encoding).__read(s);
+        s->read(const_cast<Ice::ProtocolVersion&>(_protocol));
+        s->read(const_cast<Ice::EncodingVersion&>(_encoding));
     }
     else
     {
@@ -263,8 +263,8 @@ IceInternal::StreamEndpointI::streamWrite(BasicStream* s) const
     s->write(_compress);
     if(s->getWriteEncoding() > Ice::Encoding_1_0)
     {
-        _protocol.__write(s);
-        _encoding.__write(s);
+        s->write(_protocol);
+        s->write(_encoding);
     }
     s->endWriteEncaps();
 }

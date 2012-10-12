@@ -22,6 +22,10 @@
 #include <climits>
 #include <exception>
 
+#ifdef ICE_OS_WINRT
+#   include <thread>
+#endif
+
 #ifndef _WIN32
     #include <sys/time.h>
     #include <sys/resource.h>
@@ -29,7 +33,238 @@
 
 using namespace std;
 
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+
+IceUtil::ThreadControl::ThreadControl() :
+    _id(this_thread::get_id())
+{
+}
+
+IceUtil::ThreadControl::ThreadControl(const shared_ptr<thread>& thread) :
+    _thread(thread),
+    _id(_thread->get_id())
+{
+}
+
+bool
+IceUtil::ThreadControl::operator==(const ThreadControl& rhs) const
+{
+    return id() == rhs.id();
+}
+
+bool
+IceUtil::ThreadControl::operator!=(const ThreadControl& rhs) const
+{
+    return id() != rhs.id();
+}
+
+void
+IceUtil::ThreadControl::join()
+{
+    if(!_thread)
+    {
+        throw BadThreadControlException(__FILE__, __LINE__);
+    }
+
+    try
+    {
+        _thread->join();
+    }
+    catch(const system_error& ex)
+    {
+        throw ThreadSyscallException(__FILE__, __LINE__, ex.code().value());
+    }
+}
+
+void
+IceUtil::ThreadControl::detach()
+{
+    if(!_thread)
+    {
+        throw BadThreadControlException(__FILE__, __LINE__);
+    }
+    
+    try
+    {
+        _thread->detach();
+    }
+    catch(const system_error& ex)
+    {
+        throw ThreadSyscallException(__FILE__, __LINE__, ex.code().value());
+    }
+}
+
+IceUtil::ThreadControl::ID
+IceUtil::ThreadControl::id() const
+{
+    return _id;
+}
+
+void
+IceUtil::ThreadControl::sleep(const Time& timeout)
+{
+    this_thread::sleep_for(chrono::microseconds(timeout.toMicroSeconds()));
+}
+
+void
+IceUtil::ThreadControl::yield()
+{
+    this_thread::yield();
+}
+
+IceUtil::Thread::Thread() :
+    _started(false),
+    _running(false)
+{
+}
+
+IceUtil::Thread::Thread(const string& name) :
+    _name(name),
+    _started(false),
+    _running(false)
+{
+}
+
+IceUtil::Thread::~Thread()
+{
+}
+
+static unsigned int
+WINAPI startHook(void* arg)
+{
+    // Ensure that the thread doesn't go away until run() has
+    // completed.
+    //
+    IceUtil::ThreadPtr thread;
+
+    try
+    {
+        IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
+
+        //
+        // Ensure that the thread doesn't go away until run() has
+        // completed.
+        //
+        thread = rawThread;
+
+        //
+        // Initialize the random number generator in each thread on
+        // Windows (the rand() seed is thread specific).
+        //
+        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+        srand(seed ^ hash<thread::id>()(thread->getThreadControl().id()));
+
+        //
+        // See the comment in IceUtil::Thread::start() for details.
+        //
+        rawThread->__decRef();
+        thread->run();
+    }
+    catch(...)
+    {
+        if(!thread->name().empty())
+        {
+            cerr << thread->name() << " terminating" << endl;
+        }
+        std::terminate();
+    }
+
+    thread->_done();
+   
+    return 0;
+}
+
+#include <process.h>
+
+IceUtil::ThreadControl
+IceUtil::Thread::start(size_t)
+{
+    return start(0, 0);
+}
+
+IceUtil::ThreadControl
+IceUtil::Thread::start(size_t, int)
+{
+    //
+    // Keep this alive for the duration of start
+    //
+    IceUtil::ThreadPtr keepMe = this;
+
+    IceUtil::Mutex::Lock lock(_stateMutex);
+
+    if(_started)
+    {
+        throw ThreadStartedException(__FILE__, __LINE__);
+    }
+
+    //
+    // It's necessary to increment the reference count since
+    // pthread_create won't necessarily call the thread function until
+    // later. If the user does (new MyThread)->start() then the thread
+    // object could be deleted before the thread object takes
+    // ownership. It's also necessary to increment the reference count
+    // prior to calling pthread_create since the thread itself calls
+    // __decRef().
+    //
+    __incRef();
+    _thread.reset(new thread(startHook, this));
+
+    _started = true;
+    _running = true;
+    
+    return ThreadControl(_thread);
+}
+
+IceUtil::ThreadControl
+IceUtil::Thread::getThreadControl() const
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    if(!_started)
+    {
+        throw ThreadNotStartedException(__FILE__, __LINE__);
+    }
+    return ThreadControl(_thread);
+}
+
+bool
+IceUtil::Thread::operator==(const Thread& rhs) const
+{
+    return this == &rhs;
+}
+
+bool
+IceUtil::Thread::operator!=(const Thread& rhs) const
+{
+    return this != &rhs;
+}
+
+bool
+IceUtil::Thread::operator<(const Thread& rhs) const
+{
+    return this < &rhs;
+}
+
+bool
+IceUtil::Thread::isAlive() const
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    return _running;
+}
+
+void
+IceUtil::Thread::_done()
+{
+    IceUtil::Mutex::Lock lock(_stateMutex);
+    _running = false;
+}
+
+const string&
+IceUtil::Thread::name() const
+{
+    return _name;
+}
+
+#elif defined(_WIN32)
 
 IceUtil::ThreadControl::ThreadControl() :
     _handle(0),
@@ -63,11 +298,7 @@ IceUtil::ThreadControl::join()
         throw BadThreadControlException(__FILE__, __LINE__);
     }
 
-#ifndef ICE_OS_WINRT
-    DWORD rc = WaitForSingleObject(_handle, INFINITE);
-#else
     DWORD rc = WaitForSingleObjectEx(_handle, INFINITE, true);
-#endif
     if(rc != WAIT_OBJECT_0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -99,11 +330,7 @@ IceUtil::ThreadControl::id() const
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
-#ifndef ICE_OS_WINRT
     Sleep(static_cast<long>(timeout.toMilliSeconds()));
-#else
-    WaitForSingleObjectEx(GetCurrentThread(), static_cast<long>(timeout.toMilliSeconds()), true);
-#endif
 }
 
 void
@@ -114,11 +341,7 @@ IceUtil::ThreadControl::yield()
     // of its time slice to any other thread of equal priority that is
     // ready to run.
     //
-#ifndef ICE_OS_WINRT
     Sleep(0);
-#else
-    WaitForSingleObjectEx(GetCurrentThread(), 0, true);
-#endif
 }
 
 IceUtil::Thread::Thread() :
@@ -160,14 +383,12 @@ WINAPI startHook(void* arg)
         //
         thread = rawThread;
 
-#ifdef _WIN32
         //
         // Initialize the random number generator in each thread on
         // Windows (the rand() seed is thread specific).
         //
         unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
         srand(seed ^ thread->getThreadControl().id());
-#endif
 
         //
         // See the comment in IceUtil::Thread::start() for details.
@@ -229,11 +450,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
             _beginthreadex(0, 
                             static_cast<unsigned int>(stackSize), 
                             startHook, this, 
-#ifndef ICE_OS_WINRT
                             CREATE_SUSPENDED, 
-#else
-                            0,
-#endif
                             &id));
     _id = id;
     assert(_handle != (HANDLE)-1L);
@@ -242,7 +459,6 @@ IceUtil::Thread::start(size_t stackSize, int priority)
         __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
-#ifndef ICE_OS_WINRT
     if(SetThreadPriority(_handle, priority) == 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -252,7 +468,6 @@ IceUtil::Thread::start(size_t stackSize, int priority)
         __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
-#endif
 
     _started = true;
     _running = true;

@@ -24,7 +24,7 @@ public:
     MainPage();
     
     void completed();
-    void failed(Platform::String^);
+    void failed(Platform::String^ reason);
 
 protected:
     

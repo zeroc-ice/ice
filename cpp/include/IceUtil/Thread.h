@@ -10,9 +10,15 @@
 #ifndef ICE_UTIL_THREAD_H
 #define ICE_UTIL_THREAD_H
 
+#include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 #include <IceUtil/Mutex.h>
+
+#ifdef ICE_OS_WINRT
+#   include <memory>
+#   include <thread>
+#endif
 
 namespace IceUtil
 {
@@ -29,7 +35,9 @@ public:
     //
     ThreadControl();
 
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+    ThreadControl(const std::shared_ptr<std::thread>&);
+#elif defined(_WIN32)
     ThreadControl(HANDLE, DWORD);
 #else
     explicit ThreadControl(pthread_t);
@@ -72,7 +80,9 @@ public:
     // id() returns the Thread ID on Windows and the underlying pthread_t
     // on POSIX platforms.
     //
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+    typedef std::thread::id ID;
+#elif defined(_WIN32)
     typedef DWORD ID;
 #else
     typedef pthread_t ID;
@@ -84,7 +94,10 @@ public:
 
 private:
 
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+    std::shared_ptr<std::thread> _thread;
+    std::thread::id _id;
+#elif defined(_WIN32)
     HANDLE _handle;
     DWORD  _id;
 #else
@@ -140,7 +153,9 @@ protected:
     bool _started;
     bool _running;
 
-#ifdef _WIN32
+#ifdef ICE_OS_WINRT
+    std::shared_ptr<std::thread> _thread;
+#elif defined(_WIN32)
     HANDLE _handle;
     DWORD  _id;
 #else

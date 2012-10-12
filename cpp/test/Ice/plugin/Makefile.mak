@@ -52,7 +52,7 @@ $(PLUGINDIR)\$(LIBNAME): $(PLUGINDIR)\$(DLLNAME)
 	    
 $(PLUGINDIR)\$(DLLNAME): $(POBJS)
 	$(LINK) $(BASE):0x22000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
-	move $(PLUGINDIR)\$(DLLNAME:.dll=.lib) $(PLUGINDIR)\$(LIBNAME)
+	@if exist $(PLUGINDIR)\$(DLLNAME:.dll=.lib) move $(PLUGINDIR)\$(DLLNAME:.dll=.lib) $(PLUGINDIR)\$(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(PLUGINDIR)\$(DLLNAME:.dll=.exp) del /q $(PLUGINDIR)\$(DLLNAME:.dll=.exp)

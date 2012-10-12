@@ -13,6 +13,8 @@
 
 using namespace std;
 
+DEFINE_TEST("client")
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {

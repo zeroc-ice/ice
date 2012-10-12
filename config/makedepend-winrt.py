@@ -77,6 +77,7 @@ for line in fileinput.input("-"):
             line = line.replace("winrt\\", "")
             line = line.replace("cpp\\src\\", "..\\")
             line = line.replace("..\\..\\..\\include\\", "$(includedir)\\")
+            line = line.replace("cpp\\include\\", "$(includedir)\\")
             line = line.strip()
             if not line in includes:
                 print >>dependmak, '"' + line + '"',

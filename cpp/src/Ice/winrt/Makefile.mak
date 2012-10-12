@@ -66,9 +66,9 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\ObjectFactoryManager.obj \
 		  $(ARCH)\$(CONFIG)\ObjectFactory.obj \
 		  $(ARCH)\$(CONFIG)\Object.obj \
-		  $(ARCH)\$(CONFIG)\Observer.obj \
+		  $(ARCH)\$(CONFIG)\Instrumentation.obj \
 		  $(ARCH)\$(CONFIG)\ObserverHelper.obj \
-		  $(ARCH)\$(CONFIG)\ObserverI.obj \
+		  $(ARCH)\$(CONFIG)\InstrumentationI.obj \
 		  $(ARCH)\$(CONFIG)\OpaqueEndpointI.obj \
 		  $(ARCH)\$(CONFIG)\OutgoingAsync.obj \
 		  $(ARCH)\$(CONFIG)\Outgoing.obj \
@@ -77,6 +77,7 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Process.obj \
 		  $(ARCH)\$(CONFIG)\PropertiesI.obj \
 		  $(ARCH)\$(CONFIG)\Properties.obj \
+		  $(ARCH)\$(CONFIG)\PropertiesAdminI.obj \
 		  $(ARCH)\$(CONFIG)\PropertyNames.obj \
 		  $(ARCH)\$(CONFIG)\Protocol.obj \
 		  $(ARCH)\$(CONFIG)\ProtocolPluginFacade.obj \
@@ -97,8 +98,8 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Stats.obj \
 		  $(ARCH)\$(CONFIG)\StreamI.obj \
 		  $(ARCH)\$(CONFIG)\Stream.obj \
-                  $(ARCH)\$(CONFIG)\StringConverter.obj \
-	          $(ARCH)\$(CONFIG)\ThreadPool.obj \
+          $(ARCH)\$(CONFIG)\StringConverter.obj \
+	      $(ARCH)\$(CONFIG)\ThreadPool.obj \
 		  $(ARCH)\$(CONFIG)\TraceLevels.obj \
 		  $(ARCH)\$(CONFIG)\TraceUtil.obj \
 		  $(ARCH)\$(CONFIG)\Transceiver.obj \
@@ -149,7 +150,9 @@ SLICE_CORE_SRCS	= $(slicedir)\Ice\BuiltinSequences.ice \
 		  $(slicedir)\Ice\SliceChecksumDict.ice \
 		  $(slicedir)\Ice\StatsF.ice \
 		  $(slicedir)\Ice\Stats.ice \
-		  $(slicedir)\Ice\Version.ice
+		  $(slicedir)\Ice\Version.ice \
+		  $(slicedir)\Ice\Metrics.ice \
+		  $(slicedir)\Ice\Instrumentation.ice
 
 SLICE_SSL_SRCS	= $(slicedir)\IceSSL\EndpointInfo.ice \
 		  $(slicedir)\IceSSL\ConnectionInfo.ice

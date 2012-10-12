@@ -14,9 +14,11 @@ SOURCE_DIR	= ..
 
 TARGETS         = $(LIBNAME)
 
-OBJS		= $(ARCH)\$(CONFIG)\IceStorm.obj
+OBJS		= $(ARCH)\$(CONFIG)\IceStorm.obj \
+			$(ARCH)\$(CONFIG)\Metrics.obj
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice
+SLICE_SRCS	= $(SDIR)/IceStorm.ice \
+			$(SDIR)/Metrics.ice
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -50,6 +52,7 @@ depend:: $(ARCH)\$(CONFIG) $(SLICE_SRCS) $(SRCS) $(SRCS_DEPEND)
 
 clean::
 	-del /q $(SOURCE_DIR)\IceStorm.cpp $(HDIR)\IceStorm.h
+	-del /q $(SOURCE_DIR)\Metrics.cpp $(HDIR)\Metrics.h
 	-del /q $(RES_FILE)
 
 !include .depend.mak
