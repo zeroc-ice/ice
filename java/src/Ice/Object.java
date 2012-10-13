@@ -158,10 +158,8 @@ public interface Object
     DispatchStatus __collocDispatch(IceInternal.Direct request);
 
     void __write(IceInternal.BasicStream __os);
-    void __writeImpl(IceInternal.BasicStream __os);
     void __read(IceInternal.BasicStream __is);
-    void __readImpl(IceInternal.BasicStream __is);
-
+   
     void __write(OutputStream __outS);
     void __read(InputStream __inS);
 }

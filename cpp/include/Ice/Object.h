@@ -95,14 +95,12 @@ public:
     virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
     virtual DispatchStatus __collocDispatch(IceInternal::Direct&);
 
-    virtual void __write(IceInternal::BasicStream*) const {}
-    virtual void __writeImpl(IceInternal::BasicStream*) const {}
-    virtual void __read(IceInternal::BasicStream*) {}
-    virtual void __readImpl(IceInternal::BasicStream*) {}
+    virtual void __write(IceInternal::BasicStream*) const;
+    virtual void __read(IceInternal::BasicStream*);
 
-    virtual void __write(const OutputStreamPtr&) const {}
-    virtual void __read(const InputStreamPtr&) {}
-
+    virtual void __write(const OutputStreamPtr&) const;
+    virtual void __read(const InputStreamPtr&);
+   
     //
     // Virtual methods to support garbage collection of Slice class instances. These
     // methods are overriden by Slice classes which can have cycles.
@@ -118,6 +116,12 @@ protected:
 
     Object() {} // This class is abstract.
     virtual ~Object() {}
+
+    virtual void __writeImpl(IceInternal::BasicStream*) const {}
+    virtual void __readImpl(IceInternal::BasicStream*) {}
+
+    virtual void __writeImpl(const OutputStreamPtr&) const;
+    virtual void __readImpl(const InputStreamPtr&);
 
     static void __checkMode(OperationMode, OperationMode);
 };

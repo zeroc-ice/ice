@@ -81,11 +81,11 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
     _currentEvictorSize(0)
 {
     
-    class DipatchInterceptorAdapter : public Ice::DispatchInterceptor
+    class DispatchInterceptorAdapter : public Ice::DispatchInterceptor
     {
     public:
 
-        DipatchInterceptorAdapter(const TransactionalEvictorIPtr& evictor) :
+        DispatchInterceptorAdapter(const TransactionalEvictorIPtr& evictor) :
             _evictor(evictor)
         {
         }
@@ -100,7 +100,7 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
         TransactionalEvictorIPtr _evictor;
     };
 
-    _interceptor = new DipatchInterceptorAdapter(this);
+    _interceptor = new DispatchInterceptorAdapter(this);
 
     string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
     

@@ -157,10 +157,8 @@ namespace Ice
         DispatchStatus collocDispatch__(IceInternal.Direct request);
 
         void write__(IceInternal.BasicStream os__);
-        void writeImpl__(IceInternal.BasicStream os__);
         void read__(IceInternal.BasicStream is__);
-        void readImpl__(IceInternal.BasicStream is__);
-
+       
         void write__(OutputStream outS__);
         void read__(InputStream inS__);
     }
@@ -424,26 +422,48 @@ namespace Ice
 
         public virtual void write__(IceInternal.BasicStream os__)
         {
-        }
-
-        public virtual void writeImpl__(IceInternal.BasicStream os__)
-        {
+            os__.startWriteObject(null);
+            writeImpl__(os__);
+            os__.endWriteObject();
         }
 
         public virtual void read__(IceInternal.BasicStream is__)
         {
+             is__.startReadObject();
+             readImpl__(is__);
+             is__.endReadObject(false);
         }
 
-        public virtual void readImpl__(IceInternal.BasicStream is__)
+        public virtual void write__(OutputStream os__)
+        {
+            os__.startObject(null);
+            writeImpl__(os__);
+            os__.endObject();
+        }
+
+        public virtual void read__(InputStream is__)
+        {
+             is__.startObject();
+             readImpl__(is__);
+             is__.endObject(false);
+        }
+
+        protected virtual void writeImpl__(IceInternal.BasicStream os__)
         {
         }
 
-        public virtual void write__(OutputStream outS__)
+        protected virtual void readImpl__(IceInternal.BasicStream is__)
         {
         }
 
-        public virtual void read__(InputStream inS__)
+        protected virtual void writeImpl__(OutputStream os__)
         {
+            throw new MarshalException("class was not generated with stream support");
+        }
+
+        protected virtual void readImpl__(InputStream is__)
+        {
+            throw new MarshalException("class was not generated with stream support");
         }
 
         private static string operationModeToString(OperationMode mode)

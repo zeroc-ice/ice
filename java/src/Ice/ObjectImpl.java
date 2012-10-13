@@ -351,33 +351,57 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable, java.io
     }
 
     public void
-    __write(IceInternal.BasicStream __os)
+    __write(IceInternal.BasicStream os)
     {
+         os.startWriteObject(null);
+         __writeImpl(os);
+         os.endWriteObject();
     }
 
     public void
-    __writeImpl(IceInternal.BasicStream __os)
+    __read(IceInternal.BasicStream is)
     {
+         is.startReadObject();
+         __readImpl(is);
+         is.endReadObject(false);
     }
 
     public void
-    __read(IceInternal.BasicStream __is)
+    __write(OutputStream os)
     {
+        os.startObject(null);
+        __writeImpl(os);
+        os.endObject();
     }
 
     public void
-    __readImpl(IceInternal.BasicStream __is)
+    __read(InputStream is)
+    {
+        is.startObject();
+        __readImpl(is);
+        is.endObject(false);
+    }
+
+    protected void
+    __writeImpl(IceInternal.BasicStream os)
     {
     }
 
-    public void
-    __write(Ice.OutputStream __outS)
+    protected void
+    __readImpl(IceInternal.BasicStream is)
     {
     }
-
-    public void
-    __read(Ice.InputStream __inS)
+    
+     protected void
+    __writeImpl(OutputStream os)
     {
+        throw new MarshalException("class was not generated with stream support");
+    }
+
+    protected void
+    __readImpl(InputStream is)
+    {
+        throw new MarshalException("class was not generated with stream support");
     }
 
     private static String

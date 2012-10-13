@@ -1039,6 +1039,11 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
             return false;
         }
 
+#ifdef __SUNPRO_CC
+        using BatchOutgoingAsync::__sent;
+#endif
+
+
         virtual void __finished(const Ice::LocalException& ex, bool)
         {
             _remoteObserver.failed(ex.ice_name());

@@ -406,15 +406,13 @@ Slice::Gen::generate(const UnitPtr& p)
         {
             C << "\n#include <Ice/LocalException.h>";
         }
+        
+        H << "\n#include <Ice/StreamF.h>";
 
         if(_stream)
         {
-            H << "\n#include <Ice/Stream.h>";
-        }
-        else
-        {
-            H << "\n#include <Ice/StreamF.h>";
-        }
+            C << "\n#include <Ice/Stream.h>";
+        }    
     }
 
     if(p->hasContentsWithMetaData("preserve-slice"))
@@ -872,35 +870,69 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
         ExceptionPtr base = p->base();
         bool basePreserved = p->inheritsMetaData("preserve-slice");
-        bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+        bool preserved = p->hasMetaData("preserve-slice");
 
-        H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+        if(preserved && !basePreserved)
+        {
+            H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+            H << nl << "virtual void __read(::IceInternal::BasicStream*);";
+
+            if(_stream)
+            {
+                H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
+                H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
+            }
+            else
+            {
+                string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+                H << nl << "#ifdef __SUNPRO_CC";
+                H << nl << "using " << baseName << "::__write;";
+                H << nl << "using " << baseName << "::__read;";
+                H << nl << "#endif";
+            }
+        }
+        
+        H.dec();
+        H << sp << nl << "protected:";
+        H.inc();
+       
         H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __read(::IceInternal::BasicStream*);";
         H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
         
-        H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-        H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
         if(_stream)
         {
             H << nl << "virtual void __writeImpl(const ::Ice::OutputStreamPtr&) const;";
             H << nl << "virtual void __readImpl(const ::Ice::InputStreamPtr&);";
         }
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
-        C << sb;
-        if(preserved)
-        {
-            C << nl << "__os->startWriteException(__slicedData);";
-        }
         else
         {
-            C << nl << "__os->startWriteException(0);";
+            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::UserException");
+            H << nl << "#ifdef __SUNPRO_CC"; 
+            H << nl << "using " << baseName << "::__writeImpl;";
+            H << nl << "using " << baseName << "::__readImpl;";
+            H << nl << "#endif";
         }
-        C << nl << "__writeImpl(__os);";
-        C << nl << "__os->endWriteException();";
-        C << eb;
 
+        if(preserved && !basePreserved)
+        {
+      
+            H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
+       
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
+            C << sb;
+            C << nl << "__os->startWriteException(__slicedData);";
+            C << nl << "__writeImpl(__os);";
+            C << nl << "__os->endWriteException();";
+            C << eb;
+
+            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+            C << sb;
+            C << nl << "__is->startReadException();";
+            C << nl << "__readImpl(__is);";
+            C << nl << "__slicedData = __is->endReadException(true);";
+            C << eb;
+        }
+         
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__writeImpl(::IceInternal::BasicStream* __os) const";
         C << sb;
         C << nl << "__os->startWriteSlice(\"" << p->scoped() << "\", " << (!base ? "true" : "false") << ");";
@@ -909,20 +941,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if(base)
         {
             emitUpcall(base, "::__writeImpl(__os);");
-        }
-        C << eb;
-
-        C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
-        C << sb;
-        C << nl << "__is->startReadException();";
-        C << nl << "__readImpl(__is);";
-        if(preserved)
-        {
-            C << nl << "__slicedData = __is->endReadException(true);";
-        }
-        else
-        {
-            C << nl << "__is->endReadException(false);";
         }
         C << eb;
 
@@ -939,19 +957,22 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(_stream)
         {
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            if(preserved)
+            if(preserved && !basePreserved)
             {
+                C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
+                C << sb;
                 C << nl << "__os->startException(__slicedData);";
+                C << nl << "__writeImpl(__os);";
+                C << nl << "__os->endException();";
+                C << eb;
+
+                C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
+                C << sb;
+                C << nl << "__is->startException();";
+                C << nl << "__readImpl(__is);";
+                C << nl << "__slicedData = __is->endException(true);";
+                C << eb;
             }
-            else
-            {
-                C << nl << "__os->startException(0);";
-            }
-            C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endException();";
-            C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) 
               << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
@@ -962,20 +983,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             if(base)
             {
                 emitUpcall(base, "::__writeImpl(__os);");
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            C << nl << "__is->startException();";
-            C << nl << "__readImpl(__is);";
-            if(preserved)
-            {
-                C << nl << "__slicedData = __is->endException(true);";
-            }
-            else
-            {
-                C << nl << "__is->endException(false);";
             }
             C << eb;
 
@@ -991,34 +998,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             C << eb;
         }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
-            C << sb;
-            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
-            C << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            C << nl << "throw ex;";
-            C << eb;
 
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
-            C << sb;
-            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
-            C << nl << "ex.reason = \"exception " << scoped .substr(2)<< " was not generated with stream support\";";
-            C << nl << "throw ex;";
-            C << eb;
-        }
-
-        if(preserved && !basePreserved)
-        {
-            H.zeroIndent();
-            H << sp << nl << "protected:";
-            H.restoreIndent();
-            H << sp << nl << "::Ice::SlicedDataPtr __slicedData;";
-        }
-
+       
         factoryName = "__F" + p->flattenedScope() + p->name();
 
         C << sp << nl << "struct " << factoryName << " : public ::IceInternal::UserExceptionFactory";
@@ -3648,7 +3629,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         base = bases.front();
     }
     bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+    bool preserved = p->hasMetaData("preserve-slice");
 
     if(!p->isLocal())
     {
@@ -3790,35 +3771,72 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
         }
 
-        H << sp;
-        H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+        if(!p->isAbstract())
+        {
+            H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
+        }
+        
+        if(preserved && !basePreserved)
+        {
+            H << sp;
+            H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+            H << nl << "virtual void __read(::IceInternal::BasicStream*);";
+            
+            if(_stream)
+            {
+                H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
+                H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
+            }
+            else
+            {
+                string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
+                H << nl << "#ifdef __SUNPRO_CC";
+                H << nl << "using " << baseName << "::__write;";
+                H << nl << "using " << baseName << "::__read;";
+                H << nl << "#endif";
+            }
+        }
+
+        H.dec();
+        H << sp << nl << "protected:";
+        H.inc();
+
         H << nl << "virtual void __writeImpl(::IceInternal::BasicStream*) const;";
-        H << nl << "virtual void __read(::IceInternal::BasicStream*);";
         H << nl << "virtual void __readImpl(::IceInternal::BasicStream*);";
 
-        H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-        H << nl << "virtual void __read(const ::Ice::InputStreamPtr&);";
         if(_stream)
         {
             H << nl << "virtual void __writeImpl(const ::Ice::OutputStreamPtr&) const;";
             H << nl << "virtual void __readImpl(const ::Ice::InputStreamPtr&);";
         }
-
-        C << sp;
-        C << nl << "void" << nl << scoped.substr(2)
-          << "::__write(::IceInternal::BasicStream* __os) const";
-        C << sb;
-        if(preserved)
-        {
-            C << nl << "__os->startWriteObject(__slicedData);";
-        }
         else
         {
-            C << nl << "__os->startWriteObject(0);";
+            string baseName = base ? fixKwd(base->scoped()) : string("::Ice::Object");
+            H << nl << "#ifdef __SUNPRO_CC";
+            H << nl << "using " << baseName << "::__writeImpl;";
+            H << nl << "using " << baseName << "::__readImpl;";
+            H << nl << "#endif";
         }
-        C << nl << "__writeImpl(__os);";
-        C << nl << "__os->endWriteObject();";
-        C << eb;
+
+        if(preserved && !basePreserved)
+        {
+            C << sp;
+            C << nl << "void" << nl << scoped.substr(2)
+              << "::__write(::IceInternal::BasicStream* __os) const";
+            C << sb;
+            C << nl << "__os->startWriteObject(__slicedData);";
+            C << nl << "__writeImpl(__os);";
+            C << nl << "__os->endWriteObject();";
+            C << eb;
+
+            C << sp;
+            C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
+            C << sb;
+            C << nl << "__is->startReadObject();";
+            C << nl << "__readImpl(__is);";
+            C << nl << "__slicedData = __is->endReadObject(true);";
+            C << eb;
+        }
 
         C << sp;
         C << nl << "void" << nl << scoped.substr(2)
@@ -3830,21 +3848,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         if(base)
         {
             emitUpcall(base, "::__writeImpl(__os);");
-        }
-        C << eb;
-
-        C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
-        C << sb;
-        C << nl << "__is->startReadObject();";
-        C << nl << "__readImpl(__is);";
-        if(preserved)
-        {
-            C << nl << "__slicedData = __is->endReadObject(true);";
-        }
-        else
-        {
-            C << nl << "__is->endReadObject(false);";
         }
         C << eb;
 
@@ -3862,19 +3865,22 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(_stream)
         {
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
-            C << sb;
-            if(preserved)
+            if(preserved && !basePreserved)
             {
+                C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __os) const";
+                C << sb;
                 C << nl << "__os->startObject(__slicedData);";
+                C << nl << "__writeImpl(__os);";
+                C << nl << "__os->endObject();";
+                C << eb;
+
+                C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
+                C << sb;
+                C << nl << "__is->startObject();";
+                C << nl << "__readImpl(__is);";
+                C << nl << "__slicedData = __is->endObject(true);";
+                C << eb;
             }
-            else
-            {
-                C << nl << "__os->startObject(0);";
-            }
-            C << nl << "__writeImpl(__os);";
-            C << nl << "__os->endObject();";
-            C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2)
               << "::__writeImpl(const ::Ice::OutputStreamPtr& __os) const";
@@ -3885,20 +3891,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             if(base)
             {
                 emitUpcall(base, "::__writeImpl(__os);");
-            }
-            C << eb;
-
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __is)";
-            C << sb;
-            C << nl << "__is->startObject();";
-            C << nl << "__readImpl(__is);";
-            if(preserved)
-            {
-                C << nl << "__slicedData = __is->endObject(true);";
-            }
-            else
-            {
-                C << nl << "__is->endObject(false);";
             }
             C << eb;
 
@@ -3913,31 +3905,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
             C << eb;
         }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
-            C << sb;
-            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
-            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-            C << nl << "throw ex;";
-            C << eb;
-
-            C << sp;
-            C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&)";
-            C << sb;
-            C << nl << "::Ice::MarshalException ex(__FILE__, __LINE__);";
-            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-            C << nl << "throw ex;";
-            C << eb;
-        }
 
         if(!p->isAbstract())
         {
-            H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
-
             string factoryName = "__F" + p->flattenedScope() + p->name();
             C << sp;
             C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
@@ -4002,7 +3972,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     //
     // Emit data members. Access visibility may be specified by metadata.
     //
-    bool inProtected = false;
+    bool inProtected = true;
     DataMemberList dataMembers = p->dataMembers();
     bool prot = p->hasMetaData("protected");
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)

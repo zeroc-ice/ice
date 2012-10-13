@@ -158,22 +158,47 @@ namespace Ice
         /// <param name="ex">The inner exception.</param>
         public UserException(System.Exception ex) : base(ex) {}
 
-        public abstract void write__(IceInternal.BasicStream os__);
-        public abstract void writeImpl__(IceInternal.BasicStream os__);
-        public abstract void read__(IceInternal.BasicStream is__);
-        public abstract void readImpl__(IceInternal.BasicStream is__);
-
-        public virtual void write__(Ice.OutputStream outS__)
+        public virtual void write__(IceInternal.BasicStream os__)
         {
-            Debug.Assert(false);
+            os__.startWriteException(null);
+            writeImpl__(os__);
+            os__.endWriteException();
         }
 
-        public virtual void read__(Ice.InputStream inS__)
+        public virtual void read__(IceInternal.BasicStream is__)
         {
-            Debug.Assert(false);
+            is__.startReadException();
+            readImpl__(is__);
+            is__.endReadException(false);
+        }
+
+        public virtual void write__(OutputStream os__)
+        {
+            os__.startException(null);
+            writeImpl__(os__);
+            os__.endException();
+        }
+
+        public virtual void read__(InputStream is__)
+        {
+            is__.startException();
+            readImpl__(is__);
+            is__.endException(false);
+        }
+
+        protected abstract void writeImpl__(IceInternal.BasicStream os__);
+        protected abstract void readImpl__(IceInternal.BasicStream is__);
+        
+        protected virtual void writeImpl__(OutputStream os__)
+        {
+            throw new MarshalException("exception was not generated with stream support");
+        }
+
+        protected virtual void readImpl__(InputStream is__)
+        {
+            throw new MarshalException("exception was not generated with stream support");
         }
     }
-
 }
 
 namespace IceInternal

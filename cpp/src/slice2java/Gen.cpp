@@ -1335,23 +1335,50 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     DataMemberList members = p->dataMembers();
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     bool basePreserved = p->inheritsMetaData("preserve-slice");
-    bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+    bool preserved = p->hasMetaData("preserve-slice");
 
-    out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
-    out << sb;
-    if(preserved)
+    if(preserved && !basePreserved)
     {
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
+        out << sb;
         out << nl << "__os.startWriteObject(__slicedData);";
-    }
-    else
-    {
-        out << nl << "__os.startWriteObject(null);";
-    }
-    out << nl << "__writeImpl(__os);";
-    out << nl << "__os.endWriteObject();";
-    out << eb;
+        out << nl << "__writeImpl(__os);";
+        out << nl << "__os.endWriteObject();";
+        out << eb;
+        
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
+        out << sb;
+        out << nl << "__is.startReadObject();";
+        out << nl << "__readImpl(__is);";
+        out << nl << "__slicedData = __is.endReadObject(true);";
+        out << eb;
 
-    out << sp << nl << "public void" << nl << "__writeImpl(IceInternal.BasicStream __os)";
+        if(stream)
+        {
+            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
+            out << sb;
+            if(preserved)
+            {
+                out << nl << "__outS.startObject(__slicedData);";
+            }
+            else
+            {
+                out << nl << "__outS.startObject(null);";
+            }
+            out << nl << "__writeImpl(__outS);";
+            out << nl << "__outS.endObject();";
+            out << eb;
+            
+            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
+            out << sb;
+            out << nl << "__inS.startObject();";
+            out << nl << "__readImpl(__inS);";
+            out << nl << "__slicedData = __inS.endObject(true);";
+            out << eb;
+        }
+    }
+
+    out << sp << nl << "protected void" << nl << "__writeImpl(IceInternal.BasicStream __os)";
     out << sb;
     out << nl << "__os.startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
     iter = 0;
@@ -1373,27 +1400,13 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
     }
     out << eb;
 
-    out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
-    out << sb;
-    out << nl << "__is.startReadObject();";
-    out << nl << "__readImpl(__is);";
-    if(preserved)
-    {
-        out << nl << "__slicedData = __is.endReadObject(true);";
-    }
-    else
-    {
-        out << nl << "__is.endReadObject(false);";
-    }
-    out << eb;
-
     DataMemberList allClassMembers = p->allClassDataMembers();
     if(allClassMembers.size() != 0)
     {
         writePatcher(out, package, allClassMembers, stream);
     }
 
-    out << sp << nl << "public void" << nl << "__readImpl(IceInternal.BasicStream __is)";
+    out << sp << nl << "protected void" << nl << "__readImpl(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << "__is.startReadSlice();";
     DataMemberList classMembers = p->classDataMembers();
@@ -1420,21 +1433,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
 
     if(stream)
     {
-        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
-        out << sb;
-        if(preserved)
-        {
-            out << nl << "__outS.startObject(__slicedData);";
-        }
-        else
-        {
-            out << nl << "__outS.startObject(null);";
-        }
-        out << nl << "__writeImpl(__outS);";
-        out << nl << "__outS.endObject();";
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__writeImpl(Ice.OutputStream __outS)";
+        out << sp << nl << "protected void" << nl << "__writeImpl(Ice.OutputStream __outS)";
         out << sb;
         out << nl << "__outS.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
         iter = 0;
@@ -1456,21 +1455,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb;
 
-        out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
-        out << sb;
-        out << nl << "__inS.startObject();";
-        out << nl << "__readImpl(__inS);";
-        if(preserved)
-        {
-            out << nl << "__slicedData = __inS.endObject(true);";
-        }
-        else
-        {
-            out << nl << "__inS.endObject(false);";
-        }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__readImpl(Ice.InputStream __inS)";
+        out << sp << nl << "protected void" << nl << "__readImpl(Ice.InputStream __inS)";
         out << sb;
         out << nl << "__inS.startSlice();";
         iter = 0;
@@ -1493,27 +1478,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb;
     }
-    else
-    {
-        //
-        // Emit placeholder functions to catch errors.
-        //
-        string scoped = p->scoped();
-        out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
-        out << sb;
-        out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-        out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-        out << nl << "throw ex;";
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
-        out << sb;
-        out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-        out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-        out << nl << "throw ex;";
-        out << eb;
-    }
-
+    
     if(preserved && !basePreserved)
     {
         out << sp << nl << "protected Ice.SlicedData __slicedData;";
@@ -3248,27 +3213,48 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         string package = getPackage(p);
         ExceptionPtr base = p->base();
         bool basePreserved = p->inheritsMetaData("preserve-slice");
-        bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+        bool preserved = p->hasMetaData("preserve-slice");
 
         DataMemberList members = p->dataMembers();
         DataMemberList optionalMembers = p->orderedOptionalDataMembers();
         int iter;
 
-        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
-        out << sb;
-        if(preserved)
+        if(preserved && !basePreserved)
         {
-            out << nl << "__os.startWriteException(__slicedData);";
-        }
-        else
-        {
-            out << nl << "__os.startWriteException(null);";
-        }
-        out << nl << "__writeImpl(__os);";
-        out << nl << "__os.endWriteException();";
-        out << eb;
 
-        out << sp << nl << "public void" << nl << "__writeImpl(IceInternal.BasicStream __os)";
+            out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
+            out << sb;
+            out << nl << "__os.startWriteException(__slicedData);";
+            out << nl << "__writeImpl(__os);";
+            out << nl << "__os.endWriteException();";
+            out << eb;
+
+            out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
+            out << sb;
+            out << nl << "__is.startReadException();";
+            out << nl << "__readImpl(__is);";
+            out << nl << "__slicedData = __is.endReadException(true);";
+            out << eb;
+
+            if(_stream)
+            {
+                out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
+                out << sb;
+                out << nl << "__outS.startException(__slicedData);";
+                out << nl << "__writeImpl(__outS);";
+                out << nl << "__outS.endException();";
+                out << eb;
+
+                out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
+                out << sb;
+                out << nl << "__inS.startException();";
+                out << nl << "__readImpl(__inS);";
+                out << nl << "__slicedData = __inS.endException(true);";
+                out << eb;
+            }
+        }
+        
+        out << sp << nl << "protected void" << nl << "__writeImpl(IceInternal.BasicStream __os)";
         out << sb;
         out << nl << "__os.startWriteSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
         iter = 0;
@@ -3289,27 +3275,13 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << nl << "super.__writeImpl(__os);";
         }
         out << eb;
-
-        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
-        out << sb;
-        out << nl << "__is.startReadException();";
-        out << nl << "__readImpl(__is);";
-        if(preserved)
-        {
-            out << nl << "__slicedData = __is.endReadException(true);";
-        }
-        else
-        {
-            out << nl << "__is.endReadException(false);";
-        }
-        out << eb;
-
+   
         DataMemberList allClassMembers = p->allClassDataMembers();
         if(allClassMembers.size() != 0)
         {
             writePatcher(out, package, allClassMembers, _stream);
         }
-        out << sp << nl << "public void" << nl << "__readImpl(IceInternal.BasicStream __is)";
+        out << sp << nl << "protected void" << nl << "__readImpl(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "__is.startReadSlice();";
         iter = 0;
@@ -3336,21 +3308,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(_stream)
         {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
-            out << sb;
-            if(preserved)
-            {
-                out << nl << "__outS.startException(__slicedData);";
-            }
-            else
-            {
-                out << nl << "__outS.startException(null);";
-            }
-            out << nl << "__writeImpl(__outS);";
-            out << nl << "__outS.endException();";
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__writeImpl(Ice.OutputStream __outS)";
+            out << sp << nl << "protected void" << nl << "__writeImpl(Ice.OutputStream __outS)";
             out << sb;
             out << nl << "__outS.startSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
             iter = 0;
@@ -3372,21 +3330,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             out << eb;
 
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
-            out << sb;
-            out << nl << "__inS.startException();";
-            out << nl << "__readImpl(__inS);";
-            if(preserved)
-            {
-                out << nl << "__slicedData = __inS.endException(true);";
-            }
-            else
-            {
-                out << nl << "__inS.endException(false);";
-            }
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__readImpl(Ice.InputStream __inS)";
+            out << sp << nl << "protected void" << nl << "__readImpl(Ice.InputStream __inS)";
             out << sb;
             out << nl << "__inS.startSlice();";
             iter = 0;
@@ -3409,26 +3353,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             out << eb;
         }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __outS)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __inS)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-        }
-
+        
         if(preserved && !basePreserved)
         {
             out << sp << nl << "protected Ice.SlicedData __slicedData;";

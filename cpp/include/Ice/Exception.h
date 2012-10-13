@@ -15,6 +15,7 @@
 #include <Ice/Format.h>
 #include <Ice/Handle.h>
 #include <Ice/ObjectF.h>
+#include <Ice/StreamF.h>
 
 namespace IceInternal
 {
@@ -56,11 +57,22 @@ public:
     virtual UserException* ice_clone() const = 0;
     virtual void ice_throw() const = 0;
 
-    virtual void __write(::IceInternal::BasicStream*) const = 0;
-    virtual void __read(::IceInternal::BasicStream*) = 0;
-
+    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __read(::IceInternal::BasicStream*);
+    
+    virtual void __write(const OutputStreamPtr&) const;
+    virtual void __read(const InputStreamPtr&);
+  
     virtual bool __usesClasses() const;
     virtual void __usesClasses(bool);
+
+protected:
+
+    virtual void __writeImpl(::IceInternal::BasicStream*) const = 0;
+    virtual void __readImpl(::IceInternal::BasicStream*) = 0;
+
+    virtual void __writeImpl(const OutputStreamPtr&) const;
+    virtual void __readImpl(const InputStreamPtr&);
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;

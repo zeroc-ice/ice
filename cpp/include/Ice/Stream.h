@@ -71,6 +71,11 @@ public:
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
 
+#ifdef __SUNPRO_CC
+    using UserException::__read;
+    using UserException::__write;
+#endif
+
 protected:
 
     const CommunicatorPtr _communicator;
@@ -396,6 +401,11 @@ public:
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
+
+#ifdef __SUNPRO_CC
+    using UserException::__read;
+    using UserException::__write;
+#endif
 
 protected:
 

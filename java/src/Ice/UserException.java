@@ -69,27 +69,53 @@ public abstract class UserException extends Exception implements Cloneable
         return sw.toString();
     }
 
-    public abstract void
-    __write(IceInternal.BasicStream __os);
-
-    public abstract void
-    __writeImpl(IceInternal.BasicStream __os);
-
-    public abstract void
-    __read(IceInternal.BasicStream __is);
-
-    public abstract void
-    __readImpl(IceInternal.BasicStream __is);
-
     public void
-    __write(Ice.OutputStream __outS)
+    __write(IceInternal.BasicStream os)
     {
-        assert(false);
+        os.startWriteException(null);
+        __writeImpl(os);
+        os.endWriteException();
     }
 
     public void
-    __read(Ice.InputStream __inS)
+    __read(IceInternal.BasicStream is)
     {
-        assert(false);
+        is.startReadException();
+        __readImpl(is);
+        is.endReadException(false);
+    }
+
+    public void
+    __write(Ice.OutputStream os)
+    {
+         os.startException(null);
+        __writeImpl(os);
+        os.endException();
+    }
+
+    public void
+    __read(Ice.InputStream is)
+    {
+        is.startException();
+        __readImpl(is);
+        is.endException(false);
+    }
+
+    protected abstract void
+    __writeImpl(IceInternal.BasicStream os);
+
+    protected abstract void
+    __readImpl(IceInternal.BasicStream is);
+
+    protected void
+    __writeImpl(OutputStream os)
+    {
+        throw new MarshalException("exception was not generated with stream support");
+    }
+
+    protected void
+    __readImpl(InputStream is)
+    {
+        throw new MarshalException("exception was not generated with stream support");
     }
 }

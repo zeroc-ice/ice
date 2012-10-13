@@ -1131,7 +1131,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     DataMemberList optionalMembers = p->orderedOptionalDataMembers();
     DataMemberList classMembers = p->classDataMembers();
     const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
 
     ClassList bases = p->bases();
     ClassDefPtr base;
@@ -1142,31 +1142,68 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "#region Marshaling support";
 
-    _out << sp;
-    if(!p->isInterface())
+    
+    if(preserved && !basePreserved)
     {
-        emitGeneratedCodeAttribute();
-    }
-    _out << nl << "public override void write__(IceInternal.BasicStream os__)";
-    _out << sb;
-    if(preserved)
-    {
+        _out << sp;
+        if(!p->isInterface())
+        {
+            emitGeneratedCodeAttribute();
+        }
+
+        _out << nl << "public override void write__(IceInternal.BasicStream os__)";
+        _out << sb;
         _out << nl << "os__.startWriteObject(slicedData__);";
+        _out << nl << "writeImpl__(os__);";
+        _out << nl << "os__.endWriteObject();";
+        _out << eb;
+
+        _out << sp;
+        if(!p->isInterface())
+        {
+            emitGeneratedCodeAttribute();
+        }
+        _out << nl << "public override void read__(IceInternal.BasicStream is__)";
+        _out << sb;
+        _out << nl << "is__.startReadObject();";
+        _out << nl << "readImpl__(is__);";
+        _out << nl << "slicedData__ = is__.endReadObject(true);";
+        _out << eb;
+
+        if(stream)
+        {
+            _out << sp;
+            if(!p->isInterface())
+            {
+                emitGeneratedCodeAttribute();
+            }
+            _out << nl << "public override void write__(Ice.OutputStream outS__)";
+            _out << sb;
+            _out << nl << "outS__.startObject(slicedData__);";
+            _out << nl << "writeImpl__(outS__);";
+            _out << nl << "outS__.endObject();";
+            _out << eb;
+
+             _out << sp;
+             if(!p->isInterface())
+             {
+                 emitGeneratedCodeAttribute();
+             }
+             _out << nl << "public override void read__(Ice.InputStream inS__)";
+             _out << sb;
+             _out << nl << "inS__.startObject();";
+             _out << nl << "readImpl__(inS__);";
+             _out << nl << "slicedData__ = inS__.endObject(true);";
+             _out << eb;
+        }
     }
-    else
-    {
-        _out << nl << "os__.startWriteObject(null);";
-    }
-    _out << nl << "writeImpl__(os__);";
-    _out << nl << "os__.endWriteObject();";
-    _out << eb;
 
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override void writeImpl__(IceInternal.BasicStream os__)";
+    _out << nl << "protected override void writeImpl__(IceInternal.BasicStream os__)";
     _out << sb;
     _out << nl << "os__.startWriteSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
     for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1283,31 +1320,13 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
     }
 
+   
     _out << sp;
     if(!p->isInterface())
     {
         emitGeneratedCodeAttribute();
     }
-    _out << nl << "public override void read__(IceInternal.BasicStream is__)";
-    _out << sb;
-    _out << nl << "is__.startReadObject();";
-    _out << nl << "readImpl__(is__);";
-    if(preserved)
-    {
-        _out << nl << "slicedData__ = is__.endReadObject(true);";
-    }
-    else
-    {
-        _out << nl << "is__.endReadObject(false);";
-    }
-    _out << eb;
-
-    _out << sp;
-    if(!p->isInterface())
-    {
-        emitGeneratedCodeAttribute();
-    }
-    _out << nl << "public override void readImpl__(IceInternal.BasicStream is__)";
+    _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
     _out << sb;
     _out << nl << "is__.startReadSlice();";
     int classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -1340,26 +1359,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void write__(Ice.OutputStream outS__)";
-        _out << sb;
-        if(preserved)
-        {
-            _out << nl << "outS__.startObject(slicedData__);";
-        }
-        else
-        {
-            _out << nl << "outS__.startObject(null);";
-        }
-        _out << nl << "writeImpl__(outS__);";
-        _out << nl << "outS__.endObject();";
-        _out << eb;
-
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public " << (base ? "override" : "virtual") << " void writeImpl__(Ice.OutputStream outS__)";
+        _out << nl << "protected override void writeImpl__(Ice.OutputStream outS__)";
         _out << sb;
         _out << nl << "outS__.startSlice(ice_staticId(), " << (!base ? "true" : "false") << ");";
         for(DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
@@ -1385,26 +1385,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             emitGeneratedCodeAttribute();
         }
-        _out << nl << "public override void read__(Ice.InputStream inS__)";
-        _out << sb;
-        _out << nl << "inS__.startObject();";
-        _out << nl << "readImpl__(inS__);";
-        if(preserved)
-        {
-            _out << nl << "slicedData__ = inS__.endObject(true);";
-        }
-        else
-        {
-            _out << nl << "inS__.endObject(false);";
-        }
-        _out << eb;
-
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public " << (base ? "override" : "virtual") << " void readImpl__(Ice.InputStream inS__)";
+        _out << nl << "protected override void readImpl__(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "inS__.startSlice();";
         classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -1426,36 +1407,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             _out << nl << "base.readImpl__(inS__);";
         }
-        _out << eb;
-    }
-    else
-    {
-        //
-        // Emit placeholder functions to catch errors.
-        //
-        string scoped = p->scoped();
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public override void write__(Ice.OutputStream outS__)";
-        _out << sb;
-        _out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-        _out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-        _out << nl << "throw ex;";
-        _out << eb;
-
-        _out << sp;
-        if(!p->isInterface())
-        {
-            emitGeneratedCodeAttribute();
-        }
-        _out << nl << "public override void read__(Ice.InputStream inS__)";
-        _out << sb;
-        _out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-        _out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-        _out << nl << "throw ex;";
         _out << eb;
     }
 
@@ -3437,27 +3388,53 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         ExceptionPtr base = p->base();
 
         const bool basePreserved = p->inheritsMetaData("preserve-slice");
-        const bool preserved = basePreserved || p->hasMetaData("preserve-slice");
+        const bool preserved = p->hasMetaData("preserve-slice");
 
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override void write__(IceInternal.BasicStream os__)";
-        _out << sb;
-        if(preserved)
+        if(preserved && !basePreserved)
         {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public override void write__(IceInternal.BasicStream os__)";
+            _out << sb;
             _out << nl << "os__.startWriteException(slicedData__);";
+            _out << nl << "writeImpl__(os__);";
+            _out << nl << "os__.endWriteException();";
+            _out << eb;
+
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public override void read__(IceInternal.BasicStream is__)";
+            _out << sb;
+            _out << nl << "is__.startReadException();";
+            _out << nl << "readImpl__(is__);";
+            _out << nl << "slicedData__ = is__.endReadException(true);";
+            _out << eb;
+
+            if(_stream)
+            {
+                _out << sp;
+                emitGeneratedCodeAttribute();
+                _out << nl << "public override void write__(Ice.OutputStream outS__)";
+                _out << sb;
+                _out << nl << "outS__.startException(slicedData__);";
+                _out << nl << "writeImpl__(outS__);";
+                _out << nl << "outS__.endException();";
+                _out << eb;
+
+                _out << sp;
+                emitGeneratedCodeAttribute();
+                _out << nl << "public override void read__(Ice.InputStream inS__)";
+                _out << sb;
+                _out << nl << "inS__.startException();";
+                _out << nl << "readImpl__(inS__);";
+                _out << nl << "slicedData__ = inS__.endException(true);";
+                _out << eb;
+            }
         }
-        else
-        {
-            _out << nl << "os__.startWriteException(null);";
-        }
-        _out << nl << "writeImpl__(os__);";
-        _out << nl << "os__.endWriteException();";
-        _out << eb;
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override void writeImpl__(IceInternal.BasicStream os__)";
+        _out << nl << "protected override void writeImpl__(IceInternal.BasicStream os__)";
         _out << sb;
         _out << nl << "os__.startWriteSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3567,23 +3544,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         _out << sp;
         emitGeneratedCodeAttribute();
-        _out << nl << "public override void read__(IceInternal.BasicStream is__)";
-        _out << sb;
-        _out << nl << "is__.startReadException();";
-        _out << nl << "readImpl__(is__);";
-        if(preserved)
-        {
-            _out << nl << "slicedData__ = is__.endReadException(true);";
-        }
-        else
-        {
-            _out << nl << "is__.endReadException(false);";
-        }
-        _out << eb;
-
-        _out << sp;
-        emitGeneratedCodeAttribute();
-        _out << nl << "public override void readImpl__(IceInternal.BasicStream is__)";
+        _out << nl << "protected override void readImpl__(IceInternal.BasicStream is__)";
         _out << sb;
         _out << nl << "is__.startReadSlice();";
         DataMemberList classMembers = p->classDataMembers();
@@ -3604,23 +3565,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public override void write__(Ice.OutputStream outS__)";
-            _out << sb;
-            if(preserved)
-            {
-                _out << nl << "outS__.startException(slicedData__);";
-            }
-            else
-            {
-                _out << nl << "outS__.startException(null);";
-            }
-            _out << nl << "writeImpl__(outS__);";
-            _out << nl << "outS__.endException();";
-            _out << eb;
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public " << (base ? "override" : "virtual") << " void writeImpl__(Ice.OutputStream outS__)";
+            _out << nl << "protected override void writeImpl__(Ice.OutputStream outS__)";
             _out << sb;
             _out << nl << "outS__.startSlice(\"" << scoped << "\", " << (!base ? "true" : "false") << ");";
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -3636,23 +3581,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public override void read__(Ice.InputStream inS__)";
-            _out << sb;
-            _out << nl << "inS__.startException();";
-            _out << nl << "readImpl__(inS__);";
-            if(preserved)
-            {
-                _out << nl << "slicedData__ = inS__.endException(true);";
-            }
-            else
-            {
-                _out << nl << "inS__.endException(false);";
-            }
-            _out << eb;
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public " << (base ? "override" : "virtual") << " void readImpl__(Ice.InputStream inS__)";
+            _out << nl << "protected override void readImpl__(Ice.InputStream inS__)";
             _out << sb;
             _out << nl << "inS__.startSlice();";
             classMemberCount = static_cast<int>(allClassMembers.size() - classMembers.size());
@@ -3668,30 +3597,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             _out << eb;
         }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public override void write__(Ice.OutputStream outS__)";
-            _out << sb;
-            _out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            _out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            _out << nl << "throw ex;";
-            _out << eb;
-
-            _out << sp;
-            emitGeneratedCodeAttribute();
-            _out << nl << "public override void read__(Ice.InputStream inS__)";
-            _out << sb;
-            _out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            _out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            _out << nl << "throw ex;";
-            _out << eb;
-        }
-
+       
         if(preserved && !basePreserved)
         {
             _out << sp << nl << "protected Ice.SlicedData slicedData__;";

@@ -248,6 +248,50 @@ Ice::Object::__collocDispatch(IceInternal::Direct& request)
     return request.run(this);
 }
 
+void
+Ice::Object::__write(IceInternal::BasicStream* os) const
+{
+    os->startWriteObject(0);
+    __writeImpl(os);
+    os->endWriteObject();
+}
+ 
+void 
+Ice::Object::__read(IceInternal::BasicStream* is)
+{
+   is->startReadObject();
+   __readImpl(is);
+   is->endReadObject(false);
+}
+    
+void 
+Ice::Object::__write(const OutputStreamPtr& os) const
+{
+    os->startObject(0);
+    __writeImpl(os);
+    os->endObject();
+}
+ 
+void 
+Ice::Object::__read(const InputStreamPtr& is)
+{
+    is->startObject();
+   __readImpl(is);
+   is->endObject(false);
+}
+ 
+void 
+Ice::Object::__writeImpl(const OutputStreamPtr&) const
+{
+    throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
+}
+ 
+void 
+Ice::Object::__readImpl(const InputStreamPtr&)
+{
+    throw MarshalException(__FILE__, __LINE__, "class was not generated with stream support");
+}
+
 namespace
 {
 
@@ -401,6 +445,7 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     }
     return DispatchAsync;
 }
+
 void
 Ice::ice_writeObject(const OutputStreamPtr& out, const ObjectPtr& p)
 {

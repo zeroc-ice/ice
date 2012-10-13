@@ -48,6 +48,10 @@ public:
     virtual bool operator==(const Ice::LocalObject&) const;
     virtual bool operator<(const Ice::LocalObject&) const;
 
+#ifdef __SUNPRO_CC
+    using IceInternal::EndpointI::connectionId;
+#endif
+
 private:
 
     virtual ::Ice::Int hashInit() const;
