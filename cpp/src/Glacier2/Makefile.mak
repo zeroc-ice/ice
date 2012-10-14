@@ -17,6 +17,8 @@ OBJS		= Blobject.obj \
 		  CryptPermissionsVerifierI.obj \
 		  Glacier2Router.obj \
 		  Instance.obj \
+                  Instrumentation.obj \
+                  InstrumentationI.obj \
 		  ProxyVerifier.obj \
 		  RequestQueue.obj \
 		  RouterI.obj \
@@ -31,6 +33,8 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+SLICE2CPPFLAGS	= --include-dir Glacier2 $(SLICE2CPPFLAGS)
+
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
 
 !if "$(GENERATE_PDB)" == "yes"
@@ -45,6 +49,7 @@ $(ROUTER): $(OBJS) Glacier2Router.res
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
+        -del /q Instrumentation.cpp Instrumentation.h
 	-del /q Glacier2Router.res
 	-del /q $(ROUTER:.exe=.*)
 

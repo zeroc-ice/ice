@@ -19,6 +19,7 @@ OBJS		= PermissionsVerifier.obj \
 		  SSLInfo.obj \
 		  Session.obj \
 		  Application.obj \
+                  Metrics.obj \
 		  SessionHelper.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
@@ -36,7 +37,7 @@ PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 
 RES_FILE        = Glacier2.res
 
-SLICE2CPPFLAGS	= --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	= --ice --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2CPPFLAGS)
 
 $(LIBNAME): $(DLLNAME)
 
@@ -54,6 +55,7 @@ clean::
 	-del /q Router.cpp $(HDIR)\Router.h
 	-del /q Session.cpp $(HDIR)\Session.h
 	-del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
+        -del /q Metrics.obj $(HDIR)\Metrics.h
 	-del /q Glacier2.res
 
 install:: all
