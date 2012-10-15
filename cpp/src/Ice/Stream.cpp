@@ -15,3 +15,27 @@ using namespace IceInternal;
 
 IceUtil::Shared* Ice::upCast(InputStream* p) { return p; }
 IceUtil::Shared* Ice::upCast(OutputStream* p) { return p; }
+
+void
+Ice::UserExceptionReader::__writeImpl(::IceInternal::BasicStream*) const
+{
+    assert(false); // Should never be called.
+}
+
+void
+Ice::UserExceptionReader::__readImpl(::IceInternal::BasicStream*)
+{
+    assert(false); // Should never be called.
+}
+
+void
+Ice::UserExceptionWriter::__writeImpl(::IceInternal::BasicStream*) const
+{
+    assert(false); // Should never be called.
+}
+
+void
+Ice::UserExceptionWriter::__readImpl(::IceInternal::BasicStream*)
+{
+    assert(false); // Should never be called.
+}

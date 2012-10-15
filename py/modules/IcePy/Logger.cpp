@@ -400,6 +400,15 @@ IcePy::initLogger(PyObject* module)
     return true;
 }
 
+void
+IcePy::cleanupLogger()
+{
+    //
+    // Python is about to exit; we need to remove the wrapper around the process logger.
+    //
+    Ice::setProcessLogger(0);
+}
+
 PyObject*
 IcePy::createLogger(const Ice::LoggerPtr& logger)
 {

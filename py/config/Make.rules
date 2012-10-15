@@ -46,12 +46,18 @@ embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 #
 PYTHON_VERSION	    ?= python$(shell python -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
 
+PYTHON_BASE_VERSION ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_version())")
+
 PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
 
-PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import os; import sys; import distutils.sysconfig as ds; sys.stdout.write(os.path.join(ds.get_python_lib(plat_specific=1,standard_lib=1), 'config'))")
+PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_var('LIBPL'))")
+
+PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON_VERSION) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
+
+PYTHON_LIB_NAME	    ?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
 
 PYTHON_FLAGS	    ?= -I$(PYTHON_INCLUDE_DIR)
-PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_VERSION)
+PYTHON_LIBS	    ?= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
 
 #
 # The build architectures for gcc based builds. The format of these

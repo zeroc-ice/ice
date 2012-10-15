@@ -41,6 +41,8 @@ typedef IceUtil::Handle<LoggerWrapper> LoggerWrapperPtr;
 
 bool initLogger(PyObject*);
 
+void cleanupLogger();
+
 //
 // Create a Python object that delegates to a C++ implementation.
 //

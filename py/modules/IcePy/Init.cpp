@@ -29,7 +29,7 @@
 using namespace std;
 using namespace IcePy;
 
-extern "C" PyObject* Ice_registerTypes(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_cleanup(PyObject*);
 
 static PyMethodDef methods[] =
 {
@@ -85,6 +85,8 @@ static PyMethodDef methods[] =
         PyDoc_STR(STRCAST("internal function")) },
     { STRCAST("loadSlice"), reinterpret_cast<PyCFunction>(IcePy_loadSlice), METH_VARARGS,
         PyDoc_STR(STRCAST("loadSlice(cmd) -> None")) },
+    { STRCAST("cleanup"), reinterpret_cast<PyCFunction>(IcePy_cleanup), METH_NOARGS,
+        PyDoc_STR(STRCAST("internal function")) },
     { 0, 0 } /* sentinel */
 };
 
@@ -206,4 +208,14 @@ initIcePy(void)
 #if PY_VERSION_HEX >= 0x03000000
     return module;
 #endif
+}
+
+extern "C"
+PyObject*
+IcePy_cleanup(PyObject* /*self*/)
+{
+    cleanupLogger();
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }

@@ -78,6 +78,9 @@ public:
 
 protected:
 
+    virtual void __writeImpl(::IceInternal::BasicStream*) const;
+    virtual void __readImpl(::IceInternal::BasicStream*);
+
     const CommunicatorPtr _communicator;
 };
 
@@ -408,6 +411,9 @@ public:
 #endif
 
 protected:
+
+    virtual void __writeImpl(::IceInternal::BasicStream*) const;
+    virtual void __readImpl(::IceInternal::BasicStream*);
 
     const CommunicatorPtr _communicator;
 };

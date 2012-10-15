@@ -474,7 +474,7 @@ ClassInfoPtr getClassInfoByName(const std::string& TSRMLS_DC);
 ExceptionInfoPtr getExceptionInfo(const std::string& TSRMLS_DC);
 
 bool isUnset(zval* TSRMLS_DC);
-void unset(zval* TSRMLS_DC);
+void assignUnset(zval* TSRMLS_DC);
 
 bool typesInit(INIT_FUNC_ARGS);
 bool typesRequestInit(TSRMLS_D);

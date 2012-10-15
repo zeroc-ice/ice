@@ -2968,7 +2968,7 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is)
                     zval* zv;
                     MAKE_STD_ZVAL(zv);
                     AutoDestroy destroy(zv);
-                    unset(zv);
+                    assignUnset(zv TSRMLS_CC);
                     member->setMember(_object, zv TSRMLS_CC);
                 }
             }
@@ -3131,7 +3131,7 @@ IcePHP::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is, const Communicat
                 zval* un;
                 MAKE_STD_ZVAL(un);
                 AutoDestroy destroy(un);
-                unset(un);
+                assignUnset(un TSRMLS_CC);
                 member->setMember(zv, un TSRMLS_CC);
             }
         }
@@ -3720,7 +3720,7 @@ IcePHP::isUnset(zval* zv TSRMLS_DC)
 }
 
 void
-IcePHP::unset(zval* zv TSRMLS_DC)
+IcePHP::assignUnset(zval* zv TSRMLS_DC)
 {
     *zv = *ICE_G(unset);
     zval_copy_ctor(zv);

@@ -508,8 +508,7 @@ def allTests(communicator):
         t.checkSUnknown(o)
     except Ice.NoObjectFactoryException:
         test(t.ice_getEncodingVersion() == Ice.Encoding_1_0)
-    except Ice.Exception as ex:
-        print ex
+    except Ice.Exception:
         test(False)
     print("ok")
 

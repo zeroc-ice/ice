@@ -207,7 +207,7 @@ void
 IcePHP::ResultCallback::unset(TSRMLS_D)
 {
     MAKE_STD_ZVAL(zv);
-    IcePHP::unset(zv TSRMLS_DC);
+    assignUnset(zv TSRMLS_CC);
 }
 
 //

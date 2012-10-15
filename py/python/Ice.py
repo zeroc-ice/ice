@@ -53,6 +53,12 @@ if _dlopenflags >= 0:
     sys.setdlopenflags(_dlopenflags)
 
 #
+# Give the extension an opportunity to clean up before a graceful exit.
+#
+import atexit
+atexit.register(IcePy.cleanup)
+
+#
 # Add some symbols to the Ice module.
 #
 ObjectPrx = IcePy.ObjectPrx
