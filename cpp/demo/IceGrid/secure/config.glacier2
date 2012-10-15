@@ -29,5 +29,5 @@ IceSSL.KeyFile=glacier2_key.pem
 #
 IceSSL.VerifyPeer=1
 
-IceSSL.TrustOnly.Client=CN="IceGrid Registry"
-IceSSL.TrustOnly.Server.Glacier2.Server.Endpoints=CN="IceGrid Registry";CN="Server"
+IceSSL.TrustOnly.Client=CN="Master";CN="Slave"
+IceSSL.TrustOnly.Server.Glacier2.Server=CN="Master";CN="Slave";CN="Server"

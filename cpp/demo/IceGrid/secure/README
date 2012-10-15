@@ -56,28 +56,102 @@ $ icegridadmin --Ice.Config=config.admin \
 Alternatively, you can edit the config.admin file and uncomment the
 Ice.Default.Router property definition.
 
-To use the IceGrid administrative GUI, use the following settings in
-the GUI Login dialog:
+To use the IceGrid administrative GUI, you must first 
+configure the connection:
 
-- To connect directly to IceGrid, in the "Direct" tab:
+- Import trusted certificate authority:
 
-  * Check the "Enable IceSSL" checkbox
-  * Set the IceGrid instance name to "DemoIceGrid"
-  * Set the IceGrid registry endpoints to "ssl -p 4062"
-  * In the SSL configuration section, select the "Basic" tab
-  * Set the Keystore file to the certs.jks file from the certs
-    directory of this demo
-  * Set the password to the Java keystore password to "password"
+  * Select "Certificate Manager" from the File menu.
+  * Select the "Trusted CAs" tab and click import.
+  * In the "Open file" dialog navigate to certs sub directory of the
+    demo, in "Files of Type" combo select "PEM Files (*.pem, *crt)"
+    and select the ca_cert.pem file.
+  * When asked for the alias give it an alias for example "ca" and click ok.
+  * Close the "Certificate Manager" dialog, by click the close button.
 
-- To connect via Glacier2, in the "Routed" tab:
+- Configure direct connection to IceGrid:
 
-  * Check the "Enable IceSSL" checkbox
-  * Set the Glacier2 instance name to "DemoGlacier2"
-  * Set the Glacier2 router endpoints to "ssl -p 4064"
-  * In the SSL configuration section, select the "Basic" tab
-  * Set the Keystore file to the certs.jks file from the certs
-    directory of this demo
-  * Set the password to the Java keystore password to "password"
+  * Select Login... from the File menu.
+
+  * In the "Saved Connections" dialog click on "New Connection" button,
+    that will open the "New Connection" wizard.
+
+  * Select "Direct Connection" and click next.
+
+  * Enter "DemoIceGrid" for the IceGrid instance name, and click next.
+
+  * In "Endpoint Configuration" select "connect with a hostname and
+    port number" and click Next.
+
+  * Enter "localhost" for the Hostname, you can let the port empty as
+    the demo use the default port and click Next.
+
+  * In "Authentication Type" select "User Username and Password
+    Authentication" and click Next.
+
+  * In the next step select "Yes" for provide an SSL X509 Certificate,
+    and click Finish.
+
+  * In Login dialog enter any username and password combination (the
+    password is not validated).
+
+  * If "Key Alias" list is empty click in "New Alias", that will open
+    the "Certificate Manager" with "My Certificates" tab selected, click
+    the "Import" button.
+
+  * In the "Open file" dialog navigate to certs sub directory of the
+    demo, in "Files of Type" combo select "Java Key Store Files (*.jks)"
+    and select the certs.jks file.
+
+  * When asked for the password for "ca_cert" type "password" and click
+    ok.
+  * Close the "Certificate Manager" dialog, by click the close button.
+
+  * "ca_cert" must be now selected in the "Key Alias" combobox, for the
+    "Key password" text field type "password" and click "Ok" to log in.
+
+
+- Configure routed connection to IceGrid throw Glacier2:
+
+  * Select Login... from the File menu.
+
+  * In the "Saved Connections" dialog click on "New Connection" button,
+    that will open the "New Connection" wizard.
+
+  * Select "Routed Connection" and click next.
+
+  * Enter "DemoGlacier2" for the Glacier2 instance name, and click next.
+
+  * In "Endpoint Configuration" select "connect with a hostname and
+    port number" and click Next.
+
+  * Enter "localhost" for the Hostname, you can let the port empty as
+    the demo use the default port and click Next.
+
+  * In "Authentication Type" select "User Username and Password
+    Authentication" and click Next.
+
+  * In the next step select "Yes" for provide an SSL X509 Certificate,
+    and click Finish.
+
+  * In Login dialog enter any username and password combination (the
+    password is not validated).
+
+  * If "Key Alias" list is empty click in "New Alias", that will open
+    the "Certificate Manager" with "My Certificates" tab selected, click
+    the "Import" button.
+
+  * In the "Open file" dialog navigate to certs sub directory of the
+    demo, in "Files of Type" combo select "Java Key Store Files (*.jks)"
+    and select the certs.jks file.
+
+  * When asked for the password for "ca_cert" type "password" and click
+    ok.
+
+  * Close the "Certificate Manager" dialog, by click the close button.
+
+  * "ca_cert" must be now selected in the "Key Alias" combobox, for the
+    type "password" in "Key password" text field and click "Ok" to log in.
 
 The IceGrid registry and Glacier2 router are configured to use the
 "null permissions verifier" so you can use any username/password to

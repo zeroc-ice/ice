@@ -8,8 +8,18 @@
 // **********************************************************************
 
 package IceGridGUI;
-
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import IceGrid.*;
 
 public class Utils
@@ -26,6 +36,48 @@ public class Utils
         {
             return new ImageIcon(imgURL);
         }
+    }
+
+    static public Image iconToImage(Icon icon)
+    {
+        if(icon instanceof ImageIcon)
+        {
+            return ((ImageIcon)icon).getImage();
+        }
+        else
+        {
+            Graphics2D g = null;
+            try
+            {
+                BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().
+                                            getDefaultConfiguration().createCompatibleImage(
+                                                                            icon.getIconWidth(), icon.getIconHeight());
+                g = image.createGraphics();
+                icon.paintIcon(null, g, 0, 0);
+                return image;
+            }
+            finally
+            {
+                if(g != null)
+                {
+                    g.dispose();
+                }
+            }
+        }
+    }
+
+    public static void addEscapeListener(final JDialog dialog)
+    {
+        dialog.getRootPane().registerKeyboardAction(
+            new ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        dialog.dispose();
+                    }
+                },
+            KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+            JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     //
@@ -482,3 +534,4 @@ public class Utils
         }
     }
 }
+

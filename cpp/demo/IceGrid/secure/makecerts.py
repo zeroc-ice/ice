@@ -21,7 +21,7 @@ def createCertificate(filename, cn):
     print("======= Creating " + filename + " certificate =======")
 
     runIceca('request --no-password --overwrite "%s" "%s"' % (filename, cn))
-    runIceca("sign --in %s_req.pem --out %s_cert.pem" % (filename, filename))
+    runIceca('sign --in %s_req.pem --out %s_cert.pem --dns="localhost" --ip="127.0.0.1"' % (filename, filename))
     os.remove("%s_req.pem" % filename)
 
     print("")
