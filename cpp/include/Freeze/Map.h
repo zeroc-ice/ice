@@ -158,7 +158,7 @@ public:
     create(const MapHelper& m, bool readOnly);
 
     virtual 
-    ~IteratorHelper() = 0;
+    ~IteratorHelper() ICE_NOEXCEPT_FALSE = 0;
 
     virtual IteratorHelper*
     clone() const = 0;
@@ -265,7 +265,7 @@ public:
         return *this;
     }
 
-    ~Iterator()
+    ~Iterator() ICE_NOEXCEPT_FALSE
     {
     }
 

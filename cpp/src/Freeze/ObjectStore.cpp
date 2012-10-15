@@ -214,9 +214,8 @@ Freeze::ObjectStoreBase::~ObjectStoreBase()
     }
     catch(const DbException& dx)
     {
-        DatabaseException ex(__FILE__, __LINE__);
-        ex.message = dx.what();
-        throw ex;
+	Ice::Error error(_communicator->getLogger());
+	error << "Freeze: closing ObjectStore " << _dbName << " raised DbException: " << dx.what();
     }
 }
     

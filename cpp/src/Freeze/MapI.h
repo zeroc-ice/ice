@@ -12,6 +12,9 @@
 
 #include <Freeze/Map.h>
 #include <Freeze/ConnectionI.h>
+#ifdef ICE_CPP11
+#  include <memory> 
+#endif
 
 namespace Freeze
 {
@@ -28,7 +31,7 @@ public:
     IteratorHelperI(const IteratorHelperI&);
 
     virtual 
-    ~IteratorHelperI();
+    ~IteratorHelperI() ICE_NOEXCEPT_FALSE;
   
     bool 
     find(const Key& k) const;
@@ -62,12 +65,15 @@ public:
     void
     close();
 
-    class Tx : public IceUtil::SimpleShared
+    class Tx
+#ifndef ICE_CPP11 
+	: public IceUtil::SimpleShared
+#endif
     {
     public:
 
         Tx(const MapHelperI&);
-        ~Tx();
+        ~Tx() ICE_NOEXCEPT_FALSE;
 
         void dead();
 
@@ -82,7 +88,11 @@ public:
         bool _dead;
     };
 
+#ifdef ICE_CPP11
+    typedef std::shared_ptr<Tx> TxPtr;
+#else
     typedef IceUtil::Handle<Tx> TxPtr;
+#endif
 
     const TxPtr&
     tx() const;

@@ -1434,15 +1434,11 @@ Freeze::BackgroundSaveEvictorElement::BackgroundSaveEvictorElement(ObjectStore<B
 }
 
 Freeze::BackgroundSaveEvictorElement::~BackgroundSaveEvictorElement()
-
 {
 }
 
-// COMPILERFIX: Required to build with C++ Builder 2007
-typedef ObjectStore<BackgroundSaveEvictorElement>::Position BackgroundSaveEvictorElementPosition;
-
 void 
-Freeze::BackgroundSaveEvictorElement::init(BackgroundSaveEvictorElementPosition p)
+Freeze::BackgroundSaveEvictorElement::init(ObjectStore<BackgroundSaveEvictorElement>::Position p)
 {
     stale = false;
     cachePosition = p;

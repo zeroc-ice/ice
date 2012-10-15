@@ -613,7 +613,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
     //    
     try
     {
-	int balance = Test::AccountPrx::uncheckedCast(servants[0])->getBalance();
+	Test::AccountPrx::uncheckedCast(servants[0])->getBalance();
 	test(false);
     }
     catch(const Ice::OperationNotExistException&)

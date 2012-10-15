@@ -338,7 +338,7 @@ Freeze::IteratorHelper::create(const MapHelper& m, bool readOnly)
 }
 
 
-Freeze::IteratorHelper::~IteratorHelper()
+Freeze::IteratorHelper::~IteratorHelper() ICE_NOEXCEPT_FALSE
 {
 }
 
@@ -373,7 +373,11 @@ Freeze::IteratorHelperI::IteratorHelperI(const MapHelperI& m, bool readOnly,
         //
         // Need to start a transaction
         //
-        _tx = new Tx(_map);
+#ifdef ICE_CPP11
+        _tx.reset(new Tx(_map));
+#else
+	_tx = new Tx(_map);
+#endif
         txn = _tx->getTxn();
     }
 
@@ -427,7 +431,7 @@ Freeze::IteratorHelperI::IteratorHelperI(const IteratorHelperI& it) :
     _map._iteratorList.push_back(this);
 }
 
-Freeze::IteratorHelperI::~IteratorHelperI()
+Freeze::IteratorHelperI::~IteratorHelperI() ICE_NOEXCEPT_FALSE
 {
     close();
 }
@@ -888,14 +892,7 @@ Freeze::IteratorHelperI::close()
         }
         catch(const ::DbDeadlockException& dx)
         {
-            bool raiseException = (_tx == 0);
-            cleanup();
-            if(raiseException)
-            {
-                DeadlockException ex(__FILE__, __LINE__);
-                ex.message = dx.what();
-                throw ex;
-            }
+            // Ignored - it's unclear if this can ever occur
         }
         catch(const ::DbException& dx)
         {
@@ -913,7 +910,14 @@ Freeze::IteratorHelperI::cleanup()
 {
     _dbc = 0;
     _map._iteratorList.remove(this);
+    
+    // this can raise an exception when committing the transaction
+    // (only for read/write iterators)
+#ifdef ICE_CPP11
+    _tx.reset();
+#else
     _tx = 0;
+#endif 
 }
 
 
@@ -945,7 +949,7 @@ Freeze::IteratorHelperI::Tx::Tx(const MapHelperI& m) :
 }
         
 
-Freeze::IteratorHelperI::Tx::~Tx()
+Freeze::IteratorHelperI::Tx::~Tx() ICE_NOEXCEPT_FALSE
 {
     if(_dead)
     {
@@ -1039,7 +1043,15 @@ Freeze::MapHelperI::MapHelperI(const ConnectionIPtr& connection,
 
 Freeze::MapHelperI::~MapHelperI()
 {
-    close();
+    try
+    {
+	close();
+    }
+    catch(const DatabaseException& ex)
+    {
+	Ice::Error error(_connection->getCommunicator()->getLogger());
+	error << "Freeze: closing map " << _dbName << " raised: " << ex;
+    } 
 }
 
 Freeze::IteratorHelper*
@@ -1702,7 +1714,14 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, MapDb& db,
    
 Freeze::MapIndexI::~MapIndexI()
 {
-    _db->close(0);
+    try
+    {
+	_db->close(0);
+    }
+    catch(const DbException&)
+    {
+	// Ignored
+    }
 }
 
 
