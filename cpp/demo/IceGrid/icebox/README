@@ -1,12 +1,12 @@
 This demo shows a very simple IceGrid deployment, with a single
 IceBox server hosting a number of IceBox services. 
 
-The demo also demostrate how to use an environment variable in a
+The demo also demonstrates how to use an environment variable in a
 server descriptor.
 
-In applicationx.xml, <env>LANG=en</env>, defines a enviroment variable
-named "LANG" with value "en", the Hello object implementation HelloI
-reads the value of "LANG" and show the message in the corresponding 
+In application.xml, <env>LANG=en</env> defines an environment variable
+named "LANG" with value "en". The Hello object implementation HelloI
+reads the value of "LANG" and shows the message in the corresponding
 language; you can try to update the value to fr, de, es or it.
 
 
@@ -49,25 +49,25 @@ the application you deployed above:
 
   - Select Login... from the File menu.
 
-  - In the "Saved Connections" dialog click on "New Connection" button,
-    that will open the "New Connection" wizard.
+  - In the "Saved Connections" dialog, click "New Connection" to open
+    the "New Connection" wizard.
 
-  - Select "Direct Connection" and click next.
+  - Select "Direct Connection" and click Next.
 
-  - Enter "DemoIceGrid" for the IceGrid instance name, and click next.
+  - Enter "DemoIceGrid" for the IceGrid instance name and click next.
 
-  - In "Endpoint Configuration" select "connect with a hostname and
-    port number" and click next.
+  - In "Endpoint Configuration", select "connect with a hostname and
+    port number" and click Next.
 
-  - Enter "localhost" for the Hostname, you can let the port empty as
-    the demo use the default port, in the protocol change it to "TCP",
-    click Finish.
+  - Enter "localhost" for the Hostname. You can leave the port empty
+    as the demo uses the default port. Change the protocol to "TCP"
+    and click Finish.
 
-  - In Login dialog enter any username and password combination (the
-    password is not validated) and click ok to log in.
+  - In the Login dialog, enter any username and password combination
+    (the password is not validated) and click Ok to log in.
 
-  - Next time you want to connect the connection will appear in the
-    "Saved Connections dialog", just select it and click connect.
+  - Next time you want to connect, the connection will appear in the
+    "Saved Connections" dialog, just select it and click Connect.
 
 
 Windows Note
@@ -99,7 +99,6 @@ using the following command:
 
  $ icegridadmin --Ice.Config=config.grid -e \
     "application update application.xml"
-
 
 
 Running the Client
