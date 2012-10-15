@@ -40,7 +40,7 @@
       <parameter name="server-endpoints" default=""/>
       <parameter name="session-timeout" default="0"/>
     
-      <server id="${instance-name}" exe="glacier2router">
+      <server id="${instance-name}" exe="glacier2router" activation="always">
          <properties>
             <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
             <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
