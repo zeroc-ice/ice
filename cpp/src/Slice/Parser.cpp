@@ -1588,7 +1588,6 @@ Slice::Container::hasLocalClassDefsWithAsync() const
             OperationList ol = cl->operations();
             for(OperationList::const_iterator q = ol.begin(); q != ol.end(); ++q)
             {
-                cerr << (*q)->name() << endl;
                 if((*q)->hasMetaData("async"))
                 {
                     return true;
