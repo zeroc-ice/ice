@@ -66,7 +66,7 @@ class NodeEditor extends Editor
             _os.setCaretPosition(0);
             _machineType.setText(info.machine + " with " +
                                  info.nProcessors
-                                 + " CPU"
+                                 + " CPU thread"
                                  + (info.nProcessors >= 2 ? "s" : ""));
 
             if(node.isRunningWindows())

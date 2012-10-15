@@ -171,8 +171,9 @@ class NodeEditor extends Editor
 
         _loadFactor.getDocument().addDocumentListener(_updateListener);
         _loadFactor.setToolTipText("<html>A floating point value.<br>"
-                                   + "When not specified, IceGrid uses 1.0 on all platforms<br>"
-                                   + "except Windows where it uses 1.0 divided by <i>number of processors</i>.<html>");
+                                   + "When not specified, IceGrid uses 1.0 divided by the<br>"
+                                   + "<i>number of threads</i> on all platforms except Windows;<br>"
+				   + "on Windows, IceGrid uses 1.0.<html>");
     }
 
     protected void appendProperties(DefaultFormBuilder builder)

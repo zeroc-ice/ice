@@ -890,7 +890,7 @@ Freeze::IteratorHelperI::close()
         {
             _dbc->close();
         }
-        catch(const ::DbDeadlockException& dx)
+        catch(const ::DbDeadlockException&)
         {
             // Ignored - it's unclear if this can ever occur
         }

@@ -96,8 +96,8 @@ const char* _commandsHelp[][3] = {
 { "node", "load",
 "node load NAME            Print the load of the node NAME.\n" 
 },
-{ "node", "processors",
-"node processors [NAME]    Print the number of processor sockets of the\n"
+{ "node", "sockets",
+"node sockets [NAME]       Print the number of CPU sockets of the\n"
 "                          node NAME or all the nodes if NAME is omitted.\n" 
 },
 { "node", "show",
@@ -876,7 +876,7 @@ Parser::describeNode(const list<string>& args)
         out << nl << "release = `" << info.release << "'";
         out << nl << "version = `" << info.version << "'";
         out << nl << "machine type = `" << info.machine << "'";
-        out << nl << "number of processors = `" << info.nProcessors << "'";
+        out << nl << "number of threads = `" << info.nProcessors << "'";
         out << eb;
         out << nl;
     }
@@ -933,11 +933,11 @@ Parser::printLoadNode(const list<string>& args)
 }
 
 void
-Parser::printNodeProcessors(const list<string>& args)
+Parser::printNodeProcessorSockets(const list<string>& args)
 {
     if(args.size() > 1)
     {
-        invalidCommand("node processors", "requires no more than one argument");
+        invalidCommand("node sockets", "requires no more than one argument");
         return;
     }
 
@@ -2188,7 +2188,7 @@ Parser::showWarranty()
 }
 
 void
-Parser::getInput(char* buf, int& result, int maxSize)
+Parser::getInput(char* buf, size_t& result, size_t maxSize)
 {
     if(!_commands.empty())
     {
@@ -2198,7 +2198,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
         }
         else
         {
-            result = min(maxSize, static_cast<int>(_commands.length()));
+            result = min(maxSize, _commands.length());
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
             if(_commands.empty())
@@ -2263,7 +2263,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
             }
         }
         
-        result = (int) line.length();
+        result = line.length();
         if(result > maxSize)
         {
             error("input line too long");

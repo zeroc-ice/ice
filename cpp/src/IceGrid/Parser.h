@@ -82,7 +82,7 @@ public:
     void describeNode(const std::list<std::string>&);
     void pingNode(const std::list<std::string>&);
     void printLoadNode(const std::list<std::string>&);
-    void printNodeProcessors(const std::list<std::string>&);
+    void printNodeProcessorSockets(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);
     void listAllNodes(const std::list<std::string>&);
 
@@ -126,7 +126,7 @@ public:
     void showCopying();
     void showWarranty();
 
-    void getInput(char*, int&, int);
+    void getInput(char*, size_t&, size_t);
     void continueLine();
     const char* getPrompt();
 

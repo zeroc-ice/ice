@@ -48,7 +48,7 @@ yyerror(const char* s)
 %token ICE_GRID_ADAPTER
 %token ICE_GRID_PING
 %token ICE_GRID_LOAD
-%token ICE_GRID_PROCESSORS
+%token ICE_GRID_SOCKETS
 %token ICE_GRID_ADD
 %token ICE_GRID_REMOVE
 %token ICE_GRID_LIST
@@ -234,13 +234,13 @@ command
 {
     parser->usage("node", "load");
 }
-| ICE_GRID_NODE ICE_GRID_PROCESSORS strings ';'
+| ICE_GRID_NODE ICE_GRID_SOCKETS strings ';'
 {
-    parser->printNodeProcessors($3);
+    parser->printNodeProcessorSockets($3);
 }
-| ICE_GRID_NODE ICE_GRID_PROCESSORS ICE_GRID_HELP ';'
+| ICE_GRID_NODE ICE_GRID_SOCKETS ICE_GRID_HELP ';'
 {
-    parser->usage("node", "processors");
+    parser->usage("node", "sockets");
 }
 | ICE_GRID_NODE ICE_GRID_SHUTDOWN strings ';'
 {
@@ -691,7 +691,7 @@ keyword
 | ICE_GRID_LOAD
 {
 }
-| ICE_GRID_PROCESSORS
+| ICE_GRID_SOCKETS
 {
 }
 | ICE_GRID_ADD

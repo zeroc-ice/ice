@@ -64,7 +64,7 @@ private:
     std::string _release;
     std::string _version;
     std::string _machine;
-    int _nProcessors;
+    int _nProcessorThreads;
     std::string _dataDir;
     std::string _cwd;
     std::string _endpoints;
