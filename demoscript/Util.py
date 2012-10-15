@@ -139,7 +139,7 @@ def configurePaths():
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.
     #
-     if isCompactFramework():
+    if isCompactFramework():
         addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies", "cf"))
     elif isWin32():
         addenv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
