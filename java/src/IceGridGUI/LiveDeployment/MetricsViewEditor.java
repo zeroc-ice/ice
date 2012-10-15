@@ -59,6 +59,7 @@ import javax.swing.JPopupMenu;
 
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableCellEditor;
@@ -792,6 +793,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     }
                 }
             }
+            packColumn(table, idColumn, 2);
         }
     }
 
@@ -1407,7 +1409,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
 
 	    public Object getValue(final IceMX.Metrics m, long timestamp)
 	    {
-            JButton button = new JButton("Show Failures " + Integer.toString(m.failures));
+            JButton button = new JButton(Integer.toString(m.failures));
             if(m.failures > 0)
             {
                 button.addActionListener(new ActionListener()
@@ -1418,7 +1420,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                             model.addColumn("Count");
                             model.addColumn("Type");
                             model.addColumn("Identity");
-                            JTable table = new JTable(model);
+                            final JTable table = new JTable(model);
                             
                             table.setPreferredSize(new Dimension(550, 200));
 
@@ -1449,6 +1451,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                             row[2] = m.id;
                                                             model.addRow(row);
                                                         }
+                                                        packColumn(table, 0, 2);
                                                         getMetricsNode().getCoordinator().getMainFrame().setCursor(
                                                                     Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                                     }
@@ -1544,7 +1547,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             try
             {
                 final IceMX.Metrics[] objects = (IceMX.Metrics[])m.getClass().getField(getFieldName()).get(m);
-                JButton button = new JButton("Show " + getColumnName() + " " + Integer.toString(objects.length));
+                JButton button = new JButton(Integer.toString(objects.length));
                 button.setEnabled(objects.length > 0);
                 if(objects.length > 0)
                 {
@@ -1580,7 +1583,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     return;
                                 }
 
-                                JTable table = new JTable(model)
+                                final JTable table = new JTable(model)
                                     {
                                         //
                                         //Implement table header tool tips.
@@ -1610,12 +1613,16 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     }
                                 }
 
+                                int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix + ".id.columnName"));
+
                                 for(IceMX.Metrics m : objects)
                                 {
                                     model.addMetrics(m, timestamp);
                                 }
+                                packColumn(table, idColumn, 2);
 
                                 JScrollPane scrollPane = new JScrollPane(table);
+                                scrollPane.setPreferredSize(new Dimension(800, 600));
                                 JOptionPane.showMessageDialog(getMetricsNode().getCoordinator().getMainFrame(), 
                                                               scrollPane, getColumnName(), JOptionPane.PLAIN_MESSAGE);
 
@@ -1635,6 +1642,38 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         private static final TableCellRenderer _cellRenderer = new ButtonRenderer();
+    }
+
+    public static void packColumn(JTable table, int index, int margin)
+    {
+        TableModel model = (TableModel)table.getModel();
+        DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
+        TableColumn col = colModel.getColumn(index);
+        int width = 0;
+
+        // Get width of column header
+        TableCellRenderer renderer = col.getHeaderRenderer();
+        if(renderer == null)
+        {
+            renderer = table.getTableHeader().getDefaultRenderer();
+        }
+        Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
+        width = comp.getPreferredSize().width;
+
+        // Get maximum width of column data
+        for(int r = 0; r < table.getRowCount(); r++)
+        {
+            renderer = table.getCellRenderer(r, index);
+            comp = renderer.getTableCellRendererComponent(
+            table, table.getValueAt(r, index), false, false, r, index);
+            width = Math.max(width, comp.getPreferredSize().width);
+        }
+
+        // Add margin
+        width += 2 * margin;
+
+        // Set the width
+        col.setPreferredWidth(width);
     }
 
     private static final int _refreshPeriod = 5;
