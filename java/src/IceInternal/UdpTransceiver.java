@@ -493,6 +493,10 @@ final class UdpTransceiver implements Transceiver
             Class<?> cls;
 
             cls = Util.findClass("java.net.PlainDatagramSocketImpl", null);
+            if(cls == null && System.getProperty("os.name").startsWith("Windows"))
+            {
+                cls = Util.findClass("java.net.TwoStacksPlainDatagramSocketImpl", null);
+            }
             if(cls == null)
             {
                 throw new Ice.SocketException();
