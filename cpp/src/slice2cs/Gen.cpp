@@ -2837,12 +2837,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!allDataMembers.empty())
         {
+            const bool isAbstract = p->isAbstract();
             const bool propertyMapping = p->hasMetaData("clr:property");
+
             _out << sp << nl << "#region Constructors";
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public " << name << spar << epar;
+            _out << nl << (isAbstract ? "protected " : "public ") << name << spar << epar;
             if(hasBaseClass)
             {
                 _out << " : base()";
@@ -2853,7 +2855,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
             _out << sp;
             emitGeneratedCodeAttribute();
-            _out << nl << "public " << name << spar;
+            _out << nl << (isAbstract ? "protected " : "public ") << name << spar;
             vector<string> paramDecl;
             for(DataMemberList::const_iterator d = allDataMembers.begin(); d != allDataMembers.end(); ++d)
             {

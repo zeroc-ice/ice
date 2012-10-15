@@ -27,13 +27,39 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Added a new "compact" encoding for Slice classes and exceptions.
+  This format significantly reduces the "on-the-wire" size of class
+  and exception instances, but sacrifices the ability for the receiver
+  to "slice" an unknown derived type to a known type. The compact
+  format is now the default encoding. Applications can selectively
+  enable the traditional "sliced" format using metadata and the
+  property Ice.Default.SlicedFormat.
+
+- When using the "sliced" format for Slice classes and exceptions,
+  Ice now has the ability to preserve the slices of unknown derived
+  types and forward the original value intact. This allows an
+  intermediary without knowledge of all derived types to forward a
+  value while retaining the slices of unknown types. Types must be
+  annotated with the "preserve-slice" metadata to support this
+  feature.
+
+- Added support for optional data members in classes and exceptions,
+  and optional parameters in operations.
+
+- The changes necessary to support the compact encoding, preserved
+  slices, and optional members and parameters required a revision
+  to the Ice encoding. The default encoding version is now 1.1. Ice
+  remains fully backward-compatible with existing applications that
+  use version 1.0 of the Ice encoding, however these new features
+  cannot be used in mixed environments.
+
 - IceGrid and the IceGrid administrative clients have been enhanced to
-  support updating server configuration properties at runtime without
+  support updating server configuration properties at run time without
   requiring the servers to be restarted.
 
-- Added support for updating Ice properties at runtime using the Ice
-  administrative "Properties" facet. The facet also allows the user
-  code to register a callback to be notified of the updates.
+- Added support for updating Ice properties at run time using the Ice
+  administrative "Properties" facet. The facet also allows user code
+  to register a callback to be notified of the updates.
 
 - Fixed a bug where batched requests could cause invalid
   Ice::UnmarshalOutOfBoundsException exceptions if a request from the
@@ -41,15 +67,14 @@ General Changes
   request.
 
 - Fixed issue where IceGrid round-robin load balancing policy returned
-  multiple times the same adapter endpoints if some IceGrid nodes were
+  the same adapter endpoints multiple times if some IceGrid nodes were
   down.
 
-- Fixed a bug where under certain circumstances, Ice could assert when
-  a connection was being closed.
+- Fixed a bug where, under certain circumstances, Ice could assert
+  when a connection was being closed.
 
 - Improved server disable to prevent the IceGrid locator from
-  returning endpoints of disabled servers. See the Ice manual for more
-  information.
+  returning endpoints of disabled servers.
 
 - Fixed a per-session memory leak in Glacier2 that occurred when
   request buffering was enabled.
@@ -63,7 +88,7 @@ General Changes
 - Added support for replica and node name verification when securing
   the IceGrid node and registries. The names are matched against the
   certificate common name. The connection is rejected if the
-  certificate CN doesn't match the replica or node name. The
+  certificate CN does not match the replica or node name. The
   properties IceGrid.Registry.RequireNodeCertCN and
   IceGrid.Registry.RequireReplicaCertCN must be set to 1 to enable
   this verification.
@@ -96,11 +121,11 @@ C++ Changes
   method is not declared by default, but you can use the metadata tag
   "cpp:ice_print" to enable the method declaration.
 
-- slice2cpp --depend option now include generated header file in 
-  Makefile dependencies.
+- The slice2cpp --depend option now includes the generated header file
+  in Makefile dependencies.
 
-- Deprecated ice_getHash, users should create is hash implementations
-  when needed.
+- Deprecated ice_getHash. Users should create their own hash
+  implementations when needed.
 
 
 Visual Studio Add-in Changes
@@ -121,10 +146,13 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- The generated constructors for an abstract Slice class now use
+  protected visibility instead of public visibility.
+
 - Fixed a bug in Ice.Application for Mono that could cause the VM to
   crash when a signal occurred.
 
-- Minor marshalling/un-marshalling performance improvement (removed
+- Minor marshaling/un-marshaling performance improvement (removed
   virtual specifier from streaming class).
 
 - Added missing throwLocalException method to Ice.AsyncResult
@@ -146,7 +174,7 @@ Java Changes
   serialVersionUID member. You can override the default UID using the
   metadata [java:serialVersionUID:<value>].
 
-- Ice services are now build in separate JAR files.
+- Ice services are now built in separate JAR files.
 
 
 Python Changes
