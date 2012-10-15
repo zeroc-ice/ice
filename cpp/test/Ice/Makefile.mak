@@ -32,7 +32,8 @@ SUBDIRS		= proxy \
 		  admin \
 		  plugin \
 		  stream \
-		  metrics
+		  metrics \
+		  optional
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \
@@ -48,8 +49,7 @@ SUBDIRS		= $(SUBDIRS) \
 		  servantLocator \
 		  defaultServant \
 		  interceptor \
-		  defaultValue \
-		  optional
+		  defaultValue
 !endif
 
 

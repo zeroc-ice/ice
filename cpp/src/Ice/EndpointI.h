@@ -220,6 +220,8 @@ private:
     bool _destroyed;
     std::deque<ResolveEntry> _queue;
     ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
+#else
+    const InstancePtr _instance;
 #endif
 };
 

@@ -126,6 +126,10 @@
       <PrecompiledHeaderFile />
       <PrecompiledHeaderOutputFile />
     </ClCompile>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -186,6 +190,12 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\adapterDeactivation\Ice_adapterDeactivation_server.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\ami\Ice_ami_client.dll">
@@ -263,6 +273,15 @@
     <None Include="..\..\Ice\location\Ice_location_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_server.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_serveramd.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="..\..\Ice\objects\Ice_objects_client.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
@@ -282,6 +301,12 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\operations\Ice_operations_serveramd.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\proxy\Ice_proxy_client.dll">

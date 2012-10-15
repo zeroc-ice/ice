@@ -390,10 +390,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     props["IceMX.Metrics.View.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update, props);
     
+#ifdef ICE_OS_WINRT
+	int threadCount = 4;
+#else
+	int threadCount = 3;
+#endif
+
     Ice::Long timestamp;
     IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
     test(view["Connection"].size() == 1 && view["Connection"][0]->current == 1 && view["Connection"][0]->total == 1);
-    test(view["Thread"].size() == 1 && view["Thread"][0]->current == 4 && view["Thread"][0]->total == 4);
+    test(view["Thread"].size() == 1 && view["Thread"][0]->current == threadCount && view["Thread"][0]->total == threadCount);
     cout << "ok" << endl;
 
     cout << "testing group by id..." << flush;
@@ -408,7 +414,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     metrics->ice_connectionId("Con1")->ice_ping();
 
     view = clientMetrics->getMetricsView("View", timestamp);
-    test(view["Thread"].size() == 4);
+    test(view["Thread"].size() == threadCount);
     test(view["Connection"].size() == 2);
     test(view["Invocation"].size() == 1);
 

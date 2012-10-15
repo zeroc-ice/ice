@@ -17,6 +17,7 @@ namespace TestSuite
 /// <summary>
 /// An empty page that can be used on its own or navigated to within a Frame.
 /// </summary>
+[Windows::Foundation::Metadata::WebHostHidden]
 public ref class MainPage sealed
 {
 public:
@@ -27,7 +28,7 @@ public:
     void failed(Platform::String^ reason);
 
 protected:
-    
+    	
     virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
     
 private:

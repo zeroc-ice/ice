@@ -57,7 +57,8 @@ TimeoutI::holdAdapter(Ice::Int to, const Ice::Current& current)
 {
     current.adapter->hold();
     IceUtil::ThreadPtr thread = new ActivateAdapterThread(current.adapter, to);
-    thread->start();
+    IceUtil::ThreadControl threadControl = thread->start();
+    threadControl.detach();
 }
 
 void

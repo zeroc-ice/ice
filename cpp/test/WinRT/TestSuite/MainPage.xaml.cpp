@@ -285,7 +285,6 @@ static const TestCase allTest[] =
     {"Ice\\adapterDeactivation", "Ice_adapterDeactivation_", "client.dll", "server.dll", 0, "collocated.dll" },
     {"Ice\\ami", "Ice_ami_", "client.dll", "server.dll", 0, 0 },
     {"Ice\\binding", "Ice_binding_", "client.dll", "server.dll", 0, 0 },
-//    {"Ice\\defaultValue", "Ice_defaultValue_", "client.dll", 0, 0, 0 },
     {"Ice\\dispatcher", "Ice_dispatcher_", "client.dll", "server.dll", 0, 0 },
     {"Ice\\exceptions", "Ice_exceptions_", "client.dll", "server.dll", "serveramd.dll", "collocated.dll" },
     {"Ice\\facets", "Ice_facets_", "client.dll", "server.dll", 0, "collocated.dll" },
@@ -302,7 +301,9 @@ static const TestCase allTest[] =
     {"Ice\\timeout", "Ice_timeout_", "client.dll", "server.dll", 0, 0 },
     {"Ice\\udp", "Ice_udp_", "client.dll", "server.dll", 0, 0 },
     {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0},
-    {"Ice\\plugin", "Ice_plugin_", "client.dll", 0, 0, 0}
+    {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0},
+    {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0},
+    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0}
 };
 
 class TestRunner : public IceUtil::Thread
@@ -377,17 +378,18 @@ public:
             serverRunable = new Runnable(_test.prefix + server, svrConfig);
             serverRunable->start();
             serverRunable->waitForStart();
+            serverRunable->getThreadControl().detach();
         }
 
         TestConfig cltConfig = _config;
         cltConfig.type = TestConfigTypeClient;
         RunnablePtr clientRunable = new Runnable(_test.prefix + client, cltConfig);
         clientRunable->start();
+        clientRunable->getThreadControl().detach();
 
         try
         {
             clientRunable->waitForCompleted();
-			clientRunable->getThreadControl().detach();
         }
         catch(...)
         {
@@ -395,7 +397,6 @@ public:
             {
                 serverRunable->shutdown();
                 serverRunable->waitForCompleted();
-				serverRunable->getThreadControl().detach();
             }
             throw;
         }
@@ -403,7 +404,6 @@ public:
         if(serverRunable)
         {
             serverRunable->waitForCompleted();
-			serverRunable->getThreadControl().detach();
         }
     }
 
@@ -414,8 +414,8 @@ public:
         cltConfig.type = collocated ? TestConfigTypeColloc : TestConfigTypeClient;
         RunnablePtr clientRunable = new Runnable(_test.prefix + client, cltConfig);
         clientRunable->start();
+        clientRunable->getThreadControl().detach();
         clientRunable->waitForCompleted();
-		clientRunable->getThreadControl().detach();
     }
     
 private:
@@ -449,6 +449,7 @@ MainPage::MainPage()
 /// </summary>
 /// <param name="e">Event data that describes how this page was reached.  The Parameter
 /// property is typically used to configure the page.</param>
+
 void 
 MainPage::OnNavigatedTo(NavigationEventArgs^ e)
 {

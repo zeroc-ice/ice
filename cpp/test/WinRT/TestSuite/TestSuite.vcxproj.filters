@@ -199,6 +199,27 @@
     <None Include="..\..\Ice\hash\Ice_hash_client.dll">
       <Filter>Tests</Filter>
     </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\metrics\Ice_metrics_serveramd.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\optional\Ice_optional_server.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\admin\Ice_admin_server.dll">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

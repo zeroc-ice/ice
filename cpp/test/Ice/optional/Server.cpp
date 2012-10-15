@@ -8,7 +8,10 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <TestI.h>
+
+DEFINE_TEST("server");
 
 using namespace std;
 using namespace Test;
@@ -20,6 +23,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(new InitialI(), communicator->stringToIdentity("initial"));
     adapter->activate();
+    TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }

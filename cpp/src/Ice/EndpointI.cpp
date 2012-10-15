@@ -360,14 +360,15 @@ IceInternal::EndpointHostResolver::updateObserver()
 
 #else
 
-IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance)
+IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance) :
+    _instance(instance)
 {
 }
 
 vector<ConnectorPtr>
 IceInternal::EndpointHostResolver::resolve(const string& host, int port, const EndpointIPtr& endpoint)
 {
-    return endpoint->connectors();
+    return endpoint->connectors(getAddresses(host, port, _instance->protocolSupport(), false));
 }
 
 void
