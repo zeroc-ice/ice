@@ -208,6 +208,9 @@ def getIceDir(subdir = None):
 def isWin32():
     return sys.platform == "win32"
 
+def isCompactFramework():
+    return isWin32() and ("COMPACT" in os.environ and os.environ["COMPACT"] == "yes")
+
 def isSolaris():
     return sys.platform == "sunos5"
 
