@@ -122,7 +122,8 @@ public class AllTests : TestCommon.TestApp
         public void
         waitForUpdate()
         {
-            lock(_monitor)
+            _monitor.Lock();
+            try
             {
                 while(!_updated)
                 {
@@ -135,15 +136,24 @@ public class AllTests : TestCommon.TestApp
                 _serverProps.setProperties(new Dictionary<string, string>()); 
                 _updated = false;
             }
+            finally
+            {
+                _monitor.Unlock();
+            }
         }
             
         public void
         updated(Dictionary<string, string> dict)
         {
-            lock(_monitor)
+            _monitor.Lock();
+            try
             {
                 _updated = true;
                 _monitor.Notify();
+            }
+            finally
+            {
+                _monitor.Unlock();
             }
         }
         

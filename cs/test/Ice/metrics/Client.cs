@@ -45,6 +45,13 @@ public class Client
             initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
             initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+#if COMPACT
+            //
+            // When using Ice for .NET Compact Framework, we need to specify
+            // the assembly so that Ice can locate classes and exceptions.
+            //
+            initData.properties.setProperty("Ice.FactoryAssemblies", "client");
+#endif
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
