@@ -108,9 +108,9 @@ directory and apply the patch as shown below:
 Berkeley DB
 -----------
 
-When building the debug version of the Berkeley DB DLL (db_dll
-project), you should remove the "DIAGNOSTIC" and "CONFIG_TEST" defines
-and the /export:__db_assert linker option. Without these modifications,
+When building the debug version of the Berkeley DB DLL, you should
+remove the "DIAGNOSTIC" and "CONFIG_TEST" defines and the 
+/export:__db_assert linker option. Without these modifications,
 database environments created by the debug DLL are not compatible with
 environments created by the release DLL.
 
