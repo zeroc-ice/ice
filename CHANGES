@@ -27,6 +27,9 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Improved IceStorm batch subscriber sending to wait for the batch to
+  be sent before sending another batch.
+
 - Added a new "compact" encoding for Slice classes and exceptions.
   This format significantly reduces the "on-the-wire" size of class
   and exception instances, but sacrifices the ability for the receiver

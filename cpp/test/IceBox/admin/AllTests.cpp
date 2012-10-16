@@ -83,4 +83,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(changes.empty());
     }
     cout << "ok" << endl;
+
+    cout << "testing metrics admin facet... " << flush;
+    {
+        IceMX::MetricsAdminPrx ma = 
+            IceMX::MetricsAdminPrx::checkedCast(admin, "IceBox.Service.TestService.MetricsAdmin");
+
+        Ice::PropertiesAdminPrx pa =
+            Ice::PropertiesAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Properties");
+
+        Ice::StringSeq views;
+        views = ma->getMetricsViewNames();
+        test(views.empty());
+
+        Ice::PropertyDict setProps;
+        setProps["IceMX.Metrics.Debug.GroupBy"] = "id";
+        setProps["IceMX.Metrics.All.GroupBy"] = "none";
+        setProps["IceMX.Metrics.Parent.GroupBy"] = "parent";
+        pa->setProperties(setProps);
+
+        views = ma->getMetricsViewNames();
+        test(views.size() == 3);
+        
+        // Make sure that the IceBox communicator metrics admin is a separate instance.
+        test(IceMX::MetricsAdminPrx::checkedCast(admin, "MetricsAdmin")->getMetricsViewNames().empty());
+    }
+    cout << "ok" << endl;
 }

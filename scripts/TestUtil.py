@@ -895,7 +895,7 @@ def getCommandLineProperties(exe, config):
             components.append("--Ice.Admin.InstanceName=Client")
 
         components.append("--IceMX.Metrics.Debug.GroupBy=id")
-        components.append("--IceMX.Metrics.Debug.GroupBy=parent")
+        components.append("--IceMX.Metrics.Parent.GroupBy=parent")
         components.append("--IceMX.Metrics.All.GroupBy=none")
 
     if config.ipv6:

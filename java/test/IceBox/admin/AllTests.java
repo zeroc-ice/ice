@@ -93,5 +93,32 @@ public class AllTests
             test(changes.isEmpty());
         }
         System.out.println("ok");
+
+        System.out.print("testing metrics admin facet... ");
+        System.out.flush();
+        {
+            IceMX.MetricsAdminPrx ma = 
+                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.MetricsAdmin");
+
+            Ice.PropertiesAdminPrx pa =
+                Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
+
+            String[] views;
+            views = ma.getMetricsViewNames();
+            test(views.length == 0);
+
+            java.util.Map<String, String> setProps = new java.util.HashMap<String, String>();
+            setProps.put("IceMX.Metrics.Debug.GroupBy", "id");
+            setProps.put("IceMX.Metrics.All.GroupBy", "none");
+            setProps.put("IceMX.Metrics.Parent.GroupBy", "parent");
+            pa.setProperties(setProps);
+
+            views = ma.getMetricsViewNames();
+            test(views.length == 3);
+        
+            // Make sure that the IceBox communicator metrics admin is a separate instance.
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "MetricsAdmin").getMetricsViewNames().length == 0);
+        }
+        System.out.println("ok");
     }
 }

@@ -412,7 +412,8 @@ public class AllTests : TestCommon.TestApp
         test((invoke.remotes[0].total + invoke.remotes[1].total) == 5);
 
         view = serverMetrics.getMetricsView("View", out timestamp);
-        test(view["Thread"].Length > 4);
+        // With Ice for .NET, a new dispatching thread isn't necessarily created.
+        //test(view["Thread"].Length > 4);
         test(view["Connection"].Length == 2);
         test(view["Dispatch"].Length == 1);
         test(view["Dispatch"][0].current == 0 && view["Dispatch"][0].total == 5);

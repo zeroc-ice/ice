@@ -254,7 +254,7 @@ SubscriberBatch::doFlush()
             _obj->ice_invoke((*p)->op, (*p)->mode, (*p)->data, dummy, (*p)->context);
         }
 
-        Ice::AsyncResultPtr result =  _obj->begin_ice_flushBatchRequests(
+        Ice::AsyncResultPtr result = _obj->begin_ice_flushBatchRequests(
             Ice::newCallback_Object_ice_flushBatchRequests(this, 
                                                            &SubscriberBatch::exception,
                                                            &SubscriberBatch::sent));

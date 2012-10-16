@@ -94,5 +94,32 @@ public class AllTests
             test(changes.Count == 0);
         }
         Console.Out.WriteLine("ok");
+
+        Console.Out.Write("testing metrics admin facet... ");
+        Console.Out.Flush();
+        {
+            IceMX.MetricsAdminPrx ma = 
+                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.MetricsAdmin");
+
+            Ice.PropertiesAdminPrx pa =
+                Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
+
+            string[] views;
+            views = ma.getMetricsViewNames();
+            test(views.Length == 0);
+
+            Dictionary<string, string> setProps = new Dictionary<string, string>();
+            setProps.Add("IceMX.Metrics.Debug.GroupBy", "id");
+            setProps.Add("IceMX.Metrics.All.GroupBy", "none");
+            setProps.Add("IceMX.Metrics.Parent.GroupBy", "parent");
+            pa.setProperties(setProps);
+
+            views = ma.getMetricsViewNames();
+            test(views.Length == 3);
+        
+            // Make sure that the IceBox communicator metrics admin is a separate instance.
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "MetricsAdmin").getMetricsViewNames().Length == 0);
+        }
+        Console.Out.WriteLine("ok");
     }
 }
