@@ -390,7 +390,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     props["IceMX.Metrics.View.GroupBy"] = "none";
     updateProps(clientProps, serverProps, update, props);
     
-#ifdef ICE_OS_WINRT
+#ifndef ICE_OS_WINRT
 	int threadCount = 4;
 #else
 	int threadCount = 3;

@@ -218,10 +218,7 @@ IceInternal::IncomingBase::__servantLocatorFinished()
     {
         assert(_connection);
 
-        if(_observer)
-        {
-            _observer.userException();
-        }
+        _observer.userException();
 
         //
         // The operation may have already marshaled a reply; we must overwrite that reply.
@@ -616,10 +613,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, BasicStre
                 {
                     Ice::EncodingVersion encoding = _is->skipEncaps(); // Required for batch requests.
 
-                    if(_observer)
-                    {
-                        _observer.userException();
-                    }
+                    _observer.userException();
 
                     if(_response)
                     {

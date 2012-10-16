@@ -46,7 +46,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         }
     }
 
-    public synchronized O
+    public O
     getObserver(MetricsHelper<T> helper, Class<O> cl)
     {
         return getObserver(helper, null, cl);
@@ -56,19 +56,27 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
     public synchronized O
     getObserver(MetricsHelper<T> helper, Object observer, Class<O> cl)
     {
-
-        java.util.List<MetricsMap<T>.Entry> metricsObjects = new java.util.LinkedList<MetricsMap<T>.Entry>();
+        O old = (O)observer;
+        java.util.List<MetricsMap<T>.Entry> metricsObjects = null;
         for(MetricsMap<T> m : _maps)
         {
-            MetricsMap<T>.Entry e = m.getMatching(helper);
+            MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
             if(e != null)
             {
+                if(metricsObjects == null)
+                {
+                    metricsObjects = new java.util.ArrayList<MetricsMap<T>.Entry>(_maps.size());
+                }
                 metricsObjects.add(e);
             }
         }
 
-        if(metricsObjects.isEmpty())
+        if(metricsObjects == null)
         {
+            if(old != null)
+            {
+                old.detach();
+            }
             return null;
         }
 
@@ -82,14 +90,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
             assert(false);
             return null;
         }
-        if(observer == null)
-        {
-            obsv.init(helper, metricsObjects);
-        }
-        else
-        {
-            obsv.init(helper, metricsObjects, (O)observer);
-        }
+        obsv.init(helper, metricsObjects, old);
         return obsv;
     }
 

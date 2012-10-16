@@ -133,6 +133,7 @@ public abstract class Application
             err.printStackTrace(writer);
             status = 1;
         }
+        writer.flush();
 
         if(_communicator != null)
         {

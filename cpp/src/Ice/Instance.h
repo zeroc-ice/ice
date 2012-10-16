@@ -51,6 +51,9 @@ class CommunicatorI;
 namespace IceInternal
 {
 
+class MetricsAdminI;
+typedef IceUtil::Handle<MetricsAdminI> MetricsAdminIPtr;
+
 class Instance : public IceUtil::Shared, public IceUtil::RecMutex
 {
 public:
@@ -144,6 +147,7 @@ private:
     Ice::FacetMap _adminFacets;
     Ice::Identity _adminIdentity;
     std::set<std::string> _adminFacetFilter;
+    IceInternal::MetricsAdminIPtr _metricsAdmin;
 };
 
 class ProcessI : public Ice::Process

@@ -23,6 +23,7 @@ public:
 
     Exception();
     Exception(const char*, int);
+
     virtual ~Exception() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;

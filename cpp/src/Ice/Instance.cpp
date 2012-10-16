@@ -559,7 +559,6 @@ IceInternal::Instance::getAdmin()
         string instanceName = _initData.properties->getProperty("Ice.Admin.InstanceName");
 
         Ice::LocatorPrx defaultLocator = _referenceFactory->getDefaultLocator();
-
         if((defaultLocator != 0 && serverId != "") || instanceName != "")
         {
             if(_adminIdentity.name == "")
@@ -1096,11 +1095,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
 
-        MetricsAdminIPtr admin = new MetricsAdminI(_initData.properties, _initData.logger);
-        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", admin));
-
         PropertiesAdminIPtr props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
         _adminFacets.insert(FacetMap::value_type("Properties",props));
+
+        _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
+        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", _metricsAdmin));
 
         //
         // Setup the communicator observer only if the user didn't already set an
@@ -1110,13 +1109,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
            (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()) &&
            _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
-            CommunicatorObserverIPtr observer = new CommunicatorObserverI(admin);
+            CommunicatorObserverIPtr observer = new CommunicatorObserverI(_metricsAdmin);
             _initData.observer = observer;
 
             //
             // Make sure the admin plugin receives property updates.
             //
-            props->addUpdateCallback(admin);
+            props->addUpdateCallback(_metricsAdmin);
         }
 
         __setNoDelete(false);
@@ -1359,6 +1358,11 @@ IceInternal::Instance::destroy()
     if(_initData.observer)
     {
         theCollector->clearObserver(_initData.observer);
+    }
+
+    if(_metricsAdmin)
+    {
+        _metricsAdmin->destroy();
     }
 
     ThreadPoolPtr serverThreadPool;

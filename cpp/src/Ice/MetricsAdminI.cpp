@@ -100,7 +100,11 @@ MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _at
         throw SyscallException(__FILE__, __LINE__); 
     }
 #else
+#   if _MSC_VER < 1600
+    _regex = std::tr1::regex(regexp, std::tr1::regex_constants::extended | std::tr1::regex_constants::nosubs);
+#   else
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
+#   endif
 #endif
 }
 
@@ -117,7 +121,11 @@ MetricsMapI::RegExp::match(const string& value)
 #ifndef ICE_CPP11_REGEXP
     return regexec(&_preg, value.c_str(), 0, 0, 0) == 0;
 #else
+#   if _MSC_VER < 1600
+    return std::tr1::regex_match(value, _regex);
+#   else
     return regex_match(value, _regex);
+#   endif
 #endif
 }
 
@@ -204,6 +212,15 @@ MetricsViewI::MetricsViewI(const string& name) : _name(name)
 {
 }
 
+void
+MetricsViewI::destroy()
+{
+    for(map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+    {
+        p->second->destroy();
+    }
+}
+
 bool
 MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName, 
                              const MetricsMapFactoryPtr& factory, const Ice::LoggerPtr& logger)
@@ -227,6 +244,7 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
             map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
             if(q != _maps.end())
             {
+                q->second->destroy();
                 _maps.erase(q);
                 return true;
             }
@@ -245,6 +263,7 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
         map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
         if(q != _maps.end())
         {
+            q->second->destroy();
             _maps.erase(q);
             return true;
         }
@@ -257,21 +276,26 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
         return false; // The map configuration didn't change, no need to re-create.
     }
 
+    if(q != _maps.end())
+    {
+        // Destroy the previous map
+        q->second->destroy();
+        _maps.erase(q);
+    }
+
     try
     {
-        _maps[mapName] = factory->create(mapPrefix, properties);
+        _maps.insert(make_pair(mapName, factory->create(mapPrefix, properties)));
     }
     catch(const std::exception& ex)
     {
         Ice::Warning warn(logger);
         warn << "unexpected exception while creating metrics map:\n" << ex;
-        _maps.erase(mapName);
     }
     catch(const string& msg)
     {
         Ice::Warning warn(logger);
         warn << msg;
-        _maps.erase(mapName);
     }
     return true;
 }
@@ -282,6 +306,7 @@ MetricsViewI::removeMap(const string& mapName)
     map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
     if(q != _maps.end())
     {
+        q->second->destroy();
         _maps.erase(q);
         return true;
     }
@@ -354,6 +379,16 @@ MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& l
 }
 
 void
+MetricsAdminI::destroy()
+{
+    Lock sync(*this);
+    for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    {
+        p->second->destroy();
+    }
+}
+
+void
 MetricsAdminI::updateViews()
 {
     set<MetricsMapFactoryPtr> updatedMaps;
@@ -418,6 +453,7 @@ MetricsAdminI::updateViews()
                 {
                     updatedMaps.insert(_factories[*q]);
                 }
+                p->second->destroy();
             }
         }
     }

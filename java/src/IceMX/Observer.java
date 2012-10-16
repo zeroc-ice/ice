@@ -53,77 +53,46 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
     }
 
     public void
-    init(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects)
-    {
-        assert(_objects == null);
-        _objects = objects;
-        java.util.Collections.sort(_objects);
-        for(MetricsMap<T>.Entry e : _objects)
-        {
-            e.attach(helper);
-        }
-    }
-
-    public void
     init(MetricsHelper<T> helper, java.util.List<MetricsMap<T>.Entry> objects, Observer<T> previous)
     {
-        _objects = new java.util.LinkedList<MetricsMap<T>.Entry>(previous._objects);
-        java.util.Collections.sort(objects);
-        java.util.ListIterator<MetricsMap<T>.Entry> p = objects.listIterator();
-        java.util.ListIterator<MetricsMap<T>.Entry> q = _objects.listIterator();
-        while(p.hasNext())
-        {
-            MetricsMap<T>.Entry pe = p.next();
-            MetricsMap<T>.Entry qe;
-            int comp = 0;
-            if(q.hasNext())
-            {
-                qe = q.next();
-                comp = pe.compareTo(qe);
-            }
-            else
-            {
-                qe = null;
-            }
+        _objects = objects;
 
-            if(qe == null || comp < 0) // New metrics object
-            {
-                q.add(pe);
-                pe.attach(helper);
-            }
-            else if(comp == 0) // Same metrics object
-            {
-                // Nothing to do.
-            }
-            else // Removed metrics object
-            {
-                qe.detach(delay());
-                q.remove();
-                p.previous();
-            }
-        }
-        while(q.hasNext())
+        if(previous == null)
         {
-            MetricsMap<T>.Entry qe = q.next();
-            q.remove();
-            qe.detach(delay());
+            return;
+        }
+
+        //
+        // Detach entries from previous observer which are no longer
+        // attached to this new observer.
+        //
+        for(MetricsMap<T>.Entry p : previous._objects)
+        {
+            if(!_objects.contains(p))
+            {
+                p.detach(delay());
+            }
         }
     }
 
     public <S extends Metrics, ObserverImpl extends Observer<S>> ObserverImpl
     getObserver(String mapName, MetricsHelper<S> helper, Class<S> mcl, Class<ObserverImpl> ocl)
     {
-        java.util.List<MetricsMap<S>.Entry> metricsObjects = new java.util.LinkedList<MetricsMap<S>.Entry>();
+        java.util.List<MetricsMap<S>.Entry> metricsObjects = null;
         for(MetricsMap<T>.Entry entry : _objects)
         {
             MetricsMap<S>.Entry e = entry.getMatching(mapName, helper, mcl);
             if(e != null)
             {
+                if(metricsObjects == null)
+                {
+                    metricsObjects = new java.util.ArrayList<MetricsMap<S>.Entry>(_objects.size());
+                }
                 metricsObjects.add(e);
             }
         }
 
-        if(metricsObjects.isEmpty())
+        if(metricsObjects == null)
         {
             return null;
         }
@@ -131,7 +100,7 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
         try
         {
             ObserverImpl obsv = ocl.newInstance();
-            obsv.init(helper, metricsObjects);
+            obsv.init(helper, metricsObjects, null);
             return obsv;
         }
         catch(Exception ex)
@@ -139,6 +108,19 @@ public class Observer<T extends Metrics> extends IceUtilInternal.StopWatch imple
             assert(false);
             return null;
         }
+    }
+
+    public MetricsMap<T>.Entry 
+    getEntry(MetricsMap map)
+    {
+        for(MetricsMap<T>.Entry e : _objects)
+        {
+            if(e.getMap() == map)
+            {
+                return e;
+            }
+        }
+        return null;
     }
     
     private java.util.List<MetricsMap<T>.Entry> _objects;

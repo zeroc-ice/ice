@@ -859,13 +859,6 @@ def getCommandLineProperties(exe, config):
     #components.append("--Ice.Trace.Network=3")
 
     #
-    # Turn on instrumentation
-    #
-    #components.append("--Ice.Admin.Endpoints=tcp");
-    #components.append("--Ice.Admin.InstanceName=" + config.type);
-    #components.append("--IceMX.Metrics.Debug.GroupBy=id");
-
-    #
     # Now we add additional components dependent on the desired
     # configuration.
     #
@@ -895,12 +888,14 @@ def getCommandLineProperties(exe, config):
 
     if config.mx:
         if config.type == "server":
-            components.append("--Ice.Admin.Endpoints=default")
+            components.append("--Ice.Admin.Endpoints=tcp")
             components.append("--Ice.Admin.InstanceName=Server")
         else:
-            components.append("--Ice.Admin.Endpoints=default")
+            components.append("--Ice.Admin.Endpoints=tcp")
             components.append("--Ice.Admin.InstanceName=Client")
+
         components.append("--IceMX.Metrics.Debug.GroupBy=id")
+        components.append("--IceMX.Metrics.Debug.GroupBy=parent")
         components.append("--IceMX.Metrics.All.GroupBy=none")
 
     if config.ipv6:
@@ -1119,16 +1114,19 @@ def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None)
         client.trace()
     return client
 
-def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None):
+def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False):
     server = spawn(cmd, env, quoteArgument(cwd), lang=lang)
+
     # Count + 1 if IceMX enabled
-    #cout = count + 1
+    if mx:
+        count = count + 1
+
     if adapter:
         server.expect("%s ready\n" % adapter)
     else:
         while count > 0:
             server.expect("[^\n]+ ready\n")
-            count = count -1
+            count = count - 1
     if echo:
         server.trace([re.compile("[^\n]+ ready")])
     return server
@@ -1272,7 +1270,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
         if lang in ["rb", "php"]:
             serverCfg.lang = "cpp"
         server = getCommandLine(server, serverCfg, additionalServerOptions)
-        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang)
+        serverProc = spawnServer(server, env = serverenv, lang=serverCfg.lang, mx=serverCfg.mx)
         print("ok")
         
         if not serverOnly:
@@ -1346,7 +1344,7 @@ def startServer(exe, args = "", config=None, env=None, adapter = None, count = 1
     if env is None:
         env = getTestEnv(getDefaultMapping(), os.getcwd())
     cmd = getCommandLine(exe, config, args)
-    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang)
+    return spawnServer(cmd, env = env, adapter = adapter, count = count, echo = echo,lang=config.lang,mx=config.mx)
 
 def startColloc(exe, args, config=None, env=None):
     exe = quoteArgument(exe)
@@ -1623,12 +1621,9 @@ def processCmdLine():
             global silverlight
             silverlight = True
         elif o == "--winrt":
-            global winrt
-            global serverOnly
             winrt = True
             serverOnly = True
         elif o == "--server":
-            global serverOnly
             serverOnly = True
         elif o == "--mx":
             global mx
@@ -1709,6 +1704,10 @@ def runTests(start, expanded, num = 0, script = False):
 
             if args.find("silverlight") != -1 and "nosilverlight" in config:
                 print("%s*** test not supported with Silverlight%s" % (prefix, suffix))
+                continue
+
+            if args.find("mx") != -1 and "nomx" in config:
+                print("%s*** test not supported with IceMX enabled%s" % (prefix, suffix))
                 continue
 
             if args.find("compact") == -1 and "compact" in config:

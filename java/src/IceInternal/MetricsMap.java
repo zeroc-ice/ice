@@ -11,40 +11,34 @@ package IceInternal;
 
 public class MetricsMap<T extends IceMX.Metrics>
 {
-    public class Entry implements Comparable<Entry>
+    public class Entry
     {
         Entry(T obj)
         {
             _object = obj;
         }
 
-        synchronized public void
+        public void
         failed(String exceptionName)
         {
-            ++_object.failures;
-            Integer count = _failures.get(exceptionName);
-            _failures.put(exceptionName, new Integer(count == null ? 1 : count + 1));
+            synchronized(MetricsMap.this)
+            {
+                ++_object.failures;
+                if(_failures == null)
+                {
+                    _failures = new java.util.HashMap<String, Integer>(); 
+                }
+                Integer count = _failures.get(exceptionName);
+                _failures.put(exceptionName, new Integer(count == null ? 1 : count + 1));
+            }
         }
         
-        synchronized IceMX.MetricsFailures 
-        getFailures()
-        {
-            if(_failures.isEmpty())
-            {
-                return null;
-            }
-            IceMX.MetricsFailures f = new IceMX.MetricsFailures();
-            f.id = _object.id;
-            f.failures = new java.util.HashMap<String, Integer>(_failures);
-            return f;
-        }
-
         @SuppressWarnings("unchecked")
         public <S extends IceMX.Metrics> MetricsMap<S>.Entry
         getMatching(String mapName, IceMX.MetricsHelper<S> helper, Class<S> cl)
         {
             SubMap<S> m;
-            synchronized(this)
+            synchronized(MetricsMap.this)
             {
                 m = _subMaps != null ? (SubMap<S>)_subMaps.get(mapName) : null;
                 if(m == null)
@@ -64,7 +58,48 @@ public class MetricsMap<T extends IceMX.Metrics>
             return m.getMatching(helper);
         }
 
-        synchronized public void
+        public void 
+        detach(long lifetime)
+        {
+            synchronized(MetricsMap.this)
+            {
+                _object.totalLifetime += lifetime;
+                if(--_object.current == 0)
+                {
+                    detached(this);
+                }
+            }
+        }
+
+        public void
+        execute(IceMX.Observer.MetricsUpdate<T> func)
+        {
+            synchronized(MetricsMap.this)
+            {
+                func.update(_object);
+            }
+        }
+
+        public MetricsMap
+        getMap()
+        {
+            return MetricsMap.this;
+        }
+
+        private IceMX.MetricsFailures 
+        getFailures()
+        {
+            if(_failures == null)
+            {
+                return null;
+            }
+            IceMX.MetricsFailures f = new IceMX.MetricsFailures();
+            f.id = _object.id;
+            f.failures = new java.util.HashMap<String, Integer>(_failures);
+            return f;
+        }
+
+        private void
         attach(IceMX.MetricsHelper<T> helper)
         {
             ++_object.total;
@@ -72,34 +107,14 @@ public class MetricsMap<T extends IceMX.Metrics>
             helper.initMetrics(_object);
         }
 
-        public void 
-        detach(long lifetime)
-        {
-            synchronized(this)
-            {
-                _object.totalLifetime += lifetime;
-                if(--_object.current > 0)
-                {
-                    return;
-                }
-            }
-            detached(this);
-        }
-
-        synchronized public boolean 
+        private boolean 
         isDetached()
         {
             return _object.current == 0;
         }
 
-        synchronized public void
-        execute(IceMX.Observer.MetricsUpdate<T> func)
-        {
-            func.update(_object);
-        }
-
         @SuppressWarnings("unchecked")
-        synchronized public IceMX.Metrics
+        public IceMX.Metrics
         clone()
         {
             T metrics = (T)_object.clone();
@@ -113,14 +128,8 @@ public class MetricsMap<T extends IceMX.Metrics>
             return metrics;
         }
 
-        public int 
-        compareTo(Entry e)
-        {
-            return _object.id.compareTo(e._object.id);
-        }
-
         private T _object;
-        private java.util.Map<String, Integer> _failures = new java.util.HashMap<String, Integer>();
+        private java.util.Map<String, Integer> _failures;
         private java.util.Map<String, SubMap<?>> _subMaps;
     };
 
@@ -136,7 +145,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         public MetricsMap<S>.Entry 
         getMatching(IceMX.MetricsHelper<S> helper)
         {
-            return _map.getMatching(helper);
+            return _map.getMatching(helper, null);
         }
 
         public void 
@@ -354,7 +363,7 @@ public class MetricsMap<T extends IceMX.Metrics>
     }
 
     public Entry 
-    getMatching(IceMX.MetricsHelper<T> helper)
+    getMatching(IceMX.MetricsHelper<T> helper, Entry previous)
     {
         //
         // Check the accept and reject filters.
@@ -410,6 +419,12 @@ public class MetricsMap<T extends IceMX.Metrics>
         // 
         synchronized(this)
         {
+            if(previous != null && previous._object.id.equals(key))
+            {
+                assert(_objects.get(key) == previous);
+                return previous;
+            }
+
             Entry e = _objects.get(key);
             if(e == null)
             {
@@ -425,6 +440,7 @@ public class MetricsMap<T extends IceMX.Metrics>
                     assert(false);
                 }
             }
+            e.attach(helper);
             return e;
         }
     }
@@ -436,35 +452,32 @@ public class MetricsMap<T extends IceMX.Metrics>
         {
             return;
         }
-
-        synchronized(this)
+        
+        if(_detachedQueue == null)
         {
-            if(_detachedQueue == null)
-            {
-                _detachedQueue = new java.util.LinkedList<Entry>();
-            }
-            assert(_detachedQueue.size() <= _retain);
-            
-            // Compress the queue by removing entries which are no longer detached.
-            java.util.Iterator<Entry> p = _detachedQueue.iterator();
-            while(p.hasNext())
-            {
-                Entry e = p.next();
-                if(e == entry || !e.isDetached())
-                {
-                    p.remove();
-                }
-            }
-
-            // If there's still no room, remove the oldest entry (at the front).
-            if(_detachedQueue.size() == _retain)
-            {
-                _objects.remove(_detachedQueue.pollFirst()._object.id);
-            }
-            
-            // Add the entry at the back of the queue.
-            _detachedQueue.add(entry);
+            _detachedQueue = new java.util.LinkedList<Entry>();
         }
+        assert(_detachedQueue.size() <= _retain);
+        
+        // Compress the queue by removing entries which are no longer detached.
+        java.util.Iterator<Entry> p = _detachedQueue.iterator();
+        while(p.hasNext())
+        {
+            Entry e = p.next();
+            if(e == entry || !e.isDetached())
+            {
+                p.remove();
+            }
+        }
+        
+        // If there's still no room, remove the oldest entry (at the front).
+        if(_detachedQueue.size() == _retain)
+        {
+            _objects.remove(_detachedQueue.pollFirst()._object.id);
+        }
+            
+        // Add the entry at the back of the queue.
+        _detachedQueue.add(entry);
     }
     
     private java.util.Map<String, java.util.regex.Pattern>

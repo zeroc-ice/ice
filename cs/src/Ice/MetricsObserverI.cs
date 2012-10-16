@@ -245,70 +245,44 @@ namespace IceMX
             }
         }
 
-        public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects)
-        {
-            Debug.Assert(_objects == null);
-            _objects = objects;
-            _objects.Sort();
-            foreach(MetricsMap<T>.Entry e in _objects)
-            {
-                e.attach(helper);
-            }
-        }
-
         public void init(MetricsHelper<T> helper, List<MetricsMap<T>.Entry> objects, Observer<T> previous)
         {
-            _objects = new List<MetricsMap<T>.Entry>(previous._objects);
-            objects.Sort();
-            int p = 0;
-            int q = 0;
-            long delay = (long)(ElapsedTicks / (Frequency / 1000000.0));
-            while(p < objects.Count)
+            _objects = objects;
+
+            if(previous == null)
             {
-                if(q == _objects.Count || objects[p].CompareTo(_objects[q]) < 0) // New metrics object
-                {
-                    _objects.Insert(q, objects[p]);
-                    objects[p].attach(helper);
-                    ++p;
-                    ++q;
-                }
-                else if(objects[p] == _objects[q]) // Same metrics object
-                {
-                    ++p;
-                    ++q;
-                }
-                else // Removed metrics object
-                {
-                    _objects[q].detach(delay);
-                    _objects.RemoveAt(q);
-                }
+                return;
             }
-            if(q < _objects.Count)
+
+            long delay = (long)(ElapsedTicks / (Frequency / 1000000.0));
+            foreach(MetricsMap<T>.Entry e in previous._objects)
             {
-                p = q;
-                while(q < _objects.Count)
+                if(!_objects.Contains(e))
                 {
-                    _objects[q++].detach(delay);
+                    e.detach(delay);
                 }
-                _objects.RemoveRange(p, _objects.Count - p);
             }
         }
-
+    
         public ObserverImpl getObserver<S, ObserverImpl>(string mapName, MetricsHelper<S> helper)
             where S : Metrics, new()
             where ObserverImpl : Observer<S>, new()
         {
-            List<MetricsMap<S>.Entry> metricsObjects = new List<MetricsMap<S>.Entry>();
+            List<MetricsMap<S>.Entry> metricsObjects = null;
             foreach(MetricsMap<T>.Entry entry in _objects)
             {
                 MetricsMap<S>.Entry e = entry.getMatching(mapName, helper);
                 if(e != null)
                 {
+                    if(metricsObjects == null)
+                    {
+                        metricsObjects = new List<MetricsMap<S>.Entry>(_objects.Count);
+                    }
                     metricsObjects.Add(e);
                 }
             }
 
-            if(metricsObjects.Count == 0)
+            if(metricsObjects == null)
             {
                 return null;
             }
@@ -316,7 +290,7 @@ namespace IceMX
             try
             {
                 ObserverImpl obsv = new ObserverImpl();
-                obsv.init(helper, metricsObjects);
+                obsv.init(helper, metricsObjects, null);
                 return obsv;
             }
             catch(Exception)
@@ -324,6 +298,18 @@ namespace IceMX
                 Debug.Assert(false);
                 return null;
             }
+        }
+
+        public MetricsMap<T>.Entry getEntry(MetricsMap<T> map)
+        {
+            foreach(MetricsMap<T>.Entry e in _objects)
+            {
+                if(e.getMap() == map)
+                {
+                    return e;
+                }
+            }
+            return null;
         }
     
         private List<MetricsMap<T>.Entry> _objects;
@@ -354,48 +340,50 @@ namespace IceMX
 
         public O getObserver(MetricsHelper<T> helper)
         {
-            lock(this)
-            {
-                return getObserver(helper, null);
-            }
+            return getObserver(helper, null);
         }
 
         public O getObserver(MetricsHelper<T> helper, object observer)
         {
-            List<MetricsMap<T>.Entry> metricsObjects = new List<MetricsMap<T>.Entry>();
-            foreach(MetricsMap<T> m in _maps)
+            lock(this)
             {
-                MetricsMap<T>.Entry e = m.getMatching(helper);
-                if(e != null)
+                List<MetricsMap<T>.Entry> metricsObjects = null;
+                O old = (O)observer;
+                foreach(MetricsMap<T> m in _maps)
                 {
-                    metricsObjects.Add(e);
+                    MetricsMap<T>.Entry e = m.getMatching(helper, old != null ? old.getEntry(m) : null);
+                    if(e != null)
+                    {
+                        if(metricsObjects == null)
+                        {
+                            metricsObjects = new List<MetricsMap<T>.Entry>(_maps.Count);
+                        }
+                        metricsObjects.Add(e);
+                    }
                 }
-            }
+                
+                if(metricsObjects == null)
+                {
+                    if(old != null)
+                    {
+                        old.detach();
+                    }
+                    return null;
+                }
 
-            if(metricsObjects.Count == 0)
-            {
-                return null;
+                O obsv;
+                try
+                {
+                    obsv = new O();
+                }
+                catch(Exception)
+                {
+                    Debug.Assert(false);
+                    return null;
+                }
+                obsv.init(helper, metricsObjects, old);
+                return obsv;
             }
-
-            O obsv;
-            try
-            {
-                obsv = new O();
-            }
-            catch(Exception)
-            {
-                Debug.Assert(false);
-                return null;
-            }
-            if(observer == null)
-            {
-                obsv.init(helper, metricsObjects);
-            }
-            else
-            {
-                obsv.init(helper, metricsObjects, (O)observer);
-            }
-            return obsv;
         }
 
         public void registerSubMap<S>(string subMap, System.Reflection.FieldInfo field)

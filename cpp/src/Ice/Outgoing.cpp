@@ -593,7 +593,8 @@ IceInternal::BatchOutgoing::invoke()
 void
 IceInternal::BatchOutgoing::sent(bool notify)
 {
-    _remoteObserver.detach();  
+    _remoteObserver.detach();
+
     if(notify)
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
@@ -604,6 +605,7 @@ IceInternal::BatchOutgoing::sent(bool notify)
     {
         _sent = true;
     }
+
     //
     // NOTE: At this point the stack allocated BatchOutgoing object
     // can be destroyed since the notify() on the monitor will release

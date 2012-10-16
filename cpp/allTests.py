@@ -72,8 +72,8 @@ tests = [
     ("Ice/admin", ["core"]),
     ("Ice/metrics", ["core", "nossl", "noipv6"]),
     ("IceSSL/configuration", ["once", "novalgrind"]), # valgrind doesn't work well with openssl
-    ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw"]),
-    ("IceBox/admin", ["core", "noipv6", "novc6", "nomingw"]),
+    ("IceBox/configuration", ["core", "noipv6", "novc6", "nomingw", "nomx"]),
+    ("IceBox/admin", ["core", "noipv6", "novc6", "nomingw", "nomx"]),
     ("Freeze/dbmap", ["once", "novc6", "nomingw"]),
     ("Freeze/complex", ["once", "novc6", "nomingw"]),
     ("Freeze/evictor", ["core", "novc6", "nomingw"]),
@@ -95,17 +95,17 @@ tests = [
     ("IceGrid/noRestartUpdate", ["service", "novc6", "nomingw"]),
     ("IceGrid/activation", ["service", "novc6", "nomingw"]),
     ("IceGrid/replicaGroup", ["service", "novc6", "nomingw"]),
-    ("IceGrid/replication", ["service", "novc6", "nomingw"]),
+    ("IceGrid/replication", ["service", "novc6", "nomingw", "nomx"]),
     ("IceGrid/allocation", ["service", "novc6", "nomingw"]),
     ("IceGrid/distribution", ["service", "novc6", "nomingw"]),
     ("IceGrid/admin", ["service", "novc6", "nomingw"]),
     ("Glacier2/router", ["service", "novc6", "nomingw"]),
-    ("Glacier2/attack", ["service", "novc6", "nomingw"]),
+    ("Glacier2/attack", ["service", "novc6", "nomingw", "nomx"]),
     ("Glacier2/override", ["service", "novc6", "nomingw"]),
     ("Glacier2/sessionControl", ["service", "novc6", "nomingw"]),
     ("Glacier2/ssl", ["service", "novalgrind", "novc6", "nomingw"]), # valgrind doesn't work well with openssl
     ("Glacier2/dynamicFiltering", ["service", "novc6", "nomingw"]),
-    ("Glacier2/staticFiltering", ["service", "noipv6", "novc6", "nomingw"]),
+    ("Glacier2/staticFiltering", ["service", "noipv6", "novc6", "nomingw", "nomx"]),
     ("Glacier2/sessionHelper", ["service", "novc6", "nomingw"]),
     ]
 

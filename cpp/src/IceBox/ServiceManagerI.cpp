@@ -557,11 +557,10 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     {
         assert(_sharedCommunicator);
         communicator = _sharedCommunicator;
-        IceInternal::CommunicatorObserverIPtr o = 
-            IceInternal::CommunicatorObserverIPtr::dynamicCast(communicator->getObserver());
+        Ice::Instrumentation::CommunicatorObserverPtr o = communicator->getObserver();
         if(o)
         {
-            metricsAdmin = o->getMetricsAdmin();
+            metricsAdmin = IceInternal::CommunicatorObserverIPtr::dynamicCast(o)->getMetricsAdmin();
         }
     }
     else
@@ -754,6 +753,19 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // Ignored
         }
 
+        try
+        {
+            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".MetricsAdmin");
+            if(admin && communicator != _sharedCommunicator)
+            {
+                IceInternal::MetricsAdminIPtr::dynamicCast(admin)->destroy();
+            }
+        }
+        catch(const LocalException&)
+        {
+            // Ignored
+        }
+
         if(info.communicator)
         {
             destroyServiceCommunicator(info.name, info.communicator);
@@ -819,6 +831,19 @@ IceBox::ServiceManagerI::stopAll()
         try
         {
             _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Properties");
+        }
+        catch(const LocalException&)
+        {
+            // Ignored
+        }
+        
+        try
+        {
+            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".MetricsAdmin");
+            if(admin && info.communicator != _sharedCommunicator)
+            {
+                IceInternal::MetricsAdminIPtr::dynamicCast(admin)->destroy();
+            }
         }
         catch(const LocalException&)
         {
@@ -903,6 +928,12 @@ IceBox::ServiceManagerI::stopAll()
 
     if(_sharedCommunicator)
     {
+        Ice::Instrumentation::CommunicatorObserverPtr o = _sharedCommunicator->getObserver();
+        if(o)
+        {
+            IceInternal::CommunicatorObserverIPtr::dynamicCast(o)->getMetricsAdmin()->destroy();
+        }
+
         try
         {
             _sharedCommunicator->destroy();

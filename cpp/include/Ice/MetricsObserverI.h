@@ -337,52 +337,39 @@ public:
     }
     
     void
-    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects)
+    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, ObserverT* previous = 0)
     {
-        assert(_objects.empty());
         _objects.swap(objects);
-        std::sort(_objects.begin(), _objects.end());
-        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+
+        if(previous == 0)
         {
-            (*p)->attach(helper);
+            return;
+        }
+
+        //
+        // Detach entries from previous observer which are no longer
+        // attached to this new observer.
+        //
+        for(typename EntrySeqType::const_iterator p = previous->_objects.begin(); p != previous->_objects.end(); ++p)
+        {
+            if(find(_objects.begin(), _objects.end(), *p) == _objects.end())
+            {
+                (*p)->detach(_watch.delay());
+            }
         }
     }
 
-    void
-    init(const MetricsHelperT<MetricsType>& helper, EntrySeqType& objects, ObserverT& previous)
+    EntryPtrType
+    getEntry(IceInternal::MetricsMapT<MetricsType>* map)
     {
-        _objects = previous._objects;
-        std::sort(objects.begin(), objects.end());
-        typename EntrySeqType::const_iterator p = objects.begin();
-        typename EntrySeqType::iterator q = _objects.begin();
-        while(p != objects.end())
+        for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
-            if(q == _objects.end() || *p < *q) // New metrics object
+            if((*p)->getMap() == map)
             {
-                q = _objects.insert(q, *p);
-                (*p)->attach(helper);
-                ++p;
-                ++q;
-            }
-            else if(*p == *q) // Same metrics object
-            {
-                ++p;
-                ++q;
-            }
-            else // Removed metrics object
-            {
-                (*q)->detach(_watch.delay());
-                q = _objects.erase(q);
+                return *p;
             }
         }
-        if(q != _objects.end())
-        {
-            for(p = q; p != _objects.end(); ++p)
-            {
-                (*q)->detach(_watch.delay());
-            }
-            _objects.erase(q, _objects.end());
-        }
+        return 0;
     }
 
     template<typename ObserverImpl, typename ObserverMetricsType> IceInternal::Handle<ObserverImpl>
@@ -470,12 +457,17 @@ public:
     template<typename ObserverPtrType> ObserverImplPtrType
     getObserver(const MetricsHelperT<MetricsType>& helper, const ObserverPtrType& observer)
     {
-        IceUtil::Mutex::Lock sync(*this);
+        if(!observer)
+        {
+            return getObserver(helper);
+        }
 
+        IceUtil::Mutex::Lock sync(*this);
+        ObserverImplPtrType old = ObserverImplPtrType::dynamicCast(observer);
         typename ObserverImplType::EntrySeqType metricsObjects;
         for(typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
         {
-            typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
+            typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper, old->getEntry(p->get()));
             if(entry)
             {
                 metricsObjects.push_back(entry);
@@ -484,18 +476,12 @@ public:
 
         if(metricsObjects.empty())
         {
+            old->detach();
             return 0;
         }
 
         ObserverImplPtrType obsv = new ObserverImplType();
-        if(!observer)
-        {
-            obsv->init(helper, metricsObjects);
-        }
-        else
-        {
-            obsv->init(helper, metricsObjects, *ObserverImplPtrType::dynamicCast(observer));
-        }
+        obsv->init(helper, metricsObjects, old.get());
         return obsv;
     }
 

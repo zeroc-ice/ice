@@ -55,7 +55,7 @@ namespace IceInternal
 
         internal MetricsMap<S>.Entry getMatching(IceMX.MetricsHelper<S> helper)
         {
-            return _map.getMatching(helper);
+            return _map.getMatching(helper, null);
         }
         
         public void addSubMapToMetrics(IceMX.Metrics metrics)
@@ -108,7 +108,7 @@ namespace IceInternal
 
     public class MetricsMap<T> : IMetricsMap where T : IceMX.Metrics, new()
     {
-        public class Entry : IComparable<Entry>
+        public class Entry
         {
             internal Entry(MetricsMap<T> map, T obj)
             {
@@ -118,10 +118,14 @@ namespace IceInternal
 
             public void failed(string exceptionName)
             {
-                lock(this)
+                lock(_map)
                 {
                     ++_object.failures;
                     int count;
+                    if(_failures == null)
+                    {
+                        _failures = new Dictionary<string, int>();
+                    }
                     if(_failures.TryGetValue(exceptionName, out count))
                     {
                         _failures[exceptionName] = count + 1;
@@ -133,26 +137,11 @@ namespace IceInternal
                 }
             }
 
-            public IceMX.MetricsFailures getFailures()
-            {
-                lock(this)
-                {
-                    if(_failures.Count == 0)
-                    {
-                        return null;
-                    }
-                    IceMX.MetricsFailures f = new IceMX.MetricsFailures();
-                    f.id = _object.id;
-                    f.failures = new Dictionary<string, int>(_failures);
-                    return f;
-                }
-            }
-
             internal MetricsMap<S>.Entry getMatching<S>(string mapName, IceMX.MetricsHelper<S> helper)
                 where S : IceMX.Metrics, new()
             {
                 ISubMap m;
-                lock(this)
+                lock(_map)
                 {
                     if(_subMaps == null || !_subMaps.TryGetValue(mapName, out m))
                     {
@@ -171,59 +160,66 @@ namespace IceInternal
                 return ((SubMap<S>)m).getMatching(helper);
             }
 
-            public void attach(IceMX.MetricsHelper<T> helper)
-            {
-                lock(this)
-                {
-                    ++_object.total;
-                    ++_object.current;
-                    helper.initMetrics(_object);
-                }
-            }
-
             public void detach(long lifetime)
             {
-                lock(this)
+                lock(_map)
                 {
                     _object.totalLifetime += lifetime;
-                    if(--_object.current > 0)
+                    if(--_object.current == 0)
                     {
-                        return;
+                        _map.detached(this);
                     }
                 }
-                _map.detached(this);
             }
 
-            public bool isDetached()
-            {
-                lock(this)
-                {
-                    return _object.current == 0;
-                }
-            }
-            
             public void execute(IceMX.Observer<T>.MetricsUpdate func)
             {
-                lock(this)
+                lock(_map)
                 {
                     func(_object);
                 }
             }
 
-            public IceMX.Metrics clone()
+            public MetricsMap<T> getMap()
             {
-                lock(this)
+                return _map;
+            }
+
+            internal IceMX.MetricsFailures getFailures()
+            {
+                if(_failures == null)
                 {
-                    T metrics = (T)_object.Clone();
-                    if(_subMaps != null)
-                    {
-                        foreach(ISubMap s in _subMaps.Values)
-                        {
-                            s.addSubMapToMetrics(metrics);
-                        }
-                    }
-                    return metrics;
+                    return null;
                 }
+                IceMX.MetricsFailures f = new IceMX.MetricsFailures();
+                f.id = _object.id;
+                f.failures = new Dictionary<string, int>(_failures);
+                return f;
+            }
+
+            internal void attach(IceMX.MetricsHelper<T> helper)
+            {
+                ++_object.total;
+                ++_object.current;
+                helper.initMetrics(_object);
+            }
+
+            internal bool isDetached()
+            {
+                return _object.current == 0;
+            }
+            
+            internal IceMX.Metrics clone()
+            {
+                T metrics = (T)_object.Clone();
+                if(_subMaps != null)
+                {
+                    foreach(ISubMap s in _subMaps.Values)
+                    {
+                        s.addSubMapToMetrics(metrics);
+                    }
+                }
+                return metrics;
             }
 
             internal string getId()
@@ -231,14 +227,9 @@ namespace IceInternal
                 return _object.id;
             }
 
-            public int CompareTo(Entry e)
-            {
-                return _object.id.CompareTo(e._object.id);
-            }
-
             private MetricsMap<T> _map;
             private T _object;
-            private Dictionary<string, int> _failures = new Dictionary<string, int>();
+            private Dictionary<string, int> _failures;
             private Dictionary<string, ISubMap> _subMaps;
         };
 
@@ -403,7 +394,7 @@ namespace IceInternal
             return null;
         }
 
-        public Entry getMatching(IceMX.MetricsHelper<T> helper)
+        public Entry getMatching(IceMX.MetricsHelper<T> helper, Entry previous)
         {
             //
             // Check the accept and reject filters.
@@ -459,6 +450,12 @@ namespace IceInternal
             // 
             lock(this)
             {
+                if(previous != null && previous.getId().Equals(key))
+                {
+                    Debug.Assert(_objects[key] == previous);
+                    return previous;
+                }
+                
                 Entry e;
                 if(!_objects.TryGetValue(key, out e))
                 {
@@ -474,6 +471,7 @@ namespace IceInternal
                         Debug.Assert(false);
                     }
                 }
+                e.attach(helper);
                 return e;
             }
         }
@@ -485,36 +483,33 @@ namespace IceInternal
                 return;
             }
 
-            lock(this)
+            if(_detachedQueue == null)
             {
-                if(_detachedQueue == null)
-                {
-                    _detachedQueue = new LinkedList<Entry>();
-                }
-                Debug.Assert(_detachedQueue.Count <= _retain);
-            
-                // Compress the queue by removing entries which are no longer detached.
-                LinkedListNode<Entry> p = _detachedQueue.First;
-                while(p != null)
-                {
-                    LinkedListNode<Entry> next = p.Next;
-                    if(p.Value == entry || !p.Value.isDetached())
-                    {
-                        _detachedQueue.Remove(p);
-                    }
-                    p = next;
-                }
-
-                // If there's still no room, remove the oldest entry (at the front).
-                if(_detachedQueue.Count == _retain)
-                {
-                    _objects.Remove(_detachedQueue.First.Value.getId());
-                    _detachedQueue.RemoveFirst();
-                }
-            
-                // Add the entry at the back of the queue.
-                _detachedQueue.AddLast(entry);
+                _detachedQueue = new LinkedList<Entry>();
             }
+            Debug.Assert(_detachedQueue.Count <= _retain);
+            
+            // Compress the queue by removing entries which are no longer detached.
+            LinkedListNode<Entry> p = _detachedQueue.First;
+            while(p != null)
+            {
+                LinkedListNode<Entry> next = p.Next;
+                if(p.Value == entry || !p.Value.isDetached())
+                {
+                    _detachedQueue.Remove(p);
+                }
+                p = next;
+            }
+            
+            // If there's still no room, remove the oldest entry (at the front).
+            if(_detachedQueue.Count == _retain)
+            {
+                _objects.Remove(_detachedQueue.First.Value.getId());
+                _detachedQueue.RemoveFirst();
+            }
+            
+            // Add the entry at the back of the queue.
+            _detachedQueue.AddLast(entry);
         }
     
         private Dictionary<string, Regex> parseRule(Ice.Properties properties, string name)

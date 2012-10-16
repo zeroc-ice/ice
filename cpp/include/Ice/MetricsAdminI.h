@@ -71,7 +71,11 @@ public:
         
         const std::string _attribute;
 #ifdef ICE_CPP11_REGEXP
+#   if _MSC_VER < 1600
+        std::tr1::regex _regex;
+#   else
         std::regex _regex;
+#   endif
 #else
         regex_t _preg;
 #endif        
@@ -80,6 +84,8 @@ public:
 
     MetricsMapI(const std::string&, const Ice::PropertiesPtr&);
     MetricsMapI(const MetricsMapI&);
+
+    virtual void destroy() = 0;
 
     virtual IceMX::MetricsFailuresSeq getFailures() = 0;
     virtual IceMX::MetricsFailures getFailures(const std::string&) = 0;
@@ -123,41 +129,33 @@ public:
     typedef MetricsType T;
     typedef IceInternal::Handle<MetricsType> TPtr;
 
+    typedef IceUtil::Handle<MetricsMapT> MetricsMapTPtr;
+
     typedef IceMX::MetricsMap MetricsType::* SubMapMember;
 
-    class EntryT : public Ice::LocalObject, private IceUtil::Mutex
+    class EntryT;
+    typedef IceUtil::Handle<EntryT> EntryTPtr;
+
+    class EntryT : public Ice::LocalObject
     {
     public:
 
-        EntryT(MetricsMapT* map, const TPtr& object, const typename std::list<EntryT*>::iterator& p) : 
+        EntryT(MetricsMapT* map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p) : 
             _map(map), _object(object), _detachedPos(p)
         {
         }
 
-        void 
-        destroy()
+        ~EntryT()
         {
-            Lock sync(*this);
-            _map = 0;
+            assert(_object->total > 0);
         }
 
         void  
         failed(const std::string& exceptionName)
         {
-            Lock sync(*this);
+            IceUtil::Mutex::Lock sync(*_map);
             ++_object->failures;
             ++_failures[exceptionName];
-        }
-
-        IceMX::MetricsFailures 
-        getFailures() const
-        {
-            IceMX::MetricsFailures f;
-    
-            Lock sync(*this);
-            f.id = _object->id;
-            f.failures = _failures;
-            return f;
         }
 
         template<typename MemberMetricsType> typename MetricsMapT<MemberMetricsType>::EntryTPtr
@@ -165,15 +163,11 @@ public:
         {
             MetricsMapIPtr m;
             {
-                Lock sync(*this);
+                IceUtil::Mutex::Lock sync(*_map);
                 typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::iterator p = 
                     _subMaps.find(mapName);
                 if(p == _subMaps.end())
                 {
-                    if(_map == 0)
-                    {
-                        return 0;
-                    }
                     std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
                     if(map.first)
                     {
@@ -193,51 +187,44 @@ public:
         }
 
         void
-        attach(const IceMX::MetricsHelperT<T>& helper)
-        {
-            Lock sync(*this);
-            ++_object->total;
-            ++_object->current;
-            helper.initMetrics(_object);
-        }
-
-        void 
         detach(Ice::Long lifetime)
         {
-            MetricsMapT* map;
+            IceUtil::Mutex::Lock sync(*_map);
+            _object->totalLifetime += lifetime;
+            if(--_object->current == 0)
             {
-                Lock sync(*this);
-                _object->totalLifetime += lifetime;
-                if(--_object->current > 0)
-                {
-                    return;
-                }
-                map = _map;
+                _map->detached(this);
             }
-            if(map)
-            {
-                map->detached(this);
-            }
-        }
-
-        bool 
-        isDetached() const
-        {
-            Lock sync(*this);
-            return _object->current == 0;
         }
 
         template<typename Function> void
         execute(Function func)
         {
-            Lock sync(*this);
+            IceUtil::Mutex::Lock sync(*_map);
             func(_object);
+        }
+
+        MetricsMapT*
+        getMap()
+        {
+            return _map.get();
+        }
+
+    private:
+
+
+        IceMX::MetricsFailures
+        getFailures() const
+        {
+            IceMX::MetricsFailures f;
+            f.id = _object->id;
+            f.failures = _failures;
+            return f;
         }
 
         IceMX::MetricsPtr
         clone() const
         {
-            Lock sync(*this);
             TPtr metrics = TPtr::dynamicCast(_object->ice_clone());
             for(typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
                     _subMaps.begin(); p != _subMaps.end(); ++p)
@@ -247,21 +234,32 @@ public:
             return metrics;
         }
 
-    private:
+        bool 
+        isDetached() const
+        {
+            return _object->current == 0;
+        }
+
+        void
+        attach(const IceMX::MetricsHelperT<T>& helper)
+        {
+            ++_object->total;
+            ++_object->current;
+            helper.initMetrics(_object);
+        }
 
         friend class MetricsMapT;
-        MetricsMapT* _map;
+        MetricsMapTPtr _map;
         TPtr _object;
         IceMX::StringIntDict _failures;
         std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> > _subMaps;
-        typename std::list<EntryT*>::iterator _detachedPos;
+        typename std::list<EntryTPtr>::iterator _detachedPos;
     };
-    typedef IceUtil::Handle<EntryT> EntryTPtr;
 
     MetricsMapT(const std::string& mapPrefix,
                 const Ice::PropertiesPtr& properties,
                 const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >& subMaps) : 
-        MetricsMapI(mapPrefix, properties)
+        MetricsMapI(mapPrefix, properties), _destroyed(false)
     {
         std::vector<std::string> subMapNames;
         typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr> >::const_iterator p;
@@ -287,16 +285,17 @@ public:
         }
     }
 
-    MetricsMapT(const MetricsMapT& other) : MetricsMapI(other)
+    MetricsMapT(const MetricsMapT& other) : MetricsMapI(other), _destroyed(false)
     {
     }
 
-    ~MetricsMapT()
+    virtual void 
+    destroy()
     {
-        for(typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
-        {
-            p->second->destroy();
-        }
+        Lock sync(*this);
+        _destroyed = true;
+        _objects.clear(); // Break cyclic reference counts
+        _detachedQueue.clear(); // Break cyclic reference counts
     }
 
     virtual IceMX::MetricsMap
@@ -354,8 +353,8 @@ public:
         return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(), static_cast<SubMapMember>(0));
     }
 
-    EntryTPtr 
-    getMatching(const IceMX::MetricsHelperT<T>& helper)
+    EntryTPtr
+    getMatching(const IceMX::MetricsHelperT<T>& helper, const EntryTPtr& previous = EntryTPtr())
     {
         //
         // Check the accept and reject filters.
@@ -411,22 +410,29 @@ public:
         // Lookup the metrics object.
         // 
         Lock sync(*this);
+        if(_destroyed)
+        {
+            return 0;
+        }
+
+        if(previous && previous->_object->id == key)
+        {
+            assert(_objects[key] == previous);
+            return previous;
+        }
+
         typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
         if(p == _objects.end())
         {
-            p = _objects.insert(make_pair(key, newEntry(key))).first;
+            TPtr t = new T();
+            t->id = key;
+            p = _objects.insert(make_pair(key, new EntryT(this, t, _detachedQueue.end()))).first;
         }
+        p->second->attach(helper);
         return p->second;
     }
     
 private:
-
-    virtual EntryTPtr newEntry(const std::string& id)
-    {
-        TPtr t = new T();
-        t->id = id;
-        return new EntryT(this, t, _detachedQueue.end());
-    }
 
     virtual MetricsMapI* clone() const
     {
@@ -435,19 +441,23 @@ private:
 
     void detached(EntryT* entry)
     {
-        if(_retain == 0)
+        // This is called with the map mutex locked.
+
+        if(_retain == 0 || _destroyed)
         {
             return;
         }
 
-        Lock sync(*this);
         assert(static_cast<int>(_detachedQueue.size()) <= _retain);
 
         // If the entry is already detached and in the queue, just move it to the back.
         if(entry->_detachedPos != _detachedQueue.end())
         {
-            _detachedQueue.splice(_detachedQueue.end(), _detachedQueue, entry->_detachedPos);
-            entry->_detachedPos = --_detachedQueue.end();
+            if(entry->_detachedPos != --_detachedQueue.end()) // If not already at the end
+            {
+                _detachedQueue.splice(_detachedQueue.end(), _detachedQueue, entry->_detachedPos);
+                entry->_detachedPos = --_detachedQueue.end();
+            }
             return;
         }
 
@@ -455,7 +465,7 @@ private:
         if(static_cast<int>(_detachedQueue.size()) == _retain)
         {
             // Remove entries which are no longer detached
-            typename std::list<EntryT*>::iterator p = _detachedQueue.begin();
+            typename std::list<EntryTPtr>::iterator p = _detachedQueue.begin();
             while(p != _detachedQueue.end())
             {
                 if(!(*p)->isDetached())
@@ -478,14 +488,16 @@ private:
         }
 
         // Add the entry at the back of the queue.
-        _detachedQueue.push_back(entry);
-        entry->_detachedPos = --_detachedQueue.end();
+        entry->_detachedPos = _detachedQueue.insert(_detachedQueue.end(), entry);
+        assert(entry->_detachedPos != _detachedQueue.end());
+        return;
     }
 
     friend class EntryT;
-    
+
+    bool _destroyed;
     std::map<std::string, EntryTPtr> _objects;
-    std::list<EntryT*> _detachedQueue;
+    std::list<EntryTPtr> _detachedQueue;
     std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr> > _subMaps;
 };
 
@@ -506,7 +518,8 @@ public:
     template<class SubMapMetricsType> void
     registerSubMap(const std::string& subMap, IceMX::MetricsMap MetricsType::* member)
     {
-        _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, MetricsMapFactoryPtr>(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
+        _subMaps[subMap] = std::pair<IceMX::MetricsMap MetricsType::*, 
+                                     MetricsMapFactoryPtr>(member, new MetricsMapFactoryT<SubMapMetricsType>(0));
     }
 
 private:
@@ -519,6 +532,8 @@ class MetricsViewI : public IceUtil::Shared
 public:
     
     MetricsViewI(const std::string&);
+
+    void destroy();
 
     bool addOrUpdateMap(const Ice::PropertiesPtr&, const std::string&, const MetricsMapFactoryPtr&, 
                         const Ice::LoggerPtr&);
@@ -545,6 +560,8 @@ class ICE_API MetricsAdminI : public IceMX::MetricsAdmin, public Ice::Properties
 public:
 
     MetricsAdminI(const ::Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+
+    void destroy();
 
     void updateViews();
 
