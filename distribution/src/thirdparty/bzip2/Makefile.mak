@@ -32,17 +32,17 @@ FILES 	      = DIR\blocksort.c  \
 SRCS	= $(FILES:DIR=.)
 OBJS	= $(FILES:.c=.obj)
 
-!if "$(CPP_COMPILER)" == "VC60"
-DLLSUFFIX	= _vc6
+!if "$(CPP_COMPILER)" == "VC90"
+DLLSUFFIX	= _vc90
 !endif
 
 all: debuglib releaselib bzip2
 
 bzip2: releaselib
-	$(CC) $(TOOL_CFLAGS) -o bzip2 bzip2.c libbz2.lib setargv.obj
+	$(CC) $(TOOL_CFLAGS) /Febzip2 bzip2.c libbz2.lib setargv.obj
 	@if exist bzip2.exe.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
 	    mt.exe -nologo -manifest bzip2.exe.manifest -outputresource:bzip2.exe;#1 && del /q bzip2.exe.manifest
-	$(CC) $(TOOL_CFLAGS) -o bzip2recover bzip2recover.c
+	$(CC) $(TOOL_CFLAGS) /Febzip2recover bzip2recover.c
 	@if exist bzip2recover.exe.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
 	    mt.exe -nologo -manifest bzip2recover.exe.manifest -outputresource:bzip2recover.exe;#1 && \
 	    del /q bzip2recover.exe.manifest
@@ -50,7 +50,7 @@ bzip2: releaselib
 debuglib: $(OBJS:DIR=.\Debug)
 	link  /dll /implib:libbz2d.lib /out:bzip2$(DLLSUFFIX)d.dll $**
 	@if exist bzip2$(DLLSUFFIX)d.dll.manifest echo ^ ^ ^ Embedding manifest using mt.exe && \
-	    mt.exe -nologo -manifest bzip2$(DLLSUFFIX)d.dll.manifest -outputresource:bzip2d.dll;#2 && \
+	    mt.exe -nologo -manifest bzip2$(DLLSUFFIX)d.dll.manifest -outputresource:bzip2$(DLLSUFFIX)d.dll;#2 && \
 	    del /q bzip2$(DLLSUFFIX)d.dll.manifest
 
 releaselib: $(OBJS:DIR=.\Release)
