@@ -114,11 +114,51 @@ public final class Network
     }
 
     public static java.nio.channels.DatagramChannel
-    createUdpSocket()
+    createUdpSocket(java.net.InetSocketAddress addr)
     {
         try
         {
-            return java.nio.channels.DatagramChannel.open();
+            //
+            // Use reflection so this code still compiles with older JDK versions.
+            // java.net.StandardProtocolFamily is new in JDK 1.7
+            //
+            Class<?> c = Util.findClass("java.net.StandardProtocolFamily", null);
+            if(addr.getAddress().isMulticastAddress() && c != null)
+            {
+                //
+                // For multicast sockets with JDK 7 we must use the open overload that accepts
+                // ProtocolFamily and specify the ProtocolFamily that corresponds to the address
+                // type of the multicast groups that the channel will join.
+                //
+                String family = "INET";
+                if(addr.getAddress() instanceof java.net.Inet6Address)
+                {
+                    family = "INET6";
+                }
+                java.lang.reflect.Method valueOf = c.getDeclaredMethod("valueOf", new Class<?>[]{String.class});
+
+                Object[] args = new Object[]{valueOf.invoke(null, new Object[]{family})};
+
+                java.lang.reflect.Method open = java.nio.channels.DatagramChannel.class.getDeclaredMethod(
+                                            "open", new Class<?>[]{Util.findClass("java.net.ProtocolFamily", null)});
+                return (java.nio.channels.DatagramChannel)open.invoke(null, args);
+            }
+            else
+            {
+                return java.nio.channels.DatagramChannel.open();
+            }
+        }
+        catch(IllegalAccessException ex)
+        {
+            throw new Ice.SocketException(ex);
+        }
+        catch(java.lang.reflect.InvocationTargetException ex)
+        {
+            throw new Ice.SocketException(ex);   
+        }
+        catch(NoSuchMethodException ex)
+        {
+            throw new Ice.SocketException(ex);
         }
         catch(java.io.IOException ex)
         {
