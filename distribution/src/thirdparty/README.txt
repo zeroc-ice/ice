@@ -42,7 +42,6 @@ Table of Contents
 
   1. Patches
      - bzip2
-     - Berkeley DB
      - mcpp
   2. Packages
      - Berkeley DB
@@ -71,13 +70,8 @@ these recommendations:
   1. Do not install patch.exe in a system-protected directory such as
      C:\Program Files.
 
-  2. Create a manifest file named patch.exe.manifest as explained at
-     the link below:
-
-     http://drupal.org/node/99903
-
-     Place the manifest file in the same directory as patch.exe.
-
+  2. Update the manifest in patch.exe as described at:
+     http://math.nist.gov/oommf/software-patchsets/patch_on_Windows7.html
 
 bzip2
 -----
@@ -90,19 +84,6 @@ After extracting the bzip2 source distribution, change to the
 top-level directory and apply the patch as shown below:
 
   > patch --binary -p0 bzlib.h < ..\bzip2\bzlib.patch
-
-
-Berkeley DB
------------
-
-The file db/patch.4.8.30.17646 in this archive contains an important
-fix for Berkeley DB required by Ice. 
-
-After extracting the Berkeley DB 4.8.30 source distribution, change 
-to the top-level directory and apply the patches as shown below:
-
- > cd db-4.8.30
- > patch --binary -p0 < ..\db\patch.db-4.8.30.17646
 
 
 mcpp
@@ -133,10 +114,6 @@ and the /export:__db_assert linker option. Without these modifications,
 database environments created by the debug DLL are not compatible with
 environments created by the release DLL.
 
-For installation instructions, please refer to
-
-  http://www.oracle.com/technology/documentation/berkeley-db/db/ref/build_win/intro.html
-
 
 expat
 -----
@@ -152,14 +129,6 @@ OpenSSL
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
 
-For Visual C++ 6.0, you should use the replacement makefile included
-in this archive:
-
-  > nmake /f ..\openssl\ntdll.mak
-
-For 64-bit builds it is also necessary to remove references to
-libbufferoverflowu.lib from ms\ntdll.mak before running nmake.
-
 
 bzip2
 -----
@@ -167,18 +136,12 @@ bzip2
 If you have not already applied the patch for bzip2, please read the
 "Patches" section above before continuing.
 
-- Microsoft Visual C++
+- Microsoft Visual Studio
 
   To build bzip2, change to the source directory and use the
   replacement makefile included in this archive:
 
   > nmake /f ..\bzip2\Makefile.mak
-
-  This will build the release and debug versions of the bzip2 DLLs. If
-  you are using Visual C++ 6.0, first set the CPP_COMPILER environment
-  variable as shown below:
-
-  > set CPP_COMPILER=VC60
 
 - MinGW
 
@@ -203,19 +166,15 @@ Follow these instructions for building mcpp:
   > cd mcpp-2.7.2\src
 
 - Apply the patch for noconfig.H appropriate for your compiler from
-  the noconfig directory. For example, for VS2008 you would run:
+  the noconfig directory. For example, for VS2010 or VS2012 you would run:
 
-  > patch --binary -p0 < ..\noconfig\vc2008.dif
-
-  for C++Builder 2010 you would run:
-
-  > patch --binary -p0 < ..\noconfig\bc59.dif
+  > patch --binary -p0 < ..\noconfig\vc2010.dif
 
   and for MinGW:
 
   > patch --binary -p0 < ..\noconfig\mingw345.dif
 
-- Microsoft Visual C++: 
+- Microsoft Visual Studio:
  
   Build the mcpp release library:
 
@@ -224,12 +183,6 @@ Follow these instructions for building mcpp:
   To build the debug version of the library:
 
   > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib
-
-- CodeGear C++Builder: 
-
-  Build the mcpp library:
-
-  > make -DMCPP_LIB -f..\noconfig\borlandc.mak mcpplib
 
 - MinGW
 
