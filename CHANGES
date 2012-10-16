@@ -146,6 +146,9 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Fixed a bug that could cause an infinite loop while visiting all
+  referenced assemblies of an executable.
+
 - The generated constructors for an abstract Slice class now use
   protected visibility instead of public visibility.
 

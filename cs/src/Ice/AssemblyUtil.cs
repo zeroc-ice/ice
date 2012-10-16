@@ -246,6 +246,11 @@ namespace IceInternal
                     try
                     {
                         Assembly ra = Assembly.Load(name);
+                        //
+                        // The value of name.FullName may not match that of ra.FullName, so
+                        // we record the assembly using both keys.
+                        //
+                        _loadedAssemblies[name.FullName] = ra;
                         _loadedAssemblies[ra.FullName] = ra;
                         loadReferencedAssemblies(ra);
                     }
