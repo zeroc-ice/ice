@@ -60,7 +60,7 @@ namespace IceSSL
             if(!keySet.Equals("DefaultKeySet") && !keySet.Equals("UserKeySet") && !keySet.Equals("MachineKeySet"))
             {
                 keySet = "DefaultKeySet";
-                _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet");
+                _logger.warning("Invalid IceSSL.KeySet value `" + keySet + "' adjusted to `DefaultKeySet'");
             }
 
             X509KeyStorageFlags keyStorageFlags = X509KeyStorageFlags.DefaultKeySet;
