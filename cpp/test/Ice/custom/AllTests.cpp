@@ -1452,9 +1452,21 @@ public:
                    const Test::CustomMap<std::string, Ice::Int>& out, const InParamPtr& cookie)
     {
         const Test::CustomMap<std::string, Ice::Int>& in = getIn<Test::CustomMap<std::string, Ice::Int> >(cookie);
-        
-        test(out == in);
 
+#if defined(_MSC_VER) && (_MSC_VER == 1600)
+        //
+        // operator== for std::unordered_map does not work with Visual Studio 2010
+        //
+        test(out.size() == in.size());
+        
+        for(Test::CustomMap<std::string, Ice::Int>::const_iterator p = in.begin(); p != in.end(); ++p)
+        {
+            Test::CustomMap<std::string, Ice::Int>::const_iterator q = out.find(p->first);
+            test(q != out.end() && q->second == p->second);
+        } 
+#else   
+        test(out == in);
+#endif
         test(ret.size() == 1000);
         for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
@@ -2081,7 +2093,21 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         out["five"] = 5;
         
         Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
+        
+#if defined(_MSC_VER) && (_MSC_VER == 1600)
+        //
+        // operator== for std::unordered_map does not work with Visual Studio 2010
+        //
+        test(out.size() == idict.size());
+        
+        for(Test::CustomMap<std::string, Ice::Int>::iterator p = idict.begin(); p != idict.end(); ++p)
+        {
+            test(out[p->first] == p->second);
+        } 
+#else
         test(out == idict);
+#endif
+
         test(ret.size() == 1000);
         for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
         {
@@ -4380,7 +4406,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
                 
                 Ice::AsyncResultPtr r = t->begin_opVarDict(idict);
                 Test::CustomMap<Ice::Long, Ice::Long> ret = t->end_opVarDict(out, r);
+#if defined(_MSC_VER) && (_MSC_VER == 1600)
+                //
+                // operator== for std::unordered_map does not work with Visual Studio 2010
+                //
+                test(out.size() == idict.size());
+        
+                for(Test::CustomMap<std::string, Ice::Int>::iterator p = idict.begin(); p != idict.end(); ++p)
+                {
+                    test(out[p->first] == p->second);
+                } 
+#else
                 test(out == idict);
+#endif
                 test(ret.size() == 1000);
                 for(Test::CustomMap<Ice::Long, Ice::Long>::const_iterator i = ret.begin(); i != ret.end(); ++i)
                 {
