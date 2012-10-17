@@ -129,7 +129,7 @@ Application.NoSignalHandling.
         return Ice.Identity(name, self.categoryForClient())
 
     def addWithUUID(self, servant):
-        return objectAdapter().add(servant, createCallbackIdentity(Ice.generateUUID()))
+        return self.objectAdapter().add(servant, self.createCallbackIdentity(Ice.generateUUID()))
 
     def objectAdapter(self):
         if Application._router == None:
