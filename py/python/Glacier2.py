@@ -23,6 +23,7 @@ import Glacier2_Router_ice
 import Glacier2_Session_ice
 import Glacier2_PermissionsVerifier_ice
 import Glacier2_SSLInfo_ice
+import Glacier2_Metrics_ice
 
 class SessionNotExistException(Exception):
     def __init__(self):

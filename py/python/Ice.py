@@ -435,6 +435,8 @@ import Ice_Router_ice
 import Ice_ServantLocator_ice
 import Ice_Connection_ice
 import Ice_Version_ice
+import Ice_Instrumentation_ice
+import Ice_Metrics_ice
 
 #
 # Replace EndpointInfo with our implementation.

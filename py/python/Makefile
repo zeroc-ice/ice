@@ -53,6 +53,7 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_EndpointF_ice.py \
 		  Ice_EndpointTypes_ice.py \
 		  Ice_Version_ice.py \
+		  Ice_Instrumentation_ice.py \
 		  Ice_InstrumentationF_ice.py \
 		  Ice_Metrics_ice.py
 
@@ -61,7 +62,8 @@ GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
 		  Glacier2_PermissionsVerifier_ice.py \
-		  Glacier2_SSLInfo_ice.py
+		  Glacier2_SSLInfo_ice.py \
+		  Glacier2_Metrics_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 

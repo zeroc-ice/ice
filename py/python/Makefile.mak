@@ -45,14 +45,19 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_SliceChecksumDict_ice.py \
 		  Ice_Endpoint_ice.py \
 		  Ice_EndpointF_ice.py \
-		  Ice_EndpointTypes_ice.py
+		  Ice_EndpointTypes_ice.py \
+		  Ice_Version_ice.py \
+		  Ice_Instrumentation_ice.py \
+		  Ice_InstrumentationF_ice.py \
+		  Ice_Metrics_ice.py
 
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
 		  Glacier2_Session_ice.py \
 		  Glacier2_PermissionsVerifierF_ice.py \
 		  Glacier2_PermissionsVerifier_ice.py \
-		  Glacier2_SSLInfo_ice.py
+		  Glacier2_SSLInfo_ice.py \
+		  Glacier2_Metrics_ice.py
 
 ICEBOX_SRCS	= IceBox_IceBox_ice.py
 
@@ -70,7 +75,8 @@ ICEGRID_SRCS	= IceGrid_Admin_ice.py \
 ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
 		  IcePatch2_FileServer_ice.py
 
-ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
+ICESTORM_SRCS	= IceStorm_IceStorm_ice.py \
+		  IceStorm_Metrics_ice.py
 
 ALL_SRCS	= $(ICE_SRCS) \
 		  $(GLACIER2_SRCS) \
@@ -190,70 +196,88 @@ Ice_EndpointF_ice.py: "$(slicedir)/Ice/EndpointF.ice" "$(SLICE2PY)" "$(SLICEPARS
 Ice_EndpointTypes_ice.py: "$(slicedir)/Ice/EndpointTypes.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
 	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/EndpointTypes.ice"
 
+Ice_Version_ice.py: "$(slicedir)/Ice/Version.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Version.ice"
+
+Ice_Instrumentation_ice.py: "$(slicedir)/Ice/Instrumentation.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/Instrumentation.ice"
+
+Ice_InstrumentationF_ice.py: "$(slicedir)/Ice/InstrumentationF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package "$(slicedir)/Ice/InstrumentationF.ice"
+
+Ice_Metrics_ice.py: "$(slicedir)/Ice/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Ice_ --no-package --checksum "$(slicedir)/Ice/Metrics.ice"
+
 
 Glacier2_RouterF_ice.py: "$(slicedir)/Glacier2/RouterF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/RouterF.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/RouterF.ice"
 
 Glacier2_Router_ice.py: "$(slicedir)/Glacier2/Router.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/Router.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/Router.ice"
 
 Glacier2_Session_ice.py: "$(slicedir)/Glacier2/Session.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/Session.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/Session.ice"
 
 Glacier2_PermissionsVerifierF_ice.py: "$(slicedir)/Glacier2/PermissionsVerifierF.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/PermissionsVerifierF.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/PermissionsVerifierF.ice"
 
 Glacier2_PermissionsVerifier_ice.py: "$(slicedir)/Glacier2/PermissionsVerifier.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/PermissionsVerifier.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/PermissionsVerifier.ice"
 
 Glacier2_SSLInfo_ice.py: "$(slicedir)/Glacier2/SSLInfo.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package "$(slicedir)/Glacier2/SSLInfo.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/SSLInfo.ice"
+
+Glacier2_Metrics_ice.py: "$(slicedir)/Glacier2/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix Glacier2_ --no-package --checksum "$(slicedir)/Glacier2/Metrics.ice"
 
 
 IceBox_IceBox_ice.py: "$(slicedir)/IceBox/IceBox.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceBox_ "$(slicedir)/IceBox/IceBox.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceBox_ --checksum "$(slicedir)/IceBox/IceBox.ice"
 
 
 IceGrid_Admin_ice.py: "$(slicedir)/IceGrid/Admin.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Admin.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Admin.ice"
 
 IceGrid_Descriptor_ice.py: "$(slicedir)/IceGrid/Descriptor.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Descriptor.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Descriptor.ice"
 
 IceGrid_Exception_ice.py: "$(slicedir)/IceGrid/Exception.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Exception.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Exception.ice"
 
 IceGrid_FileParser_ice.py: "$(slicedir)/IceGrid/FileParser.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/FileParser.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/FileParser.ice"
 
 IceGrid_Locator_ice.py: "$(slicedir)/IceGrid/Locator.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Locator.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Locator.ice"
 
 IceGrid_Observer_ice.py: "$(slicedir)/IceGrid/Observer.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Observer.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Observer.ice"
 
 IceGrid_Query_ice.py: "$(slicedir)/IceGrid/Query.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Query.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Query.ice"
 
 IceGrid_Registry_ice.py: "$(slicedir)/IceGrid/Registry.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Registry.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Registry.ice"
 
 IceGrid_Session_ice.py: "$(slicedir)/IceGrid/Session.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/Session.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/Session.ice"
 
 IceGrid_UserAccountMapper_ice.py: "$(slicedir)/IceGrid/UserAccountMapper.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ "$(slicedir)/IceGrid/UserAccountMapper.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceGrid_ --checksum "$(slicedir)/IceGrid/UserAccountMapper.ice"
 
 
 IcePatch2_FileInfo_ice.py: "$(slicedir)/IcePatch2/FileInfo.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ "$(slicedir)/IcePatch2/FileInfo.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ --checksum "$(slicedir)/IcePatch2/FileInfo.ice"
 
 IcePatch2_FileServer_ice.py: "$(slicedir)/IcePatch2/FileServer.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ "$(slicedir)/IcePatch2/FileServer.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IcePatch2_ --checksum "$(slicedir)/IcePatch2/FileServer.ice"
 
 
 IceStorm_IceStorm_ice.py: "$(slicedir)/IceStorm/IceStorm.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
-	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceStorm_ "$(slicedir)/IceStorm/IceStorm.ice"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceStorm_ --checksum "$(slicedir)/IceStorm/IceStorm.ice"
+
+IceStorm_Metrics_ice.py: "$(slicedir)/IceStorm/Metrics.ice" "$(SLICE2PY)" "$(SLICEPARSERLIB)"
+	"$(SLICE2PY)" $(SLICE2PYFLAGS) --prefix IceStorm_ --checksum "$(slicedir)/IceStorm/Metrics.ice"
 
 
 install:: $(ALL_SRCS)
