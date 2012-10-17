@@ -115,6 +115,12 @@ namespace Ice
                 System.Console.Out.WriteLine(_name + " ready");
             }
 
+            IceInternal.TraceLevels tl = instance_.traceLevels();
+            if(tl.network >= 1)
+            {
+                instance_.initializationData().logger.trace(tl.networkCat, "activated adapter `" + _name + "'");
+            }
+
             _m.Lock();
             try
             {

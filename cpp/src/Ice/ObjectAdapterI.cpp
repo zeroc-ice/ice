@@ -135,6 +135,13 @@ Ice::ObjectAdapterI::activate()
         cout << _name << " ready" << endl;
     }
 
+    TraceLevelsPtr tl = _instance->traceLevels();
+    if(tl->network >= 1)
+    {
+        Trace out(_instance->initializationData().logger, tl->networkCat);
+        out << "activated adapter `" << _name << "'";
+    }
+
     {
         IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
         assert(!_deactivated); // Not possible if _waitForActivate = true;

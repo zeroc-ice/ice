@@ -103,6 +103,12 @@ public final class ObjectAdapterI implements ObjectAdapter
             System.out.println(_name + " ready");
         }
 
+        IceInternal.TraceLevels tl = _instance.traceLevels();
+        if(tl.network >= 1)
+        {
+            _instance.initializationData().logger.trace(tl.networkCat, "activated adapter `" + _name + "'");
+        }
+
         synchronized(this)
         {
             assert(!_deactivated); // Not possible if _waitForActivate = true;
