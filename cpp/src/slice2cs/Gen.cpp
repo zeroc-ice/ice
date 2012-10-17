@@ -3996,6 +3996,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string name = fixId(p->name());
     string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->getEnumerators();
+    const bool explicitValue = p->explicitValue();
 
     _out << sp;
     emitDeprecate(p, 0, _out, "type");
@@ -4003,18 +4004,21 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public enum " << name;
     _out << sb;
-    EnumeratorList::const_iterator en = enumerators.begin();
-    while(en != enumerators.end())
+    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
-        _out << nl << fixId((*en)->name());
-        if(++en != enumerators.end())
+        if(en != enumerators.begin())
         {
             _out << ',';
+        }
+        _out << nl << fixId((*en)->name());
+        if(explicitValue)
+        {
+            _out << " = " << (*en)->value();
         }
     }
     _out << eb;
 
-    if(_stream)
+    if(!p->isLocal() && _stream)
     {
         _out << sp;
         emitGeneratedCodeAttribute();

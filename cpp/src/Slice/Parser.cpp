@@ -1054,37 +1054,27 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 EnumeratorPtr
 Slice::Container::createEnumerator(const string& name)
 {
-    checkIdentifier(name);
-
-    ContainedList matches = _unit->findContents(thisScope() + name);
-    if(!matches.empty())
+    EnumeratorPtr p = validateEnumerator(name);
+    if(p)
     {
-        EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
-        if(p)
-        {
-            if(_unit->ignRedefs())
-            {
-                p->updateIncludeLevel();
-                return p;
-            }
-        }
-        if(matches.front()->name() == name)
-        {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as enumerator";
-            _unit->error(msg);
-        }
-        else
-        {
-            string msg = "enumerator `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
-            _unit->error(msg);
-        }
+        return p;
     }
 
-    nameIsLegal(name, "enumerator"); // Don't return here -- we create the enumerator anyway.
+    p = new Enumerator(this, name);
+    _contents.push_back(p);
+    return p;
+}
 
-    EnumeratorPtr p = new Enumerator(this, name);
+EnumeratorPtr
+Slice::Container::createEnumerator(const string& name, int value)
+{
+    EnumeratorPtr p = validateEnumerator(name);
+    if(p)
+    {
+        return p;
+    }
+
+    p = new Enumerator(this, name, value);
     _contents.push_back(p);
     return p;
 }
@@ -2607,6 +2597,42 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
     }
 
     return true;
+}
+
+EnumeratorPtr
+Slice::Container::validateEnumerator(const string& name)
+{
+    checkIdentifier(name);
+
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+        EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
+        if(p)
+        {
+            if(_unit->ignRedefs())
+            {
+                p->updateIncludeLevel();
+                return p;
+            }
+        }
+        if(matches.front()->name() == name)
+        {
+            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+            msg += "' as enumerator";
+            _unit->error(msg);
+        }
+        else
+        {
+            string msg = "enumerator `" + name + "' differs only in capitalization from ";
+            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            _unit->error(msg);
+        }
+    }
+
+    nameIsLegal(name, "enumerator"); // Don't return here -- we create the enumerator anyway.
+
+    return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -4586,10 +4612,73 @@ void
 Slice::Enum::setEnumerators(const EnumeratorList& ens)
 {
     _enumerators = ens;
+    int lastValue = -1;
+    set<int> values;
     for(EnumeratorList::iterator p = _enumerators.begin(); p != _enumerators.end(); ++p)
     {
         (*p)->_type = this;
+
+        if((*p)->_explicitValue)
+        {
+            _explicitValue = true;
+
+            if((*p)->_value < 0)
+            {
+                string msg = "value for enumerator `" + (*p)->name() + "' is out of range";
+                _unit->error(msg);
+            }
+        }
+        else
+        {
+            if(lastValue == Int32Max)
+            {
+                string msg = "value for enumerator `" + (*p)->name() + "' is out of range";
+                _unit->error(msg);
+            }
+
+            //
+            // If the enumerator was not assigned an explicit value, we automatically assign
+            // it one more than the previous enumerator.
+            //
+            (*p)->_value = lastValue + 1;
+        }
+
+        if(values.count((*p)->_value) != 0)
+        {
+            string msg = "enumerator `" + (*p)->name() + "' has a duplicate value";
+            _unit->error(msg);
+        }
+        values.insert((*p)->_value);
+
+        lastValue = (*p)->_value;
+
+        if(lastValue > _maxValue)
+        {
+            _maxValue = lastValue;
+        }
+        if(lastValue < _minValue)
+        {
+            _minValue = lastValue;
+        }
     }
+}
+
+bool
+Slice::Enum::explicitValue() const
+{
+    return _explicitValue;
+}
+
+int
+Slice::Enum::minValue() const
+{
+    return static_cast<int>(_minValue);
+}
+
+int
+Slice::Enum::maxValue() const
+{
+    return static_cast<int>(_maxValue);
 }
 
 Contained::ContainedType
@@ -4644,7 +4733,10 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local)
     SyntaxTreeBase(container->unit()),
     Type(container->unit()),
     Contained(container, name),
-    Constructed(container, name, local)
+    Constructed(container, name, local),
+    _explicitValue(false),
+    _minValue(Int32Max),
+    _maxValue(0)
 {
 }
 
@@ -4676,9 +4768,31 @@ Slice::Enumerator::kindOf() const
     return "enumerator";
 }
 
+bool
+Slice::Enumerator::explicitValue() const
+{
+    return _explicitValue;
+}
+
+int
+Slice::Enumerator::value() const
+{
+    return _value;
+}
+
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
     SyntaxTreeBase(container->unit()),
-    Contained(container, name)
+    Contained(container, name),
+    _explicitValue(false),
+    _value(-1)
+{
+}
+
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value) :
+    SyntaxTreeBase(container->unit()),
+    Contained(container, name),
+    _explicitValue(true),
+    _value(value)
 {
 }
 

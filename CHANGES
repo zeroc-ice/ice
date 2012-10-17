@@ -56,6 +56,16 @@ General Changes
   use version 1.0 of the Ice encoding, however these new features
   cannot be used in mixed environments.
 
+- Slice enumerators can now be assigned arbitrary values:
+
+  // Slice
+  enum Color
+  {
+      red = 1,
+      green,    // Value is 2
+      blue = 9
+  };
+
 - IceGrid and the IceGrid administrative clients have been enhanced to
   support updating server configuration properties at run time without
   requiring the servers to be restarted.

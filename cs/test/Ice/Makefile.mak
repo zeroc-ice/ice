@@ -46,7 +46,8 @@ SUBDIRS         = application \
 		  plugin \
 		  admin \
 		  optional \
-		  metrics
+		  metrics \
+		  enums
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

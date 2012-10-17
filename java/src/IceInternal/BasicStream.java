@@ -1973,15 +1973,15 @@ public class BasicStream
     }
 
     public void
-    writeEnum(int v, int limit)
+    writeEnum(int v, int maxValue)
     {
         if(isWriteEncoding_1_0())
         {
-            if(limit <= 127)
+            if(maxValue < 127)
             {
                 writeByte((byte)v);
             }
-            else if(limit <= 32767)
+            else if(maxValue < 32767)
             {
                 writeShort((short)v);
             }
@@ -1997,15 +1997,15 @@ public class BasicStream
     }
 
     public int
-    readEnum(int limit)
+    readEnum(int maxValue)
     {
         if(getReadEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            if(limit <= 127)
+            if(maxValue < 127)
             {
                 return readByte();
             }
-            else if(limit <= 32767)
+            else if(maxValue < 32767)
             {
                 return readShort();
             }

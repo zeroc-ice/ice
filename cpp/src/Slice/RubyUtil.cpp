@@ -1162,23 +1162,16 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     EnumeratorList enums = p->getEnumerators();
-    EnumeratorList::iterator q;
-    int i;
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
     _out << nl << "class " << name;
     _out.inc();
     _out << nl << "include Comparable";
-    _out << sp << nl << "def initialize(val)";
+    _out << sp << nl << "def initialize(name, value)";
     _out.inc();
-    {
-        ostringstream assertion;
-        assertion << "fail(\"invalid value #{val} for " << name << "\") unless(val >= 0 and val < "
-                  << enums.size() << ')';
-        _out << nl << assertion.str();
-    }
-    _out << nl << "@val = val";
+    _out << nl << "@name = name";
+    _out << nl << "@value = value";
     _out.dec();
     _out << nl << "end";
 
@@ -1190,9 +1183,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
         ostringstream sz;
         sz << enums.size() - 1;
         _out.inc();
-        _out << nl << "raise IndexError, \"#{val} is out of range 0.." << sz.str() << "\" if(val < 0 || val > "
-             << sz.str() << ')';
-        _out << nl << "@@_values[val]";
+        _out << nl << "@@_enumerators[val]"; // Evaluates to nil if the key is not found
         _out.dec();
         _out << nl << "end";
     }
@@ -1202,7 +1193,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def to_s";
     _out.inc();
-    _out << nl << "@@_names[@val]";
+    _out << nl << "@name";
     _out.dec();
     _out << nl << "end";
 
@@ -1211,7 +1202,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def to_i";
     _out.inc();
-    _out << nl << "@val";
+    _out << nl << "@value";
     _out.dec();
     _out << nl << "end";
 
@@ -1221,7 +1212,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sp << nl << "def <=>(other)";
     _out.inc();
     _out << nl << "other.is_a?(" << name << ") or raise ArgumentError, \"value must be a " << name << "\"";
-    _out << nl << "@val <=> other.to_i";
+    _out << nl << "@value <=> other.to_i";
     _out.dec();
     _out << nl << "end";
 
@@ -1230,7 +1221,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def hash";
     _out.inc();
-    _out << nl << "@val.hash";
+    _out << nl << "@value.hash";
     _out.dec();
     _out << nl << "end";
 
@@ -1239,7 +1230,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def inspect";
     _out.inc();
-    _out << nl << "@@_names[@val] + \"(#{@val})\"";
+    _out << nl << "@name + \"(#{@value})\"";
     _out.dec();
     _out << nl << "end";
 
@@ -1248,44 +1239,39 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp << nl << "def " << name << ".each(&block)";
     _out.inc();
-    _out << nl << "@@_values.each(&block)";
+    _out << nl << "@@_enumerators.each_value(&block)";
     _out.dec();
     _out << nl << "end";
-
-    _out << sp << nl << "@@_names = [";
-    for(q = enums.begin(); q != enums.end(); ++q)
-    {
-        if(q != enums.begin())
-        {
-            _out << ", ";
-        }
-        _out << "'" << (*q)->name() << "'";
-    }
-    _out << ']';
-
-    _out << nl << "@@_values = [";
-    for(EnumeratorList::size_type j = 0; j < enums.size(); ++j)
-    {
-        if(j > 0)
-        {
-            _out << ", ";
-        }
-        ostringstream idx;
-        idx << j;
-        _out << name << ".new(" << idx.str() << ')';
-    }
-    _out << ']';
 
     //
     // Constant for each enumerator.
     //
     _out << sp;
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
+    int i = 0;
+    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
     {
         ostringstream idx;
         idx << i;
-        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = @@_values[" << idx.str() << "]";
+        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = " << name << ".new(\"" << (*q)->name()
+             << "\", " << (*q)->value() << ')';
     }
+
+    _out << sp << nl << "@@_enumerators = {";
+    for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
+    {
+        if(q != enums.begin())
+        {
+            _out << ", ";
+        }
+        _out << (*q)->value() << "=>" << fixIdent((*q)->name(), IdentToUpper);
+    }
+    _out << '}';
+
+    _out << sp << nl << "def " << name << "._enumerators";
+    _out.inc();
+    _out << nl << "@@_enumerators";
+    _out.dec();
+    _out << nl << "end";
 
     _out << sp << nl << "private_class_method :new";
 
@@ -1295,16 +1281,8 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineEnum('" << scoped << "', " << name << ", [";
-    for(q = enums.begin(); q != enums.end(); ++q)
-    {
-        if(q != enums.begin())
-        {
-            _out << ", ";
-        }
-        _out << name << "::" << fixIdent((*q)->name(), IdentToUpper);
-    }
-    _out << "])";
+    _out << sp << nl << "T_" << name << " = ::Ice::__defineEnum('" << scoped << "', " << name << ", " << name
+         << "::_enumerators)";
 
     _out.dec();
     _out << nl << "end"; // if not defined?()

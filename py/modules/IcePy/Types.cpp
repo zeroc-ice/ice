@@ -884,20 +884,34 @@ IcePy::PrimitiveInfo::print(PyObject* value, IceUtilInternal::Output& out, Print
 // EnumInfo implementation.
 //
 IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
-    id(ident), pythonType(t)
+    id(ident), pythonType(t), maxValue(0)
 {
     assert(PyType_Check(t));
-    assert(PyTuple_Check(e));
+    assert(PyDict_Check(e));
 
     Py_INCREF(t);
 
-    Py_ssize_t sz = PyTuple_GET_SIZE(e);
-    for(Py_ssize_t i = 0; i < sz; ++i)
+    Py_ssize_t pos = 0;
+    PyObject* key;
+    PyObject* value;
+    while(PyDict_Next(e, &pos, &key, &value))
     {
-        PyObjectHandle h = PyTuple_GET_ITEM(e, i);
-        Py_INCREF(h.get());
-        assert(PyObject_IsInstance(h.get(), t));
-        const_cast<EnumeratorList&>(enumerators).push_back(h);
+#if PY_VERSION_HEX >= 0x03000000
+        assert(PyLong_Check(key));
+#else
+        assert(PyInt_Check(key));
+#endif
+        const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(key));
+        assert(enumerators.find(val) == enumerators.end());
+
+        Py_INCREF(value);
+        assert(PyObject_IsInstance(value, t));
+        const_cast<EnumeratorMap&>(enumerators)[val] = value;
+
+        if(val > maxValue)
+        {
+            const_cast<Ice::Int&>(maxValue) = val;
+        }
     }
 }
 
@@ -939,46 +953,47 @@ IcePy::EnumInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*
     //
     // Validate value.
     //
-    PyObjectHandle val = PyObject_GetAttrString(p, STRCAST("value"));
-    if(!val.get())
+    PyObjectHandle v = PyObject_GetAttrString(p, STRCAST("_value"));
+    if(!v.get())
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
 #if PY_VERSION_HEX >= 0x03000000
-    if(!PyLong_Check(val.get()))
+    if(!PyLong_Check(v.get()))
 #else
-    if(!PyInt_Check(val.get()))
+    if(!PyInt_Check(v.get()))
 #endif
     {
         PyErr_Format(PyExc_ValueError, STRCAST("value for enum %s is not an int"), id.c_str());
         throw AbortMarshaling();
     }
-    Ice::Int ival = static_cast<Ice::Int>(PyLong_AsLong(val.get()));
-    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    if(ival < 0 || ival >= count)
+    const Ice::Int val = static_cast<Ice::Int>(PyLong_AsLong(v.get()));
+    if(enumerators.find(val) == enumerators.end())
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("value %d is out of range for enum %s"), ival, id.c_str());
+        PyErr_Format(PyExc_ValueError, STRCAST("illegal value %d for enum %s"), val, id.c_str());
         throw AbortMarshaling();
     }
 
-    os->writeEnum(ival, count);
+    os->writeEnum(val, maxValue);
 }
 
 void
 IcePy::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, PyObject* target,
                            void* closure, bool, const Ice::StringSeq*)
 {
-    Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    Ice::Int val = is->readEnum(count);
+    Ice::Int val = is->readEnum(maxValue);
 
-    if(val < 0 || val >= count)
+    EnumeratorMap::const_iterator p = enumerators.find(val);
+    if(p == enumerators.end())
     {
-        PyErr_Format(PyExc_ValueError, STRCAST("enumerator %d is out of range for enum %s"), val, id.c_str());
+        ostringstream ostr;
+        ostr << "enumerator " << val << " is out of range for enum " << id;
+        setPythonException(Ice::MarshalException(__FILE__, __LINE__, ostr.str()));
         throw AbortMarshaling();
     }
 
-    PyObject* pyval = enumerators[val].get();
+    PyObject* pyval = p->second.get();
     assert(pyval);
     cb->unmarshaled(pyval, target, closure);
 }

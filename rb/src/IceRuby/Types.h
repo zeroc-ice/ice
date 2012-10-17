@@ -174,7 +174,7 @@ typedef IceUtil::Handle<PrimitiveInfo> PrimitiveInfoPtr;
 //
 // Enum information.
 //
-typedef std::vector<VALUE> EnumeratorList;
+typedef std::map<Ice::Int, VALUE> EnumeratorMap;
 
 class EnumInfo : public TypeInfo
 {
@@ -196,8 +196,9 @@ public:
     virtual void print(VALUE, IceUtilInternal::Output&, PrintObjectHistory*);
 
     const std::string id;
-    const EnumeratorList enumerators;
     const VALUE rubyClass;
+    const Ice::Int maxValue;
+    const EnumeratorMap enumerators;
 };
 typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
 

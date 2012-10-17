@@ -1310,12 +1310,27 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixKwd(p->name());
     EnumeratorList enumerators = p->getEnumerators();
+
+    //
+    // Check if any of the enumerators were assigned an explicit value.
+    //
+    const bool explicitValue = p->explicitValue();
+
     H << sp << nl << "enum " << name;
     H << sb;
+
     EnumeratorList::const_iterator en = enumerators.begin();
     while(en != enumerators.end())
     {
         H << nl << fixKwd((*en)->name());
+        //
+        // If any of the enumerators were assigned an explicit value, we emit
+        // an explicit value for *all* enumerators.
+        //
+        if(explicitValue)
+        {
+            H << " = " << int64ToString((*en)->value());
+        }
         if(++en != enumerators.end())
         {
             H << ',';
@@ -6106,7 +6121,8 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
         H << nl << "struct StreamableTraits< " << scoped << ">";
         H << sb;
         H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
-        H << nl << "static const int enumLimit = " << p->getEnumerators().size() << ";";
+        H << nl << "static const int minValue = " << p->minValue() << ";";
+        H << nl << "static const int maxValue = " << p->maxValue() << ";";
         H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
         H << nl << "static const bool fixedLength = false;";
         H << eb << ";" << nl;

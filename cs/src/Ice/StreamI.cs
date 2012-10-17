@@ -155,9 +155,9 @@ namespace Ice
             _is.readObject(new Patcher<Ice.Object>(cb));
         }
 
-        public int readEnum(int limit)
+        public int readEnum(int maxValue)
         {
-            return _is.readEnum(limit);
+            return _is.readEnum(maxValue);
         }
 
         public void throwException()
@@ -415,9 +415,9 @@ namespace Ice
             _os.writeObject(v);
         }
 
-        public void writeEnum(int v, int limit)
+        public void writeEnum(int v, int maxValue)
         {
-            _os.writeEnum(v, limit);
+            _os.writeEnum(v, maxValue);
         }
 
         public void writeException(UserException v)

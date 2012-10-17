@@ -1511,17 +1511,17 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 }
 
 Int
-IceInternal::BasicStream::readEnum(Int limit)
+IceInternal::BasicStream::readEnum(Int maxValue)
 {
     if(getReadEncoding() == Encoding_1_0)
     {
-        if(limit <= 127)
+        if(maxValue < 127)
         {
             Byte value;
             read(value);
             return value;
         }
-        else if(limit <= 32767)
+        else if(maxValue < 32767)
         {
             Short value;
             read(value);
@@ -1541,15 +1541,15 @@ IceInternal::BasicStream::readEnum(Int limit)
 }
 
 void 
-IceInternal::BasicStream::writeEnum(Int v, Int limit)
+IceInternal::BasicStream::writeEnum(Int v, Int maxValue)
 {
     if(getWriteEncoding() == Encoding_1_0)
     {
-        if(limit <= 127)
+        if(maxValue < 127)
         {
             write(static_cast<Byte>(v));
         }
-        else if(limit <= 32767)
+        else if(maxValue < 32767)
         {
             write(static_cast<Short>(v));
         }

@@ -523,6 +523,7 @@
                 <include name="test/Ice/optional/Test.ice" />
                 <include name="test/Ice/optional/TestAMD.ice" />
                 <include name="test/Ice/stream/Test.ice" />
+                <include name="test/Ice/enums/Test.ice" />
             </fileset>
         </slice2java>
 

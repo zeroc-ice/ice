@@ -594,7 +594,7 @@ public final class Outgoing implements OutgoingMessageCallback
 
             _os.writeString(operation);
 
-            _os.writeByte((byte)mode.ordinal());
+            _os.writeByte((byte)mode.value());
 
             if(context != null)
             {

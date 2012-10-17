@@ -125,17 +125,17 @@ public:
     }
 
     Int
-    readEnum(Int limit)
+    readEnum(Int maxValue)
     {
         if(getEncoding() == Encoding_1_0)
         {
-            if(limit <= 127)
+            if(maxValue < 127)
             {
                 Byte value;
                 read(value);
                 return value;
             }
-            else if(limit <= 32767)
+            else if(maxValue < 32767)
             {
                 Short value;
                 read(value);
@@ -249,15 +249,15 @@ public:
     }
 
     void
-    writeEnum(Int v, Int limit)
+    writeEnum(Int v, Int maxValue)
     {
         if(getEncoding() == Encoding_1_0)
         {
-            if(limit <= 127)
+            if(maxValue < 127)
             {
                 write(static_cast<Byte>(v));
             }
-            else if(limit <= 32767)
+            else if(maxValue < 32767)
             {
                 write(static_cast<Short>(v));
             }

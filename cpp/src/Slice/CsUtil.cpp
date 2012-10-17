@@ -651,24 +651,26 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        size_t sz = en->getEnumerators().size();
         if(marshal)
         {
             if(streamingAPI)
             {
-                out << nl << "if((int)" << param << " < 0 || (int)" << param << " >= " << sz << ")";
+                out << nl << "if((int)" << param << " < " << en->minValue()
+                    << " || (int)" << param << " > " << en->maxValue() << ")";
                 out << sb;
                 out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
                 out << eb;
             }
-            out << nl << stream << ".writeEnum((int)" << param << ", " << sz << ");";
+            out << nl << stream << ".writeEnum((int)" << param << ", " << en->maxValue() << ");";
         }
         else
         {
-            out << nl << param << " = (" << fixId(en->scoped()) << ')' << stream << ".readEnum(" << sz << ");";
+            out << nl << param << " = (" << fixId(en->scoped()) << ')' << stream << ".readEnum(" << en->maxValue()
+                << ");";
             if(streamingAPI)
             {
-                out << nl << "if((int)" << param << " < 0 || (int)" << param << " >= " << sz << ")";
+                out << nl << "if((int)" << param << " < " << en->minValue() << " || (int)" << param << " > "
+                    << en->maxValue() << ")";
                 out << sb;
                 out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
                 out << eb;

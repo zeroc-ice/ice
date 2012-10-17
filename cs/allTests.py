@@ -64,6 +64,7 @@ tests = [
     ("Ice/optional", ["core"]),
     ("Ice/admin", ["core"]),
     ("Ice/metrics", ["core", "nossl", "noipv6"]),
+    ("Ice/enums", ["core"]),
     ("IceBox/admin", ["core", "noipv6", "nosilverlight", "nomx"]),
     ("IceBox/configuration", ["core", "noipv6", "nosilverlight", "nomx"]),
     ("Glacier2/router", ["service", "nosilverlight"]),

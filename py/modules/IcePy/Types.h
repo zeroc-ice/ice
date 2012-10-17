@@ -171,7 +171,7 @@ typedef IceUtil::Handle<PrimitiveInfo> PrimitiveInfoPtr;
 //
 // Enum information.
 //
-typedef std::vector<PyObjectHandle> EnumeratorList;
+typedef std::map<Ice::Int, PyObjectHandle> EnumeratorMap;
 
 class EnumInfo : public TypeInfo
 {
@@ -194,8 +194,9 @@ public:
     virtual void print(PyObject*, IceUtilInternal::Output&, PrintObjectHistory*);
 
     const std::string id;
-    const EnumeratorList enumerators;
     const PyObjectHandle pythonType;
+    const Ice::Int maxValue;
+    const EnumeratorMap enumerators;
 };
 typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
 

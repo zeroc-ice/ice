@@ -3020,15 +3020,15 @@ namespace IceInternal
             }
         }
 
-        public void writeEnum(int v, int limit)
+        public void writeEnum(int v, int maxValue)
         {
             if(isWriteEncoding_1_0())
             {
-                if(limit <= 127)
+                if(maxValue < 127)
                 {
                     writeByte((byte)v);
                 }
-                else if(limit <= 32767)
+                else if(maxValue < 32767)
                 {
                     writeShort((short)v);
                 }
@@ -3043,23 +3043,23 @@ namespace IceInternal
             }
         }
 
-        public void writeEnum(int tag, int v, int limit)
+        public void writeEnum(int tag, int v, int maxValue)
         {
             if(writeOpt(tag, Ice.OptionalFormat.Size))
             {
-                writeEnum(v, limit);
+                writeEnum(v, maxValue);
             }
         }
 
-        public int readEnum(int limit)
+        public int readEnum(int maxValue)
         {
             if(getReadEncoding().Equals(Ice.Util.Encoding_1_0))
             {
-                if(limit <= 127)
+                if(maxValue < 127)
                 {
                     return readByte();
                 }
-                else if(limit <= 32767)
+                else if(maxValue < 32767)
                 {
                     return readShort();
                 }

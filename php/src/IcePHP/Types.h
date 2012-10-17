@@ -200,7 +200,9 @@ public:
     virtual void print(zval*, IceUtilInternal::Output&, PrintObjectHistory* TSRMLS_DC);
 
     const std::string id;
-    const Ice::StringSeq enumerators;
+    const std::map<Ice::Int, std::string> enumerators;
+    const Ice::Int maxValue;
+
 };
 typedef IceUtil::Handle<EnumInfo> EnumInfoPtr;
 

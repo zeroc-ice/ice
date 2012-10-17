@@ -160,9 +160,9 @@ public class OutputStreamI implements OutputStream
     }
 
     public void
-    writeEnum(int v, int limit)
+    writeEnum(int v, int maxValue)
     {
-        _os.writeEnum(v, limit);
+        _os.writeEnum(v, maxValue);
     }
 
     public void

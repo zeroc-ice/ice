@@ -38,6 +38,7 @@ tests = [
     ("Ice/slicing/objects", ["core"]),
     ("Ice/defaultValue", ["core"]),
     ("Ice/optional", ["core"]),
+    ("Ice/enums", ["core"]),
     ("Ice/ini", ["once"]),
     ("Ice/scope", ["once"]),
     ("Slice/keyword", ["once"]),

@@ -608,69 +608,69 @@ public class Server extends ListArrayTreeNode
             //
             _icons = new Icon[8][2][2];
             _icons[0][0][0] = Utils.getIcon("/icons/16x16/server_unknown.png");
-            _icons[ServerState.Inactive.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_inactive.png");
-            _icons[ServerState.Activating.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_activating.png");
-            _icons[ServerState.ActivationTimedOut.ordinal() + 1][0][0] =
+            _icons[ServerState.Inactive.value() + 1][0][0] = Utils.getIcon("/icons/16x16/server_inactive.png");
+            _icons[ServerState.Activating.value() + 1][0][0] = Utils.getIcon("/icons/16x16/server_activating.png");
+            _icons[ServerState.ActivationTimedOut.value() + 1][0][0] =
                 Utils.getIcon("/icons/16x16/server_activating.png");
-            _icons[ServerState.Active.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_active.png");
-            _icons[ServerState.Deactivating.ordinal() + 1][0][0] =
+            _icons[ServerState.Active.value() + 1][0][0] = Utils.getIcon("/icons/16x16/server_active.png");
+            _icons[ServerState.Deactivating.value() + 1][0][0] =
                 Utils.getIcon("/icons/16x16/server_deactivating.png");
-            _icons[ServerState.Destroying.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroying.png");
-            _icons[ServerState.Destroyed.ordinal() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroyed.png");
+            _icons[ServerState.Destroying.value() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroying.png");
+            _icons[ServerState.Destroyed.value() + 1][0][0] = Utils.getIcon("/icons/16x16/server_destroyed.png");
 
             //
             // IceBox servers
             //
             _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.ordinal() + 1][1][0] = 
+            _icons[ServerState.Inactive.value() + 1][1][0] = 
                 Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
-            _icons[ServerState.Activating.ordinal() + 1][1][0] =
+            _icons[ServerState.Activating.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
-            _icons[ServerState.ActivationTimedOut.ordinal() + 1][1][0] =
+            _icons[ServerState.ActivationTimedOut.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
-            _icons[ServerState.Active.ordinal() + 1][1][0] = Utils.getIcon("/icons/16x16/icebox_server_active.png");
-            _icons[ServerState.Deactivating.ordinal() + 1][1][0] =
+            _icons[ServerState.Active.value() + 1][1][0] = Utils.getIcon("/icons/16x16/icebox_server_active.png");
+            _icons[ServerState.Deactivating.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_deactivating.png");
-            _icons[ServerState.Destroying.ordinal() + 1][1][0] =
+            _icons[ServerState.Destroying.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_destroying.png");
-            _icons[ServerState.Destroyed.ordinal() + 1][1][0] =
+            _icons[ServerState.Destroyed.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_destroyed.png");
 
             //
             // Regular servers (disabled)
             //
             _icons[0][0][1] = Utils.getIcon("/icons/16x16/server_unknown.png");
-            _icons[ServerState.Inactive.ordinal() + 1][0][1] =
+            _icons[ServerState.Inactive.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_inactive.png");
-            _icons[ServerState.Activating.ordinal() + 1][0][1] =
+            _icons[ServerState.Activating.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_activating.png");
-            _icons[ServerState.ActivationTimedOut.ordinal() + 1][0][1] =
+            _icons[ServerState.ActivationTimedOut.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_activating.png");
-            _icons[ServerState.Active.ordinal() + 1][0][1] = Utils.getIcon("/icons/16x16/server_disabled_active.png");
-            _icons[ServerState.Deactivating.ordinal() + 1][0][1] =
+            _icons[ServerState.Active.value() + 1][0][1] = Utils.getIcon("/icons/16x16/server_disabled_active.png");
+            _icons[ServerState.Deactivating.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_deactivating.png");
-            _icons[ServerState.Destroying.ordinal() + 1][0][1] =
+            _icons[ServerState.Destroying.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_destroying.png");
-            _icons[ServerState.Destroyed.ordinal() + 1][0][1] =
+            _icons[ServerState.Destroyed.value() + 1][0][1] =
                 Utils.getIcon("/icons/16x16/server_disabled_destroyed.png");
 
             //
             // IceBox servers (disabled)
             //
             _icons[0][1][1] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.ordinal() + 1][1][1]
+            _icons[ServerState.Inactive.value() + 1][1][1]
                 = Utils.getIcon("/icons/16x16/icebox_server_disabled_inactive.png");
-            _icons[ServerState.Activating.ordinal() + 1][1][1] =
+            _icons[ServerState.Activating.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
-            _icons[ServerState.ActivationTimedOut.ordinal() + 1][1][1] =
+            _icons[ServerState.ActivationTimedOut.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_activating.png");
-            _icons[ServerState.Active.ordinal() + 1][1][1] =
+            _icons[ServerState.Active.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_active.png");
-            _icons[ServerState.Deactivating.ordinal() + 1][1][1] =
+            _icons[ServerState.Deactivating.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_deactivating.png");
-            _icons[ServerState.Destroying.ordinal() + 1][1][1] =
+            _icons[ServerState.Destroying.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_destroying.png");
-            _icons[ServerState.Destroyed.ordinal() + 1][1][1] =
+            _icons[ServerState.Destroyed.value() + 1][1][1] =
                 Utils.getIcon("/icons/16x16/icebox_server_disabled_destroyed.png");
         }
 
@@ -901,7 +901,7 @@ public class Server extends ListArrayTreeNode
             }
             else
             {
-                _stateIconIndex = _state.ordinal() + 1;
+                _stateIconIndex = _state.value() + 1;
             }
             
             if(_state == ServerState.Active && getRoot().getTree().isExpanded(getPath()))

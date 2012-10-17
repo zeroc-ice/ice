@@ -46,7 +46,8 @@ SUBDIRS		= proxy \
 		  properties \
 		  plugin \
 		  admin \
-		  metrics
+		  metrics \
+		  enums
 
 .PHONY: $(EVERYTHING) $(SUBDIRS)
 

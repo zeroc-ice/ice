@@ -703,17 +703,43 @@ IceRuby::PrimitiveInfo::toDouble(VALUE v)
 //
 // EnumInfo implementation.
 //
+
+namespace
+{
+struct EnumDefinitionIterator : public IceRuby::HashIterator
+{
+    EnumDefinitionIterator() :
+        maxValue(0)
+    {
+    }
+
+    virtual void element(VALUE key, VALUE value)
+    {
+        const Ice::Int v = static_cast<Ice::Int>(getInteger(key));
+        assert(enumerators.find(v) == enumerators.end());
+        enumerators[v] = value;
+
+        if(v > maxValue)
+        {
+            maxValue = v;
+        }
+    }
+
+    Ice::Int maxValue;
+    IceRuby::EnumeratorMap enumerators;
+};
+}
+
 IceRuby::EnumInfo::EnumInfo(VALUE ident, VALUE t, VALUE e) :
-    rubyClass(t)
+    rubyClass(t), maxValue(0)
 {
     const_cast<string&>(id) = getString(ident);
 
-    volatile VALUE arr = callRuby(rb_check_array_type, e);
-    assert(!NIL_P(arr));
-    for(long i = 0; i < RARRAY_LEN(arr); ++i)
-    {
-        const_cast<EnumeratorList&>(enumerators).push_back(RARRAY_PTR(arr)[i]);
-    }
+    EnumDefinitionIterator iter;
+    hashIterate(e, iter);
+
+    const_cast<Ice::Int&>(maxValue) = iter.maxValue;
+    const_cast<EnumeratorMap&>(enumerators) = iter.enumerators;
 }
 
 string
@@ -754,31 +780,31 @@ IceRuby::EnumInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap*, 
     //
     // Validate value.
     //
-    volatile VALUE val = callRuby(rb_iv_get, p, "@val");
-    assert(FIXNUM_P(val));
-    Ice::Int ival = static_cast<Ice::Int>(FIX2LONG(val));
-    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    if(ival < 0 || ival >= count)
+    volatile VALUE val = callRuby(rb_iv_get, p, "@value");
+    const Ice::Int ival = static_cast<Ice::Int>(getInteger(val));
+    if(enumerators.find(ival) == enumerators.end())
     {
-        throw RubyException(rb_eRangeError, "value %ld is out of range for enum %s", ival, id.c_str());
+        throw RubyException(rb_eRangeError, "invalid enumerator %ld for enum %s", ival, id.c_str());
     }
 
-    os->writeEnum(ival, count);
+    os->writeEnum(ival, maxValue);
 }
 
 void
 IceRuby::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallbackPtr& cb, VALUE target, void* closure,
                              bool)
 {
-    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    Ice::Int val = is->readEnum(count);
+    Ice::Int val = is->readEnum(maxValue);
 
-    if(val < 0 || val >= count)
+    EnumeratorMap::const_iterator p = enumerators.find(val);
+    if(p == enumerators.end())
     {
-        throw RubyException(rb_eRangeError, "enumerator %ld is out of range for enum %s", val, id.c_str());
+        ostringstream ostr;
+        ostr << "invalid enumerator " << val << " for enum " << id;
+        throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
 
-    cb->unmarshaled(enumerators[val], target, closure);
+    cb->unmarshaled(p->second, target, closure);
 }
 
 void

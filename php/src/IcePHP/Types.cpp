@@ -1018,7 +1018,8 @@ IcePHP::PrimitiveInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObject
 // EnumInfo implementation.
 //
 IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en TSRMLS_DC) :
-    id(ident)
+    id(ident),
+    maxValue(0)
 {
     HashTable* arr = Z_ARRVAL_P(en);
     void* data;
@@ -1026,10 +1027,25 @@ IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en TSRMLS_DC) :
     zend_hash_internal_pointer_reset_ex(arr, &pos);
     while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
-        zval** val = reinterpret_cast<zval**>(data);
+        zval** val;
+
+        val = reinterpret_cast<zval**>(data);
         assert(Z_TYPE_PP(val) == IS_STRING);
-        const_cast<Ice::StringSeq&>(enumerators).push_back(Z_STRVAL_PP(val));
+        string name = Z_STRVAL_PP(val);
         zend_hash_move_forward_ex(arr, &pos);
+
+        zend_hash_get_current_data_ex(arr, &data, &pos);
+        val = reinterpret_cast<zval**>(data);
+        assert(Z_TYPE_PP(val) == IS_LONG);
+        Ice::Int value = static_cast<Ice::Int>(Z_LVAL_PP(val));
+        zend_hash_move_forward_ex(arr, &pos);
+
+        if(value > maxValue)
+        {
+            const_cast<int&>(maxValue) = value;
+        }
+
+        const_cast<map<Ice::Int, string>&>(enumerators)[value] = name;
     }
 }
 
@@ -1044,8 +1060,8 @@ IcePHP::EnumInfo::validate(zval* zv TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) == IS_LONG)
     {
-        Ice::StringSeq::size_type sz = static_cast<Ice::StringSeq::size_type>(Z_LVAL_P(zv));
-        return sz >= 0 && sz < enumerators.size();
+        const Ice::Int l = static_cast<Ice::Int>(Z_LVAL_P(zv));
+        return l >= 0 && enumerators.find(l) != enumerators.end();
     }
     return false;
 }
@@ -1072,11 +1088,10 @@ void
 IcePHP::EnumInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap*, bool TSRMLS_DC)
 {
     assert(Z_TYPE_P(zv) == IS_LONG); // validate() should have caught this.
-    Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
-    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    assert(val >= 0 && val < count); // validate() should have caught this.
+    const Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
+    assert(val >= 0 && enumerators.find(val) != enumerators.end()); // validate() should have caught this.
 
-    os->writeEnum(val, count);
+    os->writeEnum(val, maxValue);
 }
 
 void
@@ -1087,10 +1102,9 @@ IcePHP::EnumInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
     ALLOC_INIT_ZVAL(zv);
     AutoDestroy destroy(zv);
 
-    const Ice::Int count = static_cast<Ice::Int>(enumerators.size());
-    Ice::Int val = is->readEnum(count);
+    const Ice::Int val = is->readEnum(maxValue);
 
-    if(val < 0 || val >= count)
+    if(enumerators.find(val) == enumerators.end())
     {
         invalidArgument("enumerator %d is out of range for enum %s" TSRMLS_CC, val, id.c_str());
         throw AbortMarshaling();
@@ -1108,8 +1122,10 @@ IcePHP::EnumInfo::print(zval* zv, IceUtilInternal::Output& out, PrintObjectHisto
         out << "<invalid value - expected " << id << ">";
         return;
     }
-    int val = static_cast<int>(Z_LVAL_P(zv));
-    out << enumerators[val];
+    const Ice::Int val = static_cast<Ice::Int>(Z_LVAL_P(zv));
+    map<Ice::Int, string>::const_iterator p = enumerators.find(val);
+    assert(p != enumerators.end());
+    out << p->second;
 }
 
 //

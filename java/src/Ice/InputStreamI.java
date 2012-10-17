@@ -187,9 +187,9 @@ public class InputStreamI implements InputStream
     }
 
     public int
-    readEnum(int limit)
+    readEnum(int maxValue)
     {
-        return _is.readEnum(limit);
+        return _is.readEnum(maxValue);
     }
 
     public void

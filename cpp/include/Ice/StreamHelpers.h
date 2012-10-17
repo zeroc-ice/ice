@@ -328,18 +328,18 @@ struct StreamHelper<T, StreamHelperCategoryEnum>
     template<class S> static inline void
     write(S* stream, const T& v)
     {
-        if(static_cast<Int>(v) < 0 || static_cast<Int>(v) >= StreamableTraits<T>::enumLimit)
+        if(static_cast<Int>(v) < StreamableTraits<T>::minValue || static_cast<Int>(v) > StreamableTraits<T>::maxValue)
         {
             IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }
-        stream->writeEnum(static_cast<Int>(v), StreamableTraits<T>::enumLimit);
+        stream->writeEnum(static_cast<Int>(v), StreamableTraits<T>::maxValue);
     }
 
     template<class S> static inline void 
     read(S* stream, T& v)
     {
-        Int value = stream->readEnum(StreamableTraits<T>::enumLimit);
-        if(value < 0 || value >= StreamableTraits<T>::enumLimit)
+        Int value = stream->readEnum(StreamableTraits<T>::maxValue);
+        if(value < StreamableTraits<T>::minValue || value > StreamableTraits<T>::maxValue)
         {
             IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
         }

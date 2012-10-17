@@ -432,6 +432,7 @@ public:
                                    const StringList&, bool, NodeType = Real);
     EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
+    EnumeratorPtr createEnumerator(const std::string&, int);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
                          const std::string&, const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
@@ -482,6 +483,7 @@ protected:
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
     bool validateConstant(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, bool);
+    EnumeratorPtr validateEnumerator(const std::string&);
 
     ContainedList _contents;
     std::map<std::string, ContainedPtr, CICompare> _introducedMap;
@@ -838,6 +840,9 @@ public:
     virtual void destroy();
     EnumeratorList getEnumerators();
     void setEnumerators(const EnumeratorList&);
+    bool explicitValue() const;
+    int minValue() const;
+    int maxValue() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
@@ -853,6 +858,9 @@ protected:
     friend class Container;
 
     EnumeratorList _enumerators;
+    bool _explicitValue;
+    IceUtil::Int64 _minValue;
+    IceUtil::Int64 _maxValue;
 };
 
 // ----------------------------------------------------------------------
@@ -868,13 +876,19 @@ public:
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
 
+    bool explicitValue() const;
+    int value() const;
+
 protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
+    Enumerator(const ContainerPtr&, const std::string&, int);
     friend class Container;
     friend class Enum;
 
     EnumPtr _type;
+    bool _explicitValue;
+    int _value;
 };
 
 // ----------------------------------------------------------------------

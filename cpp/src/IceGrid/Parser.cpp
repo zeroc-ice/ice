@@ -2172,7 +2172,7 @@ Parser::showFile(const string& reader, const list<string>& origArgs)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2011 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2012 ZeroC, Inc." << endl;
 }
 
 void

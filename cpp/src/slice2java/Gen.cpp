@@ -3893,7 +3893,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string name = fixKwd(p->name());
     string absolute = getAbsolute(p);
     EnumeratorList enumerators = p->getEnumerators();
-    size_t sz = enumerators.size();
 
     open(absolute, p->file());
 
@@ -3918,45 +3917,80 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
         out << nl;
         writeDocComment(out, *en, getDeprecateReason(*en, 0, "enumerator"));
-        out << nl << fixKwd((*en)->name());
+        out << nl << fixKwd((*en)->name()) << '(' << (*en)->value() << ')';
     }
     out << ';';
+
+    out << sp << nl << "public int"
+        << nl << "value()";
+    out << sb;
+    out << nl << "return __value;";
+    out << eb;
+
+    out << sp << nl << "public static " << name
+        << nl << "valueOf(int __v)";
+    out << sb;
+    out << nl << "switch(__v)";
+    out << sb;
+    out.dec();
+    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    {
+        out << nl << "case " << (*en)->value() << ':';
+        out.inc();
+        out << nl << "return " << fixKwd((*en)->name()) << ';';
+        out.dec();
+    }
+    out.inc();
+    out << eb;
+    out << nl << "return null;";
+    out << eb;
+
+    out << sp << nl << "private"
+        << nl << name << "(int __v)";
+    out << sb;
+    out << nl << "__value = __v;";
+    out << eb;
 
     if(!p->isLocal())
     {
         out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
-        out << nl << "__os.writeEnum(ordinal(), " << sz << ");";
+        out << nl << "__os.writeEnum(value(), " << p->maxValue() << ");";
         out << eb;
 
         out << sp << nl << "public static " << name << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << "int __v = __is.readEnum(" << sz << ");";
-        out << nl << "if(__v < 0 || __v >= " << sz << ')';
-        out << sb;
-        out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
-        out << eb;
-        out << nl << "return values()[__v];";
+        out << nl << "int __v = __is.readEnum(" << p->maxValue() << ");";
+        out << nl << "return __validate(__v);";
         out << eb;
 
         if(_stream)
         {
             out << sp << nl << "public void" << nl << "ice_write(Ice.OutputStream __outS)";
             out << sb;
-            out << nl << "__outS.writeEnum(ordinal(), " << sz << ");";
+            out << nl << "__outS.writeEnum(value(), " << p->maxValue() << ");";
             out << eb;
 
             out << sp << nl << "public static " << name << nl << "ice_read(Ice.InputStream __inS)";
             out << sb;
-            out << nl << "int __v = __inS.readEnum(" << sz << ");";
-            out << nl << "if(__v < 0 || __v >= " << sz << ')';
-            out << sb;
-            out << nl << "throw new Ice.MarshalException(\"enumerator out of range\");";
-            out << eb;
-            out << nl << "return values()[__v];";
+            out << nl << "int __v = __inS.readEnum(" << p->maxValue() << ");";
+            out << nl << "return __validate(__v);";
             out << eb;
         }
+
+        out << sp << nl << "private static " << name
+            << nl << "__validate(int __v)";
+        out << sb;
+        out << nl << "final " << name << " __e = valueOf(__v);";
+        out << nl << "if(__e == null)";
+        out << sb;
+        out << nl << "throw new Ice.MarshalException(\"enumerator value \" + __v + \" is out of range\");";
+        out << eb;
+        out << nl << "return __e;";
+        out << eb;
     }
+
+    out << sp << nl << "private final int __value;";
 
     out << eb;
     close();

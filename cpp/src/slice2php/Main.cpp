@@ -926,10 +926,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         long i = 0;
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q, ++i)
         {
-            string fixedEnum = fixIdent((*q)->name());
-            ostringstream idx;
-            idx << i;
-            _out << nl << "const " << fixedEnum << " = " << idx.str() << ';';
+            _out << nl << "const " << fixIdent((*q)->name()) << " = " << (*q)->value() << ';';
         }
     }
 
@@ -945,7 +942,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
         {
             _out << ", ";
         }
-        _out << "'" << (*q)->name() << "'";
+        _out << "'" << (*q)->name() << "', " << (*q)->value();
     }
     _out << "));";
 

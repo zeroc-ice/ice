@@ -33,7 +33,8 @@ SUBDIRS		= proxy \
 		  plugin \
 		  stream \
 		  metrics \
-		  optional
+		  optional \
+		  enums
 
 !if "$(WINRT)" != "yes"
 SUBDIRS		= $(SUBDIRS) \

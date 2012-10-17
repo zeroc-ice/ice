@@ -63,7 +63,7 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
 
         _os.writeString(operation);
 
-        _os.writeByte((byte)mode.ordinal());
+        _os.writeByte((byte)mode.value());
 
         if(ctx != null)
         {

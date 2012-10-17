@@ -49,7 +49,8 @@ tests = [
     ("Ice/defaultServant", ["core"]),
     ("Ice/defaultValue", ["core"]),
     ("Ice/ami", ["core"]),
-    ("Ice/optional", ["core"])
+    ("Ice/optional", ["core"]),
+    ("Ice/enums", ["core"])
     ]
 
 if __name__ == "__main__":

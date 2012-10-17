@@ -1414,12 +1414,11 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     string name = fixIdent(p->name());
     EnumeratorList enums = p->getEnumerators();
     EnumeratorList::iterator q;
-    int i;
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = Ice.createTempClass()";
-    _out << nl << "class " << name << "(object):";
+    _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
     string comment = p->comment();
@@ -1428,88 +1427,31 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
         _out << nl << "'''" << editComment(comment) << "'''";
     }
 
-    _out << sp << nl << "def __init__(self, val):";
+    _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
-    {
-        ostringstream assertion;
-        assertion << "assert(val >= 0 and val < " << enums.size() << ')';
-        _out << nl << assertion.str();
-    }
-    _out << nl << "self.value = val";
+    _out << nl << "Ice.EnumBase.__init__(self, _n, _v)";
     _out.dec();
 
-    _out << sp << nl << "def __str__(self):";
+    _out << sp << nl << "def valueOf(self, _n):";
     _out.inc();
-    _out << nl << "return self._names[self.value]";
-    _out.dec();
-    _out << sp << nl << "__repr__ = __str__";
-    _out << sp << nl << "def __hash__(self):";
+    _out << nl << "if _n in self._enumerators:";
     _out.inc();
-    _out << nl << "return self.value";
+    _out << nl << "return self._enumerators[_n]";
     _out.dec();
+    _out << nl << "return None";
+    _out.dec();
+    _out << nl << "valueOf = classmethod(valueOf)";
 
-    //
-    // Rich operators.  __lt__, __le__, __eq__, __ne__, __gt__, __ge__
-    //
-    static const char* richOps[] = {
-        "__lt__", "<",
-        "__le__", "<=",
-        "__eq__", "==",
-        "__ne__", "!=",
-        "__gt__", ">",
-        "__ge__", ">="
-    };
-    for(int opIndex = 0; opIndex != sizeof(richOps)/sizeof(richOps[0]); opIndex += 2)
-    {
-        const char* opName = richOps[opIndex];
-        const char* opSymbol = richOps[opIndex+1];
-
-        _out << sp << nl << "def " << opName << "(self, other):";
-        _out.inc();
-        _out << nl << "if isinstance(other, _M_" << abs << "):";
-        _out.inc();
-        _out << nl << "return self.value " << opSymbol << " other.value;";
-        _out.dec();
-        _out << nl << "elif other == None:";
-        _out.inc();
-        _out << nl << "return False";
-        _out.dec();
-        _out << nl << "return NotImplemented";
-        _out.dec();
-    }
-
-    _out << sp << nl << "_names = (";
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
-    {
-        if(q != enums.begin())
-        {
-            _out << ", ";
-        }
-        _out << "'" << (*q)->name() << "'";
-    }
-    if(enums.size() == 1)
-    {
-        _out << ',';
-    }
-    _out << ')';
     _out.dec();
 
     _out << sp;
-    for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
+    for(q = enums.begin(); q != enums.end(); ++q)
     {
         string fixedEnum = fixIdent((*q)->name());
-        ostringstream idx;
-        idx << i;
-        _out << nl << name << '.' << fixedEnum << " = " << name << '(' << idx.str() << ')';
+        _out << nl << name << '.' << fixedEnum << " = " << name << "(\"" << (*q)->name() << "\", " << (*q)->value()
+             << ')';
     }
-
-    //
-    // Emit the type information.
-    //
-    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
-         << ", ";
-    writeMetaData(p->getMetaData());
-    _out << ", (";
+    _out << nl << name << "._enumerators = { ";
     for(q = enums.begin(); q != enums.end(); ++q)
     {
         if(q != enums.begin())
@@ -1517,13 +1459,17 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
             _out << ", ";
         }
         string fixedEnum = fixIdent((*q)->name());
-        _out << name << '.' << fixedEnum;
+        _out << (*q)->value() << ':' << name << '.' << fixedEnum;
     }
-    if(enums.size() == 1)
-    {
-        _out << ',';
-    }
-    _out << "))";
+    _out << " }";
+
+    //
+    // Emit the type information.
+    //
+    _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
+         << ", ";
+    writeMetaData(p->getMetaData());
+    _out << ", " << name << "._enumerators)";
 
     registerName(name);
 

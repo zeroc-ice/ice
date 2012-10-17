@@ -1447,6 +1447,29 @@ enumerator
     }
     $$ = ens;
 }
+| ICE_IDENTIFIER '=' enumerator_initializer
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    ContainerPtr cont = unit->currentContainer();
+    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($3);
+    if(intVal)
+    {
+        if(intVal->v < 0 || intVal->v > Int32Max)
+        {
+            unit->error("value for enumerator `" + ident->v + "' is out of range");
+        }
+        else
+        {
+            EnumeratorPtr en = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
+            if(en)
+            {
+                ens->v.push_front(en);
+            }
+        }
+    }
+    $$ = ens;
+}
 | keyword
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
@@ -1458,6 +1481,49 @@ enumerator
 {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
     $$ = ens; // Dummy
+}
+;
+
+// ----------------------------------------------------------------------
+enumerator_initializer
+// ----------------------------------------------------------------------
+: ICE_INTEGER_LITERAL
+{
+    $$ = $1;
+}
+| scoped_name
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    IntegerTokPtr tok;
+    if(!cl.empty())
+    {
+        ConstPtr constant = ConstPtr::dynamicCast(cl.front());
+        if(constant)
+        {
+            unit->currentContainer()->checkIntroduced(scoped->v, constant);
+            BuiltinPtr b = BuiltinPtr::dynamicCast(constant->type());
+            if(b && (b->kind() == Builtin::KindByte || b->kind() == Builtin::KindShort ||
+                     b->kind() == Builtin::KindInt || b->kind() == Builtin::KindLong))
+            {
+                IceUtil::Int64 v;
+                if(IceUtilInternal::stringToInt64(constant->value(), v))
+                {
+                    tok = new IntegerTok;
+                    tok->v = v;
+                    tok->literal = constant->value();
+                }
+            }
+        }
+    }
+
+    if(!tok)
+    {
+        string msg = "illegal initializer: `" + scoped->v + "' is not an integer constant";
+        unit->error(msg); // $$ is dummy
+    }
+
+    $$ = tok;
 }
 ;
 
