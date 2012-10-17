@@ -1877,12 +1877,7 @@ namespace Ice.VisualStudio
             // Read Standard error.
             string stderr = process.StandardError.ReadToEnd();
             process.WaitForExit();
-            if(process.ExitCode != 0)
-            {
-                addError(project, file, TaskErrorCategory.Error, 0, 0, "Slice compiler `" + sliceCompiler +
-                                                        "' failed to start (error code " + process.ExitCode.ToString() + ")");
-                return false;
-            }
+            
             if(parseErrors(project, sliceCompiler, file, stderr))
             {
                 bringErrorsToFront();
@@ -1895,6 +1890,14 @@ namespace Ice.VisualStudio
                 {
                     removeCSharpGeneratedItems(item, false);
                 }
+                return false;
+            }
+
+            if(process.ExitCode != 0)
+            {
+                addError(project, file, TaskErrorCategory.Error, 0, 0, 
+                         "Slice compiler `" + sliceCompiler +
+                         "' failed to start (error code " + process.ExitCode.ToString() + ")");
                 return false;
             }
             

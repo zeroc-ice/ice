@@ -1212,7 +1212,7 @@ namespace Ice.VisualStudio
                     IVCCollection sheets = (IVCCollection)conf.PropertySheets;
                     foreach(VCPropertySheet s in sheets)
                     {
-                        if(s.Name.Equals("Metro style app"))
+                        if(s.PropertySheetFile.EndsWith("\\Microsoft.Cpp.AppContainerApplication.props"))
                         {
                             return true;
                         }
