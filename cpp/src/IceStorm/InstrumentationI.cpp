@@ -94,7 +94,7 @@ public:
     };
     static Attributes attributes;
     
-    SubscriberHelper(const string& svc, const string& topic, const Ice::ObjectPrx& proxy, const IceStorm::QoS& qos, 
+    SubscriberHelper(const string& svc, const string& topic, const ::Ice::ObjectPrx& proxy, const IceStorm::QoS& qos, 
                      const IceStorm::TopicPrx& link, SubscriberState state) :
         _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(link), _state(state)
     {
@@ -172,7 +172,7 @@ public:
             {
                 _id = _proxy->ice_toString();
             }
-            catch(const Ice::FixedProxyException&)
+            catch(const ::Ice::FixedProxyException&)
             {
                 _id = _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
             }
@@ -180,7 +180,7 @@ public:
         return _id;
     }
 
-    const Ice::ObjectPrx&
+    const ::Ice::ObjectPrx&
     getProxy() const
     {
         return _proxy;
@@ -213,7 +213,7 @@ private:
 
     const string& _service;
     const string& _topic;
-    const Ice::ObjectPrx& _proxy;
+    const ::Ice::ObjectPrx& _proxy;
     const IceStorm::QoS& _qos;
     const IceStorm::TopicPrx _link;
     const SubscriberState _state;
@@ -343,7 +343,7 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
         }
         catch(const exception& ex)
         {
-            Ice::Error error(_metrics->getLogger());
+            ::Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
@@ -353,7 +353,7 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
 SubscriberObserverPtr
 TopicManagerObserverI::getSubscriberObserver(const string& svc, 
                                              const string& topic, 
-                                             const Ice::ObjectPrx& proxy, 
+                                             const ::Ice::ObjectPrx& proxy, 
                                              const IceStorm::QoS& qos,
                                              const IceStorm::TopicPrx& link,
                                              SubscriberState state,
@@ -367,7 +367,7 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
         }
         catch(const exception& ex)
         {
-            Ice::Error error(_metrics->getLogger());
+            ::Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }

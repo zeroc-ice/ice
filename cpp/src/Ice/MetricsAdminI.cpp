@@ -191,7 +191,7 @@ MetricsMapI::MetricsMapI(const MetricsMapI& map) :
 {
 }
 
-const Ice::PropertyDict&
+const ::Ice::PropertyDict&
 MetricsMapI::getProperties() const
 {
     return _properties;
@@ -223,7 +223,7 @@ MetricsViewI::destroy()
 
 bool
 MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName, 
-                             const MetricsMapFactoryPtr& factory, const Ice::LoggerPtr& logger)
+                             const MetricsMapFactoryPtr& factory, const ::Ice::LoggerPtr& logger)
 {
     //
     // Add maps to views configured with the given map.
@@ -289,12 +289,12 @@ MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapN
     }
     catch(const std::exception& ex)
     {
-        Ice::Warning warn(logger);
+        ::Ice::Warning warn(logger);
         warn << "unexpected exception while creating metrics map:\n" << ex;
     }
     catch(const string& msg)
     {
-        Ice::Warning warn(logger);
+        ::Ice::Warning warn(logger);
         warn << msg;
     }
     return true;
@@ -503,7 +503,7 @@ MetricsAdminI::getMetricsViewNames(const Current&)
 }
 
 MetricsView
-MetricsAdminI::getMetricsView(const string& view, Ice::Long& timestamp, const Current&)
+MetricsAdminI::getMetricsView(const string& view, ::Ice::Long& timestamp, const Current&)
 {
     Lock sync(*this);
     std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
@@ -562,7 +562,7 @@ MetricsAdminI::getLogger() const
 }
 
 void
-MetricsAdminI::setProperties(const Ice::PropertiesPtr& properties)
+MetricsAdminI::setProperties(const ::Ice::PropertiesPtr& properties)
 {
     _properties = properties;
 }
@@ -581,7 +581,7 @@ MetricsAdminI::updated(const PropertyDict& props)
             }
             catch(const std::exception& ex)
             {
-                Ice::Warning warn(_logger);
+                ::Ice::Warning warn(_logger);
                 warn << "unexpected exception while updating metrics view configuration:\n" << ex.what();
             }
             return;

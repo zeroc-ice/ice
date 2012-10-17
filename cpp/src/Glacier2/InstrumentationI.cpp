@@ -40,7 +40,7 @@ public:
     };
     static Attributes attributes;
     
-    SessionHelper(const string& instanceName, const string& id, const Ice::ConnectionPtr& connection, int rtSize) :
+    SessionHelper(const string& instanceName, const string& id, const ::Ice::ConnectionPtr& connection, int rtSize) :
         _instanceName(instanceName), _id(id), _connection(connection), _routingTableSize(rtSize)
     {
     }
@@ -65,25 +65,25 @@ public:
         return _id;
     }
     
-    Ice::ConnectionInfoPtr
+    ::Ice::ConnectionInfoPtr
     getConnectionInfo() const
     {
         return _connection->getInfo();
     }
 
-    Ice::EndpointPtr
+    ::Ice::EndpointPtr
     getEndpoint() const
     {
         return _connection->getEndpoint();
     }
 
-    const Ice::ConnectionPtr&
+    const ::Ice::ConnectionPtr&
     getConnection() const
     {
         return _connection;
     }
 
-    const Ice::EndpointInfoPtr&
+    const ::Ice::EndpointInfoPtr&
     getEndpointInfo() const
     {
         if(!_endpointInfo)
@@ -97,9 +97,9 @@ private:
 
     const string& _instanceName;
     const string& _id;
-    const Ice::ConnectionPtr& _connection;
+    const ::Ice::ConnectionPtr& _connection;
     const int _routingTableSize;
-    mutable Ice::EndpointInfoPtr _endpointInfo;
+    mutable ::Ice::EndpointInfoPtr _endpointInfo;
 };
 
 SessionHelper::Attributes SessionHelper::attributes;
@@ -191,7 +191,7 @@ RouterObserverI::setObserverUpdater(const ObserverUpdaterPtr& updater)
 
 SessionObserverPtr
 RouterObserverI::getSessionObserver(const string& id, 
-                                    const Ice::ConnectionPtr& connection, 
+                                    const ::Ice::ConnectionPtr& connection, 
                                     int routingTableSize,
                                     const SessionObserverPtr& old)
 {
@@ -203,7 +203,7 @@ RouterObserverI::getSessionObserver(const string& id,
         }
         catch(const exception& ex)
         {
-            Ice::Error error(_metrics->getLogger());
+            ::Ice::Error error(_metrics->getLogger());
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }

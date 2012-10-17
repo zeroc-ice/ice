@@ -234,13 +234,13 @@ protected:
         }
 
         static std::string
-        toString(const Ice::EndpointPtr& e)
+        toString(const ::Ice::EndpointPtr& e)
         {
             return e->toString();
         }
 
         static std::string
-        toString(const Ice::ConnectionPtr& e)
+        toString(const ::Ice::ConnectionPtr& e)
         {
             return e->toString();
         }
@@ -290,7 +290,7 @@ newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
     return new UpdaterT<T>(updater.get(), fn);
 }
 
-template<typename T> class ObserverT : virtual public Ice::Instrumentation::Observer
+template<typename T> class ObserverT : virtual public ::Ice::Instrumentation::Observer
 {
 public:
 
@@ -311,7 +311,7 @@ public:
     virtual void 
     detach()
     {
-        Ice::Long lifetime = _watch.stop();
+        ::Ice::Long lifetime = _watch.stop();
         for(typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
         {
             (*p)->detach(lifetime);
