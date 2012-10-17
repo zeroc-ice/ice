@@ -1069,7 +1069,7 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
         member->type = getType(t);
         if(allowOptional)
         {
-            member->optional = PyObject_IsTrue(opt);
+            member->optional = PyObject_IsTrue(opt) == 1;
             member->tag = static_cast<int>(PyLong_AsLong(tag));
         }
         else

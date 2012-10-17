@@ -27,6 +27,7 @@ OBJS		= Communicator.obj \
 		  ObjectFactory.obj \
 		  Operation.obj \
 		  Properties.obj \
+		  PropertiesAdmin.obj \
 		  Proxy.obj \
 		  Slice.obj \
 		  Thread.obj \

@@ -1195,7 +1195,7 @@ IcePy::Operation::convertParam(PyObject* p, int pos)
     //
     // optional
     //
-    param->optional = PyObject_IsTrue(PyTuple_GET_ITEM(p, 2));
+    param->optional = PyObject_IsTrue(PyTuple_GET_ITEM(p, 2)) == 1;
 
     //
     // tag
@@ -3758,7 +3758,7 @@ IcePy::BlobjectUpcall::response(PyObject* args, const Ice::EncodingVersion&)
     }
 
     PyObject* arg = PyTuple_GET_ITEM(args, 0);
-    int isTrue = PyObject_IsTrue(arg);
+    bool isTrue = PyObject_IsTrue(arg) == 1;
 
     arg = PyTuple_GET_ITEM(args, 1);
 
