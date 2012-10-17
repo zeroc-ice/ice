@@ -102,7 +102,7 @@ getVersion(zval* zv, T& v, const char* type TSRMLS_DC)
         invalidArgument("version major must be a value between 0 and 255" TSRMLS_CC);
         return false;
     }
-    v.major = m;
+    v.major = static_cast<Ice::Byte>(m);
 
     m = Z_LVAL_P(minorVal);
     if(m < 0 || m > 255)
@@ -110,7 +110,7 @@ getVersion(zval* zv, T& v, const char* type TSRMLS_DC)
         invalidArgument("version minor must be a value between 0 and 255" TSRMLS_CC);
         return false;
     }
-    v.minor = m;
+    v.minor = static_cast<Ice::Byte>(m);
 
     return true;
 }
