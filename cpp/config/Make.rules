@@ -229,13 +229,13 @@ else
 	   DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
 	   DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
 	else
-	   ifeq ($(shell if [ -d /usr/include/db48 -a -d /usr/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
-	      DB_FLAGS          = -I/usr/include/db48
-	      DB_LIBS           = -L/usr/$(libsubdir)/db48 -ldb_cxx
+	   ifeq ($(shell if [ -d /usr/include/db53 -a -d /usr/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
+	      DB_FLAGS          = -I/usr/include/db53
+	      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
 	   else
-              ifeq ($(shell if [ -d /usr/local/include/db48 -a -d /usr/local/$(libsubdir)/db48 ] ; then echo yes; fi), yes)
-                   DB_FLAGS          = -I/usr/local/include/db48
-                   DB_LIBS           = -L/usr/local/$(libsubdir)/db48 -ldb_cxx
+              ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
+                   DB_FLAGS          = -I/usr/local/include/db53
+                   DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx
               else
 	           DB_LIBS      = -ldb_cxx
               endif

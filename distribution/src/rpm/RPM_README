@@ -39,17 +39,16 @@ The gpg settings are only needed if you want to sign your RPMs.
 Replace "/home/rpmbuilder" with a path name that is appropriate for
 your system.
 
-The value for %dist should be one of ".sles11", ".rhel5", or ".rhel6".
+The value for %dist should be ".sles11" or ".el6".
 
 
 ======================================================================
 2. The RPM package build directory
 ======================================================================
 
-The RPM package build directory is /usr/src/redhat on RHEL 5.x and
-/usr/src/packages on SLES. For RHEL 6, create and use ~/rpmbuild. In
-this document we refer to the package directory symbolically as
-<rpm-package>.
+The RPM package build directory is /usr/src/packages on SLES. For 
+RHEL 6, create and use ~/rpmbuild. In this document we refer to the 
+package directory symbolically as <rpm-package>.
 
 You may need to adjust the permissions on all subdirectories of this
 directory to be able to create RPMs as a non-root user.
@@ -83,9 +82,9 @@ The ice.spec file defines a number of build requirements that must be
 installed on your system in order to build the source RPM. These
 dependencies are listed below:
 
- - db48
- - db48-devel
- - db48-java
+ - db53
+ - db53-devel
+ - db53-java
  - mcpp-devel
  - openssl-devel
  - jpackage-utils
@@ -93,14 +92,11 @@ dependencies are listed below:
  - bzip2-devel (RHEL)
  - expat-devel (RHEL)
  - php-devel (RHEL)
- - qt4-devel (RHEL5)
- - qt-devel (RHEL6)
  - php5-devel (SLES)
- - libqt4-devel (SLES)
  - mono-core (SLES)
  - mono-devel (SLES)
 
-The db48* and mcpp-devel RPMs are provided by ZeroC. You can determine
+The db53* and mcpp-devel RPMs are provided by ZeroC. You can determine
 the version requirements for all other prerequisites by examining the
 BuildRequires directives in the ice.spec file.
 
