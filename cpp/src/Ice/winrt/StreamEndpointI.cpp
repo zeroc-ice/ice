@@ -64,19 +64,21 @@ private:
 }
 
 IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Short type, const string& ho, Int po, 
-                                              Int ti, const string& conId, bool co) :
+                                              Int ti, const Ice::ProtocolVersion& protocol, 
+					      const Ice::EncodingVersion& encoding, const string& conId, bool co) :
+    EndpointI(protocol, encoding, conId),
     _instance(instance),
     _type(type),
     _host(ho),
     _port(po),
     _timeout(ti),
-    _connectionId(conId),
     _compress(co)
 {
 }
 
 IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Short type, const string& str, 
                                               bool oaEndpoint) :
+    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding, ""),
     _instance(instance),
     _type(type),
     _port(0),
@@ -355,7 +357,7 @@ IceInternal::StreamEndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new StreamEndpointI(_instance, _type, _host, _port, timeout, _connectionId, _compress);
+        return new StreamEndpointI(_instance, _type, _host, _port, timeout, _protocol, _encoding, _connectionId, _compress);
     }
 }
 
@@ -368,7 +370,7 @@ IceInternal::StreamEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new StreamEndpointI(_instance, _type, _host, _port, _timeout, connectionId, _compress);
+      return new StreamEndpointI(_instance, _type, _host, _port, _timeout, _protocol, _encoding, connectionId, _compress);
     }
 }
 
@@ -387,7 +389,7 @@ IceInternal::StreamEndpointI::compress(bool compress) const
     }
     else
     {
-        return new StreamEndpointI(_instance, _type, _host, _port, _timeout, _connectionId, compress);
+        return new StreamEndpointI(_instance, _type, _host, _port, _timeout, _protocol, _encoding, _connectionId, compress);
     }
 }
 
@@ -426,7 +428,7 @@ AcceptorPtr
 IceInternal::StreamEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     StreamAcceptor* p = new StreamAcceptor(_instance, _type, _host, _port, _instance->protocolSupport());
-    endp = new StreamEndpointI(_instance, _type, _host, p->effectivePort(), _timeout, _connectionId, _compress);
+    endp = new StreamEndpointI(_instance, _type, _host, p->effectivePort(), _timeout, _protocol, _encoding, _connectionId, _compress);
     return p;
 }
 
@@ -444,7 +446,7 @@ IceInternal::StreamEndpointI::expand() const
     {
         for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
         {
-            endps.push_back(new StreamEndpointI(_instance, _type, *p, _port, _timeout, _connectionId, _compress));
+            endps.push_back(new StreamEndpointI(_instance, _type, *p, _port, _timeout, _protocol, _encoding, _connectionId, _compress));
         }
     }
     return endps;
@@ -476,6 +478,16 @@ IceInternal::StreamEndpointI::operator==(const LocalObject& r) const
     }
 
     if(_type != p->_type)
+    {
+        return false;
+    }
+
+    if(_protocol != p->_protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != p->_encoding) 
     {
         return false;
     }
@@ -532,6 +544,24 @@ IceInternal::StreamEndpointI::operator<(const LocalObject& r) const
         return true;
     }
     else if(p->_type < _type)
+    {
+        return false;
+    }
+
+    if(_protocol < p->_protocol)
+    {
+        return true;
+    }
+    else if(p->_protocol < _protocol) 
+    {
+        return false;
+    }
+
+    if(_encoding < p->_encoding) 
+    {
+        return true;
+    }
+    else if(p->_encoding < _encoding) 
     {
         return false;
     }

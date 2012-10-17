@@ -34,7 +34,6 @@ OBJS		= NodeI.o \
 		  IceStormInternal.o \
 		  Instrumentation.o \
 		  InstrumentationI.o \
-		  Metrics.o \
 		  Util.o
 
 AOBJS		= Admin.o \
@@ -49,8 +48,7 @@ AOBJS		= Admin.o \
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(AOBJS:.o=.cpp) \
 
-SLICE_SRCS	= $(SDIR)/Metrics.ice \
-		  ../IceStorm/Instrumentation.ice \
+SLICE_SRCS	= ../IceStorm/Instrumentation.ice \
 		  ../IceStorm/Election.ice \
 		  ../IceStorm/IceStormInternal.ice \
 		  ../IceStorm/LLURecord.ice \

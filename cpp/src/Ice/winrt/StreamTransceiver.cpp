@@ -344,7 +344,6 @@ IceInternal::StreamTransceiver::toString() const
 Ice::ConnectionInfoPtr 
 IceInternal::StreamTransceiver::getInfo() const
 {
-    assert(_fd != INVALID_SOCKET);
     Ice::IPConnectionInfoPtr info;
     if(_type == IceSSL::EndpointType)
     {

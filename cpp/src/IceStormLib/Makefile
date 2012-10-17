@@ -15,11 +15,13 @@ LIBNAME		= $(call mklibname,IceStorm)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= IceStorm.o
+OBJS		= IceStorm.o \
+		  Metrics.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/IceStorm.ice
+SLICE_SRCS	= $(SDIR)/IceStorm.ice \
+		  $(SDIR)/Metrics.ice
 
 HDIR		= $(headerdir)/IceStorm
 SDIR		= $(slicedir)/IceStorm

@@ -44,7 +44,6 @@
   <ItemGroup>
     <None Include="bidir_TemporaryKey.pfx" />
     <None Include="Callback.ice" />
-    <None Include="key.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

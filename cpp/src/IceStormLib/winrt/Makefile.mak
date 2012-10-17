@@ -15,10 +15,10 @@ SOURCE_DIR	= ..
 TARGETS         = $(LIBNAME)
 
 OBJS		= $(ARCH)\$(CONFIG)\IceStorm.obj \
-			$(ARCH)\$(CONFIG)\Metrics.obj
+		  $(ARCH)\$(CONFIG)\Metrics.obj
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
-			$(SDIR)/Metrics.ice
+		  $(SDIR)/Metrics.ice
 
 SRCS		= $(OBJS:.obj=.cpp)
 SRCS		= $(SRCS:x86\=)
@@ -29,7 +29,8 @@ SRCS		= $(SRCS:Debug\=..\)
 HDIR		= $(headerdir)\IceStorm
 SDIR		= $(slicedir)\IceStorm
 
-CPPFLAGS	= -I..\.. -DWIN32_LEAN_AND_MEAN
+PDBNAME		= $(LIBNAME:.lib=.pdb)
+CPPFLAGS	= /Fd$(PDBNAME) -I..\.. -DWIN32_LEAN_AND_MEAN 
 ICECPPFLAGS	= -I..
 SLICE2CPPFLAGS	= --ice --include-dir IceStorm --checksum --dll-export ICE_STORM_LIB_API
 
@@ -54,5 +55,7 @@ clean::
 	-del /q $(SOURCE_DIR)\IceStorm.cpp $(HDIR)\IceStorm.h
 	-del /q $(SOURCE_DIR)\Metrics.cpp $(HDIR)\Metrics.h
 	-del /q $(RES_FILE)
+	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(PDBNAME)
 
 !include .depend.mak

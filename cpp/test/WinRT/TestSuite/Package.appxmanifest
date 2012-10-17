@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="9cf3ce93-b7f1-414e-b2bd-7181121c15ac" Publisher="CN=ZeroC" Version="1.0.0.0" />
+  <Identity Name="9cf3ce93-b7f1-414e-b2bd-7181121c15ac" Publisher="CN=ZeroC Test Suite App" Version="1.0.0.0" />
   <Properties>
     <DisplayName>Ice Test Suite</DisplayName>
     <PublisherDisplayName>ZeroC</PublisherDisplayName>

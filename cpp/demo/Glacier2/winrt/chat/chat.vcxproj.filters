@@ -46,9 +46,9 @@
     <AppxManifest Include="Package.appxmanifest" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="chat_TemporaryKey.pfx" />
     <None Include="Chat.ice" />
     <None Include="..\..\..\..\..\certs\cacert.pem" />
+    <None Include="chat_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

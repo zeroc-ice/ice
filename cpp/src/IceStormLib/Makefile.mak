@@ -14,7 +14,8 @@ DLLNAME		= $(top_srcdir)\bin\icestorm$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS         = $(LIBNAME) $(DLLNAME)
 
-OBJS		= IceStorm.obj
+OBJS		= IceStorm.obj \
+		  Metrics.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
 
@@ -45,6 +46,7 @@ $(DLLNAME): $(OBJS) IceStorm.res
 
 clean::
 	-del /q IceStorm.cpp $(HDIR)\IceStorm.h
+	-del /q Metrics.cpp $(HDIR)\Metrics.h
 	-del /q IceStorm.res
 
 install:: all

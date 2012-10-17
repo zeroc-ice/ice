@@ -98,8 +98,8 @@ OBJS		= $(ARCH)\$(CONFIG)\Acceptor.obj \
 		  $(ARCH)\$(CONFIG)\Stats.obj \
 		  $(ARCH)\$(CONFIG)\StreamI.obj \
 		  $(ARCH)\$(CONFIG)\Stream.obj \
-          $(ARCH)\$(CONFIG)\StringConverter.obj \
-	      $(ARCH)\$(CONFIG)\ThreadPool.obj \
+	          $(ARCH)\$(CONFIG)\StringConverter.obj \
+		  $(ARCH)\$(CONFIG)\ThreadPool.obj \
 		  $(ARCH)\$(CONFIG)\TraceLevels.obj \
 		  $(ARCH)\$(CONFIG)\TraceUtil.obj \
 		  $(ARCH)\$(CONFIG)\Transceiver.obj \
@@ -189,7 +189,8 @@ SRCS		= $(SRCS) \
 HDIR		= $(headerdir)\Ice
 SDIR		= $(slicedir)\Ice
 
-CPPFLAGS	= -I..\.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+PDBNAME			= $(LIBNAME:.lib=.pdb)
+CPPFLAGS		= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DICE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 CORE_SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
@@ -206,7 +207,7 @@ Ice.res: $(SOURCE_DIR)\EventLoggerMsg.rc
 
 .cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
-	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(slicedir)\Ice}.ice.cpp:
 	@echo c
@@ -277,5 +278,7 @@ clean::
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
 	-del /q $(RES_FILE)
+	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(PDBNAME)
 
 !include .depend.mak

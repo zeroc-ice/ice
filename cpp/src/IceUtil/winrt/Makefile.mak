@@ -41,7 +41,8 @@ SRCS		= $(SRCS:x64\=)
 SRCS		= $(SRCS:Retail\=..\)
 SRCS		= $(SRCS:Debug\=..\)
 
-CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..\.. -DWIN32_LEAN_AND_MEAN
+PDBNAME		= $(LIBNAME:.lib=.pdb)
+CPPFLAGS        = /Fd$(PDBNAME) $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I..\.. -DWIN32_LEAN_AND_MEAN
 
 !include $(top_srcdir)/config/Make.rules.mak
 
@@ -49,7 +50,7 @@ depend::
 	del /q .depend.mak
 
 .cpp.depend:
-	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py $<
+	$(CXX) /Fo$(ARCH)\$(CONFIG)\ /Zs /showIncludes $(CXXFLAGS) $(CPPFLAGS) $< 2>&1 | python.exe $(ice_dir)/config/makedepend-winrt.py $<
 
 depend:: $(ARCH)\$(CONFIG) $(SRCS_DEPEND)
 
@@ -62,5 +63,7 @@ clean::
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(ARCH)\$(CONFIG)\*.pdb
 	-del /q $(RES_FILE)
+	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(PDBNAME)
 
 !include .depend.mak

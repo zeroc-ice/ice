@@ -206,7 +206,7 @@ EVERYTHING		= all clean install depend
 
 {..}.cpp{$(ARCH)\$(CONFIG)\}.obj::
 	@if not exist "$(ARCH)\$(CONFIG)" mkdir $(ARCH)\$(CONFIG)
-	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ /Fd$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
+	$(CXX) /c /Fo$(ARCH)\$(CONFIG)\ $(CPPFLAGS) $(CXXFLAGS) $<
 
 {$(SDIR)\}.ice{..}.cpp:
 	@echo f

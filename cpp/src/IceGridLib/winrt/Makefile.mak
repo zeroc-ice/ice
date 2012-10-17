@@ -14,17 +14,17 @@ SOURCE_DIR	= ..
 
 TARGETS         = $(LIBNAME)
 
-OBJS	= $(ARCH)\$(CONFIG)\Admin.obj \
-	   $(ARCH)\$(CONFIG)\Locator.obj \
-	   $(ARCH)\$(CONFIG)\Query.obj \
-	   $(ARCH)\$(CONFIG)\Exception.obj \
-	   $(ARCH)\$(CONFIG)\Descriptor.obj \
-           $(ARCH)\$(CONFIG)\FileParser.obj \
-	   $(ARCH)\$(CONFIG)\Observer.obj \
-	   $(ARCH)\$(CONFIG)\Session.obj \
-	   $(ARCH)\$(CONFIG)\Registry.obj \
-	   $(ARCH)\$(CONFIG)\UserAccountMapper.obj
-	   
+OBJS		= $(ARCH)\$(CONFIG)\Admin.obj \
+		  $(ARCH)\$(CONFIG)\Locator.obj \
+	          $(ARCH)\$(CONFIG)\Query.obj \
+		  $(ARCH)\$(CONFIG)\Exception.obj \
+	   	  $(ARCH)\$(CONFIG)\Descriptor.obj \
+		  $(ARCH)\$(CONFIG)\FileParser.obj \
+	          $(ARCH)\$(CONFIG)\Observer.obj \
+	   	  $(ARCH)\$(CONFIG)\Session.obj \
+	   	  $(ARCH)\$(CONFIG)\Registry.obj \
+	   	  $(ARCH)\$(CONFIG)\UserAccountMapper.obj
+
 SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/FileParser.ice \
@@ -45,8 +45,9 @@ SRCS		= $(SRCS:Debug\=..\)
 HDIR		= $(headerdir)\IceGrid
 SDIR		= $(slicedir)\IceGrid
 
+PDBNAME		= $(LIBNAME:.lib=.pdb)
+CPPFLAGS        = /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_API
-CPPFLAGS        = -I..\.. $(CPPFLAGS)
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -77,5 +78,7 @@ clean::
 	-del /q $(SOURCE_DIR)\Registry.cpp $(HDIR)\Registry.h
 	-del /q $(SOURCE_DIR)\UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h
 	-del /q $(RES_FILE)
+	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(PDBNAME)
 
 !include .depend.mak

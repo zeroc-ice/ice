@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="be9e42f6-f89b-4671-8754-e408ccec94f0" Publisher="CN=ZeroC" Version="1.0.0.0" />
+  <Identity Name="be9e42f6-f89b-4671-8754-e408ccec94f0" Publisher="CN=ZeroC Hello App" Version="1.0.0.0" />
   <Properties>
     <DisplayName>Ice Hello Demo</DisplayName>
     <PublisherDisplayName>ZeroC</PublisherDisplayName>

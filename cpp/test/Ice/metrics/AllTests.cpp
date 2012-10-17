@@ -391,15 +391,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     updateProps(clientProps, serverProps, update, props);
     
 #ifndef ICE_OS_WINRT
-	int threadCount = 4;
+    int threadCount = 4;
 #else
-	int threadCount = 3;
+    int threadCount = 3; // No endpoint host resolver thread with WinRT.
 #endif
 
     Ice::Long timestamp;
     IceMX::MetricsView view = clientMetrics->getMetricsView("View", timestamp);
     test(view["Connection"].size() == 1 && view["Connection"][0]->current == 1 && view["Connection"][0]->total == 1);
-    test(view["Thread"].size() == 1 && view["Thread"][0]->current == threadCount && view["Thread"][0]->total == threadCount);
+    test(view["Thread"].size() == 1 && view["Thread"][0]->current == threadCount && 
+	 view["Thread"][0]->total == threadCount);
     cout << "ok" << endl;
 
     cout << "testing group by id..." << flush;
@@ -420,6 +421,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     IceMX::InvocationMetricsPtr invoke = IceMX::InvocationMetricsPtr::dynamicCast(view["Invocation"][0]);
     test(invoke->id.find("[ice_ping]") > 0 && invoke->current == 0 && invoke->total == 5);
+
     test(invoke->remotes.size() == 2);
     test(invoke->remotes[0]->total = 2);
     test(invoke->remotes[1]->total = 3);
@@ -654,6 +656,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    //
+    // Ice doesn't do any endpoint lookup with WinRT, the WinRT
+    // runtime takes care of if.
+    //
+#ifndef ICE_OS_WINRT
     cout << "testing endpoint lookup metrics... " << flush;
 
     props["IceMX.Metrics.View.Map.ConnectionEstablishment.GroupBy"] = "id";
@@ -705,6 +712,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointPort", "12010", c);
 
     cout << "ok" << endl;
+#endif
 
     cout << "testing dispatch metrics... " << flush;
 

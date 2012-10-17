@@ -44,7 +44,7 @@
   <ItemGroup>
     <None Include="Hello.ice" />
     <None Include="..\..\..\..\..\certs\cacert.pem" />
-    <None Include="key.pfx" />
+    <None Include="hello_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

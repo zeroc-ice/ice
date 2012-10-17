@@ -32,7 +32,6 @@ OBJS		= NodeI.obj \
 		  IceStormInternal.obj \
 		  Instrumentation.obj \
 		  InstrumentationI.obj \
-		  Metrics.obj \
 		  Util.obj
 
 AOBJS		= Admin.obj \

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest">
-  <Identity Name="46e81031-9c5b-4caa-92cb-57fbccb3dc93" Publisher="CN=ZeroC" Version="1.0.0.0" />
+  <Identity Name="46e81031-9c5b-4caa-92cb-57fbccb3dc93" Publisher="CN=ZeroC Glacier2 Chat App" Version="1.0.0.0" />
   <Properties>
     <DisplayName>Glacier2 Chat Demo</DisplayName>
     <PublisherDisplayName>ZeroC</PublisherDisplayName>

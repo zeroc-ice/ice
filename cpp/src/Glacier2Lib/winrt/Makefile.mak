@@ -40,8 +40,9 @@ SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/Session.ice \
 		  $(SDIR)/SSLInfo.ice \
 		  $(SDIR)/Metrics.ice
-		  
-CPPFLAGS	= -I..\.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
+
+PDBNAME		= $(LIBNAME:.lib=.pdb)
+CPPFLAGS	= /Fd$(PDBNAME) -I..\.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 
 !include $(top_srcdir)\config\Make.rules.mak
 
@@ -51,7 +52,7 @@ SLICE2CPPFLAGS	= --ice --include-dir Glacier2 --dll-export GLACIER2_API $(SLICE2
 
 $(LIBNAME): $(OBJS) $(RES_FILE) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
-	
+
 depend::
 	del /q .depend.mak
 
@@ -71,5 +72,7 @@ clean::
 	-del /q $(SOURCE_DIR)\SSLInfo.cpp $(HDIR)\SSLInfo.h
 	-del /q $(SOURCE_DIR)\Metrics.cpp $(HDIR)\Metrics.h
 	-del /q $(RES_FILE)
+	-del /q $(ARCH)\$(CONFIG)\*.obj
+	-del /q $(PDBNAME)
 
 !include .depend.mak

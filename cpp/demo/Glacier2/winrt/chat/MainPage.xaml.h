@@ -70,8 +70,8 @@ public:
     MainPage();
 
     static MainPage^ instance();
-    void setConnected(bool);
-    void appendMessage(Platform::String^);
+    void setConnected(bool c);
+    void appendMessage(Platform::String^ msg);
 
 private:
         

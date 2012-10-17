@@ -37,7 +37,7 @@ CPPFLAGS	= $(CPPFLAGS) -DWINAPI_FAMILY=2 -Gm- -Oy- -Gd -ZW -D_UNICODE -DUNICODE
 # 4264 http://msdn.microsoft.com/en-us/library/windows/apps/hh771041(v=vs.110).aspx
 # 4221 is "This object file does not define any previously undefined public symbols", 
 #
-ARFLAGS	= $(ARFLAGS) /ignore:4264 /ignore:4221
+ARFLAGS		= $(ARFLAGS) /ignore:4264 /ignore:4221
 !else
 CPPFLAGS	= $(CPPFLAGS) -D_CONSOLE
 !endif

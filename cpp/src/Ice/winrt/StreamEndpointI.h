@@ -22,7 +22,8 @@ class StreamEndpointI : public EndpointI
 {
 public:
 
-    StreamEndpointI(const InstancePtr&, Ice::Short, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
+    StreamEndpointI(const InstancePtr&, Ice::Short, const std::string&, Ice::Int, Ice::Int, 
+		    const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&, bool);
     StreamEndpointI(const InstancePtr&, Ice::Short, const std::string&, bool);
     StreamEndpointI(BasicStream*, Ice::Short);
 
@@ -60,7 +61,6 @@ private:
     const std::string _host;
     const Ice::Int _port;
     const Ice::Int _timeout;
-    const std::string _connectionId;
     const bool _compress;
 };
 

@@ -14,12 +14,13 @@
 namespace chat
 {
 
+[Windows::Foundation::Metadata::WebHostHidden]
 public ref class LoginView sealed
 {
 public:
 
     LoginView();
-    void setError(Platform::String^);
+    void setError(Platform::String^ msg);
     void signinCompleted()
     {
         signin->IsEnabled = true;
@@ -27,11 +28,11 @@ public:
 
 protected:
 
-    virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^) override;
+    virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 
 private:
 
-    void signinClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^);
+    void signinClick(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 };
 
 }
