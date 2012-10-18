@@ -15,7 +15,7 @@ namespace IceInternal
     using System.ComponentModel;
     using System.Diagnostics;
     using System.Net;
-#if !COMPACT
+#if !COMPACT && !UNITY
     using System.Net.NetworkInformation;
 #endif
     using System.Net.Sockets;
@@ -978,7 +978,7 @@ namespace IceInternal
             try
             {
                 addresses = new List<IPAddress>();
-#  if !COMPACT
+#  if !COMPACT && !UNITY
                 if(AssemblyUtil.runtime_ != AssemblyUtil.Runtime.Mono)
                 {
                     NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
@@ -1257,7 +1257,7 @@ namespace IceInternal
         private static int
         getInterfaceIndex(string name)
         {
-#if !COMPACT && !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT && !UNITY
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             foreach(NetworkInterface ni in nics)
             {
@@ -1278,7 +1278,7 @@ namespace IceInternal
         private static IPAddress
         getInterfaceAddress(string name)
         {
-#if !COMPACT && !SILVERLIGHT
+#if !COMPACT && !SILVERLIGHT && !UNITY
             NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
             foreach(NetworkInterface ni in nics)
             {

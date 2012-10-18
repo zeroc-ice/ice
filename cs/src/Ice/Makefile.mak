@@ -158,6 +158,10 @@ MCSFLAGS	= $(MCSFLAGS) -define:MANAGED
 MCSFLAGS        = $(MCSFLAGS) /unsafe
 !endif
 
+!if "$(UNITY)" == "yes"
+MCSFLAGS	= $(MCSFLAGS) -define:UNITY
+!endif
+
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)

@@ -156,7 +156,7 @@ namespace Ice
         private bool _console = false;
         private TextWriter _writer;
     }
-#elif SILVERLIGHT
+#elif SILVERLIGHT || UNITY
     public sealed class TraceLoggerI : LoggerI
     {
         public TraceLoggerI(string prefix, bool console)

@@ -659,7 +659,7 @@ namespace IceInternal
                 {
                     _initData.properties = Ice.Util.createProperties();
                 }
-#if !SILVERLIGHT
+#if !SILVERLIGHT && !UNITY
                 lock(_staticLock)
                 {
                     if(!_oneOffDone)
@@ -728,6 +728,7 @@ namespace IceInternal
                         _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"),
                             _initData.properties.getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
                     }
+#   if !UNITY
                     else if(logfile.Length != 0 || Ice.Util.getProcessLogger() is Ice.LoggerI) 
                     {
                         //
@@ -739,6 +740,7 @@ namespace IceInternal
                         _initData.logger =
                             new Ice.TraceLoggerI(_initData.properties.getProperty("Ice.ProgramName"), logfile, console);
                     }
+#   endif
 #else
                     if(Ice.Util.getProcessLogger() is Ice.LoggerI)
                     {
@@ -1229,9 +1231,12 @@ namespace IceInternal
 
 #if !SILVERLIGHT
         private static bool _printProcessIdDone = false;
+#endif
 
+#if !SILVERLIGHT && !UNITY
         private static bool _oneOffDone = false;
 #endif
+
         private static System.Object _staticLock = new System.Object();
     }
 }

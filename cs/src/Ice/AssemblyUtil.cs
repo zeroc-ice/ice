@@ -80,7 +80,7 @@ namespace IceInternal
                 _iceAssemblies.Add("IcePatch2," + suffix);
                 _iceAssemblies.Add("IceStorm," + suffix);
             }
-#else
+#elif !UNITY
             if (platform_ == Platform.NonWindows)
             {
                 try
@@ -268,7 +268,7 @@ namespace IceInternal
         private static List<string> _iceAssemblies = new List<string>();
 #endif
         private static Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
-        private static Object _mutex = new Object();
+        private static object _mutex = new object();
 
         public readonly static Runtime runtime_; // Either DotNET or Mono
         //

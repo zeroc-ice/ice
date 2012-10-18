@@ -313,7 +313,10 @@ namespace Ice
         
         public void load(string file)
         {
-#if !SILVERLIGHT
+#if UNITY
+            throw new FeatureNotSupportedException("File I/O not supported in UNITY build");
+#else
+#   if !SILVERLIGHT
             if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows &&
                (file.StartsWith("HKLM\\", StringComparison.Ordinal)))
             {
@@ -336,7 +339,7 @@ namespace Ice
             }
             else
             {
-#endif
+#   endif
                 try
                 {
                     using(System.IO.StreamReader sr = new System.IO.StreamReader(file))
@@ -350,8 +353,9 @@ namespace Ice
                     fe.path = file;
                     throw fe;
                 }
-#if !SILVERLIGHT
+#   if !SILVERLIGHT
             }
+#   endif
 #endif
         }
         

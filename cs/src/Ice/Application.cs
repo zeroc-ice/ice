@@ -20,7 +20,7 @@ namespace Ice
 
     internal static class NativeMethods
     {
-#if !COMPACT
+#if !COMPACT && !UNITY
         //
         // Technically it's not necessary to wrap DllImport in conditional compilation because
         // the binding occurs at run time and it will never be executed on Mono. However, it
@@ -211,7 +211,7 @@ namespace Ice
             _application = this;
 
             int status;
-#if COMPACT
+#if COMPACT || UNITY
             status = doMain(args, initData);
 #else
 
@@ -818,7 +818,7 @@ namespace Ice
 
         private delegate void SignalHandler(int sig);
         private static readonly SignalHandler _handler = new SignalHandler(signalHandler);
-#if !COMPACT
+#if !COMPACT && !UNITY
         private Signals _signals;
 
         private interface Signals

@@ -42,6 +42,17 @@ prefix			= C:\Ice-$(VERSION)
 #COMPACT			= yes
 
 #
+# Enable the UNITY flag to build for the Unity3D Web player. Enabling this
+# setting also implies MANAGED. In addition to the features removed by
+# MANAGED, this flag removes the following:
+#
+# - File I/O: property loading, file logger (Ice.LogFile), I/O redirection
+#   (Ice.StdOut, Ice.StdErr)
+# - ICE_CONFIG environment variable
+#
+#UNITY			= yes
+
+#
 # Enable support for Silverlight.This setting disables the following
 # features:
 #
@@ -146,6 +157,13 @@ generate_policies   = yes
 
 MCS			= csc -nologo
 
+#
+# UNITY implies MANAGED.
+#
+!if "$(UNITY)" == "yes"
+MANAGED			= yes
+!endif
+
 MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
 
 !if "$(DEBUG)" == "yes"
@@ -177,6 +195,20 @@ NETCF_REFS		= "/r:$(NETCF_HOME)\mscorlib.dll" \
 			  "/r:$(NETCF_HOME)\System.dll" \
 			  "/r:$(NETCF_HOME)\System.Runtime.Serialization.dll"
 MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib -define:COMPACT $(NETCF_REFS)
+!elseif "$(UNITY)" == "yes"
+#
+# You can compile against the WebPlayer assemblies by enabling the MCSFLAGS line below.
+# You'll need to change UNITY_LIBDIR to the appropriate directory for your system.
+#
+# This setting works on Windows XP:
+#UNITY_LIBDIR		= C:\Documents and Settings\<user>\Local Settings\Application Data\Unity\WebPlayer\mono\3.x.x\Data\lib
+# This setting works on Windows 7:
+UNITY_LIBDIR		= C:\Users\<user>\AppData\LocalLow\Unity\WebPlayer\mono\3.x.x\Data\lib
+
+UNITY_LIBS 		= "/r:$(UNITY_LIBDIR)\mscorlib.dll" \
+			  "/r:$(UNITY_LIBDIR)\System.dll" \
+			  "/r:$(UNITY_LIBDIR)\System.Core.dll"
+#MCSFLAGS 		= $(MCSFLAGS) -noconfig -nostdlib $(UNITY_LIBS)
 !elseif "$(SILVERLIGHT)" == "yes"
 !if "$(SILVERLIGHT_VERSION)" == ""
 SILVERLIGHT_VERSION	= 5.0.61118.0
