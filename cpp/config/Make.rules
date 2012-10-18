@@ -226,18 +226,18 @@ else
 
 	ifneq ($(DB_HOME),)
 	   DB_FLAGS             = -I$(DB_HOME)/include
-	   DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx
+	   DB_LIBS              = -L$(DB_HOME)/$(libsubdir) -ldb_cxx$(CPP11LIBSUFFIX)
 	   DB_RPATH_LINK        = $(call rpathlink,$(DB_HOME)/$(libsubdir))
 	else
 	   ifeq ($(shell if [ -d /usr/include/db53 -a -d /usr/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
 	      DB_FLAGS          = -I/usr/include/db53
-	      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx
+	      DB_LIBS           = -L/usr/$(libsubdir)/db53 -ldb_cxx$(CPP11LIBSUFFIX)
 	   else
               ifeq ($(shell if [ -d /usr/local/include/db53 -a -d /usr/local/$(libsubdir)/db53 ] ; then echo yes; fi), yes)
                    DB_FLAGS          = -I/usr/local/include/db53
-                   DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx
+                   DB_LIBS           = -L/usr/local/$(libsubdir)/db53 -ldb_cxx$(CPP11LIBSUFFIX)
               else
-	           DB_LIBS      = -ldb_cxx
+	           DB_LIBS      = -ldb_cxx$(CPP11LIBSUFFIX)
               endif
 	   endif
 	endif

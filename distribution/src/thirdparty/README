@@ -15,7 +15,7 @@ platforms.
 For more information about the third-party dependencies, please refer
 to the links below:
 
-Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
+Berkeley DB    http://www.oracle.com/technetwork/products/berkeleydb
 expat          http://expat.sourceforge.net
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
@@ -33,7 +33,6 @@ Table of Contents
   3. Instructions for Mac OS X
      - Berkeley DB
      - mcpp
-     - expat
   4. Instructions for Solaris
      - mcpp
 
@@ -107,17 +106,21 @@ Berkeley DB must be configured with C++ support enabled.  If you
 intend to use Ice for Java with Berkeley DB, you must also enable Java
 support.
 
-  $ ../dist/configure --enable-cxx
+  $ export CXX=clang++
+  $ ../dist/configure --enable-cxx --enable-static=no
   (plus --prefix=<dir> and/or --enable-java if you like)
 
 
 For builds with support for both i386 and x86_64 architectures, use:
 
+  $ export CXX=clang++
   $ export CFLAGS="-O3 -arch i386 -arch x86_64"
   $ export CXXFLAGS="-O3 -arch i386 -arch x86_64"
-  $ ../dist/configure --enable-cxx
+  $ ../dist/configure --enable-cxx --enable-static=no
   (plus --prefix=<dir> and/or --enable-java if you like)
 
+To build Berkeley DB with C++11 support (--std=c++11 --stdlib=libc++),
+add these flags to CXX (not CXXFLAGS).
 
 mcpp
 ----
@@ -133,22 +136,6 @@ For builds with support for both i386 and x86_64 architectures, use:
 
   $ export CFLAGS="-O3 -fno-common -arch i386 -arch x86_64"
   $ ./configure --enable-mcpplib --disable-shared
-  (and --prefix=<dir> if you like)
-
-
-expat
------
-
-Configure expat as shown below:
-
-  $ export CFLAGS="-O3"
-  $ ./configure
-  (and --prefix=<dir> if you like)
-
-For builds with support for both i386 and x86_64 architectures, use:
-
-  $ export CFLAGS="-O3 -arch i386 -arch x86_64"
-  $ ./configure
   (and --prefix=<dir> if you like)
 
 

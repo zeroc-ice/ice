@@ -4,7 +4,6 @@
 # This is a heavily modified version of the spec file in Fedora Core 7's db4-4.5.20-4.fc7.src.rpm   
 #
 
-# We build using Sun's JDK, not gcj
 %define java_arches %{ix86} alpha ia64 ppc s390 s390x sparc sparcv9 x86_64
 
 %define	__soversion	5.3
@@ -13,7 +12,7 @@ Summary: The Berkeley DB database library (version 5.3) for C and C++
 Name: db53
 Version: 5.3.21
 Release: 1ice%{?dist}
-Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gzp://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
+Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
 URL: http://www.oracle.com/technetwork/products/berkeleydb/
 License: Berkeley DB open-source license
 Group: System Environment/Libraries
