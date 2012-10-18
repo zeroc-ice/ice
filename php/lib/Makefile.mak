@@ -46,7 +46,10 @@ ICE_SRCS	= Ice\LocalException.php \
 		  Ice\Endpoint.php \
 		  Ice\EndpointF.php \
 		  Ice\EndpointTypes.php \
-		  Ice\Version.php
+		  Ice\Version.php \
+		  Ice\InstrumentationF.php \
+		  Ice\Instrumentation.php \
+		  Ice\Metrics.php
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check Glacier2.php!
@@ -56,7 +59,8 @@ GLACIER2_SRCS	= Glacier2\RouterF.php \
 		  Glacier2\Session.php \
 		  Glacier2\PermissionsVerifierF.php \
 		  Glacier2\PermissionsVerifier.php \
-		  Glacier2\SSLInfo.php
+		  Glacier2\SSLInfo.php \
+		  Glacier2\Metrics.php
 
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check IceBox.php!
@@ -86,7 +90,8 @@ ICEPATCH2_SRCS	= IcePatch2\FileInfo.php \
 #
 # IMPORTANT: If you add or remove Slice files, you also need to check IceStorm.php!
 #
-ICESTORM_SRCS	= IceStorm\IceStorm.php
+ICESTORM_SRCS	= IceStorm\IceStorm.php \
+		  IceStorm\Metrics.php
 
 ALL_SRCS	= $(ICE_SRCS) \
 		  $(GLACIER2_SRCS) \

@@ -8,3 +8,4 @@
 # **********************************************************************
 
 require 'IceStorm/IceStorm'
+require 'IceStorm/Metrics'

@@ -163,6 +163,8 @@ require_once 'Ice/ObjectFactory.php';
 require_once 'Ice/Process.php';
 require_once 'Ice/Router.php';
 require_once 'Ice/Version.php';
+require_once 'Ice/Instrumentation.php';
+require_once 'Ice/Metrics.php';
 
 $Ice_Protocol_1_0 = new Ice\ProtocolVersion(1, 0);
 $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);

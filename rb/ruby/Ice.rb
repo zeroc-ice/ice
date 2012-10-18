@@ -218,6 +218,8 @@ require 'Ice/Process.rb'
 require 'Ice/Router.rb'
 require 'Ice/Endpoint.rb'
 require 'Ice/Version.rb'
+require 'Ice/Instrumentation.rb'
+require 'Ice/Metrics.rb'
 
 module Ice
     #
