@@ -7,6 +7,16 @@
 //
 // **********************************************************************
 
+#if !defined(ICE_OS_WINRT) && defined(_MSC_VER) && _MSC_VER >= 1700
+//
+// DbgHelp.dll on Windows XP does not contain Unicode functions, so we 
+// "switch on" Unicode only with VS2012 and up
+//
+#  define UNICODE
+#  define DBGHELP_TRANSLATE_TCHAR
+#  include <IceUtil/Unicode.h>
+#endif
+
 #include <IceUtil/Exception.h>
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Mutex.h>
@@ -24,13 +34,10 @@
 #endif
 
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(ICE_OS_WINRT)
-#  include <IceUtil/Unicode.h>
-#  define DBGHELP_TRANSLATE_TCHAR
 #  include <DbgHelp.h>
 #  define ICE_STACK_TRACES
 #  define ICE_WIN32_STACK_TRACES
 #endif
-
 
 using namespace std;
 
@@ -116,11 +123,20 @@ getStackTrace()
 
     if(frames > 0)
     {
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+#   if defined(DBGHELP_TRANSLATE_TCHAR) 
+        static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
+#   else
+        static_assert(sizeof(TCHAR) == sizeof(char), "Bad TCHAR - should be char");
+#  endif
+#endif
+
         char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+
         SYMBOL_INFO* symbol = reinterpret_cast<SYMBOL_INFO*>(buffer);
         symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
         symbol->MaxNameLen = MAX_SYM_NAME;
-
+        
         IMAGEHLP_LINE64 line = {};
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
         DWORD displacement = 0;
@@ -141,12 +157,20 @@ getStackTrace()
             BOOL ok = SymFromAddr(process, address, 0, symbol);
             if(ok)
             {
+#ifdef DBGHELP_TRANSLATE_TCHAR
                 s << IceUtil::wstringToString(symbol->Name);
-
+#else
+                s << symbol->Name;
+#endif
                 ok = SymGetLineFromAddr64(process, address, &displacement, &line);
                 if(ok)
                 {
-                    s << " at line " << line.LineNumber << " in " << IceUtil::wstringToString(line.FileName);
+                    s << " at line " << line.LineNumber << " in " 
+#ifdef DBGHELP_TRANSLATE_TCHAR                 
+                      << IceUtil::wstringToString(line.FileName);
+#else
+                      << line.FileName;
+#endif
                 }
             }
             else
