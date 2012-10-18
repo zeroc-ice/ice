@@ -110,7 +110,7 @@ SETARGV			= setargv.obj
 !endif
 
 !if "$(CPP_COMPILER)" == "VC90"
-libsuff			= $(x64suffix)
+libsuff			= \vc90$(x64suffix)
 !elseif "$(CPP_COMPILER)" == "VC110" || "$(CPP_COMPILER)" == "VC110_EXPRESS"
 libsuff			= \vc110$(x64suffix)
 !else
