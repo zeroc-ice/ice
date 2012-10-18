@@ -41,6 +41,11 @@ endif
 endif
 
 #
+# Avoid OpenSSL deprecation warnings in Os X
+#
+OPENSSL_FLAGS =  -Wno-deprecated-declarations
+
+#
 # C++ run-time libraries, necessary for linking some shared libraries.
 #
 CXXLIBS			=
