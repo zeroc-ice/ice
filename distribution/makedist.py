@@ -175,8 +175,8 @@ fixVersion(os.path.join("distribution", "src", "rpm", "icegridregistry.conf"), *
 fixVersion(os.path.join("distribution", "src", "rpm", "RPM_README"), *versions)
 fixVersion(os.path.join("vsaddin", "config", "Ice-VS2008.AddIn"), *versions)
 fixVersion(os.path.join("vsaddin", "config", "Ice-VS2010.AddIn"), *versions)
-fixVersion(os.path.join("vsaddin", "config", "ice.vsprops"), *versions)
-fixVersion(os.path.join("vsaddin", "config", "ice.props"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "Ice-VS2012.AddIn"), *versions)
+fixVersion(os.path.join("vsaddin", "config", "Ice.props"), *versions)
 
 bisonFiles = []
 flexFiles = []
@@ -264,7 +264,7 @@ for root, dirnames, filesnames in os.walk(demoDir):
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
 
-        for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc", "Make.rules.bcc",
+        for m in [ "*.sln", "*.csproj", "*.vbproj", "*.vcproj", "Make*mak*", "Make.rules.msvc",
                    ".depend.mak", "*.exe.config"]:
             if fnmatch.fnmatch(f, m):
                 rmFiles.append(os.path.join(root[len(demoDir) + 1:], f))
@@ -279,7 +279,6 @@ copyMatchingFiles(os.path.join("certs"), os.path.join(winDemoDir, "certs"), cert
 os.mkdir(os.path.join(winDemoDir, "config"))
 
 copy(os.path.join(srcDir, "config", "Make.common.rules.mak"), os.path.join(winDemoDir, "config"), False)
-copy(os.path.join(srcDir, "cpp", "config", "Make.rules.bcc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "cpp", "config", "Make.rules.msvc"), os.path.join(winDemoDir, "config"), False)
 copy(os.path.join(srcDir, "java", "config", "common.xml"), os.path.join(winDemoDir, "config"), False)
 
