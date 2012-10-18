@@ -36,9 +36,7 @@ SLICE2CPPFLAGS	= --ice --include-dir IceStorm --checksum --dll-export ICE_STORM_
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-RES_FILE        = $(SOURCE_DIR)\IceStorm.res
-
-$(LIBNAME): $(OBJS) $(RES_FILE) sdks
+$(LIBNAME): $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
 
 depend::
@@ -54,7 +52,6 @@ depend:: $(ARCH)\$(CONFIG) $(SLICE_SRCS) $(SRCS) $(SRCS_DEPEND)
 clean::
 	-del /q $(SOURCE_DIR)\IceStorm.cpp $(HDIR)\IceStorm.h
 	-del /q $(SOURCE_DIR)\Metrics.cpp $(HDIR)\Metrics.h
-	-del /q $(RES_FILE)
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
 

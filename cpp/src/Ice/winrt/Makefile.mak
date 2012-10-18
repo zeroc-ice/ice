@@ -196,9 +196,7 @@ SSL_SLICE2CPPFLAGS 	= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLIC
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-RES_FILE 	= $(SOURCE_DIR)\Ice.res
-
-$(LIBNAME): $(LOCAL_OBJS) $(OBJS) $(RES_FILE) sdks
+$(LIBNAME): $(LOCAL_OBJS) $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) $(LOCAL_OBJS) /out:$(LIBNAME)
 
 Service.obj: $(SOURCE_DIR)\EventLoggerMsg.h
@@ -277,7 +275,6 @@ clean::
 	-del /q $(SOURCE_DIR)\Stats.cpp $(HDIR)\Stats.h
 	-del /q EndpointInfo.cpp $(headerdir)\IceSSL\EndpointInfo.h
 	-del /q ConnectionInfo.cpp $(headerdir)\IceSSL\ConnectionInfo.h
-	-del /q $(RES_FILE)
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
 

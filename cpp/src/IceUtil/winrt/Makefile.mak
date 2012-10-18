@@ -54,15 +54,10 @@ depend::
 
 depend:: $(ARCH)\$(CONFIG) $(SRCS_DEPEND)
 
-RES_FILE 	= $(SOURCE_DIR)\IceUtil.res
-
-$(LIBNAME): $(OBJS) $(RES_FILE) sdks
+$(LIBNAME): $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
 
 clean::
-	-del /q $(ARCH)\$(CONFIG)\*.obj
-	-del /q $(ARCH)\$(CONFIG)\*.pdb
-	-del /q $(RES_FILE)
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
 

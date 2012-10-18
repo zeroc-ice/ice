@@ -51,9 +51,7 @@ SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid --dll-export ICE_GRID_AP
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-RES_FILE        = $(SOURCE_DIR)\IceGrid.res
-
-$(LIBNAME): $(OBJS) $(RES_FILE) sdks
+$(LIBNAME): $(OBJS) sdks
 	$(AR) $(ARFLAGS) $(OBJS) /out:$(LIBNAME)
 
 depend::
@@ -77,7 +75,6 @@ clean::
 	-del /q $(SOURCE_DIR)\Session.cpp $(HDIR)\Session.h
 	-del /q $(SOURCE_DIR)\Registry.cpp $(HDIR)\Registry.h
 	-del /q $(SOURCE_DIR)\UserAccountMapper.cpp $(HDIR)\UserAccountMapper.h
-	-del /q $(RES_FILE)
 	-del /q $(ARCH)\$(CONFIG)\*.obj
 	-del /q $(PDBNAME)
 
