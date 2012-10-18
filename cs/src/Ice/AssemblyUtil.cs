@@ -112,10 +112,6 @@ namespace IceInternal
 
         public static Type findType(Instance instance, string csharpId)
         {
-#if !COMPACT && !SILVERLIGHT
-            loadAssemblies(); // Lazy initialization
-#endif
-
             lock(_mutex)
             {
                 Type t;
@@ -150,6 +146,7 @@ namespace IceInternal
                     }
                 }
 #else
+                loadAssemblies(); // Lazy initialization
                 foreach (Assembly a in _loadedAssemblies.Values)
                 {
                     if((t = a.GetType(csharpId)) != null)
@@ -168,10 +165,9 @@ namespace IceInternal
         {
             LinkedList<Type> l = new LinkedList<Type>();
 
-            loadAssemblies(); // Lazy initialization
-
             lock(_mutex)
             {
+                loadAssemblies(); // Lazy initialization
                 foreach(Assembly a in _loadedAssemblies.Values)
                 {
                     Type[] types = a.GetTypes();
@@ -218,20 +214,25 @@ namespace IceInternal
         //
         private static void loadAssemblies()
         {
-            lock(_mutex)
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            List<Assembly> newAssemblies = null;
+            foreach(Assembly a in assemblies)
             {
-                if(!_assembliesLoaded)
+                if(!_loadedAssemblies.Contains(a.FullName))
                 {
-                    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                    foreach(Assembly a in assemblies)
+                    if(newAssemblies == null)
                     {
-                        _loadedAssemblies[a.FullName] = a;
+                        newAssemblies = new List<Assembly>();
                     }
-                    foreach(Assembly a in assemblies)
-                    {
-                        loadReferencedAssemblies(a);
-                    }
-                    _assembliesLoaded = true;
+                    newAssemblies.Add(a);
+                    _loadedAssemblies[a.FullName] = a;
+                }
+            }
+            if(newAssemblies != null)
+            {
+                foreach(Assembly a in newAssemblies)
+                {
+                    loadReferencedAssemblies(a);
                 }
             }
         }
@@ -262,7 +263,6 @@ namespace IceInternal
             }
         }
 
-        private static bool _assembliesLoaded = false;
         private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
 #else
         private static List<string> _iceAssemblies = new List<string>();
