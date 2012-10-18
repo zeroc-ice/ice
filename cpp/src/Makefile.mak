@@ -18,6 +18,13 @@ SUBDIRS		= IceUtil\winrt \
 		  IceStormLib\winrt \
 		  IceGridLib\winrt
 
+!elseif "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+SUBDIRS		= IceUtil \
+		  Slice \
+		  slice2cpp \
+		  slice2php \
+		  Ice \
+		  IceSSL \
 !else
 SUBDIRS		= IceUtil \
 		  Slice \
@@ -47,7 +54,6 @@ SUBDIRS		= IceUtil \
 		  IceStorm \
 		  IceGrid \
                   iceserviceinstall
-
 !endif
 
 $(EVERYTHING)::

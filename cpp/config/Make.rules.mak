@@ -53,9 +53,12 @@ THIRDPARTY_HOME = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 
 #
-# Define if you want the Ice DLLs to have compiler specific names
+# Define if you want the Ice DLLs to have compiler specific names.
+# Defined by default for VC9.
 #
-#UNIQUE_DLL_NAMES	= yes
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+UNIQUE_DLL_NAMES	= yes
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!

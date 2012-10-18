@@ -11,6 +11,13 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
+!if "$(CPP_COMPILER)" == "VC90" || "$(CPP_COMPILER)" == "VC90_EXPRESS"
+
+SUBDIRS		= IceUtil \
+		  Ice
+
+!else
+
 SUBDIRS		= IceUtil \
 		  Ice \
 		  book \
@@ -23,6 +30,7 @@ SUBDIRS		= IceUtil \
 !if "$(CPP_COMPILER)" != "VC100_EXPRESS" && "$(CPP_COMPILER)" != "VC110_EXPRESS"
 SUBDIRS		= $(SUBDIRS) \
 		  IcePatch2
+!endif
 !endif
 
 $(EVERYTHING)::
