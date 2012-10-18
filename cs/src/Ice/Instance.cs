@@ -41,7 +41,9 @@ namespace IceInternal
                     serverThreadPool.updateObservers();
                 }
                 _instance.objectAdapterFactory().updateThreadObservers();
+#if !SILVERLIGHT
                 _instance.endpointHostResolver().updateObserver();
+#endif
                 _instance.asyncIOThread().updateObserver();
             }
             
