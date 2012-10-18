@@ -81,6 +81,11 @@ protected:
     virtual void __writeImpl(::IceInternal::BasicStream*) const;
     virtual void __readImpl(::IceInternal::BasicStream*);
 
+#ifdef __SUNPRO_CC
+    using UserException::__writeImpl;
+    using UserException::__readImpl;
+#endif
+
     const CommunicatorPtr _communicator;
 };
 
@@ -414,6 +419,11 @@ protected:
 
     virtual void __writeImpl(::IceInternal::BasicStream*) const;
     virtual void __readImpl(::IceInternal::BasicStream*);
+
+#ifdef __SUNPRO_CC
+    using UserException::__writeImpl;
+    using UserException::__readImpl;
+#endif
 
     const CommunicatorPtr _communicator;
 };

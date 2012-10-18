@@ -280,7 +280,17 @@
             <not><available classname="com.sleepycat.db.Database"/></not>
             <available file="/opt/db/lib/db.jar"/>
         </and>
-    </condition>    
+    </condition>
+    <condition property="db.jar.file" value="/usr/lib/db.jar">
+        <and>
+            <not><os family="windows"/></not>
+            <not><isset property="db.jar.file"/></not>
+            <not><available classname="com.sleepycat.db.Database"/></not>
+            <available file="/usr/lib/db.jar"/>
+        </and>
+    </condition>
+ 
+      
     <condition property="db.jar.file" value="${thirdparty.home}/lib/db.jar">
         <and>
             <os family="windows"/>
@@ -289,6 +299,7 @@
             <available file="${thirdparty.home}/lib/db.jar"/>
         </and>
     </condition>
+    
     
     <path id="db.classpath">
         <pathelement location="${db.jar.file}"/>
