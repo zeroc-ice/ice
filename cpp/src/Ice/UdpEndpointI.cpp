@@ -346,6 +346,12 @@ IceInternal::UdpEndpointI::type() const
     return UDPEndpointType;
 }
 
+std::string
+IceInternal::UdpEndpointI::protocol() const
+{
+    return "udp";
+}
+
 Int
 IceInternal::UdpEndpointI::timeout() const
 {

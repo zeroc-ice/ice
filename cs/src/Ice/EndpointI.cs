@@ -119,6 +119,11 @@ namespace IceInternal
         public abstract short type();
 
         //
+        // Return the protocol name.
+        //
+        public abstract string protocol();
+
+        //
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
@@ -162,7 +167,7 @@ namespace IceInternal
         //
         // Return the protocol supported by the endpoint.
         //
-        public Ice.ProtocolVersion protocol()
+        public Ice.ProtocolVersion protocolVersion()
         {
             return protocol_;
         }
@@ -170,7 +175,7 @@ namespace IceInternal
         //
         // Return the encoding supported by the endpoint.
         //
-        public Ice.EncodingVersion encoding()
+        public Ice.EncodingVersion encodingVersion()
         {
             return encoding_;
         }

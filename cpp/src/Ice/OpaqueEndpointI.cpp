@@ -266,6 +266,12 @@ IceInternal::OpaqueEndpointI::type() const
     return _type;
 }
 
+std::string
+IceInternal::OpaqueEndpointI::protocol() const
+{
+    return "opaque";
+}
+
 Int
 IceInternal::OpaqueEndpointI::timeout() const
 {

@@ -1900,8 +1900,8 @@ struct EndpointIsIncompatible : public unary_function<EndpointIPtr, bool>
     operator()(const EndpointIPtr& p) const
     {
         // If the enpoint doesn't support the proxy encoding or protocol, it's incompatible.
-        return !(isSupported(_reference->getEncoding(), p->encoding()) && 
-                 isSupported(currentProtocol, p->protocol()));
+        return !(isSupported(_reference->getEncoding(), p->encodingVersion()) && 
+                 isSupported(currentProtocol, p->protocolVersion()));
     }
 };
 

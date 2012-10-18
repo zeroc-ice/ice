@@ -466,6 +466,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
                 if(_acceptor != null)
                 {
+                    if(_instance.traceLevels().network >= 1)
+                    {
+                        StringBuffer s = new StringBuffer("accepting ");
+                        s.append(_endpoint.protocol());
+                        s.append(" connections at ");
+                        s.append(_acceptor.toString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                    }                
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
                 }
 
@@ -484,6 +492,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
                 }
                 if(_acceptor != null)
                 {
+                    if(_instance.traceLevels().network >= 1)
+                    {
+                        StringBuffer s = new StringBuffer("holding ");
+                        s.append(_endpoint.protocol());
+                        s.append(" connections at ");
+                        s.append(_acceptor.toString());
+                        _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
+                    }                
                     ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
                 }
 

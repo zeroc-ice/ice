@@ -74,7 +74,7 @@ IceSSL::AcceptorI::listen()
     if(_instance->networkTraceLevel() >= 1)
     {
         Trace out(_logger, _instance->networkTraceCategory());
-        out << "accepting ssl connections at " << toString();
+        out << "listening for ssl connections at " << toString();
 
         vector<string> interfaces = 
             IceInternal::getHostsForEndpointExpand(IceInternal::inetAddrToString(_addr), _instance->protocolSupport(),

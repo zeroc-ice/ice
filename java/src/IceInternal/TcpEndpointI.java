@@ -302,6 +302,15 @@ final class TcpEndpointI extends EndpointI
     }
 
     //
+    // Return the protocol name
+    //
+    public String
+    protocol()
+    {
+        return "tcp";
+    }
+
+    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //

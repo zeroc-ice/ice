@@ -51,6 +51,14 @@ internal class EndpointI : IceInternal.EndpointI
     }
 
     //
+    // Return the protocol name;
+    //
+    public override string protocol()
+    {
+        return _endpoint.protocol();
+    }
+
+    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //

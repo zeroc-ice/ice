@@ -38,7 +38,7 @@ final class AcceptorI implements IceInternal.Acceptor
 
         if(_instance.networkTraceLevel() >= 1)
         {
-            StringBuffer s = new StringBuffer("accepting ssl connections at ");
+            StringBuffer s = new StringBuffer("listening for ssl connections at ");
 	    s.append(toString());
 
             java.util.List<String> interfaces = 

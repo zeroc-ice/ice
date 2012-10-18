@@ -23,6 +23,7 @@ public:
     // From EndpointI
     virtual void streamWrite(IceInternal::BasicStream*) const;
     virtual Ice::Short type() const;
+    virtual std::string protocol() const;
     virtual IceInternal::EndpointIPtr timeout(Ice::Int) const;
     virtual IceInternal::EndpointIPtr connectionId(const ::std::string&) const;
     virtual IceInternal::EndpointIPtr compress(bool) const;

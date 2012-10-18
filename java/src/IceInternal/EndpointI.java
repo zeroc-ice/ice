@@ -41,6 +41,11 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public abstract short type();
     
     //
+    // Return the protocol name.
+    //
+    public abstract String protocol();
+    
+    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
@@ -84,7 +89,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     // Return the protocol supported by the endpoint.
     //
-    public Ice.ProtocolVersion protocol()
+    public Ice.ProtocolVersion protocolVersion()
     {
         return _protocol;
     }
@@ -92,7 +97,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     //
     // Return the encoding supported by the endpoint.
     //
-    public Ice.EncodingVersion encoding()
+    public Ice.EncodingVersion encodingVersion()
     {
         return _encoding;
     }

@@ -41,7 +41,7 @@ namespace IceInternal
 
             if(_traceLevels.network >= 1)
             {
-                StringBuilder s = new StringBuilder("accepting tcp connections at ");
+                StringBuilder s = new StringBuilder("listening for tcp connections at ");
 		s.Append(ToString());
 
                 List<string> interfaces =

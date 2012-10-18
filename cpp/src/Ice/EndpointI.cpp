@@ -47,13 +47,13 @@ Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
 const Ice::EncodingVersion&
-IceInternal::EndpointI::encoding() const
+IceInternal::EndpointI::encodingVersion() const
 {
     return _encoding;
 }
 
 const Ice::ProtocolVersion&
-IceInternal::EndpointI::protocol() const
+IceInternal::EndpointI::protocolVersion() const
 {
     return _protocol;
 }

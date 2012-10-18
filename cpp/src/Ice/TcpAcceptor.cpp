@@ -69,7 +69,7 @@ IceInternal::TcpAcceptor::listen()
     if(_traceLevels->network >= 1)
     {
         Trace out(_logger, _traceLevels->networkCat);
-        out << "accepting tcp connections at " << toString();
+        out << "listening for tcp connections at " << toString();
 
         vector<string> interfaces = 
             getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);

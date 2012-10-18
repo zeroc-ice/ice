@@ -426,7 +426,8 @@ public:
         {
             TPtr t = new T();
             t->id = key;
-            p = _objects.insert(std::map<std::string, EntryTPtr>::value_type(key, new EntryT(this, t, _detachedQueue.end()))).first;
+            p = _objects.insert(typename std::map<std::string, EntryTPtr>::value_type(
+                                    key, new EntryT(this, t, _detachedQueue.end()))).first;
         }
         p->second->attach(helper);
         return p->second;

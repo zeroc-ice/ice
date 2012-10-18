@@ -57,6 +57,11 @@ public:
     // Return the endpoint type.
     //
     virtual Ice::Short type() const = 0;
+
+    //
+    // Return the protocol name
+    //
+    virtual std::string protocol() const = 0;
     
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
@@ -102,12 +107,12 @@ public:
     //
     // Returns the encoding version supported by this endpoint.
     //
-    virtual const ::Ice::EncodingVersion& encoding() const;
+    const ::Ice::EncodingVersion& encodingVersion() const;
 
     //
     // Returns the encoding version supported by this endpoint.
     //
-    virtual const ::Ice::ProtocolVersion& protocol() const;
+    const ::Ice::ProtocolVersion& protocolVersion() const;
 
     //
     // Return a server side transceiver for this endpoint, or null if a

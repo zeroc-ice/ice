@@ -41,6 +41,12 @@ EndpointI::type() const
     return (Ice::Short)(TYPE_BASE + _endpoint->type());
 }
 
+std::string
+EndpointI::protocol() const
+{
+    return _endpoint->protocol();
+}
+
 int
 EndpointI::timeout() const
 {

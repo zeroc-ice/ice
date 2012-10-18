@@ -1392,8 +1392,8 @@ namespace IceInternal
             Ice.EncodingVersion encoding = getEncoding();
             foreach(EndpointI p in allEndpoints)
             {
-                if(Protocol.isSupported(encoding, p.encoding()) && 
-                   Protocol.isSupported(Ice.Util.currentProtocol, p.protocol()))
+                if(Protocol.isSupported(encoding, p.encodingVersion()) && 
+                   Protocol.isSupported(Ice.Util.currentProtocol, p.protocolVersion()))
                 {
                     endpoints.Add(p);
                 }

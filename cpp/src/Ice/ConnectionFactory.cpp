@@ -1667,6 +1667,11 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             }
             if(_acceptor)
             {
+                if(_instance->traceLevels()->network >= 1)
+                {
+                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                    out << "accepting " << _endpoint->protocol() << " connections at " << _acceptor->toString();
+                }                
                 dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(this, SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::activate));
@@ -1681,6 +1686,11 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             }
             if(_acceptor)
             {
+                if(_instance->traceLevels()->network >= 1)
+                {
+                    Trace out(_instance->initializationData().logger, _instance->traceLevels()->networkCat);
+                    out << "holding " << _endpoint->protocol() << " connections at " << _acceptor->toString();
+                }                
                 dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(this, SocketOperationRead);
             }
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::hold));

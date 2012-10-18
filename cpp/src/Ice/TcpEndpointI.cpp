@@ -311,6 +311,12 @@ IceInternal::TcpEndpointI::type() const
     return TCPEndpointType;
 }
 
+std::string
+IceInternal::TcpEndpointI::protocol() const
+{
+    return "tcp";
+}
+
 Int
 IceInternal::TcpEndpointI::timeout() const
 {

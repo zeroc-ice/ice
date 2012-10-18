@@ -697,8 +697,8 @@ public class RoutableReference extends Reference
         final Ice.EncodingVersion encoding = getEncoding();
         for(EndpointI p : allEndpoints)
         {
-            if(Protocol.isSupported(encoding, p.encoding()) && 
-               Protocol.isSupported(Protocol.currentProtocol, p.protocol()))
+            if(Protocol.isSupported(encoding, p.encodingVersion()) && 
+               Protocol.isSupported(Protocol.currentProtocol, p.protocolVersion()))
             {
                 endpoints.add(p);
             }

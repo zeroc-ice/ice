@@ -310,6 +310,12 @@ IceSSL::EndpointI::type() const
     return EndpointType;
 }
 
+std::string
+IceSSL::EndpointI::protocol() const
+{
+    return "ssl";
+}
+
 Int
 IceSSL::EndpointI::timeout() const
 {

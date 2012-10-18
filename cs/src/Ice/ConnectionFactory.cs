@@ -16,6 +16,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net.Sockets;
     using System.Threading;
+    using System.Text;
     using IceUtilInternal;
 
     public class MultiDictionary<K, V> : Dictionary<K, ICollection<V>>
@@ -1900,6 +1901,15 @@ namespace IceInternal
                     }
                     if(_acceptor != null)
                     {
+                        if(_instance.traceLevels().network >= 1)
+                        {
+                            StringBuilder s = new StringBuilder("accepting ");
+                            s.Append(_endpoint.protocol());
+                            s.Append(" connections at ");
+                            s.Append(_acceptor.ToString());
+                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, 
+                                                                        s.ToString());
+                        }                
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().register(this, SocketOperation.Read);
                     }
 
@@ -1918,6 +1928,15 @@ namespace IceInternal
                     }
                     if(_acceptor != null)
                     {
+                        if(_instance.traceLevels().network >= 1)
+                        {
+                            StringBuilder s = new StringBuilder("holding ");
+                            s.Append(_endpoint.protocol());
+                            s.Append(" connections at ");
+                            s.Append(_acceptor.ToString());
+                            _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, 
+                                                                        s.ToString());
+                        }                
                         ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(this, SocketOperation.Read);
                     }
 

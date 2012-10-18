@@ -48,7 +48,7 @@ namespace IceSSL
 
             if(_instance.networkTraceLevel() >= 1)
             {
-                StringBuilder s = new StringBuilder("accepting ssl connections at ");
+                StringBuilder s = new StringBuilder("listening for ssl connections at ");
 		s.Append(ToString());
 
                 List<string> interfaces = 
