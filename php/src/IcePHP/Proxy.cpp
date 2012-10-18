@@ -1392,6 +1392,10 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
     }
+    catch(const Ice::FacetNotExistException&)
+    {
+        // Ignore.
+    }
     catch(const IceUtil::Exception& ex)
     {
         throwException(ex TSRMLS_CC);

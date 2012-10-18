@@ -48,6 +48,7 @@ def allTests(communicator)
     d = Test::DPrx::checkedCast(db)
     test(d)
     test(d == db)
+    test(Test::DPrx::checkedCast(d, "bogus") == nil)
     puts "ok"
 
     print "testing non-facets A, B, C, and D... "

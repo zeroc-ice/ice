@@ -12,6 +12,7 @@
 #include <Connection.h>
 #include <Endpoint.h>
 #include <Util.h>
+#include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
 #include <Ice/Router.h>
@@ -956,26 +957,33 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ct
         target = p->ice_facet(getString(facet));
     }
 
-    if(NIL_P(ctx))
+    try
     {
-        if(target->ice_isA(id))
+        if(NIL_P(ctx))
         {
-            return createProxy(target, type);
+            if(target->ice_isA(id))
+            {
+                return createProxy(target, type);
+            }
+        }
+        else
+        {
+            Ice::Context c;
+#ifndef NDEBUG
+            bool b =
+#endif
+            hashToContext(ctx, c);
+            assert(b);
+
+            if(target->ice_isA(id, c))
+            {
+                return createProxy(target, type);
+            }
         }
     }
-    else
+    catch(const Ice::FacetNotExistException&)
     {
-        Ice::Context c;
-#ifndef NDEBUG
-        bool b =
-#endif
-        hashToContext(ctx, c);
-        assert(b);
-
-        if(target->ice_isA(id, c))
-        {
-            return createProxy(target, type);
-        }
+        // Ignore.
     }
 
     return Qnil;

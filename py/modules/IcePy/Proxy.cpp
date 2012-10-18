@@ -1924,7 +1924,7 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
         target = (*p->proxy)->ice_facet(facetStr);
     }
 
-    bool b;
+    bool b = false;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
@@ -1941,6 +1941,10 @@ checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx
             }
             b = target->ice_isA(id, c);
         }
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        // Ignore.
     }
     catch(const Ice::Exception& ex)
     {

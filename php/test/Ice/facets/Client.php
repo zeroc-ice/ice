@@ -43,6 +43,7 @@ function allTests($communicator)
     $d = $db->ice_checkedCast("::Test::D");
     test($d != null);
     test($d == $db);
+    test($db->ice_checkedCast("::Test::D", "bogus") == null);
     echo "ok\n";
 
     echo "testing non-facets A, B, C, and D... ";

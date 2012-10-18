@@ -202,6 +202,11 @@ Python Changes
 
 - Added support for Python 3.
 
+- Fixed a bug in the checkedCast operation when using a non-existent
+  facet. In previous releases this operation raised a
+  FacetNotExistException; now it returns a nil proxy as in other
+  language mappings.
+
 - Fixed a bug that caused IceGrid activation of a Python server to
   hang when tracing was enabled for the server.
 
@@ -210,6 +215,11 @@ PHP Changes
 ===========
 
 - Added compatibility with PHP 5.4.
+
+- Fixed a bug in the checkedCast operation when using a non-existent
+  facet. In previous releases this operation raised a
+  FacetNotExistException; now it returns a nil proxy as in other
+  language mappings.
 
 - Fixed a bug in Ice_initialize: if an array was passed representing
   the command-line arguments, the function was not updating that array
@@ -226,6 +236,15 @@ PHP Changes
   you can now use this:
 
   $communicator = Ice_initialize($argv);
+
+
+Ruby Changes
+============
+
+- Fixed a bug in the checkedCast operation when using a non-existent
+  facet. In previous releases this operation raised a
+  FacetNotExistException; now it returns a nil proxy as in other
+  language mappings.
 
 
 ======================================================================
