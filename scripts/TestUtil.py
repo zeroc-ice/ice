@@ -97,10 +97,10 @@ def isMINGW():
         return False
     return getCppCompiler() == "MINGW"
 
-def isVC6():
+def isVC90():
     if not isWin32():
         return False
-    return getCppCompiler() == "VC60"
+    return getCppCompiler() == "VC90"
 
 def isVS2010():
     if not isWin32():
@@ -704,7 +704,7 @@ def getGlacier2Router():
     return getIceExe("glacier2router")
 
 def getIceExe(name):
-    if isVC6() or isMINGW():
+    if isVC90() or isMINGW():
         return os.path.join(getServiceDir(), name)
     else:
         return os.path.join(getCppBinDir(), name)
@@ -1730,8 +1730,8 @@ def runTests(start, expanded, num = 0, script = False):
                 print("%s*** test only supported under Win32%s" % (prefix, suffix))
                 continue
 
-            if isVC6() and "novc6" in config:
-                print("%s*** test not supported with VC++ 6.0%s" % (prefix, suffix))
+            if isVC90() and "novc90" in config:
+                print("%s*** test not supported with VC++ 9.0%s" % (prefix, suffix))
                 continue
 
             if isMINGW() and "nomingw" in config:
