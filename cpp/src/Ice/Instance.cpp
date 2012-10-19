@@ -124,21 +124,33 @@ public:
 
     void updateConnectionObservers()
     {
-        _instance->outgoingConnectionFactory()->updateConnectionObservers();
-        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateConnectionObservers);
+        try
+        {
+            _instance->outgoingConnectionFactory()->updateConnectionObservers();
+            _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateConnectionObservers);
+        }
+        catch(const Ice::CommunicatorDestroyedException&)
+        {
+        }
     }
 
     void updateThreadObservers()
     {
-        _instance->clientThreadPool()->updateObservers();
-        ThreadPoolPtr serverThreadPool = _instance->serverThreadPool(false);
-        if(serverThreadPool)
+        try
         {
-            serverThreadPool->updateObservers();
+            _instance->clientThreadPool()->updateObservers();
+            ThreadPoolPtr serverThreadPool = _instance->serverThreadPool(false);
+            if(serverThreadPool)
+            {
+                serverThreadPool->updateObservers();
+            }
+            _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
+            _instance->endpointHostResolver()->updateObserver();
+            theCollector->updateObserver(_instance->initializationData().observer);
         }
-        _instance->objectAdapterFactory()->updateObservers(&ObjectAdapterI::updateThreadObservers);
-        _instance->endpointHostResolver()->updateObserver();
-        theCollector->updateObserver(_instance->initializationData().observer);
+        catch(const Ice::CommunicatorDestroyedException&)
+        {
+        }
     }
 
 private:

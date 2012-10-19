@@ -7,6 +7,14 @@
 //
 // **********************************************************************
 
+//
+// .NET and Silverlight use the new socket asynchronous APIs whereas
+// the compact framework and mono still use the old Begin/End APIs.
+//
+#if !COMPACT && !__MonoCS__
+#define ICE_SOCKET_ASYNC_API
+#endif
+
 namespace IceInternal
 {
     using System;
@@ -15,7 +23,6 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net;
     using System.Net.Sockets;
-    using System.Threading;
     using System.Text;
 
     sealed class UdpTransceiver : Transceiver
@@ -25,9 +32,29 @@ namespace IceInternal
             if(_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
+#if ICE_SOCKET_ASYNC_API
+                try
+                {
+                    _fd.Connect(_addr);
+                }
+                catch(SocketException ex)
+                {
+                    if(Network.wouldBlock(ex))
+                    {
+                        return SocketOperation.Connect;
+                    }
+                    throw new Ice.ConnectFailedException(ex);
+                }
+                catch(Exception ex)
+                {
+                    throw new Ice.ConnectFailedException(ex);
+                }
+#else
                 return SocketOperation.Connect;
+#endif
             }
-            else if(_state <= StateConnectPending)
+
+            if(_state <= StateConnectPending)
             {
 #if !SILVERLIGHT
                 if(Network.isMulticast((IPEndPoint)_addr))
@@ -294,7 +321,7 @@ namespace IceInternal
                 if(_state == StateConnected)
                 {
                     _readCallback = callback;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                     _readEventArgs.UserToken = state;
                     _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                     return !_fd.ReceiveAsync(_readEventArgs);
@@ -308,7 +335,7 @@ namespace IceInternal
                 {
                     Debug.Assert(_incoming);
                     _readCallback = callback;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                     _readEventArgs.UserToken = state;
                     _readEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
                     return !_fd.ReceiveFromAsync(_readEventArgs);
@@ -363,7 +390,7 @@ namespace IceInternal
             int ret;
             try
             {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 if(_readEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_readEventArgs.SocketError);
@@ -439,7 +466,7 @@ namespace IceInternal
                 // If we must connect, then we connect to the first peer that
                 // sends us a packet.
                 //
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 bool connected = !_fd.ConnectAsync(_readEventArgs);
 #else
                 bool connected = Network.doConnect(_fd, _peerAddr);
@@ -475,7 +502,7 @@ namespace IceInternal
             {
                 Debug.Assert(_addr != null);
                 completed = false;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
 #else
@@ -498,7 +525,7 @@ namespace IceInternal
 
                 if(_state == StateConnected)
                 {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                     _writeEventArgs.UserToken = state;
                     _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
                     completedSynchronously = !_fd.SendAsync(_writeEventArgs);
@@ -514,7 +541,7 @@ namespace IceInternal
                     {
                         throw new Ice.SocketException();
                     }
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                     _writeEventArgs.RemoteEndPoint = _peerAddr;
                     _writeEventArgs.UserToken = state;
                     _writeEventArgs.SetBuffer(buf.b.rawBytes(), 0, buf.b.limit());
@@ -547,7 +574,7 @@ namespace IceInternal
             if(_fd == null)
             {
                 buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs = null;
 #else
                 _writeResult = null;
@@ -557,7 +584,7 @@ namespace IceInternal
 
             if(!_incoming && _state < StateConnected)
             {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 if(_writeEventArgs.SocketError != SocketError.Success)
                 {
                     SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
@@ -581,7 +608,7 @@ namespace IceInternal
             int ret;
             try
             {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 if(_writeEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_writeEventArgs.SocketError);
@@ -742,7 +769,7 @@ namespace IceInternal
             _stats = instance.initializationData().stats;
             _addr = addr;
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
             _readEventArgs.RemoteEndPoint = _addr;
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
@@ -787,7 +814,7 @@ namespace IceInternal
             {
                 _addr = Network.getAddressForServer(host, port, instance.protocolSupport());
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _readEventArgs = new SocketAsyncEventArgs();
                 _readEventArgs.RemoteEndPoint = _addr;
                 _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
@@ -953,15 +980,17 @@ namespace IceInternal
             }
         }
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
         internal void ioCompleted(object sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
             {
             case SocketAsyncOperation.Receive:
+            case SocketAsyncOperation.ReceiveFrom:
                 _readCallback(e.UserToken);
                 break;
             case SocketAsyncOperation.Send:
+            case SocketAsyncOperation.Connect:
                 _writeCallback(e.UserToken);
                 break;
             default:
@@ -1002,7 +1031,7 @@ namespace IceInternal
         private string _mcastInterface = null;
         private int _mcastTtl = -1;
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
         private SocketAsyncEventArgs _writeEventArgs;
         private SocketAsyncEventArgs _readEventArgs;
 #else

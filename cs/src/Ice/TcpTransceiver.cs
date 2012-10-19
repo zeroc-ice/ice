@@ -7,9 +7,16 @@
 //
 // **********************************************************************
 
+//
+// .NET and Silverlight use the new socket asynchronous APIs whereas
+// the compact framework and mono still use the old Begin/End APIs.
+//
+#if !COMPACT && !__MonoCS__
+#define ICE_SOCKET_ASYNC_API
+#endif
+
 namespace IceInternal
 {
-
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -29,7 +36,7 @@ namespace IceInternal
             {
                 try
                 {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                     if(_writeEventArgs.SocketError != SocketError.Success)
                     {
                         SocketException ex = new SocketException((int)_writeEventArgs.SocketError);
@@ -124,13 +131,6 @@ namespace IceInternal
                     packetSize = _maxSendPacketSize / 2;
                 }
             }
-            else
-            {
-                if(_blocking > 0)
-                {
-                    return false;
-                }
-            }
 
             while(buf.b.hasRemaining())
             {
@@ -195,15 +195,6 @@ namespace IceInternal
             //
             return false;
 #else
-            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-            if(AssemblyUtil.osx_)
-            {
-                if(_blocking > 0)
-                {
-                    return false;
-                }
-            }
-
             int remaining = buf.b.remaining();
             int position = buf.b.position();
 
@@ -283,21 +274,10 @@ namespace IceInternal
 
         public bool startRead(Buffer buf, AsyncCallback callback, object state)
         {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _readEventArgs != null);
 #else
             Debug.Assert(_fd != null && _readResult == null);
-#endif
-
-#if !COMPACT && !SILVERLIGHT
-            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-            if(AssemblyUtil.osx_)
-            {
-                if(++_blocking == 1)
-                {
-                    Network.setBlock(_fd, true);
-                }
-            }
 #endif
 
             int packetSize = buf.b.remaining();
@@ -309,7 +289,7 @@ namespace IceInternal
             try
             {
                 _readCallback = callback;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _readEventArgs.UserToken = state;
                 _readEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 return !_fd.ReceiveAsync(_readEventArgs);
@@ -333,23 +313,24 @@ namespace IceInternal
         public void finishRead(Buffer buf)
         {
             if(_fd == null) // Transceiver was closed
-#if SILVERLIGHT
             {
+#if ICE_SOCKET_ASYNC_API
                 _readEventArgs = null;
+#else
+                _readResult = null;
+#endif
                 return;
             }
+
+#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _readEventArgs != null);
 #else
-            {
-                _readResult = null;
-                return;
-            }
             Debug.Assert(_fd != null && _readResult != null);
 #endif
 
             try
             {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 if(_readEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_readEventArgs.SocketError);
@@ -364,16 +345,6 @@ namespace IceInternal
                     throw new Ice.ConnectionLostException();
                 }
 
-#if !COMPACT && !SILVERLIGHT
-                // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-                if(AssemblyUtil.osx_)
-                {
-                    if(--_blocking == 0)
-                    {
-                        Network.setBlock(_fd, false);
-                    }
-                }
-#endif
                 Debug.Assert(ret > 0);
 
                 if(_traceLevels.network >= 3)
@@ -411,28 +382,17 @@ namespace IceInternal
 
         public bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed)
         {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _writeEventArgs != null);
 #else
             Debug.Assert(_fd != null && _writeResult == null);
-#endif
-
-#if !COMPACT && !SILVERLIGHT
-            // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-            if(AssemblyUtil.osx_)
-            {
-                if(++_blocking == 1)
-                {
-                    Network.setBlock(_fd, true);
-                }
-            }
 #endif
 
             if(_state < StateConnected)
             {
                 completed = false;
                 _writeCallback = callback;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs.UserToken = state;
                 return !_fd.ConnectAsync(_writeEventArgs);
 #else
@@ -454,7 +414,7 @@ namespace IceInternal
             try
             {
                 _writeCallback = callback;
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs.UserToken = state;
                 _writeEventArgs.SetBuffer(buf.b.rawBytes(), buf.b.position(), packetSize);
                 bool completedSynchronously = !_fd.SendAsync(_writeEventArgs);
@@ -489,7 +449,7 @@ namespace IceInternal
                 {
                     buf.b.position(buf.size()); // Assume all the data was sent for at-most-once semantics.
                 }
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 _writeEventArgs = null;
 #else
                 _writeResult = null;
@@ -497,7 +457,7 @@ namespace IceInternal
                 return;
             }
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
             Debug.Assert(_fd != null && _writeEventArgs != null);
 #else
             Debug.Assert(_fd != null && _writeResult != null);
@@ -510,7 +470,7 @@ namespace IceInternal
 
             try
             {
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
                 if(_writeEventArgs.SocketError != SocketError.Success)
                 {
                     throw new SocketException((int)_writeEventArgs.SocketError);
@@ -525,17 +485,6 @@ namespace IceInternal
                     throw new Ice.ConnectionLostException();
                 }
                 Debug.Assert(ret > 0);
-
-#if !COMPACT && !SILVERLIGHT
-                // COMPILERFIX: Workaround for Mac OS X broken poll(), see Mono bug #470120
-                if(AssemblyUtil.osx_)
-                {
-                    if(--_blocking == 0)
-                    {
-                        Network.setBlock(_fd, false);
-                    }
-                }
-#endif
 
                 if(_traceLevels.network >= 3)
                 {
@@ -612,22 +561,22 @@ namespace IceInternal
             _fd = fd;
             _addr = addr;
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
             _readEventArgs = new SocketAsyncEventArgs();
-            if(instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol").Equals("Http"))
-            {
-                _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
-            }
             _readEventArgs.RemoteEndPoint = _addr;
             _readEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _writeEventArgs = new SocketAsyncEventArgs();
-            if(instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol").Equals("Http"))
-            {
-                _writeEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
-            }
             _writeEventArgs.RemoteEndPoint = _addr;
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
+
+#if SILVERLIGHT
+            if(instance.initializationData().properties.getProperty("Ice.ClientAccessPolicyProtocol").Equals("Http"))
+            {
+                _readEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
+                _writeEventArgs.SocketClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
+            }
+#endif
 #endif
 
             _traceLevels = instance.traceLevels();
@@ -649,7 +598,7 @@ namespace IceInternal
             }
         }
 
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
         internal void ioCompleted(object sender, SocketAsyncEventArgs e)
         {
             switch (e.LastOperation)
@@ -693,11 +642,7 @@ namespace IceInternal
         private int _maxSendPacketSize;
         private int _maxReceivePacketSize;
 
-#if !COMPACT && !SILVERLIGHT
-        private int _blocking = 0;
-#endif	
-
-#if SILVERLIGHT
+#if ICE_SOCKET_ASYNC_API
         private SocketAsyncEventArgs _writeEventArgs;
         private SocketAsyncEventArgs _readEventArgs;
 #else
@@ -712,5 +657,4 @@ namespace IceInternal
         private const int StateConnectPending = 1;
         private const int StateConnected = 2;
     }
-
 }

@@ -21,21 +21,33 @@ public final class Instance
         @Override public void 
         updateConnectionObservers()
         {
-            _instance.outgoingConnectionFactory().updateConnectionObservers();
-            _instance.objectAdapterFactory().updateConnectionObservers();
+            try
+            {
+                _instance.outgoingConnectionFactory().updateConnectionObservers();
+                _instance.objectAdapterFactory().updateConnectionObservers();
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+            }
         }
 
         @Override public void 
         updateThreadObservers()
         {
-            _instance.clientThreadPool().updateObservers();
-            ThreadPool serverThreadPool = _instance.serverThreadPool(false);
-            if(serverThreadPool != null)
+            try
             {
-                serverThreadPool.updateObservers();
+                _instance.clientThreadPool().updateObservers();
+                ThreadPool serverThreadPool = _instance.serverThreadPool(false);
+                if(serverThreadPool != null)
+                {
+                    serverThreadPool.updateObservers();
+                }
+                _instance.objectAdapterFactory().updateThreadObservers();
+                _instance.endpointHostResolver().updateObserver();
             }
-            _instance.objectAdapterFactory().updateThreadObservers();
-            _instance.endpointHostResolver().updateObserver();
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+            }
         }
 
         final private Instance _instance;

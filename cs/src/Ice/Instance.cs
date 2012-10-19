@@ -28,23 +28,35 @@ namespace IceInternal
             
             public void updateConnectionObservers()
             {
-                _instance.outgoingConnectionFactory().updateConnectionObservers();
-                _instance.objectAdapterFactory().updateConnectionObservers();
+                try
+                {
+                    _instance.outgoingConnectionFactory().updateConnectionObservers();
+                    _instance.objectAdapterFactory().updateConnectionObservers();
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                }
             }
 
             public void updateThreadObservers()
             {
-                _instance.clientThreadPool().updateObservers();
-                ThreadPool serverThreadPool = _instance.serverThreadPool(false);
-                if(serverThreadPool != null)
+                try
                 {
-                    serverThreadPool.updateObservers();
-                }
-                _instance.objectAdapterFactory().updateThreadObservers();
+                    _instance.clientThreadPool().updateObservers();
+                    ThreadPool serverThreadPool = _instance.serverThreadPool(false);
+                    if(serverThreadPool != null)
+                    {
+                        serverThreadPool.updateObservers();
+                    }
+                    _instance.objectAdapterFactory().updateThreadObservers();
 #if !SILVERLIGHT
-                _instance.endpointHostResolver().updateObserver();
+                    _instance.endpointHostResolver().updateObserver();
 #endif
-                _instance.asyncIOThread().updateObserver();
+                    _instance.asyncIOThread().updateObserver();
+                }
+                catch(Ice.CommunicatorDestroyedException)
+                {
+                }
             }
             
             private Instance _instance;

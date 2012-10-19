@@ -979,45 +979,40 @@ namespace IceInternal
             {
                 addresses = new List<IPAddress>();
 #  if !COMPACT && !UNITY
-                if(AssemblyUtil.runtime_ != AssemblyUtil.Runtime.Mono)
+                NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+                foreach(NetworkInterface ni in nics)
                 {
-                    NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
-                    foreach(NetworkInterface ni in nics)
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
+                    foreach(UnicastIPAddressInformation uni in uniColl)
                     {
-                        IPInterfaceProperties ipProps = ni.GetIPProperties();
-                        UnicastIPAddressInformationCollection uniColl = ipProps.UnicastAddresses;
-                        foreach(UnicastIPAddressInformation uni in uniColl)
+                        if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                           (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                         {
-                            if((uni.Address.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                               (uni.Address.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                            if(!IPAddress.IsLoopback(uni.Address))
                             {
-                                if(!IPAddress.IsLoopback(uni.Address))
-                                {
-                                    addresses.Add(uni.Address);
-                                }
+                                addresses.Add(uni.Address);
                             }
                         }
                     }
                 }
-                else
-#  endif
-                {
-#  if COMPACT
-                    foreach(IPAddress a in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
 #  else
-                    foreach(IPAddress a in Dns.GetHostAddresses(Dns.GetHostName()))
-#  endif
+#     if COMPACT
+                foreach(IPAddress a in Dns.GetHostEntry(Dns.GetHostName()).AddressList)
+#     else
+                foreach(IPAddress a in Dns.GetHostAddresses(Dns.GetHostName()))
+#     endif
+                {
+                    if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
+                       (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
                     {
-                        if((a.AddressFamily == AddressFamily.InterNetwork && protocol != EnableIPv6) ||
-                           (a.AddressFamily == AddressFamily.InterNetworkV6 && protocol != EnableIPv4))
+                        if(!IPAddress.IsLoopback(a))
                         {
-                            if(!IPAddress.IsLoopback(a))
-                            {
-                                addresses.Add(a);
-                            }
+                            addresses.Add(a);
                         }
                     }
                 }
+#  endif
             }
             catch(SocketException ex)
             {
