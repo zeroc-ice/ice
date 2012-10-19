@@ -126,6 +126,9 @@ General Changes
 C++ Changes
 ===========
 
+- Fixed a Windows bug where a connection failure would be reported
+  with Ice::SocketException instead of Ice:ConnectFailedException.
+
 - Added the property IceSSL.InitOpenSSL, which allows an application
   to disable the OpenSSL startup and shutdown activities in the IceSSL
   plug-in.

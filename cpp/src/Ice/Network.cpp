@@ -1733,7 +1733,9 @@ IceInternal::connectFailed()
            error == WSAEHOSTUNREACH ||
            error == WSAECONNRESET ||
            error == WSAESHUTDOWN ||
-           error == WSAECONNABORTED;
+           error == WSAECONNABORTED ||
+           error == ERROR_SEM_TIMEOUT || 
+           error == ERROR_NETNAME_DELETED;
 #else
     return errno == ECONNREFUSED ||
            errno == ETIMEDOUT ||
