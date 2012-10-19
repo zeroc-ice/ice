@@ -119,7 +119,7 @@ install:: all
 
 !endif
 
-SUBDIRS = FreezeDB SqlDB
+SUBDIRS = FreezeDB
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

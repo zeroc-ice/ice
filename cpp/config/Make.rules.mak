@@ -146,6 +146,9 @@ RCFLAGS		= -D_DEBUG
 OPENSSL_LIBS            = ssleay32.lib libeay32.lib
 EXPAT_LIBS              = libexpat.lib
 
+#
+# QT is used only for the deprecated IceGrid and IceStorm SQL plugins
+#
 QT_LIBS			= QtSql$(LIBSUFFIX)4.lib QtCore$(LIBSUFFIX)4.lib
 
 CPPFLAGS		= $(CPPFLAGS) -I"$(includedir)"

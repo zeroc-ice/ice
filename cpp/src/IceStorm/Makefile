@@ -88,9 +88,6 @@ install:: all
 	$(call installprogram,$(ADMIN),$(install_bindir))
 
 SUBDIRS = FreezeDB
-ifneq ($(QT_HOME),)
-   SUBDIRS += SqlDB
-endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

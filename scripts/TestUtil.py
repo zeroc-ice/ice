@@ -324,12 +324,12 @@ def run(tests, root = False):
           --cross=lang            Run cross language test.
           --script                Generate a script to run the tests.
           --env                   Print important environment variables.
-          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
-          --sql-db=<db>           Set SQL database name.
-          --sql-host=<host>       Set SQL host name.
-          --sql-port=<port>       Set SQL server port.
-          --sql-user=<user>       Set SQL user name.
-          --sql-passwd=<passwd>   Set SQL password.
+          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
+          --sql-db=<db>           Set SQL database name. (deprecated)
+          --sql-host=<host>       Set SQL host name. (deprecated)
+          --sql-port=<port>       Set SQL server port. (deprecated)
+          --sql-user=<user>       Set SQL user name. (deprecated)
+          --sql-passwd=<passwd>   Set SQL password. (deprecated)
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.
@@ -1499,12 +1499,12 @@ def processCmdLine():
           --x64                   Binary distribution is 64-bit.
           --env                   Print important environment variables.
           --cross=lang            Run cross language test.
-          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver.
-          --sql-db=<db>           Set SQL database name.
-          --sql-host=<host>       Set SQL host name.
-          --sql-port=<port>       Set SQL server port.
-          --sql-user=<user>       Set SQL user name.
-          --sql-passwd=<passwd>   Set SQL password.
+          --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
+          --sql-db=<db>           Set SQL database name. (deprecated)
+          --sql-host=<host>       Set SQL host name. (deprecated)
+          --sql-port=<port>       Set SQL server port. (deprecated)
+          --sql-user=<user>       Set SQL user name. (deprecated)
+          --sql-passwd=<passwd>   Set SQL password. (deprecated)
           --service-dir=<dir>     Where to locate services for builds without service support.
           --compact               Ice for .NET uses the Compact Framework.
           --silverlight           Ice for .NET uses Silverlight.

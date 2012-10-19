@@ -118,9 +118,6 @@ install:: all
 	$(call installprogram,$(REGISTRY_SERVER),$(install_bindir))
 
 SUBDIRS = FreezeDB
-ifneq ($(QT_HOME),)
-   SUBDIRS += SqlDB
-endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
@@ -131,8 +128,5 @@ $(EVERYTHING)::
 		( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	    fi; \
 	done
-
-# Needed for make -jn to work.
-#../IceGrid/Grammar.y: Grammar.h
 
 include .depend
