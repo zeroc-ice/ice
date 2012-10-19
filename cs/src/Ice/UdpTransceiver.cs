@@ -32,7 +32,7 @@ namespace IceInternal
             if(_state == StateNeedConnect)
             {
                 _state = StateConnectPending;
-#if ICE_SOCKET_ASYNC_API
+#if ICE_SOCKET_ASYNC_API && !SILVERLIGHT
                 try
                 {
                     _fd.Connect(_addr);
@@ -986,7 +986,9 @@ namespace IceInternal
             switch (e.LastOperation)
             {
             case SocketAsyncOperation.Receive:
+#if !SILVERLIGHT
             case SocketAsyncOperation.ReceiveFrom:
+#endif
                 _readCallback(e.UserToken);
                 break;
             case SocketAsyncOperation.Send:
