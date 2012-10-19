@@ -220,6 +220,12 @@
       <Filter>Tests</Filter>
     </None>
     <None Include="TestSuite_TemporaryKey.pfx" />
+    <None Include="..\..\Ice\enums\Ice_enums_client.dll">
+      <Filter>Tests</Filter>
+    </None>
+    <None Include="..\..\Ice\enums\Ice_enums_server.dll">
+      <Filter>Tests</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Include="MainPage.xaml" />

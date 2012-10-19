@@ -303,7 +303,8 @@ static const TestCase allTest[] =
     {"Ice\\hash", "Ice_hash_", "client.dll", 0, 0, 0},
     {"Ice\\metrics", "Ice_metrics_", "client.dll", "server.dll", "serveramd.dll", 0},
     {"Ice\\optional", "Ice_optional_", "client.dll", "server.dll", 0, 0},
-    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0}
+    {"Ice\\admin", "Ice_admin_", "client.dll", "server.dll", 0, 0},
+    {"Ice\\enums", "Ice_enums_", "client.dll", "server.dll", 0, 0}
 };
 
 class TestRunner : public IceUtil::Thread

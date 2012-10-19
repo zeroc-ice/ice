@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|ARM">
@@ -237,6 +237,12 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\dispatcher\Ice_dispatcher_server.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\enums\Ice_enums_client.dll">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\Ice\enums\Ice_enums_server.dll">
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="..\..\Ice\exceptions\Ice_exceptions_client.dll">
