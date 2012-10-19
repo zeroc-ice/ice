@@ -27,6 +27,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- IceGrid now enables active connection management for its object
+  adapters to allow client connections to be closed automatically when
+  inactive.
+
 - Improved Ice.Trace.Network tracing for transport acceptors. The
   tracing now shows when the object adapter starts listening for
   incoming connections and when it starts accepting them.

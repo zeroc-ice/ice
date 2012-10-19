@@ -234,17 +234,48 @@ RegistryI::startImpl()
     properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
     properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.AdminSessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
     setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10, true); // Serialize for admin callbacks
     setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.AdminSessionManager.ThreadPool", 1, 10);
     setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
 
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
     _sessionTimeout = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionTimeout", 30);
 
+    if(properties->getProperty("IceGrid.Registry.Client.ACM").empty())
+    {
+        //
+        // Set the client object adapter ACM timeout to the session
+        // timeout * 2. If no session timeout is set, ACM is disabled.
+        //
+        ostringstream os;
+        os << _sessionTimeout * 2;
+        properties->setProperty("IceGrid.Registry.Client.ACM", os.str());
+    }
+    if(properties->getProperty("IceGrid.Registry.Server.ACM").empty())
+    {
+        properties->setProperty("IceGrid.Registry.Server.ACM", "30");
+    }
+    if(properties->getProperty("IceGrid.Registry.Internal.ACM").empty())
+    {
+        int nt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.NodeSessionTimeout", 30);
+        int rt = properties->getPropertyAsIntWithDefault("IceGrid.Registry.ReplicaSessionTimeout", 30);
+
+        //
+        // Set the internal object adapter ACM timeout to the replica
+        // or node session timeout * 2. If no session timeout is set,
+        // ACM is disabled.
+        //
+        ostringstream os;
+        os << std::max(nt, rt) * 2;
+        properties->setProperty("IceGrid.Registry.Internal.ACM", os.str());
+    }
+    
     if(!_master && properties->getProperty("Ice.Default.Locator").empty())
     {
         if(properties->getProperty("Ice.Default.Locator").empty())
