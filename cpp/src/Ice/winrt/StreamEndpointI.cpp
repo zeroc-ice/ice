@@ -342,6 +342,12 @@ IceInternal::StreamEndpointI::type() const
     return _type;
 }
 
+string
+IceInternal::StreamEndpointI::protocol() const
+{
+    return _type == TCPEndpointType ? "tcp" : "ssl";
+}
+
 Int
 IceInternal::StreamEndpointI::timeout() const
 {
