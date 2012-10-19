@@ -1960,7 +1960,7 @@ namespace Ice.VisualStudio
 
             foreach(Project p in projects)
             {
-                if(p.Equals(item.ContainingProject) || !dependenciesMap.ContainsKey(p.Name)
+                if(p.Equals(item.ContainingProject) || !dependenciesMap.ContainsKey(p.Name) ||
                    dependantProjects.Contains(p))
                 {
                     continue;
