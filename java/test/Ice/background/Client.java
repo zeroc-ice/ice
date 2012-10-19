@@ -40,6 +40,8 @@ public class Client extends test.Util.Application
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
 
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+
         //
         // Setup the test transport plug-in.
         //
