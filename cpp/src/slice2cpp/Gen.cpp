@@ -733,6 +733,43 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "virtual ~" << name << "() throw();";
     H << sp;
 
+    C << sp << nl << "namespace";
+    C << nl << "{";
+    string flatName = p->flattenedScope() + p->name() + "_name";
+    C << sp << nl << "const char* " << flatName << " = \"" << p->scoped().substr(2) << "\";";
+    if(!p->isLocal())
+    {
+        string factoryName = "__F" + p->flattenedScope() + p->name();
+
+        C << sp << nl << "struct " << factoryName << " : public ::IceInternal::UserExceptionFactory";
+        C << sb;
+        C << sp << nl << "virtual void";
+        C << nl << "createAndThrow(const ::std::string&)";
+        C << sb;
+        C << nl << "throw " << scoped << "();";
+        C << eb;
+        C << eb << ';';
+
+        C << sp << nl << "class " << factoryName << "__Init";
+        C << sb;
+        C.dec();
+        C << nl << "public:";
+        C.inc();
+        C << sp << nl << factoryName << "__Init()";
+        C << sb;
+        C << nl << "::IceInternal::factoryTable->addExceptionFactory(\"" << p->scoped() << "\", new "
+          << factoryName << ");";
+        C << eb;
+        C << sp << nl << "~" << factoryName << "__Init()";
+        C << sb;
+        C << nl << "::IceInternal::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
+        C << eb;
+        C << eb << ';';
+
+        C << sp << nl << "const " << factoryName << "__Init "<< factoryName << "__i;";
+    }
+    C << sp << nl << "}";
+
     if(p->isLocal())
     {
         C << sp << nl << scoped.substr(2) << "::" << name << spar << "const char* __file" << "int __line" << epar
@@ -817,13 +854,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << eb;
 
     H << nl << "virtual ::std::string ice_name() const;";
-
-    string flatName = p->flattenedScope() + p->name() + "_name";
-
-    C << sp << nl << "namespace";
-    C << nl << "{";
-    C << sp << nl << "const char* " << flatName << " = \"" << p->scoped().substr(2) << "\";";
-    C << sp << nl << "}";
     C << sp << nl << "::std::string" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
     C << nl << "return " << flatName << ';';
@@ -847,10 +877,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
-    if(!p->isLocal())
-    {
-        H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
-    }
     if(!dataMembers.empty())
     {
         H << sp;
@@ -998,60 +1024,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             C << eb;
         }
-
-       
-        factoryName = "__F" + p->flattenedScope() + p->name();
-
-        C << sp << nl << "struct " << factoryName << " : public ::IceInternal::UserExceptionFactory";
-        C << sb;
-        C << sp << nl << "virtual void";
-        C << nl << "createAndThrow(const ::std::string&)";
-        C << sb;
-        C << nl << "throw " << scoped << "();";
-        C << eb;
-        C << eb << ';';
-
-        C << sp << nl << "namespace";
-        C << nl << "{";
-        C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr " << factoryName
-          << "__Ptr = new " << factoryName << ';';
-        C << sp << nl << "}";
-
-        C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
-        C << nl << scoped.substr(2) << "::ice_factory()";
-        C << sb;
-        C << nl << "return " << factoryName << "__Ptr;";
-        C << eb;
-
-        C << sp << nl << "class " << factoryName << "__Init";
-        C << sb;
-        C.dec();
-        C << nl << "public:";
-        C.inc();
-        C << sp << nl << factoryName << "__Init()";
-        C << sb;
-        C << nl << "::IceInternal::factoryTable->addExceptionFactory(\"" << p->scoped() << "\", " << scoped
-          << "::ice_factory());";
-        C << eb;
-        C << sp << nl << "~" << factoryName << "__Init()";
-        C << sb;
-        C << nl << "::IceInternal::factoryTable->removeExceptionFactory(\"" << p->scoped() << "\");";
-        C << eb;
-        C << eb << ';';
-        C << sp << nl << "namespace";
-        C << nl << "{";
-        C << sp << nl << "const " << factoryName << "__Init "<< factoryName << "__i;";
-        C << sp << nl << "}";
-        C << sp << nl << "#ifdef __APPLE__";
-
-        string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
-        C << nl << "extern \"C\" {";
-        C.inc();
-        C << nl << "void " << initfuncname << "();";
-        C << nl << "void " << initfuncname << "() {}";
-        C.dec();
-        C << nl << "}";
-        C << nl << "#endif";
     }
     H << eb << ';';
 
@@ -3923,6 +3895,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         if(!p->isAbstract())
         {
+            C << sp << nl << "namespace";
+            C << nl << "{";
+
             string factoryName = "__F" + p->flattenedScope() + p->name();
             C << sp;
             C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
@@ -3941,15 +3916,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb << ';';
 
             string flatName = factoryName + "_Ptr";
-            C << sp << nl << "namespace";
-            C << nl << "{";
             C << nl << "const ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
-            C << sp << nl << "}";
-
-            C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
-            C << sb;
-            C << nl << "return " << flatName << ';';
-            C << eb;
 
             C << sp;
             C << nl << "class " << factoryName << "__Init";
@@ -3960,7 +3927,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << sp << nl << factoryName << "__Init()";
             C << sb;
             C << nl << "::IceInternal::factoryTable->addObjectFactory(" << scoped << "::ice_staticId(), "
-              << scoped << "::ice_factory());";
+              << flatName << ");";
             C << eb;
             C << sp << nl << "~" << factoryName << "__Init()";
             C << sb;
@@ -3968,19 +3935,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
             C << eb << ';';
 
-            C << sp << nl << "namespace";
-            C << nl << "{";
-            C << nl << "const " << factoryName << "__Init " << factoryName << "__i;";
+            C << sp << nl << "const " << factoryName << "__Init " << factoryName << "__i;";
+
             C << sp << nl << "}";
-            C << sp << nl << "#ifdef __APPLE__";
-            string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
-            C << nl << "extern \"C\" {";
-            C.inc();
-            C << nl << "void " << initfuncname << "();";
-            C << nl << "void " << initfuncname << "() {}";
-            C.dec();
-            C << nl << "}";
-            C << nl << "#endif";
+
+            C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
+            C << sb;
+            C << nl << "return " << flatName << ';';
+            C << eb;
         }
     }
 
@@ -6105,7 +6067,7 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
             C << nl << "#ifdef ICE_HAS_DECLSPEC_IMPORT_EXPORT";
             C << nl << "template struct " << _dllExport << "StreamWriter< " << fullStructName << ", ::IceInternal::BasicStream>;";
             C << nl << "template struct " << _dllExport << "StreamReader< " << fullStructName << ", ::IceInternal::BasicStream>;";
-            C << nl << "#endif" << nl;
+            C << nl << "#endif";
         }
     }
     return false;

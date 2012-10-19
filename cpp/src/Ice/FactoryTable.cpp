@@ -10,10 +10,6 @@
 #include <Ice/FactoryTable.h>
 #include <Ice/UserExceptionFactory.h>
 
-#ifdef __APPLE__
-#   include <dlfcn.h>
-#endif
-
 //
 // Add a factory to the exception factory table.
 // If the factory is present already, increment its reference count.
@@ -22,6 +18,7 @@ void
 IceInternal::FactoryTable::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
+    assert(f);
     EFTable::iterator i = _eft.find(t);
     if(i == _eft.end())
     {
@@ -41,28 +38,6 @@ IceInternal::FactoryTable::getExceptionFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
-#ifdef __APPLE__
-    if(i == _eft.end())
-    {
-        lock.release();
-
-        //
-        // Try to find the symbol, if found this should trigger the
-        // object static constructors to be called.
-        //
-        std::string symbol = "__F";
-        for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
-        {
-            symbol += ((*p) == ':') ? '_' : *p;
-        }
-        symbol += "__initializer";
-        dlsym(RTLD_DEFAULT, symbol.c_str());
-
-        lock.acquire(); 
-
-        i = _eft.find(t);
-    }
-#endif
     return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
 }
 
@@ -93,6 +68,7 @@ void
 IceInternal::FactoryTable::addObjectFactory(const std::string& t, const Ice::ObjectFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
+    assert(f);
     OFTable::iterator i = _oft.find(t);
     if(i == _oft.end())
     {
@@ -112,28 +88,6 @@ IceInternal::FactoryTable::getObjectFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     OFTable::const_iterator i = _oft.find(t);
-#ifdef __APPLE__
-    if(i == _oft.end())
-    {
-        lock.release();
-
-        //
-        // Try to find the symbol, if found this should trigger the
-        // object static constructors to be called.
-        //
-        std::string symbol = "__F";
-        for(std::string::const_iterator p = t.begin(); p != t.end(); ++p)
-        {
-            symbol += ((*p) == ':') ? '_' : *p;
-        }
-        symbol += "__initializer";
-        dlsym(RTLD_DEFAULT, symbol.c_str());
-
-        lock.acquire(); 
-
-        i = _oft.find(t);
-    }
-#endif
     return i != _oft.end() ? i->second.first : Ice::ObjectFactoryPtr();
 }
 
