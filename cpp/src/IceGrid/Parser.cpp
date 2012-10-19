@@ -2188,7 +2188,7 @@ Parser::showWarranty()
 }
 
 void
-Parser::getInput(char* buf, size_t& result, size_t maxSize)
+Parser::getInput(char* buf, int& result, int maxSize)
 {
     if(!_commands.empty())
     {
@@ -2198,7 +2198,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         }
         else
         {
-            result = min(maxSize, _commands.length());
+            result = min(maxSize, static_cast<int>(_commands.length()));
             strncpy(buf, _commands.c_str(), result);
             _commands.erase(0, result);
             if(_commands.empty())

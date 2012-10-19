@@ -126,7 +126,7 @@ public:
     void showCopying();
     void showWarranty();
 
-    void getInput(char*, size_t&, size_t);
+    void getInput(char*, int&, int);
     void continueLine();
     const char* getPrompt();
 
