@@ -1063,11 +1063,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             byte[] array = readByteSeq();
-            l = new Stack<byte>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<byte>(array);
         }
 
         public Ice.Optional<byte[]> readByteSeq(int tag)
@@ -1337,11 +1334,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             bool[] array = readBoolSeq();
-            l = new Stack<bool>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<bool>(array);
         }
 
         public Ice.Optional<bool[]> readBoolSeq(int tag)
@@ -1586,11 +1580,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             short[] array = readShortSeq();
-            l = new Stack<short>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<short>(array);
         }
 
         public Ice.Optional<short[]> readShortSeq(int tag)
@@ -1862,11 +1853,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             int[] array = readIntSeq();
-            l = new Stack<int>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<int>(array);
         }
 
         public Ice.Optional<int[]> readIntSeq(int tag)
@@ -2133,11 +2121,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             long[] array = readLongSeq();
-            l = new Stack<long>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<long>(array);
         }
 
         public Ice.Optional<long[]> readLongSeq(int tag)
@@ -2404,11 +2389,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             float[] array = readFloatSeq();
-            l = new Stack<float>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<float>(array);
         }
 
         public Ice.Optional<float[]> readFloatSeq(int tag)
@@ -2675,11 +2657,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             double[] array = readDoubleSeq();
-            l = new Stack<double>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<double>(array);
         }
 
         public Ice.Optional<double[]> readDoubleSeq(int tag)
@@ -2933,11 +2912,8 @@ namespace IceInternal
             // because the stack is marshaled in top-to-bottom order.
             //
             string[] array = readStringSeq();
-            l = new Stack<string>(array.Length);
-            for(int i = array.Length - 1; i >= 0; --i)
-            {
-                l.Push(array[i]);
-            }
+            Array.Reverse(array);
+            l = new Stack<string>(array);
         }
 
         public Ice.Optional<string[]> readStringSeq(int tag)

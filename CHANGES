@@ -163,6 +163,12 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Changed the marshaling code for sequences of user-defined types that
+  are mapped to System.Collections.Generic.Stack<T>. In previous
+  releases the elements were marshaled in bottom-to-top order; now
+  they are marshaled in top-to-bottom order. Stacks of primitve types
+  have always been marshaled in top-to-bottom orrder.
+
 - Fixed a bug that could cause an infinite loop while visiting all
   referenced assemblies of an executable.
 

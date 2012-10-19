@@ -1148,11 +1148,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         if(isStack)
                         {
                             //
-                            // If the collection is a stack, write in bottom-to-top order. Stacks
+                            // If the collection is a stack, write in top-to-bottom order. Stacks
                             // cannot contain Ice.Object.
                             //
                             out << nl << "Ice.ObjectPrx[] " << param << "_tmp = " << param << ".ToArray();";
-                            out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
+                            out << nl << "for(int ix__ = 0; ix__ < " << param << "_tmp.Length; ++ix__)";
                             out << sb;
                             out << nl << stream << ".writeProxy(" << param << "_tmp[ix__]);";
                             out << eb;
@@ -1209,10 +1209,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         out << nl << "for(int ix__ = 0; ix__ < " << param << "_lenx; ++ix__)";
                         out << sb;
                         out << nl << stream << ".readObject(";
-                        if(streamingAPI)
-                        {
-                            out << "(ReadObjectCallback)";
-                        }
                         string patcherName;
                         if(isCustom)
                         {
@@ -1373,17 +1369,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                             if(isStack)
                             {
                                 //
-                                // Stacks are marshaled in top-to-bottom order. We cannot call
-                                // "new Stack(type[])" because that constructor assumes the array
-                                // is in bottom-to-top order. We read the array first, then push it
-                                // in reverse order.
+                                // Stacks are marshaled in top-to-bottom order. The "Stack(type[])"
+                                // constructor assumes the array is in bottom-to-top order, so we
+                                // read the array first, then reverse it.
                                 //
                                 out << nl << typeS << "[] arr__ = " << stream << ".read" << func << "Seq();";
-                                out << nl << param << " = new " << typeToString(seq) << "(arr__.Length);";
-                                out << nl << "for(int ix__ = arr__.Length - 1; ix__ >= 0; --ix__)";
-                                out << sb;
-                                out << nl << param << ".Push(arr__[ix__]);";
-                                out << eb;
+                                out << nl << "_System.Array.Reverse(arr__);";
+                                out << nl << param << " = new " << typeToString(seq) << "(arr__);";
                             }
                             else
                             {
@@ -1489,10 +1481,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "IceInternal." << patcherName << "Patcher<" << typeS << "> spx = new IceInternal."
                 << patcherName << "Patcher<" << typeS << ">(\"" << scoped << "\", " << param << ", ix__);";
             out << nl << stream << ".readObject(";
-            if(streamingAPI)
-            {
-                out << "(Ice.ReadObjectCallback)";
-            }
             out << "spx);";
             out << eb;
             out << eb;
@@ -1515,12 +1503,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isGeneric && !isList)
             {
                 //
-                // Stacks are marshaled bottom-up.
+                // Stacks are marshaled top-down.
                 //
                 if(isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                    out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
+                    out << nl << "for(int ix__ = 0; ix__ < " << param << "_tmp.Length; ++ix__)";
                 }
                 else
                 {
@@ -1589,18 +1577,21 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" 
                 << static_cast<unsigned>(type->minWireSize()) << ");";
-            out << nl << param << " = new ";
             if(isArray)
             {
-                out << toArrayAlloc(typeS + "[]", "szx__") << ";";
+                out << nl << param << " = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
             }
             else if(isCustom)
             {
-                out << "global::" << genericType << "<" << typeS << ">();";
+                out << nl << param << " = new global::" << genericType << "<" << typeS << ">();";
+            }
+            else if(isStack)
+            {
+                out << nl << typeS << "[] " << param << "__tmp = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
             }
             else if(isGeneric)
             {
-                out << "_System.Collections.Generic." << genericType << "<" << typeS << ">(";
+                out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">(";
                 if(!isLinkedList)
                 {
                     out << "szx__";
@@ -1609,23 +1600,24 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << fixId(seq->scoped()) << "(szx__);";
+                out << nl << param << " = new " << fixId(seq->scoped()) << "(szx__);";
             }
             out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
             out << sb;
-            if(isArray)
+            if(isArray || isStack)
             {
+                string v = isArray ? param : param + "__tmp";
                 if(!isValueType(st))
                 {
-                    out << nl << param << "[ix__] = new " << typeS << "();";
+                    out << nl << v << "[ix__] = new " << typeS << "();";
                 }
                 if(streamingAPI)
                 {
-                    out << nl << param << "[ix__].ice_read(" << stream << ");";
+                    out << nl << v << "[ix__].ice_read(" << stream << ");";
                 }
                 else
                 {
-                    out << nl << param << "[ix__].read__(" << stream << ");";
+                    out << nl << v << "[ix__].read__(" << stream << ");";
                 }
             }
             else
@@ -1642,6 +1634,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << param << "." << addMethod << "(val__);";
             }
             out << eb;
+            if(isStack)
+            {
+                out << nl << "_System.Array.Reverse(" << param << "__tmp);";
+                out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">("
+                    << param << "__tmp);";
+            }
             out << eb;
         }
         return;
@@ -1650,7 +1648,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        size_t sz = en->getEnumerators().size();
         if(marshal)
         {
             out << nl << "if(" << param << " == null)";
@@ -1663,14 +1660,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isGeneric && !isList)
             {
                 //
-                // Stacks are marshaled bottom-up.
+                // Stacks are marshaled top-down.
                 //
                 if(isStack)
                 {
                     out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                    out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
+                    out << nl << "for(int ix__ = 0; ix__ < " << param << "_tmp.Length; ++ix__)";
                     out << sb;
-                    out << nl << stream << ".writeEnum((int)" << param << "_tmp[ix__], " << sz << ");";
+                    out << nl << stream << ".writeEnum((int)" << param << "_tmp[ix__], " << en->maxValue() << ");";
                     out << eb;
                 }
                 else
@@ -1679,7 +1676,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         << "> e__ = " << param << ".GetEnumerator();";
                     out << nl << "while(e__.MoveNext())";
                     out << sb;
-                    out << nl << stream << ".writeEnum((int)e__.Current, " << sz << ");";
+                    out << nl << stream << ".writeEnum((int)e__.Current, " << en->maxValue() << ");";
                     out << eb;
                 }
             }
@@ -1687,7 +1684,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << nl << "for(int ix__ = 0; ix__ < " << param << '.' << limitID << "; ++ix__)";
                 out << sb;
-                out << nl << stream << ".writeEnum((int)" << param << "[ix__], " << sz << ");";
+                out << nl << stream << ".writeEnum((int)" << param << "[ix__], " << en->maxValue() << ");";
                 out << eb;
             }
             out << eb;
@@ -1697,18 +1694,21 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << sb;
             out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize(" << 
                 static_cast<unsigned>(type->minWireSize()) << ");";
-            out << nl << param << " = new ";
             if(isArray)
             {
-                out << toArrayAlloc(typeS + "[]", "szx__") << ";";
+                out << nl << param << " = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
             }
             else if(isCustom)
             {
-                out << "global::" << genericType << "<" << typeS << ">();";
+                out << nl << param << " = new global::" << genericType << "<" << typeS << ">();";
+            }
+            else if(isStack)
+            {
+                out << nl << typeS << "[] " << param << "__tmp = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
             }
             else if(isGeneric)
             {
-                out << "_System.Collections.Generic." << genericType << "<" << typeS << ">(";
+                out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">(";
                 if(!isLinkedList)
                 {
                     out << "szx__";
@@ -1717,19 +1717,27 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else
             {
-                out << fixId(seq->scoped()) << "(szx__);";
+                out << nl << param << " = new " << fixId(seq->scoped()) << "(szx__);";
             }
             out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
             out << sb;
-            if(isArray)
+            if(isArray || isStack)
             {
-                out << nl << param << "[ix__] = (" << typeS << ')' << stream << ".readEnum(" << sz << ");";
+                string v = isArray ? param : param + "__tmp";
+                out << nl << v << "[ix__] = (" << typeS << ')' << stream << ".readEnum(" << en->maxValue() << ");";
             }
             else
             {
-                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << ".readEnum(" << sz << "));";
+                out << nl << param << "." << addMethod << "((" << typeS << ')' << stream << ".readEnum("
+                    << en->maxValue() << "));";
             }
             out << eb;
+            if(isStack)
+            {
+                out << nl << "_System.Array.Reverse(" << param << "__tmp);";
+                out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">("
+                    << param << "__tmp);";
+            }
             out << eb;
         }
         return;
@@ -1763,12 +1771,12 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         if(isGeneric && !isList)
         {
             //
-            // Stacks are marshaled bottom-up.
+            // Stacks are marshaled top-down.
             //
             if(isStack)
             {
                 out << nl << typeS << "[] " << param << "_tmp = " << param << ".ToArray();";
-                out << nl << "for(int ix__ = " << param << "_tmp.Length - 1; ix__ >= 0; --ix__)";
+                out << nl << "for(int ix__ = 0; ix__ < " << param << "_tmp.Length; ++ix__)";
                 out << sb;
                 out << nl << helperName << '.' << func << '(' << stream << ", " << param << "_tmp[ix__]);";
                 out << eb;
@@ -1802,34 +1810,44 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         out << sb;
         out << nl << "int szx__ = " << stream << ".readAndCheckSeqSize("
             << static_cast<unsigned>(type->minWireSize()) << ");";
-        out << nl << param << " = new ";
         if(isArray)
         {
-            out << toArrayAlloc(typeS + "[]", "szx__") << ";";
+            out << nl << param << " = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
         }
         else if(isCustom)
         {
-            out << "global::" << genericType << "<" << typeS << ">();";
+            out << nl << param << " = new global::" << genericType << "<" << typeS << ">();";
+        }
+        else if(isStack)
+        {
+            out << nl << typeS << "[] " << param << "__tmp = new " << toArrayAlloc(typeS + "[]", "szx__") << ";";
         }
         else if(isGeneric)
         {
-            out << "_System.Collections.Generic." << genericType << "<" << typeS << ">();";
+            out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">();";
         }
         else
         {
-            out << fixId(seq->scoped()) << "(szx__);";
+            out << nl << param << " = new " << fixId(seq->scoped()) << "(szx__);";
         }
         out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
         out << sb;
-        if(isArray)
+        if(isArray || isStack)
         {
-            out << nl << param << "[ix__] = " << helperName << '.' << func << '(' << stream << ");";
+            string v = isArray ? param : param + "__tmp";
+            out << nl << v << "[ix__] = " << helperName << '.' << func << '(' << stream << ");";
         }
         else
         {
             out << nl << param << "." << addMethod << "(" << helperName << '.' << func << '(' << stream << "));";
         }
         out << eb;
+        if(isStack)
+        {
+            out << nl << "_System.Array.Reverse(" << param << "__tmp);";
+            out << nl << param << " = new _System.Collections.Generic." << genericType << "<" << typeS << ">("
+                << param << "__tmp);";
+        }
         out << eb;
     }
 
