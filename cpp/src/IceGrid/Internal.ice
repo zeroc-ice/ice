@@ -672,7 +672,8 @@ class InternalNodeInfo
 
     /**
      *
-     * The number of processors.
+     * The number of processor threads (e.g. 8 on 
+     * system with 1 quad-core CPU, with 2 threads per core)
      *
      **/
     int nProcessors;

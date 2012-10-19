@@ -258,7 +258,9 @@ struct NodeInfo
 
     /**
      *
-     * The number of processors.
+     * The number of processor threads on the node.
+     * For example, nProcessors is 8 on a computer with a single quad-core
+     * processor and two HT threads per core.
      *
      **/
     int nProcessors;
