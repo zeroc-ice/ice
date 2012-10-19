@@ -7,14 +7,14 @@
 //
 // **********************************************************************
 
-#if !defined(ICE_OS_WINRT) && defined(_MSC_VER) && _MSC_VER >= 1700
+#if defined(_MSC_VER) && _MSC_VER >= 1700
 //
 // DbgHelp.dll on Windows XP does not contain Unicode functions, so we 
 // "switch on" Unicode only with VS2012 and up
 //
-#  define UNICODE
-#  define DBGHELP_TRANSLATE_TCHAR
-#  include <IceUtil/Unicode.h>
+#  ifndef UNICODE
+#    define UNICODE
+#  endif
 #endif
 
 #include <IceUtil/Exception.h>
@@ -34,6 +34,10 @@
 #endif
 
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(ICE_OS_WINRT)
+#  if defined(_MSC_VER) && _MSC_VER >= 1700
+#    define DBGHELP_TRANSLATE_TCHAR
+#    include <IceUtil/Unicode.h>
+#  endif
 #  include <DbgHelp.h>
 #  define ICE_STACK_TRACES
 #  define ICE_WIN32_STACK_TRACES
