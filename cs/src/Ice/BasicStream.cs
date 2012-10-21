@@ -3505,49 +3505,12 @@ namespace IceInternal
             try
             {
                 Type c = AssemblyUtil.findType(instance_, typeToClass(id));
-                if(c == null)
-                {
-                    return null;
-                }
                 //
                 // Ensure the class is instantiable.
                 //
-                if(!c.IsAbstract && !c.IsInterface)
+                if(c != null && !c.IsAbstract && !c.IsInterface)
                 {
                     factory = new DynamicObjectFactory(c);
-                    /*
-                     * TODO: See ICE-3635 regarding caching of factories.
-                     * Perhaps we should store these dynamic factories in a
-                     * per-communicator map and check this map prior to
-                     * calling findClass above.
-                     *
-                    Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
-                    //
-                    // We will try to install the dynamic factory, but
-                    // another thread may install a factory first.
-                    //
-                    while(factory == null)
-                    {
-                        try
-                        {
-                            instance_.servantFactoryManager().add(dynamicFactory, id);
-                            factory = dynamicFactory;
-                        }
-                        catch(Ice.AlreadyRegisteredException)
-                        {
-                            //
-                            // Another thread already installed the
-                            // factory, so try to obtain it. It's
-                            // possible (but unlikely) that the
-                            // factory will have already been removed,
-                            // in which case the return value will be
-                            // null and the while loop will attempt to
-                            // install the dynamic factory again.
-                            //
-                            factory = instance_.servantFactoryManager().find(id);
-                        }
-                    }
-                    */
                 }
             }
             catch(Exception ex)
@@ -3594,30 +3557,23 @@ namespace IceInternal
         {
             UserExceptionFactory factory = null;
 
-            lock(_exceptionFactories)
+            try
             {
-                if(!_exceptionFactories.TryGetValue(id, out factory))
+                Type c = AssemblyUtil.findType(instance_, typeToClass(id));
+                if(c != null)
                 {
-                    try
-                    {
-                        Type c = AssemblyUtil.findType(instance_, typeToClass(id));
-                        if(c == null)
-                        {
-                            return null;
-                        }
-                        //
-                        // Ensure the class is instantiable.
-                        //
-                        Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                        factory = new DynamicUserExceptionFactory(c);
-                        _exceptionFactories[id] = factory;
-                    }
-                    catch(Exception ex)
-                    {
-                        throw new Ice.UnknownUserException(id.Substring(2), ex);
-                    }
+                    //
+                    // Ensure the class is instantiable.
+                    //
+                    Debug.Assert(!c.IsAbstract && !c.IsInterface);
+                    factory = new DynamicUserExceptionFactory(c);
                 }
             }
+            catch(Exception ex)
+            {
+                throw new Ice.UnknownUserException(id.Substring(2), ex);
+            }
+
             return factory;
         }
 
@@ -5083,9 +5039,6 @@ namespace IceInternal
         private const byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
         private const byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
         private const byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
-
-        private static Dictionary<string, UserExceptionFactory> _exceptionFactories =
-            new Dictionary<string, UserExceptionFactory>(); // <type name, factory> pairs.
 
         private static bool _bzlibInstalled;
 

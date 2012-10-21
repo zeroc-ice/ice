@@ -590,6 +590,25 @@ public final class Instance
         return Util.findClass(className, _initData.classLoader);
     }
 
+    public synchronized String
+    getClassForType(String type)
+    {
+        return _typeToClassMap.get(type);
+    }
+
+    public synchronized void
+    addClassForType(String type, String className)
+    {
+        if(_typeToClassMap.containsKey(type))
+        {
+            assert(_typeToClassMap.get(type).equals(className));
+        }
+        else
+        {
+            _typeToClassMap.put(type, className);
+        }
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -1069,6 +1088,8 @@ public final class Instance
             _adminAdapter = null;
             _adminFacets.clear();
 
+            _typeToClassMap.clear();
+
             _state = StateDestroyed;
         }
 
@@ -1168,6 +1189,8 @@ public final class Instance
     private java.util.Map<String, Ice.Object> _adminFacets = new java.util.HashMap<String, Ice.Object>();
     private java.util.Set<String> _adminFacetFilter = new java.util.HashSet<String>();
     private Ice.Identity _adminIdentity;
+
+    private java.util.Map<String, String> _typeToClassMap = new java.util.HashMap<String, String>();
 
     private static boolean _oneOffDone = false;
 }

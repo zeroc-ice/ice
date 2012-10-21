@@ -2645,33 +2645,17 @@ public class BasicStream
     {
         UserExceptionFactory factory = null;
 
-        synchronized(_factoryMutex)
+        try
         {
-            factory = _exceptionFactories.get(id);
+            Class<?> c = findClass(id);
+            if(c != null)
+            {
+                factory = new DynamicUserExceptionFactory(c);
+            }
         }
-
-        if(factory == null)
+        catch(LinkageError ex)
         {
-            try
-            {
-                Class<?> c = findClass(id);
-                if(c != null)
-                {
-                    factory = new DynamicUserExceptionFactory(c);
-                }
-            }
-            catch(LinkageError ex)
-            {
-                throw new Ice.MarshalException(ex);
-            }
-
-            if(factory != null)
-            {
-                synchronized(_factoryMutex)
-                {
-                    _exceptionFactories.put(id, factory);
-                }
-            }
+            throw new Ice.MarshalException(ex);
         }
 
         return factory;
@@ -2693,7 +2677,14 @@ public class BasicStream
         // 3. If that fails, check for an Ice.Default.Package property. If found,
         //    prepend the property value to the classname.
         //
-        String className = typeToClass(id);
+        String className = _instance.getClassForType(id);
+        boolean addClass = false;
+        if(className == null)
+        {
+            className = typeToClass(id);
+            addClass = true;
+        }
+
         c = getConcreteClass(className);
         if(c == null)
         {
@@ -2716,6 +2707,11 @@ public class BasicStream
             {
                 c = getConcreteClass(pkg + "." + className);
             }
+        }
+
+        if(c != null && addClass)
+        {
+            _instance.addClassForType(id, c.getName());
         }
 
         return c;
@@ -4262,10 +4258,6 @@ public class BasicStream
     private static final byte FLAG_HAS_INDIRECTION_TABLE    = (byte)(1<<3);
     private static final byte FLAG_HAS_SLICE_SIZE           = (byte)(1<<4);
     private static final byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
-
-    private static java.util.HashMap<String, UserExceptionFactory> _exceptionFactories =
-        new java.util.HashMap<String, UserExceptionFactory>();
-    private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
 
     private static boolean _checkedBZip2 = false;
     private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
