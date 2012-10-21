@@ -124,6 +124,10 @@ proxyCompare(ProxyObject* p1, PyObject* other, int op)
             break;
         }
     }
+    else if(other == Py_None)
+    {
+        result = op == Py_NE || op == Py_GE || op == Py_GT;
+    }
     else
     {
         if(op == Py_EQ)
