@@ -170,6 +170,9 @@ For example, with a bash shell:
 
 $ export CLASSPATH=classes:$CLASSPATH
 
+Your CLASSPATH should also include Ice.jar and Freeze.jar, as per
+the Release Notes instructions.
+
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 

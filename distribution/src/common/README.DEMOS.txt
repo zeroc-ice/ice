@@ -197,6 +197,9 @@ Before running the demos you must modify your CLASSPATH as follows:
 
   > set CLASSPATH=classes;%CLASSPATH%
 
+Your CLASSPATH should also include Ice.jar and Freeze.jar, as per 
+the Release Notes instructions. 
+
 To run a demo, open a command window, change to the desired demo
 directory, and enter the following command to run the server:
 
