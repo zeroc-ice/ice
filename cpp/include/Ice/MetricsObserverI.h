@@ -412,7 +412,7 @@ public:
     typedef std::vector<IceUtil::Handle<IceInternal::MetricsMapT<MetricsType> > > MetricsMapSeqType;
 
     ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name) : 
-        _metrics(metrics), _name(name)
+        _metrics(metrics), _name(name), _enabled(false)
     {
         _metrics->registerMap<MetricsType>(name, this);
     }
