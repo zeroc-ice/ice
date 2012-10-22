@@ -695,7 +695,7 @@ class Instance
         javax.net.ssl.SSLEngine engine;
         if(peerAddr != null)
         {
-            engine = _context.createSSLEngine(peerAddr.getHostName(), peerAddr.getPort());
+            engine = _context.createSSLEngine(peerAddr.getAddress().getHostAddress(), peerAddr.getPort());
         }
         else
         {

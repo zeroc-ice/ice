@@ -200,6 +200,8 @@ C# Changes
 Java Changes
 ============
 
+- Fixed a bug in IceSSL that could cause delays due to DNS lookups.
+
 - Fixed a bug in the generated code for a Slice exception with no
   data members: constructors are now generated correctly.
 
