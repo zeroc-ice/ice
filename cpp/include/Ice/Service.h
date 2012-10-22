@@ -209,6 +209,15 @@ protected:
     //
     void disableInterrupt();
 
+    //
+    // Log Helpers
+    //
+    typedef LoggerOutput<Service, Service*, &Service::syserror> ServiceSysError;
+    typedef LoggerOutput<Service, Service*, &Service::error> ServiceError;
+    typedef LoggerOutput<Service, Service*, &Service::warning> ServiceWarning;
+    typedef LoggerOutput<Service, Service*, &Service::trace> ServiceTrace;
+    typedef LoggerOutput<Service, Service*, &Service::print> ServicePrint;
+
 private:
 
     Ice::LoggerPtr _logger;

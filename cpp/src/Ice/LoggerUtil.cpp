@@ -23,6 +23,12 @@ extern bool ICE_DECLSPEC_IMPORT printStackTraces;
 
 }
 
+string
+Ice::LoggerOutputBase::str() const
+{
+    return _str.str();
+}
+
 ostringstream&
 Ice::LoggerOutputBase::__str()
 {
@@ -52,68 +58,6 @@ Ice::operator<<(Ice::LoggerOutputBase& out, const std::exception& ex)
     return out;
 }
 
-Ice::Print::Print(const LoggerPtr& logger) :
-    _logger(logger)
-{
-}
-
-Ice::Print::~Print()
-{
-    flush();
-}
-
-void
-Ice::Print::flush()
-{
-    string s = __str().str();
-    if(!s.empty())
-    {
-        _logger->print(s);
-    }
-    __str().str("");
-}
-
-Ice::Warning::Warning(const LoggerPtr& logger) :
-    _logger(logger)
-{
-}
-
-Ice::Warning::~Warning()
-{
-    flush();
-}
-
-void
-Ice::Warning::flush()
-{
-    string s = __str().str();
-    if(!s.empty())
-    {
-        _logger->warning(s);
-    }
-    __str().str("");
-}
-
-Ice::Error::Error(const LoggerPtr& logger) :
-    _logger(logger)
-{
-}
-
-Ice::Error::~Error()
-{
-    flush();
-}
-
-void
-Ice::Error::flush()
-{
-    string s = __str().str();
-    if(!s.empty())
-    {
-        _logger->error(s);
-    }
-    __str().str("");
-}
 
 Ice::Trace::Trace(const LoggerPtr& logger, const string& category) :
     _logger(logger),
@@ -136,6 +80,7 @@ Ice::Trace::flush()
     }
     __str().str("");
 }
+
 
 Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)
 {

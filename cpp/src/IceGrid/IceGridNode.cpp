@@ -350,12 +350,12 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         if(!IceUtilInternal::directoryExists(dataPath))
         {
-            ostringstream os;
             FileException ex(__FILE__, __LINE__);
             ex.path = dataPath;
             ex.error = IceInternal::getSystemErrno();
-            os << ex;
-            error("property `IceGrid.Node.Data' is set to an invalid path:\n" + os.str());
+      
+            ServiceError err(this);
+            err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;
         }
 
@@ -434,11 +434,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             mapper = UserAccountMapperPrx::uncheckedCast(communicator()->propertyToProxy(mapperProperty));
         }
-        catch(const Ice::LocalException& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream os;
-            os << "user account mapper `" << mapperProperty << "' is invalid:\n" << ex;
-            error(os.str());
+            ServiceError err(this);
+            err << "user account mapper `" << mapperProperty << "' is invalid:\n" << ex;
             return false;
         }
     }
@@ -627,28 +626,24 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
         catch(const DeploymentException& ex)
         {
-            ostringstream ostr;
-            ostr << "failed to deploy application `" << desc << "':\n" << ex << ": " << ex.reason;
-            warning(ostr.str());
+            ServiceWarning warn(this);
+            warn << "failed to deploy application `" << desc << "':\n" << ex;
         }
         catch(const AccessDeniedException& ex)
         {
-            ostringstream ostr;
-            ostr << "failed to deploy application `" << desc << "':\n" 
+            ServiceWarning warn(this);
+            warn << "failed to deploy application `" << desc << "':\n" 
                  << "registry database is locked by `" << ex.lockUserId << "'";
-            warning(ostr.str());
         }
         catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << "failed to deploy application `" << desc << "':\n" << ex.what();
-            warning(ostr.str());
+            ServiceWarning warn(this);
+            warn << "failed to deploy application `" << desc << "':\n" << ex;
         }
         catch(const string& reason)
         {
-            ostringstream ostr;
-            ostr << "failed to deploy application `" << desc << "':\n" << reason;
-            warning(ostr.str());
+            ServiceWarning warn(this);
+            warn << "failed to deploy application `" << desc << "':\n" << reason;
         }
     }
 
@@ -716,11 +711,10 @@ NodeService::stop()
             _adapter->deactivate();
             _adapter = 0;
         }
-        catch(const Ice::LocalException& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << "unexpected exception while shutting down node:\n" << ex;
-            warning(ostr.str());
+            ServiceWarning warn(this);
+            warn << "unexpected exception while shutting down node:\n" << ex;
         }
     }
 
@@ -745,11 +739,10 @@ NodeService::stop()
         communicator()->shutdown();
         communicator()->waitForShutdown();
     }
-    catch(const Ice::LocalException& ex)
+    catch(const std::exception& ex)
     {
-        ostringstream ostr;
-        ostr << "unexpected exception while shutting down node:\n" << ex;
-        warning(ostr.str());
+        ServiceWarning warn(this);
+        warn << "unexpected exception while shutting down node:\n" << ex;
     }
 
     //

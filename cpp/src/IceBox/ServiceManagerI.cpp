@@ -25,6 +25,7 @@ using namespace std;
 
 typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
 
+
 namespace
 {
 
@@ -623,7 +624,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         }
         catch(const Exception& ex)
         {
-            ostringstream s;
+            LoggerOutputBase s;
             s << "ServiceManager: exception while starting service " << service << ":\n";
             s << ex;
 
@@ -672,7 +673,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         }
         catch(const Exception& ex)
         {
-            ostringstream s;
+            LoggerOutputBase s;
             s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << info.name << ":\n";
             s << ex;
             
@@ -710,7 +711,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         }
         catch(const Exception& ex)
         {
-            ostringstream s;
+            LoggerOutputBase s;
             s << "ServiceManager: exception while starting service " << info.name << ":\n";
             s << ex;
 

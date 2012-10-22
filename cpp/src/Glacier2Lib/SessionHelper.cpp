@@ -438,17 +438,15 @@ SessionHelperI::destroyInternal(const Ice::DispatcherCallPtr& disconnected)
             // This can also occur.
             //
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
             //
             // Not expected.
             //
-            ostringstream os;
-            os << "SessionHelper: unexpected exception when destroying the session:\n";
-            os << ex;
             if(communicator)
             {
-                communicator->getLogger()->warning(os.str());
+                Ice::Warning warn(communicator->getLogger());
+                warn << "SessionHelper: unexpected exception when destroying the session:\n" << ex;
             }
         }
     }

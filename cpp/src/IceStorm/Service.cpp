@@ -151,7 +151,7 @@ ServiceI::start(
         {
             _instance = 0;
 
-            ostringstream s;
+            LoggerOutputBase s;
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
@@ -182,7 +182,7 @@ ServiceI::start(
         }
         catch(const Ice::LocalException& ex)
         {
-            ostringstream s;
+            LoggerOutputBase s;
             s << "failed to load default Freeze database plugin:\n" << ex;
 
             IceBox::FailureException e(__FILE__, __LINE__);
@@ -215,7 +215,7 @@ ServiceI::start(
         {
             _instance = 0;
 
-            ostringstream s;
+            LoggerOutputBase s;
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
@@ -402,7 +402,7 @@ ServiceI::start(
         {
             _instance = 0;
 
-            ostringstream s;
+            LoggerOutputBase s;
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
@@ -443,7 +443,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
     catch(const Ice::Exception& ex)
     {
         _instance = 0;
-        ostringstream s;
+        LoggerOutputBase s;
         s << "exception while starting IceStorm service " << name << ":\n";
         s << ex;
 

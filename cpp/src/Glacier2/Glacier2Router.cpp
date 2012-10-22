@@ -231,11 +231,10 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
                 return false;
             }
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << ex;
-            error("permissions verifier `" + verifierPropertyValue + "' is invalid:\n" + ostr.str());
+            ServiceError err(this);
+            err << "permissions verifier `" << verifierPropertyValue + "' is invalid:\n" << ex;
             return false;
         }
 
@@ -259,9 +258,8 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
             {
                 if(!nowarn)
                 {
-                    ostringstream ostr;
-                    ostr << ex;
-                    warning("unable to contact permissions verifier `" + verifierPropertyValue + "'\n" + ostr.str());
+                    ServiceWarning warn(this);
+                    warn << "unable to contact permissions verifier `" << verifierPropertyValue << "'\n" << ex;
                 }
                 verifier = PermissionsVerifierPrx::uncheckedCast(obj);
             }
@@ -323,11 +321,11 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
         {
             obj = communicator()->propertyToProxy(sessionManagerProperty);
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << ex;
-            error("session manager `" + sessionManagerPropertyValue + "' is invalid\n:" + ostr.str());
+            ServiceError err(this);
+            err << "session manager `" << sessionManagerPropertyValue 
+                << "' is invalid\n:" << ex;
             return false;
         }
         try
@@ -339,13 +337,13 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
                 return false;
             }
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
             if(!nowarn)
             {
-                ostringstream ostr;
-                ostr << ex;
-                warning("unable to contact session manager `" + sessionManagerPropertyValue + "'\n" + ostr.str());
+                ServiceWarning warn(this);
+                warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n"
+                     << ex;
             }
             sessionManager = SessionManagerPrx::uncheckedCast(obj);
         }
@@ -392,11 +390,11 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
                 return false;
             }
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << ex;
-            error("ssl permissions verifier `" + sslVerifierPropertyValue + "' is invalid:\n" + ostr.str());
+            ServiceError err(this);
+            err << "ssl permissions verifier `" << sslVerifierPropertyValue << "' is invalid:\n"
+                << ex;
             return false;
         }
 
@@ -422,10 +420,9 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
             {
                 if(!nowarn)
                 {
-                    ostringstream ostr;
-                    ostr << ex;
-                    warning("unable to contact ssl permissions verifier `" + sslVerifierPropertyValue + "'\n" + 
-                            ostr.str());
+                    ServiceWarning warn(this);
+                    warn << "unable to contact ssl permissions verifier `" << sslVerifierPropertyValue << "'\n"
+                         << ex;
                 }
                 sslVerifier = SSLPermissionsVerifierPrx::uncheckedCast(obj);
             }
@@ -445,11 +442,10 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
         {
             obj = communicator()->propertyToProxy(sslSessionManagerProperty);
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << ex;
-            error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid:\n" + ostr.str());
+            ServiceError err(this);
+            err << "ssl session manager `" << sslSessionManagerPropertyValue << "' is invalid:\n" << ex;
             return false;
         }
         try
@@ -465,10 +461,9 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
         {
             if(!nowarn)
             {
-                ostringstream ostr;
-                ostr << ex;
-                warning("unable to contact ssl session manager `" + sslSessionManagerPropertyValue + "'\n" +
-                        ostr.str());
+                ServiceWarning warn(this);
+                warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue 
+                     << "'\n" << ex;
             }
             sslSessionManager = SSLSessionManagerPrx::uncheckedCast(obj);
         }
@@ -534,11 +529,12 @@ Glacier2::RouterService::start(int argc, char* argv[], int& status)
             adminAdapter->activate();
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const std::exception& ex)
     {
-        ostringstream ostr;
-        ostr << ex;
-        error("caught exception activating object adapters\n" + ostr.str());
+        {
+            ServiceError err(this);
+            err << "caught exception activating object adapters\n" << ex;
+        }
 
         stop();
         return false;

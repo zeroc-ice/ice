@@ -23,6 +23,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Instance.h>
+#include <Ice/LoggerUtil.h>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -489,11 +490,10 @@ Ice::Service::shutdown()
             // Expected if the service communicator is being destroyed.
             //
         }
-        catch(const Ice::Exception& ex)
+        catch(const std::exception& ex)
         {
-            ostringstream ostr;
-            ostr << "exception during shutdown:\n" << ex;
-            warning(ostr.str());
+            ServiceWarning warn(this);
+            warn << "exception during shutdown:\n" << ex;
         }
         catch(...)
         {
@@ -529,9 +529,8 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
     }
     catch(const Ice::Exception& ex)
     {
-        ostringstream ostr;
-        ostr << ex;
-        error(ostr.str());
+        ServiceError err(this);
+        err << "createProperties failed: " << ex;
         return EXIT_FAILURE;
     }
 
@@ -842,21 +841,18 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
     }
     catch(const std::exception& ex)
     {
-        ostringstream ostr;
-        ostr << "service caught unhandled exception:\n" << ex.what();
-        error(ostr.str());
+        ServiceError err(this);
+        err << "service caught unhandled exception:\n" << ex;
     }
     catch(const std::string& msg)
     {
-        ostringstream ostr;
-        ostr << "service caught unhandled exception:\n" << msg;
-        error(ostr.str());
+        ServiceError err(this);
+        err << "service caught unhandled exception:\n" << msg;
     }
     catch(const char* msg)
     {
-        ostringstream ostr;
-        ostr << "service caught unhandled exception:\n" << msg;
-        error(ostr.str());
+        ServiceError err(this);
+        err << "service caught unhandled exception:\n" << msg;
     }
     catch(...)
     {
@@ -1228,14 +1224,13 @@ Ice::Service::showServiceStatus(const string& msg, SERVICE_STATUS& status)
         break;
     }
 
-    ostringstream ostr;
-    ostr << msg << endl
-         << "  Current state: " << state << endl
-         << "  Exit code: " << status.dwWin32ExitCode << endl
-         << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
-         << "  Check point: " << status.dwCheckPoint << endl
-         << "  Wait hint: " << status.dwWaitHint;
-    trace(ostr.str());
+    ServiceTrace tr(this);
+    tr << msg
+       << "\n  Current state: " << state
+       << "\n  Exit code: " << status.dwWin32ExitCode
+       << "\n  Service specific exit code: " << status.dwServiceSpecificExitCode
+       << "\n  Check point: " << status.dwCheckPoint
+       << "\n  Wait hint: " << status.dwWaitHint;
 }
 
 void
@@ -1288,9 +1283,10 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
     catch(const Ice::Exception& ex)
     {
         delete[] args;
-        ostringstream ostr;
-        ostr << "exception occurred while initializing a communicator:\n" << ex;
-        error(ostr.str());
+        {
+            ServiceError err(this);
+            err << "exception occurred while initializing a communicator:\n" << ex;
+        }
         terminateService(EXIT_FAILURE);
         return;
     }
@@ -1344,11 +1340,10 @@ Ice::Service::serviceMain(int argc, wchar_t* argv[])
             status = tmpStatus;
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch(const std::exception& ex)
     {
-        ostringstream ostr;
-        ostr << "service caught unhandled Ice exception:\n" << ex;
-        error(ostr.str());
+        ServiceError err(this);
+        err << "service caught unhandled std::exception:\n" << ex;
     }
     catch(...)
     {
@@ -1387,9 +1382,8 @@ Ice::Service::control(int ctrl)
     {
         if(ctrl != SERVICE_CONTROL_INTERROGATE)
         {
-            ostringstream ostr;
-            ostr << "unrecognized service control code " << ctrl;
-            error(ostr.str());
+            ServiceError err(this);
+            err << "unrecognized service control code " << ctrl;
         }
 
         serviceStatusManager->reportStatus();
@@ -1783,12 +1777,11 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             }
         }
     }
-    catch(const IceUtil::Exception& ex)
+    catch(const std::exception& ex)
     {
-        ostringstream ostr;
-        ostr << "service caught unhandled Ice exception:\n" << ex;
-        errMsg = ostr.str();
-        error(errMsg);
+        ServiceError err(this);
+        err << "service caught unhandled std::exception:\n" << ex;
+        errMsg = err.str();
     }
     catch(...)
     {
