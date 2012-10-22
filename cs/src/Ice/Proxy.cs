@@ -91,12 +91,6 @@ namespace Ice
         Communicator ice_getCommunicator();
 
         /// <summary>
-        /// This method is deprecated. Use ToString instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use ToString instead.")]
-        string ice_toString();
-
-        /// <summary>
         /// Tests whether this object supports a specific Slice interface.
         /// </summary>
         /// <param name="id__">The type ID of the Slice interface to test against.</param>
@@ -766,15 +760,6 @@ namespace Ice
         public override string ToString()
         {
             return _reference.ToString();
-        }
-
-        /// <summary>
-        /// This method is deprecated. Use ToString instead.
-        /// </summary>
-        [Obsolete("This method is deprecated. Use ToString instead.")]
-        public string ice_toString()
-        {
-            return ToString();
         }
 
         /// <summary>

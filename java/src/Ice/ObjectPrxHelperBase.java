@@ -50,15 +50,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
-     * @deprecated
-     **/
-    public final String
-    ice_toString()
-    {
-        return toString();
-    }
-
-    /**
      * Tests whether this proxy supports a given interface.
      *
      * @param __id The Slice type ID of an interface.

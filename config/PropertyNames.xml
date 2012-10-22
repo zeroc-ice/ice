@@ -250,7 +250,6 @@ generated from the section label.
         <suffix name="Locator" />
         <suffix name="Router" />
         <suffix name="EncodingVersion" />
-        <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
     </class>
 
@@ -270,7 +269,6 @@ generated from the section label.
         <suffix name="Endpoints" />
         <suffix name="Locator" class="proxy"/>
         <suffix name="PublishedEndpoints" />
-        <suffix name="RegisterProcess" deprecated="true" />
         <suffix name="ReplicaGroupId" />
         <suffix name="Router" class="proxy"/>
         <suffix name="ProxyOptions" />
@@ -289,7 +287,6 @@ generated from the section label.
         <suffix name="Endpoints" deprecated="true" />
         <suffix name="Locator" deprecated="true" />
         <suffix name="PublishedEndpoints" deprecated="true" />
-        <suffix name="RegisterProcess" deprecated="true" />
         <suffix name="ReplicaGroupId" deprecated="true" />
         <suffix name="Router" deprecated="true" />
         <suffix name="ThreadPool" class="deprecatedthreadpool"/>
@@ -317,8 +314,6 @@ generated from the section label.
         <property name="Compression.Level" />
         <property name="Config" />
         <property name="ConsoleListener" />
-        <property name="Default.CollocationOptimization" deprecated="true" 
-            deprecatedBy="Ice.Default.CollocationOptimized" />
         <property name="Default.CollocationOptimized" />
         <property name="Default.EncodingVersion" />
         <property name="Default.EndpointSelection" />
@@ -355,7 +350,6 @@ generated from the section label.
         <property name="PrintStackTraces" />
         <property name="ProgramName" />
         <property name="RetryIntervals" />
-        <property name="ServerId" deprecated="true" />
         <property name="ServerIdleTime" />
         <property name="StdErr" />
         <property name="StdOut" />
@@ -365,7 +359,6 @@ generated from the section label.
         <property name="ThreadPriority"/>
         <property name="Trace.Admin.Properties" />
         <property name="Trace.GC" />
-        <property name="Trace.Location" deprecated="true" deprecatedBy="Ice.Trace.Locator" />
         <property name="Trace.Locator" />
         <property name="Trace.Network" />
         <property name="Trace.Protocol" />
@@ -484,7 +477,6 @@ generated from the section label.
     
     <section name="IcePatch2">
         <property class="objectadapter" />
-        <property name="Admin" class="deprecatedobjectadapter" />
         <property name="ChunkSize" />
         <property name="Directory" />
         <property name="InstanceName" />
@@ -541,7 +533,6 @@ generated from the section label.
     <section name="Glacier2">
         <property name="AddSSLContext" deprecated="true"/>
         <property name="AddConnectionContext"/>
-        <property name="Admin" class="deprecatedobjectadapter" />
         <property name="Client" class="objectadapter"/>
         <property name="Client.AlwaysBatch" />
         <property name="Client.Buffered" />

@@ -329,15 +329,6 @@ public final class Util
     }
 
     /**
-     * @deprecated generateUUID() is deprecated, use java.util.UUID instead.
-     **/
-    public static String
-    generateUUID()
-    {
-    	return java.util.UUID.randomUUID().toString();
-    }
-
-    /**
      * Compares the object identities of two proxies.
      *
      * @param lhs A proxy.

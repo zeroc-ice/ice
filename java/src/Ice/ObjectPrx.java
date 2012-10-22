@@ -22,11 +22,6 @@ public interface ObjectPrx
     Communicator ice_getCommunicator();
 
     /**
-     * @deprecated This method is deprecated, use toString instead.
-     **/
-    String ice_toString();
-
-    /**
      * Tests whether this object supports a specific Slice interface.
      *
      * @param __id The type ID of the Slice interface to test against.
