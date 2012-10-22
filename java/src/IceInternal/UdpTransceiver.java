@@ -300,12 +300,16 @@ final class UdpTransceiver implements Transceiver
             _fd = Network.createUdpSocket(_addr);
             setBufSize(instance);
             Network.setBlock(_fd, false);
-            Network.doConnect(_fd, _addr);
-            _state = StateConnected; // We're connected now
+            //
+            // NOTE: setting the multicast interface before performing the
+            // connect is important for some OS such as OS X.
+            //
             if(_addr.getAddress().isMulticastAddress())
             {
                 configureMulticast(null, mcastInterface, mcastTtl);
             }
+            Network.doConnect(_fd, _addr);
+            _state = StateConnected; // We're connected now
 
             if(_traceLevels.network >= 1)
             {
@@ -482,12 +486,13 @@ final class UdpTransceiver implements Transceiver
 
     //
     // The NIO classes before JDK 1.7 do not support multicast, at least not directly. 
-    // This method works around that limitation by using reflection to configure the file descriptor
-    // of a DatagramChannel for multicast operation. Specifically, an instance of 
-    // java.net.PlainDatagramSocketImpl is use to (temporarily) wrap the channel's file descriptor.
+    // This method works around that limitation by using reflection to configure the
+    // file descriptor of a DatagramChannel for multicast operation. Specifically, an 
+    // instance of java.net.PlainDatagramSocketImpl is use to (temporarily) wrap the 
+    // channel's file descriptor.
     //
-    // In recent JDK versions greater or equal to JDK 1.7 we use the new added MulticastChannel via
-    // reflection, so the code still compile with older JDK versions that doesn't support.  
+    // If using JDK >= 1.7 we use the new added MulticastChannel via reflection to allow 
+    // compilation with older JDK versions.
     //
     private void
     configureMulticast(java.net.InetSocketAddress group, String interfaceAddr, int ttl)
@@ -551,6 +556,9 @@ final class UdpTransceiver implements Transceiver
 
                 if(group != null)
                 {
+                    //
+                    // Join multicast group.
+                    // 
                     Class<?>[] types;
                     Object[] args;
                     if(socketImpl == null)
@@ -561,8 +569,7 @@ final class UdpTransceiver implements Transceiver
                         boolean join = false;
                         if(intf != null)
                         {
-                            args = new Object[]{ group.getAddress(), intf };                            
-                            m.invoke(_fd, args);
+                            m.invoke(_fd, new Object[] { group.getAddress(), intf });
                             join = true;
                         }
                         else
@@ -598,9 +605,7 @@ final class UdpTransceiver implements Transceiver
 
                                 if(hasProtocolAddress)
                                 {
-                                    args = new Object[]{
-                                    group.getAddress(), iface };
-                                    m.invoke(_fd, args);
+                                    m.invoke(_fd, new Object[] { group.getAddress(), iface });
                                     join = true;
                                 }
                             }
@@ -635,6 +640,10 @@ final class UdpTransceiver implements Transceiver
                 }
                 else if(intf != null)
                 {
+                    //
+                    // Otherwise, set the multicast interface if specified.
+                    //
+
                     Class<?>[] types = new Class<?>[]{ Integer.TYPE, Object.class };
                     if(socketImpl == null)
                     {
@@ -642,10 +651,9 @@ final class UdpTransceiver implements Transceiver
                         Class<?> standardSocketOptions = Util.findClass("java.net.StandardSocketOptions", null);
                         m = _fd.getClass().getDeclaredMethod("setOption", new Class<?>[]{socketOption, Object.class});
                         m.setAccessible(true);
-                        java.lang.reflect.Field ipMulticastIf = standardSocketOptions.getDeclaredField("IP_MULTICAST_IF");
-                        ipMulticastIf.setAccessible(true);
-                        Object[] args = new Object[]{ ipMulticastIf.get(null), intf };
-                        m.invoke(_fd, args);
+                        java.lang.reflect.Field ipMcastIf = standardSocketOptions.getDeclaredField("IP_MULTICAST_IF");
+                        ipMcastIf.setAccessible(true);
+                        m.invoke(_fd, new Object[]{ ipMcastIf.get(null), intf });
                     }
                     else
                     {
@@ -671,18 +679,16 @@ final class UdpTransceiver implements Transceiver
                         Class<?> standardSocketOptions = Util.findClass("java.net.StandardSocketOptions", null);
                         m = _fd.getClass().getDeclaredMethod("setOption", new Class<?>[]{socketOption, Object.class});
                         m.setAccessible(true);
-                        java.lang.reflect.Field ipMulticastIf = standardSocketOptions.getDeclaredField("IP_MULTICAST_TTL");
-                        ipMulticastIf.setAccessible(true);
-                        Object[] args = new Object[]{ ipMulticastIf.get(null), ttl };
-                        m.invoke(_fd, args);
+                        java.lang.reflect.Field ipMcastTtl = standardSocketOptions.getDeclaredField("IP_MULTICAST_TTL");
+                        ipMcastTtl.setAccessible(true);
+                        m.invoke(_fd, new Object[]{ ipMcastTtl.get(null), ttl });
                     }
                     else
                     {
                         Class<?>[] types = new Class<?>[]{ Integer.TYPE };
                         m = java.net.DatagramSocketImpl.class.getDeclaredMethod("setTimeToLive", types);
                         m.setAccessible(true);
-                        Object[] args = new Object[]{ Integer.valueOf(ttl) };
-                        m.invoke(socketImpl, args);
+                        m.invoke(socketImpl, new Object[]{ Integer.valueOf(ttl) });
                     }
                 }
             }

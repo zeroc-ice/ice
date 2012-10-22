@@ -64,12 +64,19 @@ def run(clientCmd, serverCmd):
         runDemo(clientCmd, serverCmd)
     print("ok")
 
-    if Util.getMapping() == "java" and Util.isWin32():
-        sys.stdout.write("skipping testing multicast discovery (IPv6) under Windows...")
+    sys.stdout.write("testing multicast discovery (IPv6)... ")
+    sys.stdout.flush()
+
+    #
+    # On OS X, using the interface-local address doesn't work, the client fails with 
+    # a "Host not reachable" error, instead we use a link-local address with on loopback.
+    #
+    if Util.isDarwin():
+        endpoint = 'udp -h \\"ff02::1:1\\" -p 10000 --interface \\"lo0\\"'
     else:
-        sys.stdout.write("testing multicast discovery (IPv6)... ")
-        sys.stdout.flush()
-        serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="udp -h \\"ff01::1:1\\" -p 10000"'
-        clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:udp -h \\"ff01::1:1\\" -p 10000"'
-        runDemo(clientCmd, serverCmd)
+        endpoint = 'udp -h \\"ff01::1:1\\" -p 10000'
+    serverCmd += ' --Ice.IPv6=1 --Discover.Endpoints="%s"' % (endpoint)
+    clientCmd += ' --Ice.IPv6=1 --Discover.Proxy="discover:%s"' % (endpoint)
+        
+    runDemo(clientCmd, serverCmd)
     print("ok")

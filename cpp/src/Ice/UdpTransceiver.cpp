@@ -871,6 +871,22 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     _peerAddr.ss_family = AF_UNSPEC; // Not initialized yet.
 
     //
+    // NOTE: setting the multicast interface before performing the
+    // connect is important for some OS such as OS X.
+    //
+    if(isMulticast(_addr))
+    {
+        if(mcastInterface.length() > 0)
+        {
+            setMcastInterface(_fd, mcastInterface, _addr);
+        }
+        if(mcastTtl != -1)
+        {
+            setMcastTtl(_fd, mcastTtl, _addr);
+        }
+    }
+
+    //
     // In general, connecting a datagram socket should be non-blocking as this just setups 
     // the default destination address for the socket. However, on some OS, connect sometime
     // returns EWOULDBLOCK. If that's the case, we keep the state as StateNeedConnect. This
@@ -890,17 +906,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
         });
 #endif
 
-    if(isMulticast(_addr))
-    {
-        if(mcastInterface.length() > 0)
-        {
-            setMcastInterface(_fd, mcastInterface, _addr);
-        }
-        if(mcastTtl != -1)
-        {
-            setMcastTtl(_fd, mcastTtl, _addr);
-        }
-    }
 
 #ifdef ICE_USE_IOCP
     //
