@@ -50,7 +50,7 @@ PYTHON_BASE_VERSION ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutil
 
 PYTHON_INCLUDE_DIR  ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_python_inc())")
 
-PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import sys; import sysconfig; sys.stdout.write(sysconfig.get_config_var('LIBPL'))")
+PYTHON_LIB_DIR	    ?= $(shell $(PYTHON_VERSION) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write(ds.get_config_var('LIBPL'))")
 
 PYTHON_LIB_SUFFIX   ?= $(shell $(PYTHON_VERSION) -c "import sys; sys.stdout.write(sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')")
 
