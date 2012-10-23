@@ -26,7 +26,7 @@
     <!-- This target cannot depend on init because the tasks may not be compiled yet -->
     <target name="tasks" depends="config-init" unless="ice.bin.dist">
         <mkdir dir="${lib.dir}/ant"/>
-        <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant" source="1.5" includes="**" deprecation="on">
+        <javac srcdir="${src.dir}/ant" destdir="${lib.dir}/ant" source="1.6" target="1.6" includes="**" deprecation="on">
             <compilerarg value="${javac.lint}"/>
         </javac>
         <jar jarfile="${lib.dir}/ant-ice.jar" basedir="${lib.dir}/ant">
@@ -200,7 +200,7 @@
             <include name="IceUtil/*.java"/>
             <include name="IceUtilInternal/*.java"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <compilerarg value="${javac.lint}"/>
             <include name="Ice/*.java"/>
             <include name="IceMX/*.java"/>
@@ -244,7 +244,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Freeze/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <classpath>
                 <path refid="db.classpath"/>
             </classpath>
@@ -276,7 +276,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="Glacier2/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <include name="Glacier2/**"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -303,7 +303,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceBox/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <include name="IceBox/**"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -330,7 +330,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceStorm/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <include name="IceStorm/**"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -357,7 +357,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IceGrid/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <include name="IceGrid/**"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -384,7 +384,7 @@
         <depend srcdir=".:${src.dir}:${generated.dir}:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <include name="IcePatch2/**"/>
         </depend>
-        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on">
+        <javac srcdir="${src.dir}:${generated.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on">
             <include name="IcePatch2/**"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
@@ -572,7 +572,7 @@
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.5" debug="${debug}" deprecation="on"
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on"
                fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
             <exclude name="${generated.test.dir}/**"/>
             <classpath>
@@ -611,9 +611,10 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile" unless="ice.bin.dist">
+    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile"
+            if="build-icegridadmin" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
-            source="1.5" debug="${debug}"
+            source="1.7" target="1.7" debug="${debug}"
             includes="IceGridGUI/**"
             classpath="${jgoodies.looks}:${jgoodies.forms}:${jgoodies.common}:${javafx.jar}"
             deprecation="on">
@@ -623,6 +624,7 @@
 
     <condition property="build-icegridadmin-pro-jar">
         <and>
+            <isset property="build-icegridamin" />
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
             <available file="${jgoodies.looks}" />
             <available file="${jgoodies.forms}" />
@@ -631,7 +633,10 @@
     </condition>
 
     <condition property="build-icegridadmin-plain-jar">
-        <not><isset property="build-icegridadmin-pro-jar"/></not>
+        <and>
+             <isset property="build-icegridamin" />
+             <not><isset property="build-icegridadmin-pro-jar"/></not>
+        </and>
     </condition>
 
     <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar" 
@@ -652,33 +657,8 @@
     <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
     
-        <condition property="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar">
-            <!-- Library jar files for Sun JDK -->
-            <and>
-                <available file="${java.home}/lib/rt.jar"/>
-                <not>
-                    <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
-                </not>
-            </and>
-        </condition>
-        <condition property="library.jarfiles" value="vm.jar,rt.jar,security.jar,beans.jar,java.util.jar,ibmjssefw.jar,
-                                                      ibmcertpathfw.jar,logging.jar,jlm.jar,annotation.jar">
-            <!-- Library jar files for IBM J9 (from SuSE Linux i586) -->
-            <and>
-                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
-                <equals arg1="${os.arch}" arg2="x86"/>
-            </and>
-        </condition>
-        <condition property="library.jarfiles" value="amd64/default/jclSC160/vm.jar,rt.jar,security.jar,beans.jar,
-                                                      java.util.jar,ibmjssefw.jar,ibmcertpathfw.jar,logging.jar,jlm.jar,
-                                                      annotation.jar">
-            <!-- Library jar files for IBM J9 (from SuSE Linux x86_64) -->
-            <and>
-
-                <equals arg1="${java.vm.name}" arg2="IBM J9 VM"/>
-                <equals arg1="${os.arch}" arg2="amd64"/>
-            </and>
-        </condition>
+        <property name="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar"/>
+            
         <pathconvert property="library.jars">
            <filelist dir="${java.home}/lib" files="${library.jarfiles}"/>
            <mapper>

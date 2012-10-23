@@ -22,23 +22,20 @@
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
     
+    <condition property="thirdparty.home" value="${env.THIRDPARTY_HOME}">
+       <and>
+          <os family="Windows"/>
+          <not><isset property="thirdparty.home"/></not>
+       </and>   
+    </condition>
+ 
     <condition property="thirdparty.home" value="${env.ProgramFiles(x86)}\ZeroC\Ice-${ice.version}-ThirdParty">
         <and>
             <os family="Windows"/>
             <not><isset property="thirdparty.home"/></not>
             <or>
-                <and>
-                    <or>
-                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
-                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
-                    </or>
-                </and>
-                <and>
-                    <or>
-                        <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
-                        <equals arg1="IA64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
-                    </or>
-                </and>
+                <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITECTURE}"/>
+                <equals arg1="AMD64" arg2="${env.PROCESSOR_ARCHITEW6432}"/>
             </or>
         </and>
     </condition>
@@ -81,6 +78,11 @@
     <!-- Commonly needed properties -->
     <property name="class.dir" value="classes${build.suffix}"/>
     <property name="generated.dir" value="generated${build.suffix}"/>
+
+    <!-- Do we build the IceGridAdmin GUI? -->
+    <condition property="build-icegridadmin">
+      <equals arg1="${java.specification.version}" arg2="1.7"/>
+    </condition>
 
     <!-- We use pathconvert to ensure that ice.top.dir is relative to the path of the build.xml
          file insead of the current working directory. -->
@@ -366,9 +368,9 @@
         <echo message="Found ${slice.translator} in both ${ice.cpp.dir}/bin and ${ice.dir}/cpp/bin, ${ice.cpp.dir}/bin/${slice.translator} will be used!" level="warning"/>
     </target>
 
-    <target name="config-init" depends="config-init-warn">
-        
-         <!-- JavaFX jar file -->
+    <target name="config-init-javafx" if="build-icegridadmin">
+       
+        <!-- JavaFX jar file -->
         <condition property="javafx.jar" value="${java.home}/lib/jfxrt.jar">
             <and>
                 <not><isset property="javafx.jar"/></not>
@@ -385,7 +387,10 @@
 
         <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" 
                  classpath="${ant-javafx.jar}"/>
+    </target>
 
+    <target name="config-init" depends="config-init-warn, config-init-javafx">
+      
         <!-- Set slice.dir to the directory containing the Slice files. -->
         <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
             <equals arg1="${ice.dir}" arg2="/usr"/>
