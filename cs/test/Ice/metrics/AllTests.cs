@@ -492,6 +492,15 @@ public class AllTests : TestCommon.TestApp
         test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
         test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.Length + 4));
         test((sm2.sentBytes - sm1.sentBytes) == replySz);
+        if(sm2.sentBytes - sm1.sentBytes != replySz)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            System.Threading.Thread.Sleep(100);
+            sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", out timestamp)["Connection"][0];
+        }
     
         props["IceMX.Metrics.View.Map.Connection.GroupBy"] = "state";
         updateProps(clientProps, serverProps, update, props, "Connection");
@@ -661,7 +670,7 @@ public class AllTests : TestCommon.TestApp
     
         test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 1);
         m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
-        test(m1.current == 0 && m1.total == 1 && m1.id.Equals("tcp -e 1.1 -h localhost -p 12010"));
+        test(m1.current <= 1 && m1.total == 1 && m1.id.Equals("tcp -e 1.1 -h localhost -p 12010"));
 
         prx.ice_getConnection().close(false);
 
@@ -757,21 +766,21 @@ public class AllTests : TestCommon.TestApp
 
         IceMX.DispatchMetrics dm1;
         dm1 = (IceMX.DispatchMetrics)map["op"];
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUserException"];
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithLocalException"];
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::SyscallException", 1);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithRequestFailedException"];
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::ObjectNotExistException", 1);
 
         dm1 = (IceMX.DispatchMetrics)map["opWithUnknownException"];
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "System.ArgumentOutOfRangeException", 1);
 
 #if COMPACT
@@ -932,31 +941,31 @@ public class AllTests : TestCommon.TestApp
 
         IceMX.InvocationMetrics im1;
         im1 = (IceMX.InvocationMetrics)map["op"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.Length == 1);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.Length == 1);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUserException"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.Length == 1);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 0 && im1.retry == 0 && im1.remotes.Length == 1);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
         test(im1.userException == 3);
 
         im1 = (IceMX.InvocationMetrics)map["opWithLocalException"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownLocalException", 3);
 
         im1 = (IceMX.InvocationMetrics)map["opWithRequestFailedException"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::ObjectNotExistException", 3);
 
         im1 = (IceMX.InvocationMetrics)map["opWithUnknownException"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 0 && im1.remotes.Length == 1);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 3 && im1.remotes[0].failures == 0);
         checkFailure(clientMetrics, "Invocation", im1.id, "Ice::UnknownException", 3);
 
         im1 = (IceMX.InvocationMetrics)map["fail"];
-        test(im1.current == 0 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 6);
+        test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 6);
         test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
         test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
         test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);

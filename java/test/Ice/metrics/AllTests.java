@@ -503,6 +503,21 @@ public class AllTests
         test((cm2.sentBytes - cm1.sentBytes) == (requestSz + bs.length + 4)); // 4 is for the seq variable size
         test((cm2.receivedBytes - cm1.receivedBytes) == replySz);
         test((sm2.receivedBytes - sm1.receivedBytes) == (requestSz + bs.length + 4));
+        if(sm2.sentBytes - sm1.sentBytes != replySz)
+        {
+            // On some platforms, it's necessary to wait a little before obtaining the server metrics
+            // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+            // to the operation is sent and getMetricsView can be dispatched before the metric is really
+            // updated.
+            try
+            {
+                Thread.sleep(100);
+            }
+            catch(InterruptedException ex)
+            {
+            }
+            sm2 = (IceMX.ConnectionMetrics)serverMetrics.getMetricsView("View", timestamp).get("Connection")[0];
+        }
         test((sm2.sentBytes - sm1.sentBytes) == replySz);
     
         props.put("IceMX.Metrics.View.Map.Connection.GroupBy", "state");
@@ -679,7 +694,7 @@ public class AllTests
     
         test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 1);
         m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-        test(m1.current == 0 && m1.total == 1 && m1.id.equals("tcp -e 1.1 -h localhost -p 12010"));
+        test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -e 1.1 -h localhost -p 12010"));
 
         prx.ice_getConnection().close(false);
 
@@ -774,21 +789,21 @@ public class AllTests
         test(map.size() == 6);
 
         IceMX.DispatchMetrics dm1 = (IceMX.DispatchMetrics)map.get("op");
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 0 && dm1.userException == 0);
 
         dm1 = (IceMX.DispatchMetrics)map.get("opWithUserException");
-        test(dm1.current == 0 &dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
+        test(dm1.current <= 1 &dm1.total == 1 && dm1.failures == 0 && dm1.userException == 1);
         
         dm1 = (IceMX.DispatchMetrics)map.get("opWithLocalException");
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::SyscallException", 1, out);
 
         dm1 = (IceMX.DispatchMetrics)map.get("opWithRequestFailedException");
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "Ice::ObjectNotExistException", 1, out);
 
         dm1 = (IceMX.DispatchMetrics)map.get("opWithUnknownException");
-        test(dm1.current == 0 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
+        test(dm1.current <= 1 && dm1.total == 1 && dm1.failures == 1 && dm1.userException == 0);
         checkFailure(serverMetrics, "Dispatch", dm1.id, "java.lang.IllegalArgumentException", 1, out);
 
         InvokeOp op = new InvokeOp(metrics);
