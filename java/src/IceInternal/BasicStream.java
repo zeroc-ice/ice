@@ -2524,86 +2524,25 @@ public class BasicStream
         _buf.expand(n);
     }
 
-    private static final class DynamicObjectFactory implements Ice.ObjectFactory
+    private Ice.Object
+    createObject(String id)
     {
-        DynamicObjectFactory(Class<?> c)
-        {
-            _class = c;
-        }
-
-        public Ice.Object
-        create(String type)
-        {
-            try
-            {
-                return (Ice.Object)_class.newInstance();
-            }
-            catch(java.lang.Exception ex)
-            {
-                throw new Ice.SyscallException(ex);
-            }
-        }
-
-        public void
-        destroy()
-        {
-        }
-
-        private Class<?> _class;
-    }
-
-    private Ice.ObjectFactory
-    loadObjectFactory(String id)
-    {
-        Ice.ObjectFactory factory = null;
+        Ice.Object obj = null;
 
         try
         {
             Class<?> c = findClass(id);
             if(c != null)
             {
-                factory = new DynamicObjectFactory(c);
-                /*
-                 * TODO: See ICE-3635 regarding caching of factories.
-                 * Perhaps we should store these dynamic factories in a
-                 * per-communicator map and check this map prior to
-                 * calling findClass above.
-                 *
-                Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
-                //
-                // We will try to install the dynamic factory, but
-                // another thread may install a factory first.
-                //
-                while(factory == null)
-                {
-                    try
-                    {
-                        _instance.servantFactoryManager().add(dynamicFactory, id);
-                        factory = dynamicFactory;
-                    }
-                    catch(Ice.AlreadyRegisteredException ex)
-                    {
-                        //
-                        // Another thread already installed the
-                        // factory, so try to obtain it. It's possible
-                        // (but unlikely) that the factory will have
-                        // already been removed, in which case the
-                        // return value will be null and the while
-                        // loop will attempt to install the dynamic
-                        // factory again.
-                        //
-                        factory = _instance.servantFactoryManager().find(id);
-                    }
-                }
-                */
+                obj = (Ice.Object)c.newInstance();
             }
         }
-        catch(LinkageError ex)
+        catch(java.lang.Exception ex)
         {
             throw new Ice.NoObjectFactoryException("no object factory", id, ex);
         }
 
-        return factory;
+        return obj;
     }
 
     private static final class DynamicUserExceptionFactory
@@ -2640,25 +2579,25 @@ public class BasicStream
         private Class<?> _class;
     }
 
-    private UserExceptionFactory
-    getUserExceptionFactory(String id)
+    private Ice.UserException
+    createUserException(String id)
     {
-        UserExceptionFactory factory = null;
+        Ice.UserException userEx = null;
 
         try
         {
             Class<?> c = findClass(id);
             if(c != null)
             {
-                factory = new DynamicUserExceptionFactory(c);
+                userEx = (Ice.UserException)c.newInstance();
             }
         }
-        catch(LinkageError ex)
+        catch(java.lang.Exception ex)
         {
             throw new Ice.MarshalException(ex);
         }
 
-        return factory;
+        return userEx;
     }
 
     private Class<?>
@@ -2916,39 +2855,40 @@ public class BasicStream
             //
             startSlice();
             final String mostDerivedId = _typeId;
-            UserExceptionFactory exceptionFactory = factory;
             while(true)
             {
-                //
-                // Look for a factory for this ID.
-                //
-                if(exceptionFactory == null)
-                {
-                    exceptionFactory = _stream.getUserExceptionFactory(_typeId);
-                }
+                Ice.UserException userEx = null;
 
                 //
-                // We found a factory, we get out of this loop.
+                // Use a factory if one was provided.
                 //
-                if(exceptionFactory != null)
+                if(factory != null)
                 {
-                    //
-                    // Got factory -- ask the factory to instantiate the
-                    // exception, initialize the exception members, and throw
-                    // the exception.
-                    //
                     try
                     {
-                        exceptionFactory.createAndThrow(_typeId);
+                        factory.createAndThrow(_typeId);
                     }
                     catch(Ice.UserException ex)
                     {
-                        ex.__read(_stream);
-                        readPendingObjects();
-                        throw ex;
-
-                        // Never reached.
+                        userEx = ex;
                     }
+                }
+
+                if(userEx == null)
+                {
+                    userEx = _stream.createUserException(_typeId);
+                }
+
+                //
+                // We found the exception.
+                //
+                if(userEx != null)
+                {
+                    userEx.__read(_stream);
+                    readPendingObjects();
+                    throw userEx;
+
+                    // Never reached.
                 }
 
                 //
@@ -3403,17 +3343,11 @@ public class BasicStream
                 }
 
                 //
-                // Last chance: check the table of static factories (i.e.,
-                // automatically generated factories for concrete classes).
+                // Last chance: try to instantiate the class dynamically.
                 //
                 if(v == null)
                 {
-                    userFactory = _stream.loadObjectFactory(_typeId);
-                    if(userFactory != null)
-                    {
-                        v = userFactory.create(_typeId);
-                        assert(v != null);
-                    }
+                    v = _stream.createObject(_typeId);
                 }
 
                 //

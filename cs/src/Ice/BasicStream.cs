@@ -3472,35 +3472,9 @@ namespace IceInternal
             _buf.expand(n);
         }
 
-        private sealed class DynamicObjectFactory : Ice.ObjectFactory
+        private Ice.Object createObject(string id)
         {
-            internal DynamicObjectFactory(Type c)
-            {
-                _class = c;
-            }
-
-            public Ice.Object create(string type)
-            {
-                try
-                {
-                    return (Ice.Object)AssemblyUtil.createInstance(_class);
-                }
-                catch(Exception ex)
-                {
-                    throw new Ice.SyscallException(ex);
-                }
-            }
-
-            public void destroy()
-            {
-            }
-
-            private Type _class;
-        }
-
-        private Ice.ObjectFactory loadObjectFactory(string id)
-        {
-            Ice.ObjectFactory factory = null;
+            Ice.Object obj = null;
 
             try
             {
@@ -3510,7 +3484,7 @@ namespace IceInternal
                 //
                 if(c != null && !c.IsAbstract && !c.IsInterface)
                 {
-                    factory = new DynamicObjectFactory(c);
+                    obj = (Ice.Object)AssemblyUtil.createInstance(c);
                 }
             }
             catch(Exception ex)
@@ -3520,7 +3494,7 @@ namespace IceInternal
                 throw e;
             }
 
-            return factory;
+            return obj;
         }
 
         private sealed class DynamicUserExceptionFactory : UserExceptionFactory
@@ -3553,9 +3527,9 @@ namespace IceInternal
             private Type _class;
         }
 
-        private UserExceptionFactory getUserExceptionFactory(string id)
+        private Ice.UserException createUserException(string id)
         {
-            UserExceptionFactory factory = null;
+            Ice.UserException userEx = null;
 
             try
             {
@@ -3566,15 +3540,15 @@ namespace IceInternal
                     // Ensure the class is instantiable.
                     //
                     Debug.Assert(!c.IsAbstract && !c.IsInterface);
-                    factory = new DynamicUserExceptionFactory(c);
+                    userEx = (Ice.UserException)AssemblyUtil.createInstance(c);
                 }
             }
             catch(Exception ex)
             {
-                throw new Ice.UnknownUserException(id.Substring(2), ex);
+                throw new Ice.MarshalException(ex);
             }
 
-            return factory;
+            return userEx;
         }
 
         private static string typeToClass(string id)
@@ -3700,39 +3674,40 @@ namespace IceInternal
                 //
                 startSlice();
                 string mostDerivedId = _typeId;
-                UserExceptionFactory exceptionFactory = factory;
                 while(true)
                 {
-                    //
-                    // Look for a factory for this ID.
-                    //
-                    if(exceptionFactory == null)
-                    {
-                        exceptionFactory = _stream.getUserExceptionFactory(_typeId);
-                    }
+                    Ice.UserException userEx = null;
 
                     //
-                    // We found a factory, we get out of this loop.
+                    // Use a factory if one was provided.
                     //
-                    if(exceptionFactory != null)
+                    if(factory != null)
                     {
-                        //
-                        // Got factory -- ask the factory to instantiate the
-                        // exception, initialize the exception members, and throw
-                        // the exception.
-                        //
                         try
                         {
-                            exceptionFactory.createAndThrow(_typeId);
+                            factory.createAndThrow(_typeId);
                         }
                         catch(Ice.UserException ex)
                         {
-                            ex.read__(_stream);
-                            readPendingObjects();
-                            throw ex;
-
-                            // Never reached.
+                            userEx = ex;
                         }
+                    }
+
+                    if(userEx == null)
+                    {
+                        userEx = _stream.createUserException(_typeId);
+                    }
+
+                    //
+                    // We found the exception.
+                    //
+                    if(userEx != null)
+                    {
+                        userEx.read__(_stream);
+                        readPendingObjects();
+                        throw userEx;
+
+                        // Never reached.
                     }
 
                     //
@@ -4186,17 +4161,11 @@ namespace IceInternal
                     }
 
                     //
-                    // Last chance: check the table of static factories (i.e.,
-                    // automatically generated factories for concrete classes).
+                    // Last chance: try to instantiate the class dynamically.
                     //
                     if(v == null)
                     {
-                        userFactory = _stream.loadObjectFactory(_typeId);
-                        if(userFactory != null)
-                        {
-                            v = userFactory.create(_typeId);
-                            Debug.Assert(v != null);
-                        }
+                        v = _stream.createObject(_typeId);
                     }
 
                     //
