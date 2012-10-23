@@ -285,13 +285,21 @@ local interface Communicator
      * factory with an id for which a factory is already registered 
      * throws {@link AlreadyRegisteredException}.</p>
      *
-     * <p>When unmarshaling an Ice object, the Ice run-time reads the
+     * <p>When unmarshaling an Ice object, the Ice run time reads the
      * most-derived type id off the wire and attempts to create an
      * instance of the type using a factory. If no instance is created,
      * either because no factory was found, or because all factories
-     * returned nil, the object is sliced to the next most-derived type
-     * and the process repeats. If no factory is found that can create an
-     * instance, the Ice run-time throws {@link NoObjectFactoryException}.</p>
+     * returned nil, the behavior of the Ice run time depends on the
+     * format with which the object was marshaled:</p>
+     *
+     * <p>If the object uses the "sliced" format, Ice ascends the class
+     * hierarchy until it finds a type that is recognized by a factory,
+     * or it reaches the least-derived type. If no factory is found that
+     * can create an instance, the run time throws
+     * {@link NoObjectFactoryException}.</p>
+     *
+     * <p>If the object uses the "compact" format, Ice immediately raises
+     * {@link NoObjectFactoryException}.</p>
      *
      * <p>The following order is used to locate a factory for a type:</p>
      *
