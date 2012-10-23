@@ -488,8 +488,8 @@ def allTests(communicator)
     end
     p2, p3 = initial.opByteSeq(p1)
     test(p2.length == p1.length && p3.length == p1.length)
-    test(p2[0] == "\x38")
-    test(p3[0] == "\x38")
+    test(p2[0] == "\x38" || p2[0] == 0x38)
+    test(p3[0] == "\x38" || p3[0] == 0x38)
 
     p2, p3 = initial.opBoolSeq(Ice::Unset)
     test(p2 == Ice::Unset && p3 == Ice::Unset)
