@@ -152,7 +152,7 @@ WINAPI startHook(void* arg)
         // Windows (the rand() seed is thread specific).
         //
         unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
-        srand(seed ^ hash<thread::id>()(thread->getThreadControl().id()));
+        srand(seed ^ static_cast<unsigned int>(hash<thread::id>()(thread->getThreadControl().id())));
 
         //
         // See the comment in IceUtil::Thread::start() for details.
