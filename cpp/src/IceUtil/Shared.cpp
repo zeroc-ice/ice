@@ -36,9 +36,9 @@ namespace IceUtilInternal
 static inline void atomicInc(volatile int* counter)
 {
     __asm__ __volatile__(
-	"lock ; incl %0"
-	:"=m" (*counter)
-	:"m" (*counter));
+        "lock ; incl %0"
+        :"=m" (*counter)
+        :"m" (*counter));
 }
 
 /**
@@ -55,9 +55,9 @@ static inline int atomicDecAndTest(volatile int* counter)
 {
     unsigned char c;
     __asm__ __volatile__(
-	"lock ; decl %0; sete %1"
-	:"=m" (*counter), "=qm" (c)
-	:"m" (*counter) : "memory");
+        "lock ; decl %0; sete %1"
+        :"=m" (*counter), "=qm" (c)
+        :"m" (*counter) : "memory");
     return c != 0;
 }
 
@@ -72,10 +72,10 @@ static inline int atomicExchangeAdd(volatile int* counter, int i)
 {
     int tmp = i;
     __asm__ __volatile__(
-	"lock ; xadd %0,(%2)"
-	:"+r"(tmp), "=m"(*counter)
-	:"r"(counter), "m"(*counter)
-	: "memory");
+        "lock ; xadd %0,(%2)"
+        :"+r"(tmp), "=m"(*counter)
+        :"r"(counter), "m"(*counter)
+        : "memory");
     return tmp + i;
 }
 

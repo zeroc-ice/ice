@@ -1338,7 +1338,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         }
 
         public Class getColumnClass(int columnIndex)
-	    {
+            {
             switch(columnIndex)
             {
                 case 0: // Node Name
@@ -1398,7 +1398,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     return null;
                 }
             }
-	    }
+            }
 
         public Object getValueAt(int rowIndex, int columnIndex)
         {

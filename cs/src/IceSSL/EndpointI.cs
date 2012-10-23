@@ -14,7 +14,7 @@ namespace IceSSL
     using System.Collections.Generic;
     using System.Net;
     using System.Globalization;
-	
+        
     sealed class EndpointI : IceInternal.EndpointI
     {
         internal EndpointI(Instance instance, string ho, int po, int ti, Ice.ProtocolVersion pv, 

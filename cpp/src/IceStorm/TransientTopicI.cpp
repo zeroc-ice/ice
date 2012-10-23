@@ -580,6 +580,6 @@ TransientTopicImpl::shutdown()
     // Shutdown each subscriber. This waits for the event queues to drain.
     for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
     {
-	(*p)->shutdown();
+        (*p)->shutdown();
     }
 }

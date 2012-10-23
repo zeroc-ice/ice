@@ -78,7 +78,7 @@ public:
 
     LocalObjectPtr getCookie() const
     {
-        return _cookie;	// No lock needed, cookie is immutable
+        return _cookie; // No lock needed, cookie is immutable
     }
 
     const std::string& getOperation() const
@@ -409,10 +409,10 @@ public:
 
     virtual void __sent(const ::Ice::AsyncResultPtr& result) const
     {
-	if(sent)
-	{
-	    (callback.get()->*sent)(result);
-	}
+        if(sent)
+        {
+            (callback.get()->*sent)(result);
+        }
     }
 
     virtual bool __hasSentCallback() const

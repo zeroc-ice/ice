@@ -54,9 +54,9 @@ NrvoI::op3(int size, const Ice::Current&)
     if(size < 10)
     {
         //
-	// RVO (Return Value Optimization): return value
-	// is constructed in place.
-	//
+        // RVO (Return Value Optimization): return value
+        // is constructed in place.
+        //
         return MyStringSeq(size, "hello");
     }
 

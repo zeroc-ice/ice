@@ -468,8 +468,8 @@ public class Client extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Client c = new Client();
-    	int status = c.main("Client", args);
+        Client c = new Client();
+        int status = c.main("Client", args);
         
         System.gc();
         System.exit(status);

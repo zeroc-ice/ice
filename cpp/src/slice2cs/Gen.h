@@ -150,7 +150,7 @@ private:
         virtual void visitModuleEnd(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
-	virtual void visitOperation(const OperationPtr&);
+        virtual void visitOperation(const OperationPtr&);
     };
 
     class ProxyVisitor : public CsVisitor

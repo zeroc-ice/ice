@@ -61,7 +61,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         _deactivateController.lock();
         try
         {
-	    ObjectStore store = findStore(facet, _createDb);
+            ObjectStore store = findStore(facet, _createDb);
             if(store == null)
             {
                 NotFoundException ex = new NotFoundException();
@@ -70,24 +70,24 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
             }
 
             long currentTime = 0;
-	    ObjectRecord rec;
+            ObjectRecord rec;
 
-	    if(store.keepStats())
-	    {
-		currentTime = IceInternal.Time.currentMonotonicTimeMillis();
-		rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
-	    }
-	    else
-	    {
-		rec = new ObjectRecord(servant, null);
-	    }
+            if(store.keepStats())
+            {
+                currentTime = IceInternal.Time.currentMonotonicTimeMillis();
+                rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
+            }
+            else
+            {
+                rec = new ObjectRecord(servant, null);
+            }
 
             TransactionI tx = beforeQuery();
 
-	    if(store.keepStats())
-	    {
-		updateStats(rec.stats, currentTime);
-	    }
+            if(store.keepStats())
+            {
+                updateStats(rec.stats, currentTime);
+            }
 
             if(!store.insert(ident, rec, tx))
             {
@@ -362,10 +362,10 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 
                 int operationAttributes = sample.ice_operationAttributes(current.operation);
 
-		if(operationAttributes < 0)
-		{
-		    throw new Ice.OperationNotExistException();
-		}
+                if(operationAttributes < 0)
+                {
+                    throw new Ice.OperationNotExistException();
+                }
 
                 boolean readOnly = (operationAttributes & 0x1) == 0;
 
@@ -411,7 +411,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                     default:
                     {
                         assert false;
-			throw new Ice.OperationNotExistException();
+                        throw new Ice.OperationNotExistException();
                     }
                 }
 

@@ -28,7 +28,7 @@ public:
     void failed(Platform::String^ reason);
 
 protected:
-    	
+        
     virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
     
 private:

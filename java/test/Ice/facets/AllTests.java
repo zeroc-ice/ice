@@ -35,7 +35,7 @@ public class AllTests
     public static GPrx
     allTests(Ice.Communicator communicator, PrintWriter out)
     {
-		out.print("testing Ice.Admin.Facets property... ");
+                out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
         String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");

@@ -35,28 +35,28 @@ PingI::tick(Ice::Long time, Perf::AEnum e , int, const Perf::AStruct& s, const I
     Lock sync(*this);
     if(time > 0)
     {
-	add(time);
+        add(time);
     }
     else if(time == 0)
     {
-	_payloadSize += sizeof(e);
-	_payloadSize += sizeof(Ice::Int);
+        _payloadSize += sizeof(e);
+        _payloadSize += sizeof(Ice::Int);
 
-	//
-	// This needs to be kept up to date with the definition of the
-	// structure in the slice. 
-	//
-	_payloadSize += sizeof(s.e);
-	_payloadSize += sizeof(s.d);
-	_payloadSize += s.s.size();
-	started();
+        //
+        // This needs to be kept up to date with the definition of the
+        // structure in the slice. 
+        //
+        _payloadSize += sizeof(s.e);
+        _payloadSize += sizeof(s.d);
+        _payloadSize += s.s.size();
+        started();
     }
     else if(time < 0)
     {
-	if(stopped())
-	{
-	    current.adapter->getCommunicator()->shutdown();
-	}
+        if(stopped())
+        {
+            current.adapter->getCommunicator()->shutdown();
+        }
     }
 }
 
@@ -66,22 +66,22 @@ PingI::tickVoid(Ice::Long time, const Ice::Current& current)
     Lock sync(*this);
     if(time > 0)
     {
-	add(time);
+        add(time);
     }
     else if(time == 0)
     {
-	started();
+        started();
     }
     else if(time == -1)
     {
-	if(stopped())
-	{
-	    current.adapter->getCommunicator()->shutdown();
-	}
+        if(stopped())
+        {
+            current.adapter->getCommunicator()->shutdown();
+        }
     }
     else if(time < 0)
     {
-	cerr << "time < 0: " << time << endl;
+        cerr << "time < 0: " << time << endl;
     }
 }
 
@@ -90,7 +90,7 @@ PingI::started()
 {
     if(++_nStartedPublishers == _nPublishers)
     {
-	_startTime = IceUtil::Time::now();
+        _startTime = IceUtil::Time::now();
     }
 }
 
@@ -108,22 +108,22 @@ PingI::stopped()
     //
     if(_nStoppedPublishers == 0)
     {
-	_stopTime = IceUtil::Time::now();
+        _stopTime = IceUtil::Time::now();
     }
     if(_nStartedPublishers < _nPublishers)
     {
-	cerr << "Some publishers are already finished while others aren't even started" << endl;
-	cerr << _nPublishers << " " << _nStartedPublishers << " " << _nStoppedPublishers << endl;
-	cerr << _startTime - _stopTime << " " << _results.size() << " " << _nReceived << endl;
+        cerr << "Some publishers are already finished while others aren't even started" << endl;
+        cerr << _nPublishers << " " << _nStartedPublishers << " " << _nStoppedPublishers << endl;
+        cerr << _startTime - _stopTime << " " << _results.size() << " " << _nReceived << endl;
     }
     if(++_nStoppedPublishers == _nPublishers)
     {
-	calc();
-	return true;
+        calc();
+        return true;
     }
     else
     {
-	return false;
+        return false;
     }
 }
 
@@ -138,17 +138,17 @@ PingI::add(Ice::Long time)
     if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
     {
 #ifdef WIN32
-	LARGE_INTEGER t;
-	QueryPerformanceCounter(&t);
-	Ice::Long interval = t.QuadPart - time;
-	QueryPerformanceFrequency(&t);
-	interval /= t.QuadPart; // Frequency is counts per second.
-	interval *= 1000000; // Convert to microseconds.
-	_results.push_back(interval);
+        LARGE_INTEGER t;
+        QueryPerformanceCounter(&t);
+        Ice::Long interval = t.QuadPart - time;
+        QueryPerformanceFrequency(&t);
+        interval /= t.QuadPart; // Frequency is counts per second.
+        interval *= 1000000; // Convert to microseconds.
+        _results.push_back(interval);
 #else
-	IceUtil::Time t = IceUtil::Time::microSeconds(time);
-	IceUtil::Time interval = IceUtil::Time::now() - t;
-	_results.push_back(static_cast<Ice::Long>(interval.toMicroSeconds()));
+        IceUtil::Time t = IceUtil::Time::microSeconds(time);
+        IceUtil::Time interval = IceUtil::Time::now() - t;
+        _results.push_back(static_cast<Ice::Long>(interval.toMicroSeconds()));
 #endif
     }
 }
@@ -165,10 +165,10 @@ PingI::calc()
 
     double total = 0.0;
     {
-	for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
-	{
-	    total += (*p);
-	}
+        for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+        {
+            total += (*p);
+        }
     }
     double newSize = _results.size();
     double mean = total / newSize; 
@@ -176,10 +176,10 @@ PingI::calc()
     double deviation;
     double x = 0.0;
     {
-	for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
-	{
-	    x += (*p - mean) * (*p - mean);
-	}
+        for(vector<Ice::Long>::const_iterator p = _results.begin(); p != _results.end(); ++p)
+        {
+            x += (*p - mean) * (*p - mean);
+        }
     }
     deviation = sqrt(x / (_results.size() - 1));
 
@@ -192,14 +192,14 @@ PingI::calc()
     //
     if(originalSize < (_nExpectedTicks * 0.90))
     {
-	cerr << "WARNING: Less than 90% of the expected ticks were used for the test. " <<
-	    _nExpectedTicks << " events were expected, but only " << originalSize << " were received.\n" << endl;
-	cerr << "The results are based on a smaller sample size and comparisons with other tests\n"
-	        "may not be fair." << endl; 
+        cerr << "WARNING: Less than 90% of the expected ticks were used for the test. " <<
+            _nExpectedTicks << " events were expected, but only " << originalSize << " were received.\n" << endl;
+        cerr << "The results are based on a smaller sample size and comparisons with other tests\n"
+                "may not be fair." << endl; 
     }
     cout << "{ 'latency' : " << mean / 1000 << ", 'deviation' : " << deviation << ", 'throughput' : " <<
-	((double)(originalSize * _payloadSize) / (1024^2)) / (_stopTime - _startTime).toMilliSecondsDouble() * 1000.0 << 
-	", 'repetitions': " << originalSize << ", 'payload': " << _payloadSize << "}" << endl;
+        ((double)(originalSize * _payloadSize) / (1024^2)) / (_stopTime - _startTime).toMilliSecondsDouble() * 1000.0 << 
+        ", 'repetitions': " << originalSize << ", 'payload': " << _payloadSize << "}" << endl;
 
     _results.clear();
     _nStartedPublishers = 0;

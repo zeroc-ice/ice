@@ -1006,12 +1006,12 @@ Slice::findMetaData(const StringList& metaData, int typeCtx)
         {
             string::size_type pos = str.find(':', prefix.size());
 
-	    //
+            //
             // If the form is cpp:type:<...> the data after cpp:type:
             // is returned.
-	    // If the form is cpp:range[:<...>], cpp:array or cpp:class,
-	    // the return value is % followed by the string after cpp:.
-	    //
+            // If the form is cpp:range[:<...>], cpp:array or cpp:class,
+            // the return value is % followed by the string after cpp:.
+            //
             if(pos != string::npos)
             {
                 string ss = str.substr(prefix.size());

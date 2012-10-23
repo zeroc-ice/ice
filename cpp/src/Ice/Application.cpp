@@ -330,7 +330,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
         catch(const std::exception& ex)
         {
             Error out(getProcessLogger());
-	    out << ex;
+            out << ex;
             return EXIT_FAILURE;
         }
         catch(...)

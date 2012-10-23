@@ -21,11 +21,11 @@
 // supports sparc (32 and 64 bit).
 
 #elif (__GNUC__ >= 4 && __GNUC_MINOR__ >= 1 || __clang__)  &&                         \
-	((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
-	 defined(__APPLE__) || \
-	(defined(__linux) && \
-		(defined(__i486) || defined(__i586) || \
-		 defined(__i686) || defined(__x86_64))))
+        ((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
+         defined(__APPLE__) || \
+        (defined(__linux) && \
+                (defined(__i486) || defined(__i586) || \
+                 defined(__i686) || defined(__x86_64))))
 
 #   define ICE_HAS_GCC_BUILTINS
 

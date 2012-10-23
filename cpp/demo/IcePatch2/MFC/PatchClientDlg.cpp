@@ -25,7 +25,7 @@ getBasename(const string& path)
     string::size_type pos = path.rfind('/');
     if(pos == string::npos)
     {
-	pos = path.rfind('\\');
+        pos = path.rfind('\\');
     }
 
     if(pos == string::npos)

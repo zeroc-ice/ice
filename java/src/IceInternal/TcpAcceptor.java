@@ -39,7 +39,7 @@ class TcpAcceptor implements Acceptor
         if(_traceLevels.network >= 1)
         {
             StringBuffer s = new StringBuffer("listening for tcp connections at ");
-	    s.append(toString());
+            s.append(toString());
 
             java.util.List<String> interfaces = 
                 Network.getHostsForEndpointExpand(_addr.getAddress().getHostAddress(), _instance.protocolSupport(),

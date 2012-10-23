@@ -161,7 +161,7 @@ Ice::AsyncResultPtr
 IceProxy::Ice::Object::begin_ice_isA(const string& typeId,
                                      const Context* ctx,
                                      const ::IceInternal::CallbackBasePtr& del,
-				     const ::Ice::LocalObjectPtr& cookie)
+                                     const ::Ice::LocalObjectPtr& cookie)
 {
     OutgoingAsyncPtr __result = new OutgoingAsync(this, ice_isA_name, del, cookie);
     __checkAsyncTwowayOnly(ice_isA_name);

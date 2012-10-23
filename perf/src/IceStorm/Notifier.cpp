@@ -35,24 +35,24 @@ Notifier::run(int argc, char* argv[])
     vector<string> proxies;
     for(int i = 1; i < argc; i++)
     {
-	proxies.push_back(argv[i]);
+        proxies.push_back(argv[i]);
     }
 
     vector<Perf::SyncPrx> syncs;
     {
-	for(vector<string>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
-	{
-	    SyncPrx s = Perf::SyncPrx::uncheckedCast(communicator()->stringToProxy(*p)->ice_oneway());
-	    s->ice_ping();
-	    syncs.push_back(s);
-	}
+        for(vector<string>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+        {
+            SyncPrx s = Perf::SyncPrx::uncheckedCast(communicator()->stringToProxy(*p)->ice_oneway());
+            s->ice_ping();
+            syncs.push_back(s);
+        }
     }
 
     {
-	for(vector<Perf::SyncPrx>::const_iterator p = syncs.begin(); p != syncs.end(); ++p)
-	{
-	    (*p)->notify();
-	}
+        for(vector<Perf::SyncPrx>::const_iterator p = syncs.begin(); p != syncs.end(); ++p)
+        {
+            (*p)->notify();
+        }
     }
 
     return EXIT_SUCCESS;

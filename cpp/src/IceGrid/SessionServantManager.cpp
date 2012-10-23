@@ -18,7 +18,7 @@ using namespace IceGrid;
 
 SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter, 
                                              const string& instanceName,
-					     bool checkConnection,
+                                             bool checkConnection,
                                              const string& serverAdminCategory,
                                              const Ice::ObjectPtr& serverAdminRouter,
                                              const AdminCallbackRouterPtr& adminCallbackRouter) : 

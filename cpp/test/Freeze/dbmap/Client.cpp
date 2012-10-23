@@ -72,7 +72,7 @@ populateDB(const Freeze::ConnectionPtr& connection, ByteIntMap& m)
             TransactionHolder txHolder(connection);
             for(size_t j = 0; j < length; ++j)
             {
-	        m.put(ByteIntMap::value_type(localAlphabet[j], static_cast<Int>(j)));
+                m.put(ByteIntMap::value_type(localAlphabet[j], static_cast<Int>(j)));
             }
             txHolder.commit();
             break;
@@ -98,14 +98,14 @@ public:
     ReadThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
         _connection(createConnection(communicator, envName)),
         _map(_connection, dbName),
-	_done(false)
+        _done(false)
     {
     }
 
     virtual void
     run()
     {
-	bool more = false;
+        bool more = false;
 
         do
         {
@@ -138,18 +138,18 @@ public:
                 }
             }
 
-	    {
-		IceUtil::Mutex::Lock lock(_doneMutex);
-		more = !_done;
-	    }
+            {
+                IceUtil::Mutex::Lock lock(_doneMutex);
+                more = !_done;
+            }
 
-	} while(more);
+        } while(more);
     }
 
     void stop()
     {
-	IceUtil::Mutex::Lock lock(_doneMutex);
-	_done = true;
+        IceUtil::Mutex::Lock lock(_doneMutex);
+        _done = true;
     }
 
 private:
@@ -170,14 +170,14 @@ public:
     WriteThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
         _connection(createConnection(communicator, envName)),
         _map(_connection, dbName),
-	_done(false)
+        _done(false)
     {
     }
 
     virtual void
     run()
     {
-	bool more = false;
+        bool more = false;
 
         //
         // Delete an recreate each object
@@ -195,7 +195,7 @@ public:
                         _map.erase(p);
                     }
                     txHolder.commit();
-		    break; // for (;;)
+                    break; // for (;;)
                 }
                 catch(const DeadlockException&)
                 {
@@ -216,81 +216,81 @@ public:
             }
             populateDB(_connection, _map);
 
-	    
-	    //
-	    // Now update without a transaction
-	    //
-	       
-	    for(char c = 'a'; c != 'd'; ++c)
-	    {
-		for(;;)
-		{
-		    bool thrownBySet = false;
-		    try
-		    {
-			ByteIntMap::iterator p = _map.find(c);
-			try
-			{
-			    if(p != _map.end())
-			    {
-				if(p->first == p->second + 'a')
-				{
-				    p.set(p->first - 'A');
-				}
-				else
-				{
-				    p.set(p->first - 'a');
-				}   
-			    }
-			}
-			catch(const DeadlockException&)
-			{
-			    thrownBySet = true;
-			    throw;
-			}
-			break; // for (;;)
-		    }    
-		    catch(const DeadlockException&)
-		    {
-			if(!thrownBySet)
-			{
-			    cerr << "DeadlockException thrown by destructor!" << endl;
-			    test(false);
-			}
-			
+            
+            //
+            // Now update without a transaction
+            //
+               
+            for(char c = 'a'; c != 'd'; ++c)
+            {
+                for(;;)
+                {
+                    bool thrownBySet = false;
+                    try
+                    {
+                        ByteIntMap::iterator p = _map.find(c);
+                        try
+                        {
+                            if(p != _map.end())
+                            {
+                                if(p->first == p->second + 'a')
+                                {
+                                    p.set(p->first - 'A');
+                                }
+                                else
+                                {
+                                    p.set(p->first - 'a');
+                                }   
+                            }
+                        }
+                        catch(const DeadlockException&)
+                        {
+                            thrownBySet = true;
+                            throw;
+                        }
+                        break; // for (;;)
+                    }    
+                    catch(const DeadlockException&)
+                    {
+                        if(!thrownBySet)
+                        {
+                            cerr << "DeadlockException thrown by destructor!" << endl;
+                            test(false);
+                        }
+                        
 #ifdef SHOW_EXCEPTIONS
-			if(thrownBySet)
-			{
-			    cerr << "S" << flush;
-			}
-			else
-			{
-			    cerr << "D" << flush;
-			}
+                        if(thrownBySet)
+                        {
+                            cerr << "S" << flush;
+                        }
+                        else
+                        {
+                            cerr << "D" << flush;
+                        }
 #endif
-			// Try again
-		    }
-		    catch(const InvalidPositionException&)
-		    {
+                        // Try again
+                    }
+                    catch(const InvalidPositionException&)
+                    {
 #ifdef SHOW_EXCEPTIONS
-			cerr << "I" << flush;
+                        cerr << "I" << flush;
 #endif
-			break;
-		    }
-		}
-	    }
+                        break;
+                    }
+                }
+            }
 
-	    {
-		IceUtil::Mutex::Lock lock(_doneMutex);
-		more = !_done;
-	    }
+            {
+                IceUtil::Mutex::Lock lock(_doneMutex);
+                more = !_done;
+            }
         } while(more);
     }
 
     void stop()
     {
-	IceUtil::Mutex::Lock lock(_doneMutex);
-	_done = true;
+        IceUtil::Mutex::Lock lock(_doneMutex);
+        _done = true;
     }
 
 private:
@@ -729,23 +729,23 @@ run(const CommunicatorPtr& communicator, const string& envName)
     {
         ReadThreadPtr rt = new ReadThread(communicator, envName, dbName);
         controls.push_back(rt->start());
-	readThreads.push_back(rt);
+        readThreads.push_back(rt);
 
         WriteThreadPtr wt = new WriteThread(communicator, envName, dbName);
         controls.push_back(wt->start());
-	writeThreads.push_back(wt);
+        writeThreads.push_back(wt);
     }
 
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(CONCURRENT_TIME));
 
     for(vector<WriteThreadPtr>::iterator q = writeThreads.begin(); q != writeThreads.end(); ++q)
     {
-	(*q)->stop();
+        (*q)->stop();
     }
 
     for(vector<ReadThreadPtr>::iterator q = readThreads.begin(); q != readThreads.end(); ++q)
     {
-	(*q)->stop();
+        (*q)->stop();
     }
 
     for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)

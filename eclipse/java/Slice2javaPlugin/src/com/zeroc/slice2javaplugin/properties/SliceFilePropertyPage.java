@@ -59,7 +59,7 @@ public class SliceFilePropertyPage extends PropertyPage
 
     protected Control createContents(Composite parent)
     {
-    	TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
+        TabFolder tabFolder = new TabFolder(parent, SWT.NONE);
         {
             TabItem tabItem = new TabItem(tabFolder, SWT.NONE);
             

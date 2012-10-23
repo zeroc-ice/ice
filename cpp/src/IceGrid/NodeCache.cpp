@@ -971,22 +971,22 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             ServiceDescriptorPtr s = p->descriptor;
             const string path = _session->getInfo()->dataDir + "/servers/" + server->id + "/config/config_" + s->name;
 
-	    //
-	    // We escape the path here because the command-line option --Ice.Config=xxx will be parsed an encoded 
+            //
+            // We escape the path here because the command-line option --Ice.Config=xxx will be parsed an encoded 
             // (escaped) property
-	    // For example, \\server\dir\file.cfg needs to become \\\server\dir\file.cfg or \\\\server\\dir\\file.cfg.
-	    //
+            // For example, \\server\dir\file.cfg needs to become \\\server\dir\file.cfg or \\\\server\\dir\\file.cfg.
+            //
             props.push_back(createProperty("IceBox.Service." + s->name, s->entry + " --Ice.Config='" 
-					   + escapeProperty(path) + "'"));
+                                           + escapeProperty(path) + "'"));
             
-	    if(servicesStr.empty())
-	    {
-		servicesStr = s->name;
-	    }
-	    else
-	    {
-		servicesStr += " " + s->name;
-	    }
+            if(servicesStr.empty())
+            {
+                servicesStr = s->name;
+            }
+            else
+            {
+                servicesStr += " " + s->name;
+            }
         }
         if(!hasProperty(info.descriptor->propertySet.properties, "IceBox.InstanceName"))
         {

@@ -632,10 +632,10 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
             }
             else
             {
-		if(argv[0])
-		{
-		    cerr << argv[0] << ": ";
-		}
+                if(argv[0])
+                {
+                    cerr << argv[0] << ": ";
+                }
                 cerr << "--pidfile must be followed by an argument" << endl;
                 return EXIT_FAILURE;
             }
@@ -654,20 +654,20 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initializa
 
     if(!closeFiles && !daemonize)
     {
-	if(argv[0])
+        if(argv[0])
         {
-	    cerr << argv[0] << ": ";
-	}
+            cerr << argv[0] << ": ";
+        }
         cerr << "--noclose must be used with --daemon" << endl;
         return EXIT_FAILURE;
     }
 
     if(pidFile.size() > 0 && !daemonize)
     {
-	if(argv[0])
+        if(argv[0])
         {
-	    cerr << argv[0] << ": ";
-	}
+            cerr << argv[0] << ": ";
+        }
         cerr << "--pidfile <file> must be used with --daemon" << endl;
         return EXIT_FAILURE;
     }

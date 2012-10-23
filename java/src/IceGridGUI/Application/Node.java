@@ -542,12 +542,12 @@ class Node extends TreeNode implements PropertySetParent
         //
         TemplateDescriptor templateDescriptor = root.findServerTemplateDescriptor(instanceDescriptor.template);
 
-	if(templateDescriptor == null)
-	{
-	    throw new UpdateFailedException("Cannot find template descriptor '" +
-					    instanceDescriptor.template + 
-					    "' referenced by server-instance");
-	}
+        if(templateDescriptor == null)
+        {
+            throw new UpdateFailedException("Cannot find template descriptor '" +
+                                            instanceDescriptor.template + 
+                                            "' referenced by server-instance");
+        }
         ServerDescriptor serverDescriptor = (ServerDescriptor)templateDescriptor.descriptor;
 
         assert serverDescriptor != null;

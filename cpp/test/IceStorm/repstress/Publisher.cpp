@@ -54,7 +54,7 @@ public:
             try
             {
                 _single->event(_published);
-		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
             }
             catch(const Ice::UnknownException&)
             {

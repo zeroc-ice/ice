@@ -787,7 +787,7 @@ Client::getPassword(const string& prompt)
     char c;
     while((c = _getch()) != '\r')
     {
-	password += c;
+        password += c;
     }
 #endif
     cout << endl;

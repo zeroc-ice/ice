@@ -297,7 +297,7 @@ public class Client extends JFrame
         fieldPanel.setLayout(new GridLayout(0, 1));
         fieldPanel.add(_hostField);
         fieldPanel.add(_userNameField);
-        fieldPanel.add(_passwordField);    	
+        fieldPanel.add(_passwordField);         
         _connectionPanel.add(labelPanel);
         _connectionPanel.add(fieldPanel);
 

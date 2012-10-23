@@ -1085,12 +1085,12 @@ namespace Ice
             if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
                 StringBuilder message = new StringBuilder("found unknown properties for object adapter `");
-		message.Append(_name);
-		message.Append("':");
+                message.Append(_name);
+                message.Append("':");
                 foreach(string s in unknownProps)
                 {
                     message.Append("\n    ");
-		    message.Append(s);
+                    message.Append(s);
                 }
                 instance_.initializationData().logger.warning(message.ToString());
             }
@@ -1495,8 +1495,8 @@ namespace Ice
             if(instance_.traceLevels().network >= 1)
             {
                  StringBuilder s = new StringBuilder("published endpoints for object adapter `");
-		 s.Append(_name);
-		 s.Append("':\n");
+                 s.Append(_name);
+                 s.Append("':\n");
                  bool first = true;
                  foreach(IceInternal.EndpointI endpoint in endpoints)
                  {

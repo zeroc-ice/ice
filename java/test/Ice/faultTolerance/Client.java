@@ -25,7 +25,7 @@ public class Client extends test.Util.Application
     {
         PrintWriter out = getWriter();
         
-    	Ice.Communicator communicator = communicator();
+        Ice.Communicator communicator = communicator();
         java.util.List<Integer> ports = new java.util.ArrayList<Integer>(args.length);
         for(String arg : args)
         {
@@ -56,7 +56,7 @@ public class Client extends test.Util.Application
 
         if(ports.isEmpty())
         {
-			out.println("Client: no ports specified");
+                        out.println("Client: no ports specified");
             usage();
             return 1;
         }

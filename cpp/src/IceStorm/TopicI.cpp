@@ -670,7 +670,7 @@ TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
             catch(const DatabaseException& ex)
             {
                 halt(_instance->communicator(), ex);
-            }	
+            }   
         }
         Ice::IdentitySeq ids;
         ids.push_back(id);
@@ -708,7 +708,7 @@ TopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _subscribers.push_back(subscriber);
@@ -792,7 +792,7 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _subscribers.push_back(subscriber);
@@ -916,7 +916,7 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _subscribers.push_back(subscriber);
@@ -995,7 +995,7 @@ TopicImpl::shutdown()
     // Shutdown each subscriber. This waits for the event queues to drain.
     for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
     {
-	(*p)->shutdown();
+        (*p)->shutdown();
     }
 
     _observer.detach();
@@ -1326,7 +1326,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _subscribers.push_back(subscriber);
@@ -1397,7 +1397,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 }
 
@@ -1444,7 +1444,7 @@ TopicImpl::updateSubscriberObservers()
     IceUtil::Mutex::Lock sync(_subscribersMutex);
     for(vector<SubscriberPtr>::const_iterator p = _subscribers.begin(); p != _subscribers.end(); ++p)
     {
-	(*p)->updateObserver();
+        (*p)->updateObserver();
     }
 }
 
@@ -1497,7 +1497,7 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _instance->topicAdapter()->remove(_id);
@@ -1570,7 +1570,7 @@ TopicImpl::removeSubscribers(const Ice::IdentitySeq& ids)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _instance->observers()->removeSubscriber(llu, _name, ids);

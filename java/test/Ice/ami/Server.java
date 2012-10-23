@@ -14,7 +14,7 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
-    	Ice.Communicator communicator = communicator();
+        Ice.Communicator communicator = communicator();
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
@@ -41,7 +41,7 @@ public class Server extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Server app = new Server();
+        Server app = new Server();
         int result = app.main("Server", args);
         System.gc();
         System.exit(result);

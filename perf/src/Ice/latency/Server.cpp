@@ -23,13 +23,13 @@ class LatencyI : public Latency
     virtual void
     withData(const ByteSeq&, const Ice::Current&)
     {
-	// We don't need to do anything here.
+        // We don't need to do anything here.
     }
 
     virtual void
     shutdown(const Ice::Current& current)
     {
-	current.adapter->getCommunicator()->shutdown();
+        current.adapter->getCommunicator()->shutdown();
     }
 };
 
@@ -52,29 +52,29 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
         initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

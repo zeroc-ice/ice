@@ -28,21 +28,21 @@ public:
     void decrement()
     {
         Monitor<Mutex>::Lock lock(*this);
-	assert(_count > 0);
-	--_count;
-	if(_count == 0)
-	{
-	    notifyAll();
-	}
+        assert(_count > 0);
+        --_count;
+        if(_count == 0)
+        {
+            notifyAll();
+        }
     }
 
     void waitZero()
     {
         Monitor<Mutex>::Lock lock(*this);
-	while(_count > 0)
-	{
-	    wait();
-	}
+        while(_count > 0)
+        {
+            wait();
+        }
     }
 
 private:
@@ -80,7 +80,7 @@ public:
     {
         Monitor<Mutex>::Lock lock(*this);
         _terminate = true;
-	notifyAll();
+        notifyAll();
     }
 
     bool
@@ -105,10 +105,10 @@ public:
 
         assert(!_q.empty());
         ret = _q.front();
-	if(ret % 100 == 0)
-	{
-	    cout << "." << flush;
-	}
+        if(ret % 100 == 0)
+        {
+            cout << "." << flush;
+        }
         _q.pop_front();
         return true;
     }
@@ -126,16 +126,16 @@ public:
         // empty.
         if(_q.empty())
         {
-	    assert(_terminate);
+            assert(_terminate);
             return -1;
         }
 
         assert(!_q.empty());
         int ret = _q.front();
-	if(ret % 100 == 0)
-	{
-	    cout << "." << flush;
-	}
+        if(ret % 100 == 0)
+        {
+            cout << "." << flush;
+        }
         _q.pop_front();
         return ret;
     }
@@ -158,18 +158,18 @@ public:
     virtual void
     run()
     {
-	_cd->decrement();
+        _cd->decrement();
         while(true)
         {
             int res = 0;
-	    if(_poll)
-	    {
-		_q->timedGet(res, Time::milliSeconds(10));
-	    }
-	    else
-	    {
-		res = _q->get();
-	    }
+            if(_poll)
+            {
+                _q->timedGet(res, Time::milliSeconds(10));
+            }
+            else
+            {
+                res = _q->get();
+            }
             if(res == -1)
             {
                 return;
@@ -196,14 +196,14 @@ public:
     virtual void
     run()
     {
-	_cd->decrement();
+        _cd->decrement();
         // Forever
         if(_v == 0)
         {
             while(true)
             {
                 _q->put(_v++);
-		ThreadControl::yield();
+                ThreadControl::yield();
             }
         }
         else

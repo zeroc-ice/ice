@@ -32,28 +32,28 @@ main(int argc, char* argv[])
     Ice::CommunicatorPtr communicator;
 
     try
-    {	Ice::PropertiesPtr properties = Ice::createProperties();
+    {   Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initializeWithProperties(argc, argv, properties);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex.ice_name() << endl;
-	status = EXIT_FAILURE;
+        cerr << ex.ice_name() << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex.ice_name() << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex.ice_name() << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

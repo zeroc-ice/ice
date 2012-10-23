@@ -16,7 +16,7 @@ public class Client extends test.Util.Application
     public int
     run(String[] args)
     {
-	Ice.Communicator communicator = communicator();
+        Ice.Communicator communicator = communicator();
         ChecksumPrx checksum = AllTests.allTests(communicator, false, getWriter());
         checksum.shutdown();
         return 0;
@@ -34,8 +34,8 @@ public class Client extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Client c = new Client();
-    	int status = c.main("Client", args);
+        Client c = new Client();
+        int status = c.main("Client", args);
         
         System.gc();
         System.exit(status);

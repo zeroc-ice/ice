@@ -428,9 +428,9 @@ public final class ReferenceFactory
                 StringBuffer msg = new StringBuffer("Proxy contains unknown endpoints:");
                 for(String e : unknownEndpoints)
                 {
-		    msg.append(" `");
-		    msg.append(e);
-		    msg.append("'");
+                    msg.append(" `");
+                    msg.append(e);
+                    msg.append("'");
                 }
                 _instance.initializationData().logger.warning(msg.toString());
             }
@@ -705,12 +705,12 @@ public final class ReferenceFactory
         if(unknownProps.size() != 0)
         {
             StringBuffer message = new StringBuffer("found unknown properties for proxy '");
-	    message.append(prefix);
-	    message.append("':");
+            message.append(prefix);
+            message.append("':");
             for(String s : unknownProps)
             {
-		message.append("\n    ");
-		message.append(s);
+                message.append("\n    ");
+                message.append(s);
             }
             _instance.initializationData().logger.warning(message.toString());
         }

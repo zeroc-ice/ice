@@ -50,8 +50,8 @@ public class Server extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Server c = new Server();
-    	int status = c.main("test.IceGrid.simple.Server", args);
+        Server c = new Server();
+        int status = c.main("test.IceGrid.simple.Server", args);
         
         System.gc();
         System.exit(status);

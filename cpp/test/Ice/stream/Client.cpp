@@ -150,7 +150,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
     communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());
     communicator->addObjectFactory(new MyInterfaceFactory, Test::MyInterface::ice_staticId());
-	
+        
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
     vector<Ice::Byte> data;

@@ -67,7 +67,7 @@ public sealed class PolicyServer : IDisposable
         Console.WriteLine("Policy Server started...");
         // Start policy response thread
         Thread policyThread = new Thread(ServePolicy);
-	policyThread.IsBackground = true;
+        policyThread.IsBackground = true;
         policyThread.Start();
         policyThread.Join();
     }

@@ -62,11 +62,11 @@ public class Client extends Ice.Application
             return 1;
         }
 
-	MyGreeting greeting = new MyGreeting();
-	greeting.text = "Hello there!";
-	MyGreeting nullGreeting = null;
+        MyGreeting greeting = new MyGreeting();
+        greeting.text = "Hello there!";
+        MyGreeting nullGreeting = null;
 
-	boolean sendNull = false;
+        boolean sendNull = false;
 
         menu();
 
@@ -86,14 +86,14 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("g"))
                 {
-		    if(sendNull)
-		    {
-			greet.sendGreeting(nullGreeting);
-		    }
-		    else
-		    {
-		        greet.sendGreeting(greeting);
-		    }
+                    if(sendNull)
+                    {
+                        greet.sendGreeting(nullGreeting);
+                    }
+                    else
+                    {
+                        greet.sendGreeting(greeting);
+                    }
                 }
                 else if(line.equals("t"))
                 {

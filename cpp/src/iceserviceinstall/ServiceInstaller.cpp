@@ -64,7 +64,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
     }
     else
     {
-	Ice::LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(
+        Ice::LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(
             _communicator->stringToProxy(_serviceProperties->getProperty("Ice.Default.Locator")));
         if(defaultLocator != 0)
         {

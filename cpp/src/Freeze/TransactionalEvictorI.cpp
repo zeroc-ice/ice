@@ -150,7 +150,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
 
     if(store->keepStats())
     {
-	currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
+        currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
     }
 
     Statistics stats = { currentTime };
@@ -160,7 +160,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
         
     if(store->keepStats())
     {
-	updateStats(rec.stats, currentTime);
+        updateStats(rec.stats, currentTime);
     }
 
     if(!store->insert(ident, rec, tx))
@@ -430,7 +430,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
    
     if(operationAttributes < 0)
     {
-	throw OperationNotExistException(__FILE__, __LINE__);
+        throw OperationNotExistException(__FILE__, __LINE__);
     }
              
     bool readOnly = (operationAttributes & 0x1) == 0;
@@ -477,7 +477,7 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
         default:
         {
             assert(0);
-	    throw OperationNotExistException(__FILE__, __LINE__);
+            throw OperationNotExistException(__FILE__, __LINE__);
         }
     }
     

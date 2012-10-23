@@ -834,7 +834,7 @@ namespace IceInternal
                     string s = "attempting to bind to udp socket " + Network.addrToString(_addr);
                     _logger.trace(_traceLevels.networkCat, s);
                 }
-		
+                
 #if !SILVERLIGHT
                 if(Network.isMulticast((IPEndPoint)_addr))
                 {

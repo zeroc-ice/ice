@@ -198,7 +198,7 @@ WarehouseClient::run(int argc, char* argv[])
         if(rpt > 0)
         {
             cout << "Reader " << i << ": " << rpt << " requests per second (" << 1000.0 / rpt
-		 << " ms per request)" << endl;
+                 << " ms per request)" << endl;
         }
     }
 

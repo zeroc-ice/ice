@@ -2205,10 +2205,10 @@ Slice::Container::checkIdentifier(const string& name) const
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
     for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
     {
-	if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
-	{
-	    _unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-	}
+        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        {
+            _unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
+        }
     }
 
     //

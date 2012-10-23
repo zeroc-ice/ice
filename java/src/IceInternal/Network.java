@@ -1096,14 +1096,14 @@ public final class Network
     private static boolean
     isValidAddr(java.net.InetAddress addr, int protocol)
     {
-	 byte[] bytes = null;
-	 if(addr != null)
-	 {
-	     bytes = addr.getAddress();
-	 }
-	 return bytes != null && 
-	       ((bytes.length == 16 && protocol == EnableIPv6) ||
-	        (bytes.length == 4 && protocol == EnableIPv4));
+         byte[] bytes = null;
+         if(addr != null)
+         {
+             bytes = addr.getAddress();
+         }
+         return bytes != null && 
+               ((bytes.length == 16 && protocol == EnableIPv6) ||
+                (bytes.length == 4 && protocol == EnableIPv4));
     }
 
     public static String

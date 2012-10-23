@@ -87,7 +87,7 @@ private:
     struct LockState
     {
 #   ifdef ICE_HAS_WIN32_CONDVAR
-	CRITICAL_SECTION* mutex;
+        CRITICAL_SECTION* mutex;
 #   endif 
     };
 #else

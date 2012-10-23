@@ -146,7 +146,7 @@ class MyObjectFactory implements Ice_ObjectFactory
         {
             return new FI();
         }
-	else if($id == "::Test::I")
+        else if($id == "::Test::I")
         {
             return new II();
         }

@@ -30,7 +30,7 @@ public class Client extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Client app = new Client();
+        Client app = new Client();
         int result = app.main("Client", args);
         System.gc();
         System.exit(result);

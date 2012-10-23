@@ -47,12 +47,12 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuffer message = new StringBuffer("found unknown IceMX properties for `");
-	    message.append(prefix.substring(0, prefix.length() - 1));
-	    message.append("':");
+            message.append(prefix.substring(0, prefix.length() - 1));
+            message.append("':");
             for(String p : unknownProps)
             {
-		message.append("\n    ");
-		message.append(p);
+                message.append("\n    ");
+                message.append(p);
             }
             Ice.Util.getProcessLogger().warning(message.toString());
         }

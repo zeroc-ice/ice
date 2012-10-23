@@ -413,7 +413,7 @@ TopicManagerImpl::create(const string& name)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     _instance->observers()->createTopic(llu, name);
@@ -529,7 +529,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     // We do this with two scans. The first runs through the topics
@@ -628,7 +628,7 @@ TopicManagerImpl::observerCreateTopic(const LogUpdate& llu, const string& name)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
     installTopic(name, id, true);
 }
@@ -716,7 +716,7 @@ TopicManagerImpl::getContent(LogUpdate& llu, TopicContentSeq& content)
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 }
 
@@ -803,7 +803,7 @@ TopicManagerImpl::initMaster(const set<GroupNodeInfo>& slaves, const LogUpdate& 
         catch(const DatabaseException& ex)
         {
             halt(_instance->communicator(), ex);
-        }	
+        }       
     }
 
     // Now initialize the observers.

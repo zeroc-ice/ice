@@ -41,7 +41,7 @@ public:
     virtual void invitation(int, const std::string&, const Ice::Current&);
     virtual void ready(int, const std::string&, const Ice::ObjectPrx&, int, Ice::Long, const Ice::Current&);
     virtual void accept(int, const std::string&, const Ice::IntSeq&, const Ice::ObjectPrx&, const LogUpdate&, int,
-			const Ice::Current&);
+                        const Ice::Current&);
     virtual bool areYouCoordinator(const Ice::Current&) const;
     virtual bool areYouThere(const std::string&, int, const Ice::Current&) const;
     virtual Ice::ObjectPrx sync(const Ice::Current&) const;

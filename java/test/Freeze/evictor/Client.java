@@ -579,17 +579,17 @@ public class Client extends test.Util.Application
         {
         }
 
-	//
-	// Call an operation that does not exist on the servant
-	//    
-	try
-	{
-	    int balance = AccountPrxHelper.uncheckedCast(servants[0]).getBalance();
-	    test(false);
-	}
-	catch(Ice.OperationNotExistException ex)
-	{
-	}
+        //
+        // Call an operation that does not exist on the servant
+        //    
+        try
+        {
+            int balance = AccountPrxHelper.uncheckedCast(servants[0]).getBalance();
+            test(false);
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
 
         //
         // Remove all facets

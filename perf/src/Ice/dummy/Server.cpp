@@ -73,7 +73,7 @@ main(int argc, char* argv[])
     if(fd == INVALID_SOCKET)
     {
         cerr << "Create socket failed! " << WSAGetLastError() << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     struct sockaddr_in addr;
@@ -85,13 +85,13 @@ main(int argc, char* argv[])
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
         cerr << "Bind failed!" << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     if(::listen(fd, 5) == SOCKET_ERROR)
     {
         cerr << "Listen failed!" << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     cout << "Latency ready" << endl;
@@ -100,7 +100,7 @@ main(int argc, char* argv[])
     if(fd2 == INVALID_SOCKET)
     {
         cerr << "Accept failed!" << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     if(::send(fd2, validate, 14, 0) != 14)
@@ -123,10 +123,10 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-	for(unsigned int i = 0; i < sizeof(int); ++i)
-	{
-	    response[i + 14] = buffer[i];
-	}
+        for(unsigned int i = 0; i < sizeof(int); ++i)
+        {
+            response[i + 14] = buffer[i];
+        }
 
         if(::send(fd2, response, 25, 0) != 25)
         {

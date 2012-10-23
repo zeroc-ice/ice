@@ -323,7 +323,7 @@ public:
             if(_test.server)
             {
                 printLineToConsoleOutput("*** running test " + _test.name);
-                runClientServerTest(_test.server, _test.client);	
+                runClientServerTest(_test.server, _test.client);        
                 printLineToConsoleOutput("");
             }
             else
@@ -454,7 +454,7 @@ MainPage::MainPage()
 void 
 MainPage::OnNavigatedTo(NavigationEventArgs^ e)
 {
-    (void) e;	// Unused parameter
+    (void) e;   // Unused parameter
 }
 
 
@@ -515,5 +515,5 @@ MainPage::runSelectedTest()
 
     TestRunnerPtr t = new TestRunner(allTest[TestList->SelectedIndex], config);
     t->start();
-	t->getThreadControl().detach();
+        t->getThreadControl().detach();
 }

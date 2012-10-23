@@ -1480,7 +1480,7 @@ ServerI::adapterDeactivated(const string& id)
         Lock sync(*this);
         while(_state == ServerI::Activating)
         {
-	    wait(); // Wait for activate() to set the state to WaitForActivation
+            wait(); // Wait for activate() to set the state to WaitForActivation
         }
 
         if((_state == Active || _state == WaitForActivation) &&
@@ -2547,11 +2547,11 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool update
         }
 
 
-	if(pw->pw_uid == 0 &&
-	   _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") == 0)
-	{
-	    throw "running server as `root' is not allowed";
-	}
+        if(pw->pw_uid == 0 &&
+           _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") == 0)
+        {
+            throw "running server as `root' is not allowed";
+        }
 
         if(update)
         {

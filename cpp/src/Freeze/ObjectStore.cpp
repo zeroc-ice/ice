@@ -62,13 +62,13 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
     if(p != catalog.end())
     {
         if(p->second.evictor)
-	{
-	    //
-	    // empty means the value is ::Freeze::ObjectRecord
-	    //
-	    _keepStats = p->second.value.empty();
-	}
-	else
+        {
+            //
+            // empty means the value is ::Freeze::ObjectRecord
+            //
+            _keepStats = p->second.value.empty();
+        }
+        else
         {
             DatabaseException ex(__FILE__, __LINE__);
             ex.message = evictor->filename() + " is not an evictor database";
@@ -149,8 +149,8 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
         {
             CatalogData catalogData;
             catalogData.evictor = true;
-	    catalogData.key = "Ice::Identity";
-	    catalogData.value = "Object";
+            catalogData.key = "Ice::Identity";
+            catalogData.value = "Object";
             catalog.put(Catalog::value_type(evictor->filename(), catalogData));
         }
 
@@ -214,8 +214,8 @@ Freeze::ObjectStoreBase::~ObjectStoreBase()
     }
     catch(const DbException& dx)
     {
-	Ice::Error error(_communicator->getLogger());
-	error << "Freeze: closing ObjectStore " << _dbName << " raised DbException: " << dx.what();
+        Ice::Error error(_communicator->getLogger());
+        error << "Freeze: closing ObjectStore " << _dbName << " raised DbException: " << dx.what();
     }
 }
     
@@ -358,7 +358,7 @@ Freeze::ObjectStoreBase::marshal(const ObjectRecord& v,
                                  Value& bytes, 
                                  const CommunicatorPtr& communicator,
                                  const EncodingVersion& encoding,
-				 bool keepStats)
+                                 bool keepStats)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
@@ -369,7 +369,7 @@ Freeze::ObjectStoreBase::marshal(const ObjectRecord& v,
     }
     else
     {
-	stream.write(v.servant);
+        stream.write(v.servant);
     }
 
     stream.writePendingObjects();
@@ -382,7 +382,7 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
                                    const Value& bytes,
                                    const CommunicatorPtr& communicator,
                                    const EncodingVersion& encoding,
-				   bool keepStats)
+                                   bool keepStats)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get(), encoding, true);
@@ -398,7 +398,7 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v,
     }
     else
     {
-	stream.read(v.servant);
+        stream.read(v.servant);
     }
     
     stream.readPendingObjects();

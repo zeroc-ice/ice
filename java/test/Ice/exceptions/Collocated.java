@@ -14,7 +14,7 @@ public class Collocated extends test.Util.Application
     public int
     run(String[] args)
     {
-    	Ice.Communicator communicator = communicator();
+        Ice.Communicator communicator = communicator();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ThrowerI();
         adapter.add(object, communicator.stringToIdentity("thrower"));
@@ -36,7 +36,7 @@ public class Collocated extends test.Util.Application
     public static void
     main(String[] args)
     {
-    	Collocated app = new Collocated();
+        Collocated app = new Collocated();
         int result = app.main("Collocated", args);
         System.gc();
         System.exit(result);

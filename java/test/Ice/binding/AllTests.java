@@ -102,7 +102,7 @@ public class AllTests
         String ref = "communicator:default -p 12010";
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
-		out.print("testing binding with single endpoint... ");
+                out.print("testing binding with single endpoint... ");
         out.flush();
         {
             RemoteObjectAdapterPrx adapter = com.createObjectAdapter("Adapter", "default");

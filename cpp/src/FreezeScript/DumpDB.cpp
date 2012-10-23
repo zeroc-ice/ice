@@ -357,8 +357,8 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
     if(inputFile.empty())
     {
         const string evictorKeyTypeName = "::Ice::Identity";
-	const string oldEvictorValueTypeName = "::Freeze::ObjectRecord";
-	const string newEvictorValueTypeName = "Object";
+        const string oldEvictorValueTypeName = "::Freeze::ObjectRecord";
+        const string newEvictorValueTypeName = "Object";
 
         if((!keyTypeName.empty() && valueTypeName.empty()) || (keyTypeName.empty() && !valueTypeName.empty() && !evictor))
         {
@@ -388,32 +388,32 @@ run(const Ice::StringSeq& originalArgs, const Ice::CommunicatorPtr& communicator
                     {
                         evictor = true;
                     }
-		    keyTypeName = p->second.key;
-		    valueTypeName = p->second.value;
+                    keyTypeName = p->second.key;
+                    valueTypeName = p->second.value;
 
-		    if(evictor && valueTypeName.empty())
-		    {
-			valueTypeName = oldEvictorValueTypeName;
-		    }
+                    if(evictor && valueTypeName.empty())
+                    {
+                        valueTypeName = oldEvictorValueTypeName;
+                    }
                 }
             }
             catch(const FreezeScript::FailureException& ex)
             {
-		cerr << appName << ": " << ex.reason() << endl;
-		return EXIT_FAILURE;
+                cerr << appName << ": " << ex.reason() << endl;
+                return EXIT_FAILURE;
             }
         }
 
         if(evictor)
         {
-	    if(keyTypeName.empty())
-	    {
-		keyTypeName = evictorKeyTypeName;
-	    }
-	    if(valueTypeName.empty())
-	    {
-		valueTypeName = newEvictorValueTypeName;
-	    }
+            if(keyTypeName.empty())
+            {
+                keyTypeName = evictorKeyTypeName;
+            }
+            if(valueTypeName.empty())
+            {
+                valueTypeName = newEvictorValueTypeName;
+            }
         }
 
         Slice::TypePtr keyType, valueType;

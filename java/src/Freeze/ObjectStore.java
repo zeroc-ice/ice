@@ -22,7 +22,7 @@ class ObjectStore implements IceUtil.Store
         _indices = indices;
         _communicator = evictor.communicator();
         _encoding = evictor.encoding();
-	_keepStats = false;
+        _keepStats = false;
 
         if(facet.equals(""))
         {
@@ -56,18 +56,18 @@ class ObjectStore implements IceUtil.Store
             CatalogData catalogData = catalog.get(evictor.filename());
 
             if(catalogData != null)
-	    {
-		if(catalogData.evictor)
-		{
-		    _keepStats = catalogData.value.isEmpty();
-		}
-		else
-		{
-		    DatabaseException ex = new DatabaseException();
-		    ex.message = _evictor.errorPrefix() + evictor.filename() + " is not an evictor database";
-		    throw ex;
-		}
-	    }
+            {
+                if(catalogData.evictor)
+                {
+                    _keepStats = catalogData.value.isEmpty();
+                }
+                else
+                {
+                    DatabaseException ex = new DatabaseException();
+                    ex.message = _evictor.errorPrefix() + evictor.filename() + " is not an evictor database";
+                    throw ex;
+                }
+            }
 
             com.sleepycat.db.Environment dbEnv = evictor.dbEnv().getEnv();
 
@@ -329,14 +329,14 @@ class ObjectStore implements IceUtil.Store
             new IceInternal.BasicStream(IceInternal.Util.getInstance(communicator), encoding, true, false);
         os.startWriteEncaps();
 
-	if(keepStats)
-	{
-	    v.__write(os);
-	}
-	else
-	{
-	    os.writeObject(v.servant);
-	}
+        if(keepStats)
+        {
+            v.__write(os);
+        }
+        else
+        {
+            os.writeObject(v.servant);
+        }
         os.writePendingObjects();
         os.endWriteEncaps();
         IceInternal.Buffer buf = os.prepareWrite();
@@ -358,18 +358,18 @@ class ObjectStore implements IceUtil.Store
         buf.b.position(0);
         ObjectRecord rec = new ObjectRecord();
         is.startReadEncaps();
-	if(keepStats)
-	{
-	    rec.__read(is);
-	    is.readPendingObjects();
-	}
-	else
-	{
-	    Ice.ObjectHolder holder = new Ice.ObjectHolder();
-	    is.readObject(holder);
-	    is.readPendingObjects();
-	    rec.servant = holder.value;
-	}
+        if(keepStats)
+        {
+            rec.__read(is);
+            is.readPendingObjects();
+        }
+        else
+        {
+            Ice.ObjectHolder holder = new Ice.ObjectHolder();
+            is.readObject(holder);
+            is.readPendingObjects();
+            rec.servant = holder.value;
+        }
         is.endReadEncaps();
         return rec;
     }
@@ -401,7 +401,7 @@ class ObjectStore implements IceUtil.Store
     final boolean
     keepStats()
     {
-	return _keepStats;
+        return _keepStats;
     }
 
     final EvictorI
@@ -567,7 +567,7 @@ class ObjectStore implements IceUtil.Store
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(marshalValue(objectRecord, 
                                                                                                  _communicator,
                                                                                                  _encoding,
-												 _keepStats));
+                                                                                                 _keepStats));
 
         try
         {

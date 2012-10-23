@@ -224,7 +224,7 @@ public class SessionFactoryHelper
     synchronized public void
     setConnectContext(final java.util.Map<String, String> context)
     {
-	_context = context;
+        _context = context;
     }
 
     /**

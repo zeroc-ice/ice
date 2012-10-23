@@ -26,11 +26,11 @@ public:
     waitFinished()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_finished)
-	{
-	    wait();
-	}
-	_finished = false;
+        while(!_finished)
+        {
+            wait();
+        }
+        _finished = false;
     }
 
 private:
@@ -38,9 +38,9 @@ private:
     ice_response()
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_finished);
-	_finished = true;
-	notify();
+        assert(!_finished);
+        _finished = true;
+        notify();
     }
 
     virtual void 
@@ -58,35 +58,35 @@ class AMI_Latency_withDataI : public Demo::AMI_Latency_withData, IceUtil::Monito
 {
 public:
     AMI_Latency_withDataI() :
-	_finished(false)
+        _finished(false)
     {
     }
 
     void 
     waitFinished()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_finished)
-	{
-	    wait();
-	}
-	_finished = false;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        while(!_finished)
+        {
+            wait();
+        }
+        _finished = false;
     }
     
 private:
     virtual void
     ice_response()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_finished);
-	_finished = true;
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        assert(!_finished);
+        _finished = true;
+        notify();
     }
 
     virtual void
     ice_exception(const ::Ice::Exception&)
     {
-	assert(false);
+        assert(false);
     }
 
     bool _finished;
@@ -98,7 +98,7 @@ class TestAdapter
 {
 public:
     TestAdapter(const LatencyPrx prx) :
-	_prx(prx)
+        _prx(prx)
     {
     }
 
@@ -111,7 +111,7 @@ public:
     virtual void 
     flush()
     {
-	_prx->ice_getConnection()->flushBatchRequests();
+        _prx->ice_getConnection()->flushBatchRequests();
     }
 
 protected:
@@ -122,22 +122,22 @@ class NoPayload : public TestAdapter
 { 
 public:
     NoPayload(const LatencyPrx prx):
-	TestAdapter(prx),
-	_cb(new AMI_Latency_pingI)
+        TestAdapter(prx),
+        _cb(new AMI_Latency_pingI)
     {
     }
 
     virtual void 
     doIt()
     {
-	_prx->ping();
+        _prx->ping();
     }
 
     virtual void 
     doItAsync()
     {
-	_prx->ping_async(_cb);
-	_cb->waitFinished();
+        _prx->ping_async(_cb);
+        _cb->waitFinished();
     }
 
 private:
@@ -148,25 +148,25 @@ class WithPayload : public TestAdapter
 {
 public:
     WithPayload(const LatencyPrx prx, const long payLoadSize):
-	TestAdapter(prx), _payload(payLoadSize), _cb(new AMI_Latency_withDataI) 
+        TestAdapter(prx), _payload(payLoadSize), _cb(new AMI_Latency_withDataI) 
     {
-	for(long i = 0; i < payLoadSize; ++i)
-	{
-	    _payload[i] = '0' + (char)(i % 10);
-	}
+        for(long i = 0; i < payLoadSize; ++i)
+        {
+            _payload[i] = '0' + (char)(i % 10);
+        }
     }
 
     virtual void 
     doIt()
     {
-	_prx->withData(_payload);
+        _prx->withData(_payload);
     }
 
     virtual void 
     doItAsync()
     {
-	_prx->withData_async(_cb, _payload);
-	_cb->waitFinished();
+        _prx->withData_async(_cb, _payload);
+        _cb->waitFinished();
     }
 
 private:
@@ -179,11 +179,11 @@ createAdapter(const LatencyPrx prx, const long payLoadSize)
 {
     if(payLoadSize > 0)
     {
-	return new WithPayload(prx, payLoadSize);
+        return new WithPayload(prx, payLoadSize);
     }
     else
     {
-	return new NoPayload(prx);
+        return new NoPayload(prx);
     }
     return 0;
 }
@@ -200,49 +200,49 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     for(i = 0; i < argc; i++)
     {
-	if(strcmp(argv[i], "oneway") == 0)
-	{
-	    oneway = true;
-	}
-	else if(strcmp(argv[i], "batch") == 0)
-	{
-	    batch = true;
-	}
-	else if(strcmp(argv[i], "twoway") == 0)
-	{
-	    twoway = true;
-	}
-	else if(strcmp(argv[i], "ami") == 0)
-	{
-	    ami = true;
-	}
-	else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
-	{
-	    payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
-	    if(errno == ERANGE)
-	    {
-		cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
-		return EXIT_FAILURE;
-	    }
-	}
+        if(strcmp(argv[i], "oneway") == 0)
+        {
+            oneway = true;
+        }
+        else if(strcmp(argv[i], "batch") == 0)
+        {
+            batch = true;
+        }
+        else if(strcmp(argv[i], "twoway") == 0)
+        {
+            twoway = true;
+        }
+        else if(strcmp(argv[i], "ami") == 0)
+        {
+            ami = true;
+        }
+        else if(strncmp(argv[i], "--payload=", strlen("--payload=")) == 0)
+        {
+            payLoadSize = strtol(argv[i] + strlen("--payload="), 0, 10);
+            if(errno == ERANGE)
+            {
+                cerr << argv[0] << ": payload argument range error: " << argv[i] << endl;
+                return EXIT_FAILURE;
+            }
+        }
     }
     if(!oneway && !twoway && !batch)
     {
-	twoway = true;
+        twoway = true;
     }
 
     int repetitions = 0;
     if(twoway)
     {
-	repetitions = 100000;
+        repetitions = 100000;
     }
     else if(oneway)
     {
-	repetitions = 500000;
+        repetitions = 500000;
     }
     else if(batch)
     {
-	repetitions = 1000000;
+        repetitions = 1000000;
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
@@ -251,16 +251,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(proxy.empty())
     {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     LatencyPrx latency = LatencyPrx::uncheckedCast(base);
     if(!latency)
     {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     // Initial ping to setup the connection.
@@ -275,66 +275,66 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     TestAdapter* adapter = 0;
     try
     {
-	if(batch)
-	{
-	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_batchOneway()), payLoadSize);
-	}
-	else if(oneway)
-	{
-	    adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_oneway()), payLoadSize);
-	}
-	else
-	{
-	    adapter = createAdapter(latency, payLoadSize);
-	}
+        if(batch)
+        {
+            adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_batchOneway()), payLoadSize);
+        }
+        else if(oneway)
+        {
+            adapter = createAdapter(LatencyPrx::uncheckedCast(base->ice_oneway()), payLoadSize);
+        }
+        else
+        {
+            adapter = createAdapter(latency, payLoadSize);
+        }
 
-	//
-	// MAIN TEST LOOP.
-	//
-	IceUtil::Time tm = IceUtil::Time::now();
-	for(i = 0; i < repetitions; ++i)
-	{
-	    if(batch)
-	    {
-		if(i != 0 && i % 100 == 0)
-		{
-		    adapter->flush();
-		}
-	    }
-	    if(ami)
-	    {
-		adapter->doItAsync();
-	    }
-	    else
-	    {
-		adapter->doIt();
-	    }
-	}
-	// 
-	// END OF MAIN TEST LOOP
-	//
+        //
+        // MAIN TEST LOOP.
+        //
+        IceUtil::Time tm = IceUtil::Time::now();
+        for(i = 0; i < repetitions; ++i)
+        {
+            if(batch)
+            {
+                if(i != 0 && i % 100 == 0)
+                {
+                    adapter->flush();
+                }
+            }
+            if(ami)
+            {
+                adapter->doItAsync();
+            }
+            else
+            {
+                adapter->doIt();
+            }
+        }
+        // 
+        // END OF MAIN TEST LOOP
+        //
 
-	//
-	// Tidy up laggart requests.
-	//
-	if(oneway || batch)
-	{
-	    if(batch)
-	    {
-		adapter->flush();
-	    }
-	    latency->ping();
-	}
+        //
+        // Tidy up laggart requests.
+        //
+        if(oneway || batch)
+        {
+            if(batch)
+            {
+                adapter->flush();
+            }
+            latency->ping();
+        }
 
-	IcePerf::TestPrinter formatter;
-	formatter.fmt(cout, "Ice", "latency", IceUtil::Time::now() - tm, repetitions, payLoadSize * sizeof(Ice::Byte), argc, argv);
-	latency->shutdown();
-	delete adapter;
+        IcePerf::TestPrinter formatter;
+        formatter.fmt(cout, "Ice", "latency", IceUtil::Time::now() - tm, repetitions, payLoadSize * sizeof(Ice::Byte), argc, argv);
+        latency->shutdown();
+        delete adapter;
     }
     catch(...)
     {
-	delete adapter;
-	throw;
+        delete adapter;
+        throw;
     }
     return EXIT_SUCCESS;
 }
@@ -347,29 +347,29 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
         initData.properties->load("config");
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

@@ -19,7 +19,7 @@ public class HelloI : HelloDisp_
     public override void sayHello(Ice.Current current)
     {
 #if COMPACT || SILVERLIGHT
-	string lang = "en";
+        string lang = "en";
 #else
         string lang = System.Environment.GetEnvironmentVariable("LANG") != null ? 
                                                             System.Environment.GetEnvironmentVariable("LANG") : "en";

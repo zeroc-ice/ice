@@ -242,13 +242,13 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
    
     if(!ok)
     {
-	DWORD err = GetLastError();
-	
-	if(err != ERROR_TIMEOUT)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, err);
-	}
-	return false;
+        DWORD err = GetLastError();
+        
+        if(err != ERROR_TIMEOUT)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, err);
+        }
+        return false;
     }
     return true;
 }

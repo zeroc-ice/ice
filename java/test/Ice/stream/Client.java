@@ -173,7 +173,7 @@ public class Client extends test.Util.Application
     public int
     run(String[] args)
     {
-    	Ice.Communicator comm = communicator();
+        Ice.Communicator comm = communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
         comm.addObjectFactory(factoryWrapper, MyClass.ice_staticId());
         comm.addObjectFactory(new MyInterfaceFactory(), _MyInterfaceDisp.ice_staticId());

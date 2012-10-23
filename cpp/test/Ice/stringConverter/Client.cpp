@@ -86,11 +86,11 @@ main(int argc, char* argv[])
 #elif defined(__hpux)
     if(useLocale)
     {
-	initData.stringConverter = new Ice::IconvStringConverter<char>;
+        initData.stringConverter = new Ice::IconvStringConverter<char>;
     }
     else
     {
-	initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
+        initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
     }
     initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("ucs4");  
 #else
@@ -98,12 +98,12 @@ main(int argc, char* argv[])
     if(useLocale)
     {
 #ifndef _WIN32
-	initData.stringConverter = new Ice::IconvStringConverter<char>;
+        initData.stringConverter = new Ice::IconvStringConverter<char>;
 #endif
     }
     else
     {
-	initData.stringConverter = new Ice::IconvStringConverter<char>("ISO8859-15");
+        initData.stringConverter = new Ice::IconvStringConverter<char>("ISO8859-15");
     }
 
     if(sizeof(wchar_t) == 4)

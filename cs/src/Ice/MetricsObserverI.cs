@@ -45,7 +45,7 @@ namespace IceMX
                     catch(Exception ex)
                     {
 #if COMPACT
-			throw new ArgumentOutOfRangeException(_name, ex.ToString());
+                        throw new ArgumentOutOfRangeException(_name, ex.ToString());
 #else
                         throw new ArgumentOutOfRangeException(_name, ex);
 #endif
@@ -402,7 +402,7 @@ namespace IceMX
 #if COMPACT
             Ice.VoidAction updater;
 #else
-	    System.Action updater;	
+            System.Action updater;      
 #endif
             lock(this)
             {
@@ -424,7 +424,7 @@ namespace IceMX
 #if COMPACT
         public void setUpdater(Ice.VoidAction updater)
 #else
-	public void setUpdater(System.Action updater)
+        public void setUpdater(System.Action updater)
 #endif
         {
             lock(this)
@@ -440,7 +440,7 @@ namespace IceMX
 #if COMPACT
         private Ice.VoidAction _updater;
 #else
-	private System.Action _updater;
+        private System.Action _updater;
 #endif
     };
 }

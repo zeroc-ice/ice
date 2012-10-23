@@ -21,9 +21,9 @@ public:
     int run(int argc, char* argv[]);
 
     virtual void push(const CORBA::Any &event ACE_ENV_ARG_DECL_NOT_USED)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
     virtual void disconnect_push_consumer(ACE_ENV_SINGLE_ARG_DECL_NOT_USED)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
 private:
     

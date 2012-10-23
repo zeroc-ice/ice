@@ -437,8 +437,8 @@ namespace IceInternal
                     for(int idx = 0; idx < sz; ++idx)
                     {
                         msg.Append(" `");
-			msg.Append((string)unknownEndpoints[idx]);
-			msg.Append("'");
+                        msg.Append((string)unknownEndpoints[idx]);
+                        msg.Append("'");
                     }
                     instance_.initializationData().logger.warning(msg.ToString());
                 }
@@ -700,12 +700,12 @@ namespace IceInternal
             if(unknownProps.Count != 0)
             {
                 StringBuilder message = new StringBuilder("found unknown properties for proxy '");
-		message.Append(prefix);
-		message.Append("':");
+                message.Append(prefix);
+                message.Append("':");
                 foreach(string s in unknownProps)
                 {
                     message.Append("\n    ");
-		    message.Append(s);
+                    message.Append(s);
                 }
                 instance_.initializationData().logger.warning(message.ToString());
             }

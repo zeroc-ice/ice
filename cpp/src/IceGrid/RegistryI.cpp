@@ -348,11 +348,11 @@ RegistryI::startImpl()
     registryTopicManagerId.category = _instanceName;
     registryTopicManagerId.name = "RegistryTopicManager";
     _iceStorm = IceStormInternal::Service::create(_communicator, 
-					          registryAdapter, 
-                                          	  registryAdapter, 
-                                          	  "IceGrid.Registry", 
-                                          	  registryTopicManagerId,
-                                          	  "Registry");
+                                                  registryAdapter, 
+                                                  registryAdapter, 
+                                                  "IceGrid.Registry", 
+                                                  registryTopicManagerId,
+                                                  "Registry");
     const IceStorm::TopicManagerPrx topicManager = _iceStorm->getTopicManager();
 
     //

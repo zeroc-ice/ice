@@ -65,7 +65,7 @@ private:
 
 IceInternal::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Short type, const string& ho, Int po, 
                                               Int ti, const Ice::ProtocolVersion& protocol, 
-					      const Ice::EncodingVersion& encoding, const string& conId, bool co) :
+                                              const Ice::EncodingVersion& encoding, const string& conId, bool co) :
     EndpointI(protocol, encoding, conId),
     _instance(instance),
     _type(type),

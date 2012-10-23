@@ -67,7 +67,7 @@ public:
 
     class Tx
 #ifndef ICE_CPP11 
-	: public IceUtil::SimpleShared
+        : public IceUtil::SimpleShared
 #endif
     {
     public:

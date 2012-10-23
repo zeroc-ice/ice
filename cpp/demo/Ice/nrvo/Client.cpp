@@ -69,59 +69,59 @@ NrvoClient::run(int argc, char* argv[])
             cout << "==> ";
             cin >> c;
 
-	    switch(c)
-	    {
-		case '1':
-		{
-		    cout << "calling op1" << endl;
-		    MyStringSeq seq = nrvo->op1();
-		    break;
-		}
+            switch(c)
+            {
+                case '1':
+                {
+                    cout << "calling op1" << endl;
+                    MyStringSeq seq = nrvo->op1();
+                    break;
+                }
 
-		case '2':
-		{
-		    cout << "calling op2" << endl;
-		    MyStringSeq seq = nrvo->op2();
-		    break;
-		}
+                case '2':
+                {
+                    cout << "calling op2" << endl;
+                    MyStringSeq seq = nrvo->op2();
+                    break;
+                }
 
-		case '3':
-		{
-		    cout << "calling op3(10)" << endl;
-		    MyStringSeq seq = nrvo->op3(10);
-		    break;
-		}
+                case '3':
+                {
+                    cout << "calling op3(10)" << endl;
+                    MyStringSeq seq = nrvo->op3(10);
+                    break;
+                }
 
-		case '4':
-		{
-		    cout << "calling op3(0)" << endl;
-		    MyStringSeq seq = nrvo->op3(0);
-		    break;
-		}
+                case '4':
+                {
+                    cout << "calling op3(0)" << endl;
+                    MyStringSeq seq = nrvo->op3(0);
+                    break;
+                }
 
-		case 's':
-		{
-		    nrvo->shutdown();
-		    break;
-		}
+                case 's':
+                {
+                    nrvo->shutdown();
+                    break;
+                }
 
-		case '?':
-		{
-		    menu();
-		    break;
-		}
+                case '?':
+                {
+                    menu();
+                    break;
+                }
 
-		case 'x':
-		{
-		    break;
-		}
-		default:
-		{
-		    cout << "unknown command `" << c << "'" << endl;
-		    menu();
-		    break;
-		}
-	    }
+                case 'x':
+                {
+                    break;
+                }
+                default:
+                {
+                    cout << "unknown command `" << c << "'" << endl;
+                    menu();
+                    break;
+                }
+            }
         }
         catch(const Ice::Exception& ex)
         {

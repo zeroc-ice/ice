@@ -622,8 +622,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         {
             if(_tables.get(entry.getKey()) != null)
             {
-		        continue;
-	        }
+                        continue;
+                }
 
             IceMX.Metrics[] objects = entry.getValue();
             if(objects == null || objects.length == 0)
@@ -972,10 +972,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return false;
         }
 
-	    public Class getColumnClass(int index)
-	    {
-	        return _fields.get(index).getColumnClass();
-	    }
+            public Class getColumnClass(int index)
+            {
+                return _fields.get(index).getColumnClass();
+            }
 
         public Map<Integer, MetricsField> getMetricFields()
         {
@@ -1032,7 +1032,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         //
         // Name for display.
         //
-	    public String getColumnName();
+            public String getColumnName();
 
         //
         // ToolTip
@@ -1042,7 +1042,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         //
         // The Java class correspoding to the field, is used in the table models.
         //
-	    public Class getColumnClass();
+            public Class getColumnClass();
 
         //
         // Renderer used by JTable to render the field.
@@ -1052,7 +1052,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         //
         // Return the value of the field for the given metrics object.
         //
-	    public Object getValue(IceMX.Metrics m, long timestamp);
+            public Object getValue(IceMX.Metrics m, long timestamp);
 
         //
         // Set up a field identical to this but without the transient data.
@@ -1224,10 +1224,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             _cellRenderer = new FormatedNumberRenderer(format);
         }
 
-	    public Class getColumnClass()
-	    {
-	        return Float.class;
-	    }
+            public Class getColumnClass()
+            {
+                return Float.class;
+            }
 
         public TableCellRenderer getCellRenderer()
         {
@@ -1259,8 +1259,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             }
         } 
 
-	    private double _scaleFactor = 1.0d;
-	    private String _columnName;
+            private double _scaleFactor = 1.0d;
+            private String _columnName;
         private TableCellRenderer _cellRenderer;
         private final Map<String, IceMX.Metrics> _deltas = new HashMap<String, IceMX.Metrics>();
     }
@@ -1275,10 +1275,10 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
     {
         public DeltaAverageMetricsField(MetricsView node, String prefix, String metricsName, String fieldName,
                                         Field field)
-	    {
+            {
             super(node, prefix, metricsName, fieldName, field);
             setFormat("#0.000"); // Set the default format
-	    }
+            }
 
         public void setFormat(String format)
         {
@@ -1407,8 +1407,8 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             return _cellRenderer;
         }
 
-	    public Object getValue(final IceMX.Metrics m, long timestamp)
-	    {
+            public Object getValue(final IceMX.Metrics m, long timestamp)
+            {
             JButton button = new JButton(Integer.toString(m.failures));
             if(m.failures > 0)
             {
@@ -1520,7 +1520,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                 button.setEnabled(false);
             }
             return button;
-	    }
+            }
 
         private static final TableCellRenderer _cellRenderer = new ButtonRenderer();
     }

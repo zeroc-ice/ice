@@ -49,7 +49,7 @@ namespace IceSSL
             if(_instance.networkTraceLevel() >= 1)
             {
                 StringBuilder s = new StringBuilder("listening for ssl connections at ");
-		s.Append(ToString());
+                s.Append(ToString());
 
                 List<string> interfaces = 
                     IceInternal.Network.getHostsForEndpointExpand(_addr.Address.ToString(), 

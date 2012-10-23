@@ -231,7 +231,7 @@ stringToSignal(const string& str)
     }
     else
 #endif
-	if(str == ICE_STRING(SIGKILL))
+        if(str == ICE_STRING(SIGKILL))
     {
         return SIGKILL;
     }
@@ -248,10 +248,10 @@ stringToSignal(const string& str)
             if(*end == '\0' && signal > 0 && signal < 64)
             {
 #ifdef _WIN32
-		if(signal == SIGKILL || signal == SIGTERM)
-		{
-		    return static_cast<int>(signal);
-		}
+                if(signal == SIGKILL || signal == SIGTERM)
+                {
+                    return static_cast<int>(signal);
+                }
 #else
                 return static_cast<int>(signal);
 #endif

@@ -1804,7 +1804,7 @@ Slice::StartPageGenerator::printHeaderFooter()
 
     if(!imageDir.empty())
     {
-	start("td align=\"right\"");
+        start("td align=\"right\"");
         start("table");
         start("tr");
         start("td");
@@ -1821,7 +1821,7 @@ Slice::StartPageGenerator::printHeaderFooter()
         end(); // td
         end(); // tr
         end(); // table
-	end(); // td
+        end(); // td
     }
 
     end(); // tr

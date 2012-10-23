@@ -302,7 +302,7 @@ public:
 
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
                                         const ::Ice::CallbackPtr& __del,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
         return begin_ice_isA(typeId, 0, __del, __cookie);
     }
@@ -310,14 +310,14 @@ public:
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
                                         const ::Ice::Context& __ctx,
                                         const ::Ice::CallbackPtr& __del,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
         return begin_ice_isA(typeId, &__ctx, __del, __cookie);
     }
 
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
                                         const ::Ice::Callback_Object_ice_isAPtr& __del,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
         return begin_ice_isA(typeId, 0, __del, __cookie);
     }
@@ -325,7 +325,7 @@ public:
     ::Ice::AsyncResultPtr begin_ice_isA(const ::std::string& typeId,
                                         const ::Ice::Context& __ctx,
                                         const ::Ice::Callback_Object_ice_isAPtr& __del,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
         return begin_ice_isA(typeId, &__ctx, __del, __cookie);
     }
@@ -481,7 +481,7 @@ public:
 
     ::Ice::AsyncResultPtr begin_ice_ids(const ::Ice::Context& __ctx,
                                         const ::Ice::CallbackPtr& __del,
-					const ::Ice::LocalObjectPtr& __cookie = 0)
+                                        const ::Ice::LocalObjectPtr& __cookie = 0)
     {
         return begin_ice_ids(&__ctx, __del, __cookie);
     }

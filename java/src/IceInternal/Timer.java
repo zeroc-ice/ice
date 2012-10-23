@@ -290,25 +290,25 @@ public final class Timer extends Thread
             return 0;
         }
 
-	public boolean
-	equals(Object obj)
-	{
-	    if(this == obj)
-	    {
-	        return true;
-	    }
-	    if(obj instanceof Token)
-	    {
-		return compareTo((Token)obj) == 0;
-	    }
-	    return false;
-	}
+        public boolean
+        equals(Object obj)
+        {
+            if(this == obj)
+            {
+                return true;
+            }
+            if(obj instanceof Token)
+            {
+                return compareTo((Token)obj) == 0;
+            }
+            return false;
+        }
 
-	public int
-	hashCode()
-	{
-	     return id ^ (int)scheduledTime;
-	}
+        public int
+        hashCode()
+        {
+             return id ^ (int)scheduledTime;
+        }
 
         long scheduledTime;
         int id; // Since we can't compare references, we need to use another id.

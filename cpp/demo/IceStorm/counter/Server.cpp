@@ -43,7 +43,7 @@ Server::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-    	communicator()->propertyToProxy("TopicManager.Proxy"));
+        communicator()->propertyToProxy("TopicManager.Proxy"));
     if(!manager)
     {
         cerr << appName() << ": invalid proxy" << endl;

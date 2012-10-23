@@ -27,9 +27,9 @@ struct Property
     const char* deprecatedBy;
 
     Property(const char* n, bool d, const char* b) :
-	pattern(n),
-	deprecated(d),
-	deprecatedBy(b)
+        pattern(n),
+        deprecated(d),
+        deprecatedBy(b)
     {
     }
 

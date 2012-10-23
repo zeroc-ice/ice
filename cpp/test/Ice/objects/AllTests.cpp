@@ -98,8 +98,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     AbstractBasePtr abp1 = new AbstractBaseI;
     try
     {
-	abp1->ice_clone();
-	test(false);
+        abp1->ice_clone();
+        test(false);
     }
     catch(const Ice::CloneNotImplementedException&)
     {

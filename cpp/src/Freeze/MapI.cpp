@@ -376,7 +376,7 @@ Freeze::IteratorHelperI::IteratorHelperI(const MapHelperI& m, bool readOnly,
 #ifdef ICE_CPP11
         _tx.reset(new Tx(_map));
 #else
-	_tx = new Tx(_map);
+        _tx = new Tx(_map);
 #endif
         txn = _tx->getTxn();
     }
@@ -1045,12 +1045,12 @@ Freeze::MapHelperI::~MapHelperI()
 {
     try
     {
-	close();
+        close();
     }
     catch(const DatabaseException& ex)
     {
-	Ice::Error error(_connection->getCommunicator()->getLogger());
-	error << "Freeze: closing map " << _dbName << " raised: " << ex;
+        Ice::Error error(_connection->getCommunicator()->getLogger());
+        error << "Freeze: closing map " << _dbName << " raised: " << ex;
     } 
 }
 
@@ -1716,11 +1716,11 @@ Freeze::MapIndexI::~MapIndexI()
 {
     try
     {
-	_db->close(0);
+        _db->close(0);
     }
     catch(const DbException&)
     {
-	// Ignored
+        // Ignored
     }
 }
 

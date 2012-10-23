@@ -78,11 +78,11 @@ public final class RemoteEvictorI extends _RemoteEvictorDisp
                                                                true);
         }
 
-	//
-	// Check that we can get an iterator on a non-existing facet
-	//
-	Freeze.EvictorIterator p = _evictor.getIterator("foo", 1);
-	test(p.hasNext() == false);
+        //
+        // Check that we can get an iterator on a non-existing facet
+        //
+        Freeze.EvictorIterator p = _evictor.getIterator("foo", 1);
+        test(p.hasNext() == false);
 
         initializer.init(this, _evictor);
 

@@ -673,7 +673,7 @@ public class AllTests
     public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated, java.io.PrintWriter out)
     {
-		out.print("testing stringToProxy... ");
+                out.print("testing stringToProxy... ");
         out.flush();
         String ref = "Test:default -p 12010 -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);

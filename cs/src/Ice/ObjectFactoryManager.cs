@@ -18,7 +18,7 @@ namespace IceInternal
         {
             lock(this)
             {
-		if(_factoryMap.ContainsKey(id))
+                if(_factoryMap.ContainsKey(id))
                 {
                     Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
                     ex.id = id;

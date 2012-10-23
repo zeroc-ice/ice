@@ -216,7 +216,7 @@ namespace IceInternal
                 os_.reset();
             }
 
-	    interceptorAsyncCallbackList_ = null;
+            interceptorAsyncCallbackList_ = null;
         }
 
         protected internal void warning__(System.Exception ex)

@@ -88,7 +88,7 @@ public:
     virtual void
     run()
     {
-	_platform.runUpdateLoadInfo();
+        _platform.runUpdateLoadInfo();
     }
 
 private:
@@ -304,7 +304,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
         _nProcessorSockets = ids.size();
 #else
         // Not supported
-	_nProcessorSockets = 1;
+        _nProcessorSockets = 1;
 #endif
     }
 
@@ -373,9 +373,9 @@ PlatformInfo::stop()
 {
 #if defined(_WIN32)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
-	_terminated = true;
-	_utilizationMonitor.notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+        _terminated = true;
+        _utilizationMonitor.notify();
     }
 
     assert(_updateUtilizationThread);
@@ -543,7 +543,7 @@ PlatformInfo::runUpdateLoadInfo()
     }
     catch(const Ice::LocalException&)
     {
-	// No need to print a warning, it's taken care of by getLocalizedPerfName
+        // No need to print a warning, it's taken care of by getLocalizedPerfName
         PdhCloseQuery(query);
         return;
     }
@@ -563,14 +563,14 @@ PlatformInfo::runUpdateLoadInfo()
 
     while(true)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
-	_utilizationMonitor.timedWait(IceUtil::Time::seconds(5)); // 5 seconds.
-	if(_terminated)
-	{
-	    break;
-	}
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+        _utilizationMonitor.timedWait(IceUtil::Time::seconds(5)); // 5 seconds.
+        if(_terminated)
+        {
+            break;
+        }
 
-	int usage = 100;
+        int usage = 100;
         PDH_STATUS err = PdhCollectQueryData(query);
         if(err == ERROR_SUCCESS)
         {
@@ -584,17 +584,17 @@ PlatformInfo::runUpdateLoadInfo()
             Ice::Warning out(_traceLevels->logger);
             out << "Could not collect performance counter data:\n" << pdhErrorToString(err);
         }
-	
-	_last1Total += usage - _usages1.back();
-	_last5Total += usage - _usages5.back();
-	_last15Total += usage - _usages15.back();
-	
-	_usages1.pop_back();
-	_usages5.pop_back();
-	_usages15.pop_back();
-	_usages1.push_front(usage);
-	_usages5.push_front(usage);
-	_usages15.push_front(usage);
+        
+        _last1Total += usage - _usages1.back();
+        _last5Total += usage - _usages5.back();
+        _last15Total += usage - _usages15.back();
+        
+        _usages1.pop_back();
+        _usages5.pop_back();
+        _usages15.pop_back();
+        _usages1.push_front(usage);
+        _usages5.push_front(usage);
+        _usages15.push_front(usage);
     }
 
     PdhCloseQuery(query);

@@ -487,7 +487,7 @@ namespace IceInternal
             instance_.endpointHostResolver().resolve(_host, _port, this, callback);
 #endif
         }
-	
+        
         //
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available. In case an acceptor is created, this operation

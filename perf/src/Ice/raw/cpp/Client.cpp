@@ -88,7 +88,7 @@ const char closeConnectionMsg = 4;
 // The request header, batch request header and reply header.
 //
 
-const char magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
+const char magic[] = { 0x49, 0x63, 0x65, 0x50 };        // 'I', 'c', 'e', 'P'
 
 const char requestHdr[] = 
 {
@@ -226,17 +226,17 @@ run(SOCKET fd)
     int size = sizeof(header);
     while(len != size)
     {
-	int n = ::recv(fd, &header[len], size - len, 0);
-	if(n <= 0)
-	{
-	    return;
-	}
-	len += n;
+        int n = ::recv(fd, &header[len], size - len, 0);
+        if(n <= 0)
+        {
+            return;
+        }
+        len += n;
     }
 
     // Process validation message.
     assert(header[0] == Protocol::magic[0] && header[1] == Protocol::magic[1] &&
-	   header[2] == Protocol::magic[2] && header[3] == Protocol::magic[3]);
+           header[2] == Protocol::magic[2] && header[3] == Protocol::magic[3]);
     offset = 4;
 
     char pMajor = header[offset++];
@@ -270,27 +270,27 @@ run(SOCKET fd)
     int repetitions = 200;
     for (int i = 0; i < repetitions; ++i)
     {
-	// Request message body.
-	offset = 14;
-	putInt(req, offset, requestId);
-	++requestId;
+        // Request message body.
+        offset = 14;
+        putInt(req, offset, requestId);
+        ++requestId;
 
-	if(::send(fd, req, sizeof(req), 0) != sizeof(req))
-	{
-	    return;
-	}
+        if(::send(fd, req, sizeof(req), 0) != sizeof(req))
+        {
+            return;
+        }
 
-	len = 0;
-	size = sizeof(reply);
-	while(len != size)
-	{
-	    int n = ::recv(fd, &reply[len], size-len, 0);
-	    if(n <= 0)
-	    {
-		return;
-	    }
-	    len += n;
-	}
+        len = 0;
+        size = sizeof(reply);
+        while(len != size)
+        {
+            int n = ::recv(fd, &reply[len], size-len, 0);
+            if(n <= 0)
+            {
+                return;
+            }
+            len += n;
+        }
     }
 
 #ifdef WIN32
@@ -312,7 +312,7 @@ main(int argc, char* argv[])
     WSADATA data;
     if(WSAStartup(version, &data) != 0)
     {
-	cerr << "WSAStartup failed!" << endl;
+        cerr << "WSAStartup failed!" << endl;
     }
 #endif
 
@@ -321,8 +321,8 @@ main(int argc, char* argv[])
     SOCKET fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(fd == INVALID_SOCKET)
     {
-	cerr << "Create socket failed!" << endl;
-	return EXIT_FAILURE;
+        cerr << "Create socket failed!" << endl;
+        return EXIT_FAILURE;
     }
 
     struct sockaddr_in addr;
@@ -333,8 +333,8 @@ main(int argc, char* argv[])
 
     if(::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
-	cerr << "Connect failed!" << endl;
-	return EXIT_FAILURE;
+        cerr << "Connect failed!" << endl;
+        return EXIT_FAILURE;
     }
 
     run(fd);

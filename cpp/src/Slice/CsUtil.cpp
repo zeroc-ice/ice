@@ -2117,12 +2117,12 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
                         continue;
                     }
                     emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-		    _history.insert(s);
+                    _history.insert(s);
                 }
                 else if(s.find(clrPrefix) == 0)
                 {
                     emitWarning(file, -1, "ignoring invalid global metadata `" + s + "'");
-		    _history.insert(s);
+                    _history.insert(s);
                 }
             }
         }

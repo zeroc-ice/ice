@@ -475,10 +475,10 @@ public class Coordinator
             _serviceMenu = new JMenu("Service");
             _serviceMenu.setEnabled(false);
             toolsMenu.add(_serviceMenu);
-	    _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.START));
-	    _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.STOP));
-	    _serviceMenu.addSeparator();
-	    _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
+            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.START));
+            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.STOP));
+            _serviceMenu.addSeparator();
+            _serviceMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG));
 
             //
             // Help menu
@@ -3339,9 +3339,9 @@ public class Coordinator
         _serverMenu.setEnabled(availableActions[IceGridGUI.LiveDeployment.TreeNode.OPEN_DEFINITION]);
 
         _serviceMenu.setEnabled(node instanceof IceGridGUI.LiveDeployment.Service &&
-				(availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
-				 availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
-				 availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP]));
+                                (availableActions[IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_LOG] ||
+                                 availableActions[IceGridGUI.LiveDeployment.TreeNode.START] ||
+                                 availableActions[IceGridGUI.LiveDeployment.TreeNode.STOP]));
     }
 
     public void showActions(IceGridGUI.Application.TreeNode node)

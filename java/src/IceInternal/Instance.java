@@ -1117,8 +1117,8 @@ public final class Instance
                 StringBuffer message = new StringBuffer("The following properties were set but never read:");
                 for(String p : unusedProperties)
                 {
-		    message.append("\n    ");
-		    message.append(p);
+                    message.append("\n    ");
+                    message.append(p);
                 }
                 _initData.logger.warning(message.toString());
             }

@@ -587,7 +587,7 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
         }
-	
+        
         public static void setMcastGroup(Socket socket, IPAddress group, string iface)
         {
             try
@@ -636,7 +636,7 @@ namespace IceInternal
             }
         }
 #endif
-	
+        
         public static void setMcastTtl(Socket socket, int ttl, AddressFamily family)
         {
             try

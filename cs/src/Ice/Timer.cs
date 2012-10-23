@@ -170,20 +170,20 @@ namespace IceInternal
             init(instance, priority, true);
         }
 #endif
-	
+        
         internal Timer(IceInternal.Instance instance)
         {
 #if !SILVERLIGHT
             init(instance, ThreadPriority.Normal, false);
 #else
-	    init(instance);
+            init(instance);
 #endif
         }
 
 #if !SILVERLIGHT
         internal void init(IceInternal.Instance instance, ThreadPriority priority,  bool hasPriority)
 #else
-	internal void init(IceInternal.Instance instance)
+        internal void init(IceInternal.Instance instance)
 #endif
         {
             _instance = instance;

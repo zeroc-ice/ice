@@ -19,7 +19,7 @@ namespace IceSSL
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Globalization;
-	
+        
     internal class Instance
     {
         internal Instance(Ice.Communicator communicator)

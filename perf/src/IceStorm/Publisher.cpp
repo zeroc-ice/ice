@@ -44,19 +44,19 @@ public:
     virtual void 
     waitNotification()
     {
-	Lock sync(*this);
-	while(!_notified)
-	{
-	    wait();
-	}
+        Lock sync(*this);
+        while(!_notified)
+        {
+            wait();
+        }
     }
 
     virtual void
     notify(const Ice::Current&)
     {
-	Lock sync(*this);
-	_notified = true;
-	notifyAll();
+        Lock sync(*this);
+        _notified = true;
+        notifyAll();
     }
 
 private:
@@ -88,22 +88,22 @@ Publisher::run(int argc, char* argv[])
     bool payload = false;
     for(int i = 0; i < argc; i++)
     {
-	if(strcmp(argv[i], "-p") == 0)
-	{
-	    period = atoi(argv[++i]);
-	}
-	else if(strcmp(argv[i], "-r") == 0)
-	{
-	    repetitions = atoi(argv[++i]);
-	}
-	if(strcmp(argv[i], "-t") == 0)
-	{
-	    twoway = true;
-	}
-	if(strcmp(argv[i], "-w") == 0)
-	{
-	    payload = true;
-	}
+        if(strcmp(argv[i], "-p") == 0)
+        {
+            period = atoi(argv[++i]);
+        }
+        else if(strcmp(argv[i], "-r") == 0)
+        {
+            repetitions = atoi(argv[++i]);
+        }
+        if(strcmp(argv[i], "-t") == 0)
+        {
+            twoway = true;
+        }
+        if(strcmp(argv[i], "-w") == 0)
+        {
+            payload = true;
+        }
     }
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
@@ -112,16 +112,16 @@ Publisher::run(int argc, char* argv[])
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     //
@@ -130,12 +130,12 @@ Publisher::run(int argc, char* argv[])
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve("time");
+        topic = manager->retrieve("time");
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
-	cerr << appName() << ": " << e << " name: " << e.name << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": " << e << " name: " << e.name << endl;
+        return EXIT_FAILURE;
     }
     assert(topic);
 
@@ -149,11 +149,11 @@ Publisher::run(int argc, char* argv[])
     PingPrx ping;
     if(twoway)
     {
-	ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+        ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
     }
     else
     {
-	ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
+        ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
     }
     ping->ice_ping();
     cout << communicator()->proxyToString(obj) << endl;
@@ -168,31 +168,31 @@ Publisher::run(int argc, char* argv[])
 
     if(!payload)
     {
-	ping->tickVoid(0);
-	for(int i = 0; i < repetitions; ++i)
-	{
-	    ping->tickVoid(getTick());
-	    if(period > 0)
-	    {
-		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
-	    }
-	}
-	ping->tickVoid(-1);
+        ping->tickVoid(0);
+        for(int i = 0; i < repetitions; ++i)
+        {
+            ping->tickVoid(getTick());
+            if(period > 0)
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+            }
+        }
+        ping->tickVoid(-1);
     }
     else
     {
-	ping->tick(0, A, 10, AStruct());
-	for(int i = 0; i < repetitions; ++i)
-	{
-	    AStruct s;
-	    s.s = "TEST";
-	    ping->tick(getTick(), A, 10, s);
-	    if(period > 0)
-	    {
-		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
-	    }
-	}
-	ping->tick(-1, A, 10, AStruct());
+        ping->tick(0, A, 10, AStruct());
+        for(int i = 0; i < repetitions; ++i)
+        {
+            AStruct s;
+            s.s = "TEST";
+            ping->tick(getTick(), A, 10, s);
+            if(period > 0)
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+            }
+        }
+        ping->tick(-1, A, 10, AStruct());
     }
 
     return EXIT_SUCCESS;

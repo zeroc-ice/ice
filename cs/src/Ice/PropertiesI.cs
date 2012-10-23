@@ -79,7 +79,7 @@ namespace Ice
                 PropertyValue pv;
                 if(!_properties.TryGetValue(key, out pv))
                 {
-                    return val;	
+                    return val; 
                 }
                 pv.used = true;
                 try
@@ -366,8 +366,8 @@ namespace Ice
                 return new PropertiesI(this);
             }
         }
-	
-	public List<string> getUnusedProperties()
+        
+        public List<string> getUnusedProperties()
         {
             lock(this)
             {
@@ -423,7 +423,7 @@ namespace Ice
             }
             
             PropertyValue pv;
-	    if(_properties.TryGetValue("Ice.ProgramName", out pv))
+            if(_properties.TryGetValue("Ice.ProgramName", out pv))
             {
                 pv.used = true;
             }

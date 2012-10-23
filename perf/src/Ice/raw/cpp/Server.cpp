@@ -89,7 +89,7 @@ const char closeConnectionMsg = 4;
 // The request header, batch request header and reply header.
 //
 
-const char magic[] = { 0x49, 0x63, 0x65, 0x50 };	// 'I', 'c', 'e', 'P'
+const char magic[] = { 0x49, 0x63, 0x65, 0x50 };        // 'I', 'c', 'e', 'P'
 
 const char requestHdr[] = 
 {
@@ -189,7 +189,7 @@ readSize(char* base, int& offset)
     int sz = base[offset++];
     if(sz == 255)
     {
-	return getInt(base, offset);
+        return getInt(base, offset);
     }
     return sz;
 }
@@ -199,14 +199,14 @@ rawcmp(char* src, int srcLen, char* dest, int offset, int len)
 {
     if(srcLen != len)
     {
-	return false;
+        return false;
     }
     for(int i = 0; i < len; ++i)
     {
-	if(src[i] != dest[i+offset])
-	{
-	    return false;
-	}
+        if(src[i] != dest[i+offset])
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -232,7 +232,7 @@ run(SOCKET fd)
 
     if(::send(fd, header, sizeof(header), 0) != sizeof(header))
     {
-	return;
+        return;
     }
 
     char req[500042];
@@ -269,113 +269,113 @@ run(SOCKET fd)
     //
     while(true)
     {
-	int len = 0;
-	while(len != sizeof(header))
-	{
-	    int n = ::recv(fd, &header[len], sizeof(header) - len, 0);
-	    if(n <= 0)
-	    {
-		return;
-	    }
-	    len += n;
-	}
+        int len = 0;
+        while(len != sizeof(header))
+        {
+            int n = ::recv(fd, &header[len], sizeof(header) - len, 0);
+            if(n <= 0)
+            {
+                return;
+            }
+            len += n;
+        }
 
-	assert(header[0] == Protocol::magic[0] && header[1] == Protocol::magic[1] &&
-	       header[2] == Protocol::magic[2] && header[3] == Protocol::magic[3]);
+        assert(header[0] == Protocol::magic[0] && header[1] == Protocol::magic[1] &&
+               header[2] == Protocol::magic[2] && header[3] == Protocol::magic[3]);
 
-	offset = 4;
-	char pMajor = header[offset++];
-	assert(pMajor == Protocol::protocolMajor);
-	//char pMinor = header[offset++];
-	offset++;
+        offset = 4;
+        char pMajor = header[offset++];
+        assert(pMajor == Protocol::protocolMajor);
+        //char pMinor = header[offset++];
+        offset++;
 
-	char eMajor = header[offset++];
-	assert(eMajor == Protocol::encodingMajor);
-	//char eMinor = header[offset++];
-	offset++;
+        char eMajor = header[offset++];
+        assert(eMajor == Protocol::encodingMajor);
+        //char eMinor = header[offset++];
+        offset++;
 
-	char messageType = header[offset++];
-	//char compress = header[offset++];
-	offset++;
-	int size = getInt(header, offset);
-	//Console.WriteLine("size: " + size);
+        char messageType = header[offset++];
+        //char compress = header[offset++];
+        offset++;
+        int size = getInt(header, offset);
+        //Console.WriteLine("size: " + size);
 
-	if(messageType == Protocol::closeConnectionMsg)
-	{
-	    return;
-	}
-	if(messageType != Protocol::requestMsg)
-	{
-	    cerr << "unexpected message: " << messageType << endl;
-	    return;
-	}
-		    
-	size -= Protocol::headerSize;
-	if(size < 0 || size > sizeof(req))
-	{
-	    cerr << "booting client: unsupported size" << endl;
-	    return;
-	}
-	//assert(size <= req.Length);
+        if(messageType == Protocol::closeConnectionMsg)
+        {
+            return;
+        }
+        if(messageType != Protocol::requestMsg)
+        {
+            cerr << "unexpected message: " << messageType << endl;
+            return;
+        }
+                    
+        size -= Protocol::headerSize;
+        if(size < 0 || size > sizeof(req))
+        {
+            cerr << "booting client: unsupported size" << endl;
+            return;
+        }
+        //assert(size <= req.Length);
 
-	len = 0;
-	while(len != size)
-	{
-	    int n = ::recv(fd, &req[len], size - len, 0);
-	    if(n <= 0)
-	    {
-		return;
-	    }
-	    //Console.WriteLine("read: " + n);
-	    len += n;
-	}
+        len = 0;
+        while(len != size)
+        {
+            int n = ::recv(fd, &req[len], size - len, 0);
+            if(n <= 0)
+            {
+                return;
+            }
+            //Console.WriteLine("read: " + n);
+            len += n;
+        }
 
-	offset = 0;
-	int requestId = getInt(req, offset);
+        offset = 0;
+        int requestId = getInt(req, offset);
 
-	// id
-	int sz = readSize(req, offset);
-	offset += sz;
-	sz = readSize(req, offset);
-	offset += sz;
-	assert(req[offset] == 0);
-	++offset; // facet
-	// operation
-	sz = readSize(req, offset);
+        // id
+        int sz = readSize(req, offset);
+        offset += sz;
+        sz = readSize(req, offset);
+        offset += sz;
+        assert(req[offset] == 0);
+        ++offset; // facet
+        // operation
+        sz = readSize(req, offset);
 
-	if(!rawcmp(opIceIsA, sizeof(opIceIsA)-1, req, offset, sz) &&
-	   !rawcmp(opIcePing, sizeof(opIcePing)-1, req, offset, sz) &&
-	   !rawcmp(opSendByteSeq, sizeof(opSendByteSeq)-1, req, offset, sz))
-	{
-	    string op(&req[offset], sz);
-	    cerr << "unsupported op: " << op << endl;
-	    return;
-	}
-	
-	
-	char* r;
-	int l;
-	if(rawcmp(opIceIsA, sizeof(opIceIsA)-1, req, offset, sz))
-	{
-	    r = isaReply;
-	    l = sizeof(isaReply);
-	}
-	else
-	{
-	    r = reply;
-	    l = sizeof(reply);
-	}
-	
-	//
-	// Compose the reply.
-	//
-	offset = 14;
-	putInt(r, offset, requestId);
+        if(!rawcmp(opIceIsA, sizeof(opIceIsA)-1, req, offset, sz) &&
+           !rawcmp(opIcePing, sizeof(opIcePing)-1, req, offset, sz) &&
+           !rawcmp(opSendByteSeq, sizeof(opSendByteSeq)-1, req, offset, sz))
+        {
+            string op(&req[offset], sz);
+            cerr << "unsupported op: " << op << endl;
+            return;
+        }
+        
+        
+        char* r;
+        int l;
+        if(rawcmp(opIceIsA, sizeof(opIceIsA)-1, req, offset, sz))
+        {
+            r = isaReply;
+            l = sizeof(isaReply);
+        }
+        else
+        {
+            r = reply;
+            l = sizeof(reply);
+        }
+        
+        //
+        // Compose the reply.
+        //
+        offset = 14;
+        putInt(r, offset, requestId);
 
-	if(::send(fd, r, l, 0) != l)
-	{
-	    return;
-	}
+        if(::send(fd, r, l, 0) != l)
+        {
+            return;
+        }
     }
 }
 
@@ -399,7 +399,7 @@ main(int argc, char* argv[])
 #else
         cerr << "Create socket failed! " << errno << endl;
 #endif
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     struct sockaddr_in addr;
@@ -411,32 +411,32 @@ main(int argc, char* argv[])
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
         cerr << "Bind failed!" << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     if(::listen(fd, 5) == SOCKET_ERROR)
     {
         cerr << "Listen failed!" << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     cout << "Server ready" << endl;
 
     while(true)
     {
-	SOCKET fd2 = ::accept(fd, 0, 0);
-	if(fd2 == INVALID_SOCKET)
-	{
-	    cerr << "Accept failed!" << endl;
-	    return EXIT_FAILURE;
-	}
-	cout << "Accepted new client" << endl;
-	run(fd2);
-	cout << "Disconnected client" << endl;
+        SOCKET fd2 = ::accept(fd, 0, 0);
+        if(fd2 == INVALID_SOCKET)
+        {
+            cerr << "Accept failed!" << endl;
+            return EXIT_FAILURE;
+        }
+        cout << "Accepted new client" << endl;
+        run(fd2);
+        cout << "Disconnected client" << endl;
 #ifdef WIN32
-	::closesocket(fd2);
+        ::closesocket(fd2);
 #else
-	::close(fd2);
+        ::close(fd2);
 #endif
     }
 

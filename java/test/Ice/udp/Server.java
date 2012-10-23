@@ -46,7 +46,7 @@ public class Server extends test.Util.Application
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
-	initData.properties = Ice.Util.createProperties(argsH);
+        initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.UDP.RcvSize", "16384");

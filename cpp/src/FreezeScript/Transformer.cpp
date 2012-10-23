@@ -2652,7 +2652,7 @@ FreezeScript::ObjectVisitor::visitObject(const ObjectRefPtr& data)
 #if (defined(_MSC_VER) && (_MSC_VER >= 1600))
             _map.insert(ObjectDataMap::value_type(value.get(), nullptr));
 #else
-	    _map.insert(ObjectDataMap::value_type(value.get(), 0));
+            _map.insert(ObjectDataMap::value_type(value.get(), 0));
 #endif
             DataMemberMap& members = value->getMembers();
             for(DataMemberMap::iterator q = members.begin(); q != members.end(); ++q)

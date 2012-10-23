@@ -41,12 +41,12 @@ Roundtrip_Handler::sendByteSeq_excep(Messaging::ExceptionHolder *holder
 {
     ACE_TRY
     {
-	holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendByteSeq:");
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendByteSeq:");
     }
     ACE_ENDTRY;
 }
@@ -64,12 +64,12 @@ Roundtrip_Handler::sendStringSeq_excep(Messaging::ExceptionHolder *holder
 {
     ACE_TRY
     {
-	holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendStringSeq:");
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendStringSeq:");
     }
     ACE_ENDTRY;
 }
@@ -87,12 +87,12 @@ Roundtrip_Handler::sendStringDoubleSeq_excep(Messaging::ExceptionHolder *holder
 {
     ACE_TRY
     {
-	holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendStringDoubleSeq:");
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "sendStringDoubleSeq:");
     }
     ACE_ENDTRY;
 }
@@ -113,12 +113,12 @@ Roundtrip_Handler::test_method_excep(Messaging::ExceptionHolder *holder
 {
     ACE_TRY
     {
-	holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "test_method:");
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "test_method:");
     }
     ACE_ENDTRY;
 }
@@ -139,12 +139,12 @@ Roundtrip_Handler::shutdown_excep(Messaging::ExceptionHolder *holder
 {
     ACE_TRY
     {
-	holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        holder->raise_exception(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "shutdown:");
+        ACE_PRINT_EXCEPTION(ACE_ANY_EXCEPTION, "shutdown:");
     }
     ACE_ENDTRY;
 }

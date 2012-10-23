@@ -20,8 +20,8 @@ WorkerThread::svc()
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
     {
-	_orb->run(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        _orb->run(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;
     }
     ACE_CATCHANY {} ACE_ENDTRY;
     return 0;

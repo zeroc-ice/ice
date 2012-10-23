@@ -886,12 +886,12 @@ public final class ObjectAdapterI implements ObjectAdapter
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
             StringBuffer message = new StringBuffer("found unknown properties for object adapter `");
-	    message.append(_name);
-	    message.append("':");
+            message.append(_name);
+            message.append("':");
             for(String p : unknownProps)
             {
-		message.append("\n    ");
-		message.append(p);
+                message.append("\n    ");
+                message.append(p);
             }
             _instance.initializationData().logger.warning(message.toString());
         }
@@ -1283,14 +1283,14 @@ public final class ObjectAdapterI implements ObjectAdapter
         if(_instance.traceLevels().network >= 1)
         {
             StringBuffer s = new StringBuffer("published endpoints for object adapter `");
-	    s.append(_name);
-	    s.append("':\n");
+            s.append(_name);
+            s.append("':\n");
             boolean first = true;
             for(IceInternal.EndpointI endpoint : endpoints)
             {
                 if(!first)
                 {
-		    s.append(":");
+                    s.append(":");
                 }
                 s.append(endpoint.toString());
                 first = false;

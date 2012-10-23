@@ -369,7 +369,7 @@ Slice::Gen::generate(const UnitPtr& p)
         H << "\n#include <Ice/Proxy.h>";
         H << "\n#include <Ice/Object.h>";
         H << "\n#include <Ice/Outgoing.h>";
-	H << "\n#include <Ice/OutgoingAsync.h>";
+        H << "\n#include <Ice/OutgoingAsync.h>";
         H << "\n#include <Ice/Incoming.h>";
         if(p->hasContentsWithMetaData("amd"))
         {
@@ -1481,14 +1481,14 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(_dllExport != "")
     {
-	//
-	// To export the virtual table
-	//
-	C << nl << "#ifdef __SUNPRO_CC";
-	C << nl << "class "
-	    << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
-	    << "IceProxy" << scoped << ";";
-	C << nl << "#endif";
+        //
+        // To export the virtual table
+        //
+        C << nl << "#ifdef __SUNPRO_CC";
+        C << nl << "class "
+            << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+            << "IceProxy" << scoped << ";";
+        C << nl << "#endif";
     }
 
     C << nl
@@ -2141,7 +2141,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string flatName = p->flattenedScope() + name + "_name";
     if(p->returnsData())
     {
-	C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
+        C << nl << "__checkAsyncTwowayOnly(" << flatName <<  ");";
     }
     C << nl << "::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::OutgoingAsync(this, ";
     C << flatName << ", __del, __cookie);";
@@ -3320,7 +3320,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(p->name() != "PointerType")
     {
-	H << nl << "typedef " << p->name() << "Ptr PointerType;";
+        H << nl << "typedef " << p->name() << "Ptr PointerType;";
     }
 
     vector<string> params;
@@ -3479,36 +3479,36 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isLocal())
     {
         C << sp << nl
-	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
-	  << "::Ice::Object* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
+          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+          << "::Ice::Object* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
 
-	//
-	// It would make sense to provide a covariant ice_clone(); unfortunately many compilers
-	// (including VS2010) generate bad code for covariant types that use virtual inheritance 
-	//
+        //
+        // It would make sense to provide a covariant ice_clone(); unfortunately many compilers
+        // (including VS2010) generate bad code for covariant types that use virtual inheritance 
+        //
 
-	if(!p->isInterface())
-	{
-	    H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
-	   
-	    C << nl << "::Ice::ObjectPtr";
-	    C << nl << scoped.substr(2) << "::ice_clone() const";
-	    C << sb;
-	    if(!p->isAbstract())
-	    {
-		C << nl << "::Ice::Object* __p = new " << name << "(*this);";
-		C << nl << "return __p;";
-	    }
-	    else
-	    {
-		//
-		// We need this ice_clone for abstract classes derived from concrete classes
-		//
-		C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
-		C << nl << "return 0; // to avoid a warning with some compilers";
-	    }
-	    C << eb;
-	}
+        if(!p->isInterface())
+        {
+            H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
+           
+            C << nl << "::Ice::ObjectPtr";
+            C << nl << scoped.substr(2) << "::ice_clone() const";
+            C << sb;
+            if(!p->isAbstract())
+            {
+                C << nl << "::Ice::Object* __p = new " << name << "(*this);";
+                C << nl << "return __p;";
+            }
+            else
+            {
+                //
+                // We need this ice_clone for abstract classes derived from concrete classes
+                //
+                C << nl << "throw ::Ice::CloneNotImplementedException(__FILE__, __LINE__);";
+                C << nl << "return 0; // to avoid a warning with some compilers";
+            }
+            C << eb;
+        }
 
         ClassList allBases = p->allBases();
         StringList ids;
@@ -3597,8 +3597,8 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         C << sp << nl
-	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
-	  << "::Ice::LocalObject* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
+          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ")
+          << "::Ice::LocalObject* " << scope.substr(2) << "upCast(" << scoped << "* p) { return p; }";
     }
 
     return true;
@@ -4049,7 +4049,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     else
     {
         C << sp << nl << "void "
-	  << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
+          << (_dllExport.empty() ? "" : "ICE_DECLSPEC_EXPORT ");
         C << nl << scope.substr(2) << "__patch(" << p->name() << "Ptr& handle, ::Ice::ObjectPtr& v)";
         C << sb;
         C << nl << "handle = " << scope << p->name() << "Ptr::dynamicCast(v);";

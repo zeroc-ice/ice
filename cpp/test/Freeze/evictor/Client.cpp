@@ -372,12 +372,12 @@ public:
             //
             // Transfer 100 at random between two distinct accounts 
             //
-	    Test::AccountPrx from = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
+            Test::AccountPrx from = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
             
             Test::AccountPrx to;
             do
             {
-	        to = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
+                to = _accounts[IceUtilInternal::random(static_cast<int>(_accounts.size()))];
             }
             while(from == to);
                 
@@ -613,8 +613,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
     //    
     try
     {
-	Test::AccountPrx::uncheckedCast(servants[0])->getBalance();
-	test(false);
+        Test::AccountPrx::uncheckedCast(servants[0])->getBalance();
+        test(false);
     }
     catch(const Ice::OperationNotExistException&)
     {

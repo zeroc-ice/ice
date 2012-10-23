@@ -853,13 +853,13 @@ NodeI::ready(int j, const string& gn, const Ice::ObjectPrx& coordinator, int max
     if(!_destroy && _state == NodeStateReorganization && _group == gn)
     {
         // The coordinator must be j (this was set in the invitation).
-	if(_coord != j)
-	{
-	    Ice::Warning warn(_traceLevels->logger);
-	    warn << _traceLevels->electionCat << ": ignoring ready call from replica node " << j
-	    	 << " (real coordinator is " << _coord << ")";
-	    return;
-	}
+        if(_coord != j)
+        {
+            Ice::Warning warn(_traceLevels->logger);
+            warn << _traceLevels->electionCat << ": ignoring ready call from replica node " << j
+                 << " (real coordinator is " << _coord << ")";
+            return;
+        }
 
         // Here we've already validated j in the invite call
         // (otherwise _group != gn).
@@ -923,8 +923,8 @@ NodeI::accept(int j, const string& gn, const Ice::IntSeq& forwardedInvites, cons
                 out << *p;
             }
             out << ") with llu "
-	    	<< llu.generation << "/" << llu.iteration << " into group " << gn
-		<< " group size " << (_up.size() + 1);
+                << llu.generation << "/" << llu.iteration << " into group " << gn
+                << " group size " << (_up.size() + 1);
         }
 
         // Add each of the forwarded invites to the list of issued
@@ -946,7 +946,7 @@ NodeI::accept(int j, const string& gn, const Ice::IntSeq& forwardedInvites, cons
         // merge continue immediately. Otherwise, we let the existing
         // merge() schedule continue.
         if((_up.size() == _nodes.size()-1 || _invitesIssued == _invitesAccepted) &&
-	   _mergeContinueTask && _timer->cancel(_mergeContinueTask))
+           _mergeContinueTask && _timer->cancel(_mergeContinueTask))
         {
             _timer->schedule(_mergeContinueTask, IceUtil::Time::seconds(0));
         }

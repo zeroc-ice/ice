@@ -797,7 +797,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             }
         }
 #endif
-	}
+        }
 
     {
         Ice::Double d = 1278312346.0 / 13.0;

@@ -570,20 +570,20 @@ IceUtilInternal::errorToString(int error, LPCVOID source)
                 result = result.substr(0, result.length() - 2);
             }
 #ifndef ICE_OS_WINRT
-	    if(msg)
-	    {
+            if(msg)
+            {
                 LocalFree(msg);
-	    }
+            }
 #endif
             return IceUtil::wstringToString(result);
         }
         else
         {
 #ifndef ICE_OS_WINRT
-	    if(msg)
-	    {
+            if(msg)
+            {
                 LocalFree(msg);
-	    }
+            }
 #endif
             ostringstream os;
             os << "unknown error: " << error;

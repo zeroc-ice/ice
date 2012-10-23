@@ -30,11 +30,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
        if(strcmp(argv[i], "structSeq") == 0)
        {
-	   structSeqTest = true;
+           structSeqTest = true;
        }
        else if(strcmp(argv[i], "noZeroCopy") == 0)
        {
-	   zeroCopy = false;
+           zeroCopy = false;
        }
        else if(strcmp(argv[i], "longStringSeq") == 0)
        {
@@ -46,11 +46,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
        }
        else if(strcmp(argv[i], "byte") == 0)
        {
-	   byteTest = true;
+           byteTest = true;
        }
        else if(strcmp(argv[i], "receive") == 0)
        {
-	   receive = true;
+           receive = true;
        }
     }
     if(!byteTest && !stringSeqTest && !longStringSeqTest && !structSeqTest)
@@ -63,16 +63,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator->stringToProxy(proxy);
     ThroughputPrx throughput = ThroughputPrx::checkedCast(base);
     if(!throughput)
     {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
@@ -91,13 +91,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     for(i = 0; i < StringDoubleSeqSize; ++i)
     {
         structSeq[i].s = "hello";
-	structSeq[i].d = 3.14;
+        structSeq[i].d = 3.14;
     }
     Ice::Int byteSeqSize = ByteSeqSize * sizeof(Ice::Byte);
     Ice::Int stringSeqSize = StringSeqSize * stringSeq[0].size() * sizeof(stringSeq[0][0]);
     Ice::Int longSeqSize = LongStringSeqSize * longStringSeq[0].size() * sizeof(longStringSeq[0][0]);
     Ice::Int structSeqSize = StringDoubleSeqSize * sizeof(structSeq[0].d) + 
-			     StringDoubleSeqSize * structSeq[0].s.size() * sizeof(structSeq[0].s[0]);
+                             StringDoubleSeqSize * structSeq[0].s.size() * sizeof(structSeq[0].s[0]);
     Ice::Int payloadSize = 0;
 
     throughput->ice_ping(); // Initial ping to setup the connection.
@@ -106,93 +106,93 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 1000;
     if(byteTest)
     {
-	payloadSize = byteSeqSize;
-	if(!receive)
-	{
-	    if(zeroCopy)
-	    {
-		for(i = 0; i < repetitions; ++i)
-		{
+        payloadSize = byteSeqSize;
+        if(!receive)
+        {
+            if(zeroCopy)
+            {
+                for(i = 0; i < repetitions; ++i)
+                {
 #ifdef ICEE_USE_ARRAY_MAPPING
-		    throughput->sendByteSeq(byteArr);
+                    throughput->sendByteSeq(byteArr);
 #else
-		    throughput->sendByteSeq(byteSeq);
+                    throughput->sendByteSeq(byteSeq);
 #endif
-		}
-	    }
-	    else
-	    {
-		for(i = 0; i < repetitions; ++i)
-		{
+                }
+            }
+            else
+            {
+                for(i = 0; i < repetitions; ++i)
+                {
 #ifdef ICEE_USE_ARRAY_MAPPING
-		    throughput->sendByteSeqNZ(byteSeq);
+                    throughput->sendByteSeqNZ(byteSeq);
 #else
-		    throughput->sendByteSeq(byteSeq);
+                    throughput->sendByteSeq(byteSeq);
 #endif
-		}
-	    }
-	}
-	else
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->recvByteSeq();
-	    }
-	}
+                }
+            }
+        }
+        else
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->recvByteSeq();
+            }
+        }
     }
     else if(stringSeqTest)
     {
-	payloadSize = stringSeqSize;
-	if(!receive)
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->sendStringSeq(stringSeq);
-	    }
-	}
-	else
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->recvStringSeq();
-	    }
-	}
+        payloadSize = stringSeqSize;
+        if(!receive)
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->sendStringSeq(stringSeq);
+            }
+        }
+        else
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->recvStringSeq();
+            }
+        }
     }
     else if(longStringSeqTest)
     {
-	payloadSize = longSeqSize;
-	if(!receive)
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->sendStringSeq(longStringSeq);
-	    }
-	}
-	else
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->recvLongStringSeq();
-	    }
-	}
+        payloadSize = longSeqSize;
+        if(!receive)
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->sendStringSeq(longStringSeq);
+            }
+        }
+        else
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->recvLongStringSeq();
+            }
+        }
     }
     else if(structSeqTest)
     {
-	payloadSize = structSeqSize;
-	if(!receive)
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->sendStructSeq(structSeq);
-	    }
-	}
-	else
-	{
-	    for(i = 0; i < repetitions; ++i)
-	    {
-		throughput->recvStructSeq();
-	    }
-	}
+        payloadSize = structSeqSize;
+        if(!receive)
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->sendStructSeq(structSeq);
+            }
+        }
+        else
+        {
+            for(i = 0; i < repetitions; ++i)
+            {
+                throughput->recvStructSeq();
+            }
+        }
     }
 
     IcePerf::TestPrinter formatter;
@@ -211,28 +211,28 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::createProperties();
+        Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load("config");
-	communicator = Ice::initializeWithProperties(argc, argv, properties);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initializeWithProperties(argc, argv, properties);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex.ice_name() << endl;
-	status = EXIT_FAILURE;
+        cerr << ex.ice_name() << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex.ice_name() << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex.ice_name() << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

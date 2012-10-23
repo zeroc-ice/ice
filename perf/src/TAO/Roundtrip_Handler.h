@@ -36,35 +36,35 @@ public:
 
     // = The skeleton methods
     virtual void sendByteSeq(ACE_ENV_SINGLE_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
     virtual void sendByteSeq_excep(Messaging::ExceptionHolder *holder
-				   ACE_ENV_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+                                   ACE_ENV_ARG_DECL)
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
     virtual void sendStringSeq(ACE_ENV_SINGLE_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
     virtual void sendStringSeq_excep(Messaging::ExceptionHolder *holder
-				     ACE_ENV_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+                                     ACE_ENV_ARG_DECL)
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
     virtual void sendStringDoubleSeq(ACE_ENV_SINGLE_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
     virtual void sendStringDoubleSeq_excep(Messaging::ExceptionHolder *holder
-					   ACE_ENV_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+                                           ACE_ENV_ARG_DECL)
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
     virtual void test_method(ACE_ENV_SINGLE_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
     virtual void test_method_excep(Messaging::ExceptionHolder *holder
-				    ACE_ENV_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+                                    ACE_ENV_ARG_DECL)
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
     virtual void shutdown(ACE_ENV_SINGLE_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
     virtual void shutdown_excep(Messaging::ExceptionHolder *holder
-				 ACE_ENV_ARG_DECL)
-	ACE_THROW_SPEC ((CORBA::SystemException));
+                                 ACE_ENV_ARG_DECL)
+        ACE_THROW_SPEC ((CORBA::SystemException));
 
 private:
 

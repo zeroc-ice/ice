@@ -33,7 +33,7 @@ public:
     // interpretable by Python.
     //
     virtual void fmt(std::ostream&, const std::string& product, const std::string& name, const IceUtil::Time& duration, 
-		     const Ice::Int& repetitions, const Ice::Int& payloadSize, const int argc, char* argv[]);
+                     const Ice::Int& repetitions, const Ice::Int& payloadSize, const int argc, char* argv[]);
 };
 
 //
@@ -44,7 +44,7 @@ public:
 //
 void
 IcePerf::TestPrinter::fmt(std::ostream& output, const std::string& product, const std::string& name, const IceUtil::Time& duration, 
-			  const Ice::Int& repetitions, const Ice::Int& payloadSize, const int argc, char* argv[])
+                          const Ice::Int& repetitions, const Ice::Int& payloadSize, const int argc, char* argv[])
 {
     output << "{";
     output << "'product' : '" << product << "', ";
@@ -58,9 +58,9 @@ IcePerf::TestPrinter::fmt(std::ostream& output, const std::string& product, cons
     int i;
     for(i = 0; i < argc; ++i)
     {
-	if(i > 0)
-	    output << ' ';
-	output << argv[i];
+        if(i > 0)
+            output << ' ';
+        output << argv[i];
     }
     output << "'";
     output << "}";

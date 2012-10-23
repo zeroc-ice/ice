@@ -28,39 +28,39 @@ Destroyer::run(int argc, char* argv[])
     CORBA::String_var ior;
     for(int i = 1; i < argc; i++)
     {
-	if(strlen(argv[i]) > 3 && strncmp(argv[i], "IOR", strlen("IOR")))
-	{
-	    ior = CORBA::string_dup(argv[i]);
-	}
+        if(strlen(argv[i]) > 3 && strncmp(argv[i], "IOR", strlen("IOR")))
+        {
+            ior = CORBA::string_dup(argv[i]);
+        }
     }
 
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
     {
-	CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        CORBA::ORB_var orb = CORBA::ORB_init(argc, argv, "" ACE_ENV_ARG_PARAMETER);
+        ACE_TRY_CHECK;
 
-	if(argc <= 1)
-	{
-	    ACE_ERROR ((LM_ERROR, "Usage: Destroyer <event_channel_ior>\n"));
-	    return 1;
-	}
+        if(argc <= 1)
+        {
+            ACE_ERROR ((LM_ERROR, "Usage: Destroyer <event_channel_ior>\n"));
+            return 1;
+        }
 
-	CORBA::Object_var object = orb->string_to_object(ior.in() ACE_ENV_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        CORBA::Object_var object = orb->string_to_object(ior.in() ACE_ENV_ARG_PARAMETER);
+        ACE_TRY_CHECK;
 
-	CosEventChannelAdmin::EventChannel_var event_channel = 
-	    CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
-	ACE_TRY_CHECK;
+        CosEventChannelAdmin::EventChannel_var event_channel = 
+            CosEventChannelAdmin::EventChannel::_narrow(object.in() ACE_ENV_ARG_PARAMETER);
+        ACE_TRY_CHECK;
 
-	// Destroy the EC....
-	event_channel->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;	
+        // Destroy the EC....
+        event_channel->destroy(ACE_ENV_SINGLE_ARG_PARAMETER);
+        ACE_TRY_CHECK;  
     }
     ACE_CATCHANY
     {
-	ACE_PRINT_EXCEPTION (ACE_ANY_EXCEPTION, "Destroyer::run");
-	return 1;
+        ACE_PRINT_EXCEPTION (ACE_ANY_EXCEPTION, "Destroyer::run");
+        return 1;
     }
     ACE_ENDTRY;
     return 0;

@@ -18,15 +18,15 @@ class ThroughputI : public Demo::Throughput
 public:
 
     ThroughputI() :
-	_byteSeq(Demo::ByteSeqSize, 0),
-	_stringSeq(Demo::StringSeqSize, "hello"),
-	_structSeq(Demo::StringDoubleSeqSize)
+        _byteSeq(Demo::ByteSeqSize, 0),
+        _stringSeq(Demo::StringSeqSize, "hello"),
+        _structSeq(Demo::StringDoubleSeqSize)
     {
         for(int i = 0; i < Demo::StringDoubleSeqSize; ++i)
-	{
-	    _structSeq[i].s = "hello";
-	    _structSeq[i].d = 3.14;
-	}
+        {
+            _structSeq[i].s = "hello";
+            _structSeq[i].d = 3.14;
+        }
     }
 
     virtual void
@@ -42,13 +42,13 @@ public:
     virtual Demo::ByteSeq
     recvByteSeq(const Ice::Current&)
     {
-	return _byteSeq;
+        return _byteSeq;
     }
 
     virtual Demo::ByteSeq
     echoByteSeq(const Demo::ByteSeq& seq, const Ice::Current&)
     {
-	return seq;
+        return seq;
     }
 
     virtual void
@@ -59,13 +59,13 @@ public:
     virtual Demo::StringSeq
     recvStringSeq(const Ice::Current&)
     {
-	return _stringSeq;
+        return _stringSeq;
     }
 
     virtual Demo::StringSeq
     echoStringSeq(const Demo::StringSeq& seq, const Ice::Current&)
     {
-	return seq;
+        return seq;
     }
 
     virtual void
@@ -76,19 +76,19 @@ public:
     virtual Demo::StringDoubleSeq
     recvStructSeq(const Ice::Current&)
     {
-	return _structSeq;
+        return _structSeq;
     }
 
     virtual Demo::StringDoubleSeq
     echoStructSeq(const Demo::StringDoubleSeq& seq, const Ice::Current&)
     {
-	return seq;
+        return seq;
     }
 
     virtual void
     shutdown(const Ice::Current& c)
     {
-	c.adapter->getCommunicator()->shutdown();
+        c.adapter->getCommunicator()->shutdown();
     }
 
 private:

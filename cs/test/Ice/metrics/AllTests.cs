@@ -116,7 +116,7 @@ public class AllTests : TestCommon.TestApp
         {
             _updated = false;
             _serverProps = serverProps;
-	    _monitor = new IceUtilInternal.Monitor();
+            _monitor = new IceUtilInternal.Monitor();
         }
         
         public void
@@ -159,7 +159,7 @@ public class AllTests : TestCommon.TestApp
         
         private bool _updated;
         private Ice.PropertiesAdminPrx _serverProps;
-	private IceUtilInternal.Monitor _monitor;
+        private IceUtilInternal.Monitor _monitor;
     };
     
     static void
@@ -637,7 +637,7 @@ public class AllTests : TestCommon.TestApp
 #if COMPACT
         Ice.VoidAction c = () => { connect(metrics); };
 #else
-	System.Action c = () => { connect(metrics); };
+        System.Action c = () => { connect(metrics); };
 #endif
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
@@ -786,7 +786,7 @@ public class AllTests : TestCommon.TestApp
 #if COMPACT
         Ice.VoidAction op = () => { invokeOp(metrics); };
 #else
-	System.Action op = () => { invokeOp(metrics); };
+        System.Action op = () => { invokeOp(metrics); };
 #endif
 
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op);

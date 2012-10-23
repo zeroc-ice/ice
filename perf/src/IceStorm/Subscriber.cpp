@@ -44,26 +44,26 @@ Subscriber::run(int argc, char* argv[])
     int nPublishers = 1;
     for(int i = 0; i < argc; i++)
     {
-	if(strcmp(argv[i], "-r") == 0)
-	{
-	    repetitions = atoi(argv[++i]);
-	}
-	if(strcmp(argv[i], "-b") == 0)
-	{
-	    batch = true;
-	}
-	if(strcmp(argv[i], "-t") == 0)
-	{
-	    twoway = true;
-	}
-	if(strcmp(argv[i], "-o") == 0)
-	{
-	    ordered = true;
-	}
-	if(strcmp(argv[i], "-c") == 0)
-	{
-	    nPublishers = atoi(argv[++i]);
-	}
+        if(strcmp(argv[i], "-r") == 0)
+        {
+            repetitions = atoi(argv[++i]);
+        }
+        if(strcmp(argv[i], "-b") == 0)
+        {
+            batch = true;
+        }
+        if(strcmp(argv[i], "-t") == 0)
+        {
+            twoway = true;
+        }
+        if(strcmp(argv[i], "-o") == 0)
+        {
+            ordered = true;
+        }
+        if(strcmp(argv[i], "-c") == 0)
+        {
+            nPublishers = atoi(argv[++i]);
+        }
     }
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
@@ -72,16 +72,16 @@ Subscriber::run(int argc, char* argv[])
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectPrx base = communicator()->stringToProxy(proxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     //
@@ -92,15 +92,15 @@ Subscriber::run(int argc, char* argv[])
     IceStorm::QoS qos;
     if(batch)
     {
-	qos["reliability"] = "batch";
+        qos["reliability"] = "batch";
     }
     else if(twoway)
     {
-	qos["reliability"] = "twoway";
+        qos["reliability"] = "twoway";
     }
     else if(ordered)
     {
-	qos["reliability"] = "twoway-ordered";
+        qos["reliability"] = "twoway-ordered";
     }
 
     //
@@ -116,18 +116,18 @@ Subscriber::run(int argc, char* argv[])
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve("time");
+        topic = manager->retrieve("time");
     }
     catch(const IceStorm::NoSuchTopic&)
     {
-	try
-	{
-	    topic = manager->create("time");
-	}
-	catch(const IceStorm::TopicExists&)
-	{
-	    topic = manager->retrieve("time");
-	}
+        try
+        {
+            topic = manager->create("time");
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            topic = manager->retrieve("time");
+        }
     }
     topic->subscribe(qos, object);
 

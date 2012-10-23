@@ -111,64 +111,64 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
         switch(c)
         {
           case ' ':
-	  {
-	      //
-	      // We only escape the space character when it's at the beginning
-	      // or at the end of the string
-	      //
-	      if(i < firstChar || i > lastChar)
-	      {
-		  if(previousCharIsEscape)
-		  {
-		      result.push_back('\\'); // escape the previous char, by adding another escape.
-		  }
+          {
+              //
+              // We only escape the space character when it's at the beginning
+              // or at the end of the string
+              //
+              if(i < firstChar || i > lastChar)
+              {
+                  if(previousCharIsEscape)
+                  {
+                      result.push_back('\\'); // escape the previous char, by adding another escape.
+                  }
 
-		  result.push_back('\\');
-	      }
-	      result.push_back(c);
-	      previousCharIsEscape = false;
-	      break;
-	  }
+                  result.push_back('\\');
+              }
+              result.push_back(c);
+              previousCharIsEscape = false;
+              break;
+          }
   
-	  case '\\':
+          case '\\':
           case '#':
           case '=':
-	  {
-	      if(c == '=' && !escapeEqual)
-	      {
-		  previousCharIsEscape = false;
-	      }
-	      else
-	      {
-		  //
-		  // We only escape the \ character when it is followed by a
-		  // character that we escape, e.g. \# is encoded as \\\#, not \#
-		  // and \\server is encoded as \\\server.
-		  //
-		  if(previousCharIsEscape)
-		  {
-		      result.push_back('\\'); // escape the previous char, by adding another escape.
-		  }
-		  if(c == '\\')
-		  {
-		      previousCharIsEscape = true; // deferring the potential escaping to the next loop
-		  }
-		  else
-		  {
-		      result.push_back('\\');
-		      previousCharIsEscape = false;
-		  }
-	      }
-	      result.push_back(c);
-	      break;
-	  }
+          {
+              if(c == '=' && !escapeEqual)
+              {
+                  previousCharIsEscape = false;
+              }
+              else
+              {
+                  //
+                  // We only escape the \ character when it is followed by a
+                  // character that we escape, e.g. \# is encoded as \\\#, not \#
+                  // and \\server is encoded as \\\server.
+                  //
+                  if(previousCharIsEscape)
+                  {
+                      result.push_back('\\'); // escape the previous char, by adding another escape.
+                  }
+                  if(c == '\\')
+                  {
+                      previousCharIsEscape = true; // deferring the potential escaping to the next loop
+                  }
+                  else
+                  {
+                      result.push_back('\\');
+                      previousCharIsEscape = false;
+                  }
+              }
+              result.push_back(c);
+              break;
+          }
 
           default:
-	  {
-	      result.push_back(c);
-	      previousCharIsEscape = false;
-	      break;
-	  }
+          {
+              result.push_back(c);
+              previousCharIsEscape = false;
+              break;
+          }
         }
     }
     return result;

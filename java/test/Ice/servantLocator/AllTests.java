@@ -194,7 +194,7 @@ public class AllTests
     public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
     {
-		out.print("testing stringToProxy... ");
+                out.print("testing stringToProxy... ");
         out.flush();
         String ref = "asm:default -p 12010";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);

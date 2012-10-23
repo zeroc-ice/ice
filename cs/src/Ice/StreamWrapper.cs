@@ -41,9 +41,9 @@ namespace IceInternal
 
     public class StreamWrapper : System.IO.Stream, System.IDisposable
     {
-	//
-	// Writeable stream constructor
-	//
+        //
+        // Writeable stream constructor
+        //
         public StreamWrapper(BasicStream s)
         {
             type_ = StreamType.Write;
@@ -54,9 +54,9 @@ namespace IceInternal
             length_ = 0;
         }
 
-	//
-	// Readable stream constructor
-	//
+        //
+        // Readable stream constructor
+        //
         public StreamWrapper(int size, BasicStream s)
         {
             type_ = StreamType.Read;
@@ -204,9 +204,9 @@ namespace IceInternal
                 if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
                 {
                     //
-		    // The Mono deserialization implementation has a bug that causes a call to Seek() such
-		    // that the reading position is set to -1.
-		    //
+                    // The Mono deserialization implementation has a bug that causes a call to Seek() such
+                    // that the reading position is set to -1.
+                    //
                     return false;
                 }
                 else
@@ -291,7 +291,7 @@ namespace IceInternal
                     break;
                 }
             }
-	    s_.pos(pos_);
+            s_.pos(pos_);
             return pos_;
         }
 

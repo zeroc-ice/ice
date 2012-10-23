@@ -42,7 +42,7 @@ namespace IceInternal
             if(_traceLevels.network >= 1)
             {
                 StringBuilder s = new StringBuilder("listening for tcp connections at ");
-		s.Append(ToString());
+                s.Append(ToString());
 
                 List<string> interfaces =
                     Network.getHostsForEndpointExpand(_addr.Address.ToString(), instance_.protocolSupport(), true);
