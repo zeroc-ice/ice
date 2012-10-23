@@ -638,13 +638,14 @@ def getJdkVersion():
     if not javaPipeIn or not javaPipeOut:
         print("unable to get Java version!")
         sys.exit(1)
-    version = javaPipeOut.readline()
-    if not version:
+    global jdkVersion
+    jdkVersion = javaPipeOut.readline()
+    if not jdkVersion:
         print("unable to get Java version!")
         sys.exit(1)
     javaPipeIn.close()
     javaPipeOut.close()
-    return version
+    return jdkVersion
 
 def getIceBox():
     #
@@ -1138,7 +1139,11 @@ def runCommand(command):
     #
     if isWin32():
         CREATE_NEW_PROCESS_GROUP = 512
-        p = subprocess.Popen(command, shell=False, bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        #
+        # We set shell=True to make sure executables are correctly searched
+        # in directories specified by the PATH environment variable.
+        #
+        p = subprocess.Popen(command, shell=True, bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, creationflags = 512)
     else:
         p = subprocess.Popen(command, shell=True, bufsize=1024, stdin=subprocess.PIPE, stdout=subprocess.PIPE, \
@@ -1750,6 +1755,12 @@ def runTests(start, expanded, num = 0, script = False):
 
             if args.find("ssl") != -1 and ("nossl" in config):
                 print("%s*** test not supported with IceSSL%s" % (prefix, suffix))
+                continue
+
+            # If this is java and we're running ipv6 under windows then skip.
+            if isWin32() and i.find(os.path.join("java","test")) != -1 and args.find("ipv6") != -1 and \
+                    getJdkVersion().find("java version \"1.6") != -1:
+                print("%s*** test not supported under windows%s" % (prefix, suffix))
                 continue
 
             # Skip tests not supported by valgrind
