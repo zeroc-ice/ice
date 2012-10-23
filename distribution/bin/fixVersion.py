@@ -75,8 +75,11 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "rpm", 
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "build.properties"),
                     [("ice\.version[\t\s]*= " + FixUtil.vpatMatch, version)])
 
-FixUtil.fileMatchAndReplace(os.path.join("distribution", "src", "common", "README.DEMOS.txt"),
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "common", "README.DEMOS.txt"),
                     [("Ice-" + FixUtil.vpatMatch, version)])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "distribution", "src", "windows", "docs", "thirdparty", "README.txt"),
+                            [("Ice " + FixUtil.vpatMatch, version)])
 
 for f in FixUtil.find("*.py"):
     FixUtil.fileMatchAndReplace(f, [("iceVersion[\t\s]*= '" + FixUtil.vpatMatch, version)], False)
@@ -89,6 +92,9 @@ for f in FixUtil.find("*.py"):
 #
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "demoscript", "IceStorm", "clock.py"),
                 [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "demoscript", "Util.py"),
+                [("/opt/Ice-([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
 
 for f in FixUtil.find("config.icebox"):
     FixUtil.fileMatchAndReplace(f, [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
@@ -129,6 +135,9 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicat
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated", "application.xml"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
+FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "repgrid", "application.xml"),
+                    [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
+
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
                     [("IceStormService,([0-9]+b?)", FixUtil.soVersion(version))])
 
@@ -137,6 +146,10 @@ FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice
 
 FixUtil.fileMatchAndReplace(os.path.join(ice_home, "demo", "Ice", "plugin", "Ice.plugin.logger.vcproj"),
                     [("loggerplugin([0-9]+b?)", FixUtil.soVersion(version))])
+
+for f in FixUtil.find("*.vcxproj"):
+    FixUtil.fileMatchAndReplace(f, [("IceWinRT\\\\([0-9]+\.[0-9]+)@", FixUtil.shortVersion(version)),
+                                    ("IceWinRT, Version=([0-9]+\.[0-9]+)", FixUtil.shortVersion(version))])
 
 for f in FixUtil.find("*.rc"):
     FixUtil.fileMatchAndReplace(f, [("\"FileVersion\", \"" + FixUtil.vpatMatch, version), \
@@ -170,6 +183,12 @@ FixUtil.fileMatchAndReplace(os.path.join(icej_home, "src", "Ice", "Util.java"),
 # C# specific files
 #
 icecs_home = os.path.join(ice_dir, "cs")
+
+FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "IceBox", "Makefile.mak"),
+                      [("codeBase version=\"" + FixUtil.vpatMatch + "\.0\"", 
+                        FixUtil.majorVersion(version) + "." + FixUtil.minorVersion(version) + "." + FixUtil.patchVersion(version))])
+
+
 for f in FixUtil.find("AssemblyInfo*.cs"):
     if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
         FixUtil.fileMatchAndReplace(f, [("AssemblyVersion\(\"" + FixUtil.vpatMatch + "\"",
@@ -189,21 +208,32 @@ FixUtil.fileMatchAndReplace(os.path.join(icecs_home, "src", "Ice", "Util.cs"),
 # Fix C# and VB projects
 #
 for f in FixUtil.find("*.vbproj"):
-    FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)])
-    FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)])
+    FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)], False)
+    FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)], False)
 for f in FixUtil.find("*.csproj"):
     if f.find("addin-") < 0:
-        FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)])
-        FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)])
+        FixUtil.fileMatchAndReplace(f, [("Glacier2, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("Ice, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IceBox, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IceGrid, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IcePatch2, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IceSSL, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IceStorm, Version=" + FixUtil.vpatMatch, version)], False)
+        FixUtil.fileMatchAndReplace(f, [("IceGlacier2, Version=" + FixUtil.vpatMatch, version)], False)
+
+
+# VS add-in
+
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "vsaddin", "config", "Ice.props"),
+                            [("ZeroC\\\\Ice " + FixUtil.vpatMatch + "@InstallDir", version)])
+
+
+# Release notes
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "RELEASE_NOTES"),
+                            [("Ice\+" + FixUtil.vpatMatch, version)])

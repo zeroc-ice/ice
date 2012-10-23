@@ -27,7 +27,7 @@ Util.cleanDbDir("db")
 print("ok")
 
 if Util.defaultHost:
-    args = ' --IceBox.Service.IceStorm="IceStormService,34:createIceStorm --Ice.Config=config.service %s"' \
+    args = ' --IceBox.Service.IceStorm="IceStormService,35b:createIceStorm --Ice.Config=config.service %s"' \
         % Util.defaultHost
 else:
     args = ''

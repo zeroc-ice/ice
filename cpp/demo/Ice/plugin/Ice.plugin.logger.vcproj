@@ -72,13 +72,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib setargv.obj"
-				OutputFile="loggerplugin34d.dll"
+				OutputFile="loggerplugin35bd.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(IceHome)\lib&quot;"
 				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="loggerplugin34d.lib"
+				ImportLibrary="loggerplugin35bd.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -158,13 +158,13 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO"
 				AdditionalDependencies="Iced.lib IceUtild.lib setargv.obj"
-				OutputFile="loggerplugin34d.dll"
+				OutputFile="loggerplugin35bd.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;$(IceHome)\lib\x64&quot;"
 				GenerateDebugInformation="true"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="loggerplugin34d.lib"
+				ImportLibrary="loggerplugin35bd.lib"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -243,12 +243,12 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
 				AdditionalDependencies="Ice.lib IceUtil.lib setargv.obj"
-				OutputFile="loggerplugin34.dll"
+				OutputFile="loggerplugin35b.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(IceHome)\lib&quot;"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="loggerplugin34.lib"
+				ImportLibrary="loggerplugin35b.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -328,12 +328,12 @@
 				Name="VCLinkerTool"
 				AdditionalOptions="/FIXED:NO /IGNORE:4089"
 				AdditionalDependencies="Ice.lib IceUtil.lib setargv.obj"
-				OutputFile="loggerplugin34.dll"
+				OutputFile="loggerplugin35b.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(IceHome)\lib\x64&quot;"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary="loggerplugin34.lib"
+				ImportLibrary="loggerplugin35b.lib"
 				TargetMachine="17"
 			/>
 			<Tool

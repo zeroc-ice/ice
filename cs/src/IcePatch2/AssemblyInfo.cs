@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2012 ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]         
-[assembly: AssemblyVersion("3.4.2")]
+[assembly: AssemblyVersion("3.5.51")]
 [assembly: AssemblyDelaySign(false)]
 
 [assembly: ComVisible(false)]

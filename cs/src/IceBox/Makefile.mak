@@ -76,11 +76,11 @@ iceboxnetconfig:
       <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
          <dependentAssembly>
             <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="$(VERSION).0" href="$(assembliesRelativeDir)\Ice.dll"/>
+            <codeBase version="3.5.51.0" href="$(assembliesRelativeDir)\Ice.dll"/>
          </dependentAssembly>
 	 <dependentAssembly>
             <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="$(publicKeyToken)"/>
-            <codeBase version="3.4.2.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
+            <codeBase version="3.5.51.0" href="$(assembliesRelativeDir)\IceBox.dll"/>
          </dependentAssembly>
       </assemblyBinding>
    </runtime>

@@ -101,8 +101,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,4,2,0
- PRODUCTVERSION 3,4,2,0
+ FILEVERSION 3,5,51,0
+ PRODUCTVERSION 3,5,51,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -119,12 +119,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc."
             VALUE "FileDescription", "Ice Hello Client"
-            VALUE "FileVersion", "3.4.2"
+            VALUE "FileVersion", "3.5b"
             VALUE "InternalName", "HelloClient.exe"
             VALUE "LegalCopyright", "Copyright (c) 2003-2012 ZeroC, Inc.  All rights reserved."
             VALUE "OriginalFilename", "HelloClient.exe"
             VALUE "ProductName", "Ice"
-            VALUE "ProductVersion", "3.4.2"
+            VALUE "ProductVersion", "3.5b"
         END
     END
     BLOCK "VarFileInfo"

@@ -27,7 +27,7 @@ IceGridAdmin.nreplicas = 0
 
 def runIceGridRegistry():
     iceGrid = ""
-    if TestUtil.isVC6():
+    if TestUtil.isVC90():
         iceGrid = os.path.join(TestUtil.getServiceDir(), "icegridregistry")
     else:
         iceGrid = os.path.join(TestUtil.getCppBinDir(), "icegridregistry")

@@ -1,17 +1,17 @@
 #include "winver.h"
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 3,4,2,0
- PRODUCTVERSION 3,4,2,0
+ FILEVERSION 3,5,51,0
+ PRODUCTVERSION 3,5,51,0
  FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
  FILEFLAGS VS_FF_DEBUG
- #define INTERNALNAME "icepatch234d\0"
- #define ORIGINALFILENAME "icepatch234d.dll\0"
+ #define INTERNALNAME "icepatch235bd\0"
+ #define ORIGINALFILENAME "icepatch235bd.dll\0"
 #else
  FILEFLAGS 0x0L
- #define INTERNALNAME "icepatch234\0"
- #define ORIGINALFILENAME "icepatch234.dll\0"
+ #define INTERNALNAME "icepatch235b\0"
+ #define ORIGINALFILENAME "icepatch235b.dll\0"
 #endif
  FILEOS 0x4L
  FILETYPE VFT_DLL
@@ -23,12 +23,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ZeroC, Inc.\0"
             VALUE "FileDescription", "IcePatch2 DLL\0"
-            VALUE "FileVersion", "3.4.2\0"
+            VALUE "FileVersion", "3.5b\0"
             VALUE "InternalName", INTERNALNAME
             VALUE "LegalCopyright", "Copyright (c) 2003-2012 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", ORIGINALFILENAME
             VALUE "ProductName", "Ice\0"
-            VALUE "ProductVersion", "3.4.2\0"
+            VALUE "ProductVersion", "3.5b\0"
         END
     END
     BLOCK "VarFileInfo"

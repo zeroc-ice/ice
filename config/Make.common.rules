@@ -13,11 +13,11 @@
 
 SHELL			= /bin/sh
 VERSION_MAJOR   	= 3
-VERSION_MINOR   	= 4
-VERSION_PATCH           = 2
-VERSION			= 3.4.2
-SHORT_VERSION           = 3.4
-SOVERSION		= 34
+VERSION_MINOR   	= 5b
+VERSION_PATCH           = 51
+VERSION			= 3.5b
+SHORT_VERSION           = 3.5
+SOVERSION		= 35b
 
 INSTALL			= cp -fp
 INSTALL_PROGRAM		= ${INSTALL}
