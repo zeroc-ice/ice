@@ -1009,6 +1009,30 @@ public class SessionKeeper
 
     }
 
+
+    //
+    // FocusListener implementation that unselect the text
+    // of a text component after focus gained.
+    //
+    public class FocusListener implements java.awt.event.FocusListener
+    {
+        public FocusListener(javax.swing.text.JTextComponent field)
+        {
+            _field = field;
+        }
+
+        public void focusGained(java.awt.event.FocusEvent fe)
+        {
+            _field.setCaretPosition(_field.getDocument().getLength());
+        }
+
+        public void focusLost(java.awt.event.FocusEvent fe)
+        {
+
+        }
+        private javax.swing.text.JTextComponent _field;
+    }
+
     private class ConnectionWizardDialog extends JDialog
     {
         ConnectionWizardDialog(JDialog parent)
@@ -1083,6 +1107,8 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _directInstanceName = new JTextField(20);
+                _directInstanceName.addFocusListener(new FocusListener(_directInstanceName));
+
                 _directInstanceName.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1114,6 +1140,7 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _routedInstanceName = new JTextField(20);
+                _routedInstanceName.addFocusListener(new FocusListener(_routedInstanceName));
                 _routedInstanceName.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1214,6 +1241,7 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _directDefaultEndpointHost = new JTextField(20);
+                _directInstanceName.addFocusListener(new FocusListener(_directInstanceName));
                 _directDefaultEndpointHost.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1238,6 +1266,7 @@ public class SessionKeeper
                 builder.append("", new JLabel("The hostname or IP address IceGrid server listen on."));
                 builder.nextLine();
                 _directDefaultEndpointPort = new JTextField(5);
+                _directDefaultEndpointPort.addFocusListener(new FocusListener(_directDefaultEndpointPort));
                 _directDefaultEndpointPort.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1297,6 +1326,7 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _routedDefaultEndpointHost = new JTextField(20);
+                _routedDefaultEndpointHost.addFocusListener(new FocusListener(_routedDefaultEndpointHost));
                 _routedDefaultEndpointHost.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1321,6 +1351,7 @@ public class SessionKeeper
                 builder.append("", new JLabel("The hostname or IP address Glacier2 server listen on."));
                 builder.nextLine();
                 _routedDefaultEndpointPort = new JTextField(5);
+                _routedDefaultEndpointPort.addFocusListener(new FocusListener(_routedDefaultEndpointPort));
                 _routedDefaultEndpointPort.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1381,6 +1412,7 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _directCustomEndpointValue = new JTextField(20);
+                _directCustomEndpointValue.addFocusListener(new FocusListener(_directCustomEndpointValue));
                 _directCustomEndpointValue.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
@@ -1412,6 +1444,7 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 _routedCustomEndpointValue = new JTextField(20);
+                _routedCustomEndpointValue.addFocusListener(new FocusListener(_routedCustomEndpointValue));
                 _routedCustomEndpointValue.getDocument().addDocumentListener(new DocumentListener()
                     {
                         public void changedUpdate(DocumentEvent e)
