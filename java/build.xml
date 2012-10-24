@@ -624,7 +624,7 @@
 
     <condition property="build-icegridadmin-pro-jar">
         <and>
-            <isset property="build-icegridamin" />
+            <isset property="build-icegridadmin" />
             <available classname="proguard.ant.ProGuardTask" classpath="${env.CLASSPATH}" />
             <available file="${jgoodies.looks}" />
             <available file="${jgoodies.forms}" />
@@ -634,7 +634,7 @@
 
     <condition property="build-icegridadmin-plain-jar">
         <and>
-             <isset property="build-icegridamin" />
+             <isset property="build-icegridadmin" />
              <not><isset property="build-icegridadmin-pro-jar"/></not>
         </and>
     </condition>
