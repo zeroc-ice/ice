@@ -44,6 +44,16 @@ installer is available at:
 When installing Cygwin, make sure you select "make" in the package
 list. You do not need to install the MinGW packages from Cygwin.
 
+Ruby Setup
+----------
+
+You must install Ruby 1.9.3 using the Windows installer available
+at RubyInstaller:
+
+   http://rubyinstaller.org/downloads/
+
+The default installation directory is C:\Ruby193
+
 
 Third-party libraries
 ---------------------
@@ -111,6 +121,7 @@ After a successful build, you can run the test suite. Open a Windows
 (not Cygwin) command prompt and change the working directory to
 Ice-@ver@:
 
+> set PATH=%PATH%;C:\Ruby193\bin
 > cd C:\Ice-@ver@\cpp
 > set CPP_COMPILER=MINGW
 > python allTests.py

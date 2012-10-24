@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= C:\Ice-$(VERSION)
+prefix			= C:\Users\jose\Desktop\ice_build_home\VC9\Debug\Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with

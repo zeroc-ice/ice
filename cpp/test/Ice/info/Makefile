@@ -39,7 +39,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) -l$(ICESSL_LIBNAME) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) $(LIBS) -l$(ICESSL_LIBNAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
