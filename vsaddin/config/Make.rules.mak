@@ -90,9 +90,7 @@ VSTARGET                = $(VS)
 VS_HOME 		= $(VSINSTALLDIR)
 PKG_PREFIX 		= $(VSTARGET)
 
-!if "$(VS)" == "VS2008"
-PROPERTY_SHEET = "Ice.vsprops"
-!else
+!if "$(VS)" == "VS2010" || "$(VS)" == "VS2012"
 PROPERTY_SHEET = "Ice.props"
 !endif
 

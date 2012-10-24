@@ -380,7 +380,7 @@ namespace Ice.VisualStudio
         {
             string iceSourceHome = System.Environment.GetEnvironmentVariable("IceSourceHome");
             if (iceSourceHome != null && System.IO.Directory.Exists(iceSourceHome) &&
-               System.IO.File.Exists(Path.Combine(iceSourceHome, "cpp", "bin", slice2cpp)))
+               System.IO.File.Exists(Path.Combine(iceSourceHome, Path.Combine("cpp", Path.Combine("bin", slice2cpp)))))
             {
                 return iceSourceHome;
             }

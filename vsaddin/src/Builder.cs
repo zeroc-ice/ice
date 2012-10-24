@@ -1635,17 +1635,20 @@ namespace Ice.VisualStudio
 
             if(!String.IsNullOrEmpty(Environment.GetEnvironmentVariable("IceSourceHome")))
             {
-                return Path.Combine(Environment.GetEnvironmentVariable("IceSourceHome"), "cpp", "bin", compiler);
+                return Path.Combine(Environment.GetEnvironmentVariable("IceSourceHome"), 
+                                                                    Path.Combine("cpp", Path.Combine("bin", compiler)));
             }
 
             string iceHome = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             if(iceHome.EndsWith("\\vsaddin", StringComparison.CurrentCultureIgnoreCase))
             {
-                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin".Length), "bin", compiler);
+                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin".Length), 
+                                                                                        Path.Combine("bin", compiler));
             }
             if(iceHome.EndsWith("\\vsaddin\\bin", StringComparison.CurrentCultureIgnoreCase))
             {
-                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin\\bin".Length), "cpp", "bin", compiler);
+                return Path.Combine(iceHome.Substring(0, iceHome.Length - "\\vsaddin\\bin".Length), 
+                                                                    Path.Combine("cpp", Path.Combine("bin", compiler)));
             }
             throw new ArgumentException("Unable to determite Slice compiler location");
         }

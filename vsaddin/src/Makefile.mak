@@ -62,7 +62,11 @@ install::$(TARGETS)
 
 	copy $(TARGETS) $(install_bindir)\$(PKG).dll
 	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
+
+!if "$(VS)" == "VS2010" || "$(VS)" == "VS2012"
+install::
 	copy ..\config\$(PROPERTY_SHEET) $(install_configdir)\$(PROPERTY_SHEET)
+!endif
 
 clean::
 	-del /q $(TARGETS) $(PDBS)
