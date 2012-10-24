@@ -22,6 +22,7 @@ SUBDIRS		= IceUtil\winrt \
 SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
+		  slice2cs \
 		  slice2php \
 		  Ice \
 		  IceSSL \
