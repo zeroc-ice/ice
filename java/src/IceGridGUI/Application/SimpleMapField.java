@@ -40,6 +40,16 @@ public class SimpleMapField extends JTable
         _columnNames.add(headKey);
         _columnNames.add(headValue);
 
+        //
+        // Adjust row height for larger fonts
+        //
+        int fontSize = getFont().getSize();
+        int minRowHeight = fontSize + fontSize / 3;
+        if(rowHeight < minRowHeight)
+        {
+            setRowHeight(minRowHeight);
+        }
+
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
                 public void actionPerformed(ActionEvent e)

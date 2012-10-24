@@ -44,6 +44,16 @@ public class ParameterValuesField extends JTable
 
         _useDefaultCombo.setEditable(true);
         _notSetCombo.setEditable(true);
+
+        //
+        // Adjust row height for larger fonts
+        //
+        int fontSize = getFont().getSize();
+        int minRowHeight = fontSize + fontSize / 3;
+        if(rowHeight < minRowHeight)
+        {
+            setRowHeight(minRowHeight);
+        }
     }
 
     public void set(java.util.List<String> names,

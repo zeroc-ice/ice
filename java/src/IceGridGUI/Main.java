@@ -73,7 +73,7 @@ public class Main extends JFrame
             }
             else  // JGoodies L&F
             {
-                UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticXPLookAndFeel");
+                UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
             }
         }
         catch(Exception e)

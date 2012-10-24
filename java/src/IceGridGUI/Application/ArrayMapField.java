@@ -45,6 +45,16 @@ public class ArrayMapField extends JTable
 
         assert _vectorSize > 2;
 
+        //
+        // Adjust row height for larger fonts
+        //
+        int fontSize = getFont().getSize();
+        int minRowHeight = fontSize + fontSize / 3;
+        if(rowHeight < minRowHeight)
+        {
+            setRowHeight(minRowHeight);
+        }
+
         Action deleteRow = new AbstractAction("Delete selected row(s)")
             {
                 public void actionPerformed(ActionEvent e)

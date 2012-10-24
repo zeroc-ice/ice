@@ -38,6 +38,17 @@ public class TableField extends JTable
         {
             _columnNames.add(name);
         }
+        
+        //
+        // Adjust row height for larger fonts
+        //
+        int fontSize = getFont().getSize();
+        int minRowHeight = fontSize + fontSize / 3;
+        if(rowHeight < minRowHeight)
+        {
+            setRowHeight(minRowHeight);
+        }
+
         init();
     }
 
