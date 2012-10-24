@@ -23,10 +23,10 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS
+# VC100, VC100_EXPRESS, VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
-CPP_COMPILER            = VC90
+CPP_COMPILER            = VC100
 !endif
 
 #
@@ -34,18 +34,6 @@ CPP_COMPILER            = VC90
 #
 !if "$(PYTHON_HOME)" == ""
 PYTHON_HOME		= C:\Python33
-!endif
-
-#
-# STLPort is required if using MSVC++ 6.0. Change if STLPort
-# is located in a different location.
-#
-!if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
-!if "$(THIRDPARTY_HOME)" != ""
-STLPORT_HOME            = $(THIRDPARTY_HOME)
-!else
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
-!endif
 !endif
 
 # ----------------------------------------------------------------------
@@ -69,31 +57,14 @@ libdir			= $(top_srcdir)\python
 install_pythondir	= $(prefix)\python$(x64suffix)
 install_libdir		= $(prefix)\python$(x64suffix)
 
-!if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
-    "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS" && \
-    "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && \
+!if "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS" && \
     "$(CPP_COMPILER)" != "VC100" && "$(CPP_COMPILER)" != "VC100_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
 !include $(top_srcdir)\..\cpp\config\Make.rules.msvc
 
-!if "$(CPP_COMPILER)" == "VC60"
-libsuff			= \vc6
-!else
 libsuff			= $(x64suffix)
-!endif
-
-!if "$(ice_src_dist)" != ""
-!if "$(STLPORT_HOME)" != ""
-CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(libsuff)" $(LDFLAGS)
-!endif
-!else
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
-!endif
-!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d

@@ -3,8 +3,8 @@ Requirements
 ======================================================================
 
 - Ice @ver@
-- Python 2.3, 2.4, 2.5 or 2.6 built with a C++ compiler compatible 
-  with the C++ compiler used to build Ice for C++.
+- Python 2.6, 2.7, or 3.3 built with a C++ compiler compatible with
+  the C++ compiler used to build Ice for C++.
 
 Depending on your platform, you may need to download the Python source
 distribution from http://www.python.org and make your own Python
@@ -56,18 +56,9 @@ The Python interpreter is readily available on Windows platforms. You
 can build it yourself using Microsoft Visual C++, or obtain a binary
 distribution from the Python web site (http://www.python.org).
 
-Note that the binary distribution for Python 2.5.x available from
-www.python.org is compiled with Visual C++ 7.1, which is not a
-compiler that Ice supports. Although the Python developers do not
-support the use of Python extensions that are compiled with other
-versions of Visual C++, we have tested the Ice extension built with
-Visual C++ 8.0 SP1 and experienced no issues in combination with
-Python's binary distribution. The Python 2.6.x binary distribution
-is compiled with Visual C++ 9.0, and you should use this binary
-distribution if you want to compile the Ice extension with Visual C++
-9.0.
-
-Visual C++ 6.0 is not supported with Ice for Python.
+The Python 3.3.x binary distribution is compiled with Visual C++ 10.0,
+and you should use this binary distribution if you want to compile the
+Ice extension with Visual C++ 10.0.
 
 Follow these steps to build the Ice extension for Python:
 
@@ -101,9 +92,7 @@ NOTES:
    case, you will also need to build a debug version of the Python
    interpreter from sources.
 
- * The Ice extension is created as python\IcePy.pyd. The extension
-   was named python\IcePy.dll in prior releases, but the .dll suffix
-   is no longer supported by Python 2.5.
+ * The Ice extension is created as python\IcePy.pyd.
 
 
 ======================================================================
