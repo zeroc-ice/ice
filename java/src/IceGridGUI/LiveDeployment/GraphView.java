@@ -575,7 +575,17 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     }
                 }
             };
-
+        
+        //
+        // Adjust row height for larger fonts
+        //
+        int fontSize = _legendTable.getFont().getSize();
+        int minRowHeight = fontSize + fontSize / 3;
+        if(_legendTable.getRowHeight() < minRowHeight)
+        {
+            _legendTable.setRowHeight(minRowHeight);
+        }
+        
         //
         // Graph preferences.
         //

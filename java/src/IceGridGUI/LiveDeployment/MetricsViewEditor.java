@@ -672,6 +672,16 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     }
                 };
 
+            //
+            // Adjust row height for larger fonts
+            //
+            int fontSize = table.getFont().getSize();
+            int minRowHeight = fontSize + fontSize / 3;
+            if(table.getRowHeight() < minRowHeight)
+            {
+                table.setRowHeight(minRowHeight);
+            }
+
             table.setDragEnabled(true);
             table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             table.setCellSelectionEnabled(true);
@@ -1422,6 +1432,16 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                             model.addColumn("Identity");
                             final JTable table = new JTable(model);
                             
+                            //
+                            // Adjust row height for larger fonts
+                            //
+                            int fontSize = table.getFont().getSize();
+                            int minRowHeight = fontSize + fontSize / 3;
+                            if(table.getRowHeight() < minRowHeight)
+                            {
+                                table.setRowHeight(minRowHeight);
+                            }
+
                             table.setPreferredSize(new Dimension(550, 200));
 
                             table.setPreferredScrollableViewportSize(table.getPreferredSize());
@@ -1603,7 +1623,17 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     };
                                 table.addMouseListener(new ButtonMouseListener(table));
                                 table.setAutoCreateRowSorter(true);
-
+                                
+                                //
+                                // Adjust row height for larger fonts
+                                //
+                                int fontSize = table.getFont().getSize();
+                                int minRowHeight = fontSize + fontSize / 3;
+                                if(table.getRowHeight() < minRowHeight)
+                                {
+                                    table.setRowHeight(minRowHeight);
+                                }
+                                
                                 for(Map.Entry<Integer, MetricsField> fieldEntry : model.getMetricFields().entrySet())
                                 {
                                     if(fieldEntry.getValue().getCellRenderer() != null)
