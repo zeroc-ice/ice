@@ -630,6 +630,25 @@ public class Coordinator
         return _communicator;
     }
 
+    public Ice.Communicator getWizardCommunicator()
+    {
+        if(_wizardCommunicator == null)
+        {
+            //
+            // Create a communicator that is used by connection wizards to
+            // parse endpoints.
+            //
+            // We enable IceSSL so the communicator knows how to parse ssl
+            // endpoints.
+            //
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties();
+            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+            _wizardCommunicator = Ice.Util.initialize(initData);
+        }
+        return _wizardCommunicator;
+    }
+
     public Ice.Properties getProperties()
     {
         return _initData.properties;
@@ -2459,6 +2478,7 @@ public class Coordinator
                 {
                     destroyIceGridAdmin();
                     destroyCommunicator();
+                    destroyWizardCommunicator();
                 }
             };
 
@@ -3215,6 +3235,7 @@ public class Coordinator
 
         destroyIceGridAdmin();
         destroyCommunicator();
+        destroyWizardCommunicator();
         Runtime.getRuntime().removeShutdownHook(_shutdownHook);
         _mainFrame.dispose();
         Runtime.getRuntime().exit(status);
@@ -3238,6 +3259,27 @@ public class Coordinator
                 e.printStackTrace();
             }
             _communicator = null;
+        }
+    }
+
+    //
+    // Can be called by the shutdown hook thread
+    //
+    private void destroyWizardCommunicator()
+    {
+        if(_wizardCommunicator != null)
+        {
+            try
+            {
+                _wizardCommunicator.destroy();
+            }
+            catch(Ice.LocalException e)
+            {
+                System.err.println("_wizardCommunicator.destroy() raised "
+                                   + e.toString());
+                e.printStackTrace();
+            }
+            _wizardCommunicator = null;
         }
     }
 
@@ -3633,6 +3675,7 @@ public class Coordinator
     private boolean _substitute = false;
 
     private JFrame _mainFrame;
+    private Ice.Communicator _wizardCommunicator;
     private final SessionKeeper _sessionKeeper;
 
     private Object _clipboard;

@@ -1306,7 +1306,7 @@ public class SessionKeeper
                     }
                 });
                 group.add(_directDefaultEndpointSSL);
-                _directDefaultEndpointSSL.setSelected(true);
+                _directDefaultEndpointTCP.setSelected(true);
                 JPanel protocolOptionPane;
                 {
                     DefaultFormBuilder protocolBuilder = new DefaultFormBuilder(
@@ -1392,7 +1392,7 @@ public class SessionKeeper
                     }
                 });
                 group.add(_routedDefaultEndpointSSL);
-                _routedDefaultEndpointSSL.setSelected(true);
+                _routedDefaultEndpointTCP.setSelected(true);
                 JPanel protocolOptionPane;
                 {
                     DefaultFormBuilder protocolBuilder = 
@@ -1468,6 +1468,40 @@ public class SessionKeeper
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedCustomEnpointStep.toString());
             }
 
+            // X509Certificate panel
+            {
+                FormLayout layout = new FormLayout("pref", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+
+                ButtonGroup group = new ButtonGroup();
+
+                _x509CertificateNoButton = new JRadioButton(new AbstractAction("No")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            validatePanel();
+                        }
+                    });
+                _x509CertificateNoButton.setSelected(true);
+                group.add(_x509CertificateNoButton);
+                _x509CertificateYesButton = new JRadioButton(new AbstractAction("Yes")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            validatePanel();
+                        }
+                    });
+                group.add(_x509CertificateYesButton);
+
+                builder.append(new JLabel("<html><b>Provide a SSL X509 Certificate?</b></html>"));
+                builder.append(_x509CertificateNoButton);
+                builder.append(_x509CertificateYesButton);
+
+                _cardPanel.add(builder.getPanel(), WizardStep.X509CertificateStep.toString());
+            }
+
             // Authentication panel
             {
                 FormLayout layout = new FormLayout("pref", "pref");
@@ -1503,40 +1537,6 @@ public class SessionKeeper
                 builder.append(new JLabel("This option will use X509 Certificates for authentication."));
 
                 _cardPanel.add(builder.getPanel(), WizardStep.AuthStep.toString());
-            }
-
-            // X509Certificate panel
-            {
-                FormLayout layout = new FormLayout("pref", "pref");
-                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-                builder.border(Borders.DIALOG);
-                builder.rowGroupingEnabled(true);
-
-                ButtonGroup group = new ButtonGroup();
-
-                _x509CertificateNoButton = new JRadioButton(new AbstractAction("No")
-                    {
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            validatePanel();
-                        }
-                    });
-                _x509CertificateNoButton.setSelected(true);
-                group.add(_x509CertificateNoButton);
-                _x509CertificateYesButton = new JRadioButton(new AbstractAction("Yes")
-                    {
-                        public void actionPerformed(ActionEvent e)
-                        {
-                            validatePanel();
-                        }
-                    });
-                group.add(_x509CertificateYesButton);
-
-                builder.append(new JLabel("<html><b>Provide a SSL X509 Certificate?</b></html>"));
-                builder.append(_x509CertificateNoButton);
-                builder.append(_x509CertificateYesButton);
-
-                _cardPanel.add(builder.getPanel(), WizardStep.X509CertificateStep.toString());
             }
 
             // Finish configuration panel
@@ -1643,18 +1643,9 @@ public class SessionKeeper
                                 }
                                 break;
                             }
-                            case RoutedDefaultEndpointStep:
-                            case RoutedCustomEnpointStep:
                             case DirectDefaultEndpointStep:
-                            case DirectCustomEnpointStep:
                             {
-                                _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
-                                _wizardSteps.push(WizardStep.AuthStep);
-                                break;
-                            }
-                            case AuthStep:
-                            {
-                                if(_usernamePasswordAuthButton.isSelected())
+                                if(_directDefaultEndpointSSL.isSelected())
                                 {
                                     _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
                                     _wizardSteps.push(WizardStep.X509CertificateStep);
@@ -1666,7 +1657,119 @@ public class SessionKeeper
                                 }
                                 break;
                             }
+                            case RoutedDefaultEndpointStep:
+                            {
+                                if(_routedDefaultEndpointSSL.isSelected())
+                                {
+                                    _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
+                                    _wizardSteps.push(WizardStep.X509CertificateStep);
+                                }
+                                else
+                                {
+                                    _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
+                                    _wizardSteps.push(WizardStep.FinishStep);
+                                }
+                                break;
+                            }
+                            case DirectCustomEnpointStep:
+                            {
+                                try
+                                {
+                                    Ice.Identity id = new Ice.Identity();
+                                    id.name = "router";
+                                    id.category = _directInstanceName.getText();
+                                    StringBuilder endpoint = new StringBuilder();
+                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(":");
+                                    endpoint.append(_directCustomEndpointValue.getText());
+                                    if(hasSecureEndpoints(endpoint.toString()))
+                                    {
+                                        _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
+                                        _wizardSteps.push(WizardStep.X509CertificateStep);
+                                    }
+                                    else
+                                    {
+                                        _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
+                                        _wizardSteps.push(WizardStep.FinishStep);
+                                    }
+                                }
+                                catch(Ice.EndpointParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                catch(Ice.ProxyParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                break;
+                            }
+                            case RoutedCustomEnpointStep:
+                            {
+                                try
+                                {
+                                    Ice.Identity id = new Ice.Identity();
+                                    id.name = "router";
+                                    id.category = _routedInstanceName.getText();
+                                    StringBuilder endpoint = new StringBuilder();
+                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(":");
+                                    endpoint.append(_routedCustomEndpointValue.getText());
+                                    if(hasSecureEndpoints(endpoint.toString()))
+                                    {
+                                        _cardLayout.show(_cardPanel, WizardStep.X509CertificateStep.toString());
+                                        _wizardSteps.push(WizardStep.X509CertificateStep);
+                                    }
+                                    else
+                                    {
+                                        _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
+                                        _wizardSteps.push(WizardStep.FinishStep);
+                                    }
+                                }
+                                catch(Ice.EndpointParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                catch(Ice.ProxyParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                break;
+                            }
                             case X509CertificateStep:
+                            {
+                                if(_x509CertificateYesButton.isSelected())
+                                {
+                                    _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
+                                    _wizardSteps.push(WizardStep.AuthStep);
+                                }
+                                else
+                                {
+                                    _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
+                                    _wizardSteps.push(WizardStep.FinishStep);
+                                }
+                                break;
+                            }
+                            case AuthStep:
                             {
                                 _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
                                 _wizardSteps.push(WizardStep.FinishStep);
@@ -1737,6 +1840,35 @@ public class SessionKeeper
                             }
                             else
                             {
+                                try
+                                {
+                                    Ice.Identity id = new Ice.Identity();
+                                    id.name = "locator";
+                                    id.category = _directInstanceName.getText();
+                                    StringBuilder endpoint = new StringBuilder();
+                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(":");
+                                    endpoint.append(_directCustomEndpointValue.getText());
+                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                }
+                                catch(Ice.EndpointParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                catch(Ice.ProxyParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
                                 inf.setEndpoint(_directCustomEndpointValue.getText());
                             }
                         }
@@ -1768,10 +1900,38 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
-                                inf.setSSL(_directDefaultEndpointSSL.isSelected());
                             }
                             else
                             {
+                                try
+                                {
+                                    Ice.Identity id = new Ice.Identity();
+                                    id.name = "router";
+                                    id.category = _routedInstanceName.getText();
+                                    StringBuilder endpoint = new StringBuilder();
+                                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                                    endpoint.append(":");
+                                    endpoint.append(_routedCustomEndpointValue.getText());
+                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                }
+                                catch(Ice.EndpointParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
+                                catch(Ice.ProxyParseException ex)
+                                {
+                                    JOptionPane.showMessageDialog(
+                                        ConnectionWizardDialog.this,
+                                        ex.str,
+                                        "Error parsing endpoint",
+                                        JOptionPane.ERROR_MESSAGE);
+                                    return;
+                                }
                                 inf.setEndpoint(_routedCustomEndpointValue.getText());
                             }
                         }
@@ -1905,6 +2065,18 @@ public class SessionKeeper
                     _routedCustomEndpointValue.requestFocusInWindow();
                     break;
                 }
+                case X509CertificateStep:
+                {
+                    finalStep = true;
+                    if(_x509CertificateYesButton.isSelected())
+                    {
+                        _x509CertificateYesButton.requestFocusInWindow();
+                    }
+                    else
+                    {
+                        _x509CertificateNoButton.requestFocusInWindow();
+                    }
+                }
                 case AuthStep:
                 {
                     finalStep = true;
@@ -1916,11 +2088,6 @@ public class SessionKeeper
                     {
                         _certificateAuthButton.requestFocusInWindow();
                     }
-                    break;
-                }
-                case X509CertificateStep:
-                {
-                    finalStep = true;
                     break;
                 }
                 case FinishStep:
@@ -2271,6 +2438,18 @@ public class SessionKeeper
         ConnectionInfo _conf;
     }
 
+    private boolean hasSecureEndpoints(String str)
+    {
+        for(Ice.Endpoint endpoint : _coordinator.getWizardCommunicator().stringToProxy(str).ice_getEndpoints())
+        {
+            if(endpoint.getInfo().secure())
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     enum WizardStep {ConnectionTypeStep, 
                      DirectInstanceStep, DirectEndpointStep, DirectDefaultEndpointStep, DirectCustomEnpointStep,
                      RoutedInstanceStep, RoutedEndpointStep, RoutedDefaultEndpointStep, RoutedCustomEnpointStep,
@@ -2305,6 +2484,7 @@ public class SessionKeeper
                                    new JLabel(inf.getInstanceName()));
                 }
 
+                boolean ssl = false;
                 if(inf.getDefaultEndpoint())
                 {
                     builder.append(new JLabel("<html><b>Hostname:</b></html>"), 
@@ -2323,11 +2503,21 @@ public class SessionKeeper
                         builder.append(new JLabel("<html><b>Protocol:</b></html>"), 
                                     new JLabel("TCP"));
                     }
+                    ssl = inf.getSSL();
                 }
                 else
                 {
                     builder.append(new JLabel("<html><b>Endpoints:</b></html>"), 
                                    new JLabel(inf.getEndpoint()));
+
+                    Ice.Identity id = new Ice.Identity();
+                    id.name = inf.getDirect() ? "locator" : "router";
+                    id.category = inf.getInstanceName();
+                    StringBuilder endpoint = new StringBuilder();
+                    endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
+                    endpoint.append(":");
+                    endpoint.append(inf.getEndpoint());
+                    ssl = hasSecureEndpoints(endpoint.toString());
                 }
 
                 if(inf.getAuth() == AuthType.UsernamePasswordAuthType)
@@ -2339,6 +2529,20 @@ public class SessionKeeper
                 {
                     builder.append(new JLabel("<html><b>Authentication mode:</b></html>"), 
                                    new JLabel("SSL Certificate"));
+                }
+                
+                if(ssl)
+                {
+                    if(inf.getUseX509Certificate())
+                    {
+                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"), 
+                                       new JLabel("Yes"));
+                    }
+                    else
+                    {
+                        builder.append(new JLabel("<html><b>Use SSL Client Certificate:</b></html>"), 
+                                       new JLabel("No"));
+                    }
                 }
                 detailsPane = builder.getPanel();
             }
@@ -2612,7 +2816,7 @@ public class SessionKeeper
                         });
 
                 JScrollPane registryListScroll = createStrippedScrollPane(_connectionList);
-                _connectionList.setFixedCellWidth(300);
+                _connectionList.setFixedCellWidth(500);
                 builder.append(registryListScroll);
 
                 savedConfigurationsPanel = builder.getPanel();
