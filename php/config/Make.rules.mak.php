@@ -23,10 +23,10 @@ OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
-# VC60, VC90, VC90_EXPRESS
+# VC90, VC90_EXPRESS
 #
 !if "$(CPP_COMPILER)" == ""
-CPP_COMPILER            = VC60
+CPP_COMPILER            = VC90
 !endif
 
 #
@@ -71,14 +71,6 @@ THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
 !endif
 !endif
 
-#
-# STLPort is required if using MSVC++ 6.0. Change if STLPort
-# is located in a different location.
-#
-!if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
-STLPORT_HOME            = $(THIRDPARTY_HOME)
-!endif
-
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -101,7 +93,7 @@ libdir			= $(top_srcdir)\lib
 install_phpdir		= $(prefix)\php
 install_libdir		= $(prefix)\php
 
-!if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
+!if "$(CPP_COMPILER)" != "VC90" && "$(CPP_COMPILER)" != "VC90_EXPRESS"
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
@@ -111,22 +103,7 @@ install_libdir		= $(prefix)\php
 !include $(top_srcdir)\config\Make.rules.msvc
 !endif
 
-!if "$(CPP_COMPILER)" == "VC60"
-libsuff         = \vc6
-!else
 libsuff         = $(x64suffix)
-!endif
-
-!if "$(ice_src_dist)" != ""
-!if "$(STLPORT_HOME)" != ""
-CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib$(libsuff)" $(LDFLAGS)
-!endif
-!else
-!if "$(CPP_COMPILER)" == "VC60"
-CPPFLAGS        = -I"$(ice_dir)\include\stlport" $(CPPFLAGS)
-!endif
-!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
