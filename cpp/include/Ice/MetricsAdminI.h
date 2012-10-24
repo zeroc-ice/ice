@@ -20,7 +20,12 @@
 #  define ICE_CPP11_REGEXP
 #endif
 
-#ifdef ICE_CPP11_REGEXP
+#ifdef __MINGW32__
+    //
+    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
+    // we can use std::regex.
+    //
+#elif defined(ICE_CPP11_REGEXP)
 #  include <regex>
 #else
 #  include <regex.h>
@@ -70,7 +75,13 @@ public:
         bool match(const std::string&);
         
         const std::string _attribute;
-#ifdef ICE_CPP11_REGEXP
+
+#ifdef __MINGW32__
+    //
+    // No regexp support with MinGW, when MinGW C++11 mode is not experimental
+    // we can use std::regex.
+    //
+#elif defined(ICE_CPP11_REGEXP)
 #   if _MSC_VER < 1600
         std::tr1::regex _regex;
 #   else
