@@ -11,7 +11,7 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			?= C:\Users\jose\Desktop\ice_build_home_vc90\Release\Ice-$(VERSION)
+prefix			?= C:\Ice-$(VERSION)
 
 #
 # The "root directory" for runpath embedded in executables. Can be unset

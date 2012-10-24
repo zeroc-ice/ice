@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= C:\Users\jose\Desktop\ice_build_home\VC9\Debug\Ice-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Ice invokes unmanaged code to implement the following features:

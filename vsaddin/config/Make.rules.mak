@@ -12,7 +12,7 @@
 # if it does not exist.
 #
 
-prefix			= C:\Users\jose\Desktop\ice_build_home_vc90\Release\Ice-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define DEBUG as yes if you want to build with debug information and
