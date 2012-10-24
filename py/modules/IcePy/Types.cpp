@@ -1376,7 +1376,8 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
                 }
             }
 
-            os->writeSize(sz == 0 ? 1 : sz * elementType->wireSize() + (sz > 254 ? 5 : 1));
+            const Ice::Int isz = static_cast<Ice::Int>(sz);
+            os->writeSize(isz == 0 ? 1 : isz * elementType->wireSize() + (isz > 254 ? 5 : 1));
         }
     }
 
@@ -2394,7 +2395,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
         throw AbortMarshaling();
     }
 
-    Py_ssize_t sz = p == Py_None ? 0 : PyDict_Size(p);
+    const Ice::Int sz = p == Py_None ? 0 : static_cast<Ice::Int>(PyDict_Size(p));
 
     if(optional)
     {
@@ -2414,7 +2415,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     }
     else
     {
-        os->writeSize(static_cast<int>(sz));
+        os->writeSize(sz);
 
         Py_ssize_t pos = 0;
         PyObject* key;
