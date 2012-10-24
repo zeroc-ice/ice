@@ -673,7 +673,7 @@
 
         <jar jarfile="${lib.dir}/IceGridGUItemp.jar" basedir="resources" update="true">
             <include name="icons/**"/>
-            <include name="metrics.config"/>
+            <include name="metrics.cfg"/>
         </jar>
 
         <taskdef resource="proguard/ant/task.properties"/>

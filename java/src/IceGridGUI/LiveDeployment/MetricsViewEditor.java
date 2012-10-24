@@ -252,7 +252,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
             tree.addTreeSelectionListener(new SelectionListener());
 
             _properties = Ice.Util.createProperties();
-            _properties.load("metrics.config");
+            _properties.load("metrics.cfg");
             _sectionSort = _properties.getPropertyAsList("IceGridGUI.Metrics");
             for(String name : _sectionSort)
             {
