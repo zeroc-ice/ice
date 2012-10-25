@@ -27,6 +27,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- The Slice compilers now define the ICE_VERSION preprocessor macro
+  so that you can use the Ice version to conditionally compile your
+  Slice definitions.
+
 - Fixed bug where the UDP client endpoint --interface option would be
   ignored on some platforms (Windows and OS X).
 
