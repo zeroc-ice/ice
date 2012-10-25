@@ -711,7 +711,11 @@ public class AllTests
             test(false);
         }
         test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 2);
-        m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
+        m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
+        if(!m1.id.equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010"))
+        {
+            m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
+        }
         test(m1.id.equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
     
         checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2, out);

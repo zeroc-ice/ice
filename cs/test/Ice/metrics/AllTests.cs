@@ -687,7 +687,11 @@ public class AllTests : TestCommon.TestApp
             test(false);
         }
         test(clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"].Length == 2);
-        m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
+        m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][0];
+        if(!m1.id.Equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010"))
+        {
+            m1 = clientMetrics.getMetricsView("View", out timestamp)["EndpointLookup"][1];
+        }
         test(m1.id.Equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
     
         checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2);
