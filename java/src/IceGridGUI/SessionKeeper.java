@@ -1796,6 +1796,7 @@ public class SessionKeeper
                 {
                     public void actionPerformed(ActionEvent e)
                     {
+                        boolean secureEndpoints = false;
                         ConnectionInfo inf = null;
                         if(_storeConfiguration.isSelected())
                         {
@@ -1837,6 +1838,7 @@ public class SessionKeeper
                                     return;
                                 }
                                 inf.setSSL(_directDefaultEndpointSSL.isSelected());
+                                secureEndpoints = _directDefaultEndpointSSL.isSelected();
                             }
                             else
                             {
@@ -1849,7 +1851,7 @@ public class SessionKeeper
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
-                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                    secureEndpoints = hasSecureEndpoints(endpoint.toString());
                                 }
                                 catch(Ice.EndpointParseException ex)
                                 {
@@ -1900,6 +1902,8 @@ public class SessionKeeper
                                         JOptionPane.ERROR_MESSAGE);
                                     return;
                                 }
+                                inf.setSSL(_routedDefaultEndpointSSL.isSelected());
+                                secureEndpoints = _routedDefaultEndpointSSL.isSelected();
                             }
                             else
                             {
@@ -1912,7 +1916,7 @@ public class SessionKeeper
                                     endpoint.append(_coordinator.getWizardCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
-                                    _coordinator.getWizardCommunicator().stringToProxy(endpoint.toString());
+                                    secureEndpoints = hasSecureEndpoints(endpoint.toString());
                                 }
                                 catch(Ice.EndpointParseException ex)
                                 {
@@ -1944,6 +1948,16 @@ public class SessionKeeper
                         else
                         {
                             inf.setAuth(AuthType.X509CertificateAuthType);
+                        }
+
+                        //
+                        // If there isn't secure endpoints, we must set aut type to username password
+                        // and use X509 certificate to false.
+                        //
+                        if(!secureEndpoints)
+                        {
+                            inf.setAuth(AuthType.UsernamePasswordAuthType);
+                            inf.setUseX509Certificate(false);
                         }
                         
                         if(_storeConfiguration.isSelected())
