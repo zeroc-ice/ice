@@ -173,6 +173,9 @@ Visual Studio Add-in Changes
 C# Changes
 ==========
 
+- Added the properties IceSSL.KeySet and IceSSL.PersistKeySet to
+  control how and where to import private keys of X.509 certificates.
+
 - Changed the marshaling code for sequences of user-defined types that
   are mapped to System.Collections.Generic.Stack<T>. In previous
   releases the elements were marshaled in bottom-to-top order; now
