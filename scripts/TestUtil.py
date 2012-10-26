@@ -433,6 +433,9 @@ def run(tests, root = False):
         a = '--protocol=tcp --compress %s'  % arg
         expanded.append([ (test, a, config) for test,config in tests if "core" in config])
 
+        a = '--mx %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "core" in config])
+
         if not noipv6:
             a = "--ipv6 --protocol=tcp %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "core" in config])
@@ -443,12 +446,16 @@ def run(tests, root = False):
         a = "--protocol=tcp %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
+        a = '--mx %s'  % arg
+        expanded.append([ (test, a, config) for test,config in tests if "service" in config])
+
         if not noipv6:
             a = "--protocol=ssl --ipv6 %s" % arg
             expanded.append([ (test, a, config) for test,config in tests if "service" in config])
 
         a = "--protocol=tcp --serialize %s" % arg
         expanded.append([ (test, a, config) for test,config in tests if "stress" in config])
+
     elif not allCross:
         expanded.append([ (test, arg, config) for test,config in tests])
 

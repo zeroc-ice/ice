@@ -211,8 +211,8 @@ endif
 
 ifeq ($(MinGW), yes)
 	OPENSSL_LIBS            = -leay32_mingw -lssleay32_mingw
-	BZIP2_LIBS			= -lbzip2_mingw
-	MCPP_LIBS              = -lmcpp
+	BZIP2_LIBS		= -lbzip2_mingw
+	MCPP_LIBS               = -lmcpp
 	slicedir_win 		= $(shell $(top_srcdir)/../cpp/config/cygpath-win.sh $(slicedir))
 	ICECPPFLAGS		= -I"$(slicedir_win)"
 else
