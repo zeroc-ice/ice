@@ -5,22 +5,23 @@
         <IceHome>$(Registry:HKEY_LOCAL_MACHINE\Software\ZeroC\Ice 3.5b@InstallDir)</IceHome>
         <IceInclude>$(IceHome)\include</IceInclude>
     </PropertyGroup>
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(MinimumVisualStudioVersion)' == 10.0">
+
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v100'">
         <IceLib>$(IceHome)\lib</IceLib>
         <IceBin>$(IceHome)\bin</IceBin>
     </PropertyGroup>
     
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(MinimumVisualStudioVersion)' == 10.0">
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v100'">
         <IceLib>$(IceHome)\lib\$(Platform)</IceLib>
         <IceBin>$(IceHome)\bin\$(Platform)</IceBin>
     </PropertyGroup>
     
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(MinimumVisualStudioVersion)' == 11.0">
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' == 'Win32' And '$(PlatformToolset)' == 'v110'">
         <IceLib>$(IceHome)\lib\vc110</IceLib>
         <IceBin>$(IceHome)\bin\vc110</IceBin>
     </PropertyGroup>
     
-    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(MinimumVisualStudioVersion)' == 11.0">
+    <PropertyGroup Condition="!Exists('$(IceSourceHome)') And '$(Platform)' != 'Win32' And '$(PlatformToolset)' == 'v110'">
         <IceLib>$(IceHome)\lib\vc110\$(Platform)</IceLib>
         <IceBin>$(IceHome)\bin\vc110\$(Platform)</IceBin>
     </PropertyGroup>
