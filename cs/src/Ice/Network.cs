@@ -1259,10 +1259,16 @@ namespace IceInternal
                 if(ni.Name == name)
                 {
                     IPInterfaceProperties ipProps = ni.GetIPProperties();
-                    IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
-                    if(ipv6Props != null)
+                    try
                     {
-                        return ipv6Props.Index;
+                        IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
+                        if(ipv6Props != null)
+                        {
+                            return ipv6Props.Index;
+                        }
+                    }
+                    catch(System.NotImplementedException)
+                    {
                     }
                 }
             }

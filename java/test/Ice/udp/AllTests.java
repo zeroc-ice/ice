@@ -144,16 +144,23 @@ public class AllTests
 
         System.out.print("testing udp multicast... ");
         System.out.flush();
-        String host;
+        String endpoint;
         if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
         {
-            host = "\"ff01::1:1\"";
+            if(System.getProperty("os.name").contains("OS X"))
+            {
+                endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+            }
+            else
+            {
+                endpoint = "udp -h \"ff01::1:1\" -p 12020";
+            }
         }
         else
         {
-            host = "239.255.1.1";
+            endpoint = "udp -h 239.255.1.1 -p 12020";
         }
-        base = communicator.stringToProxy("test -d:udp -h " + host + " -p 12020");
+        base = communicator.stringToProxy("test -d:" + endpoint);
         TestIntfPrx objMcast = TestIntfPrxHelper.uncheckedCast(base);
 
         nRetry = 5;

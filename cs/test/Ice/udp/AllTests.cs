@@ -157,16 +157,23 @@ public class AllTests
 
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
-        String host;
-        if(communicator.getProperties().getProperty("Ice.IPv6") == "1")
+        string endpoint;
+        if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            host = "\"ff01::1:1\"";
+            if(IceInternal.AssemblyUtil.osx_)
+            {
+                endpoint = "udp -h \"ff02::1:1\" -p 12020 --interface \"lo0\"";
+            }
+            else
+            {
+                endpoint = "udp -h \"ff01::1:1\" -p 12020";
+            }
         }
         else
         {
-            host = "239.255.1.1";
+            endpoint = "udp -h 239.255.1.1 -p 12020";
         }
-        @base = communicator.stringToProxy("test:udp -h " + host + " -p 12020").ice_datagram();
+        @base = communicator.stringToProxy("test -d:" + endpoint);
         TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         nRetry = 5;

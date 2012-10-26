@@ -56,16 +56,6 @@ namespace IceInternal
 
             if(_state <= StateConnectPending)
             {
-#if !SILVERLIGHT
-                if(Network.isMulticast((IPEndPoint)_addr))
-                {
-                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                    if(_mcastTtl != -1)
-                    {
-                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                    }
-                }
-#endif                    
                 _state = StateConnected;
             }
 
@@ -790,6 +780,14 @@ namespace IceInternal
                 setBufSize(instance);
 #if !SILVERLIGHT
                 Network.setBlock(_fd, false);
+                if(Network.isMulticast((IPEndPoint)_addr))
+                {
+                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
+                    if(_mcastTtl != -1)
+                    {
+                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
+                    }
+                }
 #endif
             }
             catch(Ice.LocalException)
