@@ -2572,7 +2572,7 @@ public class Coordinator
                     if(_graphViews.size() > 0)
                     {
                         if(JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(getMainFrame(),
-                                                                            "Close all open Graph Views and logout?",
+                                                                            "Close all open Metrics Graph Views and logout?",
                                                                             "Confirm logout",
                                                                             JOptionPane.YES_NO_OPTION))
                         {
@@ -2624,7 +2624,7 @@ public class Coordinator
                                               "Release exclusive write access on the registry");
         _releaseExclusiveWriteAccess.setEnabled(false);
 
-        _newGraph = new AbstractAction("Graph")
+        _newGraph = new AbstractAction("Metrics Graph")
             {
                 public void actionPerformed(ActionEvent e)
                 {
@@ -3046,7 +3046,7 @@ public class Coordinator
     public GraphView createGraphView()
     {
         StringBuilder title = new StringBuilder();
-        title.append("Graph");
+        title.append("Metrics Graph");
         if(_graphViews.size() > 0)
         {
             title.append(" - ");

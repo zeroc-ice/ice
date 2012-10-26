@@ -707,11 +707,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                         if(e.isPopupTrigger())
                         {
                             JPopupMenu popup = new JPopupMenu();
-                            JMenu addToGraph = new JMenu("Add to graph");
+                            JMenu addToGraph = new JMenu("Add To Metrics Graph");
                             popup.add(addToGraph);
                             final Map<String, List<MetricsCell>> rows = getSelectedRows(table, true);
                             addToGraph.setEnabled(rows.size() > 0);
-                            JMenuItem newGraph = new JMenuItem("New Graph");
+                            JMenuItem newGraph = new JMenuItem("New Metrics Graph");
                             newGraph.addActionListener(new ActionListener()
                                     {
                                         public void actionPerformed(ActionEvent e)

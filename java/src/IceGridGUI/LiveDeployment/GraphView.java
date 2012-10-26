@@ -547,7 +547,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
                     builder.nextLine();
                     builder.append(xAxisPanel);
 
-                    if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Graph Preferences", 
+                    if(JOptionPane.showConfirmDialog(GraphView.this, builder.getPanel(), "Metrics Graph Preferences", 
                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION)
                     {
                         return;
