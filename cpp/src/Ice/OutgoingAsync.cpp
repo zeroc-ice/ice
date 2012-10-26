@@ -1043,7 +1043,6 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
         using BatchOutgoingAsync::__sent;
 #endif
 
-
         virtual void __finished(const Ice::LocalException& ex, bool)
         {
             _remoteObserver.failed(ex.ice_name());
@@ -1067,10 +1066,18 @@ IceInternal::CommunicatorBatchOutgoingAsync::flushConnection(const ConnectionIPt
         ++_useCount;
     }
 
-    AsyncStatus status = con->flushAsyncBatchRequests(new BatchOutgoingAsyncI(this, _instance, _observer));
-    if(!(status & AsyncStatusSent))
+    try
     {
-        _sentSynchronously = false;
+        AsyncStatus status = con->flushAsyncBatchRequests(new BatchOutgoingAsyncI(this, _instance, _observer));
+        if(!(status & AsyncStatusSent))
+        {
+            _sentSynchronously = false;
+        }
+    }
+    catch(const Ice::LocalException&)
+    {
+        check(false);
+        throw;
     }
 }
 

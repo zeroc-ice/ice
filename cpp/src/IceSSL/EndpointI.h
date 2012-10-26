@@ -65,7 +65,6 @@ private:
     const std::string _host;
     const Ice::Int _port;
     const Ice::Int _timeout;
-    const std::string _connectionId;
     const bool _compress;
 };
 

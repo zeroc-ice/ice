@@ -1689,12 +1689,21 @@ namespace IceInternal
                 monitor_.Unlock();
             }
 
-            Ice.AsyncCallback sentCallback;
-            if(!con.flushAsyncBatchRequests(new BatchOutgoingAsyncI(this), out sentCallback))
+
+            try
             {
-                sentSynchronously_ = false;
+                Ice.AsyncCallback sentCallback;
+                if(!con.flushAsyncBatchRequests(new BatchOutgoingAsyncI(this), out sentCallback))
+                {
+                    sentSynchronously_ = false;
+                }
+                Debug.Assert(sentCallback == null);
             }
-            Debug.Assert(sentCallback == null);
+            catch(Ice.LocalException)
+            {
+                check(false);
+                throw;
+            }
         }
 
         public void ready()

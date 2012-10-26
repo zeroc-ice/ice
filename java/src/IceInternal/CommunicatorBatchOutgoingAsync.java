@@ -90,10 +90,18 @@ public class CommunicatorBatchOutgoingAsync extends Ice.AsyncResult
             ++_useCount;
         }
         
-        int status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
-        if((status & AsyncStatus.Sent) > 0)
+        try
         {
-            _sentSynchronously = false;
+            int status = con.flushAsyncBatchRequests(new BatchOutgoingAsyncI());
+            if((status & AsyncStatus.Sent) > 0)
+            {
+                _sentSynchronously = false;
+            }
+        }
+        catch(Ice.LocalException ex)
+        {
+            check(false);
+            throw ex;
         }
     }
 
