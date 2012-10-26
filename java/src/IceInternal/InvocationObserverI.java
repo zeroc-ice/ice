@@ -24,7 +24,6 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
                         Class<?> cl = RemoteInvocationHelper.class;
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
-                        add("endpoint", cl.getDeclaredMethod("getEndpoint"));
                         CommunicatorObserverI.addConnectionAttributes(this, RemoteInvocationHelper.class);
                     }
                     catch(Exception ex)

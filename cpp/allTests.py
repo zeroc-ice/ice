@@ -116,7 +116,7 @@ tests = [
 if TestUtil.isWin32() or os.getuid() == 0:
     tests += [
         ("IceUtil/priority", ["core", "nodarwin"]),
-        ("Ice/threadPoolPriority", ["core", "nodarwin"])
+        ("Ice/threadPoolPriority", ["core", "nodarwin", "nomx"])
         ]
 
 if __name__ == "__main__":

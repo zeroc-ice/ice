@@ -17,6 +17,8 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
     addEndpointAttributes(MetricsHelper.AttributeResolver r, Class<?> cl)
         throws Exception
     {
+        r.add("endpoint", cl.getDeclaredMethod("getEndpoint"));
+
         Class<?> cli = Ice.EndpointInfo.class;
         r.add("endpointType", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("type"));
         r.add("endpointIsDatagram", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("datagram"));
@@ -62,7 +64,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     {
                         add("parent", ConnectionHelper.class.getDeclaredMethod("getParent"));
                         add("id", ConnectionHelper.class.getDeclaredMethod("getId"));
-                        add("endpoint", ConnectionHelper.class.getDeclaredMethod("getEndpoint"));
                         add("state", ConnectionHelper.class.getDeclaredMethod("getState"));
                         addConnectionAttributes(this, ConnectionHelper.class);
                     }
@@ -193,8 +194,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                         Class<?> cl = DispatchHelper.class;
                         add("parent", cl.getDeclaredMethod("getParent"));
                         add("id", cl.getDeclaredMethod("getId"));
-                        add("endpoint", cl.getDeclaredMethod("getEndpoint"));
-                        add("connection", cl.getDeclaredMethod("getConnection"));
                         
                         addConnectionAttributes(this, cl);
                         
@@ -529,7 +528,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
                     {
                         add("parent", EndpointHelper.class.getDeclaredMethod("getParent"));
                         add("id", EndpointHelper.class.getDeclaredMethod("getId"));
-                        add("endpoint", EndpointHelper.class.getDeclaredMethod("getEndpoint"));
                         addEndpointAttributes(this, EndpointHelper.class);
                     }
                     catch(Exception ex)

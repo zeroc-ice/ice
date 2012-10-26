@@ -21,6 +21,8 @@ namespace IceInternal
         public static void
         addEndpointAttributes<T>(MetricsHelper<T>.AttributeResolver r, Type cl) where T : IceMX.Metrics
         {
+            r.add("endpoint", cl.GetMethod("getEndpoint"));
+
             Type cli = typeof(Ice.EndpointInfo);
             r.add("endpointType", cl.GetMethod("getEndpointInfo"), cli.GetMethod("type"));
             r.add("endpointIsDatagram", cl.GetMethod("getEndpointInfo"), cli.GetMethod("datagram"));
@@ -68,7 +70,6 @@ namespace IceInternal
                     Type cl = typeof(ConnectionHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    add("endpoint", cl.GetMethod("getEndpoint"));
                     add("state", cl.GetMethod("getState"));
                     AttrsUtil.addConnectionAttributes<ConnectionMetrics>(this, cl);
                 }
@@ -192,8 +193,6 @@ namespace IceInternal
                     Type cl = typeof(DispatchHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    add("endpoint", cl.GetMethod("getEndpoint"));
-                    add("connection", cl.GetMethod("getConnection"));
                     
                     AttrsUtil.addConnectionAttributes<DispatchMetrics>(this, cl);
                     
@@ -510,7 +509,6 @@ namespace IceInternal
                     Type cl = typeof(EndpointHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    add("endpoint", cl.GetMethod("getEndpoint"));
                     AttrsUtil.addEndpointAttributes<Metrics>(this, cl);
                 }
                 catch(Exception)
@@ -586,7 +584,6 @@ namespace IceInternal
                     Type cl = typeof(RemoteInvocationHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    add("endpoint", cl.GetMethod("getEndpoint"));
                     AttrsUtil.addConnectionAttributes<Metrics>(this, cl);
                 }
                 catch(Exception)

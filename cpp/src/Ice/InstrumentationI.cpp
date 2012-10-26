@@ -605,7 +605,6 @@ public:
         {
             add("parent", &EndpointHelper::getParent);
             add("id", &EndpointHelper::getId);
-            add("endpoint", &EndpointHelper::getEndpoint);
             addEndpointAttributes<EndpointHelper>(*this);
         }
     };
