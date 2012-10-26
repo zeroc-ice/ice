@@ -63,7 +63,7 @@ tests = [
     ("Ice/plugin", ["core"]),
     ("Ice/optional", ["core"]),
     ("Ice/admin", ["core"]),
-    ("Ice/metrics", ["core", "nossl", "noipv6"]),
+    ("Ice/metrics", ["core", "nossl", "noipv6", "nocompress"]),
     ("Ice/enums", ["core"]),
     ("IceBox/admin", ["core", "noipv6", "nosilverlight", "nomx"]),
     ("IceBox/configuration", ["core", "noipv6", "nosilverlight", "nomx"]),
