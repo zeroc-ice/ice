@@ -1111,14 +1111,14 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         _adminFacets.insert(FacetMap::value_type("Properties",props));
 
         _metricsAdmin = new MetricsAdminI(_initData.properties, _initData.logger);
-        _adminFacets.insert(FacetMap::value_type("MetricsAdmin", _metricsAdmin));
+        _adminFacets.insert(FacetMap::value_type("Metrics", _metricsAdmin));
 
         //
         // Setup the communicator observer only if the user didn't already set an
         // Ice observer resolver and if the admininistrative endpoints are set.
         //
         if(!_initData.observer && 
-           (_adminFacetFilter.empty() || _adminFacetFilter.find("MetricsAdmin") != _adminFacetFilter.end()) &&
+           (_adminFacetFilter.empty() || _adminFacetFilter.find("Metrics") != _adminFacetFilter.end()) &&
            _initData.properties->getProperty("Ice.Admin.Endpoints") != "")
         {
             CommunicatorObserverIPtr observer = new CommunicatorObserverI(_metricsAdmin);

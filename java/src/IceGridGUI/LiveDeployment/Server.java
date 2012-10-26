@@ -411,7 +411,7 @@ public class Server extends ListArrayTreeNode
             return;
         }
         final IceMX.MetricsAdminPrx metricsAdmin = 
-                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("MetricsAdmin"));
+                IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("Metrics"));
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
                 public void response(final String[] names)

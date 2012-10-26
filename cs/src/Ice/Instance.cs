@@ -857,7 +857,7 @@ namespace IceInternal
                 _adminFacets.Add("Process", new ProcessI(communicator));
 
                 MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
-                _adminFacets.Add("MetricsAdmin", admin);
+                _adminFacets.Add("Metrics", admin);
                 
                 PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
                 _adminFacets.Add("Properties", props);
@@ -867,7 +867,7 @@ namespace IceInternal
                 // Ice observer resolver and if the admininistrative endpoints are set.
                 //
                 if(_initData.observer == null && 
-                   (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("MetricsAdmin")) &&
+                   (_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains("Metrics")) &&
                    _initData.properties.getProperty("Ice.Admin.Endpoints").Length > 0)
                 {
                     CommunicatorObserverI observer = new CommunicatorObserverI(admin);

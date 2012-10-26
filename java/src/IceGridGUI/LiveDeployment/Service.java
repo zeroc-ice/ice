@@ -494,7 +494,7 @@ public class Service extends ListArrayTreeNode
         }
         final IceMX.MetricsAdminPrx metricsAdmin =
                     IceMX.MetricsAdminPrxHelper.uncheckedCast(serverAdmin.ice_facet("IceBox.Service." + _id +
-                        ".MetricsAdmin"));
+                        ".Metrics"));
 
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {

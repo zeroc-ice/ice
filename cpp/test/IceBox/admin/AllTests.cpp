@@ -86,8 +86,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing metrics admin facet... " << flush;
     {
-        IceMX::MetricsAdminPrx ma = 
-            IceMX::MetricsAdminPrx::checkedCast(admin, "IceBox.Service.TestService.MetricsAdmin");
+        IceMX::MetricsAdminPrx ma = IceMX::MetricsAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
         Ice::PropertiesAdminPrx pa =
             Ice::PropertiesAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Properties");
@@ -106,7 +105,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(views.size() == 3);
         
         // Make sure that the IceBox communicator metrics admin is a separate instance.
-        test(IceMX::MetricsAdminPrx::checkedCast(admin, "MetricsAdmin")->getMetricsViewNames().empty());
+        test(IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics")->getMetricsViewNames().empty());
     }
     cout << "ok" << endl;
 }

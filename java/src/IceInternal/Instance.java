@@ -790,7 +790,7 @@ public final class Instance
             _adminFacets.put("Process", new ProcessI(communicator));
 
             MetricsAdminI admin = new MetricsAdminI(_initData.properties, _initData.logger);
-            _adminFacets.put("MetricsAdmin", admin);
+            _adminFacets.put("Metrics", admin);
             
             PropertiesAdminI props = new PropertiesAdminI("Properties", _initData.properties, _initData.logger);
             _adminFacets.put("Properties", props);
@@ -800,7 +800,7 @@ public final class Instance
             // Ice observer resolver and if the admininistrative endpoints are set.
             //
             if(_initData.observer == null && 
-               (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("MetricsAdmin")) &&
+               (_adminFacetFilter.isEmpty() || _adminFacetFilter.contains("Metrics")) &&
                _initData.properties.getProperty("Ice.Admin.Endpoints").length() > 0)
             {
                 CommunicatorObserverI observer = new CommunicatorObserverI(admin);

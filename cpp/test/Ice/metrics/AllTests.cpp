@@ -370,12 +370,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing metrics admin facet checkedCast... " << flush;
     Ice::ObjectPrx admin = communicator->getAdmin()->ice_collocationOptimized(false);
     Ice::PropertiesAdminPrx clientProps = Ice::PropertiesAdminPrx::checkedCast(admin, "Properties");
-    IceMX::MetricsAdminPrx clientMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "MetricsAdmin");
+    IceMX::MetricsAdminPrx clientMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics");
     test(clientProps && clientMetrics);
 
     admin = metrics->getAdmin();
     Ice::PropertiesAdminPrx serverProps = Ice::PropertiesAdminPrx::checkedCast(admin, "Properties");
-    IceMX::MetricsAdminPrx serverMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "MetricsAdmin");
+    IceMX::MetricsAdminPrx serverMetrics = IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics");
     test(serverProps && serverMetrics);
 
     UpdateCallbackI* update = new UpdateCallbackI(serverProps);

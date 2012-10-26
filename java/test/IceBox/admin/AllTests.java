@@ -98,7 +98,7 @@ public class AllTests
         System.out.flush();
         {
             IceMX.MetricsAdminPrx ma = 
-                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.MetricsAdmin");
+                IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
             Ice.PropertiesAdminPrx pa =
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
@@ -117,7 +117,7 @@ public class AllTests
             test(views.length == 3);
         
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "MetricsAdmin").getMetricsViewNames().length == 0);
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics").getMetricsViewNames().length == 0);
         }
         System.out.println("ok");
     }

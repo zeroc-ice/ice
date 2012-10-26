@@ -659,7 +659,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             if(metricsAdmin != null)
             {
-                _communicator.addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".MetricsAdmin");
+                _communicator.addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".Metrics");
 
                 // Ensure the metrics admin facet is notified of property updates.
                 propAdmin.addUpdateCallback(metricsAdmin);

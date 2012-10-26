@@ -653,7 +653,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         //
         if(metricsAdmin)
         {
-            _communicator->addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".MetricsAdmin");
+            _communicator->addAdminFacet(metricsAdmin, "IceBox.Service." + info.name + ".Metrics");
 
             // Ensure the metrics admin facet is notified of property updates.
             propAdmin->addUpdateCallback(metricsAdmin);
@@ -756,7 +756,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 
         try
         {
-            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".MetricsAdmin");
+            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Metrics");
             if(admin && communicator != _sharedCommunicator)
             {
                 IceInternal::MetricsAdminIPtr::dynamicCast(admin)->destroy();
@@ -840,7 +840,7 @@ IceBox::ServiceManagerI::stopAll()
         
         try
         {
-            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".MetricsAdmin");
+            Ice::ObjectPtr admin = _communicator->removeAdminFacet("IceBox.Service." + info.name + ".Metrics");
             if(admin && info.communicator != _sharedCommunicator)
             {
                 IceInternal::MetricsAdminIPtr::dynamicCast(admin)->destroy();
