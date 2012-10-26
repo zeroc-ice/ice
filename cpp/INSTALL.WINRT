@@ -84,7 +84,7 @@ Now you're ready to build Ice for WinRT:
 > nmake /f Makefile.mak
 
 
-After build has completed you must register IceWinRT SDK in Windows registry
+After build has completed you must register Ice SDK in Windows registry
 
 > nmake /f Makefile.mak register-sdk
 
@@ -128,7 +128,7 @@ start the application from WinRT Desktop; just click "Ice Test Suite" icon.
 Installation
 ======================================================================
 
-Simply run "nmake /f Makefile.mak install". This will install IceWinRT SDK
+Simply run "nmake /f Makefile.mak install". This will install Ice SDK
 in the directory specified by the "prefix" variable in
 config\Make.rules.mak.
 

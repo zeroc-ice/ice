@@ -125,7 +125,7 @@ LIBS		= ice.lib $(BASELIBS)
 !if "$(WINRT)" == "yes"
 
 SDK_VERSION		= $(SHORT_VERSION)
-SDK_NAME		= IceWinRT
+SDK_NAME		= Ice
 SDK_REG_FILE		= $(SDK_NAME).reg
 SDK_MANIFEST		= SDKManifest.xml
 SDK_BASE_PATH		= $(top_srcdir)\SDKs\$(SDK_NAME)\$(SDK_VERSION)
