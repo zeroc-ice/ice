@@ -134,6 +134,7 @@ demoscriptDir = os.path.join(distDir, "Ice-" + version + "-demo-scripts")
 demoDir = os.path.join(distDir, "Ice-" + version + "-demos")
 winDemoDir = os.path.join(distDir, "demos")
 srcDir = os.path.join(distDir, "Ice-" + version)
+winSrcDir = os.path.join(distDir, "Ice")
 rpmBuildDir = os.path.join(distDir, "Ice-rpmbuild-" + version)
 distFilesDir = os.path.join(distDir, "distfiles-" + version)
 os.mkdir(demoscriptDir)
@@ -221,6 +222,26 @@ for x in flexFiles:
 fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
 print "ok"
 
+
+copy(srcDir, winSrcDir)
+
+for root, dirnames, filesnames in os.walk(winSrcDir):
+    for f in filesnames:
+
+        #
+        # Change text based file extension to .txt and convert line ends
+        # to windows line ends.
+        #
+        for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
+            if fnmatch.fnmatch(f, name):
+                oldname = os.path.join(root, f)
+                newname = oldname + ".txt"
+                os.rename(oldname, newname)
+                os.system('unix2dos -q ' + newname)
+
+        if fnmatch.fnmatch(f, "config.*"):
+            os.system('unix2dos -q ' + os.path.join(root, f))
+
 #
 # Consolidate demo, demo scripts distributions.
 #
@@ -305,6 +326,7 @@ for root, dirnames, filesnames in os.walk(winDemoDir):
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
+            os.system('unix2dos -q ' + os.path.join(root, f))
 
         for m in [ "Makefile", ".depend", "*.exe.config" ]:
             if fnmatch.fnmatch(f, m):
@@ -361,11 +383,12 @@ for d in [srcDir, demoDir, distFilesDir, rpmBuildDir]:
 for (dir, archiveDir) in [(demoscriptDir, "Ice-" + version + "-demos")]:
     tarArchive(dir, verbose, archiveDir)
 
-zipArchive(srcDir, verbose)
+for (dir, archiveDir) in [(winSrcDir, "Ice-" + version)]:
+    zipArchive(dir, verbose, archiveDir)
+os.rename(os.path.join(distDir, "Ice.zip"), os.path.join(distDir, "Ice-" + version + ".zip"))
 
 for (dir, archiveDir) in [(winDemoDir, "Ice-" + version + "-demos")]:
     zipArchive(dir, verbose, archiveDir)
-
 os.rename(os.path.join(distDir, "demos.zip"), os.path.join(distDir, "Ice-" + version + "-demos.zip"))
 
 #
@@ -379,6 +402,7 @@ writeSrcDistReport("Ice", version, compareToDir, [srcDir, demoDir, winDemoDir, d
 print "Cleaning up...",
 sys.stdout.flush()
 remove(srcDir)
+remove(winSrcDir)
 remove(demoDir)
 remove(winDemoDir)
 remove(demoscriptDir)
