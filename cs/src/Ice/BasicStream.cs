@@ -4912,7 +4912,7 @@ namespace IceInternal
             internal int start;
             internal Ice.EncodingVersion encoding;
             internal bool encoding_1_0;
-            internal Ice.FormatType format;
+            internal Ice.FormatType format = Ice.FormatType.DefaultFormat;
 
             internal EncapsEncoder encoder;
 

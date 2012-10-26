@@ -871,6 +871,16 @@ private:
 
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
+bool
+endsWith(const string& s, const string& findme)
+{
+    if(s.length() > findme.length())
+    {
+        return 0 == s.compare(s.length() - findme.length(), findme.length(), findme);
+    }
+    return false;
+}
+
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
@@ -918,6 +928,42 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
         test(uleMsg == ule.what());
         test(uleMsg == ule.what());
+
+        {
+            E ex("E");
+            ostringstream os;
+            ex.ice_print(os);
+            test(os.str() == "Test::E");
+            test(ex.data == "E");
+        }
+    
+        //
+        // Test custom ice_print
+        // 
+        {
+            F ex("F");
+            ostringstream os;
+            ex.ice_print(os);
+            test(os.str() == "Test::F data:'F'");
+            test(ex.data == "F");
+        }
+
+        {
+            G ex(__FILE__, __LINE__, "G");
+            ostringstream os;
+            ex.ice_print(os);
+            test(endsWith(os.str(), "Test::G"));
+            test(ex.data == "G");
+        }
+
+        {
+            H ex(__FILE__, __LINE__, "H");
+            ostringstream os;
+            ex.ice_print(os);
+            test(endsWith(os.str(), "Test::H data:'H'"));
+            test(ex.data == "H");
+        }
+
     }
     cout << "ok" << endl;
 
@@ -1412,68 +1458,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     {
         test(false);
     }
-    
-    
-    try
-    {
-        thrower->throwE();
-    }
-    catch(const E& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(os.str() == "Test::E");
-        test(ex.data == "E");
-    }
-    catch(...)
-    {
-        test(false);
-    }
-    
-    try
-    {
-        thrower->throwF();
-    }
-    catch(const F& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(os.str() == "Test::F data:'F'");
-        test(ex.data == "F");
-    }
-    catch(...)
-    {
-        test(false);
-    }
-    
-    try
-    {
-        thrower->throwG();
-        test(false);
-    }
-    catch(const Ice::UnknownLocalException&)
-    {
-    }
-    catch(...)
-    {
-        test(false);
-    }
-    
-    try
-    {
-        thrower->throwH();
-        test(false);
-    }
-    catch(const Ice::UnknownLocalException&)
-    {
-    }
-    catch(...)
-    {
-        test(false);
-    }
 
     cout << "ok" << endl;
-
+    
     if(!collocated)
     {
         cout << "catching exact types with AMI... " << flush;

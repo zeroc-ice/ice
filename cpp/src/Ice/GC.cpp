@@ -389,7 +389,11 @@ void
 IceInternal::GC::updateObserver(const CommunicatorObserverPtr& observer)
 {
     Monitor<Mutex>::Lock sync(*this);
-    assert(observer);
+    if(!observer)
+    {
+        assert(!_communicatorObserver); // Communicator is destroyed.
+        return;
+    }
 
     // Only the first communicator can observe the GC thread.
     if(!_communicatorObserver)

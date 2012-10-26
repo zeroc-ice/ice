@@ -1375,6 +1375,11 @@ IceInternal::Instance::destroy()
     if(_metricsAdmin)
     {
         _metricsAdmin->destroy();
+        _metricsAdmin = 0;
+        if(CommunicatorObserverIPtr::dynamicCast(_initData.observer))
+        {
+            _initData.observer = 0; // Clear cyclic reference counts.
+        }
     }
 
     ThreadPoolPtr serverThreadPool;

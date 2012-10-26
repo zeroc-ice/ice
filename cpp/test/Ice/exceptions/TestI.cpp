@@ -14,16 +14,6 @@
 using namespace Test;
 using namespace std;
 
-bool
-endsWith(const string& s, const string& findme)
-{
-    if(s.length() > findme.length())
-    {
-        return 0 == s.compare(s.length() - findme.length(), findme.length(), findme);
-    }
-    return false;
-}
-
 ThrowerI::ThrowerI()
 {
 }
@@ -176,51 +166,5 @@ ThrowerI::throwAfterException(const Ice::Current&)
     //
     // Only relevant for AMD.
     //
-    throw A();
-}
-
-void
-ThrowerI::throwE(const Ice::Current&)
-{
-    throw E("E");
-}
-
-void
-ThrowerI::throwF(const Ice::Current&)
-{
-    throw F("F");
-}
-
-void
-ThrowerI::throwG(const Ice::Current&)
-{
-    try
-    {
-        throw G(__FILE__, __LINE__, "G");
-    }
-    catch(const G& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::G"));
-        test(ex.data == "G");
-        throw ex;
-    }
-}
-
-void
-ThrowerI::throwH(const Ice::Current&)
-{
-    try
-    {
-        throw H(__FILE__, __LINE__, "H");
-    }
-    catch(const H& ex)
-    {
-        ostringstream os;
-        ex.ice_print(os);
-        test(endsWith(os.str(), "Test::H data:'H'"));
-        test(ex.data == "H");
-        throw ex;
-    }
+    throw A(12345);
 }

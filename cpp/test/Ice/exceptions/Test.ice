@@ -96,11 +96,6 @@ module Mod
 
     void throwAfterResponse();
     void throwAfterException() throws A;
-    
-    void throwE() throws E;
-    void throwF() throws F;
-    void throwG();
-    void throwH();
 };
 
 ["ami"] interface WrongOperation

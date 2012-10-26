@@ -1084,7 +1084,7 @@ private:
 
     public:
 
-        WriteEncaps() : encoder(0), previous(0)
+        WriteEncaps() : encoder(0), format(Ice::DefaultFormat), previous(0)
         {
             // Inlined for performance reasons.
         }

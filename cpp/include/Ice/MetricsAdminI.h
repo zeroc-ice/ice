@@ -159,6 +159,11 @@ public:
         ~EntryT()
         {
             assert(_object->total > 0);
+            for(typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember> >::const_iterator p =
+                    _subMaps.begin(); p != _subMaps.end(); ++p)
+            {
+                p->second.first->destroy(); // Break cyclic reference counts.
+            }
         }
 
         void  

@@ -206,7 +206,7 @@ ThrowerI::throwAfterResponse_async(const AMD_Thrower_throwAfterResponsePtr& cb, 
 void
 ThrowerI::throwAfterException_async(const AMD_Thrower_throwAfterExceptionPtr& cb, const Ice::Current&)
 {
-    cb->ice_exception(A());
+    cb->ice_exception(A(12345));
 
     throw std::string();
 }

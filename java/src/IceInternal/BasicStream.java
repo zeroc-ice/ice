@@ -4094,7 +4094,7 @@ public class BasicStream
         }
 
         int start;
-        Ice.FormatType format;
+        Ice.FormatType format = Ice.FormatType.DefaultFormat;
         Ice.EncodingVersion encoding;
         boolean encoding_1_0;
 
