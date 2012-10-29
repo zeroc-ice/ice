@@ -112,6 +112,7 @@ public class AllTests
             setProps.put("IceMX.Metrics.All.GroupBy", "none");
             setProps.put("IceMX.Metrics.Parent.GroupBy", "parent");
             pa.setProperties(setProps);
+            pa.setProperties(new java.util.HashMap<String, String>());
 
             views = ma.getMetricsViewNames();
             test(views.length == 3);

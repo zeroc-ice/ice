@@ -3156,8 +3156,16 @@ public class BasicStream
             }
             else
             {
-                throw new Ice.MarshalException(
-                    "compact format prevents slicing (the sender should use the sliced format instead)");
+                if(_sliceType == SliceType.ObjectSlice)
+                {
+                    throw new Ice.NoObjectFactoryException(
+                        "compact format prevents slicing (the sender should use the sliced format instead)", 
+                        _typeId);
+                }
+                else
+                {
+                    throw new Ice.UnknownUserException(_typeId.substring(2));
+                }
             }
 
             if(!_encaps.encoding_1_0)

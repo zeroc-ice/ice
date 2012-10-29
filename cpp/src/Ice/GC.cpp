@@ -391,7 +391,6 @@ IceInternal::GC::updateObserver(const CommunicatorObserverPtr& observer)
     Monitor<Mutex>::Lock sync(*this);
     if(!observer)
     {
-        assert(!_communicatorObserver); // Communicator is destroyed.
         return;
     }
 

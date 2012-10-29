@@ -2887,9 +2887,17 @@ IceInternal::BasicStream::EncapsDecoder::skipSlice()
     }
     else
     {
-        throw MarshalException(__FILE__,
-                               __LINE__,
-                               "compact format prevents slicing (the sender should use the sliced format instead)");
+        if(_sliceType == ObjectSlice)
+        {
+            throw NoObjectFactoryException(
+                __FILE__, __LINE__, 
+                "compact format prevents slicing (the sender should use the sliced format instead)", 
+                _typeId);
+        }
+        else
+        {
+            throw UnknownUserException(__FILE__, __LINE__, _typeId.substr(2));
+        }
     }
 
     if(_encaps->encoding != Encoding_1_0)

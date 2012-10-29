@@ -38,7 +38,7 @@ interface Initial
 {
     Simple getSimple();
     void getPrinter(out Printer impl, out Printer* proxy);
-    Printer getDerivedPrinter();
+    ["format:sliced"] Printer getDerivedPrinter();
     void throwDerivedPrinter() throws DerivedPrinterException;
     void shutdown();
 };

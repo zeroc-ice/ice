@@ -113,6 +113,7 @@ public class AllTests
             setProps.Add("IceMX.Metrics.All.GroupBy", "none");
             setProps.Add("IceMX.Metrics.Parent.GroupBy", "parent");
             pa.setProperties(setProps);
+            pa.setProperties(new Dictionary<string, string>());
 
             views = ma.getMetricsViewNames();
             test(views.Length == 3);

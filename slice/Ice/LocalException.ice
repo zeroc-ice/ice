@@ -476,7 +476,7 @@ local exception SyscallException
      * <tt>WSAGetLastError()</tt>.
      *
      **/
-    int error; // Don't use errno, as errno is usually a macro.
+    int error = 0; // Don't use errno, as errno is usually a macro.
 };
 
 /**
@@ -549,7 +549,7 @@ local exception DNSException
      * <tt>WSAGetLastError()</tt>.
      *
      **/
-    int error; // Don't use h_errno, as h_errno is usually a macro.
+    int error = 0; // Don't use h_errno, as h_errno is usually a macro.
 
     /**
      *

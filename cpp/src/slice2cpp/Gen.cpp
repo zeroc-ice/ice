@@ -778,7 +778,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         emitUpcall(base, "(__file, __line)", true);
         if(p->hasDefaultValues())
         {
-            C << nl << ", ";
+            C << ", ";
             writeDataMemberInitializers(C, dataMembers, _useWstring);
         }
         C.dec();

@@ -100,6 +100,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         setProps["IceMX.Metrics.All.GroupBy"] = "none";
         setProps["IceMX.Metrics.Parent.GroupBy"] = "parent";
         pa->setProperties(setProps);
+        pa->setProperties(Ice::PropertyDict());
 
         views = ma->getMetricsViewNames();
         test(views.size() == 3);
