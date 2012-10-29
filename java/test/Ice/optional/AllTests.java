@@ -105,6 +105,7 @@ public class AllTests
 
         test(mo1.getA() == (byte)15);
         test(mo1.getB());
+        test(mo1.isB());
         test(mo1.getC() == (short)19);
         test(mo1.getD() == 78);
         test(mo1.getE() == 99);

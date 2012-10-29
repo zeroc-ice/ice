@@ -3786,18 +3786,57 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             out << eb;
         }
 
-        if(getSet)
+        //
+        // Check for bool type.
+        //
+        BuiltinPtr b = BuiltinPtr::dynamicCast(type);
+        if(b && b->kind() == Builtin::KindBool)
         {
-            //
-            // Check for bool type.
-            //
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b && b->kind() == Builtin::KindBool)
+            if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
             {
-                if(cls && !validateMethod(ops, "is" + capName, 0, file, line))
+                return;
+            }
+            out << sp;
+            if(!deprecateReason.empty())
+            {
+                out << nl << "/**";
+                out << nl << " * @deprecated " << deprecateReason;
+                out << nl << " **/";
+            }
+            out << nl << "public boolean";
+            out << nl << "is" << capName << "()";
+            out << sb;
+            if(optional)
+            {
+                out << nl << "if(!__has_" << p->name() << ')';
+                out << sb;
+                out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
+                out << eb;
+            }
+            out << nl << "return " << name << ';';
+            out << eb;
+        }
+
+        //
+        // Check for unmodified sequence type and emit indexing methods.
+        //
+        SequencePtr seq = SequencePtr::dynamicCast(type);
+        if(seq)
+        {
+            if(!hasTypeMetaData(seq, metaData))
+            {
+                if(cls &&
+                   (!validateMethod(ops, "get" + capName, 1, file, line) ||
+                    !validateMethod(ops, "set" + capName, 2, file, line)))
                 {
                     return;
                 }
+
+                string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
+
+                //
+                // Indexed getter.
+                //
                 out << sp;
                 if(!deprecateReason.empty())
                 {
@@ -3805,8 +3844,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     out << nl << " * @deprecated " << deprecateReason;
                     out << nl << " **/";
                 }
-                out << nl << "public boolean";
-                out << nl << "is" << capName << "()";
+                out << nl << "public " << elem;
+                out << nl << "get" << capName << "(int _index)";
                 out << sb;
                 if(optional)
                 {
@@ -3815,73 +3854,31 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                     out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
                     out << eb;
                 }
-                out << nl << "return " << name << ';';
+                out << nl << "return " << name << "[_index];";
                 out << eb;
-            }
 
-            //
-            // Check for unmodified sequence type and emit indexing methods.
-            //
-            SequencePtr seq = SequencePtr::dynamicCast(type);
-            if(seq)
-            {
-                if(!hasTypeMetaData(seq, metaData))
+                //
+                // Indexed setter.
+                //
+                out << sp;
+                if(!deprecateReason.empty())
                 {
-                    if(cls &&
-                       (!validateMethod(ops, "get" + capName, 1, file, line) ||
-                        !validateMethod(ops, "set" + capName, 2, file, line)))
-                    {
-                        return;
-                    }
-
-                    string elem = typeToString(seq->type(), TypeModeMember, getPackage(contained));
-
-                    //
-                    // Indexed getter.
-                    //
-                    out << sp;
-                    if(!deprecateReason.empty())
-                    {
-                        out << nl << "/**";
-                        out << nl << " * @deprecated " << deprecateReason;
-                        out << nl << " **/";
-                    }
-                    out << nl << "public " << elem;
-                    out << nl << "get" << capName << "(int _index)";
+                    out << nl << "/**";
+                    out << nl << " * @deprecated " << deprecateReason;
+                    out << nl << " **/";
+                }
+                out << nl << "public void";
+                out << nl << "set" << capName << "(int _index, " << elem << " _val)";
+                out << sb;
+                if(optional)
+                {
+                    out << nl << "if(!__has_" << p->name() << ')';
                     out << sb;
-                    if(optional)
-                    {
-                        out << nl << "if(!__has_" << p->name() << ')';
-                        out << sb;
-                        out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
-                        out << eb;
-                    }
-                    out << nl << "return " << name << "[_index];";
-                    out << eb;
-
-                    //
-                    // Indexed setter.
-                    //
-                    out << sp;
-                    if(!deprecateReason.empty())
-                    {
-                        out << nl << "/**";
-                        out << nl << " * @deprecated " << deprecateReason;
-                        out << nl << " **/";
-                    }
-                    out << nl << "public void";
-                    out << nl << "set" << capName << "(int _index, " << elem << " _val)";
-                    out << sb;
-                    if(optional)
-                    {
-                        out << nl << "if(!__has_" << p->name() << ')';
-                        out << sb;
-                        out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
-                        out << eb;
-                    }
-                    out << nl << name << "[_index] = _val;";
+                    out << nl << "throw new java.lang.IllegalStateException(\"" << name << " is not set\");";
                     out << eb;
                 }
+                out << nl << name << "[_index] = _val;";
+                out << eb;
             }
         }
     }
