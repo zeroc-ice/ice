@@ -287,7 +287,14 @@ private:
 template<typename T> Updater*
 newUpdater(const IceInternal::Handle<T>& updater, void (T::*fn)())
 {
-    return new UpdaterT<T>(updater.get(), fn);
+    if(updater)
+    {
+        return new UpdaterT<T>(updater.get(), fn);
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 template<typename T> class ObserverT : virtual public ::Ice::Instrumentation::Observer

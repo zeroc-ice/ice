@@ -554,6 +554,10 @@ Glacier2::RouterService::stop()
 
     if(_instance)
     {
+        if(_instance->getObserver())
+        {
+            _instance->getObserver()->setObserverUpdater(0);
+        }
         _instance->destroy();
         _instance = 0;
     }
