@@ -64,7 +64,7 @@ PHP_ZTS			= yes
 # change the following setting to reflect the installation location.
 #
 !if "$(THIRDPARTY_HOME)" == ""
-!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64" || "$(PROCESSOR_ARCHITECTUREW6432)" == "AMD64"
+!if "$(PROCESSOR_ARCHITECTURE)" == "AMD64"
 THIRDPARTY_HOME	 = $(PROGRAMFILES) (x86)\ZeroC\Ice-$(VERSION)-ThirdParty
 !else
 THIRDPARTY_HOME	 = $(PROGRAMFILES)\ZeroC\Ice-$(VERSION)-ThirdParty
