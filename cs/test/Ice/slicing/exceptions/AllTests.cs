@@ -808,7 +808,7 @@ public class AllTests : TestCommon.TestApp
                 //
                 test(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
             }
-            catch(Ice.MarshalException)
+            catch(Ice.UnknownUserException)
             {
                 //
                 // A MarshalException is raised for the compact format because the

@@ -773,10 +773,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             //
             test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
         }
-        catch(const Ice::MarshalException&)
+        catch(const Ice::UnknownUserException&)
         {
             //
-            // A MarshalException is raised for the compact format because the
+            // An UnknownUserException is raised for the compact format because the
             // most-derived type is unknown and the exception cannot be sliced.
             //
             test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);

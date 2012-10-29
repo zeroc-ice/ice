@@ -106,7 +106,7 @@ public:
     void
     exception_SBSUnknownDerivedAsSBaseCompact(const Ice::Exception& exc)
     {
-        test(exc.ice_name() == "Ice::MarshalException");
+        test(exc.ice_name() == "Ice::NoObjectFactoryException");
         called();
     }
 
@@ -715,7 +715,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             SBasePtr sb = test->SBSUnknownDerivedAsSBaseCompact();
             test(false);
         }
-        catch(const Ice::MarshalException&)
+        catch(const Ice::NoObjectFactoryException&)
         {
             // Expected.
         }

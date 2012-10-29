@@ -102,7 +102,7 @@ function allTests($communicator)
         }
         catch(Exception $ex)
         {
-            test(get_class($ex) == ($NS ? "Ice\\MarshalException" : "Ice_MarshalException"));
+            test(get_class($ex) == ($NS ? "Ice\\NoObjectFactoryException" : "Ice_NoObjectFactoryException"));
         }
     }
     echo "ok\n";

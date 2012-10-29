@@ -261,7 +261,7 @@ public class AllTests
         public void
         exception(Ice.LocalException exc)
         {
-            test(exc instanceof Ice.MarshalException);
+            test(exc instanceof Ice.NoObjectFactoryException);
             callback.called();
         }
 
@@ -1491,7 +1491,7 @@ public class AllTests
                 SBase sb = test.SBSUnknownDerivedAsSBaseCompact();
                 test(false);
             }
-            catch(Ice.MarshalException ex)
+            catch(Ice.NoObjectFactoryException ex)
             {
                 // Expected.
             }

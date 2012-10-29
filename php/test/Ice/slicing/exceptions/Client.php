@@ -332,10 +332,10 @@ function allTests($communicator)
                 //
                 test($test->ice_getEncodingVersion() == $Ice_Encoding_1_0);
             }
-            else if(get_class($b) == ($NS ? "Ice\\MarshalException" : "Ice_MarshalException"))
+            else if(get_class($b) == ($NS ? "Ice\\UnkownUserException" : "Ice_UnknownUserException"))
             {
                 //
-                // A MarshalException is raised for the compact format because the
+                // An UnkonwnUserException is raised for the compact format because the
                 // most-derived type is unknown and the exception cannot be sliced.
                 //
                 test($test->ice_getEncodingVersion() != $Ice_Encoding_1_0);

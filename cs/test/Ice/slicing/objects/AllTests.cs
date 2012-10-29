@@ -102,6 +102,17 @@ public class AllTests : TestCommon.TestApp
             callback.called();
         }
 
+        public void response_SBSUnknownDerivedAsSBaseCompact(SBase sb)
+        {
+            AllTests.test(false);
+        }
+
+        public void exception_SBSUnknownDerivedAsSBaseCompact(Ice.Exception ex)
+        {
+            AllTests.test(ex is Ice.NoObjectFactoryException);
+            callback.called();
+        }
+
         public void response_SUnknownAsObject1(Ice.Object o)
         {
             AllTests.test(false);
@@ -675,6 +686,38 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
         }
+        if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+        {
+            try
+            {
+                SBase sb = testPrx.SBSUnknownDerivedAsSBaseCompact();
+                test(sb.sb.Equals("SBSUnknownDerived.sb"));
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+        }
+        else
+        {
+            try
+            {
+                //
+                // This test fails when using the compact format because the instance cannot
+                // be sliced to a known type.
+                //
+                testPrx.SBSUnknownDerivedAsSBaseCompact();
+                test(false);
+            }
+            catch(Ice.NoObjectFactoryException)
+            {
+                // Expected.
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
+        }
         WriteLine("ok");
 
         Write("base with unknown derived as base (AMI)... ");
@@ -683,6 +726,27 @@ public class AllTests : TestCommon.TestApp
             AsyncCallback cb = new AsyncCallback();
             testPrx.begin_SBSUnknownDerivedAsSBase().whenCompleted(
                         cb.response_SBSUnknownDerivedAsSBase, cb.exception);
+            cb.check();
+        }
+        if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+        {
+            //
+            // This test succeeds for the 1.0 encoding.
+            //
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBSUnknownDerivedAsSBaseCompact().whenCompleted(
+                cb.response_SBSUnknownDerivedAsSBase, cb.exception);
+            cb.check();
+        }
+        else
+        {
+            //
+            // This test fails when using the compact format because the instance cannot
+            // be sliced to a known type.
+            //
+            AsyncCallback cb = new AsyncCallback();
+            testPrx.begin_SBSUnknownDerivedAsSBaseCompact().whenCompleted(
+                cb.response_SBSUnknownDerivedAsSBaseCompact, cb.exception_SBSUnknownDerivedAsSBaseCompact);
             cb.check();
         }
         WriteLine("ok");

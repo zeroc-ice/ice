@@ -1095,10 +1095,10 @@ public class AllTests
                 //
                 test(test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
             }
-            catch(Ice.MarshalException ex)
+            catch(Ice.UnknownUserException ex)
             {
                 //
-                // A MarshalException is raised for the compact format because the
+                // An UnknownUserException is raised for the compact format because the
                 // most-derived type is unknown and the exception cannot be sliced.
                 //
                 test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));

@@ -210,9 +210,9 @@ def allTests(communicator)
         # For the 1.0 encoding, the unknown exception is sliced to Base.
         #
         test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
-    rescue Ice::MarshalException
+    rescue Ice::UnknownUserException
         #
-        # A MarshalException is raised for the compact format because the
+        # An UnkonwnUserException is raised for the compact format because the
         # most-derived type is unknown and the exception cannot be sliced.
         #
         test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)

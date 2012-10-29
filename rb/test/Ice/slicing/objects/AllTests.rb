@@ -97,7 +97,7 @@ def allTests(communicator)
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(false)
-        rescue Ice::MarshalException
+        rescue Ice::NoObjectFactoryException
             # Expected.
         rescue
             test(false)

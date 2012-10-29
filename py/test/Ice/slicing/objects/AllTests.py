@@ -68,7 +68,7 @@ class Callback(CallbackBase):
         test(False)
 
     def exception_SBSUnknownDerivedAsSBaseCompact(self, ex):
-        test(isinstance(ex, Ice.MarshalException))
+        test(isinstance(ex, Ice.NoObjectFactoryException))
         self.called()
 
     def response_SUnknownAsObject10(self, o):
@@ -468,7 +468,7 @@ def allTests(communicator):
             #
             sb = t.SBSUnknownDerivedAsSBaseCompact()
             test(False)
-        except Ice.MarshalException:
+        except Ice.NoObjectFactoryException:
             # Expected.
             pass
         except:
