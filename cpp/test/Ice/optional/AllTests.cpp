@@ -993,6 +993,16 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         test(!p2 && !p3);
 
         FixedStruct fss[10];
+        fss[0].m = 1;
+        fss[1].m = 2;
+        fss[2].m = 3;
+        fss[3].m = 4;
+        fss[4].m = 5;
+        fss[5].m = 6;
+        fss[6].m = 7;
+        fss[7].m = 8;
+        fss[8].m = 9;
+        fss[9].m = 10;
         vector<FixedStruct> fssv(&fss[0], &fss[0] + 10);
 #if defined(__SUNPRO_CC) && defined(_RWSTD_NO_MEMBER_TEMPLATES)
         std::pair<const FixedStruct*, const FixedStruct*> cpair(&fss[0], &fss[0] + 10);

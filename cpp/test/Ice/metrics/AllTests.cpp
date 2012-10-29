@@ -491,6 +491,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4); // 4 is for the seq variable size
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + static_cast<int>(bs.size()) + 4);
+    if(sm2->sentBytes - sm1->sentBytes != replySz)
+    {
+        // On some platforms, it's necessary to wait a little before obtaining the server metrics
+        // to get an accurate sentBytes metric. The sentBytes metric is updated before the response
+        // to the operation is sent and getMetricsView can be dispatched before the metric is really
+        // updated.
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+    }
     test(sm2->sentBytes - sm1->sentBytes == replySz);
 
     cm1 = cm2;
@@ -682,7 +691,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 1);
     m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][0];
 
-    test(m1->current == 0 && m1->total == 1 && m1->id == "tcp -e 1.1 -h localhost -p 12010");
+    test(m1->current <= 1 && m1->total == 1 && m1->id == "tcp -e 1.1 -h localhost -p 12010");
 
     prx->ice_getConnection()->close(false);
 

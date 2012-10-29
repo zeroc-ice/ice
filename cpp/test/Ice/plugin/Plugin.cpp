@@ -154,6 +154,7 @@ public:
     {
         _destroyed = true;
         test(_other->isDestroyed());
+        _other = 0;
     }
 };
 
@@ -180,6 +181,7 @@ public:
     {
         _destroyed = true;
         test(!_other->isDestroyed());
+        _other = 0;
     }
 };
 
@@ -206,6 +208,7 @@ public:
     {
         _destroyed = true;
         test(!_other->isDestroyed());
+        _other = 0;
     }
 };
 

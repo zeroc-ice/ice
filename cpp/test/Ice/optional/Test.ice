@@ -111,7 +111,7 @@ class MultiOptional
 
 class A
 {
-    int requiredA;
+    int requiredA = 0;
     optional(1) int ma;
     optional(50) int mb;
     optional(500) int mc;
@@ -120,7 +120,7 @@ class A
 ["preserve-slice"]
 class B extends A
 {
-    int requiredB;
+    int requiredB = 0;
     optional(10) int md;
 };
 
