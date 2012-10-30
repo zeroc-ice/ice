@@ -165,9 +165,9 @@
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\thirdparty\README.txt" SelfReg="false" NextFile="bzip2.dll"/>
-    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\main\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
-    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="SOURCES" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="libbz2.lib_4"/>
+    <ROW File="README.txt" Component_="SOURCES" FileName="README.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5b\src\windows\docs\thirdparty\README.txt" SelfReg="false" NextFile="bzip2.dll"/>
+    <ROW File="SOURCES.txt" Component_="SOURCES" FileName="SOURCES.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5b\src\windows\docs\main\SOURCES.txt" SelfReg="false" NextFile="THIRD_PARTY_LICENSE.txt"/>
+    <ROW File="THIRD_PARTY_LICENSE.txt" Component_="SOURCES" FileName="THIRD_~1.txt|THIRD_PARTY_LICENSE.txt" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5b\src\windows\docs\main\THIRD_PARTY_LICENSE.txt" SelfReg="false" NextFile="libbz2.lib_4"/>
     <ROW File="aes.h" Component_="aes.h" FileName="aes.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\aes.h" SelfReg="false" NextFile="applink.c"/>
     <ROW File="applink.c" Component_="aes.h" FileName="applink.c" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\applink.c" SelfReg="false" NextFile="asn1.h"/>
     <ROW File="asn1.h" Component_="aes.h" FileName="asn1.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\asn1.h" SelfReg="false" NextFile="asn1t.h"/>
@@ -421,8 +421,8 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
-    <ROW Name="installer_header.bmp_1" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\installer-header.bmp"/>
-    <ROW Name="installer_main.bmp_1" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\installer-main.bmp"/>
+    <ROW Name="installer_header.bmp_1" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\installer-header.bmp"/>
+    <ROW Name="installer_main.bmp_1" SourcePath="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\installer-main.bmp"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlComponent">
     <ROW Dialog_="AdminWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="VerdanaBold13" Order="500" TextLocId="Control.Text.AdminWelcomeDlg#Title" MsiKey="AdminWelcomeDlg#Title"/>
@@ -435,7 +435,7 @@
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Berkeley DB License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\BERKEYLEY_DB_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\BERKEYLEY_DB_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="BerkeleyLicenseDlg" Control="BerkeleyLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BERKELEYLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -446,7 +446,7 @@
     <ROW Dialog_="Bzip2LicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Bzip2 License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\BZIP2_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="Bzip2LicenseDlg" Control="Bzip2LicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="BZIP2LICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="ExitDialog" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Completing the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="700" TextLocId="Control.Text.ExitDialog#Title" MsiKey="ExitDialog#Title"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
@@ -458,7 +458,7 @@
     <ROW Dialog_="ExpatLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Expat License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\EXPAT_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="ExpatLicenseDlg" Control="ExpatLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="FatalError" Control="LogCheckBox" Type="CheckBox" X="135" Y="158" Width="10" Height="10" Attributes="2" Property="AI_LOG_CHECKBOX" Order="800" MsiKey="FatalError#LogCheckBox"/>
     <ROW Dialog_="FatalError" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] ended prematurely" TextStyle="DlgFontBold8" Order="900" TextLocId="Control.Text.FatalError#Title" MsiKey="FatalError#Title"/>
@@ -472,7 +472,7 @@
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Common License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\JGOODIES_COMMON_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\JGOODIES_COMMON_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="JgoodiesCommonLicenseDlg" Control="JgoodiesCommonLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -483,7 +483,7 @@
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Forms License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\JGOODIES_FORMS_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="JgoodiesFormsLicenseDlg" Control="JgoodiesFormsLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -494,7 +494,7 @@
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="JGoodies Looks License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\JGOODIES_LOOKS_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="JgoodiesLooksLicesneDlg" Control="JgoodiesLooksLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="MaintenanceWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.MaintenanceWelcomeDlg#Title" MsiKey="MaintenanceWelcomeDlg#Title"/>
     <ROW Dialog_="McppLicensDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
@@ -506,7 +506,7 @@
     <ROW Dialog_="McppLicensDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="McppLicensDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="McppLicensDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="MCPP License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\MCPP_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="McppLicensDlg" Control="McppLicensDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="MCPPLICENSDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Cancel]" Order="200" TextLocId="-" Options="1"/>
@@ -517,7 +517,7 @@
     <ROW Dialog_="OpensslLicesneDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="OpenSSL License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\OPENSSL_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="OpensslLicesneDlg" Control="OpensslLicesneDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="OPENSSLLICESNEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="PatchWelcomeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] Patch [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.PatchWelcomeDlg#Title" MsiKey="PatchWelcomeDlg#Title"/>
     <ROW Dialog_="PrepareDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Welcome to the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="300" TextLocId="Control.Text.PrepareDlg#Title" MsiKey="PrepareDlg#Title"/>
@@ -531,7 +531,7 @@
     <ROW Dialog_="QtLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="QtLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="QtLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Qt License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.4.2\src\windows\docs\thirdparty\QT_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="3" Property="QTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;\dist\distfiles-3.5b\src\windows\docs\thirdparty\QT_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="QtLicenseDlg" Control="QtLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="QTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Text="RadioButtonGroup" Order="1100"/>
     <ROW Dialog_="ResumeDlg" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="Resuming the [ProductName] [Wizard]" TextStyle="DlgFontBold10" Order="500" TextLocId="Control.Text.ResumeDlg#Title" MsiKey="ResumeDlg#Title"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Attributes="3" Text="[ButtonText_Next]" Order="100" TextLocId="-"/>
@@ -543,7 +543,7 @@
     <ROW Dialog_="STLportLicenseDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="Please read the following license agreement carefully." Order="700"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Logo" Type="Text" X="4" Y="228" Width="70" Height="12" Attributes="1" Text="Advanced Installer" Order="800"/>
     <ROW Dialog_="STLportLicenseDlg" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="STLport License Agreement" TextStyle="[DlgTitleFont]" Order="900"/>
-    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.4.2\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Order="1000"/>
+    <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgFileScrollableText_1" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Property="STLPORTLICENSEDLGFILESCROLLABLETEXT_1_PROP" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5b\src\windows\docs\thirdparty\STLPORT_LICENSE.rtf" Order="1000"/>
     <ROW Dialog_="STLportLicenseDlg" Control="STLportLicenseDlgRadioButtonGroup_1" Type="RadioButtonGroup" X="20" Y="187" Width="330" Height="40" Attributes="3" Property="STLPORTLICENSEDLGRADIOBUTTONGROUP_1_PROP" Order="1100"/>
     <ROW Dialog_="UserExit" Control="Title" Type="Text" X="135" Y="20" Width="220" Height="42" Attributes="196611" Text="The [ProductName] [Wizard] was interrupted" TextStyle="DlgFontBold8" Order="500" TextLocId="Control.Text.UserExit#Title" MsiKey="UserExit#Title"/>
     <ROW Dialog_="VerifyReadyDlg" Control="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Attributes="196611" Text="The [Wizard] is ready to begin installation" Order="800" TextLocId="Control.Text.VerifyReadyDlg#Description" MsiKey="VerifyReadyDlg#Description"/>
