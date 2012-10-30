@@ -5,6 +5,7 @@ Dim installDir
 Dim registryFile
 Dim vs2008File
 Dim vs2010File
+Dim vs2012File
 Dim icePropsFile
 Dim iceVspropsFile
 Dim files
@@ -22,10 +23,9 @@ installDir = paths(0)
 registryFile = installDir & "config\icegridregistry.cfg"
 vs2008File = paths(1) & "Microsoft\VisualStudio\9.0\Addins\Ice-VS2008.AddIn"
 vs2010File = paths(1) & "Microsoft\VisualStudio\10.0\Addins\Ice-VS2010.AddIn"
-icePropsFile = paths(2) & "ice.props"
-iceVspropsFile = paths(2) & "ice.vsprops"
+vs2012File = paths(1) & "Microsoft\VisualStudio\11.0\Addins\Ice-VS2012.AddIn"
 
-files = Array(registryFile, vs2008File, vs2010File, icePropsFile, iceVspropsFile)
+files = Array(registryFile, vs2008File, vs2010File, vs2012File)
 
 For Each fileName in files
     tmpFileName = fileName & ".tmp"

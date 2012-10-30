@@ -2267,7 +2267,7 @@ namespace Ice.VisualStudio
 #if VS2012
             if(winrt)
             {
-                addSdkReference(vcProject, "IceWinRT");
+                addSdkReference(vcProject, "Ice");
             }
 #endif
         }
@@ -2419,7 +2419,7 @@ namespace Ice.VisualStudio
 #if VS2012
             else
             {
-                Util.removeSdkReference((VCProject)project.Object, "IceWinRT");
+                Util.removeSdkReference((VCProject)project.Object, "Ice");
             }
 #endif
             return removed;
