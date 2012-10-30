@@ -233,7 +233,7 @@ for root, dirnames, filesnames in os.walk(winSrcDir):
         # to windows line ends.
         #
         for name in ["README", "CHANGES", "LICENSE", "ICE_LICENSE", "RELEASE_NOTES"]:
-            if fnmatch.fnmatch(f, name):
+            if fnmatch.fnmatch(f, name) and not fnmatch.fnmatch(f, name + ".txt") :
                 oldname = os.path.join(root, f)
                 newname = oldname + ".txt"
                 os.rename(oldname, newname)
@@ -318,11 +318,11 @@ rmFiles = []
 for root, dirnames, filesnames in os.walk(winDemoDir):
     for f in filesnames:
 
-        if fnmatch.fnmatch(f, "README"):
-	    oldreadme = os.path.join(root, f)
-	    newreadme = oldreadme + ".txt"
-	    os.rename(oldreadme, newreadme)
-	    os.system('unix2dos -q ' + newreadme)
+        if fnmatch.fnmatch(f, "README") and not fnmatch.fnmatch(f, "README.txt"):
+            oldreadme = os.path.join(root, f)
+            newreadme = oldreadme + ".txt"
+            os.rename(oldreadme, newreadme)
+            os.system('unix2dos -q ' + newreadme)
 
         if fnmatch.fnmatch(f, "config*"):
             substitute(os.path.join(root, f), configSubstituteExprs)
@@ -344,7 +344,7 @@ for d in ["demo", "democs", "demovb"]:
         for f in filesnames:
             for m in [ "*.vcproj", "*.vcxproj", "*.vcxproj.filters", "*.csproj", "*.vbproj" ]:
                 if fnmatch.fnmatch(f, m):
-		    FixUtil.fileMatchAndReplace(os.path.join(root, f), [("(README)", "README.txt")], False)
+                    FixUtil.fileMatchAndReplace(os.path.join(root, f), [("(/^README$/)", "README.txt")], False)
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 
