@@ -145,6 +145,10 @@ install_slicedir    	= $(prefix)\slice
 
 all::
 
+!if exist ($(top_srcdir)\..\ICE_LICENSE.txt)
+TEXT_EXT	= .txt
+!endif
+
 install-common::
 	@if not exist "$(prefix)" \
 	    @echo "Creating $(prefix)..." && \
@@ -157,8 +161,8 @@ install-common::
 	    @echo "Copying slice files..." && \
 	    cmd /c "xcopy /s /y $(top_srcdir)\..\slice "$(install_slicedir)"" || exit 1
 
-	@if not exist "$(prefix)\ICE_LICENSE" \
-	    @copy $(top_srcdir)\..\ICE_LICENSE "$(prefix)"
-	@if not exist "$(prefix)\LICENSE" \
-	    @copy $(top_srcdir)\..\LICENSE "$(prefix)"
+	@if not exist "$(prefix)\ICE_LICENSE$(TEXT_EXT)" \
+	    @copy $(top_srcdir)\..\ICE_LICENSE$(TEXT_EXT) "$(prefix)"
+	@if not exist "$(prefix)\LICENSE$(TEXT_EXT)" \
+	    @copy $(top_srcdir)\..\LICENSE$(TEXT_EXT) "$(prefix)"
 !endif
