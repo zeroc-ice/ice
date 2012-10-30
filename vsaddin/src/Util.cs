@@ -306,8 +306,35 @@ namespace Ice.VisualStudio
     {
         public enum msgLevel{ msgError, msgInfo, msgDebug };
 
-        public const string MajorVersion = "3";
-        public const string MinorVersion = "4";
+        public static string MajorVersion
+        {
+            get
+            {
+                if (_majorVersion == null)
+                {
+                    string[] tokens = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                    Debug.Assert(tokens.Length > 1);
+                    _majorVersion = tokens[0];
+                }
+                return _majorVersion;
+            }
+        }
+        private static string _majorVersion = null;
+
+        public static string MinorVersion
+        {
+            get
+            {
+                if (_minorVersion == null)
+                {
+                    string[] tokens = Assembly.GetExecutingAssembly().GetName().Version.ToString().Split('.');
+                    Debug.Assert(tokens.Length > 1);
+                    _minorVersion = tokens[1];
+                }
+                return _minorVersion;
+            }
+        }
+        private static string _minorVersion = null;
 
         public const string ProjectVersion = "1";
 
