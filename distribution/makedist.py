@@ -344,7 +344,10 @@ for d in ["demo", "democs", "demovb"]:
         for f in filesnames:
             for m in [ "*.vcproj", "*.vcxproj", "*.vcxproj.filters", "*.csproj", "*.vbproj" ]:
                 if fnmatch.fnmatch(f, m):
-                    FixUtil.fileMatchAndReplace(os.path.join(root, f), [("(/^README$/)", "README.txt")], False)
+                    FixUtil.fileMatchAndReplace(os.path.join(root, f), [(re.escape('"README"'), '"README.txt"')], False)
+                    FixUtil.fileMatchAndReplace(os.path.join(root, f), 
+                                                [(re.escape("..\\..\\..\\..\\..\\certs\\cacert.pem"), 
+                                                  "..\\..\\..\\..\\certs\\cacert.pem")], False)
 
 for f in rmFiles: remove(os.path.join(winDemoDir, f))
 

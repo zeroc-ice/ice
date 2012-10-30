@@ -150,7 +150,10 @@ def fileMatchAndReplace(filename, matchAndReplaceExps, verbose=True):
             match = regexp.search(line)
             if match != None:
                 oldLine = line
-                line = oldLine.replace(match.group(1), replace)
+                if len(match.groups()) == 0:
+                    line = oldLine.replace(match.group(), replace)
+                else:
+                    line = oldLine.replace(match.group(1), replace)
                 #print oldLine + line
                 updated = True
                 break
