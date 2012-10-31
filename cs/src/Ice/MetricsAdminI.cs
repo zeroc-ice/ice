@@ -765,6 +765,7 @@ namespace IceInternal
                 string viewsPrefix = "IceMX.Metrics.";
                 Dictionary<string, string> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
                 Dictionary<string, MetricsViewI> views = new Dictionary<string, MetricsViewI>();
+                _disabledViews.Clear();
                 foreach(KeyValuePair<string, string> e in viewsProps)
                 {
                     string viewName = e.Key.Substring(viewsPrefix.Length);
@@ -774,7 +775,7 @@ namespace IceInternal
                         viewName = viewName.Substring(0, dotPos);
                     }
                 
-                    if(views.ContainsKey(viewName))
+                    if(views.ContainsKey(viewName) || _disabledViews.Contains(viewName))
                     {
                         continue; // View already configured.
                     }
@@ -783,6 +784,7 @@ namespace IceInternal
                 
                     if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                     {
+                        _disabledViews.Add(viewName);
                         continue; // The view is disabled
                     }
                 
@@ -832,12 +834,33 @@ namespace IceInternal
             }
         }
 
-        override public string[] getMetricsViewNames(Ice.Current current)
+        override public string[] getMetricsViewNames(out string[] disabledViews, Ice.Current current)
         {
             lock(this)
             {
+                disabledViews = _disabledViews.ToArray();
                 return new List<String>(_views.Keys).ToArray();
             }
+        }
+
+        override public void enableMetricsView(string name, Ice.Current current)
+        {
+            lock(this)
+            {
+                getMetricsView(name); // Throws if unknown view.
+                _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "0");
+            }
+            updateViews();
+        }
+
+        override public void disableMetricsView(string name, Ice.Current current)
+        {
+            lock(this)
+            {
+                getMetricsView(name); // Throws if unknown view.
+                _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "1");
+            }
+            updateViews();
         }
 
         override public Dictionary<string, IceMX.Metrics[]> getMetricsView(string viewName, out long timestamp, 
@@ -845,13 +868,13 @@ namespace IceInternal
         {
             lock(this)
             {
-                MetricsViewI view;
-                if(!_views.TryGetValue(viewName, out view))
-                {
-                    throw new IceMX.UnknownMetricsView();
-                }
+                MetricsViewI view = getMetricsView(viewName);
                 timestamp = IceInternal.Time.currentMonotonicTimeMillis();
-                return view.getMetrics();
+                if(view != null)
+                {
+                    return view.getMetrics();
+                }
+                return new Dictionary<string, IceMX.Metrics[]>();
             }
         }
 
@@ -859,12 +882,12 @@ namespace IceInternal
         {
             lock(this)
             {
-                MetricsViewI view;
-                if(!_views.TryGetValue(viewName, out view))
+                MetricsViewI view = getMetricsView(viewName);
+                if(view != null)
                 {
-                    throw new IceMX.UnknownMetricsView();
+                    return view.getFailures(mapName);
                 }
-                return view.getFailures(mapName);
+                return new IceMX.MetricsFailures[0];
             }
         }
 
@@ -873,12 +896,12 @@ namespace IceInternal
         {
             lock(this)
             {
-                MetricsViewI view;
-                if(!_views.TryGetValue(viewName, out view))
+                MetricsViewI view = getMetricsView(viewName);
+                if(view != null)
                 {
-                    throw new IceMX.UnknownMetricsView();
+                    return view.getFailures(mapName, id);
                 }
-                return view.getFailures(mapName, id);
+                return new IceMX.MetricsFailures();
             }
         }
 
@@ -987,6 +1010,20 @@ namespace IceInternal
                 }
             }
         }
+
+        private MetricsViewI getMetricsView(string name)
+        {
+            MetricsViewI view;
+            if(!_views.TryGetValue(name, out view))
+            {
+                if(!_disabledViews.Contains(name))
+                {
+                    throw new IceMX.UnknownMetricsView();
+                }
+                return null;
+            }
+            return view;
+        }
     
         private bool addOrUpdateMap(string mapName, IMetricsMapFactory factory)
         {
@@ -1013,5 +1050,6 @@ namespace IceInternal
         readonly private Dictionary<string, IMetricsMapFactory> _factories = 
             new Dictionary<string, IMetricsMapFactory>();
         private Dictionary<string, MetricsViewI> _views = new Dictionary<string, MetricsViewI>();
+        private List<string> _disabledViews = new List<string>();
     }
 }

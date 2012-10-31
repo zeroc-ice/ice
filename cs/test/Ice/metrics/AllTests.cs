@@ -996,6 +996,39 @@ public class AllTests : TestCommon.TestApp
 
         WriteLine("ok");
 
+        Write("testing metrics view enable/disable...");
+        Flush();
+
+        string[] disabledViews;
+        props["IceMX.Metrics.View.GroupBy"] = "none";
+        props["IceMX.Metrics.View.Disabled"] = "0";
+        updateProps(clientProps, serverProps, update, props, "Thread");
+        test(clientMetrics.getMetricsView("View", out timestamp)["Thread"].Length != 0);
+        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
+
+        props["IceMX.Metrics.View.Disabled"] = "1";
+        updateProps(clientProps, serverProps, update, props, "Thread");
+        test(!clientMetrics.getMetricsView("View", out timestamp).ContainsKey("Thread"));
+        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
+
+        clientMetrics.enableMetricsView("View");
+        test(clientMetrics.getMetricsView("View", out timestamp)["Thread"].Length != 0);
+        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
+
+        clientMetrics.disableMetricsView("View");
+        test(!clientMetrics.getMetricsView("View", out timestamp).ContainsKey("Thread"));
+        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 0 && disabledViews.Length == 1);
+
+        try
+        {
+            clientMetrics.enableMetricsView("UnknownView");
+        }
+        catch(IceMX.UnknownMetricsView)
+        {
+        }
+
+        WriteLine("ok");
+
 #if SILVERLIGHT
         metrics.shutdown();
 #else

@@ -241,9 +241,6 @@ bool
 MetricsViewI::addOrUpdateMap(const PropertiesPtr& properties, const string& mapName, 
                              const MetricsMapFactoryPtr& factory, const ::Ice::LoggerPtr& logger)
 {
-    //
-    // Add maps to views configured with the given map.
-    //
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
     const string mapsPrefix = viewPrefix + "Map.";
     PropertyDict mapsProps = properties->getPropertiesForPrefix(mapsPrefix);
@@ -413,6 +410,7 @@ MetricsAdminI::updateViews()
         const string viewsPrefix = "IceMX.Metrics.";
         PropertyDict viewsProps = _properties->getPropertiesForPrefix(viewsPrefix);
         map<string, MetricsViewIPtr> views;
+        _disabledViews.clear();
         for(PropertyDict::const_iterator p = viewsProps.begin(); p != viewsProps.end(); ++p)
         {
             string viewName = p->first.substr(viewsPrefix.size());
@@ -422,7 +420,7 @@ MetricsAdminI::updateViews()
                 viewName = viewName.substr(0, dotPos);
             }
 
-            if(views.find(viewName) != views.end())
+            if(views.find(viewName) != views.end() || _disabledViews.find(viewName) != _disabledViews.end())
             {
                 continue; // View already configured.
             }
@@ -431,6 +429,7 @@ MetricsAdminI::updateViews()
 
             if(_properties->getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
             {
+                _disabledViews.insert(viewName);
                 continue; // The view is disabled
             }
 
@@ -505,54 +504,77 @@ MetricsAdminI::unregisterMap(const std::string& mapName)
     }
 }
 
-StringSeq
-MetricsAdminI::getMetricsViewNames(const Current&)
+Ice::StringSeq
+MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&)
 {
-    StringSeq names;
+    Ice::StringSeq enabledViews;
 
     Lock sync(*this);
     for(map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
     {
-        names.push_back(p->first);
+        enabledViews.push_back(p->first);
     }
-    return names;
+    disabledViews.insert(disabledViews.end(), _disabledViews.begin(), _disabledViews.end());
+    return enabledViews;
+}
+
+void
+MetricsAdminI::enableMetricsView(const string& viewName, const Current&)
+{
+    {
+        Lock sync(*this);
+        getMetricsView(viewName); // Throws if unkonwn metrics view.
+        _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "0");
+    }
+    updateViews();
+}
+
+void
+MetricsAdminI::disableMetricsView(const string& viewName, const Current&)
+{
+    {
+        Lock sync(*this);
+        getMetricsView(viewName); // Throws if unkonwn metrics view.
+        _properties->setProperty("IceMX.Metrics." + viewName + ".Disabled", "1");
+    }
+    updateViews();
 }
 
 MetricsView
-MetricsAdminI::getMetricsView(const string& view, ::Ice::Long& timestamp, const Current&)
+MetricsAdminI::getMetricsView(const string& viewName, ::Ice::Long& timestamp, const Current&)
 {
     Lock sync(*this);
-    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-    if(p == _views.end())
-    {
-        throw UnknownMetricsView();
-    }
+    MetricsViewIPtr view = getMetricsView(viewName);
     timestamp = IceUtil::Time::now().toMilliSeconds();
-    return p->second->getMetrics();
+    if(view)
+    {
+        return view->getMetrics();
+    }
+    return MetricsView();
 }
 
 MetricsFailuresSeq
-MetricsAdminI::getMapMetricsFailures(const string& view, const string& map, const Current&)
+MetricsAdminI::getMapMetricsFailures(const string& viewName, const string& map, const Current&)
 {
     Lock sync(*this);
-    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-    if(p == _views.end())
+    MetricsViewIPtr view = getMetricsView(viewName);
+    if(view)
     {
-        throw UnknownMetricsView();
+        return view->getFailures(map);
     }
-    return p->second->getFailures(map);
+    return MetricsFailuresSeq();
 }
 
 MetricsFailures
-MetricsAdminI::getMetricsFailures(const string& view, const string& map, const string& id, const Current&)
+MetricsAdminI::getMetricsFailures(const string& viewName, const string& map, const string& id, const Current&)
 {
     Lock sync(*this);
-    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(view);
-    if(p == _views.end())
+    MetricsViewIPtr view = getMetricsView(viewName);
+    if(view)
     {
-        throw UnknownMetricsView();
+        return view->getFailures(map, id);
     }
-    return p->second->getFailures(map, id);
+    return MetricsFailures();
 }
 
 vector<MetricsMapIPtr> 
@@ -581,6 +603,21 @@ void
 MetricsAdminI::setProperties(const ::Ice::PropertiesPtr& properties)
 {
     _properties = properties;
+}
+
+MetricsViewIPtr
+MetricsAdminI::getMetricsView(const std::string& name)
+{
+    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(name);
+    if(p == _views.end())
+    {
+        if(_disabledViews.find(name) == _disabledViews.end())
+        {
+            throw UnknownMetricsView();
+        }
+        return 0;
+    }
+    return p->second;
 }
 
 void 

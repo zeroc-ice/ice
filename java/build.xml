@@ -754,7 +754,6 @@
     </target>
 
     <target name="install-common">
-        <echo message="${prefix}"/>
         <mkdir dir="${prefix}"/>
         <mkdir dir="${prefix}/lib"/>
         <copy file="${ice.dir}/LICENSE${text.extension}" todir="${prefix}"/>

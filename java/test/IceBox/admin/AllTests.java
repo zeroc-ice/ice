@@ -104,7 +104,8 @@ public class AllTests
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
 
             String[] views;
-            views = ma.getMetricsViewNames();
+            Ice.StringSeqHolder disabledViews = new Ice.StringSeqHolder();
+            views = ma.getMetricsViewNames(disabledViews);
             test(views.length == 0);
 
             java.util.Map<String, String> setProps = new java.util.HashMap<String, String>();
@@ -114,11 +115,12 @@ public class AllTests
             pa.setProperties(setProps);
             pa.setProperties(new java.util.HashMap<String, String>());
 
-            views = ma.getMetricsViewNames();
+            views = ma.getMetricsViewNames(disabledViews);
             test(views.length == 3);
         
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics").getMetricsViewNames().length == 0);
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, 
+                                                         "Metrics").getMetricsViewNames(disabledViews).length == 0);
         }
         System.out.println("ok");
     }

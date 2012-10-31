@@ -414,13 +414,13 @@ public class Server extends ListArrayTreeNode
                 IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("Metrics"));
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
-                public void response(final String[] names)
+                public void response(final String[] enabledViews, final String[] disabledViews)
                 {
                     SwingUtilities.invokeLater(new Runnable()
                         {
                             public void run()
                             {
-                                _metricsNames = names;
+                                _metricsNames = enabledViews;
                                 createMetrics(metricsAdmin);
                                 rebuild(Server.this, false);
                             }

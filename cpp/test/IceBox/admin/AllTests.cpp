@@ -92,7 +92,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             Ice::PropertiesAdminPrx::checkedCast(admin, "IceBox.Service.TestService.Properties");
 
         Ice::StringSeq views;
-        views = ma->getMetricsViewNames();
+        Ice::StringSeq disabledViews;
+        views = ma->getMetricsViewNames(disabledViews);
         test(views.empty());
 
         Ice::PropertyDict setProps;
@@ -102,11 +103,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         pa->setProperties(setProps);
         pa->setProperties(Ice::PropertyDict());
 
-        views = ma->getMetricsViewNames();
+        views = ma->getMetricsViewNames(disabledViews);
         test(views.size() == 3);
         
         // Make sure that the IceBox communicator metrics admin is a separate instance.
-        test(IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics")->getMetricsViewNames().empty());
+        test(IceMX::MetricsAdminPrx::checkedCast(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());
     }
     cout << "ok" << endl;
 }

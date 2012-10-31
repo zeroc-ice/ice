@@ -102,17 +102,45 @@ dictionary<string, MetricsMap> MetricsView;
 exception UnknownMetricsView
 {
 };
- 
+
+
+/**
+ *
+ * The MetricsAdmin facet interface.
+ *
+ **/ 
 interface MetricsAdmin
 {
     /**
      *
-     * Get the name of enabled metrics views.
+     * Get the names of enabled and disabled metrics.
      *
-     * @return The names of the metrics view currently enabled.
+     * @param disabledViews The names of the disabled views.
+     *
+     * @return The name of the enabled views.
      *
      **/
-    Ice::StringSeq getMetricsViewNames();
+    Ice::StringSeq getMetricsViewNames(out Ice::StringSeq disabledViews);
+
+    /**
+     *
+     * Enables a metrics view.
+     *
+     * @param name The metrics view name.
+     *
+     **/
+    void enableMetricsView(string name)
+        throws UnknownMetricsView;
+
+    /**
+     *
+     * Disable a metrics view.
+     *
+     * @param name The metrics view name.
+     *
+     **/
+    void disableMetricsView(string name)
+        throws UnknownMetricsView;
 
     /**
      *

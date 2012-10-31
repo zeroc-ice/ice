@@ -105,7 +105,8 @@ public class AllTests
                 Ice.PropertiesAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Properties");
 
             string[] views;
-            views = ma.getMetricsViewNames();
+            string[] disabledViews;
+            views = ma.getMetricsViewNames(out disabledViews);
             test(views.Length == 0);
 
             Dictionary<string, string> setProps = new Dictionary<string, string>();
@@ -115,11 +116,12 @@ public class AllTests
             pa.setProperties(setProps);
             pa.setProperties(new Dictionary<string, string>());
 
-            views = ma.getMetricsViewNames();
+            views = ma.getMetricsViewNames(out disabledViews);
             test(views.Length == 3);
         
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics").getMetricsViewNames().Length == 0);
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, 
+                                                         "Metrics").getMetricsViewNames(out disabledViews).Length == 0);
         }
         Console.Out.WriteLine("ok");
     }

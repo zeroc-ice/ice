@@ -1014,6 +1014,39 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry3", "", op, out);
 
         out.println("ok");
+        
+        out.print("testing metrics view enable/disable...");
+        out.flush();
+
+        Ice.StringSeqHolder disabledViews = new Ice.StringSeqHolder();
+        props.put("IceMX.Metrics.View.GroupBy", "none");
+        props.put("IceMX.Metrics.View.Disabled", "0");
+        updateProps(clientProps, serverProps, update, props, "Thread");
+        test(clientMetrics.getMetricsView("View", timestamp).get("Thread").length != 0);
+        test(clientMetrics.getMetricsViewNames(disabledViews).length == 1 && disabledViews.value.length == 0);
+
+        props.put("IceMX.Metrics.View.Disabled", "1");
+        updateProps(clientProps, serverProps, update, props, "Thread");
+        test(clientMetrics.getMetricsView("View", timestamp).get("Thread") == null);
+        test(clientMetrics.getMetricsViewNames(disabledViews).length == 0 && disabledViews.value.length == 1);
+
+        clientMetrics.enableMetricsView("View");
+        test(clientMetrics.getMetricsView("View", timestamp).get("Thread").length != 0);
+        test(clientMetrics.getMetricsViewNames(disabledViews).length == 1 && disabledViews.value.length == 0);
+
+        clientMetrics.disableMetricsView("View");
+        test(clientMetrics.getMetricsView("View", timestamp).get("Thread") == null);
+        test(clientMetrics.getMetricsViewNames(disabledViews).length == 0 && disabledViews.value.length == 1);
+
+        try
+        {
+            clientMetrics.enableMetricsView("UnknownView");
+        }
+        catch(IceMX.UnknownMetricsView ex)
+        {
+        }
+
+        out.println("ok");
 
         return metrics;
     }

@@ -106,6 +106,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
             String viewsPrefix = "IceMX.Metrics.";
             java.util.Map<String, String> viewsProps = _properties.getPropertiesForPrefix(viewsPrefix);
             java.util.Map<String, MetricsViewI> views = new java.util.HashMap<String, MetricsViewI>();
+            _disabledViews.clear();
             for(java.util.Map.Entry<String, String> e : viewsProps.entrySet())
             {
                 String viewName = e.getKey().substring(viewsPrefix.length());
@@ -115,7 +116,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                     viewName = viewName.substring(0, dotPos);
                 }
                 
-                if(views.containsKey(viewName))
+                if(views.containsKey(viewName) || _disabledViews.contains(viewName))
                 {
                     continue; // View already configured.
                 }
@@ -124,6 +125,7 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
                 
                 if(_properties.getPropertyAsIntWithDefault(viewsPrefix + viewName + ".Disabled", 0) > 0)
                 {
+                    _disabledViews.add(viewName);
                     continue; // The view is disabled
                 }
                 
@@ -174,46 +176,71 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
     }
 
     synchronized public String[] 
-    getMetricsViewNames(Ice.Current current)
+    getMetricsViewNames(Ice.StringSeqHolder holder, Ice.Current current)
     {
-        return _views.keySet().toArray(new String[0]);
+        holder.value = _disabledViews.toArray(new String[_disabledViews.size()]);
+        return _views.keySet().toArray(new String[_views.size()]);
     }
 
+    public void 
+    enableMetricsView(String name, Ice.Current current)
+        throws IceMX.UnknownMetricsView
+    {
+        synchronized(this)
+        {
+            getMetricsView(name); // Throws if unknown view.
+            _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "0");
+        }
+        updateViews();
+    }
+    
+    public void 
+    disableMetricsView(String name, Ice.Current current)
+        throws IceMX.UnknownMetricsView
+    {
+        synchronized(this)
+        {
+            getMetricsView(name); // Throws if unknown view.
+            _properties.setProperty("IceMX.Metrics." + name + ".Disabled", "1");
+        }
+        updateViews();
+    }
+    
     synchronized public java.util.Map<String, IceMX.Metrics[]> 
     getMetricsView(String viewName, Ice.LongHolder holder, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
-        MetricsViewI view = _views.get(viewName);
-        if(view == null)
-        {
-            throw new IceMX.UnknownMetricsView();
-        }
+        MetricsViewI view = getMetricsView(viewName);
         holder.value = IceInternal.Time.currentMonotonicTimeMillis();
-        return view.getMetrics();
+        if(view != null)
+        {
+            return view.getMetrics();
+        }
+        return new java.util.HashMap<String, IceMX.Metrics[]>();
     }
 
     synchronized public IceMX.MetricsFailures[] 
     getMapMetricsFailures(String viewName, String mapName, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
-        MetricsViewI view = _views.get(viewName);
-        if(view == null)
+        MetricsViewI view = getMetricsView(viewName);
+        if(view != null)
         {
-            throw new IceMX.UnknownMetricsView();
+            return view.getFailures(mapName);
         }
-        return view.getFailures(mapName);
+        return new IceMX.MetricsFailures[0];
     }
 
     synchronized public IceMX.MetricsFailures 
     getMetricsFailures(String viewName, String mapName, String id, Ice.Current current)
         throws IceMX.UnknownMetricsView
     {
-        MetricsViewI view = _views.get(viewName);
-        if(view == null)
+        MetricsViewI view = getMetricsView(viewName);
+        if(view != null)
         {
-            throw new IceMX.UnknownMetricsView();
+            return view.getFailures(mapName, id);
         }
-        return view.getFailures(mapName, id);
+        return new IceMX.MetricsFailures();
     }
 
     public <T extends IceMX.Metrics> void
@@ -323,6 +350,22 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
             }
         }
     }
+
+    private MetricsViewI 
+    getMetricsView(String name)
+        throws IceMX.UnknownMetricsView
+    {
+        MetricsViewI view = _views.get(name);
+        if(view == null)
+        {
+            if(!_disabledViews.contains(name))
+            {
+                throw new IceMX.UnknownMetricsView();
+            }
+            return null;
+        }
+        return view;
+    }
     
     private boolean
     addOrUpdateMap(String mapName, MetricsMapFactory factory)
@@ -352,4 +395,5 @@ public class MetricsAdminI extends IceMX._MetricsAdminDisp implements Ice.Proper
         new java.util.HashMap<String, MetricsMapFactory<?>>();
 
     private java.util.Map<String, MetricsViewI> _views = new java.util.HashMap<String, MetricsViewI>();
+    private java.util.Set<String> _disabledViews = new java.util.HashSet<String>();
 }

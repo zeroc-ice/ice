@@ -1013,5 +1013,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing metrics view enable/disable..." << flush;
+
+    Ice::StringSeq disabledViews;
+    props["IceMX.Metrics.View.GroupBy"] = "none";
+    props["IceMX.Metrics.View.Disabled"] = "0";
+    updateProps(clientProps, serverProps, update, props, "Thread");
+    test(!clientMetrics->getMetricsView("View", timestamp)["Thread"].empty());
+    test(clientMetrics->getMetricsViewNames(disabledViews).size() == 1 && disabledViews.empty());
+
+    props["IceMX.Metrics.View.Disabled"] = "1";
+    updateProps(clientProps, serverProps, update, props, "Thread");
+    test(clientMetrics->getMetricsView("View", timestamp)["Thread"].empty());
+    test(clientMetrics->getMetricsViewNames(disabledViews).empty() && disabledViews.size() == 1);
+
+    clientMetrics->enableMetricsView("View");
+    test(!clientMetrics->getMetricsView("View", timestamp)["Thread"].empty());
+    test(clientMetrics->getMetricsViewNames(disabledViews).size() == 1 && disabledViews.empty());
+
+    clientMetrics->disableMetricsView("View");
+    test(clientMetrics->getMetricsView("View", timestamp)["Thread"].empty());
+    test(clientMetrics->getMetricsViewNames(disabledViews).empty() && disabledViews.size() == 1);
+
+    try
+    {
+        clientMetrics->enableMetricsView("UnknownView");
+    }
+    catch(const IceMX::UnknownMetricsView&)
+    {
+    }
+
+    cout << "ok" << endl;
+
     return metrics;
 }

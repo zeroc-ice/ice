@@ -625,7 +625,9 @@ public:
 
     void unregisterMap(const std::string&);
 
-    virtual Ice::StringSeq getMetricsViewNames(const ::Ice::Current&);
+    virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const ::Ice::Current&);
+    virtual void enableMetricsView(const std::string&, const ::Ice::Current&);
+    virtual void disableMetricsView(const std::string&, const ::Ice::Current&);
     virtual IceMX::MetricsView getMetricsView(const std::string&, Ice::Long&, const ::Ice::Current&);
     virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(const std::string&, const std::string&, 
                                                             const ::Ice::Current&);
@@ -640,12 +642,15 @@ public:
 
 private:
 
+    MetricsViewIPtr getMetricsView(const std::string&);
+
     void updated(const Ice::PropertyDict&);
 
     bool addOrUpdateMap(const std::string&, const MetricsMapFactoryPtr&);
     bool removeMap(const std::string&);
 
     std::map<std::string, MetricsViewIPtr> _views;
+    std::set<std::string> _disabledViews;
     std::map<std::string, MetricsMapFactoryPtr> _factories;
 
     const Ice::LoggerPtr _logger;
