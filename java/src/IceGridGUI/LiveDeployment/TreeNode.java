@@ -61,7 +61,10 @@ public abstract class TreeNode extends TreeNodeBase
 
     public static final int OPEN_DEFINITION = 19;
 
-    static public final int ACTION_COUNT = 20;
+    static public final int ENABLE_METRICS_VIEW = 20;
+    static public final int DISABLE_METRICS_VIEW = 21;
+
+    static public final int ACTION_COUNT = 22;
 
     public boolean[] getAvailableActions()
     {
@@ -117,6 +120,11 @@ public abstract class TreeNode extends TreeNodeBase
         assert false;
     }
     public void openDefinition()
+    {
+        assert false;
+    }
+
+    public void enableMetricsView(boolean enabled)
     {
         assert false;
     }

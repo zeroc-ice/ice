@@ -33,7 +33,7 @@ public class Server extends ListArrayTreeNode
     //
     public boolean[] getAvailableActions()
     {
-        boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
 
         if(_state != null)
         {
@@ -420,8 +420,14 @@ public class Server extends ListArrayTreeNode
                         {
                             public void run()
                             {
-                                _metricsNames = enabledViews;
-                                createMetrics(metricsAdmin);
+                                for(String name : enabledViews)
+                                {
+                                    insertSortedChild(new MetricsView(Server.this, name, metricsAdmin, true), _metrics, null);
+                                }
+                                for(String name : disabledViews)
+                                {
+                                    insertSortedChild(new MetricsView(Server.this, name, metricsAdmin, false), _metrics, null);
+                                }
                                 rebuild(Server.this, false);
                             }
                         });
@@ -1143,17 +1149,6 @@ public class Server extends ListArrayTreeNode
         return Utils.getIntVersion(Utils.substitute(_serverDescriptor.iceVersion, _resolver));
     }
 
-    private void createMetrics(IceMX.MetricsAdminPrx metricsAdmin)
-    {
-        if(_metricsNames != null)
-        {
-            for(String name : _metricsNames)
-            {
-                insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
-            }
-        }
-    }
-
     private void createAdapters()
     {
         for(AdapterDescriptor p : _serverDescriptor.adapters)
@@ -1293,7 +1288,6 @@ public class Server extends ListArrayTreeNode
     private java.util.List<MetricsView> _metrics = new java.util.LinkedList<MetricsView>();
 
     private java.util.Set<String> _startedServices = new java.util.HashSet<String>();
-    private String[] _metricsNames;
 
     private ServerState _state;
     private boolean _enabled;

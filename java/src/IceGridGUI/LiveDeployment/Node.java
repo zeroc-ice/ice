@@ -35,7 +35,7 @@ class Node extends ListTreeNode
     //
     public boolean[] getAvailableActions()
     {
-        boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_NODE] = _up;
         actions[RETRIEVE_STDOUT] = _up;
         actions[RETRIEVE_STDERR] = _up;

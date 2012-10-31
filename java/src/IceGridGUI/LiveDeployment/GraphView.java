@@ -348,7 +348,8 @@ public class GraphView extends JFrame implements MetricsFieldContext
                                         }
                                     }, false);
                                 if(!(e instanceof Ice.ObjectNotExistException) &&
-                                   !(e instanceof Ice.CommunicatorDestroyedException))
+                                   !(e instanceof Ice.CommunicatorDestroyedException) &&
+                                   !(e instanceof Ice.ConnectionRefusedException))
                                 {
                                     handleError(m, e.toString());
                                 }

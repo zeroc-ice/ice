@@ -30,7 +30,7 @@ public class Service extends ListArrayTreeNode
     //
     public boolean[] getAvailableActions()
     {
-        boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
 
         ServerState serverState = ((Server)_parent).getState();
 
@@ -504,8 +504,14 @@ public class Service extends ListArrayTreeNode
                         {
                             public void run()
                             {
-                                _metricsNames = enabledViews;
-                                createMetrics(metricsAdmin);
+                                for(String name : enabledViews)
+                                {
+                                    insertSortedChild(new MetricsView(Service.this, name, metricsAdmin, true), _metrics, null);
+                                }
+                                for(String name : disabledViews)
+                                {
+                                    insertSortedChild(new MetricsView(Service.this, name, metricsAdmin, false), _metrics, null);
+                                }
                                 rebuild(Service.this);
                             }
                         });
@@ -544,17 +550,6 @@ public class Service extends ListArrayTreeNode
         {
             JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
                                           JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void createMetrics(IceMX.MetricsAdminPrx metricsAdmin)
-    {
-        if(_metricsNames != null)
-        {
-            for(String name : _metricsNames)
-            {
-                insertSortedChild(new MetricsView(this, name, metricsAdmin), _metrics, null);
-            }
         }
     }
 
@@ -599,7 +594,6 @@ public class Service extends ListArrayTreeNode
 
     private boolean _started = false;
     private boolean _metricsRetrieved = false;
-    private String[] _metricsNames;
 
     static private ServiceEditor _editor;
     static private DefaultTreeCellRenderer _cellRenderer;

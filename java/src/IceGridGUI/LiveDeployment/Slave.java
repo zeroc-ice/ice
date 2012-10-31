@@ -29,7 +29,7 @@ class Slave extends TreeNode
     //
     public boolean[] getAvailableActions()
     {
-        boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
         actions[RETRIEVE_STDOUT] = true;
         actions[RETRIEVE_STDERR] = true;
