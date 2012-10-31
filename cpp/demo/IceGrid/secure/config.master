@@ -26,13 +26,6 @@ IceGrid.Registry.AdminSessionManager.Endpoints=ssl -h localhost -t 10000
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 
 #
-# IceGrid SQL configuration if using SQL database.
-#
-#Ice.Plugin.DB=IceGridSqlDB:createSqlDB
-#IceGrid.SQL.DatabaseType=QSQLITE
-#IceGrid.SQL.DatabaseName=db/master/Registry.db
-
-#
 # Trace properties.
 #
 Ice.ProgramName=Master

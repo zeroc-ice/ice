@@ -27,12 +27,17 @@
 
     <node name="Node">
       <server id="SimpleServer" exe="./server" activation="on-demand">
-	<adapter name="Hello" endpoints="tcp">
+	<adapter name="Hello" endpoints="tcp -h localhost">
 	  <object identity="hello" type="::Demo::Hello" property="Identity"/>
 	</adapter>
 
         <properties>
            <properties refid="Secure-Ice.Admin"/>
+
+           <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+           <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+           <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+           <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
         </properties>
       </server>
     </node>

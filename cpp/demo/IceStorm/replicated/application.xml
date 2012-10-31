@@ -11,6 +11,13 @@
 <icegrid>
 
   <application name="DemoIceStorm">
+
+     <properties id="mx">
+       <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+       <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+       <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+       <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
+     </properties>
    
      <server-template id="IceStorm">
        <parameter name="index"/>
@@ -21,6 +28,10 @@
 
        <icebox id="${instance-name}-${index}" exe="icebox" activation="on-demand">
 
+         <properties>
+           <properties refid="mx"/>
+         </properties>
+      
          <service name="IceStorm" entry="IceStormService,35b:createIceStorm">
 
            <dbenv name="${service}"/>
@@ -35,8 +46,9 @@
 
      	   <adapter name="${service}.Node" 
                     endpoints="${node-endpoints}"/>
-
+           
            <properties>
+             <properties refid="mx"/>
              <property name="${service}.InstanceName" value="${instance-name}"/>
              <property name="${service}.Trace.TopicManager" value="2"/>
              <property name="${service}.Trace.Topic" value="1"/>
@@ -48,7 +60,6 @@
            </properties>
 
          </service>
-
        </icebox>
      </server-template>
 

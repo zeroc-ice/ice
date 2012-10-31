@@ -18,6 +18,11 @@
       <server id="SimpleServer-${index}" exe="./server.exe" activation="on-demand">
         <adapter name="Hello" endpoints="tcp -h localhost" replica-group="ReplicatedHelloAdapter"/>
         <property name="Identity" value="hello"/>
+
+        <property name="IceMX.Metrics.Debug.GroupBy" value="id"/>
+        <property name="IceMX.Metrics.Debug.Disabled" value="1"/>
+        <property name="IceMX.Metrics.ByParent.GroupBy" value="parent"/>
+        <property name="IceMX.Metrics.ByParent.Disabled" value="1"/>
       </server>
     </server-template>
 

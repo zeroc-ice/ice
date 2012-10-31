@@ -14,13 +14,6 @@ IceGrid.Registry.ReplicaName=Replica1
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 
-#
-# IceGrid SQL configuration if using SQL database.
-#
-#Ice.Plugin.DB=IceGridSqlDB:createSqlDB
-#IceGrid.SQL.DatabaseType=QSQLITE
-#IceGrid.SQL.DatabaseName=db/replica1/Registry.db
-
 Ice.StdErr=db/replica1/stderr.txt
 Ice.StdOut=db/replica1/stdout.txt
 
