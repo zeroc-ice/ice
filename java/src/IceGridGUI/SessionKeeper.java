@@ -548,7 +548,7 @@ public class SessionKeeper
             {
                 name += getEndpoint();
             }
-            return name.substring(0, Math.min(60, name.length()));
+            return name;
         }
 
         public int compareTo(ConnectionInfo other) 
