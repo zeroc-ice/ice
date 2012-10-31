@@ -271,7 +271,7 @@ struct OutstandingUpdate
 
     void operator()(const SubscriberMetricsPtr& v)
     {
-        if(v-> queued -= count)
+        if(v->queued > 0)
         {
             v->queued -= count;
         }
