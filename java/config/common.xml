@@ -25,6 +25,7 @@
     <condition property="thirdparty.home" value="${env.THIRDPARTY_HOME}">
        <and>
           <os family="Windows"/>
+          <isset property="env.THIRDPARTY_HOME"/>
           <not><isset property="thirdparty.home"/></not>
        </and>   
     </condition>
@@ -89,6 +90,15 @@
     <pathconvert property="ice.top.dir">
       <path location="${top.dir}"/>
     </pathconvert>
+
+    <!-- Define text.extension to '.txt' in Windows source distributions -->
+    <condition property="text.extension" value=".txt">
+        <and>
+          <os family="Windows"/>
+          <available file="${top.dir}/../LICENSE.txt"/>
+          <not><isset property="text.extension"/></not>
+       </and>
+    </condition>
     
     <condition property="slice.translator" value="slice2java.exe" else="slice2java">
       <os family="windows"/>

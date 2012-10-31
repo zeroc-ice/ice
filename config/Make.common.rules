@@ -358,6 +358,12 @@ endif
 
 all::
 
+ifeq ($(wildcard $(top_srcdir)/../ICE_LICENSE.txt),) 
+    TEXT_EXTENSION =
+else 
+    TEXT_EXTENSION = .txt 
+endif
+
 install-common::
 	@if test ! -d $(prefix) ; \
 	then \
@@ -375,14 +381,14 @@ install-common::
 	        echo "Copying slice/$$subdir to $(install_slicedir)..." ; \
 	        cp -fpr $$subdir $(install_slicedir) ; \
 	    done ; \
-        fi
+	    fi
 
-	@if test ! -f $(prefix)/ICE_LICENSE ; \
+	@if test ! -f $(prefix)/ICE_LICENSE$(TEXT_EXTENSION) ; \
 	then \
-	    $(call installdata,$(top_srcdir)/../ICE_LICENSE,$(prefix)) ; \
+	    $(call installdata,$(top_srcdir)/../ICE_LICENSE$(TEXT_EXTENSION),$(prefix)) ; \
 	fi
 
-	@if test ! -f $(prefix)/LICENSE ; \
+	@if test ! -f $(prefix)/LICENSE$(TEXT_EXTENSION) ; \
 	then \
-	    $(call installdata,$(top_srcdir)/../LICENSE,$(prefix)) ; \
+	    $(call installdata,$(top_srcdir)/../LICENSE$(TEXT_EXTENSION),$(prefix)) ; \
 	fi

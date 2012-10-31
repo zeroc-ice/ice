@@ -142,9 +142,15 @@ SDK_ICE_LICENSE		= $(SDK_BASE_PATH)\ICE_LICENSE.txt
 #
 # Copy License files to SDK Root and fix line ends.
 #
+!if exist ($(top_srcdir)\..\ICE_LICENSE.txt)
 $(SDK_LICENSE) $(SDK_ICE_LICENSE):
-	type $(top_srcdir)\..\LICENSE | find "" /v > $(SDK_LICENSE)
-	type $(top_srcdir)\..\ICE_LICENSE | find "" /v > $(SDK_ICE_LICENSE)
+  copy $(top_srcdir)\..\LICENSE.txt $(SDK_BASE_PATH)
+  copy $(top_srcdir)\..\ICE_LICENSE.txt $(SDK_BASE_PATH)
+!else
+$(SDK_LICENSE) $(SDK_ICE_LICENSE):
+  type $(top_srcdir)\..\LICENSE | find "" /v > $(SDK_LICENSE)
+  type $(top_srcdir)\..\ICE_LICENSE | find "" /v > $(SDK_ICE_LICENSE)
+!endif
 	
 $(SDK_BASE_PATH):
 	mkdir $(SDK_BASE_PATH)

@@ -754,10 +754,11 @@
     </target>
 
     <target name="install-common">
+        <echo message="${prefix}"/>
         <mkdir dir="${prefix}"/>
         <mkdir dir="${prefix}/lib"/>
-        <copy file="${ice.dir}/LICENSE" todir="${prefix}"/>
-        <copy file="${ice.dir}/ICE_LICENSE" todir="${prefix}"/>
+        <copy file="${ice.dir}/LICENSE${text.extension}" todir="${prefix}"/>
+        <copy file="${ice.dir}/ICE_LICENSE${text.extension}" todir="${prefix}"/>
     </target>
 
     <condition property="slice-installed">
