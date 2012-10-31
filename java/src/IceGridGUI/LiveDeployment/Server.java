@@ -917,7 +917,7 @@ public class Server extends ListArrayTreeNode
             else
             {
                 _metricsRetrieved = false;
-                if(_metrics.size() > 0)
+                if(!_metrics.isEmpty())
                 {
                     _metrics.clear();
                     rebuild(this, false);
