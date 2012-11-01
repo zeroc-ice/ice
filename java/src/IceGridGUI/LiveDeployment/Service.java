@@ -345,9 +345,11 @@ public class Service extends ListArrayTreeNode
         if(_started)
         {
             _started = false;
-            if(getRoot().getTree().isExpanded(getPath()))
+            _metricsRetrieved = false;
+            if(!_metrics.isEmpty())
             {
-                fetchMetricsViewNames();
+                _metrics.clear();
+                rebuild(this);
             }
             getRoot().getTreeModel().nodeChanged(this);
         }

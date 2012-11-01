@@ -995,7 +995,6 @@ public class Server extends ListArrayTreeNode
                                     JOptionPane.ERROR_MESSAGE);
                             }
                         }
-
                     }
 
                     if(_serviceObserver != null)
@@ -1042,6 +1041,13 @@ public class Server extends ListArrayTreeNode
                                     JOptionPane.ERROR_MESSAGE);
                             }
                         }
+                    }
+                }
+                else if(_state == ServerState.Inactive)
+                {
+                    for(Service service: _services)
+                    {
+                        service.stopped();
                     }
                 }
             }
