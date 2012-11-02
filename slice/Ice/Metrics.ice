@@ -44,8 +44,8 @@ class Metrics
 
     /**
      *
-     * The sum of the lifetime of each observed objects. This doesn't
-     * include the lifetime of objects wich are currently observed.
+     * The sum of the lifetime of each observed objects. This does not
+     * include the lifetime of objects which are currently observed.
      *
      **/
     long totalLifetime = 0;
@@ -81,14 +81,14 @@ sequence<MetricsFailures> MetricsFailuresSeq;
  * A metrics map is a sequence of metrics. We use a sequence here
  * instead of a map because the ID of the metrics is already included
  * in the Metrics class and using sequences of metrics objects is more
- * efficient than using dictionaries since lookup isn't necessary.
+ * efficient than using dictionaries since lookup is not necessary.
  *
  **/
 sequence<Metrics> MetricsMap;
 
 /**
  *
- * A metrics view is a ditcionary of metrics map. The key of the
+ * A metrics view is a dictionary of metrics map. The key of the
  * dictionary is the name of the metrics map.
  *
  **/
@@ -96,7 +96,7 @@ dictionary<string, MetricsMap> MetricsView;
 
 /**
  *
- * Raised if a metrics view can't be found.
+ * Raised if a metrics view cannot be found.
  * 
  **/
 exception UnknownMetricsView
@@ -157,7 +157,7 @@ interface MetricsAdmin
      *
      * @return The metrics view data.
      *
-     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * @throws UnknownMetricsView Raised if the metrics view cannot be
      * found.
      *
      **/
@@ -174,7 +174,7 @@ interface MetricsAdmin
      *
      * @return The metrics failures associated with the map.
      *
-     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * @throws UnknownMetricsView Raised if the metrics view cannot be
      * found.
      *
      **/
@@ -193,7 +193,7 @@ interface MetricsAdmin
      *
      * @return The metrics failures associated with the metrics.
      *
-     * @throws UnknownMetricsView Raised if the metrics view can't be
+     * @throws UnknownMetricsView Raised if the metrics view cannot be
      * found.
      *
      **/

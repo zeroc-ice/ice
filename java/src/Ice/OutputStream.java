@@ -178,9 +178,9 @@ public interface OutputStream
      * Write an enumerated value.
      *
      * @param v The enumerator.
-     * @param limit The number of enumerators in the definition.
+     * @param limit The maximum enumerator value in the definition.
      **/
-    void writeEnum(int v, int limit);
+    void writeEnum(int v, int maxValue);
 
     /**
      * Writes a user exception to the stream.

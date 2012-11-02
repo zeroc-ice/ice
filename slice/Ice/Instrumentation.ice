@@ -81,7 +81,7 @@ local enum ThreadState
 
     /**
      *
-     * The thread is calling user code (servant implmentation, AMI
+     * The thread is calling user code (servant implementation, AMI
      * callbacks). This state is only for threads from an Ice thread
      * pool. 
      *
@@ -174,7 +174,7 @@ local interface ConnectionObserver extends Observer
 {
     /**
      *
-     * Notifiation of sent bytes over the connection.
+     * Notification of sent bytes over the connection.
      *
      * @param num The number of bytes sent.
      * 
@@ -183,7 +183,7 @@ local interface ConnectionObserver extends Observer
 
     /**
      *
-     * Notifiation of received bytes over the connection.
+     * Notification of received bytes over the connection.
      *
      * @param num The number of bytes received.
      * 
@@ -247,7 +247,7 @@ local interface InvocationObserver extends Observer
  * set with the communicator initialization data.
  *
  * This interface can be used by add-ins implementing the
- * CommunicatorObserver interface to update the obsevers of
+ * CommunicatorObserver interface to update the observers of
  * connections and threads.
  *
  **/
@@ -256,7 +256,7 @@ local interface ObserverUpdater
     /**
      *
      * Update connection observers associated with each of the Ice
-     * connection from the communicator and its object adpaters.
+     * connection from the communicator and its object adapters.
      *
      * When called, this method goes through all the connections and
      * for each connection CommunicatorObserver::getConnectionObserver
@@ -269,7 +269,7 @@ local interface ObserverUpdater
     /**
      *
      * Update thread observers associated with each of the Ice thread
-     * from the communicator and its object adpaters.
+     * from the communicator and its object adapters.
      *
      * When called, this method goes through all the threads and for
      * each thread CommunicatorObserver::getThreadObserver is
@@ -283,7 +283,7 @@ local interface ObserverUpdater
 /**
  *
  * The communicator observer interface used by the Ice run-time to
- * obtain and update observers for its observeable objects. This
+ * obtain and update observers for its observable objects. This
  * interface should be implemented by add-ins that wish to observe Ice
  * objects in order to collect statistics. An instance of this
  * interface can be provided to the Ice run-time through the Ice

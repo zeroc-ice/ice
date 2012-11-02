@@ -61,7 +61,7 @@ public:
     virtual void endEncapsulation();
     virtual Ice::EncodingVersion skipEncapsulation();
 
-    virtual Ice::EncodingVersion getEncoding();
+    virtual Ice::EncodingVersion getEncoding() const;
 
     virtual void readPendingObjects();
 
@@ -163,7 +163,7 @@ public:
     virtual void startEncapsulation();
     virtual void endEncapsulation();
 
-    virtual Ice::EncodingVersion getEncoding();
+    virtual Ice::EncodingVersion getEncoding() const;
 
     virtual void writePendingObjects();
 

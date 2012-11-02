@@ -2296,7 +2296,6 @@ IceInternal::BasicStream::EncapsDecoder::throwException(const UserExceptionFacto
             //
             try
             {
-                assert(exceptionFactory);
                 exceptionFactory->createAndThrow(_typeId);
             }
             catch(UserException& ex)

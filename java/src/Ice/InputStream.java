@@ -191,10 +191,10 @@ public interface InputStream
     /**
      * Read an enumerated value.
      *
-     * @param limit The number of enumerators in the definition.
+     * @param maxValue The maximum enumerator value in the definition.
      * @return The enumerator.
      **/
-    int readEnum(int limit);
+    int readEnum(int maxValue);
 
     /**
      * Extracts a user exception from the stream and throws it.

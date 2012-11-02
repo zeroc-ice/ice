@@ -179,9 +179,9 @@ namespace Ice
         /// Read an enumerated value.
         /// </summary>
         ///
-        /// <param name="limit">The number of enumerators in the definition.</param>
+        /// <param name="maxValue">The maximum enumerator value in the definition.</param>
         /// <returns>The enumerator.</returns>
-        int readEnum(int limit);
+        int readEnum(int maxValue);
 
         /// <summary>
         /// Extracts a user exception from the stream and throws it.
@@ -626,7 +626,7 @@ namespace Ice
 
     public abstract class UserExceptionReader : UserException
     {
-        public UserExceptionReader(Communicator communicator)
+        protected UserExceptionReader(Communicator communicator)
         {
             communicator_ = communicator;
         }

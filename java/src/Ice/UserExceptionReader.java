@@ -20,7 +20,7 @@ public abstract class UserExceptionReader extends UserException
     /**
      * Creates a reader for the given communicator.
      **/
-    public UserExceptionReader(Communicator communicator)
+    protected UserExceptionReader(Communicator communicator)
     {
         _communicator = communicator;
     }

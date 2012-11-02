@@ -350,7 +350,7 @@ InputStreamI::skipEncapsulation()
 }
 
 EncodingVersion
-InputStreamI::getEncoding()
+InputStreamI::getEncoding() const
 {
     return _is->getReadEncoding();
 }
@@ -631,7 +631,7 @@ OutputStreamI::endEncapsulation()
 }
 
 EncodingVersion
-OutputStreamI::getEncoding()
+OutputStreamI::getEncoding() const
 {
     return _os->getWriteEncoding();
 }
