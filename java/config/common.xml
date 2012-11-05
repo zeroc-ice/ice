@@ -92,7 +92,7 @@
     </pathconvert>
 
     <!-- Define text.extension to '.txt' in Windows source distributions -->
-    <condition property="text.extension" value=".txt">
+    <condition property="text.extension" value=".txt" else="">
         <and>
           <os family="Windows"/>
           <available file="${top.dir}/../LICENSE.txt"/>
