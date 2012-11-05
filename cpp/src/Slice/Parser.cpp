@@ -795,6 +795,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
 
     nameIsLegal(name, "exception"); // Don't return here -- we create the exception anyway
@@ -846,6 +847,7 @@ Slice::Container::createStruct(const string& name, bool local, NodeType nt)
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
 
     nameIsLegal(name, "structure"); // Don't return here -- we create the struct anyway.
@@ -901,6 +903,7 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
 
     nameIsLegal(name, "sequence"); // Don't return here -- we create the sequence anyway.
@@ -966,6 +969,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
     
     nameIsLegal(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
@@ -1037,6 +1041,7 @@ Slice::Container::createEnum(const string& name, bool local, NodeType nt)
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
 
     nameIsLegal(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
@@ -1110,6 +1115,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
             msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
             _unit->error(msg);
         }
+        return 0;
     }
 
     nameIsLegal(name, "constant"); // Don't return here -- we create the constant anyway.

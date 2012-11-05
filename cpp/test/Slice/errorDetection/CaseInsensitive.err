@@ -41,10 +41,8 @@ CaseInsensitive.ice:185: dictionary `D' differs only in capitalization from dict
 CaseInsensitive.ice:186: redefinition of module `m1' as dictionary
 CaseInsensitive.ice:187: dictionary `M1' differs only in capitalization from module `m1'
 CaseInsensitive.ice:190: enumeration `eN1' differs only in capitalization from enumeration `en1'
-CaseInsensitive.ice:190: `eN1' has changed meaning
 CaseInsensitive.ice:191: redefinition of module `m1' as enumeration
 CaseInsensitive.ice:192: enumeration `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:192: `M1' has changed meaning
 CaseInsensitive.ice:194: redefinition of enumeration `en1' as enumerator
 CaseInsensitive.ice:195: enumerator `EN1' differs only in capitalization from enumeration `en1'
 CaseInsensitive.ice:196: redefinition of module `m1' as enumerator

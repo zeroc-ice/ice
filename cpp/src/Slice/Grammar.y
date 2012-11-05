@@ -543,6 +543,12 @@ struct_def
 	cont->checkIntroduced(ident->v, st);
 	unit->pushContainer(st);
     }
+    else
+    {
+        st = cont->createStruct(IceUtil::generateUUID(), local->v); // Dummy
+        assert(st);
+        unit->pushContainer(st);
+    }
     $$ = st;
 }
 '{' struct_exports '}'
