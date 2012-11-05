@@ -4450,7 +4450,6 @@ public class SessionKeeper
                 {
                     JOptionPane.showMessageDialog(this, "Permission denied: " + msg, "Login failed", JOptionPane.ERROR_MESSAGE);
                 }
-                setModal(true);
             }
         }
 
@@ -4610,6 +4609,7 @@ public class SessionKeeper
                 else
                 {
                     _authDialog = new UsernamePasswordAuthDialog();
+                    _authDialog.setModal(true);
                     Utils.addEscapeListener(_authDialog);
                     _authDialog.showDialog();
                 }
@@ -4718,6 +4718,7 @@ public class SessionKeeper
                 else
                 {
                     _authDialog = new X509CertificateAuthDialog();
+                    _authDialog.setModal(true);
                     _authDialog.showDialog();
                 }
             }
@@ -4955,9 +4956,10 @@ public class SessionKeeper
             private JCheckBox _storeKeyPassword;
         }
 
-        if(_authDialog == null || !_authDialog.isDisplayable())
+        if(_authDialog == null)
         {
             _authDialog = new PermissionDeniedAuthDialog();
+            _authDialog.setModal(true);
             Utils.addEscapeListener(_authDialog);
             _authDialog.showDialog(true, msg);
         }
