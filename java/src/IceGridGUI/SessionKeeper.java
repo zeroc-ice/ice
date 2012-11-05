@@ -1055,7 +1055,6 @@ public class SessionKeeper
         {
             setTitle(title);
             getContentPane().setLayout(new BorderLayout());
-
             _cardPanel = new JPanel();
             _cardPanel.setBorder(new EmptyBorder(new Insets(5, 10, 5, 10)));       
 
@@ -1101,7 +1100,7 @@ public class SessionKeeper
 
             // Direct Instance Panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1129,12 +1128,15 @@ public class SessionKeeper
                 builder.append(_directInstanceName);
                 builder.append(new JLabel("The name of the IceGrid instance you want to connect."));
 
+                _directConnectToMaster = new JCheckBox("Connect to Master Registry.");
+                builder.append(_directConnectToMaster);
+
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectInstanceStep.toString());
             }
 
             // Routed Instance Panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1165,7 +1167,7 @@ public class SessionKeeper
 
             // Direct Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1199,7 +1201,7 @@ public class SessionKeeper
 
             // Routed Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1235,7 +1237,7 @@ public class SessionKeeper
 
             // Direct Default Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref", "");
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1288,7 +1290,7 @@ public class SessionKeeper
                 builder.append("<html><b>Port:</b></html>", _directDefaultEndpointPort);
                 builder.nextLine();
                 builder.append("", new JLabel("<html>The port number IceGrid server listen on, " + 
-                                              "leave empty<br/>to use default IceGrid port.</html>"));
+                                              "leave empty to use default<br/>IceGrid port.</html>"));
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
                 _directDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
@@ -1320,7 +1322,7 @@ public class SessionKeeper
 
             // Routed Default Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref", "");
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1373,7 +1375,7 @@ public class SessionKeeper
                 builder.append("<html><b>Port:</b></html>", _routedDefaultEndpointPort);
                 builder.nextLine();
                 builder.append("", new JLabel("<html>The port number Glacier2 server listen on, " +
-                                              "leave empty<br/>to use default Glacier2 port.</html>"));
+                                              "leave empty to use default<br/>Glacier2 port.</html>"));
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
                 _routedDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
@@ -1406,7 +1408,7 @@ public class SessionKeeper
 
             // Direct Custom Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1438,7 +1440,7 @@ public class SessionKeeper
 
             // Routed Custom Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1470,7 +1472,7 @@ public class SessionKeeper
 
             // X509Certificate panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1502,9 +1504,141 @@ public class SessionKeeper
                 _cardPanel.add(builder.getPanel(), WizardStep.X509CertificateStep.toString());
             }
 
+            // Direct X509 credentials panel
+            {
+                _directCertificateAliases = new JComboBox<String>();
+                _directCertificateAliases.addActionListener (new ActionListener ()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            validatePanel();
+                        }
+                    });
+
+                _directImportCertificate = new JButton(new AbstractAction("Import...")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
+                            if(d != null)
+                            {
+                                d.setModal(true);
+                                d.load();
+                                d.setActiveTab(0); // Select My Certificates tab
+                                d.showDialog();
+                                loadCertificateAliases(_directCertificateAliases);
+                                validatePanel();
+                            }
+                        }
+                    });
+
+                JPanel alias;
+                {
+                    FormLayout layout = new FormLayout("pref:grow, 2dlu, pref", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.rowGroupingEnabled(true);
+                    builder.append(_directCertificateAliases, _directImportCertificate);
+                    alias = builder.getPanel();
+                }
+
+                JPanel panel;
+                {
+                    FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.rowGroupingEnabled(true);
+
+                    ButtonGroup group = new ButtonGroup();
+                    
+                    builder.append("<html><b>Alias:</b></html>", alias);
+                    builder.append("", new JLabel("<html><p>The X509 certificate alias used to establish " +
+                                   "the connection with<br/>the IceGrid server.</p></html>"));
+
+                    _directCertificatePassword = new JPasswordField();
+                    builder.append("<html><b>Password:</b></html>", _directCertificatePassword);
+                    builder.append("", new JLabel("<html><p>The certificate password. If you leave it empty, " + 
+                                   "you will be prompted<br/>for a password each time you connect.</p></html>"));
+
+                    panel = builder.getPanel();
+                }
+
+                FormLayout layout = new FormLayout("pref:grow", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.append(new JLabel("<html><b>X509 Cerfificate</b></html>"));
+                builder.append(panel);
+                _cardPanel.add(builder.getPanel(), WizardStep.DirectX509CredentialsStep.toString());
+            }
+
+            // Routed X509 credentials panel
+            {
+                _routedCertificateAliases = new JComboBox<String>();
+                _routedCertificateAliases.addActionListener (new ActionListener ()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            validatePanel();
+                        }
+                    });
+
+                _routedImportCertificate = new JButton(new AbstractAction("Import...")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
+                            if(d != null)
+                            {
+                                d.setModal(true);
+                                d.load();
+                                d.setActiveTab(0); // Select My Certificates tab
+                                d.showDialog();
+                                loadCertificateAliases(_routedCertificateAliases);
+                                validatePanel();
+                            }
+                        }
+                    });
+
+                JPanel alias;
+                {
+                    FormLayout layout = new FormLayout("pref:grow, 2dlu, pref", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.rowGroupingEnabled(true);
+                    builder.append(_routedCertificateAliases, _routedImportCertificate);
+                    alias = builder.getPanel();
+                }
+
+                JPanel panel;
+                {
+                    FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.rowGroupingEnabled(true);
+
+                    ButtonGroup group = new ButtonGroup();
+                    
+                    builder.append("<html><b>Alias:</b></html>", alias);
+                    builder.append("", new JLabel("<html><p>The X509 certificate alias used to establish " +
+                                   "the connection with<br/>the Glacier2 server.</p></html>"));
+
+                    _routedCertificatePassword = new JPasswordField();
+                    builder.append("<html><b>Password:</b></html>", _routedCertificatePassword);
+                    builder.append("", new JLabel("<html><p>The certificate password. If you leave it empty, " + 
+                                   "you will be prompted<br/>for a password each time you connect.</p></html>"));
+
+                    panel = builder.getPanel();
+                }
+
+                FormLayout layout = new FormLayout("pref:grow", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+                builder.append(new JLabel("<html><b>X509 Cerfificate</b></html>"));
+                builder.append(panel);
+                _cardPanel.add(builder.getPanel(), WizardStep.RoutedX509CredentialsStep.toString());
+            }
+
             // Authentication panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1539,9 +1673,91 @@ public class SessionKeeper
                 _cardPanel.add(builder.getPanel(), WizardStep.AuthStep.toString());
             }
 
+            // Direct Username password credentials panel
+            {
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+
+                ButtonGroup group = new ButtonGroup();
+
+                _directUsername = new JTextField();
+                _directUsername.getDocument().addDocumentListener(new DocumentListener()
+                    {
+                        public void changedUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _directUsername.requestFocusInWindow();
+                        }
+                        public void removeUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _directUsername.requestFocusInWindow();
+                        }
+                        public void insertUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _directUsername.requestFocusInWindow();
+                        }
+                    });
+
+                builder.append("<html><b>Username:</b></html>", _directUsername);
+                builder.append("", new JLabel("<html><p>The username to autheticate with IceGrid server.</p></html>"));
+
+                _directPassword = new JPasswordField();
+                builder.append("<html><b>Password:</b></html>", _directPassword);
+                builder.append("", new JLabel("<html><p>The password to autheticate with IceGrid server. " +
+                                              "If you leave it empty,<br/>you will be prompted " + 
+                                              "for a password each time you connect.</p></html>"));
+
+                _cardPanel.add(builder.getPanel(), WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+            }
+
+            // Routed Username password credentials panel
+            {
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
+                DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                builder.border(Borders.DIALOG);
+                builder.rowGroupingEnabled(true);
+
+                ButtonGroup group = new ButtonGroup();
+
+                _routedUsername = new JTextField();
+                _routedUsername.getDocument().addDocumentListener(new DocumentListener()
+                    {
+                        public void changedUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _routedUsername.requestFocusInWindow();
+                        }
+                        public void removeUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _routedUsername.requestFocusInWindow();
+                        }
+                        public void insertUpdate(DocumentEvent e)
+                        {
+                            validatePanel();
+                            _routedUsername.requestFocusInWindow();
+                        }
+                    });
+
+                builder.append("<html><b>Username:</b></html>", _routedUsername);
+                builder.append("", new JLabel("<html><p>The username to autheticate with Glacier2 server.</p></html>"));
+
+                _routedPassword = new JPasswordField();
+                builder.append("<html><b>Password:</b></html>", _routedPassword);
+                builder.append("", new JLabel("<html><p>The password to autheticate with Glacier2 server. " +
+                                              "If you leave it empty,<br/>you will be prompted " + 
+                                              "for a password each time you connect.</p></html>"));
+
+                _cardPanel.add(builder.getPanel(), WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+            }
+
             // Finish configuration panel
             {
-                FormLayout layout = new FormLayout("pref", "pref");
+                FormLayout layout = new FormLayout("pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1568,6 +1784,7 @@ public class SessionKeeper
                             return;
                         }
                         _wizardSteps.pop();
+
                         _cardLayout.show(_cardPanel, _wizardSteps.elementAt(_wizardSteps.size() - 1).toString());
 
                         if(_wizardSteps.size() <= 1)
@@ -1652,8 +1869,8 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
-                                    _wizardSteps.push(WizardStep.FinishStep);
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                    _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
                                 break;
                             }
@@ -1666,8 +1883,8 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
-                                    _wizardSteps.push(WizardStep.FinishStep);
+                                    _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                    _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
                                 break;
                             }
@@ -1689,8 +1906,8 @@ public class SessionKeeper
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
-                                        _wizardSteps.push(WizardStep.FinishStep);
+                                        _cardLayout.show(_cardPanel, WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                     }
                                 }
                                 catch(Ice.EndpointParseException ex)
@@ -1731,8 +1948,8 @@ public class SessionKeeper
                                     }
                                     else
                                     {
-                                        _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
-                                        _wizardSteps.push(WizardStep.FinishStep);
+                                        _cardLayout.show(_cardPanel, WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
                                 catch(Ice.EndpointParseException ex)
@@ -1759,8 +1976,59 @@ public class SessionKeeper
                             {
                                 if(_x509CertificateYesButton.isSelected())
                                 {
-                                    _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
-                                    _wizardSteps.push(WizardStep.AuthStep);
+                                    if(_directConnection.isSelected())
+                                    {
+                                        loadCertificateAliases(_directCertificateAliases);
+                                        _cardLayout.show(_cardPanel, WizardStep.DirectX509CredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectX509CredentialsStep);
+                                    }
+                                    else
+                                    {
+                                        loadCertificateAliases(_routedCertificateAliases);
+                                        _cardLayout.show(_cardPanel, WizardStep.RoutedX509CredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedX509CredentialsStep);
+                                    }
+                                }
+                                else
+                                {
+                                    if(_directConnection.isSelected())
+                                    {
+                                        _cardLayout.show(_cardPanel, 
+                                                         WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
+                                    }
+                                    else
+                                    {
+                                        _cardLayout.show(_cardPanel, 
+                                                         WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
+                                    }
+                                }
+                                break;
+                            }
+                            case RoutedX509CredentialsStep:
+                            case DirectX509CredentialsStep:
+                            {
+                                _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
+                                _wizardSteps.push(WizardStep.AuthStep);
+                                break;
+                            }
+                            case AuthStep:
+                            {
+                                if(_usernamePasswordAuthButton.isSelected())
+                                {
+                                    if(_directConnection.isSelected())
+                                    {
+                                        _cardLayout.show(_cardPanel, 
+                                                         WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
+                                    }
+                                    else
+                                    {
+                                        _cardLayout.show(_cardPanel, 
+                                                         WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
+                                    }
                                 }
                                 else
                                 {
@@ -1769,11 +2037,11 @@ public class SessionKeeper
                                 }
                                 break;
                             }
-                            case AuthStep:
+                            case DirectUsernamePasswordCredentialsStep:
+                            case RoutedUsernamePasswordCredentialsStep:
                             {
                                 _cardLayout.show(_cardPanel, WizardStep.FinishStep.toString());
                                 _wizardSteps.push(WizardStep.FinishStep);
-                                break;
                             }
                             default:
                             {
@@ -1812,6 +2080,27 @@ public class SessionKeeper
                         if(direct)
                         {
                             inf.setInstanceName(_directInstanceName.getText());
+                            inf.setConnectToMaster(_directConnectToMaster.isSelected());
+                            if(_usernamePasswordAuthButton.isSelected())
+                            {
+                                inf.setUsername(_directUsername.getText());
+                                if(_directPassword.getPassword() != null)
+                                {
+                                    inf.setPassword(_directPassword.getPassword());
+                                    inf.setStorePassword(true);
+                                }                               
+                            }
+
+                            if(_x509CertificateYesButton.isSelected())
+                            {
+                                inf.setAlias((String)_directCertificateAliases.getSelectedItem());
+                                if(_directCertificatePassword.getPassword() != null)
+                                {
+                                    inf.setKeyPassword(_directCertificatePassword.getPassword());
+                                    inf.setStoreKeyPassword(true);
+                                }
+                            }
+
                             if(_directDefaultEndpoints.isSelected())
                             {
                                 inf.setHost(_directDefaultEndpointHost.getText());
@@ -1877,6 +2166,27 @@ public class SessionKeeper
                         else
                         {
                             inf.setInstanceName(_routedInstanceName.getText());
+
+                            if(_usernamePasswordAuthButton.isSelected())
+                            {
+                                inf.setUsername(_routedUsername.getText());
+                                if(_routedPassword.getPassword() != null)
+                                {
+                                    inf.setPassword(_routedPassword.getPassword());
+                                    inf.setStorePassword(true);
+                                }                               
+                            }
+
+                            if(_x509CertificateYesButton.isSelected())
+                            {
+                                inf.setAlias((String)_routedCertificateAliases.getSelectedItem());
+                                if(_routedCertificatePassword.getPassword() != null)
+                                {
+                                    inf.setKeyPassword(_routedCertificatePassword.getPassword());
+                                    inf.setStoreKeyPassword(true);
+                                }
+                            }
+
                             if(_routedDefaultEndpoints.isSelected())
                             {
                                 inf.setHost(_routedDefaultEndpointHost.getText());
@@ -1951,7 +2261,7 @@ public class SessionKeeper
                         }
 
                         //
-                        // If there isn't secure endpoints, we must set aut type to username password
+                        // If there isn't secure endpoints, we must set auth type to username password
                         // and use X509 certificate to false.
                         //
                         if(!secureEndpoints)
@@ -2040,13 +2350,11 @@ public class SessionKeeper
                 }
                 case DirectDefaultEndpointStep:
                 {
-                    finalStep = true;
                     _directDefaultEndpointHost.requestFocusInWindow();
                     break;
                 }
                 case DirectCustomEnpointStep:
                 {
-                    finalStep = true;
                     _directCustomEndpointValue.requestFocusInWindow();
                     break;
                 }
@@ -2069,19 +2377,16 @@ public class SessionKeeper
                 }
                 case RoutedDefaultEndpointStep:
                 {
-                    finalStep = true;
                     _routedDefaultEndpointHost.requestFocusInWindow();
                     break;
                 }
                 case RoutedCustomEnpointStep:
                 {
-                    finalStep = true;
                     _routedCustomEndpointValue.requestFocusInWindow();
                     break;
                 }
                 case X509CertificateStep:
                 {
-                    finalStep = true;
                     if(_x509CertificateYesButton.isSelected())
                     {
                         _x509CertificateYesButton.requestFocusInWindow();
@@ -2091,17 +2396,39 @@ public class SessionKeeper
                         _x509CertificateNoButton.requestFocusInWindow();
                     }
                 }
+                case DirectX509CredentialsStep:
+                {
+                    _directCertificateAliases.requestFocusInWindow();
+                    break;
+                }
+                case RoutedX509CredentialsStep:
+                {
+                    _routedCertificateAliases.requestFocusInWindow();
+                    break;
+                }
                 case AuthStep:
                 {
-                    finalStep = true;
                     if(_usernamePasswordAuthButton.isSelected())
                     {
                         _usernamePasswordAuthButton.requestFocusInWindow();
                     }
                     else
                     {
+                        finalStep = true;
                         _certificateAuthButton.requestFocusInWindow();
                     }
+                    break;
+                }
+                case DirectUsernamePasswordCredentialsStep:
+                {
+                    finalStep = true;
+                    _directUsername.requestFocusInWindow();
+                    break;
+                }
+                case RoutedUsernamePasswordCredentialsStep:
+                {
+                    finalStep = true;
+                    _routedUsername.requestFocusInWindow();
                     break;
                 }
                 case FinishStep:
@@ -2118,7 +2445,6 @@ public class SessionKeeper
             }
 
             boolean validated = validateWizardStep(step);
-
 
             _nextButton.setEnabled(validated && !lastStep);
             _finishButton.setEnabled(validated && finalStep);
@@ -2222,6 +2548,26 @@ public class SessionKeeper
                                 _routedCustomEndpointValue.getText().length() > 0;
                     break;
                 }
+                case DirectX509CredentialsStep:
+                {
+                    validated = _directCertificateAliases.getSelectedItem() != null;
+                    break;
+                }
+                case RoutedX509CredentialsStep:
+                {
+                    validated = _routedCertificateAliases.getSelectedItem() != null;
+                    break;
+                }
+                case DirectUsernamePasswordCredentialsStep:
+                {
+                    validated = _directUsername.getText() != null && _directUsername.getText().length() > 0;
+                    break;
+                }
+                case RoutedUsernamePasswordCredentialsStep:
+                {
+                    validated = _routedUsername.getText() != null && _routedUsername.getText().length() > 0;
+                    break;
+                }
                 case RoutedEndpointStep:
                 case DirectEndpointStep:
                 case AuthStep:
@@ -2290,7 +2636,57 @@ public class SessionKeeper
                     }
                 }
             }
+
+            if(_x509CertificateYesButton.isSelected())
+            {
+                if(_directConnection.isSelected())
+                {
+                    if(!validateWizardStep(WizardStep.DirectX509CredentialsStep))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!validateWizardStep(WizardStep.RoutedX509CredentialsStep))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            if(_usernamePasswordAuthButton.isSelected())
+            {
+                if(_directConnection.isSelected())
+                {
+                    if(!validateWizardStep(WizardStep.DirectUsernamePasswordCredentialsStep))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    if(!validateWizardStep(WizardStep.RoutedUsernamePasswordCredentialsStep))
+                    {
+                        return false;
+                    }
+                }
+            }
             return true;
+        }
+
+        public void loadCertificateAliases(JComboBox<String> component)
+        {
+            CertificateManagerDialog certificateManager = certificateManager(this);
+            if(certificateManager != null)
+            {
+                String item = (String)component.getSelectedItem();
+                component.setModel(new DefaultComboBoxModel<String>(certificateManager.myCertsAliases()));
+                if(item != null)
+                {
+                    component.setSelectedItem(item);
+                }
+            }
         }
 
         private void load()
@@ -2300,7 +2696,27 @@ public class SessionKeeper
                 if(_conf.getDirect())
                 {
                     _directConnection.setSelected(true);
+                    _directConnectToMaster.setSelected(_conf.getConnectToMaster());
                     _directInstanceName.setText(_conf.getInstanceName());
+
+                    if(_conf.getAuth() == AuthType.UsernamePasswordAuthType)
+                    {
+                        _directUsername.setText(_conf.getUsername());
+                        if(_conf.getPassword() != null)
+                        {
+                            _directPassword.setText(new String(_conf.getPassword()));
+                        }
+                    }
+
+                    if(_conf.getUseX509Certificate())
+                    {
+                        _directCertificateAliases.setSelectedItem(_conf.getAlias());
+                        if(_conf.getKeyPassword() != null)
+                        {
+                            _directCertificatePassword.setText(new String(_conf.getKeyPassword()));
+                        }
+                    }
+
                     if(_conf.getDefaultEndpoint())
                     {
                         _directDefaultEndpoints.setSelected(true);
@@ -2334,6 +2750,25 @@ public class SessionKeeper
                 {
                     _routedConnection.setSelected(true);
                     _routedInstanceName.setText(_conf.getInstanceName());
+
+                    if(_conf.getAuth() == AuthType.UsernamePasswordAuthType)
+                    {
+                        _routedUsername.setText(_conf.getUsername());
+                        if(_conf.getPassword() != null)
+                        {
+                            _routedPassword.setText(new String(_conf.getPassword()));
+                        }
+                    }
+
+                    if(_conf.getUseX509Certificate())
+                    {
+                        _routedCertificateAliases.setSelectedItem(_conf.getAlias());
+                        if(_conf.getKeyPassword() != null)
+                        {
+                            _routedCertificatePassword.setText(new String(_conf.getKeyPassword()));
+                        }
+                    }
+
                     if(_conf.getDefaultEndpoint())
                     {
                         _routedDefaultEndpoints.setSelected(true);
@@ -2402,6 +2837,7 @@ public class SessionKeeper
 
         // Direct Instance panel components
         private JTextField _directInstanceName;
+        private JCheckBox _directConnectToMaster;
 
         // Direct Endpoints panel components
         private JRadioButton _directDefaultEndpoints;
@@ -2432,13 +2868,31 @@ public class SessionKeeper
         // Routed Custom endpoints panel components
         private JTextField _routedCustomEndpointValue;
 
+        // X509 Certificate panel components
+        private JRadioButton _x509CertificateNoButton;
+        private JRadioButton _x509CertificateYesButton;
+
+        // Direct X509 Credentials
+        private JComboBox<String> _directCertificateAliases;
+        private JButton _directImportCertificate;
+        private JPasswordField _directCertificatePassword;
+
+        // Routed X509 Credentials
+        private JComboBox<String> _routedCertificateAliases;
+        private JButton _routedImportCertificate;
+        private JPasswordField _routedCertificatePassword;
+
         // Auth panel components
         private JRadioButton _usernamePasswordAuthButton;
         private JRadioButton _certificateAuthButton;
 
-        // X509 Certificate panel components
-        private JRadioButton _x509CertificateNoButton;
-        private JRadioButton _x509CertificateYesButton;
+        // Direct username password credentials components.
+        private JTextField _directUsername;
+        private JPasswordField _directPassword;
+
+        // Routed username password credentials components.
+        private JTextField _routedUsername;
+        private JPasswordField _routedPassword;
 
         // Finish configuration panel components
         private JCheckBox _storeConfiguration;
@@ -2467,7 +2921,11 @@ public class SessionKeeper
     enum WizardStep {ConnectionTypeStep, 
                      DirectInstanceStep, DirectEndpointStep, DirectDefaultEndpointStep, DirectCustomEnpointStep,
                      RoutedInstanceStep, RoutedEndpointStep, RoutedDefaultEndpointStep, RoutedCustomEnpointStep,
-                     AuthStep, X509CertificateStep, FinishStep};
+                     X509CertificateStep, 
+                     DirectX509CredentialsStep, RoutedX509CredentialsStep, 
+                     AuthStep, 
+                     DirectUsernamePasswordCredentialsStep, RoutedUsernamePasswordCredentialsStep,
+                     FinishStep};
 
     enum AuthType {UsernamePasswordAuthType, X509CertificateAuthType};
 
@@ -2988,6 +3446,48 @@ public class SessionKeeper
         private JButton _removeConnectionButton;
 
         private JButton _connectButton;
+    }
+
+    //
+    // Check if the certificate with the given alias requires a password.
+    //
+    public boolean checkCertificateRequirePassword(String alias)
+    {
+        try
+        {
+            java.security.KeyStore keyStore = java.security.KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream(_coordinator.getDataDirectory() + File.separator + "MyCerts.jks"), null);
+            if(keyStore.isKeyEntry(alias))
+            {
+                Key key = keyStore.getKey(alias, new char[]{});
+            }            
+        }
+        catch(java.security.UnrecoverableKeyException ex)
+        {
+            return true;
+        }
+        catch(Exception ex)
+        {
+        }
+        return false;
+    }
+
+    public boolean checkCertificatePassword(String alias, char[] password)
+    {
+        try
+        {
+            java.security.KeyStore keyStore = java.security.KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream(_coordinator.getDataDirectory() + File.separator + "MyCerts.jks"), null);
+            if(keyStore.isKeyEntry(alias))
+            {
+                Key key = keyStore.getKey(alias, password);
+            }
+        }
+        catch(Exception ex)
+        {
+            return false;
+        }
+        return true;
     }
 
     public class KeyStorePanel extends JPanel
@@ -3927,6 +4427,7 @@ public class SessionKeeper
         public AuthDialog(JDialog parent, String title)
         {
             super(parent, title);
+            setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         }
 
         public void setError(java.lang.Exception ex)
@@ -3936,19 +4437,33 @@ public class SessionKeeper
 
         public void showDialog()
         {
+            showDialog(false, null);
+        }
+
+        public void showDialog(boolean permissionDenied, String msg)
+        {
             if(_ex == null)
             {
-                setModal(true);
                 setLocationRelativeTo(getOwner());
                 setVisible(true);
+                if(permissionDenied)
+                {
+                    JOptionPane.showMessageDialog(this, "Permission denied: " + msg, "Login failed", JOptionPane.ERROR_MESSAGE);
+                }
+                setModal(true);
             }
         }
 
         protected java.lang.Exception _ex;
     }
 
-    private boolean login(final JDialog parent, final ConnectionInfo info)
+    private void login(final JDialog parent, final ConnectionInfo info)
     {
+        if(_authDialog != null)
+        {
+            _authDialog.dispose();
+            _authDialog = null;
+        }
         if(info.getAuth() == SessionKeeper.AuthType.UsernamePasswordAuthType)
         {
             class UsernamePasswordAuthDialog extends AuthDialog
@@ -3965,72 +4480,35 @@ public class SessionKeeper
                         FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
                         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                         builder.border(Borders.DIALOG);
-                        builder.append(new JLabel("Username"), _username);
-                        _username.setText(info.getUsername());
-                        builder.nextLine();
-                        builder.append(new JLabel("Password"), _password);
-                        builder.nextLine();
-                        _storePassword = new JCheckBox("Save Password.");
-                        builder.append("", _storePassword);
-                        builder.nextLine();
 
-                        if(info.getStorePassword())
+                        if(info.getPassword() == null || info.getPassword().length == 0)
                         {
-                            _password.setText(new String(info.getPassword()));
-                            _storePassword.setSelected(true);
+                            _username = new JTextField(20);
+                            _username.setText(info.getUsername());
+                            _username.setEditable(false);
+                            builder.append(new JLabel("Username"), _username);
+                            builder.nextLine();
+                            _password = new JPasswordField(20);
+                            builder.append(new JLabel("Password"), _password);
+                            builder.nextLine();
+                            _storePassword = new JCheckBox("Save Password.");
+                            builder.append("", _storePassword);
+                            builder.nextLine();
                         }
                         
-                        if(info.getUseX509Certificate())
+                        if(info.getUseX509Certificate() && (info.getKeyPassword() == null || info.getKeyPassword().length == 0))
                         {
-                            JButton certificateManagerButton = new JButton();
-                            AbstractAction certificateManagerAction = new AbstractAction("New Alias")
-                                {
-                                    public void actionPerformed(ActionEvent e)
-                                    {
-                                        CertificateManagerDialog d = 
-                                                                    certificateManager(UsernamePasswordAuthDialog.this);
-                                        if(d != null)
-                                        {
-                                            d.setModal(true);
-                                            d.load();
-                                            d.setActiveTab(0); // Select My Certificates tab
-                                            d.showDialog();
-                                            load();
-                                        }
-                                        else
-                                        {
-                                            setError(new Exception("Failed to load the Certificate Manager"));
-                                        }
-                                    }
-                                };
-                            certificateManagerButton.setAction(certificateManagerAction);
-                            _alias = new JComboBox<String>();
-                            builder.append(new JLabel("Key Alias"), _alias, certificateManagerButton);
+                            _keyAlias = new JTextField(20);
+                            _keyAlias.setText(info.getAlias());
+                            _keyAlias.setEditable(false);
+                            builder.append(new JLabel("Key Alias"), _keyAlias);
                             builder.nextLine();
+                            _keyPassword = new JPasswordField(20);
                             builder.append(new JLabel("Key Password"), _keyPassword);
                             builder.nextLine();
                             _storeKeyPassword = new JCheckBox("Save Key Password.");
                             builder.append("", _storeKeyPassword);
                             builder.nextLine();
-                            if(info.getStoreKeyPassword())
-                            {
-                                _keyPassword.setText(new String(info.getKeyPassword()));
-                                _storeKeyPassword.setSelected(true);
-                            }
-                        }
-
-                        if(info.getDirect())
-                        {
-                            _connectToMaster = new JCheckBox(new AbstractAction("Connect to Master Registry.")
-                                {
-                                    public void actionPerformed(ActionEvent e)
-                                    {
-                                        info.setConnectToMaster(_connectToMaster.isSelected());
-                                    }
-                                });
-                            builder.append("", _connectToMaster);
-                            builder.nextLine();
-                            _connectToMaster.setSelected(info.getConnectToMaster());
                         }
 
                         contentPane.add(builder.getPanel());
@@ -4049,31 +4527,17 @@ public class SessionKeeper
                                     logout(true);
                                 }
                                 assert _session == null;
-                                info.setUsername(_username.getText());
-                                info.setPassword(_password.getPassword());
-                                info.setStorePassword(_storePassword.isSelected());
-                                if(info.getUseX509Certificate())
+                                if(_password != null)
                                 {
-                                    if(_alias.getSelectedIndex() == -1)
-                                    {
-                                        JOptionPane.showMessageDialog(
-                                            UsernamePasswordAuthDialog.this,
-                                            "The selected configuration requires an SSL certificate,\n" +
-                                            "but there isn't any certificate. You must add a new Certificate\n" +
-                                            "using the \"New Alias\" button.",
-                                            "SSL certificate required",
-                                            JOptionPane.ERROR_MESSAGE);
-                                        UsernamePasswordAuthDialog.this.setCursor(oldCursor);
-                                        return;
-                                    }
-                                    info.setAlias(_alias.getSelectedItem().toString());
+                                    info.setPassword(_password.getPassword());
+                                    info.setStorePassword(_storePassword.isSelected());
+                                }
+                                if(_keyPassword != null)
+                                {
                                     info.setKeyPassword(_keyPassword.getPassword());
                                     info.setStoreKeyPassword(_storeKeyPassword.isSelected());
                                 }
-                                if(info.getDirect())
-                                {
-                                    info.setConnectToMaster(_connectToMaster.isSelected());
-                                }
+
                                 Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
                                 _coordinator.login(SessionKeeper.this, info, UsernamePasswordAuthDialog.this, 
                                                    oldCursor, keepAlivePeriodHolder);
@@ -4099,75 +4563,54 @@ public class SessionKeeper
                     getRootPane().setDefaultButton(okButton);
                     pack();
                     setResizable(false);
-                    load();
-
-                    if(info.getUsername() != null)
-                    {
-                        _username.setText(info.getUsername());
-                    }
-
-                    if(info.getPassword() != null)
-                    {
-                        _password.setText(new String(info.getPassword()));
-                    }
-
-                    if(info.getUseX509Certificate())
-                    {
-                        if(info.getAlias() != null)
-                        {
-                            CertificateManagerDialog certificateManager = 
-                                                                    certificateManager(UsernamePasswordAuthDialog.this);
-                            if(certificateManager != null)
-                            {
-                                java.util.Vector<String> aliases = certificateManager.myCertsAliases();
-                                int index = aliases.indexOf(info.getAlias());
-                                if(index != -1)
-                                {
-                                    _alias.setSelectedIndex(index);
-                                }
-                            }
-                            else
-                            {
-                                setError(new Exception("Failed to load the Certificate Manager"));
-                            }
-                        }
-
-                        if(info.getKeyPassword() != null)
-                        {
-                            _keyPassword.setText(new String(info.getKeyPassword()));
-                        }
-                    }
                 }
 
-                public void load()
-                {
-                    if(_alias == null)
-                    {
-                        return;
-                    }
-                    CertificateManagerDialog certificateManager = certificateManager(this);
-                    if(certificateManager != null)
-                    {
-                        _alias.setModel(new DefaultComboBoxModel<String>(certificateManager.myCertsAliases()));
-                    }
-                    else
-                    {
-                        setError(new Exception("Failed to load the Certificate Manager"));
-                    }
-                }
-
-                private JTextField _username = new JTextField(20);
-                private JPasswordField _password = new JPasswordField(20);
+                private JTextField _username;
+                private JPasswordField _password;
                 private JCheckBox _storePassword;
-                private JCheckBox _connectToMaster;
-                private JComboBox<String> _alias;
-                private JPasswordField _keyPassword = new JPasswordField(20);
+                private JTextField _keyAlias;
+                private JPasswordField _keyPassword;
                 private JCheckBox _storeKeyPassword;
             }
 
-            _authDialog = new UsernamePasswordAuthDialog();
-            Utils.addEscapeListener(_authDialog);
-            _authDialog.showDialog();
+            if((info.getPassword() != null && info.getPassword().length > 0) &&
+               ((info.getUseX509Certificate() && info.getKeyPassword() != null && info.getKeyPassword().length > 0) ||
+                (info.getUseX509Certificate() && !checkCertificateRequirePassword(info.getAlias())) ||
+                (!info.getUseX509Certificate())))
+            {
+                Cursor oldCursor = parent.getCursor();
+                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                if(_session != null)
+                {
+                    logout(true);
+                }
+                assert _session == null;
+
+                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                {
+                    parent.setCursor(oldCursor);
+                    permissionDenied(parent, info, "Invalid certificate password");
+                }
+                else
+                {
+                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
+                }
+            }
+            else
+            {
+                
+                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                {
+                    permissionDenied(parent, info, "Invalid certificate password");
+                }
+                else
+                {
+                    _authDialog = new UsernamePasswordAuthDialog();
+                    Utils.addEscapeListener(_authDialog);
+                    _authDialog.showDialog();
+                }
+            }
         }
         else // Auth dialog
         {
@@ -4186,52 +4629,8 @@ public class SessionKeeper
                         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                         builder.border(Borders.DIALOG);
 
-                        _alias = new JComboBox<String>();
-
-                        JButton certificateManagerButton = new JButton();
-                        AbstractAction certificateManagerAction = new AbstractAction("New Alias")
-                        {
-                            public void actionPerformed(ActionEvent e)
-                            {
-                                CertificateManagerDialog d = certificateManager(X509CertificateAuthDialog.this);
-                                if(d != null)
-                                {
-                                    d.setModal(true);
-                                    d.load();
-                                    d.setActiveTab(0); // Select My Certificates tab
-                                    d.showDialog();
-                                    load();
-                                }
-                                else
-                                {
-                                    setError(new Exception("Failed to load the Certificate Manager"));
-                                }
-                            }
-                        };
-                        certificateManagerButton.setAction(certificateManagerAction);
-
-                        builder.append(new JLabel("Key Alias"), _alias, certificateManagerButton);
-                        builder.nextLine();
                         builder.append(new JLabel("Key Password"), _password);
                         builder.nextLine();
-                        _storeKeyPassword = new JCheckBox("Save Key Password.");
-                        builder.append("", _storeKeyPassword);
-                        builder.nextLine();
-
-                        if(info.getDirect())
-                        {
-                            _connectToMaster = new JCheckBox(new AbstractAction("Connect to Master Registry.")
-                                {
-                                    public void actionPerformed(ActionEvent e)
-                                    {
-                                        info.setConnectToMaster(_connectToMaster.isSelected());
-                                    }
-                                });
-                            builder.append("", _connectToMaster);
-                            builder.nextLine();
-                            _connectToMaster.setSelected(info.getConnectToMaster());
-                        }
-
                         contentPane.add(builder.getPanel());
                     }
 
@@ -4240,40 +4639,18 @@ public class SessionKeeper
                         {
                             public void actionPerformed(ActionEvent e)
                             {
-                                int index = _alias.getSelectedIndex();
                                 Cursor oldCursor = X509CertificateAuthDialog.this.getCursor();
                                 X509CertificateAuthDialog.this.setCursor(
                                                                         Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                if(index == -1)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                            X509CertificateAuthDialog.this,
-                                            "The selected configuration requires an SSL certificate,\n" +
-                                            "but there isn't any certificate. You must add a new Certificate\n" +
-                                            "using the \"New Alias\" button.",
-                                            "SSL certificate required",
-                                            JOptionPane.ERROR_MESSAGE);
-                                    X509CertificateAuthDialog.this.setCursor(oldCursor);
-                                    return;
-                                }
+
                                 if(_session != null)
                                 {
                                     logout(true);
                                 }
                                 assert _session == null;
 
-                                CertificateManagerDialog certificateManager = 
-                                                                    certificateManager(X509CertificateAuthDialog.this);
-                                if(certificateManager != null)
-                                {
-                                    info.setAlias(certificateManager.myCertsAliases().get(index));
-                                }
+
                                 info.setKeyPassword(_password.getPassword());
-                                info.setStoreKeyPassword(_storeKeyPassword.isSelected());
-                                if(info.getDirect())
-                                {
-                                    info.setConnectToMaster(_connectToMaster.isSelected());
-                                }
                                 Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
                                 _coordinator.login(SessionKeeper.this, info, X509CertificateAuthDialog.this, oldCursor, 
                                                    keepAlivePeriodHolder);
@@ -4299,30 +4676,49 @@ public class SessionKeeper
                     getRootPane().setDefaultButton(okButton);
                     pack();
                     setResizable(false);
-                    load();
                 }
 
-                public void load()
-                {
-                    CertificateManagerDialog certificateManager = certificateManager(this);
-                    if(certificateManager == null)
-                    {
-                        return;
-                    }
-                    _alias.setModel(new DefaultComboBoxModel<String>(certificateManager.myCertsAliases()));
-                }
-
-                private JCheckBox _connectToMaster;
                 private JPasswordField _password = new JPasswordField(20);
-                private JCheckBox _storeKeyPassword;
-                private JComboBox<String> _alias;
             }
 
-            _authDialog = new X509CertificateAuthDialog();
-            Utils.addEscapeListener(_authDialog);
-            _authDialog.showDialog();
+            if((info.getPassword() != null && info.getPassword().length > 0) &&
+               ((info.getUseX509Certificate() && info.getKeyPassword() != null && info.getKeyPassword().length > 0) ||
+                (info.getUseX509Certificate() && !checkCertificateRequirePassword(info.getAlias())) ||
+                (!info.getUseX509Certificate())))
+            {
+                Cursor oldCursor = parent.getCursor();
+                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                if(_session != null)
+                {
+                    logout(true);
+                }
+                assert _session == null;
+
+                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                {
+                    parent.setCursor(oldCursor);
+                    permissionDenied(parent, info, "Invalid certificate password");
+                }
+                else
+                {
+                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
+                }
+            }
+            else
+            {
+                Utils.addEscapeListener(_authDialog);
+                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                {
+                    permissionDenied(parent, info, "Invalid certificate password");
+                }
+                else
+                {
+                    _authDialog = new X509CertificateAuthDialog();
+                    _authDialog.showDialog();
+                }
+            }
         }
-        return true;
     }
 
     public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long keepAliveperiod, 
@@ -4389,8 +4785,8 @@ public class SessionKeeper
                                     _authDialog.dispose();
                                     _authDialog = null;
                                 }
+                                _connectionManagerDialog.setCursor(oldCursor);
                                 _connectionManagerDialog.setVisible(false);
-
                                 if(!info.getStorePassword())
                                 {
                                     info.setPassword(null);
@@ -4416,6 +4812,150 @@ public class SessionKeeper
                         });
                 }
             }).start();
+    }
+
+    public void permissionDenied(final JDialog parent, final ConnectionInfo info, final String msg)
+    {
+        class PermissionDeniedAuthDialog extends AuthDialog
+        {
+            PermissionDeniedAuthDialog()
+            {
+                super(parent, "Login - IceGrid Admin");
+
+                Container contentPane = getContentPane();
+                contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));                
+                {
+                    // Build the basic login panel.
+                    FormLayout layout = new FormLayout("pref, 2dlu, pref:grow, 2dlu, pref", "");
+                    DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+                    builder.border(Borders.DIALOG);
+
+                    if(info.getAuth() == AuthType.UsernamePasswordAuthType)
+                    {
+                        _username = new JTextField(20);
+                        _username.setText(info.getUsername());
+                        _username.setEditable(false);
+                        builder.append(new JLabel("Username"), _username);
+                        builder.nextLine();
+                        _password = new JPasswordField(20);
+                        _password.setText(new String(info.getPassword()));
+                        builder.append(new JLabel("Password"), _password);
+                        builder.nextLine();
+                        _storePassword = new JCheckBox("Save Password.");
+                        _storePassword.setSelected(true);
+                        builder.append("", _storePassword);
+                        builder.nextLine();
+                    }
+                    
+                    if(info.getUseX509Certificate())
+                    {
+                        _keyAlias = new JTextField(20);
+                        _keyAlias.setText(info.getAlias());
+                        _keyAlias.setEditable(false);
+                        builder.append(new JLabel("Key Alias"), _keyAlias);
+                        builder.nextLine();
+                        _keyPassword = new JPasswordField(20);
+                        _keyPassword.setText(new String(info.getKeyPassword()));
+                        builder.append(new JLabel("Key Password"), _keyPassword);
+                        builder.nextLine();
+                        _storeKeyPassword = new JCheckBox("Save Key Password.");
+                        _storeKeyPassword.setSelected(true);
+                        builder.append("", _storeKeyPassword);
+                        builder.nextLine();
+                    }
+
+                    contentPane.add(builder.getPanel());
+                }
+
+                JButton okButton = new JButton(new AbstractAction("OK")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            Cursor oldCursor = PermissionDeniedAuthDialog.this.getCursor();
+                            PermissionDeniedAuthDialog.this.setCursor(
+                                                                    Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                            if(_session != null)
+                            {
+                                logout(true);
+                            }
+                            assert _session == null;
+                            if(_password != null)
+                            {
+                                info.setPassword(_password.getPassword());
+                                info.setStorePassword(_storePassword.isSelected());
+                            }
+                            boolean certificatePasswordMatch = true;
+                            if(_keyPassword != null)
+                            {
+                                info.setKeyPassword(_keyPassword.getPassword());
+                                info.setStoreKeyPassword(_storeKeyPassword.isSelected());
+                                certificatePasswordMatch = checkCertificatePassword(info.getAlias(), info.getKeyPassword());
+                            }
+
+                            if(!certificatePasswordMatch)
+                            {
+                                PermissionDeniedAuthDialog.this.setCursor(oldCursor);
+                                permissionDenied(parent, info, "Invalid certificate password");
+                            }
+                            else
+                            {
+                                Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+                                _coordinator.login(SessionKeeper.this, info, PermissionDeniedAuthDialog.this, 
+                                                   oldCursor, keepAlivePeriodHolder);
+                            }
+                        }
+                    });
+
+                JButton editConnectionButton = new JButton(new AbstractAction("Edit Connection")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            dispose();
+                            _authDialog = null;
+
+                            JDialog dialog = new ConnectionWizardDialog(info, parent);
+                            Utils.addEscapeListener(dialog);
+                            dialog.setLocationRelativeTo(parent);
+                            dialog.setVisible(true);                        }
+                    });
+
+                JButton cancelButton = new JButton(new AbstractAction("Cancel")
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            dispose();
+                            _authDialog = null;
+                        }
+                    });
+
+                JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton, cancelButton).
+                                                                                                  addGlue().build();
+                buttonBar.setBorder(Borders.DIALOG);
+                contentPane.add(buttonBar);
+
+                getRootPane().setDefaultButton(okButton);
+                pack();
+                setResizable(false);
+            }
+
+            private JTextField _username;
+            private JPasswordField _password;
+            private JCheckBox _storePassword;
+            private JTextField _keyAlias;
+            private JPasswordField _keyPassword;
+            private JCheckBox _storeKeyPassword;
+        }
+
+        if(_authDialog == null || !_authDialog.isDisplayable())
+        {
+            _authDialog = new PermissionDeniedAuthDialog();
+            Utils.addEscapeListener(_authDialog);
+            _authDialog.showDialog(true, msg);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(parent, "Permission denied: " + msg, "Login failed", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     void sessionLost(String message)
@@ -4490,7 +5030,7 @@ public class SessionKeeper
 
     private ConnectionManagerDialog _connectionManagerDialog;
     private CertificateManagerDialog _certificateManagerDialog;
-    private AuthDialog _authDialog;
+    private static AuthDialog _authDialog;
 
     private ConnectionInfo _connectionInfo;
 

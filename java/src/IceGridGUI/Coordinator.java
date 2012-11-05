@@ -1694,6 +1694,13 @@ public class Coordinator
                 _failed = true;
             }
 
+            synchronized public void permissionDenied(String msg)
+            {
+                parent.setCursor(oldCursor);
+                _failed = true;
+                _sessionKeeper.permissionDenied(parent, info, msg);
+            }
+
             synchronized public boolean failed()
             {
                 return _failed;
@@ -1820,12 +1827,19 @@ public class Coordinator
                                             msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ? 
                                                                  "Invalid credentials" : "Invalid username/password";
                                         }
-                                        JOptionPane.showMessageDialog(parent,
-                                                                    "Permission denied: "
-                                                                    + msg,
-                                                                    "Login failed",
-                                                                    JOptionPane.ERROR_MESSAGE);
-                                        cb.loginFailed();
+                                        if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                                        {
+                                            JOptionPane.showMessageDialog(parent,
+                                                                        "Permission denied: "
+                                                                        + msg,
+                                                                        "Login failed",
+                                                                        JOptionPane.ERROR_MESSAGE);
+                                            cb.loginFailed();
+                                        }
+                                        else
+                                        {
+                                            cb.permissionDenied(msg);
+                                        }
                                     }
                                 });
                             return;
@@ -2049,12 +2063,26 @@ public class Coordinator
                                         {
                                             public void run()
                                             {
-                                                JOptionPane.showMessageDialog(parent,
-                                                                            "Permission denied: "
-                                                                            + e.reason,
-                                                                            "Login failed",
-                                                                            JOptionPane.ERROR_MESSAGE);
-                                                cb.loginFailed();
+                                                String msg = e.reason;
+                                                if(msg.length() == 0)
+                                                {
+                                                    msg = info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType ? 
+                                                                         "Invalid credentials" : "Invalid username/password";
+                                                }
+
+                                                if(info.getAuth() == SessionKeeper.AuthType.X509CertificateAuthType)
+                                                {
+                                                    JOptionPane.showMessageDialog(parent,
+                                                                                "Permission denied: "
+                                                                                + e.reason,
+                                                                                "Login failed",
+                                                                                JOptionPane.ERROR_MESSAGE);
+                                                    cb.loginFailed();
+                                                }
+                                                else
+                                                {
+                                                    cb.permissionDenied(msg);
+                                                }
                                             }
                                         });
                                     return;
