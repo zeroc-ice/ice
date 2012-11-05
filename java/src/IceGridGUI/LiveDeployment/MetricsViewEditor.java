@@ -24,6 +24,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentAdapter;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -762,6 +764,27 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     }
                 }
 
+                table.addComponentListener(new ComponentAdapter()
+                    {
+                        public void componentResized(ComponentEvent e)
+                        {
+                            int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(
+                                                            "IceGridGUI.Metrics." + entry.getKey() + ".id.columnName"));
+                            TableModel model = (TableModel)table.getModel();
+                            DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
+                            TableColumn col = colModel.getColumn(idColumn);
+                            col.setPreferredWidth((int)(table.getPreferredSize().width * 0.9f));
+                            for(int i = 0; i < colModel.getColumnCount(); ++i)
+                            {
+                                col = colModel.getColumn(i);
+                                if(idColumn != i)
+                                {
+                                    col.setPreferredWidth((int)(table.getPreferredSize().width * 0.1f));
+                                }
+                            }
+                        }
+                    });
+
                 _tables.put(entry.getKey(), table);
                 rebuildPanel = true;
             }
@@ -817,7 +840,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                         }
                     }
                 }
-                packColumn(table, idColumn, 2);
             }
         }
     }
@@ -1486,7 +1508,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                                             row[2] = m.id;
                                                             model.addRow(row);
                                                         }
-                                                        packColumn(table, 0, 2);
                                                         getMetricsNode().getCoordinator().getMainFrame().setCursor(
                                                                     Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                                                     }
@@ -1658,13 +1679,13 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                                     }
                                 }
 
-                                int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix + ".id.columnName"));
+                                int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(prefix + 
+                                                                                                     ".id.columnName"));
 
                                 for(IceMX.Metrics m : objects)
                                 {
                                     model.addMetrics(m, timestamp);
                                 }
-                                packColumn(table, idColumn, 2);
 
                                 JScrollPane scrollPane = new JScrollPane(table);
                                 scrollPane.setPreferredSize(new Dimension(800, 600));
@@ -1687,38 +1708,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
         }
 
         private static final TableCellRenderer _cellRenderer = new ButtonRenderer();
-    }
-
-    public static void packColumn(JTable table, int index, int margin)
-    {
-        TableModel model = (TableModel)table.getModel();
-        DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
-        TableColumn col = colModel.getColumn(index);
-        int width = 0;
-
-        // Get width of column header
-        TableCellRenderer renderer = col.getHeaderRenderer();
-        if(renderer == null)
-        {
-            renderer = table.getTableHeader().getDefaultRenderer();
-        }
-        Component comp = renderer.getTableCellRendererComponent(table, col.getHeaderValue(), false, false, 0, 0);
-        width = comp.getPreferredSize().width;
-
-        // Get maximum width of column data
-        for(int r = 0; r < table.getRowCount(); r++)
-        {
-            renderer = table.getCellRenderer(r, index);
-            comp = renderer.getTableCellRendererComponent(
-            table, table.getValueAt(r, index), false, false, r, index);
-            width = Math.max(width, comp.getPreferredSize().width);
-        }
-
-        // Add margin
-        width += 2 * margin;
-
-        // Set the width
-        col.setPreferredWidth(width);
     }
 
     private static final int _refreshPeriod = 5;
