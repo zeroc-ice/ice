@@ -3331,9 +3331,15 @@ public class Coordinator
         int width = windowPrefs.getInt("width", 0);
         int height = windowPrefs.getInt("height", 0);
         _mainFrame.setBounds(new Rectangle(x, y, width, height));
-        if(windowPrefs.getBoolean("maximized", false))
+        //
+        // This doesn't work well with OS X 10.8
+        //
+        if(!System.getProperty("os.name").startsWith("Mac OS"))
         {
-            _mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            if(windowPrefs.getBoolean("maximized", false))
+            {
+                _mainFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
+            }
         }
         return true;
     }
@@ -3346,7 +3352,13 @@ public class Coordinator
         windowPrefs.putInt("y", rect.y);
         windowPrefs.putInt("width", rect.width);
         windowPrefs.putInt("height", rect.height);
-        windowPrefs.putBoolean("maximized", _mainFrame.getExtendedState() == Frame.MAXIMIZED_BOTH);
+        //
+        // This doesn't work well with OS X 10.8
+        //
+        if(!System.getProperty("os.name").startsWith("Mac OS"))
+        {
+            windowPrefs.putBoolean("maximized", _mainFrame.getExtendedState() == Frame.MAXIMIZED_BOTH);
+        }
     }
 
     public AdminSessionPrx getSession()

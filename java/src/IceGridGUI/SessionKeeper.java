@@ -4464,6 +4464,7 @@ public class SessionKeeper
             _authDialog.dispose();
             _authDialog = null;
         }
+
         if(info.getAuth() == SessionKeeper.AuthType.UsernamePasswordAuthType)
         {
             class UsernamePasswordAuthDialog extends AuthDialog
@@ -4586,7 +4587,8 @@ public class SessionKeeper
                 }
                 assert _session == null;
 
-                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                if(info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) &&
+                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                 {
                     parent.setCursor(oldCursor);
                     permissionDenied(parent, info, "Invalid certificate password");
@@ -4600,7 +4602,8 @@ public class SessionKeeper
             else
             {
                 
-                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                if(info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) &&
+                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                 {
                     permissionDenied(parent, info, "Invalid certificate password");
                 }
