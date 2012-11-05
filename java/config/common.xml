@@ -331,7 +331,7 @@
         <and>
             <os family="windows"/>
             <not><isset property="jgoodies.common"/></not>
-	  <not><available classname="com.jgoodies.common.base.SystemUtils"/></not>
+            <not><available classname="com.jgoodies.common.base.SystemUtils"/></not>
             <available file="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar"/>
         </and>
     </condition>

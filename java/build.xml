@@ -572,8 +572,8 @@
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
-        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" deprecation="on"
-               fork="true" memoryinitialsize="256m" memorymaximumsize="256m">
+        <javac srcdir=".:${generated.test.dir}" destdir="${lib.dir}" source="1.6" target="1.6" debug="${debug}" 
+               deprecation="on" fork="true" memoryinitialsize="256m" memorymaximumsize="512m">
             <exclude name="${generated.test.dir}/**"/>
             <classpath>
                 <path refid="ice.classpath"/>
