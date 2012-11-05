@@ -95,6 +95,10 @@ public class AllTests
                     initial.throwTest2E2AsE1();
                     test(false);
                 }
+                catch(Ice.UnknownUserException ex)
+                {
+                    // Expected
+                }
                 catch(Ice.MarshalException ex)
                 {
                     // Expected
@@ -107,6 +111,10 @@ public class AllTests
                 {
                     initial.throwTest2E2AsE2();
                     test(false);
+                }
+                catch(Ice.UnknownUserException ex)
+                {
+                    // Expected
                 }
                 catch(Ice.MarshalException ex)
                 {
