@@ -4838,7 +4838,10 @@ public class SessionKeeper
                         builder.append(new JLabel("Username"), _username);
                         builder.nextLine();
                         _password = new JPasswordField(20);
-                        _password.setText(new String(info.getPassword()));
+                        if(info.getPassword() != null)
+                        {
+                            _password.setText(new String(info.getPassword()));
+                        }
                         builder.append(new JLabel("Password"), _password);
                         builder.nextLine();
                         _storePassword = new JCheckBox("Save Password.");
@@ -4855,7 +4858,10 @@ public class SessionKeeper
                         builder.append(new JLabel("Key Alias"), _keyAlias);
                         builder.nextLine();
                         _keyPassword = new JPasswordField(20);
-                        _keyPassword.setText(new String(info.getKeyPassword()));
+                        if(info.getKeyPassword() != null)
+                        {
+                            _keyPassword.setText(new String(info.getKeyPassword()));
+                        }
                         builder.append(new JLabel("Key Password"), _keyPassword);
                         builder.nextLine();
                         _storeKeyPassword = new JCheckBox("Save Key Password.");
