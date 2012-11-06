@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.6.1" Modules="enterprise" RootPath=".." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="6.9.1" version="9.6.1" Modules="enterprise" RootPath="..\..\..\.." Language="en" Id="{BD4A9E89-7662-4FEA-A291-2EE88A26B3A4}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiValidationComponent">
     <ROW Table="File" Column="Sequence" MinValue="1" MaxValue="32767" Description="Sequence with respect to the media images; order must track cabinet order." Options="0" ColumnType="2" ColumnIndex="7" ColumnSize="2" MsiKey="File#Sequence"/>
     <ROW Table="Media" Column="LastSequence" MinValue="0" MaxValue="32767" Description="File sequence number for the last file for this media." Options="0" ColumnType="2" ColumnIndex="1" ColumnSize="2" MsiKey="Media#LastSequence"/>
@@ -18,7 +18,7 @@
     <ROW Property="CTRLS" Value="1"/>
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="DefaultBuild:installer_main.bmp_1" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="EXPATLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
-    <ROW Property="ICE_BUILD_HOME" Value="C:\Users\jose\Desktop\ice_build_home"/>
+    <ROW Property="ICE_BUILD_HOME" Value="C:\IceBuild"/>
     <ROW Property="JGOODIESCOMMONLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESFORMSLICENSEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
     <ROW Property="JGOODIESLOOKSLICESNEDLGRADIOBUTTONGROUP_1_PROP" Value="No" Type="4"/>
@@ -395,7 +395,7 @@
     <ROW File="x509v3.h" Component_="aes.h" FileName="x509v3.h" Attributes="0" SourcePath="&lt;ICE_BUILD_HOME&gt;TP\include\openssl\x509v3.h" SelfReg="false" NextFile="x509_vfy.h"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="windows" Languages="en" InstallationType="4"/>
+    <ROW BuildKey="DefaultBuild" BuildName="DefaultBuild" BuildOrder="1" BuildType="1" PackageFolder="dist\distfiles-3.5b\src\windows" Languages="en" InstallationType="4"/>
     <ATTRIBUTE name="CurrentBuild" value="DefaultBuild"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
@@ -403,7 +403,7 @@
     <ROW Path="&lt;AI_DICTS&gt;ui_en.ail"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DigCertStoreComponent">
-    <ROW DigitalCertificate="..\..\zeroc2012.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
+    <ROW DigitalCertificate="dist\zeroc2012.pfx" TimeStampUrl="http://timestamp.verisign.com/scripts/timstamp.dll" SignerDescription="[|ProductName]" DescriptionUrl="http://www.zeroc.com" SignOptions="7" SignTool="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.FragmentComponent">
     <ROW Fragment="CommonUI.aip" Path="&lt;AI_FRAGS&gt;CommonUI.aip"/>
