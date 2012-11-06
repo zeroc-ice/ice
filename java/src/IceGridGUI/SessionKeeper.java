@@ -42,6 +42,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.builder.ButtonBarBuilder;
@@ -1522,7 +1524,6 @@ public class SessionKeeper
                             CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
                             if(d != null)
                             {
-                                d.setModal(true);
                                 d.load();
                                 d.setActiveTab(0); // Select My Certificates tab
                                 d.showDialog();
@@ -1588,7 +1589,6 @@ public class SessionKeeper
                             CertificateManagerDialog d = certificateManager(ConnectionWizardDialog.this);
                             if(d != null)
                             {
-                                d.setModal(true);
                                 d.load();
                                 d.setActiveTab(0); // Select My Certificates tab
                                 d.showDialog();
@@ -4426,34 +4426,36 @@ public class SessionKeeper
     {
         public AuthDialog(JDialog parent, String title)
         {
-            super(parent, title);
+            super(parent, title, true);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        }
-
-        public void setError(java.lang.Exception ex)
-        {
-            _ex = ex;
+            addWindowListener(new WindowAdapter()
+                {
+                    @Override
+                    public void windowActivated(WindowEvent e)
+                    {
+                        if(_msg != null)
+                        {
+                            JOptionPane.showMessageDialog(getOwner(), "Permission denied: " + _msg, "Login failed",
+                                                          JOptionPane.ERROR_MESSAGE);
+                            _msg = null;
+                        }
+                    }
+                });
         }
 
         public void showDialog()
         {
-            showDialog(false, null);
+            showDialog(null);
         }
 
-        public void showDialog(boolean permissionDenied, String msg)
+        public void showDialog(String msg)
         {
-            if(_ex == null)
-            {
-                setLocationRelativeTo(getOwner());
-                setVisible(true);
-                if(permissionDenied)
-                {
-                    JOptionPane.showMessageDialog(this, "Permission denied: " + msg, "Login failed", JOptionPane.ERROR_MESSAGE);
-                }
-            }
+            _msg = msg;
+            setLocationRelativeTo(getOwner());
+            setVisible(true);
         }
 
-        protected java.lang.Exception _ex;
+        String _msg = null;
     }
 
     private void login(final JDialog parent, final ConnectionInfo info)
@@ -4609,7 +4611,6 @@ public class SessionKeeper
                 else
                 {
                     _authDialog = new UsernamePasswordAuthDialog();
-                    _authDialog.setModal(true);
                     Utils.addEscapeListener(_authDialog);
                     _authDialog.showDialog();
                 }
@@ -4718,7 +4719,6 @@ public class SessionKeeper
                 else
                 {
                     _authDialog = new X509CertificateAuthDialog();
-                    _authDialog.setModal(true);
                     _authDialog.showDialog();
                 }
             }
@@ -4959,9 +4959,8 @@ public class SessionKeeper
         if(_authDialog == null)
         {
             _authDialog = new PermissionDeniedAuthDialog();
-            _authDialog.setModal(true);
             Utils.addEscapeListener(_authDialog);
-            _authDialog.showDialog(true, msg);
+            _authDialog.showDialog(msg);
         }
         else
         {
