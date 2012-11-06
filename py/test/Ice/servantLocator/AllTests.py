@@ -54,6 +54,10 @@ def testExceptions(obj, collocated):
         test(False)
     except Ice.UnknownUserException as ex:
         test(ex.unknown.find("Test::TestIntfUserException") >= 0)
+    except Ice.OperationNotExistException:
+        pass
+    except AttributeError:
+        pass
     except:
         test(False)
 
@@ -62,7 +66,7 @@ def testExceptions(obj, collocated):
         test(False)
     except Ice.UnknownLocalException as ex:
         test(not collocated)
-        test(ex.unknown.find("Ice.SocketException") >= 0)
+        test(ex.unknown.find("Ice.SocketException") >= 0 or ex.unknown.find("Ice::SocketException") >= 0)
     except SocketException:
         test(collocated)
     except:
@@ -73,6 +77,10 @@ def testExceptions(obj, collocated):
         test(False)
     except Ice.UnknownException as ex:
         test(ex.unknown.find("RuntimeError: message") >= 0)
+    except Ice.OperationNotExistException:
+        pass
+    except AttributeError:
+        pass
     except:
         test(False)
 

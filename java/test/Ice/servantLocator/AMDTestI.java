@@ -20,6 +20,7 @@ import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_shutdown;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownException;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownLocalException;
 import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownUserException;
+import test.Ice.servantLocator.AMD.Test.AMD_TestIntf_unknownExceptionWithServantException;
 import test.Ice.servantLocator.AMD.Test.TestImpossibleException;
 import test.Ice.servantLocator.AMD.Test.TestIntfUserException;
 import test.Ice.servantLocator.AMD.Test._TestIntfDisp;
@@ -66,6 +67,13 @@ public final class AMDTestI extends _TestIntfDisp
     javaException_async(AMD_TestIntf_javaException cb, Ice.Current current)
     {
         cb.ice_response();
+    }
+
+    public void 
+    unknownExceptionWithServantException_async(AMD_TestIntf_unknownExceptionWithServantException cb, 
+                                               Ice.Current current)
+    {
+        cb.ice_exception(new Ice.ObjectNotExistException());
     }
 
     public void

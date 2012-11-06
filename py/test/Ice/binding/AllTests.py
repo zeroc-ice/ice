@@ -340,13 +340,13 @@ def allTests(communicator):
     while i < nRetry and t.getAdapterName() == "Adapter36":
         i = i + 1
     test(i == nRetry)
-    t.ice_getConnection().close(True)
+    t.ice_getConnection().close(False)
     adapters.append(com.createObjectAdapter("Adapter35", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter35":
         i = i + 1
     test(i == nRetry)
-    t.ice_getConnection().close(True)
+    t.ice_getConnection().close(False)
     adapters.append(com.createObjectAdapter("Adapter34", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter34":

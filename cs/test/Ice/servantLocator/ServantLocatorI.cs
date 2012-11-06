@@ -145,6 +145,10 @@ public sealed class ServantLocatorI : Ice.ServantLocator
         {
             throw new System.Exception("message");
         }
+        else if(current.operation.Equals("unknownExceptionWithServantException"))
+        {
+            throw new UnknownException("reason");
+        }
         else if(current.operation.Equals("impossibleException"))
         {
             throw new Test.TestIntfUserException(); // Yes, it really is meant to be TestIntfException.

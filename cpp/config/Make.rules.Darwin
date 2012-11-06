@@ -12,7 +12,7 @@
 #
 
 ifeq ($(DEVELOPER_PATH),)
-	DEVELOPER_PATH	= $(shell xcode-select -print-path)
+     DEVELOPER_PATH	= $(shell xcode-select -print-path)
 endif
 
 TOOLCHAIN_BIN_DIR	= $(DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/bin
@@ -41,14 +41,9 @@ endif
 endif
 
 #
-# Avoid OpenSSL deprecation warnings in Os X
-#
-OPENSSL_FLAGS =  -Wno-deprecated-declarations
-
-#
 # C++ run-time libraries, necessary for linking some shared libraries.
 #
-CXXLIBS			=
+CXXLIBS		=
 
 ifneq ($(embedded_runpath_prefix),)
     # Only use -rpath if Mac OS X >= 10.5
@@ -102,6 +97,11 @@ ifeq ($(DB_HOME),)
        endif
    endif
 endif
+
+#
+# Avoid OpenSSL deprecation warnings on OS X
+#
+OPENSSL_FLAGS   =  -Wno-deprecated-declarations
 
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)

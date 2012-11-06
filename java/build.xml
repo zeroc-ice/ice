@@ -600,7 +600,7 @@
     </target>
 
     <target name="test-jar" depends="test-compile, ice-jar, freeze-jar, glacier2-jar, icebox-jar, icestorm-jar,
-                                     icegrid-jar">
+                                     icegrid-jar, test-plugins-jar">
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
             <exclude name="test/Ice/plugin/plugins/**"/>
@@ -639,7 +639,8 @@
         </and>
     </condition>
 
-    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar" 
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile, ice-jar, icebox-jar, glacier2-jar, 
+                                                   icestorm-jar, icegrid-jar" 
             if="build-icegridadmin-plain-jar" unless="ice.bin.dist">
         <manifest file="${lib.dir}/icegridgui.mf">
             <attribute name="Main-Class" value="IceGridGUI.Main"/>
@@ -654,7 +655,8 @@
         <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, icegridadmin-compile"
+    <target name="icegridadmin-pro-jar" depends="ice-jar, icebox-jar, glacier2-jar, icestorm-jar, icegrid-jar, 
+                                                 icegridadmin-compile"
             if="build-icegridadmin-pro-jar" unless="ice.bin.dist">
     
         <property name="library.jarfiles" value="rt.jar,jsse.jar,jfxrt.jar"/>
@@ -773,7 +775,7 @@
         </copy>
     </target>
 
-    <target name="install-icegridgui-jar">
+    <target name="install-icegridgui-jar" if="build-icegridadmin" unless="ice.bin.dist">
         <mkdir dir="${prefix}/help"/>
         <copy file="${lib.dir}/IceGridGUI.jar" todir="${prefix}/lib"/>
         <copy todir="${prefix}/help">

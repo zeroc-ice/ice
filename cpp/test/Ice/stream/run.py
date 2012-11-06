@@ -21,7 +21,9 @@ sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
 client = os.path.join(os.getcwd(), "client")
+
 print("Running test with default encoding...")
 TestUtil.simpleTest(client)
+
 print("Running test with 1.0 encoding...")
 TestUtil.simpleTest(client, "--Ice.Default.EncodingVersion=1.0")

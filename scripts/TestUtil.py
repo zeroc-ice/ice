@@ -27,6 +27,7 @@ tracefile = None
 printenv = False
 cross = []
 watchDog = None
+clientHome = None
 sqlType = None
 sqlDbName = None
 sqlHost = None
@@ -176,82 +177,6 @@ def dumpenv(env, lang):
         if i in env:
             print("%s=%s" % (i, env[i]))
 
-def configurePaths():
-    if iceHome:
-        sys.stdout.write("*** using Ice installation from " + iceHome + " ")
-        if x64:
-            sys.stdout.write("(64bit) ")
-        sys.stdout.write("\n")
-
-    # First sanitize the environment.
-    os.environ["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
-
-    #
-    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
-    #
-    if iceHome == "/usr":
-        javaDir = os.path.join("/", "usr", "share", "java")
-        addClasspath(os.path.join(javaDir, "Ice.jar"))
-        addClasspath(os.path.join(javaDir, "Glacier2.jar"))
-        addClasspath(os.path.join(javaDir, "Freeze.jar"))
-        addClasspath(os.path.join(javaDir, "IceBox.jar"))
-        addClasspath(os.path.join(javaDir, "IceStorm.jar"))
-        addClasspath(os.path.join(javaDir, "IceGrid.jar"))
-        addClasspath(os.path.join(javaDir, "IcePatch2.jar"))
-        return # That's it, we're done!
-
-    if isWin32():
-        libDir = getCppBinDir()
-    else:
-        libDir = os.path.join(getIceDir("cpp"), "lib")
-        if iceHome and x64:
-            if isSolaris():
-                if isSparc():
-                    libDir = os.path.join(libDir, "sparcv9")
-                else:
-                    libDir = os.path.join(libDir, "amd64")
-            elif not isDarwin():
-                libDir = libDir + "64"
-    addLdPath(libDir)
-
-    if getDefaultMapping() == "javae":
-        javaDir = os.path.join(getIceDir("javae"), "jdk", "lib")
-        addClasspath(os.path.join(javaDir, "IceE.jar"))
-        os.environ["CLASSPATH"] = os.path.join(javaDir, "IceE.jar") + os.pathsep + os.getenv("CLASSPATH", "")
-    else:
-        # The Ice.jar and Freeze.jar comes from the installation
-        # directory or the toplevel dir.
-        javaDir = os.path.join(getIceDir("java"), "lib")
-        addClasspath(os.path.join(javaDir, "Ice.jar"))
-        addClasspath(os.path.join(javaDir, "Glacier2.jar"))
-        addClasspath(os.path.join(javaDir, "Freeze.jar"))
-        addClasspath(os.path.join(javaDir, "IceBox.jar"))
-        addClasspath(os.path.join(javaDir, "IceStorm.jar"))
-        addClasspath(os.path.join(javaDir, "IceGrid.jar"))
-        addClasspath(os.path.join(javaDir, "IcePatch2.jar"))
-    addClasspath(os.path.join(javaDir))
-
-    #
-    # On Windows, C# assemblies are found thanks to the .exe.config files.
-    #
-    if isCompactFramework():
-        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies", "cf"))
-    elif isWin32():
-        addPathToEnv("DEVPATH", os.path.join(getIceDir("cs"), "Assemblies"))
-    else:
-        addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs"), "Assemblies"))
-
-    #
-    # On Windows x64, set PYTHONPATH to python/x64.
-    #
-    pythonDir = os.path.join(getIceDir("py"), "python")
-    if isWin32() and x64:
-        addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"))
-    else:
-        addPathToEnv("PYTHONPATH", pythonDir)
-
-    addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb"), "ruby"))
-
 def addLdPath(libpath, env = None):
     if env is None:
         env = os.environ
@@ -284,16 +209,20 @@ crossTests = [ "Ice/adapterDeactivation",
                "Ice/binding",
                "Ice/checksum",
                #"Ice/custom",
+               "Ice/ami", 
+               "Ice/info", 
                "Ice/exceptions",
+               "Ice/enums",
                "Ice/facets",
                "Ice/hold",
                "Ice/inheritance",
+               "Ice/invoke",
                "Ice/location",
                "Ice/objects",
                "Ice/operations",
                "Ice/proxy",
                "Ice/retry",
-               #"Ice/servantLocator",
+               "Ice/servantLocator",
                "Ice/timeout",
                "Ice/slicing/exceptions",
                "Ice/slicing/objects",
@@ -322,6 +251,7 @@ def run(tests, root = False):
           --ice-home=<path>       Use the binary distribution from the given path.
           --x64                   Binary distribution is 64-bit.
           --cross=lang            Run cross language test.
+          --client-home=<dir>     Run cross test clients from the given Ice source distribution.
           --script                Generate a script to run the tests.
           --env                   Print important environment variables.
           --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
@@ -343,9 +273,9 @@ def run(tests, root = False):
         opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
                                    ["start=", "start-after=", "filter=", "rfilter=", "all", "all-cross", "loop",
                                     "debug", "protocol=", "compress", "valgrind", "host=", "serialize", "continue",
-                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "x64", "script", "env", "sql-type=",
-                                    "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=",
-                                    "appverifier", "compact", "silverlight", "winrt", "server", "mx"])
+                                    "ipv6", "no-ipv6", "ice-home=", "cross=", "client-home=", "x64", "script", "env", 
+                                    "sql-type=", "sql-db=", "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", 
+                                    "service-dir=", "appverifier", "compact", "silverlight", "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -411,7 +341,7 @@ def run(tests, root = False):
         if o in ( "--cross", "--protocol", "--host", "--debug", "--compress", "--valgrind", "--serialize", "--ipv6", \
                   "--ice-home", "--x64", "--env", "--sql-type", "--sql-db", "--sql-host", "--sql-port", "--sql-user", \
                   "--sql-passwd", "--service-dir", "--appverifier", "--compact", "--silverlight", "--winrt", \
-                  "--server", "--mx"):
+                  "--server", "--mx", "--client-home"):
             arg += " " + o
             if len(a) > 0:
                 arg += " " + a
@@ -473,7 +403,7 @@ def run(tests, root = False):
             # Now expand out the tests. We run only tcp for most cross tests.
             for c in crossLang:
                 a = "--cross=%s --protocol=tcp" % c
-                expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests if not (test == "Ice/background" and (lang == "cs" or c == "cs"))])
+                expanded.append([ ( "%s/test/%s" % (lang, test), a, []) for test in crossTests])
 
                 # Add ssl & compress for the operations test.
                 if (compact or mono or silverlight) and c == "cs": # Don't add the ssl tests.
@@ -509,7 +439,16 @@ def run(tests, root = False):
 if not isWin32():
     mono = True
 
-def getIceDir(subdir = None):
+def getIceDir(subdir = None, testdir = None):
+    #
+    # If client-home is set and if the given test directory is from a
+    # sub-directory of the client home directory, run the test against
+    # the client-home source distribution.
+    #
+    global clientHome 
+    if testdir and clientHome and os.path.commonprefix([testdir, clientHome]) == clientHome:
+        return os.path.join(clientHome, subdir)
+
     #
     # If ICE_HOME is set we're running the test against a binary distribution. Otherwise,
     # we're running the test against a source distribution.
@@ -1101,7 +1040,8 @@ def getQtSqlOptions(prefix, dataDir = None):
     return options
 
 import Expect
-def spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
+
+def _spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
     # Start/Reset the watch dog thread
     global watchDog
     if watchDog is None:
@@ -1116,14 +1056,18 @@ def spawn(cmd, env=None, cwd=None, startReader=True, lang=None):
 
     return Expect.Expect(cmd, startReader=startReader, env=env, logfile=tracefile, cwd=cwd)
 
+def spawn(cmd, cwd=None):
+    # Spawn given command with test environment.
+    return _spawn(cmd, getTestEnv(getDefaultMapping(), os.getcwd()))
+
 def spawnClient(cmd, env=None, cwd=None, echo=True, startReader=True, lang=None):
-    client = spawn(cmd, env, quoteArgument(cwd), startReader=startReader, lang=lang)
+    client = _spawn(cmd, env, quoteArgument(cwd), startReader=startReader, lang=lang)
     if echo:
         client.trace()
     return client
 
 def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=None, mx=False):
-    server = spawn(cmd, env, quoteArgument(cwd), lang=lang)
+    server = _spawn(cmd, env, quoteArgument(cwd), lang=lang)
 
     # Count + 1 if IceMX enabled
     if mx:
@@ -1141,6 +1085,8 @@ def spawnServer(cmd, env=None, cwd=None, count=1, adapter=None, echo=True, lang=
 
 import subprocess
 def runCommand(command):
+    env = getTestEnv(getDefaultMapping(), os.getcwd())
+
     #
     # popen3 has problems dealing with white spaces in command line.
     #
@@ -1151,10 +1097,10 @@ def runCommand(command):
         # in directories specified by the PATH environment variable.
         #
         p = subprocess.Popen(command, shell=True, bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, creationflags = 512)
+                             stderr=subprocess.PIPE, creationflags = 512, env = env)
     else:
-        p = subprocess.Popen(command, shell=True, bufsize=1024, stdin=subprocess.PIPE, stdout=subprocess.PIPE, \
-            stderr=subprocess.PIPE, close_fds=True)
+        p = subprocess.Popen(command, shell=True, bufsize=1024, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, close_fds=True, env = env)
 
     return p;
 
@@ -1170,12 +1116,12 @@ def setAppVerifierSettings(targets, cwd=os.getcwd()):
 
         #First enable all appverifier tests
         cmd = "appverif -enable * -for " + exe
-        verifier = spawn(cmd, cwd=cwd)
+        verifier = _spawn(cmd, cwd=cwd)
         verifier.expect(matchAppVerifierSuccess(), -1)
 
         #Now disable all tests we are not intested in
         cmd = "appverif -disable LuaPriv PrintDriver PrintApi -for " + exe
-        verifier = spawn(cmd, cwd=cwd)
+        verifier = _spawn(cmd, cwd=cwd)
         verifier.expectall(["Application Verifier 4.0","",""], -1)
 
 def appVerifierAfterTestEnd(targets, cwd=os.getcwd()):
@@ -1189,17 +1135,17 @@ def appVerifierAfterTestEnd(targets, cwd=os.getcwd()):
             logName = os.path.dirname(exe)
         logName += "/" + os.path.basename(exe) + "_appverifier_log.xml"
         cmd = "appverif -export log -for " + exe + " -with To=" + logName
-        verifier = spawn(cmd, cwd=cwd)
+        verifier = _spawn(cmd, cwd=cwd)
         verifier.expect(matchAppVerifierSuccess(), -1)
 
         # Delete appverifier logs from registry
         cmd = "appverif -delete logs -for " + exe
-        verifier = spawn(cmd, cwd=cwd)
+        verifier = _spawn(cmd, cwd=cwd)
         verifier.expect(matchAppVerifierSuccess(), -1)
 
         # Delete appverifier settings
         cmd = "appverif -delete settings -for " + exe
-        verifier = spawn(cmd, cwd=cwd)
+        verifier = _spawn(cmd, cwd=cwd)
         verifier.expect(matchAppVerifierSuccess(), -1)
 
 def getMirrorDir(base, mapping):
@@ -1216,6 +1162,26 @@ def getMirrorDir(base, mapping):
     else:
         raise "cannot find language dir"
     return os.path.join(before, mapping, *after)
+
+def getClientCrossTestDir(base):
+    """Get the client directory from client-home for the given test."""
+    global clientHome
+    if not clientHome:
+        return base
+
+    lang = getDefaultMapping()
+    after = []
+    before = base
+    while len(before) > 0:
+        current = os.path.basename(before)
+        before = os.path.dirname(before)
+        if current == lang:
+            break
+        after.insert(0, current)
+    else:
+        raise "cannot find language dir"
+    return os.path.join(clientHome, lang, *after)
+
 
 def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
                      server = None, client = None, serverenv = None, clientenv = None):
@@ -1244,6 +1210,7 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
     if len(cross) == 0:
         cross.append(lang)
 
+    global clientHome
     for clientLang in cross:
         clientCfg = DriverConfig("client")
         if clientLang != lang:
@@ -1253,13 +1220,21 @@ def clientServerTest(additionalServerOptions = "", additionalClientOptions = "",
 
             clientCfg.lang = clientLang
             client = getDefaultClientFile(clientLang)
-            clientdir = getMirrorDir(testdir, clientLang)
-            print(clientdir)
+            if clientHome:
+                clientdir = getMirrorDir(getClientCrossTestDir(testdir), clientLang)
+            else:
+                clientdir = getMirrorDir(testdir, clientLang)
             if not os.path.exists(clientdir):
                 print("** no matching test for %s" % clientLang)
                 return
         else:
-            clientdir = testdir
+            if clientHome:
+                clientdir = getClientCrossTestDir(testdir)
+            else:
+                clientdir = testdir
+            if not os.path.exists(clientdir):
+                print("** no matching test for %s" % clientLang)
+                return
 
         if clientLang != "java":
             client = os.path.join(clientdir, client)
@@ -1363,7 +1338,7 @@ def startColloc(exe, args, config=None, env=None):
     if config is None:
         config = DriverConfig("colloc")
     if env is None:
-        env = getTestEnv(lang, testdir)
+        env = getTestEnv(config.lang, testdir)
     cmd = getCommandLine(exe, config, args)
     return spawnClient(cmd, env = env, lang=config.lang)
 
@@ -1372,16 +1347,16 @@ def simpleTest(exe = None, options = ""):
         exe = getDefaultClientFile()
     if appverifier:
         setAppVerifierSettings([quoteArgument(exe)])
-    lang = getDefaultMapping()
-    config = None
+
+    testdir = os.getcwd()
 
     config = DriverConfig("client")
-    config.lang = lang
+    env = getTestEnv(config.lang, testdir)
 
     sys.stdout.write("starting client... ")
     sys.stdout.flush()
     command = getCommandLine(exe, config, options)
-    client = spawnClient(command, startReader = False, lang = lang)
+    client = spawnClient(command, startReader = False, env = env, lang = config.lang)
     print("ok")
     client.startReader()
     client.waitTestSuccess()
@@ -1398,8 +1373,8 @@ def createConfig(path, lines, enc=None):
         config.write("%s\n" % l)
     config.close()
 
-def getCppBinDir():
-    binDir = os.path.join(getIceDir("cpp"), "bin")
+def getCppBinDir(testdir = None):
+    binDir = os.path.join(getIceDir("cpp", testdir), "bin")
     if iceHome:
         if isVS2010():
             binDir = os.path.join(binDir, "vc100")
@@ -1424,10 +1399,85 @@ def getServiceDir():
 
 def getTestEnv(lang, testdir):
     env = os.environ.copy()
+
+    # First sanitize the environment.
+    env["CLASSPATH"] = sanitize(os.getenv("CLASSPATH", ""))
+
+    # Add test directory to env
     if lang == "cpp":
         addLdPath(os.path.join(testdir), env)
     elif lang == "java":
         addClasspath(os.path.join(toplevel, "java", "lib", "IceTest.jar"), env)
+
+    #
+    # If Ice is installed from RPMs, just set the CLASSPATH for Java.
+    #
+    if iceHome == "/usr":
+        if lang == "java":
+            javaDir = os.path.join("/", "usr", "share", "java")
+            addClasspath(os.path.join(javaDir, "Ice.jar"), env)
+            addClasspath(os.path.join(javaDir, "Glacier2.jar"), env)
+            addClasspath(os.path.join(javaDir, "Freeze.jar"), env)
+            addClasspath(os.path.join(javaDir, "IceBox.jar"), env)
+            addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
+            addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
+            addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
+        return env # That's it, we're done!
+
+    if isWin32():
+        libDir = getCppBinDir()
+    else:
+        libDir = os.path.join(getIceDir("cpp", testdir), "lib")
+        if iceHome and x64:
+            if isSolaris():
+                if isSparc():
+                    libDir = os.path.join(libDir, "sparcv9")
+                else:
+                    libDir = os.path.join(libDir, "amd64")
+            elif not isDarwin():
+                libDir = libDir + "64"
+    addLdPath(libDir, env)
+
+    if lang == "javae":
+        javaDir = os.path.join(getIceDir("javae", testdir), "jdk", "lib")
+        addClasspath(os.path.join(javaDir, "IceE.jar"), env)
+        addClasspath(os.path.join(javaDir), env)
+    elif lang == "java":
+        # The Ice.jar and Freeze.jar comes from the installation
+        # directory or the toplevel dir.
+        javaDir = os.path.join(getIceDir("java", testdir), "lib")
+        addClasspath(os.path.join(javaDir, "Ice.jar"), env)
+        addClasspath(os.path.join(javaDir, "Glacier2.jar"), env)
+        addClasspath(os.path.join(javaDir, "Freeze.jar"), env)
+        addClasspath(os.path.join(javaDir, "IceBox.jar"), env)
+        addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
+        addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
+        addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
+
+    #
+    # On Windows, C# assemblies are found thanks to the .exe.config files.
+    #
+    if lang == "cs":
+        if isCompactFramework():
+            addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies", "cf"), env)
+        elif isWin32():
+            addPathToEnv("DEVPATH", os.path.join(getIceDir("cs", testdir), "Assemblies"), env)
+        else:
+            addPathToEnv("MONO_PATH", os.path.join(getIceDir("cs", testdir), "Assemblies"), env)
+
+    #
+    # On Windows x64, set PYTHONPATH to python/x64.
+    #
+    if lang == "py":
+        pythonDir = os.path.join(getIceDir("py", testdir), "python")
+        if isWin32() and x64:
+            addPathToEnv("PYTHONPATH", os.path.join(pythonDir, "x64"), env)
+        else:
+            addPathToEnv("PYTHONPATH", pythonDir, env)
+
+    if lang == "rb":
+        addPathToEnv("RUBYLIB", os.path.join(getIceDir("rb", testdir), "ruby"), env)
+
     return env;
 
 def getTestName():
@@ -1511,6 +1561,7 @@ def processCmdLine():
           --x64                   Binary distribution is 64-bit.
           --env                   Print important environment variables.
           --cross=lang            Run cross language test.
+          --client-home=<dir>      Run cross test clients from the given Ice source distribution.
           --sql-type=<driver>     Run IceStorm/IceGrid tests using QtSql with specified driver. (deprecated)
           --sql-db=<db>           Set SQL database name. (deprecated)
           --sql-host=<host>       Set SQL host name. (deprecated)
@@ -1529,9 +1580,9 @@ def processCmdLine():
     try:
         opts, args = getopt.getopt(
             sys.argv[1:], "", ["debug", "trace=", "protocol=", "compress", "valgrind", "host=", "serialize", "ipv6", \
-                              "ice-home=", "x64", "cross=", "env", "sql-type=", "sql-db=", "sql-host=", "sql-port=", \
-                              "sql-user=", "sql-passwd=", "service-dir=", "appverifier", "compact", "silverlight", \
-                              "winrt", "server", "mx"])
+                               "ice-home=", "x64", "cross=", "client-home=", "env", "sql-type=", "sql-db=", \
+                               "sql-host=", "sql-port=", "sql-user=", "sql-passwd=", "service-dir=", "appverifier", \
+                               "compact", "silverlight", "winrt", "server", "mx"])
     except getopt.GetoptError:
         usage()
 
@@ -1544,9 +1595,6 @@ def processCmdLine():
             iceHome = a
         elif o == "--cross":
             global cross
-            #testName = getTestName()
-            #if testName == "Ice/custom":
-            #if getTestName() not in crossTests:
             cross.append(a)
             if not a in ["cpp", "java", "cs", "py", "rb" ]:
                 print("cross must be one of cpp, java, cs, py or rb")
@@ -1554,12 +1602,9 @@ def processCmdLine():
             if getTestName() not in crossTests:
                 print("*** This test does not support cross language testing")
                 sys.exit(0)
-            # Temporary.
-            lang = getDefaultMapping()
-            if getTestName() == "Ice/background" and (lang == "cs" or cross == "cs"):
-                print("*** This test does not support cross language testing")
-                sys.exit(0)
-
+        elif o == "--client-home":
+            global clientHome
+            clientHome = a
         elif o == "--x64":
             global x64
             x64 = True
@@ -1654,7 +1699,11 @@ def processCmdLine():
     if not x64:
         x64 = isWin32() and os.environ.get("XTARGET") == "x64" or os.environ.get("LP64") == "yes"
 
-    configurePaths()
+    if iceHome:
+        sys.stdout.write("*** using Ice installation from " + iceHome + " ")
+        if x64:
+            sys.stdout.write("(64bit) ")
+        sys.stdout.write("\n")
 
 def runTests(start, expanded, num = 0, script = False):
     total = 0

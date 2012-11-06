@@ -18,9 +18,7 @@ interface Empty
 
 interface Thrower;
 
-exception Base {};
-
-exception A extends Base
+exception A
 {
     int aMem;
 };
@@ -47,7 +45,6 @@ module Mod
         int a2Mem;
     };
 };
-
 
 ["ami"] interface Thrower
 {

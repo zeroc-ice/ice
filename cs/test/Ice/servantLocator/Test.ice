@@ -30,6 +30,8 @@ interface TestIntf
     void userException();
     void csException();
 
+    void unknownExceptionWithServantException();
+
     string impossibleException(bool throw) throws TestImpossibleException;
     string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
 

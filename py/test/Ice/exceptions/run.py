@@ -22,15 +22,27 @@ import TestUtil
 
 print("Running test with compact (default) format.")
 TestUtil.clientServerTest()
+
 print("Running test with sliced format.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat", additionalServerOptions="--Ice.Default.SlicedFormat")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.SlicedFormat", 
+                          additionalServerOptions="--Ice.Default.SlicedFormat")
+
 print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+
 print("Running test with compact (default) format and AMD server.")
 TestUtil.clientServerTest(server="ServerAMD.py")
+
 print("Running test with sliced format and AMD server.")
-TestUtil.clientServerTest(server="ServerAMD.py", additionalClientOptions="--Ice.Default.SlicedFormat", additionalServerOptions="--Ice.Default.SlicedFormat")
+TestUtil.clientServerTest(server="ServerAMD.py", 
+                          additionalClientOptions="--Ice.Default.SlicedFormat", 
+                          additionalServerOptions="--Ice.Default.SlicedFormat")
+
 print("Running test with 1.0 encoding and AMD server.")
-TestUtil.clientServerTest(server="ServerAMD.py", additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.clientServerTest(server="ServerAMD.py", 
+                          additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+
 print("Running collocated test.")
 TestUtil.collocatedTest()

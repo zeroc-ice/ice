@@ -90,6 +90,9 @@ public class AllTests : TestCommon.TestApp
             //Console.Error.WriteLine(ex.unknown);
             test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
         }
+        catch(Ice.OperationNotExistException)
+        {
+        }
         catch(System.Exception)
         {
             test(false);
@@ -117,6 +120,23 @@ public class AllTests : TestCommon.TestApp
         catch(UnknownException ex)
         {
             test(ex.unknown.IndexOf("System.Exception") >= 0);
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+        catch(System.Exception)
+        {
+            test(false);
+        }
+
+        try
+        {
+            obj.unknownExceptionWithServantException();
+            test(false);
+        }
+        catch(UnknownException ex)
+        {
+            test(ex.unknown.Equals("reason"));
         }
         catch(System.Exception)
         {

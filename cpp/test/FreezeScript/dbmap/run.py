@@ -124,8 +124,8 @@ print("ok")
 sys.stdout.write("executing default transformations... ")
 sys.stdout.flush()
 
-command = '"' + transformdb + '" --old "' + testold + '" --new "' + testnew + '" --key int --value ::Test::S "' + init_dbdir + \
-    '" default.db "' + check_dbdir + '" '
+command = '"' + transformdb + '" --old "' + testold + '" --new "' + testnew + '" --key int --value ::Test::S "' + \
+    init_dbdir + '" default.db "' + check_dbdir + '" '
 
 TestUtil.spawn(command).waitTestSuccess()
 
@@ -134,8 +134,8 @@ print("ok")
 sys.stdout.write("validating database... ")
 sys.stdout.flush()
 
-command = '"' + transformdb + '" --old "' + testnew + '" --new "' + testnew + '" -f "' + checkxml + '" "' + check_dbdir + \
-    '" default.db "' + tmp_dbdir + '" '
+command = '"' + transformdb + '" --old "' + testnew + '" --new "' + testnew + '" -f "' + checkxml + '" "' + \
+    check_dbdir + '" default.db "' + tmp_dbdir + '" '
 
 TestUtil.spawn(command).waitTestSuccess()
 

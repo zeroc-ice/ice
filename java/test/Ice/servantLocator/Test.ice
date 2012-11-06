@@ -31,6 +31,8 @@ interface TestIntf
     //void userException();
     void javaException();
 
+    void unknownExceptionWithServantException();
+
     string impossibleException(bool throw) throws TestImpossibleException;
     string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
 

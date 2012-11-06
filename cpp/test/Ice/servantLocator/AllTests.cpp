@@ -89,6 +89,9 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     {
         test(ex.unknown == "Test::TestIntfUserException");
     }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
     catch(...)
     {
         test(false);
@@ -101,7 +104,7 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownLocalException& ex)
     {
-        test(ex.unknown.find("Ice::SocketException:\nsocket exception: unknown error") != string::npos);
+        test(ex.unknown.find("Ice::SocketException") != string::npos);
     }
     catch(...)
     {
@@ -112,6 +115,9 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     {
         obj->stdException();
         test(false);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
     }
     catch(const UnknownException& ex)
     {
@@ -130,6 +136,9 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     catch(const UnknownException& ex)
     {
         test(ex.unknown == "unknown c++ exception");
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
     }
     catch(...)
     {

@@ -46,6 +46,13 @@ public sealed class TestI : TestIntfDisp_
         cb.ice_response();
     }
 
+    public override void 
+    unknownExceptionWithServantException_async(AMD_TestIntf_unknownExceptionWithServantException cb, 
+                                               Ice.Current current)
+    {
+        cb.ice_exception(new Ice.ObjectNotExistException());
+    }
+
     public override void impossibleException_async(AMD_TestIntf_impossibleException cb, bool @throw,
                                                    Ice.Current current)
     {

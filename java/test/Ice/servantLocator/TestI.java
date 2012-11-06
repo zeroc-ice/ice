@@ -50,6 +50,12 @@ public final class TestI extends _TestIntfDisp
     {
     }
 
+    public void 
+    unknownExceptionWithServantException(Ice.Current current)
+    {
+        throw new Ice.ObjectNotExistException();
+    }
+
     public String
     impossibleException(boolean _throw, Ice.Current current) throws TestImpossibleException
     {

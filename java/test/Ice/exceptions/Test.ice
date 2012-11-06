@@ -19,9 +19,7 @@ interface Empty
 
 interface Thrower;
 
-exception Base {};
-
-exception A extends Base
+exception A
 {
     int aMem;
 };

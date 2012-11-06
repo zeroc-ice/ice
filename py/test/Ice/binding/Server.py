@@ -15,7 +15,6 @@ Ice.loadSlice('Test.ice')
 import Test, TestI
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("Ice.Warn.Connections", "0")
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     id = communicator.stringToIdentity("communicator")

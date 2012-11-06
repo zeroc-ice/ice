@@ -22,9 +22,15 @@ import TestUtil
 
 print("Running test with sliced format.")
 TestUtil.clientServerTest()
+
 print("Running test with 1.0 encoding.")
-TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.clientServerTest(additionalClientOptions="--Ice.Default.EncodingVersion=1.0", 
+                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+
 print("Running test with sliced format and AMD server.")
 TestUtil.clientServerTest(server="serveramd")
+
 print("Running test with 1.0 encoding and AMD server.")
-TestUtil.clientServerTest(server="serveramd", additionalClientOptions="--Ice.Default.EncodingVersion=1.0", additionalServerOptions="--Ice.Default.EncodingVersion=1.0")
+TestUtil.clientServerTest(server="serveramd", 
+                          additionalClientOptions="--Ice.Default.EncodingVersion=1.0",
+                          additionalServerOptions="--Ice.Default.EncodingVersion=1.0")

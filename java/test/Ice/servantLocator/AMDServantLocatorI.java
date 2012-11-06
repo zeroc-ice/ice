@@ -152,6 +152,10 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
         {
             throw new java.lang.RuntimeException("message");
         }
+        else if(current.operation.equals("unknownExceptionWithServantException"))
+        {
+            throw new UnknownException("reason");
+        }
         else if(current.operation.equals("impossibleException"))
         {
             throw new TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.

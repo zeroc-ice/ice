@@ -70,11 +70,11 @@ ifeq ($(UNAME),Linux)
 endif
 
 ifeq ($(LP64),yes)
-    libsubdir		  := lib$(lp64suffix)
-    binsubdir		  := bin$(lp64binsuffix)
+    libsubdir		:= lib$(lp64suffix)
+    binsubdir		:= bin$(lp64binsuffix)
 else
-    libsubdir		  := lib
-    binsubdir		  := bin
+    libsubdir		:= lib
+    binsubdir		:= bin
 endif
 
 

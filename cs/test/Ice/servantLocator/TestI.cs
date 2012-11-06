@@ -39,6 +39,11 @@ public sealed class TestI : TestIntfDisp_
     {
     }
 
+    public override void unknownExceptionWithServantException(Ice.Current current)
+    {
+        throw new Ice.ObjectNotExistException();
+    }
+
     public override string impossibleException(bool @throw, Ice.Current current)
     {
         if(@throw)

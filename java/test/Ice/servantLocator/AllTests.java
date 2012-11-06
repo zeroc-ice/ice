@@ -125,6 +125,24 @@ public class AllTests
         {
             test(ex.unknown.indexOf("java.lang.RuntimeException: message") >= 0);
         }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
+        catch(Throwable ex)
+        {
+            //System.err.println(ex);
+            test(false);
+        }
+
+        try
+        {
+            obj.unknownExceptionWithServantException();
+            test(false);
+        }
+        catch(UnknownException ex)
+        {
+            test(ex.unknown.equals("reason"));
+        }
         catch(Throwable ex)
         {
             test(false);
