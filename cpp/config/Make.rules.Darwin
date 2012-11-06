@@ -11,12 +11,7 @@
 # This file is included by Make.rules when uname is Darwin.
 #
 
-ifeq ($(DEVELOPER_PATH),)
-     DEVELOPER_PATH	= $(shell xcode-select -print-path)
-endif
-
-TOOLCHAIN_BIN_DIR	= $(DEVELOPER_PATH)/Toolchains/XcodeDefault.xctoolchain/usr/bin
-CXX			= $(TOOLCHAIN_BIN_DIR)/clang++
+CXX			= xcrun clang++
 
 CXXFLAGS		= -Wall -D_REENTRANT
 
@@ -33,7 +28,7 @@ else
 endif
 
 ifeq ($(CPP11), yes)
-ifeq ($(CXX), $(TOOLCHAIN_BIN_DIR)/clang++)
+ifeq ($(CXX), xcrun clang++)
     CPPFLAGS += --std=c++11
     CXXFLAGS += --stdlib=libc++
     CPP11LIBSUFFIX = -c++11
