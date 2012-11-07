@@ -3153,47 +3153,15 @@ public class Coordinator
 
     private void helpContents()
     {
-        if(System.getProperty("os.name").startsWith("Windows"))
+        int pos = Ice.Util.stringVersion().indexOf('b');
+        if(pos == -1)
         {
-            java.net.URL url = ClassLoader.getSystemResource("IceGridAdmin.chm");
-            if(url != null)
-            {
-                //
-                // Get rid of the leading "/"
-                //
-                String path = url.getPath().substring(1);
-                try
-                {
-                    path = java.net.URLDecoder.decode(path, "UTF-8");
-                }
-                catch(java.io.UnsupportedEncodingException ex)
-                {
-                }
-                try
-                {
-                    Runtime.getRuntime().exec("hh.exe " + path);
-                    return; // success
-                }
-                catch(java.io.IOException ex)
-                {
-                    _initData.logger.warning(ex.toString());
-                }
-            }
+            pos = Ice.Util.stringVersion().lastIndexOf('.');
+            assert(pos != -1);
         }
-
-        //
-        // Otherwise, browser based-help
-        //
-        java.net.URL url = ClassLoader.getSystemResource("IceGridAdmin/index.html");
-        if(url != null)
-        {
-            BareBonesBrowserLaunch.openURL(url.toString());
-        }
-        else
-        {
-            BareBonesBrowserLaunch.openURL("http://www.zeroc.com/doc/Ice-"
-                                           + Ice.Util.stringVersion() + "/IceGridAdmin/index.html");
-        }
+        
+        String version = Ice.Util.stringVersion().substring(0, pos);
+        BareBonesBrowserLaunch.openURL("http://doc.zeroc.com/display/Rel/Ice+" + version + "+IceGrid+Admin");
     }
 
     private void about()
