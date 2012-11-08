@@ -311,7 +311,7 @@ local exception EndpointParseException
 {
     /**
      *
-     * The string that could not be parsed.
+     * Describes the failure and includes the string that could not be parsed.
      *
      **/
     string str;
@@ -328,7 +328,7 @@ local exception EndpointSelectionTypeParseException
 {
     /**
      *
-     * The string that could not be parsed.
+     * Describes the failure and includes the string that could not be parsed.
      *
      **/
     string str;
@@ -345,7 +345,7 @@ local exception VersionParseException
 {
     /**
      *
-     * The string that could not be parsed.
+     * Describes the failure and includes the string that could not be parsed.
      *
      **/
     string str;
@@ -362,7 +362,7 @@ local exception IdentityParseException
 {
     /**
      *
-     * The string that could not be parsed.
+     * Describes the failure and includes the string that could not be parsed.
      *
      **/
     string str;
@@ -379,7 +379,7 @@ local exception ProxyParseException
 {
     /**
      *
-     * The string that could not be parsed.
+     * Describes the failure and includes the string that could not be parsed.
      *
      **/
     string str;
