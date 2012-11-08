@@ -451,7 +451,7 @@ public class GraphView extends JFrame implements MetricsFieldContext
         // Don't destroy JavaFX when the frame is disposed.
         //
         Platform.setImplicitExit(false);
-        setIconImage(Utils.getIcon("/icons/16x16/grid.png").getImage());
+        setIconImage(Utils.getIcon("/icons/16x16/metrics_graph.png").getImage());
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter()
         {

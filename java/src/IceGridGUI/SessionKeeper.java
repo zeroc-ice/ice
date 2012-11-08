@@ -621,6 +621,7 @@ public class SessionKeeper
                 {
                     _prefs.put("keyPassword", new String(getKeyPassword()));
                 }
+                _prefs.putBoolean("useX509Certificate", true);
             }
 
             _prefs.putBoolean("direct", _direct);
@@ -734,6 +735,7 @@ public class SessionKeeper
             {
                 setAlias(_prefs.get("alias", ""));
                 setStoreKeyPassword(_prefs.getBoolean("storeKeyPassword", false));
+                setUseX509Certificate(_prefs.getBoolean("useX509Certificate", false));
                 if(_storeKeyPassword)
                 {
                     String tmp = _prefs.get("keyPassword", "");
@@ -2009,6 +2011,18 @@ public class SessionKeeper
                             case RoutedX509CredentialsStep:
                             case DirectX509CredentialsStep:
                             {
+                                if(_conf == null)
+                                {
+                                    if(_x509CertificateYesButton.isSelected())
+                                    {
+                                        _certificateAuthButton.setSelected(true);
+                                    }
+                                    else
+                                    {
+                                        _usernamePasswordAuthButton.setSelected(true);
+                                    }
+                                }
+
                                 _cardLayout.show(_cardPanel, WizardStep.AuthStep.toString());
                                 _wizardSteps.push(WizardStep.AuthStep);
                                 break;
@@ -2812,6 +2826,7 @@ public class SessionKeeper
                 }
                 else
                 {
+                    _x509CertificateYesButton.setSelected(true);
                     _certificateAuthButton.setSelected(true);
                 }
                 validateConfiguration();
@@ -3493,7 +3508,7 @@ public class SessionKeeper
     public class KeyStorePanel extends JPanel
     {
 
-        public char[] requestPassword(String title, String label)
+        public char[] requestPassword(String title, String label, Ice.BooleanHolder accepted)
         {
             final JPasswordField passwordField = new JPasswordField();
             char[] password = null;
@@ -3521,9 +3536,14 @@ public class SessionKeeper
             Object result = optionPane.getValue();
             dialog.dispose();
 
-            if(result !=null && result instanceof Integer && ((Integer)result).intValue() == JOptionPane.OK_OPTION)
+            if(result != null && result instanceof Integer && ((Integer)result).intValue() == JOptionPane.OK_OPTION)
             {
                 password = passwordField.getPassword();
+                accepted.value = true;
+            }
+            else
+            {
+                accepted.value = false;
             }
             return password;
         }
@@ -3696,22 +3716,55 @@ public class SessionKeeper
                             keyFile = new File(filePath);
                             if(pkcs12)
                             {
-                                try
+                                KeyStore keyStore = null;
+                                char[] password = null;
+                                boolean loaded = false;
+                                while(true)
                                 {
-                                    KeyStore keyStore = KeyStore.getInstance("pkcs12");
-                                    // Open PKCS12 file as key store
-                                    char[] password = requestPassword("KeyStore Password - IceGrid Admin",
-                                                                      "KeyStore password:");
-                                    keyStore.load(new FileInputStream(keyFile), password);
-                                    
-                                    importKeyStore(keyStore);
+                                    try
+                                    {
+                                        Ice.BooleanHolder accepted = new Ice.BooleanHolder();
+                                        keyStore = KeyStore.getInstance("pkcs12");
+                                        password = requestPassword("KeyStore Password - IceGrid Admin",
+                                                                   "KeyStore password:", accepted);
+                                        if(accepted.value)
+                                        {
+                                            keyStore.load(new FileInputStream(keyFile), password);
+                                            loaded = true;
+                                        }
+                                        break;
+
+                                    }
+                                    catch(java.io.IOException ex)
+                                    {
+                                        JOptionPane.showMessageDialog(KeyStorePanel.this, 
+                                                                      "Invalid certificate password", 
+                                                                      "Invalid certificate password", 
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                    }
+                                    catch(java.lang.Exception ex)
+                                    {
+                                        JOptionPane.showMessageDialog(KeyStorePanel.this, ex.toString(),
+                                                                      "Error importing certificate", 
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
                                 }
-                                catch(java.lang.Exception ex)
+
+                                if(loaded)
                                 {
-                                    JOptionPane.showMessageDialog(KeyStorePanel.this, ex.toString(),
-                                                                  "Error importing certificate", 
-                                                                  JOptionPane.ERROR_MESSAGE);
-                                    return;
+                                    try
+                                    {
+                                        
+                                        importKeyStore(keyStore);
+                                    }
+                                    catch(java.lang.Exception ex)
+                                    {
+                                        JOptionPane.showMessageDialog(KeyStorePanel.this, ex.toString(),
+                                                                      "Error importing certificate", 
+                                                                      JOptionPane.ERROR_MESSAGE);
+                                        return;
+                                    }
                                 }
                             }
                             // PEM File
@@ -3869,9 +3922,32 @@ public class SessionKeeper
                 String alias = aliases.nextElement().toString();
                 if(keyStore.isKeyEntry(alias))
                 {
-                    char[] password = requestPassword("Certificate Password For <" + alias + "> - IceGrid Admin",
-                                                      "Certificate password for <" + alias + ">:");
-                    Key key = keyStore.getKey(alias, password);
+                    char[] password = null;
+                    Key key = null;
+                    while(true)
+                    {
+                        try
+                        {
+                            Ice.BooleanHolder accepted = new Ice.BooleanHolder();
+                            password = requestPassword("Certificate Password For <" + alias + "> - IceGrid Admin",
+                                                       "Certificate password for <" + alias + ">:", accepted);
+                            if(accepted.value)
+                            {
+                                key = keyStore.getKey(alias, password);
+                            }
+                            break;
+                        }
+                        catch(java.security.UnrecoverableKeyException ex)
+                        {
+                            JOptionPane.showMessageDialog(this, "Invalid certificate password", 
+                                                          "Invalid certificate password", 
+                                                          JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                    if(key == null)
+                    {
+                        continue;
+                    }
                     Certificate[] chain = keyStore.getCertificateChain(alias);
 
                     String newAlias = alias;                                     
@@ -4428,34 +4504,13 @@ public class SessionKeeper
         {
             super(parent, title, true);
             setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            addWindowListener(new WindowAdapter()
-                {
-                    @Override
-                    public void windowActivated(WindowEvent e)
-                    {
-                        if(_msg != null)
-                        {
-                            JOptionPane.showMessageDialog(getOwner(), "Permission denied: " + _msg, "Login failed",
-                                                          JOptionPane.ERROR_MESSAGE);
-                            _msg = null;
-                        }
-                    }
-                });
         }
 
         public void showDialog()
         {
-            showDialog(null);
-        }
-
-        public void showDialog(String msg)
-        {
-            _msg = msg;
             setLocationRelativeTo(getOwner());
             setVisible(true);
         }
-
-        String _msg = null;
     }
 
     private void login(final JDialog parent, final ConnectionInfo info)
@@ -4494,11 +4549,32 @@ public class SessionKeeper
                             builder.append(new JLabel("Password"), _password);
                             builder.nextLine();
                             _storePassword = new JCheckBox("Save Password.");
+                            _storePassword.setEnabled(_password.getPassword() != null && 
+                                                      _password.getPassword().length > 0);
+                            _password.getDocument().addDocumentListener(new DocumentListener()
+                                {
+                                    public void changedUpdate(DocumentEvent e)
+                                    {
+                                        _storePassword.setEnabled(_password.getPassword() != null && 
+                                                                  _password.getPassword().length > 0);
+                                    }
+                                    public void removeUpdate(DocumentEvent e)
+                                    {
+                                        _storePassword.setEnabled(_password.getPassword() != null &&
+                                                                  _password.getPassword().length > 0);
+                                    }
+                                    public void insertUpdate(DocumentEvent e)
+                                    {
+                                        _storePassword.setEnabled(_password.getPassword() != null && 
+                                                                  _password.getPassword().length > 0);
+                                    }
+                                });
                             builder.append("", _storePassword);
                             builder.nextLine();
                         }
                         
-                        if(info.getUseX509Certificate() && (info.getKeyPassword() == null || info.getKeyPassword().length == 0))
+                        if(info.getUseX509Certificate() && (info.getKeyPassword() == null || 
+                                                            info.getKeyPassword().length == 0))
                         {
                             _keyAlias = new JTextField(20);
                             _keyAlias.setText(info.getAlias());
@@ -4509,6 +4585,26 @@ public class SessionKeeper
                             builder.append(new JLabel("Key Password"), _keyPassword);
                             builder.nextLine();
                             _storeKeyPassword = new JCheckBox("Save Key Password.");
+                            _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                         _keyPassword.getPassword().length > 0);
+                            _keyPassword.getDocument().addDocumentListener(new DocumentListener()
+                                {
+                                    public void changedUpdate(DocumentEvent e)
+                                    {
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                     _keyPassword.getPassword().length > 0);
+                                    }
+                                    public void removeUpdate(DocumentEvent e)
+                                    {
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                     _keyPassword.getPassword().length > 0);
+                                    }
+                                    public void insertUpdate(DocumentEvent e)
+                                    {
+                                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                     _keyPassword.getPassword().length > 0);
+                                    }
+                                });
                             builder.append("", _storeKeyPassword);
                             builder.nextLine();
                         }
@@ -4521,9 +4617,6 @@ public class SessionKeeper
                         {
                             public void actionPerformed(ActionEvent e)
                             {
-                                Cursor oldCursor = UsernamePasswordAuthDialog.this.getCursor();
-                                UsernamePasswordAuthDialog.this.setCursor(
-                                                                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                                 if(_session != null)
                                 {
                                     logout(true);
@@ -4540,9 +4633,21 @@ public class SessionKeeper
                                     info.setStoreKeyPassword(_storeKeyPassword.isSelected());
                                 }
 
-                                Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                _coordinator.login(SessionKeeper.this, info, UsernamePasswordAuthDialog.this, 
-                                                   oldCursor, keepAlivePeriodHolder);
+                                if(checkCertificateRequirePassword(info.getAlias()) && 
+                                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                                {
+                                    dispose();
+                                    permissionDenied(parent, info, "Invalid certificate password");
+                                }
+                                else
+                                {
+                                    Cursor oldCursor = parent.getCursor();
+                                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    dispose();
+                                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+                                    _coordinator.login(SessionKeeper.this, info,parent, oldCursor, 
+                                                       keepAlivePeriodHolder);
+                                }
                             }
                         };
                     okButton.setAction(okAction);
@@ -4575,13 +4680,20 @@ public class SessionKeeper
                 private JCheckBox _storeKeyPassword;
             }
 
-            if((info.getPassword() != null && info.getPassword().length > 0) &&
-               ((info.getUseX509Certificate() && info.getKeyPassword() != null && info.getKeyPassword().length > 0) ||
-                (info.getUseX509Certificate() && !checkCertificateRequirePassword(info.getAlias())) ||
-                (!info.getUseX509Certificate())))
+            //
+            // If there isn't a store password or the certificate requires a password 
+            // and the password isn't provided, we show the login dialog.
+            //
+            if((info.getPassword() == null || info.getPassword().length == 0) ||
+               (info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) && 
+                (info.getKeyPassword() == null || info.getKeyPassword().length == 0)))
             {
-                Cursor oldCursor = parent.getCursor();
-                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                _authDialog = new UsernamePasswordAuthDialog();
+                Utils.addEscapeListener(_authDialog);
+                _authDialog.showDialog();
+            }
+            else
+            {
                 if(_session != null)
                 {
                     logout(true);
@@ -4591,28 +4703,14 @@ public class SessionKeeper
                 if(info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) &&
                    !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                 {
-                    parent.setCursor(oldCursor);
                     permissionDenied(parent, info, "Invalid certificate password");
                 }
                 else
                 {
+                    Cursor oldCursor = parent.getCursor();
+                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
                     _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
-                }
-            }
-            else
-            {
-                
-                if(info.getUseX509Certificate() && checkCertificateRequirePassword(info.getAlias()) &&
-                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
-                {
-                    permissionDenied(parent, info, "Invalid certificate password");
-                }
-                else
-                {
-                    _authDialog = new UsernamePasswordAuthDialog();
-                    Utils.addEscapeListener(_authDialog);
-                    _authDialog.showDialog();
                 }
             }
         }
@@ -4633,7 +4731,29 @@ public class SessionKeeper
                         DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                         builder.border(Borders.DIALOG);
 
-                        builder.append(new JLabel("Key Password"), _password);
+                        builder.append(new JLabel("Key Password"), _keyPassword);
+                        builder.nextLine();
+                        _storeKeyPassword = new JCheckBox("Save Key Password.");
+                        _storeKeyPassword.setEnabled(false);
+                        _keyPassword.getDocument().addDocumentListener(new DocumentListener()
+                            {
+                                public void changedUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                                public void removeUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                                public void insertUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                            });
+                        builder.append("", _storeKeyPassword);
                         builder.nextLine();
                         contentPane.add(builder.getPanel());
                     }
@@ -4643,21 +4763,29 @@ public class SessionKeeper
                         {
                             public void actionPerformed(ActionEvent e)
                             {
-                                Cursor oldCursor = X509CertificateAuthDialog.this.getCursor();
-                                X509CertificateAuthDialog.this.setCursor(
-                                                                        Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-
                                 if(_session != null)
                                 {
                                     logout(true);
                                 }
                                 assert _session == null;
 
+                                info.setKeyPassword(_keyPassword.getPassword());
 
-                                info.setKeyPassword(_password.getPassword());
-                                Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                _coordinator.login(SessionKeeper.this, info, X509CertificateAuthDialog.this, oldCursor, 
-                                                   keepAlivePeriodHolder);
+                                if(checkCertificateRequirePassword(info.getAlias()) && 
+                                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                                {
+                                    dispose();
+                                    permissionDenied(parent, info, "Invalid certificate password");
+                                }
+                                else
+                                {
+                                    Cursor oldCursor = parent.getCursor();
+                                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    dispose();
+                                    Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
+                                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor, 
+                                                       keepAlivePeriodHolder);
+                                }
                             }
                         };
                     okButton.setAction(okAction);
@@ -4682,44 +4810,40 @@ public class SessionKeeper
                     setResizable(false);
                 }
 
-                private JPasswordField _password = new JPasswordField(20);
+                private JPasswordField _keyPassword = new JPasswordField(20);
+                private JCheckBox _storeKeyPassword;
             }
 
-            if((info.getPassword() != null && info.getPassword().length > 0) &&
-               ((info.getUseX509Certificate() && info.getKeyPassword() != null && info.getKeyPassword().length > 0) ||
-                (info.getUseX509Certificate() && !checkCertificateRequirePassword(info.getAlias())) ||
-                (!info.getUseX509Certificate())))
+            //
+            // If the certificate requires a password and the password isn't provided, we 
+            // show the login dialog.
+            //
+            if((info.getKeyPassword() == null || info.getKeyPassword().length == 0) && 
+                checkCertificateRequirePassword(info.getAlias()))
             {
-                Cursor oldCursor = parent.getCursor();
-                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                _authDialog = new X509CertificateAuthDialog();
+                Utils.addEscapeListener(_authDialog);
+                _authDialog.showDialog();
+            }
+            else
+            {
                 if(_session != null)
                 {
                     logout(true);
                 }
                 assert _session == null;
 
-                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
+                if(checkCertificateRequirePassword(info.getAlias()) && 
+                   !checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
                 {
-                    parent.setCursor(oldCursor);
                     permissionDenied(parent, info, "Invalid certificate password");
                 }
                 else
                 {
+                    Cursor oldCursor = parent.getCursor();
+                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                     Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
                     _coordinator.login(SessionKeeper.this, info, parent, oldCursor, keepAlivePeriodHolder);
-                }
-            }
-            else
-            {
-                Utils.addEscapeListener(_authDialog);
-                if(!checkCertificatePassword(info.getAlias(), info.getKeyPassword()))
-                {
-                    permissionDenied(parent, info, "Invalid certificate password");
-                }
-                else
-                {
-                    _authDialog = new X509CertificateAuthDialog();
-                    _authDialog.showDialog();
                 }
             }
         }
@@ -4773,7 +4897,7 @@ public class SessionKeeper
                             {
                                 public void run()
                                 {
-                                    _authDialog.setCursor(oldCursor);
+                                    _connectionManagerDialog.setCursor(oldCursor);
                                 }
                             });
                         return;
@@ -4783,12 +4907,6 @@ public class SessionKeeper
                         {
                             public void run()
                             {
-                                if(_authDialog != null)
-                                {
-                                    _authDialog.setCursor(oldCursor);
-                                    _authDialog.dispose();
-                                    _authDialog = null;
-                                }
                                 _connectionManagerDialog.setCursor(oldCursor);
                                 _connectionManagerDialog.setVisible(false);
                                 if(!info.getStorePassword())
@@ -4850,6 +4968,26 @@ public class SessionKeeper
                         builder.nextLine();
                         _storePassword = new JCheckBox("Save Password.");
                         _storePassword.setSelected(true);
+                        _storePassword.setEnabled(_password.getPassword() != null && 
+                                                  _password.getPassword().length > 0);
+                        _password.getDocument().addDocumentListener(new DocumentListener()
+                            {
+                                public void changedUpdate(DocumentEvent e)
+                                {
+                                    _storePassword.setEnabled(_password.getPassword() != null && 
+                                                              _password.getPassword().length > 0);
+                                }
+                                public void removeUpdate(DocumentEvent e)
+                                {
+                                    _storePassword.setEnabled(_password.getPassword() != null && 
+                                                              _password.getPassword().length > 0);
+                                }
+                                public void insertUpdate(DocumentEvent e)
+                                {
+                                    _storePassword.setEnabled(_password.getPassword() != null &&
+                                                              _password.getPassword().length > 0);
+                                }
+                            });
                         builder.append("", _storePassword);
                         builder.nextLine();
                     }
@@ -4870,6 +5008,27 @@ public class SessionKeeper
                         builder.nextLine();
                         _storeKeyPassword = new JCheckBox("Save Key Password.");
                         _storeKeyPassword.setSelected(true);
+                        _storeKeyPassword.setEnabled(false);
+                        _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                     _keyPassword.getPassword().length > 0);
+                        _keyPassword.getDocument().addDocumentListener(new DocumentListener()
+                            {
+                                public void changedUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                                public void removeUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                                public void insertUpdate(DocumentEvent e)
+                                {
+                                    _storeKeyPassword.setEnabled(_keyPassword.getPassword() != null && 
+                                                                 _keyPassword.getPassword().length > 0);
+                                }
+                            });
                         builder.append("", _storeKeyPassword);
                         builder.nextLine();
                     }
@@ -4881,9 +5040,6 @@ public class SessionKeeper
                     {
                         public void actionPerformed(ActionEvent e)
                         {
-                            Cursor oldCursor = PermissionDeniedAuthDialog.this.getCursor();
-                            PermissionDeniedAuthDialog.this.setCursor(
-                                                                    Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                             if(_session != null)
                             {
                                 logout(true);
@@ -4899,18 +5055,22 @@ public class SessionKeeper
                             {
                                 info.setKeyPassword(_keyPassword.getPassword());
                                 info.setStoreKeyPassword(_storeKeyPassword.isSelected());
-                                certificatePasswordMatch = checkCertificatePassword(info.getAlias(), info.getKeyPassword());
+                                certificatePasswordMatch = checkCertificatePassword(info.getAlias(), 
+                                                                                    info.getKeyPassword());
                             }
 
                             if(!certificatePasswordMatch)
                             {
-                                PermissionDeniedAuthDialog.this.setCursor(oldCursor);
+                                dispose();
                                 permissionDenied(parent, info, "Invalid certificate password");
                             }
                             else
                             {
+                                Cursor oldCursor = parent.getCursor();
+                                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                dispose();
                                 Ice.LongHolder keepAlivePeriodHolder = new Ice.LongHolder();
-                                _coordinator.login(SessionKeeper.this, info, PermissionDeniedAuthDialog.this, 
+                                _coordinator.login(SessionKeeper.this, info, parent,
                                                    oldCursor, keepAlivePeriodHolder);
                             }
                         }
@@ -4938,8 +5098,8 @@ public class SessionKeeper
                         }
                     });
 
-                JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton, cancelButton).
-                                                                                                  addGlue().build();
+                JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton, 
+                                                                                  cancelButton).addGlue().build();
                 buttonBar.setBorder(Borders.DIALOG);
                 contentPane.add(buttonBar);
 
@@ -4956,16 +5116,12 @@ public class SessionKeeper
             private JCheckBox _storeKeyPassword;
         }
 
-        if(_authDialog == null)
-        {
-            _authDialog = new PermissionDeniedAuthDialog();
-            Utils.addEscapeListener(_authDialog);
-            _authDialog.showDialog(msg);
-        }
-        else
-        {
-            JOptionPane.showMessageDialog(parent, "Permission denied: " + msg, "Login failed", JOptionPane.ERROR_MESSAGE);
-        }
+        JOptionPane.showMessageDialog(parent, "Permission denied: " + msg, "Login failed", 
+                                      JOptionPane.ERROR_MESSAGE);
+
+        _authDialog = new PermissionDeniedAuthDialog();
+        Utils.addEscapeListener(_authDialog);
+        _authDialog.showDialog();
     }
 
     void sessionLost(String message)
