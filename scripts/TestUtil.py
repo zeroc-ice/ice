@@ -96,7 +96,9 @@ def getCppCompiler():
 def isMINGW():
     if not isWin32():
         return False
-    return getCppCompiler() == "MINGW"
+    # Ruby Installer DEVKIT sets the RI_DEVKIT environment variable,
+    # we check for this variable to detect the Ruby MINGW environment.
+    return os.environ.has_key("RI_DEVKIT")
 
 def isVC90():
     if not isWin32():

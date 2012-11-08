@@ -12,20 +12,13 @@
 #
 
 #
-# build with CygWin MinGW?
-#
-#ifeq ($(CygWin), yes)
-#   CXX         = i686-pc-mingw32-c++
-#endif
-
-#
 # Default compiler is c++ (aka g++).
 #
 ifeq ($(CXX),)
    CXX          = c++
 endif
 
-CXXFLAGS        = $(CXXARCHFLAGS) -fexceptions -mthreads -Wall -DWIN32_LEAN_AND_MEAN
+CXXFLAGS       	= $(CXXARCHFLAGS) -fexceptions -mthreads -Wall -DWIN32_LEAN_AND_MEAN
 LDFLAGS         = -Wl,-no-undefined 
 
 ifeq ($(CXX), i686-pc-mingw32-c++)
@@ -33,24 +26,56 @@ ifeq ($(CXX), i686-pc-mingw32-c++)
 endif
 
 ifeq ($(OPTIMIZE),yes)
-	CXXFLAGS		+= -O2 -DNDEBUG
+    CXXFLAGS		+= -O2 -DNDEBUG
 else
-	CXXFLAGS		+= -g -D_DEBUG
-	LIBSUFFIX		= d
+    CXXFLAGS		+= -g -D_DEBUG
+    LIBSUFFIX		= d
 endif
 
-COMPSUFFIX			= mingw_
+COMPSUFFIX	= mingw_
+
+mklibfilename	= $(shell echo $(1) | tr A-Z a-z)$(COMPSUFFIX)$(SOVERSION).dll
+
+ifeq ($(STATICLIBS),yes)
+    mklibtargets	= $(3)
+else
+    mklibtargets	= $(1)
+endif
 
 #
-# MinGW lib names
+# Shared library linking command. We transform -lxxx parameters into
+# -lxxxmingw_3.5.dll here to avoid having to fix all the Makefiles
+# which need to link with the MinGW libraries.
 #
-ICEUTIL_LIBNAME		= iceutil$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
-SLICE_LIBNAME		= slice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
-ICE_LIBNAME			= ice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
-ICESSL_LIBNAME  	= icessl$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX)
+mkshlib			= $(CXX) -shared $(LDFLAGS) -o $(1) $(3) \
+			  $(subst cpp/lib,cpp/bin, \
+			  $(subst -lIce,-lice$(COMPSUFFIX)$(SOVERSION), \
+			  $(subst -lIceUtil,-liceutil$(COMPSUFFIX)$(SOVERSION), \
+			  $(subst -lSlice,-lslice$(COMPSUFFIX)$(SOVERSION), \
+			  $(subst -lIceSSL,-licessl$(COMPSUFFIX)$(SOVERSION),$(4))))))
 
-BASELIBS			= -l$(ICEUTIL_LIBNAME)
-LIBS				= -l$(ICE_LIBNAME) $(BASELIBS)
+mklib			= ar cr $(1) $(2)
+
+libdir			= $(top_srcdir)/bin
+libsubdir	  	= bin
+
+installlib		= $(INSTALL) $(2)/$(3) $(1); \
+			  chmod a+rx $(1)/$(3) 
+
+installprogram		= $(INSTALL_PROGRAM) $(1) $(2); \
+			  chmod a+rx $(2)/$(notdir $(1).exe)
+
+CPPFLAGS		:= -I$(THIRDPARTY_HOME)/include $(CPPFLAGS) 
+LDPLATFORMFLAGS		:= -L$(THIRDPARTY_HOME)/bin $(LDFLAGS)
+
+OPENSSL_LIBS            = -leay32_mingw -lssleay32_mingw -lws2_32
+MCPP_LIBS               = -L$(THIRDPARTY_HOME)/lib/mingw -lmcpp
+BZIP2_LIBS		= -lbzip2_mingw
+
+BASELIBS		= -liceutil$(COMPSUFFIX)$(SOVERSION)
+LIBS			= -lice$(COMPSUFFIX)$(SOVERSION) $(BASELIBS) 
+ICESSL_LIBS             = -licessl$(COMPSUFFIX)$(SOVERSION) $(LIBS)
+SLICE_LIBS		= -lslice$(COMPSUFFIX)$(SOVERSION) $(BASELIBS)
+
 ICEUTIL_OS_LIBS		= -lrpcrt4  -ladvapi32
-ICE_OS_LIBS			= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32
-
+ICE_OS_LIBS		= $(ICEUTIL_OS_LIBS) -lIphlpapi -lws2_32

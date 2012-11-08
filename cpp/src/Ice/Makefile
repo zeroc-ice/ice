@@ -9,17 +9,10 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/config/Make.rules.common
-
-ifeq ($(MinGW), yes)
-	DLLNAME		= $(top_srcdir)/bin/ice$(COMPSUFFIX)$(SOVERSION)$(LIBSUFFIX).dll
-	TARGETS		= $(DLLNAME) $(LIBNAME)
-else
-	LIBFILENAME	= $(call mklibfilename,Ice,$(VERSION))
-	SONAME		= $(call mksoname,Ice,$(SOVERSION))  
-	LIBNAME		= $(call mklibname,Ice)
-	TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
-endif
+LIBFILENAME	= $(call mklibfilename,Ice,$(VERSION))
+SONAME		= $(call mksoname,Ice,$(SOVERSION))  
+LIBNAME		= $(call mklibname,Ice)
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 OBJS		= Acceptor.o \
 		  Application.o \
@@ -123,11 +116,10 @@ OBJS		= Acceptor.o \
 		  UdpTransceiver.o \
 		  Version.o
 
-ifneq ($(MinGW), yes)
+ifeq ($(findstring MINGW,$(shell uname)),)
 OBJS		:= $(OBJS) \
 		  SysLoggerI.o
 endif
-
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  DLLMain.cpp
@@ -178,18 +170,18 @@ SDIR		= $(slicedir)/Ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS $(BZIP2_FLAGS)
+ifneq ($(COMPSUFFIX),)
+CPPFLAGS	:= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
+endif
 SLICE2CPPFLAGS	:= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
-ifeq ($(MinGW), yes)
-CPPFLAGS	:= $(CPPFLAGS) -DCOMPSUFFIX=\"$(COMPSUFFIX)\"
-LINKWITH        := $(ICE_OS_LIBS) -l$(ICEUTIL_LIBNAME) $(BZIP2_LIBS) 
-$(DLLNAME): $(OBJS)
-	$(CXX) -shared $(LDFLAGS) -o $(DLLNAME) $(OBJS) $(LINKWITH)
-
-install:: all
-	$(call installprogram,$(DLLNAME),$(install_bindir))
-else
 LINKWITH        := -lIceUtil $(BZIP2_LIBS) $(ICONV_LIBS) $(ICE_OS_LIBS)
+
+ifeq ($(STATICLIBS),yes)
+$(libdir)/$(LIBNAME): $(OBJS)
+	rm -f $@
+	$(call mklib,$@,$(OBJS))
+else
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
@@ -201,9 +193,9 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
+endif
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
-endif
 
 include .depend

@@ -10,10 +10,10 @@
 top_srcdir	= ../../..
 
 PLUGINLIBFILENAME	= $(call mklibfilename,TestPlugin,$(VERSION))
-PLUGINSONAME	= $(call mksoname,TestPlugin,$(SOVERSION))  
-PLUGINLIBNAME	= $(call mklibname,TestPlugin)
-CLIENT		= client
-PLUGINDIR	= plugins
+PLUGINSONAME		= $(call mksoname,TestPlugin,$(SOVERSION))  
+PLUGINLIBNAME		= $(call mklibname,TestPlugin)
+CLIENT			= client
+PLUGINDIR		= plugins
 
 TARGETS		= $(CLIENT) $(call mklibtargets,$(PLUGINDIR)/$(PLUGINLIBFILENAME),$(PLUGINDIR)/$(PLUGINSONAME),$(PLUGINDIR)/$(PLUGINLIBNAME))
 

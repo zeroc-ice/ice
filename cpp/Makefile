@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= config src include test
 
-ifneq ($(MinGW), yes)
+ifeq ($(shell uname | grep MINGW),)
 SUBDIRS		:= $(SUBDIRS) demo
 endif
 

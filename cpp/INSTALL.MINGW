@@ -8,10 +8,8 @@ instructions for building and testing the distribution.
 
   http://www.zeroc.com/download.html
 
-MinGW is only supported for building the Ice extension for Ruby. 
-
-MinGW is not supported for general application development in this 
-release.
+MinGW is only supported for building the Ice extension for Ruby. It is
+not supported for general application development.
 
 
 ======================================================================
@@ -22,35 +20,26 @@ Requirements
 Windows version
 ---------------
 
-Ice for MinGW is only supported in Windows XP and Windows 7.
+Ice for MinGW is only supported on Windows XP and Windows 7.
 
 
-MinGW Setup
-------------
+MinGW version 
+-------------
 
-The only supported MinGW version is the one that is included in the
-Ruby Development Kit, which you can download here:
+The only supported MinGW version is the one included in the Ruby
+Development Kit 4.5.2, which you can download here:
 
   http://rubyinstaller.org/downloads/
 
 You must download the file DevKit-tdm-32-4.5.2-20111229-1559-sfx.exe,
 which is a self-extracting archive.
 
-To build Ice with MinGW, you also need to install Cygwin. The Cygwin
-installer is available at:
 
-  http://www.cygwin.com/install.html
-
-When installing Cygwin, make sure you select "make" in the package
-list. You do not need to install the MinGW packages from Cygwin.
-
-Ruby Setup
-----------
+Ruby version
+------------
 
 You must install Ruby 1.9.3 using the Windows installer available
-at RubyInstaller:
-
-   http://rubyinstaller.org/downloads/
+at http://rubyinstaller.org/downloads
 
 The default installation directory is C:\Ruby193
 
@@ -91,16 +80,16 @@ Compilation and Testing
 Using your favorite Zip tool, unzip the Ice source archive anywhere 
 you like.
 
-Open a Cygwin command prompt and change the working directory to the
+Open a Windows command prompt and change the working directory to the
 location of the extracted source archive. For example:
 
-$ cd ~/Ice-@ver@/cpp
+> cd C:\Ice-@ver@\cpp
 
-Update your PATH to include MinGW from the Ruby Development Kit. For
-example, if you installed the kit into C:\RubyDevKit-4.5.2, you would
-update PATH as follows:
+Run the devkitvars.bat batch file from the Ruby development kit to
+setup your environment. For example, if you installed the development
+kit in C:\RubyDevKit-4.5.2, run the following:
 
-$ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+> C:\RubyDevKit-4.5.2\devkitvars.bat
 
 Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. In particular, if 
@@ -109,21 +98,23 @@ set THIRDPARTY_HOME to the Ice third-party installation directory.
 
 Now you are ready to build Ice:
 
-$ make
+> make
 
-This will build the Ice core, libraries, and tests.
+This will build the C++ and Ruby slice translators, the Ice core,
+IceSSL and C++ tests.
 
 Python is required to run the test suite:
 
   http://www.python.org/download
 
-After a successful build, you can run the test suite. Open a Windows
-(not Cygwin) command prompt and change the working directory to
-Ice-@ver@:
+After a successful build, you can run the test suite.
 
-> set PATH=%PATH%;C:\Ruby193\bin
-> cd C:\Ice-@ver@\cpp
-> set CPP_COMPILER=MINGW
+First, add Ruby to your environment:
+
+> C:\Ruby193\bin\setrbvars.bat
+
+Next, run the test suite:
+
 > python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
@@ -134,6 +125,6 @@ case of a failure, the tests abort with "failed".
 Installation
 ======================================================================
 
-From a Cygwin command prompt, simply run "make install". This will
+From the command prompt, simply run "make install". This will
 install Ice in the directory specified by the "prefix" variable in
 config/Make.rules.

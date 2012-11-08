@@ -31,18 +31,14 @@ GENPIC          = no
 
 include $(top_srcdir)/config/Make.rules
 
-ifneq ($(MinGW), yes)
-ICESSL_LIBNAME = IceSSL
-endif
-
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS) 
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS) $(OPENSSL_RPATH_LINK) -l$(ICESSL_LIBNAME)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(OPENSSL_RPATH_LINK) $(ICESSL_LIBS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS) $(OPENSSL_RPATH_LINK) -l$(ICESSL_LIBNAME)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(OPENSSL_RPATH_LINK) $(ICESSL_LIBS)
 
 include .depend

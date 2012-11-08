@@ -11,16 +11,15 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-
-ifeq ($(MinGW), yes)
-	SUBDIRS		= IceUtil \
+ifneq ($(findstring MINGW,$(UNAME)),)
+    SUBDIRS		= IceUtil \
 			  Slice \
 			  slice2cpp \
 			  slice2rb \
 			  Ice \
 			  IceSSL
 else
-	SUBDIRS		= IceUtil \
+    SUBDIRS		= IceUtil \
 			  Slice \
 			  slice2cpp \
 			  slice2cs \

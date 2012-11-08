@@ -14,10 +14,9 @@ Build Environment
 
 To build Ice for Ruby you must have the following:
 
- - Ice @ver@ for C++
- - Ruby 1.9.3
- - MinGW from Ruby Development Kit
- - Cygwin with make package
+- Ice @ver@ for C++
+- Ruby 1.9.3
+- Ruby Development Kit 4.5.2
 
 The Ruby distribution for Windows uses the MinGW compiler, therefore
 MinGW is the only compiler supported by Ice for Ruby.
@@ -46,12 +45,6 @@ your build environment:
 
    http://rubyinstaller.org/downloads/
    
-4. You have installed Cygwin and included the "make" package in your
-   installation. See the link below for more information on installing
-   Cygwin:
-
-   http://cygwin.com/install.html
-
 
 If you selected different installation directories, you will need to
 modify the relevant path names in the steps below to match your
@@ -68,29 +61,30 @@ Compiling Ice for Ruby
 
 Follow these steps to build the Ice extension for Ruby:
 
-1) Open a Cygwin command prompt
+1) Open a Windows command prompt
 
-2) Add Ruby to your PATH:
+2) Add Ruby to your environment:
 
-  $ export PATH=/cygdrive/c/Ruby193/bin:$PATH
+  > C:\Ruby193\bin\setrbvars.bat
 
 3) Add MinGW from the Ruby Development Kit to your PATH:
 
-  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+  > C:\RubyDevKit-4.5.2\devkitvars.bat
 
 4) Change to the Ice for Ruby source directory:
 
-   $ cd Ice-@ver@/rb
+   > cd Ice-@ver@/rb
 
-5) If you installed the Ice @ver@ distribution in a non-standard
-   location, set the ICE_HOME environment variable with the Ice
+5) If you have not built Ice for C++ from the cpp subdirectory or if
+   you have installed the Ice @ver@ for C++ development kit in a
+   non-standard location, set the ICE_HOME environment variable to the
    installation directory. For example:
 
-   $ export ICE_HOME=C:\Ice-@ver@
+   > set ICE_HOME=C:\Ice-@ver@
 
 6) Run make:
 
-   $ make
+   > make
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
@@ -106,7 +100,7 @@ test suite. Python is required to run the test suite:
 The test suites require that the Ice for C++ tests be built in the cpp
 subdirectory of this source distribution.
 
-Open a Windows (not Cygwin) command window and change to the top-level
+Open a Windows command prompt and change to the top-level
 directory. At the command prompt, execute:
 
   > python allTests.py

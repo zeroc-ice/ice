@@ -15,8 +15,8 @@ SUBDIRS		= Ice \
 		  IceSSL \
 		  IceUtil \
 		  Slice
-		  
-ifneq ($(MinGW), yes)
+
+ifeq ($(findstring MINGW,$(UNAME)),)
 SUBDIRS		:= $(SUBDIRS) \
 		Freeze \
 		Glacier2 \

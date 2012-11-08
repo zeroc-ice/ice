@@ -1708,8 +1708,8 @@ Ice::ConnectionI::finish()
             // _sendStreams to not call finished on a message which is already done.
             //
             if(message->requestId > 0 &&
-               (message->out && _requests.find(message->requestId) == _requests.end() ||
-                message->outAsync && _asyncRequests.find(message->requestId) == _asyncRequests.end()))
+               ((message->out && _requests.find(message->requestId) == _requests.end()) ||
+                (message->outAsync && _asyncRequests.find(message->requestId) == _asyncRequests.end())))
             {
                 if(message->sent(this, true))
                 {

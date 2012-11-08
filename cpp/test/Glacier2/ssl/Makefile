@@ -31,6 +31,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS) -lGlacier2 $(OPENSSL_RPATH_LINK) -lIceSSL
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ICESSL_LIBS) -lGlacier2 $(OPENSSL_RPATH_LINK)
 
 include .depend

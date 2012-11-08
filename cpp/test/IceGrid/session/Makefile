@@ -43,7 +43,7 @@ $(VERIFIER): $(VOBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier2 -lIceSSL $(LIBS) $(OPENSSL_RPATH_LINK)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier2 $(ICESSL_LIBS) $(OPENSSL_RPATH_LINK)
 
 clean::
 	-rm -rf db/node db/registry db/node-1 db/replica-*

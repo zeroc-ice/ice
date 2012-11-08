@@ -15,15 +15,15 @@ SUBDIRS		= IceUtil \
 		  Slice \
 		  Ice \
                   IceSSL
-		  
-ifneq ($(MinGW), yes)
+
+ifeq ($(findstring MINGW,$(UNAME)),)
 SUBDIRS		:= $(SUBDIRS) \
-			  IceBox \
-			  IceStorm \
-			  Freeze \
-			  FreezeScript \
-			  Glacier2 \
-			  IceGrid
+		   IceBox \
+		   IceStorm \
+		   Freeze \
+		   FreezeScript \
+		   Glacier2 \
+		   IceGrid
 endif
 
 

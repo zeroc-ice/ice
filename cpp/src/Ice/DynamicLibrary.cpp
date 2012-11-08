@@ -142,7 +142,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
     lib += version;
 
-#   ifdef _DEBUG
+#   if defined(_DEBUG) && !defined(__MINGW32__)
     lib += 'd';
 #   endif
 
