@@ -211,6 +211,13 @@ InitialI::setI(const IPtr&, const Ice::Current&)
 }
 
 
+BaseSeq
+InitialI::opBaseSeq(const BaseSeq& inSeq, BaseSeq& outSeq, const Ice::Current&)
+{
+    outSeq = inSeq;
+    return inSeq;
+}
+
 IPtr
 InitialI::getJ(const Ice::Current&)
 {

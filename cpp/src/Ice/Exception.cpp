@@ -137,11 +137,6 @@ Ice::UserException::__usesClasses() const
     return false;
 }
 
-void
-Ice::UserException::__usesClasses(bool)
-{
-}
-
 Ice::LocalException::LocalException(const char* file, int line) :
     Exception(file, line)
 {

@@ -91,6 +91,8 @@ class H implements I
 {
 };
 
+sequence<Base> BaseSeq;
+
 class Initial
 {
     void shutdown();
@@ -108,6 +110,8 @@ class Initial
     I getH();
 
     void setI(I theI);
+
+    BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 };
 
 class Empty

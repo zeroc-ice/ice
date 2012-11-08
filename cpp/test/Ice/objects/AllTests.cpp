@@ -215,6 +215,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     initial->setI(h);
     cout << "ok" << endl;
 
+    cout << "testing sequences..." << flush;
+    BaseSeq inS, outS, retS;
+    retS = initial->opBaseSeq(inS, outS);
+
+    inS.resize(1);
+    inS[0] = new Base();
+    retS = initial->opBaseSeq(inS, outS);
+    cout << "ok" << endl;
+
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;

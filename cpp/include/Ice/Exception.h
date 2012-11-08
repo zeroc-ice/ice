@@ -64,7 +64,6 @@ public:
     virtual void __read(const InputStreamPtr&);
   
     virtual bool __usesClasses() const;
-    virtual void __usesClasses(bool);
 
 protected:
 

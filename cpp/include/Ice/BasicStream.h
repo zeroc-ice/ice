@@ -369,20 +369,8 @@ public:
         _currentReadEncaps->decoder->skipSlice();
     }
 
-    void readPendingObjects()
-    {
-        if(_currentReadEncaps && _currentReadEncaps->decoder)
-        {
-            _currentReadEncaps->decoder->readPendingObjects();
-        }
-    }
-    void writePendingObjects()
-    {
-        if(_currentWriteEncaps && _currentWriteEncaps->encoder)
-        {
-            _currentWriteEncaps->encoder->writePendingObjects();
-        }
-    }
+    void readPendingObjects();
+    void writePendingObjects();
 
     void writeSize(Ice::Int v) // Inlined for performance reasons.
     {
@@ -802,16 +790,8 @@ public:
     void writeEnum(Ice::Int, Ice::Int);
 
     // Exception
-    void writeException(const Ice::UserException& e)
-    {
-        initWriteEncaps();
-        _currentWriteEncaps->encoder->write(e);
-    }
-    void throwException(const UserExceptionFactoryPtr& factory = 0)
-    {
-        initReadEncaps();
-        _currentReadEncaps->decoder->throwException(factory);
-    }
+    void writeException(const Ice::UserException&);
+    void throwException(const UserExceptionFactoryPtr& = 0);
 
     void sliceObjects(bool);
 
@@ -909,7 +889,7 @@ private:
     public:
         EncapsDecoder(BasicStream* stream, ReadEncaps* encaps, bool sliceObjects) :
             _stream(stream), _encaps(encaps), _sliceObjects(sliceObjects), _traceSlicing(-1), _sliceType(NoSlice),
-            _usesClasses(false), _typeIdIndex(0)
+            _typeIdIndex(0)
         {
         } 
 
@@ -960,7 +940,6 @@ private:
         bool _skipFirstSlice;
         Ice::SliceInfoSeq _slices;          // Preserved slices.
         IndexListList _indirectionTables;   // Indirection tables for the preserved slices.
-        bool _usesClasses;
 
         // Slice attributes
         Ice::Byte _sliceFlags;
@@ -979,7 +958,7 @@ private:
     {
     public:
         EncapsEncoder(BasicStream* stream, WriteEncaps* encaps) : 
-            _stream(stream), _encaps(encaps), _sliceType(NoSlice), _usesClasses(false), _objectIdIndex(0), 
+            _stream(stream), _encaps(encaps), _sliceType(NoSlice), _objectIdIndex(0), 
             _typeIdIndex(0)
         {
         }
@@ -1030,8 +1009,6 @@ private:
         // Object/exception attributes
         SliceType _sliceType;
         bool _firstSlice;
-        bool _usesClasses;
-        Container::size_type _usesClassesPos;
 
         // Slice attributes
         Ice::Byte _sliceFlags;

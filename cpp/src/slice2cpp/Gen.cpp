@@ -877,6 +877,20 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
+    if(!p->isLocal() && p->usesClasses())
+    {
+        if(!base || (base && !base->usesClasses()))
+        {
+            H << sp << nl << "virtual bool __usesClasses() const;";
+
+            C << sp << nl << "bool";
+            C << nl << scoped.substr(2) << "::__usesClasses() const";
+            C << sb;
+            C << nl << "return true;";
+            C << eb;
+        }
+    }
+
     if(!dataMembers.empty())
     {
         H << sp;
@@ -2156,6 +2170,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << opFormatTypeToString(p) <<");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
+        if(p->sendsClasses())
+        {
+            C << nl << "__os->writePendingObjects();";
+        }
         C << nl << "__result->__endWriteParams();";
     }
     C << nl << "__result->__send(true);";
@@ -2703,6 +2721,10 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
+        if(p->sendsClasses())
+        {
+            C << nl << "__os->writePendingObjects();";
+        }
         C << nl << "__og.endWriteParams();";
         C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
@@ -4262,6 +4284,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams("
                   << opFormatTypeToString(p) << ");";
                 writeMarshalCode(C, outParams, p);
+                if(p->returnsClasses())
+                {
+                    C << nl << "__os->writePendingObjects();";
+                }
                 C << nl << "__inS.__endWriteParams(true);";
             }
             else
@@ -5883,6 +5909,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p, TypeContextInParam);
+        if(p->returnsClasses())
+        {
+            C << nl << "__os->writePendingObjects();";
+        }
         C << nl << "__endWriteParams(true);";
         C << eb;
         C << nl << "catch(const ::Ice::Exception& __ex)";

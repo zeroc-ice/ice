@@ -111,6 +111,8 @@ public:
 
     virtual void setI(const Test::IPtr&, const Ice::Current&);
 
+    virtual Test::BaseSeq opBaseSeq(const Test::BaseSeq&, Test::BaseSeq&, const Ice::Current&);
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;
