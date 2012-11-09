@@ -339,6 +339,12 @@ for d in ["democs", "demovb"]:
                 if fnmatch.fnmatch(f, m):
                     rmFiles.append(os.path.join(root[len(winDemoDir) + 1:], f))
 
+            for m in [ "*.csproj", "*.vbproj" ]:
+                if fnmatch.fnmatch(f, m):
+                    FixUtil.fileMatchAndReplace(os.path.join(root, f),
+		    				[(re.escape("PublicKeyToken=1f998c50fec78381"),
+						  "PublicKeyToken=cdd571ade22f2f16")], False)
+
 for d in ["demo", "democs", "demovb"]:
     for root, dirnames, filesnames in os.walk(os.path.join(winDemoDir, d)):
         for f in filesnames:
