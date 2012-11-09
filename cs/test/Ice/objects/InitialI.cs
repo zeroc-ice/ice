@@ -93,6 +93,12 @@ public sealed class InitialI : Initial
     {
     }
     
+    public override Base[] opBaseSeq(Base[] inS, out Base[] outS, Ice.Current current)
+    {
+        outS = inS;
+        return inS;
+    }
+
     public override void shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();

@@ -21,6 +21,9 @@ import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.Base;
+import test.Ice.objects.Test.S;
+import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.InitialPrx;
 import test.Ice.objects.Test.InitialPrxHelper;
 import test.Ice.objects.Test.J;
@@ -199,6 +202,19 @@ public class AllTests
         initial.setI(i);
         initial.setI(j);
         initial.setI(h);
+        out.println("ok");
+        
+        out.print("testing sequences...");
+        out.flush();
+        Base[] inS = new Base[0];
+        BaseSeqHolder outS = new BaseSeqHolder();
+        Base[] retS;
+        retS = initial.opBaseSeq(inS, outS);
+
+        inS = new Base[1];
+        inS[0] = new Base(new S(), "");
+        retS = initial.opBaseSeq(inS, outS);
+        test(retS.length == 1 && outS.value.length == 1);
         out.println("ok");
 
         if(!collocated)

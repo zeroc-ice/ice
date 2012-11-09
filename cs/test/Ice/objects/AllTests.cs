@@ -231,6 +231,19 @@ public class AllTests : TestCommon.TestApp
         initial.setI(h);
         WriteLine("ok");
 
+        Write("testing sequences...");
+        Flush();
+        Base[] inS = new Base[0];
+        Base[] outS;
+        Base[] retS;
+        retS = initial.opBaseSeq(inS, out outS);
+
+        inS = new Base[1];
+        inS[0] = new Base(new S(), "");
+        retS = initial.opBaseSeq(inS, out outS);
+        test(retS.Length == 1 && outS.Length == 1);
+        WriteLine("ok");
+
         if(!collocated)
         {
             Write("testing UnexpectedObjectException...");

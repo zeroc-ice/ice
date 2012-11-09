@@ -610,6 +610,20 @@ namespace IceInternal
             if(_readEncapsStack != null && _readEncapsStack.decoder != null)
             {
                 _readEncapsStack.decoder.readPendingObjects();
+                _readEncapsStack.decoder = null;
+            }
+            else if(_readEncapsStack.encoding_1_0)
+            {
+                //
+                // If using the 1.0 encoding and no objects were read, we
+                // still read an empty sequence of pending objects if
+                // requested (i.e.: if this is called).
+                //
+                // This is required by the 1.0 encoding, even if no objects
+                // are written we do marshal an empty sequence if marshaled
+                // data types use classes.
+                //
+                skipSize();
             }
         }
 
@@ -618,6 +632,20 @@ namespace IceInternal
             if(_writeEncapsStack != null && _writeEncapsStack.encoder != null)
             {
                 _writeEncapsStack.encoder.writePendingObjects();
+                _writeEncapsStack.encoder = null;
+            }
+            else if(_writeEncapsStack.encoding_1_0)
+            {
+                //
+                // If using the 1.0 encoding and no objects were written, we
+                // still write an empty sequence for pending objects if
+                // requested (i.e.: if this is called).
+                // 
+                // This is required by the 1.0 encoding, even if no objects
+                // are written we do marshal an empty sequence if marshaled
+                // data types use classes.
+                //
+                writeSize(0);
             }
         }
 
@@ -3092,12 +3120,26 @@ namespace IceInternal
         {
             initWriteEncaps();
             _writeEncapsStack.encoder.writeUserException(v);
+
+            //
+            // Reset the encoder, the writing of the exception wrote
+            // pending objects if any.
+            //
+            _writeEncapsStack.encoder = null;
         }
 
         public void throwException(UserExceptionFactory factory)
         {
             initReadEncaps();
-            _readEncapsStack.decoder.throwException(factory);
+            try
+            {
+                _readEncapsStack.decoder.throwException(factory);
+            }
+            catch(Ice.UserException ex)
+            {
+                _readEncapsStack.decoder = null;
+                throw ex;
+            }
         }
 
         public void sliceObjects(bool b)
@@ -3588,7 +3630,6 @@ namespace IceInternal
                 _sliceObjects = sliceObjects;
                 _traceSlicing = -1;
                 _sliceType = SliceType.NoSlice;
-                _usesClasses = false;
                 _typeIdIndex = 0;
                 _slices = new List<Ice.SliceInfo>();
                 _indirectionTables = new List<int[]>();
@@ -3607,7 +3648,6 @@ namespace IceInternal
                     // Object references are encoded as a negative integer in 1.0.
                     //
                     index = _stream.readInt();
-                    _usesClasses = true;
                     if(index > 0)
                     {
                         throw new Ice.MarshalException("invalid object id");
@@ -3652,18 +3692,23 @@ namespace IceInternal
             {
                 Debug.Assert(_sliceType == SliceType.NoSlice);
 
+                //
+                // User exception with the 1.0 encoding start with a boolean flag
+                // that indicates whether or not the exception has classes.
+                //
+                // This allows reading the pending objects even if some part of
+                // the exception was sliced. With encoding > 1.0, we don't need
+                // this, each slice indirect patch table indicates the presence of
+                // objects.
+                //
+                bool usesClasses;
                 if(_encaps.encoding_1_0)
                 {
-                    //
-                    // User exception with the 1.0 encoding start with a bool
-                    // flag that indicates whether or not the exception has
-                    // classes. This allows reading the pending objects even if
-                    // some the exception was sliced. With encoding > 1.0, we
-                    // don't need this, each slice indirect patch table indicates
-                    // the presence of objects.
-                    //
-                    bool usesClasses = _stream.readBool();
-                    _usesClasses |= usesClasses;
+                    usesClasses = _stream.readBool();
+                }
+                else
+                {
+                    usesClasses = true; // Always call readPendingObjects.
                 }
 
                 _sliceType = SliceType.ExceptionSlice;
@@ -3704,7 +3749,10 @@ namespace IceInternal
                     if(userEx != null)
                     {
                         userEx.read__(_stream);
-                        readPendingObjects();
+                        if(usesClasses)
+                        {
+                            readPendingObjects();
+                        }
                         throw userEx;
 
                         // Never reached.
@@ -4042,29 +4090,24 @@ namespace IceInternal
             internal void readPendingObjects()
             {
                 //
-                // With the 1.0 encoding, read pending objects if nil or non-nil
-                // references were read (_usesClasses == true). Otherwise, read
-                // pending objects only if some non-nil references were read.
+                // With the 1.0 encoding, we read pending objects if the marshaled
+                // data uses classes. Otherwise, only read pending objects if some
+                // non-nil references were read.
                 //
-                if(_encaps.encoding_1_0)
+                if(!_encaps.encoding_1_0)
                 {
-                    if(!_usesClasses)
+                    if(_patchMap.Count == 0)
                     {
                         return;
                     }
-                    _usesClasses = false;
-                }
-                else if(_patchMap.Count == 0)
-                {
-                    return;
-                }
-                else
-                {
-                    //
-                    // Read unread encapsulation optionals before reading the
-                    // pending objects.
-                    //
-                    _stream.skipOpts();
+                    else
+                    {
+                        //
+                        // Read unread encapsulation optionals before reading the
+                        // pending objects.
+                        //
+                        _stream.skipOpts();
+                    }
                 }
 
                 int num;
@@ -4403,7 +4446,6 @@ namespace IceInternal
             private bool _skipFirstSlice;
             private List<Ice.SliceInfo> _slices;     // Preserved slices.
             private List<int[]> _indirectionTables;
-            private bool _usesClasses;
 
             // Slice attributes
             private byte _sliceFlags;
@@ -4431,7 +4473,6 @@ namespace IceInternal
                 _stream = stream;
                 _encaps = encaps;
                 _sliceType = SliceType.NoSlice;
-                _usesClasses = false;
                 _objectIdIndex = 0;
                 _typeIdIndex = 0;
                 _indirectionTable = new List<int>();
@@ -4456,7 +4497,6 @@ namespace IceInternal
                         // Object references are encoded as a negative integer in 1.0.
                         //
                         _stream.writeInt(-index);
-                        _usesClasses = true;
                     }
                     else if(_sliceType != SliceType.NoSlice && _encaps.format == Ice.FormatType.SlicedFormat)
                     {
@@ -4497,7 +4537,6 @@ namespace IceInternal
                     if(_encaps.encoding_1_0)
                     {
                         _stream.writeInt(0);
-                        _usesClasses = true;
                     }
                     else
                     {
@@ -4508,8 +4547,31 @@ namespace IceInternal
 
             internal void writeUserException(Ice.UserException v)
             {
+                //
+                // User exception with the 1.0 encoding start with a boolean
+                // flag that indicates whether or not the exception uses
+                // classes. 
+                //
+                // This allows reading the pending objects even if some part of
+                // the exception was sliced. With encoding > 1.0, we don't need
+                // this, each slice indirect patch table indicates the presence of
+                // objects.
+                //
+                bool usesClasses;
+                if(_encaps.encoding_1_0)
+                {
+                    usesClasses = v.usesClasses__();
+                    _stream.writeBool(usesClasses);
+                }
+                else
+                {
+                    usesClasses = true; // Always call writePendingObjects
+                }
                 v.write__(_stream);
-                writePendingObjects();
+                if(usesClasses)
+                {
+                    writePendingObjects();
+                }
             }
 
             internal void startObject(Ice.SlicedData data)
@@ -4540,11 +4602,6 @@ namespace IceInternal
             {
                 _sliceType = SliceType.ExceptionSlice;
                 _firstSlice = true;
-                if(_encaps.encoding_1_0)
-                {
-                    _usesClassesPos = _stream.pos();
-                    _stream.writeBool(false); // Placeholder for usesClasses bool
-                }
                 if(data != null)
                 {
                     writeSlicedData(data);
@@ -4553,10 +4610,6 @@ namespace IceInternal
 
             internal void endException()
             {
-                if(_encaps.encoding_1_0)
-                {
-                    _stream.rewriteBool(_usesClasses, _usesClassesPos);
-                }
                 _sliceType = SliceType.NoSlice;
             }
 
@@ -4715,29 +4768,24 @@ namespace IceInternal
             internal void writePendingObjects()
             {
                 //
-                // With the 1.0 encoding, write pending objects if nil or non-nil
-                // references were written (_usesClasses = true). Otherwise, write
-                // pending objects only if some non-nil references were written.
+                // With the 1.0 encoding, write pending objects if the marshalled
+                // data uses classes. Otherwise with encoding > 1.0, only write
+                // pending objects if some non-nil references were written.
                 //
-                if(_encaps.encoding_1_0)
+                if(!_encaps.encoding_1_0)
                 {
-                    if(!_usesClasses)
+                    if(_toBeMarshaledMap.Count == 0)
                     {
                         return;
                     }
-                    _usesClasses = false;
-                }
-                else if(_toBeMarshaledMap.Count == 0)
-                {
-                    return;
-                }
-                else
-                {
-                    //
-                    // Write end marker for encapsulation optionals before encoding
-                    // the pending objects.
-                    //
-                    _stream.writeByte((byte)Ice.OptionalFormat.EndMarker);
+                    else
+                    {
+                        //
+                        // Write end marker for encapsulation optionals before encoding
+                        // the pending objects.
+                        //
+                        _stream.writeByte((byte)Ice.OptionalFormat.EndMarker);
+                    }
                 }
 
                 while(_toBeMarshaledMap.Count > 0)
@@ -4863,8 +4911,6 @@ namespace IceInternal
             // Object/exception attributes
             private SliceType _sliceType;
             private bool _firstSlice;
-            private bool _usesClasses;
-            private int _usesClassesPos;
 
             // Slice attributes
             private byte _sliceFlags;

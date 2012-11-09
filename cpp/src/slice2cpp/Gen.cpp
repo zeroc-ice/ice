@@ -2237,6 +2237,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIEnd);
+            if(p->returnsClasses())
+            {
+                C << nl << "__is->readPendingObjects();";
+            }
             C << nl << "__result->__endReadParams();";
         }
         else
@@ -2303,6 +2307,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIPrivateEnd);
+            if(p->returnsClasses())
+            {
+                C << nl << "__is->readPendingObjects();";
+            }
             C << nl << "__result->__endReadParams();";
         }
         else
@@ -2807,6 +2815,10 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
         writeUnmarshalCode(C, outParams, p);
+        if(p->returnsClasses())
+        {
+            C << nl << "__is->readPendingObjects();";
+        }
         C << nl << "__og.endReadParams();";
     }
     else
@@ -4260,6 +4272,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
+                if(p->sendsClasses())
+                {
+                    C << nl << "__is->readPendingObjects();";
+                }
                 C << nl << "__inS.endReadParams();";
             }
             else
@@ -4318,6 +4334,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
+                if(p->sendsClasses())
+                {
+                    C << nl << "__is->readPendingObjects();";
+                }
                 C << nl << "__inS.endReadParams();";
             }
             else

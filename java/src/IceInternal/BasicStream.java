@@ -585,6 +585,20 @@ public class BasicStream
         if(_readEncapsStack != null && _readEncapsStack.decoder != null)
         {
             _readEncapsStack.decoder.readPendingObjects();
+            _readEncapsStack.decoder = null;
+        }
+        else if(_readEncapsStack.encoding_1_0)
+        {
+            //
+            // If using the 1.0 encoding and no objects were read, we
+            // still read an empty sequence of pending objects if
+            // requested (i.e.: if this is called).
+            //
+            // This is required by the 1.0 encoding, even if no objects
+            // are written we do marshal an empty sequence if marshaled
+            // data types use classes.
+            //
+            skipSize();
         }
     }
 
@@ -594,6 +608,20 @@ public class BasicStream
         if(_writeEncapsStack != null && _writeEncapsStack.encoder != null)
         {
             _writeEncapsStack.encoder.writePendingObjects();
+            _writeEncapsStack.encoder = null;
+        }
+        else if(_writeEncapsStack.encoding_1_0)
+        {
+            //
+            // If using the 1.0 encoding and no objects were written, we
+            // still write an empty sequence for pending objects if
+            // requested (i.e.: if this is called).
+            // 
+            // This is required by the 1.0 encoding, even if no objects
+            // are written we do marshal an empty sequence if marshaled
+            // data types use classes.
+            //
+            writeSize(0);
         }
     }
 
@@ -2072,6 +2100,12 @@ public class BasicStream
     {
         initWriteEncaps();
         _writeEncapsStack.encoder.writeUserException(e);
+
+        //
+        // Reset the encoder, the writing of the exception wrote
+        // pending objects if any.
+        //
+        _writeEncapsStack.encoder = null;
     }
 
     public void
@@ -2079,7 +2113,15 @@ public class BasicStream
         throws Ice.UserException
     {
         initReadEncaps();
-        _readEncapsStack.decoder.throwException(factory);
+        try
+        {
+            _readEncapsStack.decoder.throwException(factory);
+        }
+        catch(Ice.UserException ex)
+        {
+            _readEncapsStack.decoder = null;
+            throw ex;
+        }
     }
 
     public void
@@ -2768,7 +2810,6 @@ public class BasicStream
             _sliceObjects = sliceObjects;
             _traceSlicing = -1;
             _sliceType = SliceType.NoSlice;
-            _usesClasses = false;
             _typeIdIndex = 0;
             _slices = new java.util.ArrayList<Ice.SliceInfo>();
             _indirectionTables = new java.util.ArrayList<int[]>();
@@ -2787,7 +2828,6 @@ public class BasicStream
                 // Object references are encoded as a negative integer in 1.0.
                 //
                 index = _stream.readInt();
-                _usesClasses = true;
                 if(index > 0)
                 {
                     throw new Ice.MarshalException("invalid object id");
@@ -2833,18 +2873,23 @@ public class BasicStream
         {
             assert(_sliceType == SliceType.NoSlice);
 
+            //
+            // User exception with the 1.0 encoding start with a boolean flag
+            // that indicates whether or not the exception has classes.
+            //
+            // This allows reading the pending objects even if some part of
+            // the exception was sliced. With encoding > 1.0, we don't need
+            // this, each slice indirect patch table indicates the presence of
+            // objects.
+            //
+            boolean usesClasses;
             if(_encaps.encoding_1_0)
             {
-                //
-                // User exception with the 1.0 encoding start with a boolean
-                // flag that indicates whether or not the exception has
-                // classes. This allows reading the pending objects even if
-                // some the exception was sliced. With encoding > 1.0, we
-                // don't need this, each slice indirect patch table indicates
-                // the presence of objects.
-                //
-                boolean usesClasses = _stream.readBool();
-                _usesClasses |= usesClasses;
+                usesClasses = _stream.readBool();
+            }
+            else
+            {
+                usesClasses = true; // Always call readPendingObjects.
             }
 
             _sliceType = SliceType.ExceptionSlice;
@@ -2885,7 +2930,10 @@ public class BasicStream
                 if(userEx != null)
                 {
                     userEx.__read(_stream);
-                    readPendingObjects();
+                    if(usesClasses)
+                    {
+                        readPendingObjects();
+                    }
                     throw userEx;
 
                     // Never reached.
@@ -3224,29 +3272,24 @@ public class BasicStream
         void readPendingObjects()
         {
             //
-            // With the 1.0 encoding, read pending objects if nil or non-nil
-            // references were read (_usesClasses == true). Otherwise, read
-            // pending objects only if some non-nil references were read.
+            // With the 1.0 encoding, we read pending objects if the marshaled
+            // data uses classes. Otherwise, only read pending objects if some
+            // non-nil references were read.
             //
-            if(_encaps.encoding_1_0)
+            if(!_encaps.encoding_1_0)
             {
-                if(!_usesClasses)
+                if(_patchMap.isEmpty())
                 {
                     return;
                 }
-                _usesClasses = false;
-            }
-            else if(_patchMap.isEmpty())
-            {
-                return;
-            }
-            else
-            {
-                //
-                // Read unread encapsulation optionals before reading the
-                // pending objects.
-                //
-                _stream.skipOpts();
+                else
+                {
+                    //
+                    // Read unread encapsulation optionals before reading the
+                    // pending objects.
+                    //
+                    _stream.skipOpts();
+                }
             }
 
             int num;
@@ -3588,7 +3631,6 @@ public class BasicStream
         private boolean _skipFirstSlice;
         private java.util.ArrayList<Ice.SliceInfo> _slices;     // Preserved slices.
         private java.util.ArrayList<int[]> _indirectionTables;
-        private boolean _usesClasses;
 
         // Slice attributes
         private byte _sliceFlags;
@@ -3616,7 +3658,6 @@ public class BasicStream
             _stream = stream;
             _encaps = encaps;
             _sliceType = SliceType.NoSlice;
-            _usesClasses = false;
             _objectIdIndex = 0;
             _typeIdIndex = 0;
             _indirectionTable = new java.util.ArrayList<Integer>();
@@ -3641,7 +3682,6 @@ public class BasicStream
                     // Object references are encoded as a negative integer in 1.0.
                     //
                     _stream.writeInt(-index);
-                    _usesClasses = true;
                 }
                 else if(_sliceType != SliceType.NoSlice && _encaps.format == Ice.FormatType.SlicedFormat)
                 {
@@ -3682,7 +3722,6 @@ public class BasicStream
                 if(_encaps.encoding_1_0)
                 {
                     _stream.writeInt(0);
-                    _usesClasses = true;
                 }
                 else
                 {
@@ -3693,8 +3732,31 @@ public class BasicStream
 
         void writeUserException(Ice.UserException v)
         {
+            //
+            // User exception with the 1.0 encoding start with a boolean
+            // flag that indicates whether or not the exception uses
+            // classes. 
+            //
+            // This allows reading the pending objects even if some part of
+            // the exception was sliced. With encoding > 1.0, we don't need
+            // this, each slice indirect patch table indicates the presence of
+            // objects.
+            //
+            boolean usesClasses;
+            if(_encaps.encoding_1_0)
+            {
+                usesClasses = v.__usesClasses();
+                _stream.writeBool(usesClasses);
+            }
+            else
+            {
+                usesClasses = true; // Always call writePendingObjects
+            }
             v.__write(_stream);
-            writePendingObjects();
+            if(usesClasses)
+            {
+                writePendingObjects();
+            }
         }
 
         void startObject(Ice.SlicedData data)
@@ -3725,11 +3787,6 @@ public class BasicStream
         {
             _sliceType = SliceType.ExceptionSlice;
             _firstSlice = true;
-            if(_encaps.encoding_1_0)
-            {
-                _usesClassesPos = _stream.pos();
-                _stream.writeBool(false); // Placeholder for usesClasses boolean
-            }
             if(data != null)
             {
                 writeSlicedData(data);
@@ -3738,10 +3795,6 @@ public class BasicStream
 
         void endException()
         {
-            if(_encaps.encoding_1_0)
-            {
-                _stream.rewriteBool(_usesClasses, _usesClassesPos);
-            }
             _sliceType = SliceType.NoSlice;
         }
 
@@ -3900,29 +3953,24 @@ public class BasicStream
         void writePendingObjects()
         {
             //
-            // With the 1.0 encoding, write pending objects if nil or non-nil
-            // references were written (_usesClasses = true). Otherwise, write
-            // pending objects only if some non-nil references were written.
+            // With the 1.0 encoding, write pending objects if the marshalled
+            // data uses classes. Otherwise with encoding > 1.0, only write
+            // pending objects if some non-nil references were written.
             //
-            if(_encaps.encoding_1_0)
+            if(!_encaps.encoding_1_0)
             {
-                if(!_usesClasses)
+                if(_toBeMarshaledMap.isEmpty())
                 {
                     return;
                 }
-                _usesClasses = false;
-            }
-            else if(_toBeMarshaledMap.isEmpty())
-            {
-                return;
-            }
-            else
-            {
-                //
-                // Write end marker for encapsulation optionals before encoding
-                // the pending objects.
-                //
-                _stream.writeByte((byte)Ice.OptionalFormat.EndMarker.value());
+                else
+                {
+                    //
+                    // Write end marker for encapsulation optionals before encoding
+                    // the pending objects.
+                    //
+                    _stream.writeByte((byte)Ice.OptionalFormat.EndMarker.value());
+                }
             }
 
             while(_toBeMarshaledMap.size() > 0)
@@ -4047,8 +4095,6 @@ public class BasicStream
         // Object/exception attributes
         private SliceType _sliceType;
         private boolean _firstSlice;
-        private boolean _usesClasses;
-        private int _usesClassesPos;
 
         // Slice attributes
         private byte _sliceFlags;

@@ -870,6 +870,10 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 }
             }
             writeMarshalUnmarshalParams(inParams, 0, false);
+            if(op->sendsClasses())
+            {
+                _out << nl << "is__.readPendingObjects();";
+            }
             _out << nl << "inS__.endReadParams();";
         }
         else
@@ -940,6 +944,10 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 _out << nl << "IceInternal.BasicStream os__ = inS__.startWriteParams__("
                      << opFormatTypeToString(op) << ");";
                 writeMarshalUnmarshalParams(outParams, op, true);
+                if(op->returnsClasses())
+                {
+                    _out << nl << "os__.writePendingObjects();";
+                }
                 _out << nl << "inS__.endWriteParams__(true);";
             }
             else
@@ -3600,6 +3608,16 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
        
+        if((!base || (base && !base->usesClasses())) && p->usesClasses())
+        {
+            _out << sp;
+            emitGeneratedCodeAttribute();
+            _out << nl << "public override bool usesClasses__()";
+            _out << sb;
+            _out << nl << "return true;";
+            _out << eb;
+        }
+
         if(preserved && !basePreserved)
         {
             _out << sp << nl << "protected Ice.SlicedData slicedData__;";
@@ -4975,6 +4993,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
                 writeMarshalUnmarshalParams(outParams, op, false);
+                if(op->returnsClasses())
+                {
+                    _out << nl << "is__.readPendingObjects();";
+                }
                 _out << nl << "outAsync__.endReadParams__();";
                 writePostUnmarshalParams(outParams, op);
                 if(ret)
@@ -5038,6 +5060,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "IceInternal.BasicStream os__ = result__.startWriteParams__("
                  << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(inParams, 0, true);
+            if(op->sendsClasses())
+            {
+                _out << nl << "os__.writePendingObjects();";
+            }
             _out << nl << "result__.endWriteParams__();";
         }
         else
@@ -5921,6 +5947,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = og__.startWriteParams(" << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(inParams, 0, true);
+            if(op->sendsClasses())
+            {
+                _out << nl << "os__.writePendingObjects();";
+            }
             _out << nl << "og__.endWriteParams();";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";
@@ -6019,6 +6049,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
             writeMarshalUnmarshalParams(outParams, op, false);
+            if(op->returnsClasses())
+            {
+                _out << nl << "is__.readPendingObjects();";
+            }
             _out << nl << "og__.endReadParams();";
             writePostUnmarshalParams(outParams, op);
         }
@@ -6539,6 +6573,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = startWriteParams__(" << opFormatTypeToString(p) << ");";
             writeMarshalUnmarshalParams(outParams, p, true);
+            if(p->returnsClasses())
+            {
+                _out << nl << "os__.writePendingObjects();";
+            }
             _out << nl << "endWriteParams__(true);";
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";

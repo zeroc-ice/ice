@@ -186,6 +186,11 @@ namespace Ice
             is__.endException(false);
         }
 
+        public virtual bool usesClasses__()
+        {
+            return false;
+        }
+
         protected abstract void writeImpl__(IceInternal.BasicStream os__);
         protected abstract void readImpl__(IceInternal.BasicStream is__);
         

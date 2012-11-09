@@ -101,6 +101,12 @@ public abstract class UserException extends Exception implements Cloneable
         is.endException(false);
     }
 
+    public boolean
+    __usesClasses()
+    {
+        return false;
+    }
+
     protected abstract void
     __writeImpl(IceInternal.BasicStream os);
 

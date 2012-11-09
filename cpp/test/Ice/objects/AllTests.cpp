@@ -222,6 +222,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     inS.resize(1);
     inS[0] = new Base();
     retS = initial->opBaseSeq(inS, outS);
+    test(retS.size() == 1 && outS.size() == 1);
     cout << "ok" << endl;
 
     if(!collocated)

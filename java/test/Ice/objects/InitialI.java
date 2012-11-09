@@ -18,6 +18,8 @@ import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.Base;
+import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.Initial;
 
 
@@ -132,6 +134,13 @@ public final class InitialI extends Initial
     public void
     setI(I theI, Ice.Current current)
     {
+    }
+
+    public Base[]
+    opBaseSeq(Base[] inS, BaseSeqHolder outS, Ice.Current current)
+    {
+        outS.value = inS;
+        return inS;
     }
 
     public void
