@@ -11,23 +11,25 @@ release notes.
 Table of Contents
 -----------------
 
-  1. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
-  2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010 Express)
-  3. Building and running the .NET demos
-     - Building the C# demos
-     - Building the Visual Basic demos
-     - Running .NET demos
-     - SSL Notes for the .NET demos
-  4. Building and running the .NET Compact Framework demo
-  5. Building and running the Java demos
-  6. Building and running the Android demos
-  7. Running the Python demos
-  8. Running the Ruby demos
-  9. Building and running the PHP demos
+  1.  Building and running the C++ demos (Visual Studio 2010SP1 or 2012)
+  2.  Building and running the C++ demos (Visual C++ 2010SP1 or 2012 Express)
+  3.  Building and running the C++ WinRT demos (Visual Studio 2012 & Windows 8)
+  4.  Building and running the .NET demos
+      - Building the C# demos
+      - Building the Visual Basic demos
+      - Running .NET demos
+      - SSL Notes for the .NET demos
+  5.  Building and running the .NET Compact Framework demo
+  6.  Building and running the Silverlight demos
+  7.  Building and running the Java demos
+  8.  Building and running the Android demos
+  9.  Running the Python demos
+  10. Running the Ruby demos
+  11. Building and running the PHP demos
 
 
 ======================================================================
-1. Building and running the C++ demos (Visual Studio 2008SP1 or 2010)
+1. Building and running the C++ demos (Visual Studio 2010SP1 or 2012)
 ======================================================================
 
 The C++ demos are in the demo directory.
@@ -37,8 +39,8 @@ Studio Add-In, installed as part of the installation of the Ice binary
 distribution.
 
 To build the C++ demos, start Visual Studio and open the solution
-demo\demo-vs2008.sln or demo\demo-vs2010.sln, depending on the
-version of Visual Studio you are using.
+demo\demo.sln, if you are using Visual Studio 2012 the demo projects
+will be converted first to Visual Studio 2012.
 
 Select your target configuration: Debug or Release, Win32 or x64 (on
 supported x64 platforms). Right click on the desired demo in the
@@ -50,12 +52,12 @@ to start the server. In another command window, type 'client' to start
 the client.
 
 This distribution also includes a few demos for integrating Ice with
-Oracle. Open the solution demo\demo-oracle-vs2008.sln or
-demo\demo-oracle-vs2010.sln to build the corresponding projects.
+Oracle. Open the solution demo\demo-oracle.sln to build the corresponding 
+projects (TODO what VS version).
 
 
 ======================================================================
-2. Building and running the C++ demos (Visual C++ 2008SP1 or 2010
+2. Building and running the C++ demos (Visual C++ 20010SP1 or 2012
    Express)
 ======================================================================
 
@@ -73,8 +75,8 @@ below:
 Change to the demo directory and run the following commands to build
 the demos:
 
-  > set CPP_COMPILER=VC90_EXPRESS   # (For Visual C++ 2008SP1)
-  > set CPP_COMPILER=VC100_EXPRESS  # (For Visual C++ 2010)
+  > set CPP_COMPILER=VC100_EXPRESS   # (For Visual C++ 2010SP1)
+  > set CPP_COMPILER=VC110_EXPRESS  # (For Visual C++ 2012)
   > nmake /f Makefile.mak
 
 Note that the Ice demos that require MFC (demo\Ice\MFC and
@@ -85,9 +87,30 @@ To run a demo, change to the desired demo subdirectory and review the
 README file if one is present. Type 'server' to start the server. In
 another command window, type 'client' to start the client.
 
+======================================================================
+3. Building and running the C++ WinRT demos (Visual Studio 2012)
+======================================================================
+
+The C++ demos are in the demo directory.
+
+Note that the Visual Studio project files require the Ice Visual
+Studio Add-In, installed as part of the installation of the Ice binary
+distribution.
+
+WinRT requires Windows 8 with Visual Studio 2012.
+
+To build the C++ WinRT demos, start Visual Studio 2012 and open the 
+solution demo\demo-winrt.sln.
+
+Select your target configuration: Debug or Release, Win32 or x64 (on
+supported x64 platforms). Right click on the desired demo in the
+Solution Explorer window and select "Build".
+
+To run a demo review the README.txt file in the demo project.
+
 
 ======================================================================
-3. Building and running the .NET demos
+4. Building and running the .NET demos
 ======================================================================
 
 Note that the Visual Studio project files require the Ice Visual
@@ -148,7 +171,7 @@ remove the certificate:
 
 
 ======================================================================
-4. Building and running the .NET Compact Framework demo
+5. Building and running the .NET Compact Framework demo (Visual Studio 2008)
 ======================================================================
 
 Note that the Visual Studio project file requires the Ice Visual
@@ -162,17 +185,35 @@ To build the demo, start Visual Studio and open the solution
 democs\democf.sln. Right click on the demo in the Solution Explorer
 window and select "Build".
 
-Review the README file in the democs\Ice\compact subdirectory for
+Review the README.txt file in the democs\Ice\compact subdirectory for
 instructions on starting a device emulator and deploying the program.
 
 
 ======================================================================
-5. Building and running the Java demos
+6. Building and running the Silverlight demos (Visual Studio 2010SP1)
+======================================================================
+
+Note that the Visual Studio project file requires the Ice Visual
+Studio Add-In, installed as part of the installation of the Ice binary
+distribution.
+
+The demos for Silverlight are located in democs\Ice\sl and 
+democs\Glacier2\sl subidrectories.
+
+To build the demo, start Visual Studio 2010 and open the solution
+democs\demosl.sln. Right click on the demo in the Solution Explorer
+window and select "Build".
+
+To run a demo review the README.txt file in the demo project.
+
+
+======================================================================
+7. Building and running the Java demos
 ======================================================================
 
 The Java demos are in the demoj directory.
 
-To build the Java demos, you need J2SE SDK 1.5.0 or later, and Ant
+To build the Java demos, you need J2SE SDK 1.6.0 or later, and Ant
 1.7.0 or later. They can be downloaded from:
 
   http://www.oracle.com/technetwork/java/javase/overview/index.html
@@ -215,7 +256,7 @@ are necessary.
 
 
 ======================================================================
-6. Building and running the Android demos
+8. Building and running the Android demos
 ======================================================================
 
 Several sample Android projects are provided in the demoj/android
@@ -249,7 +290,7 @@ subdirectory for further instructions.
 
 
 ======================================================================
-7. Running the Python demos
+9. Running the Python demos
 ======================================================================
 
 The Python demos are in the demopy directory.
@@ -265,15 +306,15 @@ separate command window, type 'python Client.py' to run the client.
 
 
 ======================================================================
-8. Running the Ruby demos
+10. Running the Ruby demos
 ======================================================================
 
 The Ruby demos are in the demorb directory.
 
-You need Ruby 1.8.6 to run the demos. A binary installer for Ruby
+You need Ruby 1.9.3 to run the demos. A binary installer for Ruby
 can be downloaded from:
 
-  http://rubyforge.org/projects/rubyinstaller/
+  http://rubyinstaller.org/downloads/
 
 Since Ice for Ruby does not support server-side activities, only
 clients are provided in the demos. In order to run the demos you must
@@ -292,7 +333,7 @@ Then in a separate command window, start the Ruby client:
 
 
 ======================================================================
-9. Building and running the PHP demos
+11. Building and running the PHP demos
 ======================================================================
 
 PHP demos are provided in the demophp directory.
