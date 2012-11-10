@@ -991,7 +991,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 }
                 iter = 0;
                 writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
-                if(op->sendsClasses())
+                if(op->sendsClasses(false))
                 {
                     out << nl << "__is.readPendingObjects();";
                 }
@@ -1056,7 +1056,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                 out << nl << "IceInternal.BasicStream __os = __inS.__startWriteParams(" 
                     << opFormatTypeToString(op) << ");";
                 writeMarshalUnmarshalParams(out, package, outParams, op, iter, true, optionalMapping, true);
-                if(op->returnsClasses())
+                if(op->returnsClasses(false))
                 {
                     out << nl << "__os.writePendingObjects();";
                 }
@@ -1134,7 +1134,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     }
                 }
                 writeMarshalUnmarshalParams(out, package, inParams, 0, iter, false, true, true);
-                if(op->sendsClasses())
+                if(op->sendsClasses(false))
                 {
                     out << nl << "__is.readPendingObjects();";
                 }
@@ -3366,9 +3366,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
         }
         
-        if(p->usesClasses())
+        if(p->usesClasses(false))
         {
-	    if(!base || (base && !base->usesClasses()))
+	    if(!base || (base && !base->usesClasses(false)))
             {
                 out << sp << nl << "public boolean" << nl << "__usesClasses()";
                 out << sb;
@@ -4473,7 +4473,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
                 writeMarshalUnmarshalParams(out, package, pl, 0, iter, true, optionalMapping);
-                if(op->sendsClasses())
+                if(op->sendsClasses(false))
                 {
                     out << nl << "__os.writePendingObjects();";
                 }
@@ -4552,7 +4552,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                         }
                     }
                     writeMarshalUnmarshalParams(out, package, pl, op, iter, false, true);
-                    if(op->returnsClasses())
+                    if(op->returnsClasses(false))
                     {
                         out << nl << "__is.readPendingObjects();";
                     }
@@ -5485,7 +5485,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "IceInternal.BasicStream __os = __og.startWriteParams(" << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(out, package, inParams, 0, iter, true, optionalMapping);
-            if(op->sendsClasses())
+            if(op->sendsClasses(false))
             {
                 out << nl << "__os.writePendingObjects();";
             }
@@ -5532,7 +5532,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "IceInternal.BasicStream __is = __og.startReadParams();";
             writeMarshalUnmarshalParams(out, package, outParams, op, iter, false, true);
-            if(op->returnsClasses())
+            if(op->returnsClasses(false))
             {
                 out << nl << "__is.readPendingObjects();";
             }
@@ -6602,7 +6602,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 out << nl << "IceInternal.BasicStream __os = this.__startWriteParams(" 
                     << opFormatTypeToString(p) << ");";
                 writeMarshalUnmarshalParams(out, classPkg, outParams, p, iter, true, optionalMapping, false);
-                if(p->returnsClasses())
+                if(p->returnsClasses(false))
                 {
                     out << nl << "__os.writePendingObjects();";
                 }

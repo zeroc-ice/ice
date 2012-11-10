@@ -306,6 +306,17 @@ def allTests(communicator):
 
     test(mo9.bos == Ice.Unset)
 
+    #
+    # Use the 1.0 encoding with operations whose only class parameters are optional.
+    #
+    initial.sendOptionalClass(True, Test.OneOptional(53))
+    initial.ice_encodingVersion(Ice.Encoding_1_0).sendOptionalClass(True, Test.OneOptional(53))
+
+    r = initial.returnOptionalClass(True)
+    test(r != Ice.Unset)
+    r = initial.ice_encodingVersion(Ice.Encoding_1_0).returnOptionalClass(True)
+    test(r == Ice.Unset)
+
     print("ok")
 
     sys.stdout.write("testing marshaling of large containers with fixed size elements... ")
@@ -688,6 +699,16 @@ def allTests(communicator):
         test(ex.a == 30)
         test(ex.b == "test")
         test(ex.o.a == 53)
+
+    try:
+        #
+        # Use the 1.0 encoding with an exception whose only class members are optional.
+        #
+        initial.ice_encodingVersion(Ice.Encoding_1_0).opOptionalException(30, "test", Test.OneOptional(53))
+    except Test.OptionalException as ex:
+        test(ex.a == Ice.Unset)
+        test(ex.b == Ice.Unset)
+        test(ex.o == Ice.Unset)
 
     try:
         initial.opDerivedException(Ice.Unset, Ice.Unset, Ice.Unset)

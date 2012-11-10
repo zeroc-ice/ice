@@ -23,10 +23,10 @@ class InitialI(Test.Initial):
         return o
 
     def opOptionalException(self, a, b, o, current=None):
-        raise Test.OptionalException(a, b, o)
+        raise Test.OptionalException(False, a, b, o)
 
     def opDerivedException(self, a, b, o, current=None):
-        raise Test.DerivedException(a, b, o, b, o)
+        raise Test.DerivedException(False, a, b, o, b, o)
 
     def opRequiredException(self, a, b, o, current=None):
         e = Test.RequiredException()
@@ -131,6 +131,12 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional(self, p, current=None):
         pass
+
+    def sendOptionalClass(self, req, o, current=None):
+        pass
+
+    def returnOptionalClass(self, req, current=None):
+        return Test.OneOptional(5)
 
     def supportsRequiredParams(self, current=None):
         return False

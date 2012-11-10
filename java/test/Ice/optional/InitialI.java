@@ -534,6 +534,17 @@ public final class InitialI extends Initial
     {
     }
 
+    public void
+    sendOptionalClass(boolean req, Ice.Optional<OneOptional> o, Ice.Current current)
+    {
+    }
+
+    public void
+    returnOptionalClass(boolean req, Ice.Optional<OneOptional> o, Ice.Current current)
+    {
+        o.set(new OneOptional(53));
+    }
+
     public boolean
     supportsRequiredParams(Ice.Current current)
     {

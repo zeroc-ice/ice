@@ -12,6 +12,22 @@
 module Test
 {
 
+struct S
+{
+    string str;
+};
+
+class Base
+{
+    S theS;
+    string str;
+};
+
+class AbstractBase extends Base
+{
+    void op();
+};
+
 class B;
 class C;
 
@@ -75,14 +91,11 @@ class H implements I
 {
 };
 
-class K implements J
-{
-};
+sequence<Base> BaseSeq;
 
 class Initial
 {
     void shutdown();
-
     B getB1();
     B getB2();
     C getC();
@@ -97,6 +110,8 @@ class Initial
     I getH();
 
     void setI(I theI);
+
+    BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 };
 
 };

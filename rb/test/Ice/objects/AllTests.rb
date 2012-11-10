@@ -200,6 +200,14 @@ def allTests(communicator)
     initial.setI(h)
     puts "ok"
 
+    print "testing sequences... "
+    STDOUT.flush
+    initial.opBaseSeq([])
+
+    retS, outS = initial.opBaseSeq([Test::Base.new])
+    test(retS.length == 1 && outS.length == 1)
+    puts "ok"
+
     print "testing UnexpectedObjectException... "
     STDOUT.flush
     ref = "uoet:default -p 12010"

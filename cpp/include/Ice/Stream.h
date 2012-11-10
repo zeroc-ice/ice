@@ -63,6 +63,7 @@ public:
     ~UserExceptionReader() throw();
 
     virtual void read(const InputStreamPtr&) const = 0;
+    virtual bool usesClasses() const = 0;
 
     virtual ::std::string ice_name() const = 0;
     virtual UserException* ice_clone() const = 0;
@@ -70,6 +71,8 @@ public:
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
+
+    virtual bool __usesClasses() const;
 
 #ifdef __SUNPRO_CC
     using UserException::__read;
@@ -402,6 +405,7 @@ public:
     ~UserExceptionWriter() throw();
 
     virtual void write(const OutputStreamPtr&) const = 0;
+    virtual bool usesClasses() const = 0;
 
     virtual ::std::string ice_name() const = 0;
     virtual UserException* ice_clone() const = 0;
@@ -409,6 +413,8 @@ public:
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*);
+
+    virtual bool __usesClasses() const;
 
 #ifdef __SUNPRO_CC
     using UserException::__read;

@@ -877,9 +877,9 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "throw *this;";
     C << eb;
 
-    if(!p->isLocal() && p->usesClasses())
+    if(!p->isLocal() && p->usesClasses(false))
     {
-        if(!base || (base && !base->usesClasses()))
+        if(!base || (base && !base->usesClasses(false)))
         {
             H << sp << nl << "virtual bool __usesClasses() const;";
 
@@ -2170,7 +2170,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "::IceInternal::BasicStream* __os = __result->__startWriteParams(" << opFormatTypeToString(p) <<");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
-        if(p->sendsClasses())
+        if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
         }
@@ -2237,7 +2237,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIEnd);
-            if(p->returnsClasses())
+            if(p->returnsClasses(false))
             {
                 C << nl << "__is->readPendingObjects();";
             }
@@ -2307,7 +2307,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "::IceInternal::BasicStream* __is = __result->__startReadParams();";
             writeUnmarshalCode(C, outParams, p, _useWstring | TypeContextAMIPrivateEnd);
-            if(p->returnsClasses())
+            if(p->returnsClasses(false))
             {
                 C << nl << "__is->readPendingObjects();";
             }
@@ -2729,7 +2729,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl<< "::IceInternal::BasicStream* __os = __og.startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, inParams, 0, TypeContextInParam);
-        if(p->sendsClasses())
+        if(p->sendsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
         }
@@ -2815,7 +2815,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "::IceInternal::BasicStream* __is = __og.startReadParams();";
         writeUnmarshalCode(C, outParams, p);
-        if(p->returnsClasses())
+        if(p->returnsClasses(false))
         {
             C << nl << "__is->readPendingObjects();";
         }
@@ -4272,7 +4272,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
-                if(p->sendsClasses())
+                if(p->sendsClasses(false))
                 {
                     C << nl << "__is->readPendingObjects();";
                 }
@@ -4300,7 +4300,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __os = __inS.__startWriteParams("
                   << opFormatTypeToString(p) << ");";
                 writeMarshalCode(C, outParams, p);
-                if(p->returnsClasses())
+                if(p->returnsClasses(false))
                 {
                     C << nl << "__os->writePendingObjects();";
                 }
@@ -4334,7 +4334,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.startReadParams();";
                 writeAllocateCode(C, inParams, 0, _useWstring | TypeContextInParam);
                 writeUnmarshalCode(C, inParams, 0, TypeContextInParam);
-                if(p->sendsClasses())
+                if(p->sendsClasses(false))
                 {
                     C << nl << "__is->readPendingObjects();";
                 }
@@ -5929,7 +5929,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = __startWriteParams(" << opFormatTypeToString(p) << ");";
         writeMarshalCode(C, outParams, p, TypeContextInParam);
-        if(p->returnsClasses())
+        if(p->returnsClasses(false))
         {
             C << nl << "__os->writePendingObjects();";
         }

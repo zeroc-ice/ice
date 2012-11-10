@@ -485,6 +485,19 @@ public final class AMDInitialI extends Initial
     }
 
     public void
+    sendOptionalClass_async(AMD_Initial_sendOptionalClass cb, boolean req, Ice.Optional<OneOptional> o,
+                            Ice.Current current)
+    {
+        cb.ice_response();
+    }
+
+    public void
+    returnOptionalClass_async(AMD_Initial_returnOptionalClass cb, boolean req, Ice.Current current)
+    {
+        cb.ice_response(new Ice.Optional<OneOptional>(new OneOptional(53)));
+    }
+
+    public void
     supportsRequiredParams_async(AMD_Initial_supportsRequiredParams cb, Ice.Current current)
     {
         cb.ice_response(true);

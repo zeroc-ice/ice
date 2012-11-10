@@ -184,6 +184,14 @@ def allTests(communicator, collocated):
     test(d.theB.theC.postUnmarshalInvoked())
     print("ok")
 
+    sys.stdout.write("testing sequences... ")
+    sys.stdout.flush()
+    initial.opBaseSeq([])
+
+    retS, outS = initial.opBaseSeq([Test.Base()])
+    test(len(retS) == 1 and len(outS) == 1)
+    print("ok")
+
     if not collocated:
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()

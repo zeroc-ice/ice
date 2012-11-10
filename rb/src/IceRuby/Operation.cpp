@@ -65,9 +65,11 @@ private:
     ParamInfoPtr _returnType;
     ExceptionInfoList _exceptions;
     string _dispatchName;
+    bool _sendsClasses;
+    bool _returnsClasses;
     string _deprecateMessage;
 
-    void convertParams(VALUE, ParamInfoList&, int);
+    void convertParams(VALUE, ParamInfoList&, int, bool&);
     ParamInfoPtr convertParam(VALUE, int);
     void prepareRequest(const Ice::ObjectPrx&, VALUE, vector<Ice::Byte>&);
     VALUE unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
@@ -220,20 +222,26 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     //
     // returnType
     //
+    _returnsClasses = false;
     if(!NIL_P(returnType))
     {
         _returnType = convertParam(returnType, 0);
+        if(!_returnType->optional)
+        {
+            _returnsClasses = _returnType->type->usesClasses();
+        }
     }
 
     //
     // inParams
     //
-    convertParams(inParams, _inParams, 0);
+    _sendsClasses = false;
+    convertParams(inParams, _inParams, 0, _sendsClasses);
 
     //
     // outParams
     //
-    convertParams(outParams, _outParams, NIL_P(returnType) ? 0 : 1);
+    convertParams(outParams, _outParams, NIL_P(returnType) ? 0 : 1, _returnsClasses);
 
     class SortFn
     {
@@ -368,7 +376,7 @@ IceRuby::OperationI::deprecate(const string& msg)
 }
 
 void
-IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset)
+IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset, bool& usesClasses)
 {
     assert(TYPE(v) == T_ARRAY);
 
@@ -376,6 +384,10 @@ IceRuby::OperationI::convertParams(VALUE v, ParamInfoList& params, int posOffset
     {
         ParamInfoPtr param = convertParam(RARRAY_PTR(v)[i], i + posOffset);
         params.push_back(param);
+        if(!param->optional && !usesClasses)
+        {
+            usesClasses = param->type->usesClasses();
+        }
     }
 }
 
@@ -457,6 +469,11 @@ IceRuby::OperationI::prepareRequest(const Ice::ObjectPrx& proxy, VALUE args, vec
             }
         }
 
+        if(_sendsClasses)
+        {
+            os->writePendingObjects();
+        }
+
         os->endEncapsulation();
         os->finished(bytes);
     }
@@ -530,6 +547,11 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         {
             RARRAY_PTR(results)[info->pos] = Unset;
         }
+    }
+
+    if(_returnsClasses)
+    {
+        is->readPendingObjects();
     }
 
     is->endEncapsulation();

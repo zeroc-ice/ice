@@ -136,6 +136,7 @@ class WD
 
 exception OptionalException
 {
+    bool req = false;
     optional(1) int a = 5;
     optional(2) string b;
     optional(50) OneOptional o;
@@ -230,11 +231,17 @@ class Initial
 
     optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
+    optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
+
     optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
 
     optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     void opClassAndUnknownOptional(A p);
+
+    void sendOptionalClass(bool req, optional(1) OneOptional o);
+
+    void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
     bool supportsRequiredParams();
 

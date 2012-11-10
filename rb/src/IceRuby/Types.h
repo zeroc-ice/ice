@@ -109,6 +109,8 @@ public:
     virtual int wireSize() const = 0;
     virtual Ice::OptionalFormat optionalFormat() const = 0;
 
+    virtual bool usesClasses() const; // Default implementation returns false.
+
     virtual void unmarshaled(VALUE, VALUE, void*); // Default implementation is assert(false).
 
     virtual void destroy();
@@ -234,6 +236,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
+    virtual bool usesClasses() const; // Default implementation returns false.
+
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
 
@@ -268,6 +272,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const; // Default implementation returns false.
 
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
@@ -304,6 +310,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const; // Default implementation returns false.
 
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
@@ -353,6 +361,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const; // Default implementation returns false.
 
     virtual void marshal(VALUE, const Ice::OutputStreamPtr&, ObjectMap*, bool);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, VALUE, void*, bool);
@@ -429,6 +439,7 @@ public:
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
+    bool usesClasses;
     VALUE rubyClass;
 };
 
@@ -491,6 +502,7 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
     virtual Ice::UserException* ice_clone() const;

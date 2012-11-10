@@ -548,6 +548,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     in->endEncapsulation();
     test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
     factory->setEnabled(false);
+
+    //
+    // Use the 1.0 encoding with operations whose only class parameters are optional.
+    //
+    IceUtil::Optional<OneOptionalPtr> oo(new OneOptional(53));
+    initial->sendOptionalClass(true, oo);
+    initial->ice_encodingVersion(Ice::Encoding_1_0)->sendOptionalClass(true, oo);
+
+    initial->returnOptionalClass(true, oo);
+    test(oo);
+    initial->ice_encodingVersion(Ice::Encoding_1_0)->returnOptionalClass(true, oo);
+    test(!oo);
+
     cout << "ok" << endl;
 
     cout << "testing marshalling of large containers with fixed size elements..." << flush;
@@ -1091,6 +1104,21 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             test(ex.a == 30);
             test(ex.b == string("test"));
             test((*ex.o)->a = 53);
+        }
+
+        try
+        {
+            //
+            // Use the 1.0 encoding with an exception whose only class members are optional.
+            //
+            initial->ice_encodingVersion(Ice::Encoding_1_0)->
+                opOptionalException(30, string("test"), OneOptionalPtr(new OneOptional(53)));
+        }
+        catch(const OptionalException& ex)
+        {
+            test(!ex.a);
+            test(!ex.b);
+            test(!ex.o);
         }
     }
     cout << "ok" << endl;

@@ -80,13 +80,15 @@ public:
     ParamInfoList optionalOutParams;
     ParamInfoPtr returnType;
     ExceptionInfoList exceptions;
+    bool sendsClasses;
+    bool returnsClasses;
     int numParams;
 
 private:
 
     zend_internal_function* _zendFunction;
 
-    static void convertParams(zval*, ParamInfoList& TSRMLS_DC);
+    static void convertParams(zval*, ParamInfoList&, bool& TSRMLS_DC);
     static ParamInfoPtr convertParam(zval*, int TSRMLS_DC);
     static void getArgInfo(zend_arg_info&, const ParamInfoPtr&, bool);
 };
@@ -220,17 +222,19 @@ IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::Operati
     //
     // inParams
     //
+    sendsClasses = false;
     if(in)
     {
-        convertParams(in, inParams TSRMLS_CC);
+        convertParams(in, inParams, sendsClasses TSRMLS_CC);
     }
 
     //
     // outParams
     //
+    returnsClasses = false;
     if(out)
     {
-        convertParams(out, outParams TSRMLS_CC);
+        convertParams(out, outParams, returnsClasses TSRMLS_CC);
     }
 
     //
@@ -239,6 +243,10 @@ IcePHP::OperationI::OperationI(const char* n, Ice::OperationMode m, Ice::Operati
     if(ret)
     {
         returnType = convertParam(ret, 0 TSRMLS_CC);
+        if(!returnsClasses)
+        {
+            returnsClasses = returnType->type->usesClasses();
+        }
     }
 
     numParams = static_cast<int>(inParams.size() + outParams.size());
@@ -355,7 +363,7 @@ IcePHP::OperationI::function()
 }
 
 void
-IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params TSRMLS_DC)
+IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params, bool& usesClasses TSRMLS_DC)
 {
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
@@ -366,7 +374,12 @@ IcePHP::OperationI::convertParams(zval* p, ParamInfoList& params TSRMLS_DC)
     while(zend_hash_get_current_data_ex(arr, &data, &pos) != FAILURE)
     {
         zval** val = reinterpret_cast<zval**>(data);
-        params.push_back(convertParam(*val, i TSRMLS_CC));
+        ParamInfoPtr param = convertParam(*val, i TSRMLS_CC);
+        params.push_back(param);
+        if(!param->optional && !usesClasses)
+        {
+            usesClasses = param->type->usesClasses();
+        }
         zend_hash_move_forward_ex(arr, &pos);
         ++i;
     }
@@ -521,6 +534,11 @@ IcePHP::TypedInvocation::prepareRequest(int argc, zval** args, Ice::ByteSeq& byt
                 }
             }
 
+            if(_op->sendsClasses)
+            {
+                os->writePendingObjects();
+            }
+
             os->endEncapsulation();
             os->finished(bytes);
         }
@@ -596,7 +614,7 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
         ParamInfoPtr info = *p;
 
         ResultCallbackPtr cb = new ResultCallback;
-        if(info->tag == _op->returnType->tag)
+        if(_op->returnType && info->tag == _op->returnType->tag)
         {
             retCallback = cb;
         }
@@ -613,6 +631,11 @@ IcePHP::TypedInvocation::unmarshalResults(int argc, zval** args, zval* ret,
         {
             cb->unset(TSRMLS_C);
         }
+    }
+
+    if(_op->returnsClasses)
+    {
+        is->readPendingObjects();
     }
 
     is->endEncapsulation();

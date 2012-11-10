@@ -137,6 +137,7 @@ class WD
 
 exception OptionalException
 {
+    bool req = false;
     optional(1) int a = 5;
     optional(2) string b;
     optional(50) OneOptional o;
@@ -281,6 +282,12 @@ class Initial
     optional(1) StringIntDict opStringIntDictReq(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
 
     void opClassAndUnknownOptional(A p);
+
+    ["java:optional"]
+    void sendOptionalClass(bool req, optional(1) OneOptional o);
+
+    ["java:optional"]
+    void returnOptionalClass(bool req, out optional(1) OneOptional o);
 
     bool supportsRequiredParams();
 

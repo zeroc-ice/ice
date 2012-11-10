@@ -32,6 +32,7 @@ function test($b)
 function allTests($communicator)
 {
     global $NS;
+    global $Ice_Encoding_1_0;
 
     $enum = $NS ? constant("Test\\MyEnum::MyEnumMember") : constant("Test_MyEnum::MyEnumMember");
 
@@ -324,6 +325,18 @@ function allTests($communicator)
     test($mo9->ioopd[5] == $ooprx);
 
     test($mo9->bos == Ice_Unset);
+
+    //
+    // Use the 1.0 encoding with operations whose only class parameters are optional.
+    //
+    $oo = new $oocls(53);
+    $initial->sendOptionalClass(true, $oo);
+    $initial->ice_encodingVersion($Ice_Encoding_1_0)->sendOptionalClass(true, $oo);
+
+    $initial->returnOptionalClass(true, $oo);
+    test($oo != Ice_Unset);
+    $initial->ice_encodingVersion($Ice_Encoding_1_0)->returnOptionalClass(true, $oo);
+    test($oo == Ice_Unset);
 
     echo "ok\n";
 
@@ -666,6 +679,20 @@ function allTests($communicator)
         test($ex->a == 30);
         test($ex->b == "test");
         test($ex->o->a == 53);
+    }
+
+    try
+    {
+        //
+        // Use the 1.0 encoding with an exception whose only class members are optional.
+        //
+        $initial->ice_encodingVersion($Ice_Encoding_1_0)->opOptionalException(30, "test", new $oocls(53));
+    }
+    catch(Exception $ex)
+    {
+        test($ex->a == Ice_Unset);
+        test($ex->b == Ice_Unset);
+        test($ex->o == Ice_Unset);
     }
 
     try

@@ -390,6 +390,12 @@ IceRuby::TypeInfo::TypeInfo()
 {
 }
 
+bool
+IceRuby::TypeInfo::usesClasses() const
+{
+    return false;
+}
+
 void
 IceRuby::TypeInfo::unmarshaled(VALUE, VALUE, void*)
 {
@@ -939,6 +945,20 @@ IceRuby::StructInfo::optionalFormat() const
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
+bool
+IceRuby::StructInfo::usesClasses() const
+{
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->type->usesClasses())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void
 IceRuby::StructInfo::marshal(VALUE p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional)
 {
@@ -1090,6 +1110,12 @@ Ice::OptionalFormat
 IceRuby::SequenceInfo::optionalFormat() const
 {
     return elementType->variableLength() ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
+}
+
+bool
+IceRuby::SequenceInfo::usesClasses() const
+{
+    return elementType->usesClasses();
 }
 
 void
@@ -1621,6 +1647,12 @@ IceRuby::DictionaryInfo::optionalFormat() const
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
+bool
+IceRuby::DictionaryInfo::usesClasses() const
+{
+    return valueType->usesClasses();
+}
+
 namespace
 {
 struct DictionaryMarshalIterator : public IceRuby::HashIterator
@@ -1954,6 +1986,12 @@ Ice::OptionalFormat
 IceRuby::ClassInfo::optionalFormat() const
 {
     return Ice::OptionalFormatSize;
+}
+
+bool
+IceRuby::ClassInfo::usesClasses() const
+{
+    return true;
 }
 
 void
@@ -2683,6 +2721,12 @@ IceRuby::ExceptionReader::read(const Ice::InputStreamPtr& is) const
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
 
+bool
+IceRuby::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
 string
 IceRuby::ExceptionReader::ice_name() const
 {
@@ -2846,6 +2890,19 @@ IceRuby_defineException(VALUE /*self*/, VALUE id, VALUE type, VALUE preserve, VA
         }
 
         convertDataMembers(members, info->members, info->optionalMembers, true);
+
+        info->usesClasses = false;
+
+        //
+        // Only examine the required members to see if any use classes.
+        //
+        for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
+        {
+            if(!info->usesClasses)
+            {
+                info->usesClasses = (*p)->type->usesClasses();
+            }
+        }
 
         info->rubyClass = type;
 

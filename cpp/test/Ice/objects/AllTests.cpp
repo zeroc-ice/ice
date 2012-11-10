@@ -215,7 +215,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     initial->setI(h);
     cout << "ok" << endl;
 
-    cout << "testing sequences..." << flush;
+    cout << "testing sequences... " << flush;
     BaseSeq inS, outS, retS;
     retS = initial->opBaseSeq(inS, outS);
 

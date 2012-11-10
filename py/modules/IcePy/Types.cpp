@@ -503,6 +503,12 @@ IcePy::TypeInfo::TypeInfo()
 {
 }
 
+bool
+IcePy::TypeInfo::usesClasses() const
+{
+    return false;
+}
+
 void
 IcePy::TypeInfo::unmarshaled(PyObject*, PyObject*, void*)
 {
@@ -1161,6 +1167,20 @@ IcePy::StructInfo::optionalFormat() const
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
+bool
+IcePy::StructInfo::usesClasses() const
+{
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->type->usesClasses())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void
 IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional,
                            const Ice::StringSeq*)
@@ -1323,6 +1343,12 @@ Ice::OptionalFormat
 IcePy::SequenceInfo::optionalFormat() const
 {
     return elementType->variableLength() ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
+}
+
+bool
+IcePy::SequenceInfo::usesClasses() const
+{
+    return elementType->usesClasses();
 }
 
 void
@@ -2219,6 +2245,12 @@ IcePy::CustomInfo::optionalFormat() const
     return Ice::OptionalFormatVSize;
 }
 
+bool
+IcePy::CustomInfo::usesClasses() const
+{
+    return false;
+}
+
 void
 IcePy::CustomInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool,
                            const Ice::StringSeq* metaData)
@@ -2383,6 +2415,12 @@ Ice::OptionalFormat
 IcePy::DictionaryInfo::optionalFormat() const
 {
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
+}
+
+bool
+IcePy::DictionaryInfo::usesClasses() const
+{
+    return valueType->usesClasses();
 }
 
 void
@@ -2645,6 +2683,12 @@ Ice::OptionalFormat
 IcePy::ClassInfo::optionalFormat() const
 {
     return Ice::OptionalFormatSize;
+}
+
+bool
+IcePy::ClassInfo::usesClasses() const
+{
+    return true;
 }
 
 void
@@ -3467,6 +3511,12 @@ IcePy::ExceptionWriter::write(const Ice::OutputStreamPtr& os) const
     _info->marshal(_ex.get(), os, const_cast<ObjectMap*>(&_objects));
 }
 
+bool
+IcePy::ExceptionWriter::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
 string
 IcePy::ExceptionWriter::ice_name() const
 {
@@ -3510,6 +3560,12 @@ IcePy::ExceptionReader::read(const Ice::InputStreamPtr& is) const
     const_cast<PyObjectHandle&>(_ex) = _info->unmarshal(is);
 
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
+}
+
+bool
+IcePy::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
 }
 
 string
@@ -4047,6 +4103,19 @@ IcePy_defineException(PyObject*, PyObject* args)
     }
 
     convertDataMembers(members, info->members, info->optionalMembers, true);
+
+    info->usesClasses = false;
+
+    //
+    // Only examine the required members to see if any use classes.
+    //
+    for(DataMemberList::iterator p = info->members.begin(); p != info->members.end(); ++p)
+    {
+        if(!info->usesClasses)
+        {
+            info->usesClasses = (*p)->type->usesClasses();
+        }
+    }
 
     info->pythonType = type;
     Py_INCREF(type);

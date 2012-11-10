@@ -77,13 +77,15 @@ public:
     ParamInfoPtr returnType;
     ExceptionInfoList exceptions;
     string dispatchName;
+    bool sendsClasses;
+    bool returnsClasses;
     bool pseudoOp;
 
 private:
 
     string _deprecateMessage;
 
-    static void convertParams(PyObject*, ParamInfoList&, int);
+    static void convertParams(PyObject*, ParamInfoList&, int, bool&);
     static ParamInfoPtr convertParam(PyObject*, int);
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
@@ -1074,20 +1076,26 @@ IcePy::Operation::Operation(const char* n, PyObject* m, PyObject* sm, int amdFla
     //
     // returnType
     //
+    returnsClasses = false;
     if(ret != Py_None)
     {
         returnType = convertParam(ret, 0);
+        if(!returnType->optional)
+        {
+            returnsClasses = returnType->type->usesClasses();
+        }
     }
 
     //
     // inParams
     //
-    convertParams(in, inParams, 0);
+    sendsClasses = false;
+    convertParams(in, inParams, 0, sendsClasses);
 
     //
     // outParams
     //
-    convertParams(out, outParams, returnType ? 1 : 0);
+    convertParams(out, outParams, returnType ? 1 : 0, returnsClasses);
 
     class SortFn
     {
@@ -1153,7 +1161,7 @@ IcePy::Operation::deprecate(const string& msg)
 }
 
 void
-IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset)
+IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffset, bool& usesClasses)
 {
     int sz = static_cast<int>(PyTuple_GET_SIZE(p));
     for(int i = 0; i < sz; ++i)
@@ -1161,6 +1169,10 @@ IcePy::Operation::convertParams(PyObject* p, ParamInfoList& params, int posOffse
         PyObject* item = PyTuple_GET_ITEM(p, i);
         ParamInfoPtr param = convertParam(item, i + posOffset);
         params.push_back(param);
+        if(!param->optional && !usesClasses)
+        {
+            usesClasses = param->type->usesClasses();
+        }
     }
 }
 
@@ -1555,6 +1567,11 @@ IcePy::TypedInvocation::prepareRequest(PyObject* args, MappingType mapping, vect
                 }
             }
 
+            if(_op->sendsClasses)
+            {
+                os->writePendingObjects();
+            }
+
             os->endEncapsulation();
             os->finished(bytes);
         }
@@ -1641,6 +1658,11 @@ IcePy::TypedInvocation::unmarshalResults(const pair<const Ice::Byte*, const Ice:
                 }
                 Py_INCREF(Unset); // PyTuple_SET_ITEM steals a reference.
             }
+        }
+
+        if(_op->returnsClasses)
+        {
+            is->readPendingObjects();
         }
 
         is->endEncapsulation();
@@ -3255,6 +3277,11 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, const pair<const Ice::Byte*, con
                 }
             }
 
+            if(_op->sendsClasses)
+            {
+                is->readPendingObjects();
+            }
+
             is->endEncapsulation();
 
             util.update();
@@ -3456,6 +3483,11 @@ IcePy::TypedUpcall::response(PyObject* args, const Ice::EncodingVersion& encodin
                 {
                     info->type->marshal(arg, os, &objectMap, true, &info->metaData);
                 }
+            }
+
+            if(_op->returnsClasses)
+            {
+                os->writePendingObjects();
             }
 
             os->endEncapsulation();

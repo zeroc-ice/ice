@@ -151,6 +151,9 @@ class InitialI(Test.Initial):
     def setI(self, i, current=None):
         pass
 
+    def opBaseSeq(self, inSeq, current=None):
+        return (inSeq, inSeq)
+
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()

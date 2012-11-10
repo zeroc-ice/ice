@@ -383,6 +383,19 @@ public class AllTests
         test(cb.obj != null && cb.obj instanceof TestObjectReader);
         factory.setEnabled(false);
 
+        //
+        // Use the 1.0 encoding with operations whose only class parameters are optional.
+        //
+        Ice.Optional<OneOptional> oo = new Ice.Optional<OneOptional>(new OneOptional(53));
+        initial.sendOptionalClass(true, oo);
+        InitialPrx initial2 = (InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
+        initial2.sendOptionalClass(true, oo);
+
+        initial.returnOptionalClass(true, oo);
+        test(oo.isSet());
+        initial2.returnOptionalClass(true, oo);
+        test(!oo.isSet());
+
         out.println("ok");
 
         out.print("testing marshaling of large containers with fixed size elements... ");
@@ -2064,6 +2077,23 @@ public class AllTests
                 test(ex.getA() == 30);
                 test(ex.getB().equals("test"));
                 test(ex.getO().getA() == 53);
+            }
+
+            try
+            {
+                //
+                // Use the 1.0 encoding with an exception whose only class members are optional.
+                //
+                Ice.IntOptional a = new Ice.IntOptional(30);
+                Ice.Optional<String> b = new Ice.Optional<String>("test");
+                Ice.Optional<OneOptional> o = new Ice.Optional<OneOptional>(new OneOptional(53));
+                initial2.opOptionalException(a, b, o);
+            }
+            catch(OptionalException ex)
+            {
+                test(!ex.hasA());
+                test(!ex.hasB());
+                test(!ex.hasO());
             }
 
             try

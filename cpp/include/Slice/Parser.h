@@ -601,8 +601,8 @@ public:
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
-    bool sendsClasses() const;
-    bool returnsClasses() const;
+    bool sendsClasses(bool) const;
+    bool returnsClasses(bool) const;
     bool returnsData() const;
     int attributes() const;
     FormatType format() const;
@@ -723,7 +723,7 @@ public:
     virtual bool isLocal() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
-    bool usesClasses() const;
+    bool usesClasses(bool) const;
     bool hasDefaultValues() const;
     bool inheritsMetaData(const std::string&) const;
     virtual std::string kindOf() const;

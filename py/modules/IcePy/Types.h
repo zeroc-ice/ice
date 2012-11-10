@@ -107,6 +107,8 @@ public:
     virtual int wireSize() const = 0;
     virtual Ice::OptionalFormat optionalFormat() const = 0;
 
+    virtual bool usesClasses() const; // Default implementation returns false.
+
     virtual void unmarshaled(PyObject*, PyObject*, void*); // Default implementation is assert(false).
 
     virtual void destroy();
@@ -232,6 +234,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
+    virtual bool usesClasses() const;
+
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
                            const Ice::StringSeq* = 0);
@@ -267,6 +271,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
@@ -326,6 +332,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
+    virtual bool usesClasses() const;
+
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
                            const Ice::StringSeq* = 0);
@@ -355,6 +363,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
@@ -403,6 +413,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*, bool, const Ice::StringSeq* = 0);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*, bool,
@@ -477,6 +489,7 @@ public:
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
+    bool usesClasses;
     PyObjectHandle pythonType;
 
 private:
@@ -545,6 +558,7 @@ public:
     ~ExceptionWriter() throw();
 
     virtual void write(const Ice::OutputStreamPtr&) const;
+    virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
     virtual Ice::UserException* ice_clone() const;
@@ -568,6 +582,7 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
     virtual Ice::UserException* ice_clone() const;

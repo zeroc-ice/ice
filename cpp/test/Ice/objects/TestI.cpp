@@ -210,7 +210,6 @@ InitialI::setI(const IPtr&, const Ice::Current&)
 {
 }
 
-
 BaseSeq
 InitialI::opBaseSeq(const BaseSeq& inSeq, BaseSeq& outSeq, const Ice::Current&)
 {

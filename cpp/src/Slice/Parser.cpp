@@ -3969,19 +3969,19 @@ Slice::Exception::uses(const ContainedPtr&) const
 }
 
 bool
-Slice::Exception::usesClasses() const
+Slice::Exception::usesClasses(bool includeOptional) const
 {
     DataMemberList dml = dataMembers();
     for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
     {
-        if((*i)->type()->usesClasses())
+        if((*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
         {
             return true;
         }
     }
     if(_base)
     {
-        return _base->usesClasses();
+        return _base->usesClasses(includeOptional);
     }
     return false;
 }
@@ -5131,12 +5131,12 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 }
 
 bool
-Slice::Operation::sendsClasses() const
+Slice::Operation::sendsClasses(bool includeOptional) const
 {
     ParamDeclList pdl = parameters();
     for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
     {
-        if(!(*i)->isOutParam() && (*i)->type()->usesClasses())
+        if(!(*i)->isOutParam() && (*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
         {
             return true;
         }
@@ -5145,17 +5145,17 @@ Slice::Operation::sendsClasses() const
 }
 
 bool
-Slice::Operation::returnsClasses() const
+Slice::Operation::returnsClasses(bool includeOptional) const
 {
     TypePtr t = returnType();
-    if(t && t->usesClasses())
+    if(t && t->usesClasses() && (includeOptional || !_returnIsOptional))
     {
         return true;
     }
     ParamDeclList pdl = parameters();
     for(ParamDeclList::const_iterator i = pdl.begin(); i != pdl.end(); ++i)
     {
-        if((*i)->isOutParam() && (*i)->type()->usesClasses())
+        if((*i)->isOutParam() && (*i)->type()->usesClasses() && (includeOptional || !(*i)->optional()))
         {
             return true;
         }

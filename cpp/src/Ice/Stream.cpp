@@ -28,6 +28,12 @@ Ice::UserExceptionReader::__readImpl(::IceInternal::BasicStream*)
     assert(false); // Should never be called.
 }
 
+bool
+Ice::UserExceptionReader::__usesClasses() const
+{
+    return usesClasses();
+}
+
 void
 Ice::UserExceptionWriter::__writeImpl(::IceInternal::BasicStream*) const
 {
@@ -38,4 +44,10 @@ void
 Ice::UserExceptionWriter::__readImpl(::IceInternal::BasicStream*)
 {
     assert(false); // Should never be called.
+}
+
+bool
+Ice::UserExceptionWriter::__usesClasses() const
+{
+    return usesClasses();
 }

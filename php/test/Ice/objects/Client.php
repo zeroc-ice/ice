@@ -354,6 +354,15 @@ function allTests($communicator)
     $initial->setI($h);
     echo "ok\n";
  
+    echo "testing sequences... ";
+    flush();
+    $outS = null;
+    $initial->opBaseSeq(array(), $outS);
+
+    $retS = $initial->opBaseSeq(array(new Test_Base()), $outS);
+    test(count($retS) == 1 && count($outS) == 1);
+    echo "ok\n";
+
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = "uoet:default -p 12010";

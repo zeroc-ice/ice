@@ -117,6 +117,8 @@ public:
     virtual int wireSize() const = 0;
     virtual Ice::OptionalFormat optionalFormat() const = 0;
 
+    virtual bool usesClasses() const; // Default implementation returns false.
+
     virtual void unmarshaled(zval*, zval*, void* TSRMLS_DC); // Default implementation is assert(false).
 
     virtual void destroy();
@@ -239,6 +241,8 @@ public:
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
 
+    virtual bool usesClasses() const;
+
     virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
                            zval*, void*, bool TSRMLS_DC);
@@ -275,6 +279,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
@@ -313,6 +319,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
@@ -384,6 +392,8 @@ public:
     virtual bool variableLength() const;
     virtual int wireSize() const;
     virtual Ice::OptionalFormat optionalFormat() const;
+
+    virtual bool usesClasses() const;
 
     virtual void marshal(zval*, const Ice::OutputStreamPtr&, ObjectMap*, bool TSRMLS_DC);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, const CommunicatorInfoPtr&,
@@ -468,6 +478,7 @@ public:
     ExceptionInfoPtr base;
     DataMemberList members;
     DataMemberList optionalMembers;
+    bool usesClasses;
     zend_class_entry* zce;
 };
 
@@ -550,6 +561,7 @@ public:
     ~ExceptionReader() throw();
 
     virtual void read(const Ice::InputStreamPtr&) const;
+    virtual bool usesClasses() const;
 
     virtual std::string ice_name() const;
     virtual ExceptionReader* ice_clone() const;

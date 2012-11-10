@@ -24,10 +24,10 @@ class InitialI(Test.Initial):
         cb.ice_response(o)
 
     def opOptionalException_async(self, cb, a, b, o, current=None):
-        cb.ice_exception(Test.OptionalException(a, b, o))
+        cb.ice_exception(Test.OptionalException(False, a, b, o))
 
     def opDerivedException_async(self, cb, a, b, o, current=None):
-        cb.ice_exception(Test.DerivedException(a, b, o, b, o))
+        cb.ice_exception(Test.DerivedException(False, a, b, o, b, o))
 
     def opRequiredException_async(self, cb, a, b, o, current=None):
         e = Test.RequiredException()
@@ -132,6 +132,12 @@ class InitialI(Test.Initial):
 
     def opClassAndUnknownOptional_async(self, cb, p, current=None):
         cb.ice_response()
+
+    def sendOptionalClass_async(self, cb, req, o, current=None):
+        cb.ice_response()
+
+    def returnOptionalClass_async(self, cb, req, current=None):
+        cb.ice_response(Test.OneOptional(5))
 
     def supportsRequiredParams_async(self, cb, current=None):
         cb.ice_response(False)

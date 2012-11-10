@@ -344,6 +344,17 @@ InitialI::opClassAndUnknownOptional(const APtr& a, const Ice::Current&)
 {
 }
 
+void
+InitialI::sendOptionalClass(bool, const Optional<OneOptionalPtr>&, const Ice::Current&)
+{
+}
+
+void
+InitialI::returnOptionalClass(bool, Optional<OneOptionalPtr>& o, const Ice::Current&)
+{
+    o = new OneOptional(53);
+}
+
 bool
 InitialI::supportsRequiredParams(const Ice::Current&)
 {

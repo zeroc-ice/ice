@@ -583,6 +583,12 @@ IcePHP::TypeInfo::TypeInfo()
 {
 }
 
+bool
+IcePHP::TypeInfo::usesClasses() const
+{
+    return false;
+}
+
 void
 IcePHP::TypeInfo::unmarshaled(zval*, zval*, void* TSRMLS_DC)
 {
@@ -1305,6 +1311,20 @@ IcePHP::StructInfo::optionalFormat() const
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
+bool
+IcePHP::StructInfo::usesClasses() const
+{
+    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        if((*p)->type->usesClasses())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void
 IcePHP::StructInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
@@ -1460,6 +1480,12 @@ Ice::OptionalFormat
 IcePHP::SequenceInfo::optionalFormat() const
 {
     return elementType->variableLength() ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
+}
+
+bool
+IcePHP::SequenceInfo::usesClasses() const
+{
+    return elementType->usesClasses();
 }
 
 void
@@ -2015,6 +2041,12 @@ IcePHP::DictionaryInfo::optionalFormat() const
     return _variableLength ? Ice::OptionalFormatFSize : Ice::OptionalFormatVSize;
 }
 
+bool
+IcePHP::DictionaryInfo::usesClasses() const
+{
+    return valueType->usesClasses();
+}
+
 void
 IcePHP::DictionaryInfo::marshal(zval* zv, const Ice::OutputStreamPtr& os, ObjectMap* objectMap, bool optional TSRMLS_DC)
 {
@@ -2434,6 +2466,12 @@ Ice::OptionalFormat
 IcePHP::ClassInfo::optionalFormat() const
 {
     return Ice::OptionalFormatSize;
+}
+
+bool
+IcePHP::ClassInfo::usesClasses() const
+{
+    return true;
 }
 
 void
@@ -3284,6 +3322,12 @@ IcePHP::ExceptionReader::read(const Ice::InputStreamPtr& is) const
     const_cast<Ice::SlicedDataPtr&>(_slicedData) = is->endException(_info->preserve);
 }
 
+bool
+IcePHP::ExceptionReader::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
 string
 IcePHP::ExceptionReader::ice_name() const
 {
@@ -3631,6 +3675,19 @@ ZEND_FUNCTION(IcePHP_defineException)
     if(members)
     {
         convertDataMembers(members, ex->members, ex->optionalMembers, true TSRMLS_CC);
+    }
+
+    ex->usesClasses = false;
+
+    //
+    // Only examine the required members to see if any use classes.
+    //
+    for(DataMemberList::iterator p = ex->members.begin(); p != ex->members.end(); ++p)
+    {
+        if(!ex->usesClasses)
+        {
+            ex->usesClasses = (*p)->type->usesClasses();
+        }
     }
 
     ex->zce = nameToClass(ex->name TSRMLS_CC);

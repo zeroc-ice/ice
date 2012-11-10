@@ -870,7 +870,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 }
             }
             writeMarshalUnmarshalParams(inParams, 0, false);
-            if(op->sendsClasses())
+            if(op->sendsClasses(false))
             {
                 _out << nl << "is__.readPendingObjects();";
             }
@@ -944,7 +944,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 _out << nl << "IceInternal.BasicStream os__ = inS__.startWriteParams__("
                      << opFormatTypeToString(op) << ");";
                 writeMarshalUnmarshalParams(outParams, op, true);
-                if(op->returnsClasses())
+                if(op->returnsClasses(false))
                 {
                     _out << nl << "os__.writePendingObjects();";
                 }
@@ -3608,7 +3608,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
         }
        
-        if((!base || (base && !base->usesClasses())) && p->usesClasses())
+        if((!base || (base && !base->usesClasses(false))) && p->usesClasses(false))
         {
             _out << sp;
             emitGeneratedCodeAttribute();
@@ -4993,7 +4993,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
                 writeMarshalUnmarshalParams(outParams, op, false);
-                if(op->returnsClasses())
+                if(op->returnsClasses(false))
                 {
                     _out << nl << "is__.readPendingObjects();";
                 }
@@ -5060,7 +5060,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "IceInternal.BasicStream os__ = result__.startWriteParams__("
                  << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(inParams, 0, true);
-            if(op->sendsClasses())
+            if(op->sendsClasses(false))
             {
                 _out << nl << "os__.writePendingObjects();";
             }
@@ -5947,7 +5947,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = og__.startWriteParams(" << opFormatTypeToString(op) << ");";
             writeMarshalUnmarshalParams(inParams, 0, true);
-            if(op->sendsClasses())
+            if(op->sendsClasses(false))
             {
                 _out << nl << "os__.writePendingObjects();";
             }
@@ -6049,7 +6049,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
             }
             writeMarshalUnmarshalParams(outParams, op, false);
-            if(op->returnsClasses())
+            if(op->returnsClasses(false))
             {
                 _out << nl << "is__.readPendingObjects();";
             }
@@ -6573,7 +6573,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             _out << sb;
             _out << nl << "IceInternal.BasicStream os__ = startWriteParams__(" << opFormatTypeToString(p) << ");";
             writeMarshalUnmarshalParams(outParams, p, true);
-            if(p->returnsClasses())
+            if(p->returnsClasses(false))
             {
                 _out << nl << "os__.writePendingObjects();";
             }
