@@ -48,19 +48,19 @@ OCCI oracle drivers are available at:
 - Set the environment variable ORACLE_HOME to point to your Oracle
   installation home directory.
 
-- On Windows with Visual Studio 2008 Project Files, add the 
+- On Windows with Visual Studio 2010 Project Files, add the 
   following directories to your Visual C++ environment: 
 
   - Include files: $(ORACLE_HOME)\oci\include
 
-  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc9
+  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc10
                    $(ORACLE_HOME)\oci\lib\msvc
 
     (make sure to list the driver folder before lib\msvc)
 
   - Executable files: 
 
-    $(ORACLE_HOME)\oci\lib\msvc\vc9;$(ORACLE_HOME)\bin
+    $(ORACLE_HOME)\oci\lib\msvc\vc10;$(ORACLE_HOME)\bin
 
   - If OCCI driver isn't installed in the standard location,
   update Library and Executable files to match your installation
