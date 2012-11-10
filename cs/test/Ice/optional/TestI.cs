@@ -25,13 +25,13 @@ public class InitialI : Test.Initial
     public override void opOptionalException(Ice.Optional<int> a, Ice.Optional<string> b,
                                              Ice.Optional<Test.OneOptional> o, Ice.Current current)
     {
-        throw new Test.OptionalException(a, b, o);
+        throw new Test.OptionalException(false, a, b, o);
     }
 
     public override void opDerivedException(Ice.Optional<int> a, Ice.Optional<string> b,
                                             Ice.Optional<Test.OneOptional> o, Ice.Current current)
     {
-        throw new Test.DerivedException(a, b, o, b, o);
+        throw new Test.DerivedException(false, a, b, o, b, o);
     }
 
     public override void opRequiredException(Ice.Optional<int> a, Ice.Optional<string> b,
@@ -281,6 +281,15 @@ public class InitialI : Test.Initial
 
     public override void opClassAndUnknownOptional(Test.A p, Ice.Current current)
     {
+    }
+
+    public override void sendOptionalClass(bool req, Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    {
+    }
+
+    public override void returnOptionalClass(bool req, out Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    {
+        o = new Test.OneOptional(53);
     }
 
     public override bool supportsRequiredParams(Ice.Current current)

@@ -404,6 +404,19 @@ public class AllTests : TestCommon.TestApp
         test(cb.obj != null && cb.obj is TestObjectReader);
         factory.setEnabled(false);
 
+        //
+        // Use the 1.0 encoding with operations whose only class parameters are optional.
+        //
+        Ice.Optional<Test.OneOptional> oo = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
+        initial.sendOptionalClass(true, oo);
+        Test.InitialPrx initial2 = (Test.InitialPrx)initial.ice_encodingVersion(Ice.Util.Encoding_1_0);
+        initial2.sendOptionalClass(true, oo);
+
+        initial.returnOptionalClass(true, out oo);
+        test(oo.HasValue);
+        initial2.returnOptionalClass(true, out oo);
+        test(!oo.HasValue);
+
         WriteLine("ok");
 
         Write("testing marshaling of large containers with fixed size elements... ");
@@ -2047,6 +2060,23 @@ public class AllTests : TestCommon.TestApp
                 test(ex.a.Value == 30);
                 test(ex.b.Value.Equals("test"));
                 test(ex.o.Value.a.Value == 53);
+            }
+
+            try
+            {
+                //
+                // Use the 1.0 encoding with an exception whose only class members are optional.
+                //
+                Ice.Optional<int> a = new Ice.Optional<int>(30);
+                Ice.Optional<string> b = new Ice.Optional<string>("test");
+                Ice.Optional<Test.OneOptional> o = new Ice.Optional<Test.OneOptional>(new Test.OneOptional(53));
+                initial2.opOptionalException(a, b, o);
+            }
+            catch(Test.OptionalException ex)
+            {
+                test(!ex.a.HasValue);
+                test(!ex.b.HasValue);
+                test(!ex.o.HasValue);
             }
 
             try

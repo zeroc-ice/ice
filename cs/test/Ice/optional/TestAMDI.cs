@@ -27,14 +27,14 @@ public class InitialI : Test.Initial
                                                    Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
                                                    Ice.Current current)
     {
-        cb.ice_exception(new Test.OptionalException(a, b, o));
+        cb.ice_exception(new Test.OptionalException(false, a, b, o));
     }
 
     public override void opDerivedException_async(Test.AMD_Initial_opDerivedException cb, Ice.Optional<int> a,
                                                   Ice.Optional<string> b, Ice.Optional<Test.OneOptional> o,
                                                   Ice.Current current)
     {
-        cb.ice_exception(new Test.DerivedException(a, b, o, b, o));
+        cb.ice_exception(new Test.DerivedException(false, a, b, o, b, o));
     }
 
     public override void opRequiredException_async(Test.AMD_Initial_opRequiredException cb, Ice.Optional<int> a,
@@ -241,6 +241,18 @@ public class InitialI : Test.Initial
                                                          Ice.Current current)
     {
         cb.ice_response();
+    }
+
+    public override void sendOptionalClass_async(Test.AMD_Initial_sendOptionalClass cb, bool req,
+                                                 Ice.Optional<Test.OneOptional> o, Ice.Current current)
+    {
+        cb.ice_response();
+    }
+
+    public override void returnOptionalClass_async(Test.AMD_Initial_returnOptionalClass cb, bool req,
+                                                   Ice.Current current)
+    {
+        cb.ice_response(new Test.OneOptional(53));
     }
 
     public override void supportsRequiredParams_async(Test.AMD_Initial_supportsRequiredParams cb, Ice.Current current)
