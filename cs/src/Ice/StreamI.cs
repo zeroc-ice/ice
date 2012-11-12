@@ -14,9 +14,21 @@ namespace Ice
         public InputStreamI(Communicator communicator, byte[] data)
         {
             _communicator = communicator;
-
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
             _is = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true);
+            initialize(data);
+        }
+
+        public InputStreamI(Communicator communicator, byte[] data, EncodingVersion v)
+        {
+            _communicator = communicator;
+            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+            _is = new IceInternal.BasicStream(instance, v, true);
+            initialize(data);
+        }
+
+        private void initialize(byte[] data)
+        {
             _is.closure(this);
             _is.resize(data.Length, true);
             IceInternal.Buffer buf = _is.getBuffer();
@@ -295,6 +307,15 @@ namespace Ice
 
             IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
             _os = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true);
+            _os.closure(this);
+        }
+
+        public OutputStreamI(Communicator communicator, EncodingVersion v)
+        {
+            _communicator = communicator;
+
+            IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+            _os = new IceInternal.BasicStream(instance, v, true);
             _os.closure(this);
         }
 

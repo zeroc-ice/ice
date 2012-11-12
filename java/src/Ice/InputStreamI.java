@@ -14,23 +14,24 @@ public class InputStreamI implements InputStream
     public
     InputStreamI(Communicator communicator, byte[] data)
     {
-        initialize(communicator, data, null);
+        _communicator = communicator;
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        _is = new IceInternal.BasicStream(instance, instance.defaultsAndOverrides().defaultEncoding, true, false);
+        initialize(data);
     }
 
     public
     InputStreamI(Communicator communicator, byte[] data, EncodingVersion v)
     {
-        initialize(communicator, data, v);
+        _communicator = communicator;
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        _is = new IceInternal.BasicStream(instance, v, true, false);
+        initialize(data);
     }
 
     private void
-    initialize(Communicator communicator, byte[] data, EncodingVersion v)
+    initialize(byte[] data)
     {
-        _communicator = communicator;
-
-        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
-        _is = new IceInternal.BasicStream(instance, v == null ? instance.defaultsAndOverrides().defaultEncoding : v,
-                                          true, false);
         _is.closure(this);
         _is.resize(data.length, true);
         IceInternal.Buffer buf = _is.getBuffer();

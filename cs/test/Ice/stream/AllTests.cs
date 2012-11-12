@@ -342,13 +342,67 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            bool[] arr =
+            @out = Ice.Util.createOutputStream(communicator);
+            OptionalClass o = new OptionalClass();
+            o.bo = true;
+            o.by = (byte)5;
+            o.sh = 4;
+            o.i = 3;
+            @out.writeObject(o);
+            @out.writePendingObjects();
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            @in.readObject(cb);
+            @in.readPendingObjects();
+            OptionalClass o2 = (OptionalClass)cb.obj;
+            test(o2.bo == o.bo);
+            test(o2.by == o.by);
+            if(communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0"))
+            {
+                test(!o2.sh.HasValue);
+                test(!o2.i.HasValue);
+            }
+            else
+            {
+                test(o2.sh.Value == o.sh.Value);
+                test(o2.i.Value == o.i.Value);
+            }
+            @out.destroy();
+            @in.destroy();
+        }
+
         {
-            true,
-            false,
-            true,
-            false
-        };
+            @out = Ice.Util.createOutputStream(communicator, Ice.Util.Encoding_1_0);
+            OptionalClass o = new OptionalClass();
+            o.bo = true;
+            o.by = 5;
+            o.sh = 4;
+            o.i = 3;
+            @out.writeObject(o);
+            @out.writePendingObjects();
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data, Ice.Util.Encoding_1_0);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            @in.readObject(cb);
+            @in.readPendingObjects();
+            OptionalClass o2 = (OptionalClass)cb.obj;
+            test(o2.bo == o.bo);
+            test(o2.by == o.by);
+            test(!o2.sh.HasValue);
+            test(!o2.i.HasValue);
+            @out.destroy();
+            @in.destroy();
+        }
+
+        {
+            bool[] arr =
+            {
+                true,
+                false,
+                true,
+                false
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.BoolSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -359,11 +413,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             bool[][] arrS =
-        {
-            arr,
-            new bool[0],
-            arr
-        };
+            {
+                arr,
+                new bool[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.BoolSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -376,12 +430,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             byte[] arr =
-        {
-            (byte)0x01,
-            (byte)0x11,
-            (byte)0x12,
-            (byte)0x22
-        };
+            {
+                (byte)0x01,
+                (byte)0x11,
+                (byte)0x12,
+                (byte)0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.ByteSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -392,11 +446,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             byte[][] arrS =
-        {
-            arr,
-            new byte[0],
-            arr
-        };
+            {
+                arr,
+                new byte[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.ByteSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -424,12 +478,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             short[] arr =
-        {
-            (short)0x01,
-            (short)0x11,
-            (short)0x12,
-            (short)0x22
-        };
+            {
+                (short)0x01,
+                (short)0x11,
+                (short)0x12,
+                (short)0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.ShortSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -440,11 +494,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             short[][] arrS =
-        {
-            arr,
-            new short[0],
-            arr
-        };
+            {
+                arr,
+                new short[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.ShortSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -457,12 +511,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             int[] arr =
-        {
-            0x01,
-            0x11,
-            0x12,
-            0x22
-        };
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.IntSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -473,11 +527,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             int[][] arrS =
-        {
-            arr,
-            new int[0],
-            arr
-        };
+            {
+                arr,
+                new int[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.IntSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -490,12 +544,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             long[] arr =
-        {
-            0x01,
-            0x11,
-            0x12,
-            0x22
-        };
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.LongSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -506,11 +560,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             long[][] arrS =
-        {
-            arr,
-            new long[0],
-            arr
-        };
+            {
+                arr,
+                new long[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.LongSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -523,12 +577,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             float[] arr =
-        {
-            (float)1,
-            (float)2,
-            (float)3,
-            (float)4
-        };
+            {
+                (float)1,
+                (float)2,
+                (float)3,
+                (float)4
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.FloatSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -539,11 +593,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             float[][] arrS =
-        {
-            arr,
-            new float[0],
-            arr
-        };
+            {
+                arr,
+                new float[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.FloatSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -556,12 +610,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             double[] arr =
-        {
-            (double)1,
-            (double)2,
-            (double)3,
-            (double)4
-        };
+            {
+                (double)1,
+                (double)2,
+                (double)3,
+                (double)4
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.DoubleSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -572,11 +626,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             double[][] arrS =
-        {
-            arr,
-            new double[0],
-            arr
-        };
+            {
+                arr,
+                new double[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.DoubleSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -589,12 +643,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             string[] arr =
-        {
-            "string1",
-            "string2",
-            "string3",
-            "string4"
-        };
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Ice.StringSeqHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -605,11 +659,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             string[][] arrS =
-        {
-            arr,
-            new string[0],
-            arr
-        };
+            {
+                arr,
+                new string[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.StringSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -622,12 +676,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             Test.MyEnum[] arr =
-        {
-            Test.MyEnum.enum3,
-            Test.MyEnum.enum2,
-            Test.MyEnum.enum1,
-            Test.MyEnum.enum2
-        };
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.MyEnumSHelper.write(@out, arr);
             byte[] data = @out.finished();
@@ -638,11 +692,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             Test.MyEnum[][] arrS =
-        {
-            arr,
-            new Test.MyEnum[0],
-            arr
-        };
+            {
+                arr,
+                new Test.MyEnum[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.MyEnumSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -721,11 +775,11 @@ public class AllTests : TestCommon.TestApp
             @in.destroy();
 
             Test.MyClass[][] arrS =
-        {
-            myClassArray,
-            new Test.MyClass[0],
-            myClassArray
-        };
+            {
+                myClassArray,
+                new Test.MyClass[0],
+                myClassArray
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.MyClassSSHelper.write(@out, arrS);
             data = @out.finished();
@@ -903,12 +957,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             bool[] arr =
-        {
-            true,
-            false,
-            true,
-            false
-        };
+            {
+                true,
+                false,
+                true,
+                false
+            };
             @out = Ice.Util.createOutputStream(communicator);
             List<bool> l = new List<bool>(arr);
             Test.BoolListHelper.write(@out, l);
@@ -922,12 +976,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             byte[] arr =
-        {
-            (byte)0x01,
-            (byte)0x11,
-            (byte)0x12,
-            (byte)0x22
-        };
+            {
+                (byte)0x01,
+                (byte)0x11,
+                (byte)0x12,
+                (byte)0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             List<byte> l = new List<byte>(arr);
             Test.ByteListHelper.write(@out, l);
@@ -941,12 +995,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             Test.MyEnum[] arr =
-        {
-            Test.MyEnum.enum3,
-            Test.MyEnum.enum2,
-            Test.MyEnum.enum1,
-            Test.MyEnum.enum2
-        };
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
             @out = Ice.Util.createOutputStream(communicator);
             List<Test.MyEnum> l = new List<Test.MyEnum>(arr);
             Test.MyEnumListHelper.write(@out, l);
@@ -1022,12 +1076,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             short[] arr =
-        {
-            (short)0x01,
-            (short)0x11,
-            (short)0x12,
-            (short)0x22
-        };
+            {
+                (short)0x01,
+                (short)0x11,
+                (short)0x12,
+                (short)0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             LinkedList<short> l = new LinkedList<short>(arr);
             Test.ShortLinkedListHelper.write(@out, l);
@@ -1041,12 +1095,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             int[] arr =
-        {
-            0x01,
-            0x11,
-            0x12,
-            0x22
-        };
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             LinkedList<int> l = new LinkedList<int>(arr);
             Test.IntLinkedListHelper.write(@out, l);
@@ -1060,12 +1114,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             Test.MyEnum[] arr =
-        {
-            Test.MyEnum.enum3,
-            Test.MyEnum.enum2,
-            Test.MyEnum.enum1,
-            Test.MyEnum.enum2
-        };
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
             @out = Ice.Util.createOutputStream(communicator);
             LinkedList<Test.MyEnum> l = new LinkedList<Test.MyEnum>(arr);
             Test.MyEnumLinkedListHelper.write(@out, l);
@@ -1097,12 +1151,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             long[] arr =
-        {
-            0x01,
-            0x11,
-            0x12,
-            0x22
-        };
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Stack<long> l = new Stack<long>(arr);
             Test.LongStackHelper.write(@out, l);
@@ -1116,12 +1170,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             float[] arr =
-        {
-            (float)1,
-            (float)2,
-            (float)3,
-            (float)4
-        };
+            {
+                (float)1,
+                (float)2,
+                (float)3,
+                (float)4
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Stack<float> l = new Stack<float>(arr);
             Test.FloatStackHelper.write(@out, l);
@@ -1168,12 +1222,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             double[] arr =
-        {
-            (double)1,
-            (double)2,
-            (double)3,
-            (double)4
-        };
+            {
+                (double)1,
+                (double)2,
+                (double)3,
+                (double)4
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Queue<double> l = new Queue<double>(arr);
             Test.DoubleQueueHelper.write(@out, l);
@@ -1187,12 +1241,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             string[] arr =
-        {
-            "string1",
-            "string2",
-            "string3",
-            "string4"
-        };
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Queue<string> l = new Queue<string>(arr);
             Test.StringQueueHelper.write(@out, l);
@@ -1224,12 +1278,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             bool[] arr =
-        {
-            true,
-            false,
-            true,
-            false
-        };
+            {
+                true,
+                false,
+                true,
+                false
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.BoolCollection l = new Test.BoolCollection(arr);
             Test.BoolCollectionHelper.write(@out, l);
@@ -1243,12 +1297,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             int[] arr =
-        {
-            0x01,
-            0x11,
-            0x12,
-            0x22
-        };
+            {
+                0x01,
+                0x11,
+                0x12,
+                0x22
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.IntCollection l = new Test.IntCollection(arr);
             Test.IntCollectionHelper.write(@out, l);
@@ -1262,12 +1316,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             string[] arr =
-        {
-            "string1",
-            "string2",
-            "string3",
-            "string4"
-        };
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.StringCollection l = new Test.StringCollection(arr);
             Test.StringCollectionHelper.write(@out, l);
@@ -1281,12 +1335,12 @@ public class AllTests : TestCommon.TestApp
 
         {
             Test.MyEnum[] arr =
-        {
-            Test.MyEnum.enum3,
-            Test.MyEnum.enum2,
-            Test.MyEnum.enum1,
-            Test.MyEnum.enum2
-        };
+            {
+                Test.MyEnum.enum3,
+                Test.MyEnum.enum2,
+                Test.MyEnum.enum1,
+                Test.MyEnum.enum2
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Test.MyEnumCollection l = new Test.MyEnumCollection(arr);
             Test.MyEnumCollectionHelper.write(@out, l);
@@ -1349,18 +1403,18 @@ public class AllTests : TestCommon.TestApp
 
         {
             string[] arr =
-        {
-            "string1",
-            "string2",
-            "string3",
-            "string4"
-        };
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
             string[][] arrS =
-        {
-            arr,
-            new string[0],
-            arr
-        };
+            {
+                arr,
+                new string[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             List<string[]> l = new List<string[]>(arrS);
             Test.StringSListHelper.write(@out, l);
@@ -1374,18 +1428,18 @@ public class AllTests : TestCommon.TestApp
 
         {
             string[] arr =
-        {
-            "string1",
-            "string2",
-            "string3",
-            "string4"
-        };
+            {
+                "string1",
+                "string2",
+                "string3",
+                "string4"
+            };
             string[][] arrS =
-        {
-            arr,
-            new string[0],
-            arr
-        };
+            {
+                arr,
+                new string[0],
+                arr
+            };
             @out = Ice.Util.createOutputStream(communicator);
             Stack<string[]> l = new Stack<string[]>(arrS);
             Test.StringSStackHelper.write(@out, l);

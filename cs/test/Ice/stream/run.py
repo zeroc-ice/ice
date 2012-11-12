@@ -22,9 +22,8 @@ import TestUtil
 
 client = os.path.join(os.getcwd(), "client")
 
-sys.stdout.write("starting client... ")
-sys.stdout.flush()
-clientProc = TestUtil.startClient(client, " --Ice.Warn.Dispatch=0 2>&1", startReader = False)
-print("ok")
-clientProc.startReader()
-clientProc.waitTestSuccess()
+print("Running test with default encoding...")
+TestUtil.simpleTest(client)
+
+print("Running test with 1.0 encoding...")
+TestUtil.simpleTest(client, "--Ice.Default.EncodingVersion=1.0")
