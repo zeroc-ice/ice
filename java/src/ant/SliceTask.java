@@ -459,6 +459,7 @@ public class SliceTask extends org.apache.tools.ant.Task
         public static final long serialVersionUID = 0L;
     }
 
+    @SuppressWarnings("deprecation")
     private String
     getEnvironment(String key)
     {
