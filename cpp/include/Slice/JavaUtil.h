@@ -23,6 +23,12 @@ SLICE_API long
 computeSerialVersionUUID(const ClassDefPtr&);
 
 //
+// Compute Java serialVersionUID for a Slice class
+//
+SLICE_API long
+computeSerialVersionUUID(const ExceptionPtr&);
+
+//
 // Compute Java serialVersionUID for a Slice struct
 //
 SLICE_API long

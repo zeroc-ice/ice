@@ -32,6 +32,21 @@ using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
 
+
+namespace
+{
+
+void
+hashAdd(long& hashCode, const std::string& value)
+{
+    for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)
+    {
+        hashCode = ((hashCode << 5) + hashCode) ^ *p;
+    }    
+}
+
+}
+
 long
 Slice::computeSerialVersionUUID(const ClassDefPtr& p)
 {
@@ -66,23 +81,9 @@ Slice::computeSerialVersionUUID(const ClassDefPtr& p)
     os << "]";
     
     const string data = os.str();
-    MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
-    vector<unsigned char> bytes;
-    bytes.resize(16);
-    md5.getDigest(reinterpret_cast<unsigned char*>(&bytes[0]));
-    
-    long h0 = 0;
-    long h1 = 0;
-    for(int i = 0; i < 8; ++i)
-    {
-        h0 |= (long)bytes[i] << (i * 4);
-    }
-    
-    for(int i = 0; i < 8; ++i)
-    {
-        h1 |= (long)bytes[i + 8] << (i * 4);
-    }
-    return abs(h0 ^ h1);
+    long hashCode = 5381;
+    hashAdd(hashCode, data);
+    return hashCode;
 }
 
 long
@@ -105,25 +106,37 @@ Slice::computeSerialVersionUUID(const StructPtr& p)
     os << "]";
     
     const string data = os.str();
-    MD5 md5(reinterpret_cast<const unsigned char*>(data.c_str()), static_cast<int>(data.size()));
-    vector<unsigned char> bytes;
-    bytes.resize(16);
-    md5.getDigest(reinterpret_cast<unsigned char*>(&bytes[0]));
-    
-    long h0 = 0;
-    long h1 = 0;
-    for(int i = 0; i < 8; ++i)
-    {
-        h0 |= (long)bytes[i] << (i * 4);
-    }
-    
-    for(int i = 0; i < 8; ++i)
-    {
-        h1 |= (long)bytes[i + 8] << (i * 4);
-    }
-    
-    return abs(h0 ^ h1);
+    long hashCode = 5381;
+    hashAdd(hashCode, data);
+    return hashCode;
 }
+
+long
+Slice::computeSerialVersionUUID(const ExceptionPtr& p)
+{
+    ostringstream os;
+
+    os << "Name: " << p->scoped();
+    os << " Members: [";
+    DataMemberList members = p->dataMembers();
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    {
+        os << (*i)->name() << ":" << (*i)->type();
+        i++;
+        if(i != members.end())
+        {
+            os << ", ";
+        }
+    }
+    os << "]";
+    
+    const string data = os.str();
+    long hashCode = 5381;
+    hashAdd(hashCode, data);
+    return hashCode;
+}
+
+
 
 Slice::JavaOutput::JavaOutput()
 {

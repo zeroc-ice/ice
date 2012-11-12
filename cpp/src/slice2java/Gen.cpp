@@ -2460,6 +2460,41 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
+    out << sp << nl << "public static final long serialVersionUID = ";
+    string serialVersionUID;
+    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    {
+        string::size_type pos = serialVersionUID.rfind(":") + 1;
+        if(pos == string::npos)
+        {
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for class `" << p->scoped() << "'; generating default value";
+            emitWarning("", "", os.str());
+            out << computeSerialVersionUUID(p);
+        }
+        else
+        {
+            Int64 v = 0;
+            serialVersionUID = serialVersionUID.substr(pos);
+            if(serialVersionUID != "0")
+            {
+                if(!stringToInt64(serialVersionUID, v)) // conversion error
+                {
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for class `" << p->scoped()
+                       << "'; generating default value";
+                    emitWarning("", "", os.str());
+                    out << computeSerialVersionUUID(p);
+                }
+            }
+            out << v;
+        }
+    }
+    else
+    {
+        out << computeSerialVersionUUID(p);
+    }
+    out << "L;";
     out << eb;
     close();
 
@@ -3382,6 +3417,42 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << sp << nl << "protected Ice.SlicedData __slicedData;";
         }
     }
+
+    out << sp << nl << "public static final long serialVersionUID = ";
+    string serialVersionUID;
+    if(p->findMetaData("java:serialVersionUID", serialVersionUID))
+    {
+        string::size_type pos = serialVersionUID.rfind(":") + 1;
+        if(pos == string::npos)
+        {
+            ostringstream os;
+            os << "ignoring invalid serialVersionUID for exception `" << p->scoped() << "'; generating default value";
+            emitWarning("", "", os.str());
+            out << computeSerialVersionUUID(p);
+        }
+        else
+        {
+            Int64 v = 0;
+            serialVersionUID = serialVersionUID.substr(pos);
+            if(serialVersionUID != "0")
+            {
+                if(!stringToInt64(serialVersionUID, v)) // conversion error
+                {
+                    ostringstream os;
+                    os << "ignoring invalid serialVersionUID for exception `" << p->scoped()
+                       << "'; generating default value";
+                    emitWarning("", "", os.str());
+                    out << computeSerialVersionUUID(p);
+                }
+            }
+            out << v;
+        }
+    }
+    else
+    {
+        out << computeSerialVersionUUID(p);
+    }
+    out << "L;";
 
     out << eb;
     close();
