@@ -41,6 +41,14 @@ struct SmallStruct
     SerialSmall ss;
 };
 
+class OptionalClass
+{
+    bool bo;
+    byte by;
+    optional(1) short sh;
+    optional(2) int i;
+};
+
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
 

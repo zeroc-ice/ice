@@ -323,6 +323,54 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
 
     {
+        out = Ice::createOutputStream(communicator);
+        Test::OptionalClassPtr o = new Test::OptionalClass();
+        o->bo = false;
+        o->by = 5;
+        o->sh = 4;
+        o->i = 3;
+        out->write(o);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        Test::OptionalClassPtr o2;
+        in->read(o2);
+        in->readPendingObjects();
+        test(o2->bo == o->bo);
+        test(o2->by == o->by);
+        if(in->getEncoding() == Ice::Encoding_1_0)
+        {
+            test(!o2->sh);
+            test(!o2->i);
+        }
+        else
+        {
+            test(o2->sh == o->sh);
+            test(o2->i == o->i);
+        }
+    }
+
+    {
+        out = Ice::createOutputStream(communicator, Ice::Encoding_1_0);
+        Test::OptionalClassPtr o = new Test::OptionalClass();
+        o->bo = false;
+        o->by = 5;
+        o->sh = 4;
+        o->i = 3;
+        out->write(o);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data, Ice::Encoding_1_0);
+        Test::OptionalClassPtr o2;
+        in->read(o2);
+        in->readPendingObjects();
+        test(o2->bo == o->bo);
+        test(o2->by == o->by);
+        test(!o2->sh);
+        test(!o2->i);
+    }
+
+    {
         Ice::BoolSeq arr;
         arr.push_back(true);
         arr.push_back(false);

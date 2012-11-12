@@ -430,7 +430,8 @@ public final class Util
     }
 
     /**
-     * Creates an input stream for dynamic invocation and dispatch.
+     * Creates an input stream for dynamic invocation and dispatch. The stream uses
+     * the communicator's default encoding version.
      *
      * @param communicator The communicator for the stream.
      * @param bytes An encoded request or reply.
@@ -443,7 +444,23 @@ public final class Util
     }
 
     /**
-     * Creates an output stream for dynamic invocation and dispatch.
+     * Creates an input stream for dynamic invocation and dispatch. The stream uses
+     * the given encoding version.
+     *
+     * @param communicator The communicator for the stream.
+     * @param bytes An encoded request or reply.
+     * @param v The desired encoding version.
+     * @return The input stream.
+     **/
+    public static InputStream
+    createInputStream(Communicator communicator, byte[] bytes, EncodingVersion v)
+    {
+        return new InputStreamI(communicator, bytes, v);
+    }
+
+    /**
+     * Creates an output stream for dynamic invocation and dispatch. The stream uses
+     * the communicator's default encoding version.
      *
      * @param communicator The communicator for the stream.
      * @return The output stream.
@@ -452,6 +469,20 @@ public final class Util
     createOutputStream(Communicator communicator)
     {
         return new OutputStreamI(communicator);
+    }
+
+    /**
+     * Creates an output stream for dynamic invocation and dispatch. The stream uses
+     * the given encoding version.
+     *
+     * @param communicator The communicator for the stream.
+     * @param v The desired encoding version.
+     * @return The output stream.
+     **/
+    public static OutputStream
+    createOutputStream(Communicator communicator, EncodingVersion v)
+    {
+        return new OutputStreamI(communicator, v);
     }
 
     /**

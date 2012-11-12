@@ -31,7 +31,9 @@ class InputStreamI : public InputStream
 public:
 
     InputStreamI(const CommunicatorPtr&, const std::vector<Byte>&);
+    InputStreamI(const CommunicatorPtr&, const std::vector<Byte>&, const EncodingVersion&);
     InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&);
+    InputStreamI(const CommunicatorPtr&, const std::pair<const Byte*, const Byte*>&, const EncodingVersion&);
     virtual ~InputStreamI();
 
     virtual CommunicatorPtr communicator() const;
@@ -113,7 +115,9 @@ class OutputStreamI : public OutputStream
 {
 public:
 
-    OutputStreamI(const CommunicatorPtr&, IceInternal::BasicStream* = 0);
+    OutputStreamI(const CommunicatorPtr&);
+    OutputStreamI(const CommunicatorPtr&, const EncodingVersion&);
+    OutputStreamI(const CommunicatorPtr&, IceInternal::BasicStream*);
     virtual ~OutputStreamI();
 
     virtual CommunicatorPtr communicator() const;

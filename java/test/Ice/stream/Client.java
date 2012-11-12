@@ -19,32 +19,7 @@ import Ice.ShortSeqHelper;
 import Ice.IntSeqHelper;
 import Ice.LongSeqHelper;
 import Ice.StringSeqHelper;
-import test.Ice.stream.Test.BoolSSHelper;
-import test.Ice.stream.Test.ByteSSHelper;
-import test.Ice.stream.Test.DoubleSSHelper;
-import test.Ice.stream.Test.FloatSSHelper;
-import test.Ice.stream.Test.ShortSSHelper;
-import test.Ice.stream.Test.IntSSHelper;
-import test.Ice.stream.Test.LongSSHelper;
-import test.Ice.stream.Test.StringSSHelper;
-import test.Ice.stream.Test.MyClass;
-import test.Ice.stream.Test.MyClassPrxHelper;
-import test.Ice.stream.Test.MyClassSHelper;
-import test.Ice.stream.Test.MyClassSSHelper;
-import test.Ice.stream.Test.MyEnum;
-import test.Ice.stream.Test.MyEnumSHelper;
-import test.Ice.stream.Test.MyEnumSSHelper;
-import test.Ice.stream.Test.MyInterface;
-import test.Ice.stream.Test.MyInterfaceHelper;
-import test.Ice.stream.Test.MyInterfaceHolder;
-import test.Ice.stream.Test.SmallStruct;
-import test.Ice.stream.Test.MyException;
-import test.Ice.stream.Test.ByteBoolDHelper;
-import test.Ice.stream.Test.ShortIntDHelper;
-import test.Ice.stream.Test.LongFloatDHelper;
-import test.Ice.stream.Test.StringStringDHelper;
-import test.Ice.stream.Test.StringMyClassDHelper;
-import test.Ice.stream.Test._MyInterfaceDisp;
+import test.Ice.stream.Test.*;
 
 import java.io.PrintWriter;
 
@@ -334,6 +309,60 @@ public class Client extends test.Util.Application
             SmallStruct s2 = new SmallStruct();
             s2.ice_read(in);
             test(s2.equals(s));
+            out.destroy();
+            in.destroy();
+        }
+
+        {
+            out = Ice.Util.createOutputStream(comm);
+            OptionalClass o = new OptionalClass();
+            o.bo = true;
+            o.by = (byte)5;
+            o.setSh((short)4);
+            o.setI(3);
+            out.writeObject(o);
+            out.writePendingObjects();
+            byte[] data = out.finished();
+            in = Ice.Util.createInputStream(comm, data);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            in.readObject(cb);
+            in.readPendingObjects();
+            OptionalClass o2 = (OptionalClass)cb.obj;
+            test(o2.bo == o.bo);
+            test(o2.by == o.by);
+            if(comm.getProperties().getProperty("Ice.Default.EncodingVersion").equals("1.0"))
+            {
+                test(!o2.hasSh());
+                test(!o2.hasI());
+            }
+            else
+            {
+                test(o2.getSh() == o.getSh());
+                test(o2.getI() == o.getI());
+            }
+            out.destroy();
+            in.destroy();
+        }
+
+        {
+            out = Ice.Util.createOutputStream(comm, Ice.Util.Encoding_1_0);
+            OptionalClass o = new OptionalClass();
+            o.bo = true;
+            o.by = (byte)5;
+            o.setSh((short)4);
+            o.setI(3);
+            out.writeObject(o);
+            out.writePendingObjects();
+            byte[] data = out.finished();
+            in = Ice.Util.createInputStream(comm, data, Ice.Util.Encoding_1_0);
+            TestReadObjectCallback cb = new TestReadObjectCallback();
+            in.readObject(cb);
+            in.readPendingObjects();
+            OptionalClass o2 = (OptionalClass)cb.obj;
+            test(o2.bo == o.bo);
+            test(o2.by == o.by);
+            test(!o2.hasSh());
+            test(!o2.hasI());
             out.destroy();
             in.destroy();
         }

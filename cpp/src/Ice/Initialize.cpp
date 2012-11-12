@@ -257,15 +257,34 @@ Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& 
 }
 
 InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes, const EncodingVersion& v)
+{
+    return new InputStreamI(communicator, bytes, v);
+}
+
+InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
 {
     return new InputStreamI(communicator, bytes);
+}
+
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                       const EncodingVersion& v)
+{
+    return new InputStreamI(communicator, bytes, v);
 }
 
 OutputStreamPtr
 Ice::createOutputStream(const CommunicatorPtr& communicator)
 {
     return new OutputStreamI(communicator);
+}
+
+OutputStreamPtr
+Ice::createOutputStream(const CommunicatorPtr& communicator, const EncodingVersion& v)
+{
+    return new OutputStreamI(communicator, v);
 }
 
 static IceUtil::Mutex* processLoggerMutex = 0;

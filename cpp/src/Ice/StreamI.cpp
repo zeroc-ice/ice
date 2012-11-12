@@ -94,12 +94,35 @@ InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const vector<Byt
     _is->i = _is->b.begin();
 }
 
+InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const vector<Byte>& data, const EncodingVersion& v) :
+    _communicator(communicator),
+    _closure(0)
+{
+    Instance* instance = getInstance(communicator).get();
+    _is = new BasicStream(instance, v, true);
+    _is->closure(this);
+    _is->writeBlob(data);
+    _is->i = _is->b.begin();
+}
+
 InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
     _communicator(communicator),
     _closure(0)
 {
     Instance* instance = getInstance(communicator).get();
     _is = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
+    _is->closure(this);
+    _is->writeBlob(data.first, data.second - data.first);
+    _is->i = _is->b.begin();
+}
+
+InputStreamI::InputStreamI(const CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data,
+                           const EncodingVersion& v) :
+    _communicator(communicator),
+    _closure(0)
+{
+    Instance* instance = getInstance(communicator).get();
+    _is = new BasicStream(instance, v, true);
     _is->closure(this);
     _is->writeBlob(data.first, data.second - data.first);
     _is->i = _is->b.begin();
@@ -395,14 +418,26 @@ InputStreamI::closure() const
 //
 // OutputStreamI
 //
-OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator, BasicStream* os) :
-    _communicator(communicator), _os(os), _own(!os)
+OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator) :
+    _communicator(communicator), _own(true)
 {
-    if(!_os)
-    {
-        Instance* instance = getInstance(communicator).get();
-        _os = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
-    }
+    Instance* instance = getInstance(communicator).get();
+    _os = new BasicStream(instance, instance->defaultsAndOverrides()->defaultEncoding, true);
+    _os->closure(this);
+}
+
+OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator, const EncodingVersion& v) :
+    _communicator(communicator), _own(true)
+{
+    Instance* instance = getInstance(communicator).get();
+    _os = new BasicStream(instance, v, true);
+    _os->closure(this);
+}
+
+OutputStreamI::OutputStreamI(const CommunicatorPtr& communicator, BasicStream* os) :
+    _communicator(communicator), _os(os), _own(false)
+{
+    assert(os);
     _os->closure(this);
 }
 

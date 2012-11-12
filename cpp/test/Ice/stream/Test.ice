@@ -42,6 +42,14 @@ struct SmallStruct
     int i;
 };
 
+class OptionalClass
+{
+    bool bo;
+    byte by;
+    optional(1) short sh;
+    optional(2) int i;
+};
+
 sequence<MyEnum> MyEnumS;
 sequence<SmallStruct> SmallStructS;
 sequence<MyClass> MyClassS;

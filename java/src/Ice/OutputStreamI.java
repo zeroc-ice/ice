@@ -21,6 +21,15 @@ public class OutputStreamI implements OutputStream
     }
 
     public
+    OutputStreamI(Communicator communicator, EncodingVersion v)
+    {
+        _communicator = communicator;
+        IceInternal.Instance instance = IceInternal.Util.getInstance(communicator);
+        _os = new IceInternal.BasicStream(instance, v, true, false);
+        _os.closure(this);
+    }
+
+    public
     OutputStreamI(Communicator communicator, IceInternal.BasicStream os)
     {
         _communicator = communicator;

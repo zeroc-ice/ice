@@ -20,10 +20,8 @@ if len(path) == 0:
 sys.path.append(os.path.join(path[0], "scripts"))
 import TestUtil
 
-sys.stdout.write("starting test... ")
-sys.stdout.flush()
-clientProc = TestUtil.startClient("test.Ice.stream.Client",startReader=False)
-print("ok")
-clientProc.startReader()
+print("Running test with default encoding...")
+TestUtil.simpleTest("test.Ice.stream.Client")
 
-clientProc.waitTestSuccess()
+print("Running test with 1.0 encoding...")
+TestUtil.simpleTest("test.Ice.stream.Client", "--Ice.Default.EncodingVersion=1.0")
