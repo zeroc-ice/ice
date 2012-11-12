@@ -359,6 +359,8 @@ public class AppSession
                 }
             });
         }
+        
+        public static final long serialVersionUID = 1;
     }
 
     // Any exception destroys the session.
