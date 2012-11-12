@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.ui.preferences.ScopedPreferenceStore;
 
 import com.zeroc.slice2javaplugin.Activator;
@@ -525,7 +524,7 @@ public class Configuration
                 
                 for(String jar : jars)
                 {
-                    iceJars.remove(jar);
+                    removeJars.remove(jar);
                     addLibrary(javaProject, jar);
                 }
                 

@@ -2,7 +2,7 @@
 <feature
       id="com.zeroc.Slice2Java"
       label="Slice2Java Eclipse Plugin"
-      version="3.4.2.qualifier"
+      version="3.5.0.qualifier"
       provider-name="ZeroC, Inc.">
 
    <description url="http://www.zeroc.com">

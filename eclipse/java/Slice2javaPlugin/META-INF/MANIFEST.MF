@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name.0
 Bundle-SymbolicName: com.zeroc.Slice2JavaPlugin;singleton:=true
-Bundle-Version: 3.4.2.qualifier
+Bundle-Version: 3.5.0.qualifier
 Bundle-Activator: com.zeroc.slice2javaplugin.Activator
 Bundle-Vendor: %Bundle-Vendor.0
 Require-Bundle: org.eclipse.ui,
@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core;bundle-version="3.4.2",
  org.eclipse.core.filesystem;bundle-version="1.2.0",
  org.eclipse.ui.ide;bundle-version="3.4.1"
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: com.zeroc.slice2javaplugin,
  com.zeroc.slice2javaplugin.builder,
