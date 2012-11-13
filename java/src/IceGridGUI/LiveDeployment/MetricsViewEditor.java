@@ -764,27 +764,6 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext
                     }
                 }
 
-                table.addComponentListener(new ComponentAdapter()
-                    {
-                        public void componentResized(ComponentEvent e)
-                        {
-                            int idColumn = table.getColumnModel().getColumnIndex(_properties.getProperty(
-                                                            "IceGridGUI.Metrics." + entry.getKey() + ".id.columnName"));
-                            TableModel model = (TableModel)table.getModel();
-                            DefaultTableColumnModel colModel = (DefaultTableColumnModel)table.getColumnModel();
-                            TableColumn col = colModel.getColumn(idColumn);
-                            col.setPreferredWidth((int)(table.getPreferredSize().width * 0.9f));
-                            for(int i = 0; i < colModel.getColumnCount(); ++i)
-                            {
-                                col = colModel.getColumn(i);
-                                if(idColumn != i)
-                                {
-                                    col.setPreferredWidth((int)(table.getPreferredSize().width * 0.1f));
-                                }
-                            }
-                        }
-                    });
-
                 _tables.put(entry.getKey(), table);
                 rebuildPanel = true;
             }
