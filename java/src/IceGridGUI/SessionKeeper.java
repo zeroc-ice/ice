@@ -8,7 +8,6 @@
 // **********************************************************************
 
 package IceGridGUI;
-
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.border.EmptyBorder;
@@ -1050,8 +1049,8 @@ public class SessionKeeper
             super(parent, true);
             _conf = inf;
             initialize("Edit Connection - IceGrid Admin", parent);
-            _storeConfiguration.setEnabled(false);
-            _connectConfiguration.setSelected(false);
+            _saveConnection.setEnabled(false);
+            _connectNow.setSelected(false);
             _nextButton.requestFocusInWindow();
         }
 
@@ -1094,11 +1093,11 @@ public class SessionKeeper
                     });
                 group.add(_routedConnection);
 
-                builder.append(new JLabel("<html><b>Configuration Type</b></html>"));
+                builder.append(new JLabel("<html><b>Connection Type</b></html>"));
                 builder.append(_directConnection);
-                builder.append(new JLabel("Connect directly to an IceGrid registry server."));
+                builder.append(new JLabel("Connect directly to an IceGrid registry."));
                 builder.append(_routedConnection);
-                builder.append(new JLabel("Connect to IceGrid registry using a Glacier2 router."));
+                builder.append(new JLabel("Connect to an IceGrid registry through a Glacier2 router."));
                 _cardPanel.add(builder.getPanel(), WizardStep.ConnectionTypeStep.toString());
             }
 
@@ -1130,10 +1129,13 @@ public class SessionKeeper
 
                 builder.append("<html><b>Instance Name:</b></html>");
                 builder.append(_directInstanceName);
-                builder.append(new JLabel("The name of the IceGrid instance you want to connect."));
-
-                _directConnectToMaster = new JCheckBox("Connect to Master Registry.");
+                builder.append(new JLabel("The instance name of the IceGrid registry you want to connect to."));
+                
+                _directConnectToMaster = new JCheckBox("Connect to a Master Registry.");
+                _directConnectToMaster.setSelected(true); // on by default
                 builder.append(_directConnectToMaster);
+                builder.append(new JLabel("You need to connect to a Master Registry to change definitions."));
+                
 
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectInstanceStep.toString());
             }
@@ -1165,7 +1167,7 @@ public class SessionKeeper
 
                 builder.append("<html><b>Instance Name:</b></html>");
                 builder.append(_routedInstanceName);
-                builder.append(new JLabel("The name of the Glacier2 instance you want to connect."));
+                builder.append(new JLabel("The instance name of the Glacier2 router you want to connect to."));
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedInstanceStep.toString());
             }
 
@@ -1177,9 +1179,8 @@ public class SessionKeeper
                 builder.rowGroupingEnabled(true);
 
                 ButtonGroup group = new ButtonGroup();
-
                 _directDefaultEndpoints = new JRadioButton(
-                    new AbstractAction("connect with a host name and port number")
+                    new AbstractAction("A hostname and a port number?")
                         {
                             public void actionPerformed(ActionEvent e)
                             {
@@ -1188,7 +1189,7 @@ public class SessionKeeper
                         });
                 _directDefaultEndpoints.setSelected(true);
                 group.add(_directDefaultEndpoints);
-                _directCustomEndpoints = new JRadioButton(new AbstractAction("provide an endpoint string")
+                _directCustomEndpoints = new JRadioButton(new AbstractAction("An endpoint string?")
                     {
                         public void actionPerformed(ActionEvent e)
                         {
@@ -1197,7 +1198,8 @@ public class SessionKeeper
                     });
                 group.add(_directCustomEndpoints);
 
-                builder.append(new JLabel("<html><b>Endpoint Configuration</b></html>"));
+                builder.append(new JLabel("<html><b>Addressing Information</b></html>"));
+                builder.append(new JLabel("Do you want to provide addressing information for the IceGrid registry as:"));
                 builder.append(_directDefaultEndpoints);
                 builder.append(_directCustomEndpoints);
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectEndpointStep.toString());
@@ -1213,7 +1215,7 @@ public class SessionKeeper
                 ButtonGroup group = new ButtonGroup();
 
                 _routedDefaultEndpoints = new JRadioButton(
-                    new AbstractAction("connect with a host name and port number")
+                    new AbstractAction("A hostname and a port number?")
                         {
                             public void actionPerformed(ActionEvent e)
                             {
@@ -1222,7 +1224,7 @@ public class SessionKeeper
                         });
                 _routedDefaultEndpoints.setSelected(true);
                 group.add(_routedDefaultEndpoints);
-                _routedCustomEndpoints = new JRadioButton(new AbstractAction("provide an endpoint string")
+                _routedCustomEndpoints = new JRadioButton(new AbstractAction("An endpoint string?")
                     {
                         public void actionPerformed(ActionEvent e)
                         {
@@ -1231,17 +1233,18 @@ public class SessionKeeper
                     });
                 group.add(_routedCustomEndpoints);
 
-                builder.append(new JLabel("<html><b>Endpoint Configuration</b></html>"));
+                builder.append(new JLabel("<html><b>Addressing Information</b></html>"));
+                builder.append(new JLabel("Do you want to provide addressing information for the Glacier2 router as:"));
                 builder.append(_routedDefaultEndpoints);
-                builder.append(new JLabel("This option will use the default Glacier2 endpoints."));
+            
                 builder.append(_routedCustomEndpoints);
-                builder.append(new JLabel("This option allow you to customize the Glacier2 endpoints you connect."));
+                
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedEndpointStep.toString());
             }
 
             // Direct Default Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1268,8 +1271,7 @@ public class SessionKeeper
                     });
 
                 builder.append("<html><b>Hostname:</b></html>", _directDefaultEndpointHost);
-                builder.nextLine();
-                builder.append("", new JLabel("The hostname or IP address IceGrid server listen on."));
+                builder.append("", new JLabel("The hostname or IP address of the IceGrid registry."));
                 builder.nextLine();
                 _directDefaultEndpointPort = new JTextField(5);
                 _directDefaultEndpointPort.addFocusListener(new FocusListener(_directDefaultEndpointPort));
@@ -1291,10 +1293,9 @@ public class SessionKeeper
                             _directDefaultEndpointPort.requestFocusInWindow();
                         }
                     });
-                builder.append("<html><b>Port:</b></html>", _directDefaultEndpointPort);
-                builder.nextLine();
-                builder.append("", new JLabel("<html>The port number IceGrid server listen on, " + 
-                                              "leave empty to use default<br/>IceGrid port.</html>"));
+                builder.append("<html><b>Port number:</b></html>", _directDefaultEndpointPort);
+                builder.append("", new JLabel("<html>The port number the IceGrid registry listens on; " + 
+                                              "leave empty to use the default <br/>IceGrid registry port number.</html>"));
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
                 _directDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
@@ -1326,7 +1327,7 @@ public class SessionKeeper
 
             // Routed Default Endpoint panel
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1353,8 +1354,7 @@ public class SessionKeeper
                     });
 
                 builder.append("<html><b>Hostname:</b></html>", _routedDefaultEndpointHost);
-                builder.nextLine();
-                builder.append("", new JLabel("The hostname or IP address Glacier2 server listen on."));
+                builder.append("", new JLabel("The hostname or IP address of the Glacier2 router."));
                 builder.nextLine();
                 _routedDefaultEndpointPort = new JTextField(5);
                 _routedDefaultEndpointPort.addFocusListener(new FocusListener(_routedDefaultEndpointPort));
@@ -1377,9 +1377,9 @@ public class SessionKeeper
                         }
                     });
                 builder.append("<html><b>Port:</b></html>", _routedDefaultEndpointPort);
-                builder.nextLine();
-                builder.append("", new JLabel("<html>The port number Glacier2 server listen on, " +
-                                              "leave empty to use default<br/>Glacier2 port.</html>"));
+                builder.append("", new JLabel("<html>The port number the Glacier2 router listens on; " + 
+                                              "leave empty to use the default <br/>Glacier2 router port number.</html>"));
+                
                 builder.nextLine();
                 ButtonGroup group = new ButtonGroup();
                 _routedDefaultEndpointTCP = new JRadioButton(new AbstractAction("TCP")
@@ -1435,10 +1435,10 @@ public class SessionKeeper
                         }
                     });
 
-                builder.append(new JLabel("<html><b>IceGrid registry endpoint(s)</b></html>"));
+                builder.append(new JLabel("<html><b>IceGrid Registry Endpoint(s)</b></html>"));
                 builder.append(_directCustomEndpointValue);
-                builder.append(new JLabel("<html>Corresponds to the client endpoints of this IceGrid registry.<br/>" +
-                                          "For example: tcp -h registry.domain.com -p 12000</html>"));
+                builder.append(new JLabel("<html>Corresponds to the client endpoints of the IceGrid registry.<br/>" +
+                                          "For example: tcp -h registry.domain.com -p 4061</html>"));
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectCustomEnpointStep.toString());
             }
 
@@ -1467,10 +1467,10 @@ public class SessionKeeper
                         }
                     });
 
-                builder.append(new JLabel("<html><b>Glacier2 router endpoint(s)</b></html>"));
+                builder.append(new JLabel("<html><b>Glacier2 Router Endpoint(s)</b></html>"));
                 builder.append(_routedCustomEndpointValue);
-                builder.append(new JLabel("<html>Corresponds to the client endpoints of this Glacier2 router.<br/>" +
-                                          "For example: tcp -h registry.domain.com -p 12000</html>"));
+                builder.append(new JLabel("<html>Corresponds to the client endpoints of the Glacier2 router.<br/>" +
+                                          "For example: tcp -h router.domain.com -p 4063</html>"));
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedCustomEnpointStep.toString());
             }
 
@@ -1501,7 +1501,7 @@ public class SessionKeeper
                     });
                 group.add(_x509CertificateYesButton);
 
-                builder.append(new JLabel("<html><b>Provide a SSL X509 Certificate?</b></html>"));
+                builder.append(new JLabel("<html><b>Do you want to provide a X.509 certificate for SSL authentication?</b></html>"));
                 builder.append(_x509CertificateNoButton);
                 builder.append(_x509CertificateYesButton);
 
@@ -1553,14 +1553,13 @@ public class SessionKeeper
                     ButtonGroup group = new ButtonGroup();
                     
                     builder.append("<html><b>Alias:</b></html>", alias);
-                    builder.append("", new JLabel("<html><p>The X509 certificate alias used to establish " +
-                                   "the connection with<br/>the IceGrid server.</p></html>"));
+                    builder.append("", new JLabel("<html><p>Your X.509 certificate, for SSL authentication.</p></html>"));
 
                     _directCertificatePassword = new JPasswordField();
                     builder.append("<html><b>Password:</b></html>", _directCertificatePassword);
-                    builder.append("", new JLabel("<html><p>The certificate password. If you leave it empty, " + 
-                                   "you will be prompted<br/>for a password each time you connect.</p></html>"));
-
+                    builder.append("", new JLabel("<html>Enter your certificate password above to save it with this connection; otherwise<br>" +
+                                                  "you will need to enter this password each time you connect.</p></html>"));
+                  
                     panel = builder.getPanel();
                 }
 
@@ -1568,7 +1567,7 @@ public class SessionKeeper
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
-                builder.append(new JLabel("<html><b>X509 Cerfificate</b></html>"));
+                builder.append(new JLabel("<html><b>X.509 Certificate</b></html>"));
                 builder.append(panel);
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectX509CredentialsStep.toString());
             }
@@ -1618,13 +1617,12 @@ public class SessionKeeper
                     ButtonGroup group = new ButtonGroup();
                     
                     builder.append("<html><b>Alias:</b></html>", alias);
-                    builder.append("", new JLabel("<html><p>The X509 certificate alias used to establish " +
-                                   "the connection with<br/>the Glacier2 server.</p></html>"));
+                    builder.append("", new JLabel("<html><p>Your X.509 certificate, for SSL authentication.</p></html>"));
 
                     _routedCertificatePassword = new JPasswordField();
                     builder.append("<html><b>Password:</b></html>", _routedCertificatePassword);
-                    builder.append("", new JLabel("<html><p>The certificate password. If you leave it empty, " + 
-                                   "you will be prompted<br/>for a password each time you connect.</p></html>"));
+                    builder.append("", new JLabel("<html>Enter your certificate password above to save it with this connection; otherwise<br>" +
+                                                  "you will need to enter this password each time you connect.</p></html>"));
 
                     panel = builder.getPanel();
                 }
@@ -1633,7 +1631,7 @@ public class SessionKeeper
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
-                builder.append(new JLabel("<html><b>X509 Cerfificate</b></html>"));
+                builder.append(new JLabel("<html><b>X.509 Certificate</b></html>"));
                 builder.append(panel);
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedX509CredentialsStep.toString());
             }
@@ -1648,7 +1646,7 @@ public class SessionKeeper
                 ButtonGroup group = new ButtonGroup();
 
                 _usernamePasswordAuthButton = new JRadioButton(
-                    new AbstractAction("Use Username/Password authentication")
+                    new AbstractAction("Log in with a username and password")
                         {
                             public void actionPerformed(ActionEvent e)
                             {
@@ -1657,7 +1655,7 @@ public class SessionKeeper
                         });
                 _usernamePasswordAuthButton.setSelected(true);
                 group.add(_usernamePasswordAuthButton);
-                _certificateAuthButton = new JRadioButton(new AbstractAction("Use X509 Certificate authentication")
+                _certificateAuthButton = new JRadioButton(new AbstractAction("Log in with my X.509 certificate")
                     {
                         public void actionPerformed(ActionEvent e)
                         {
@@ -1668,16 +1666,14 @@ public class SessionKeeper
 
                 builder.append(new JLabel("<html><b>Authentication Type</b></html>"));
                 builder.append(_usernamePasswordAuthButton);
-                builder.append(new JLabel("This option will use the Username/Password for authentication."));
                 builder.append(_certificateAuthButton);
-                builder.append(new JLabel("This option will use X509 Certificates for authentication."));
-
+             
                 _cardPanel.add(builder.getPanel(), WizardStep.AuthStep.toString());
             }
 
             // Direct Username password credentials panel
             {
-                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "");
+                FormLayout layout = new FormLayout("pref, 2dlu, pref:grow", "pref");
                 DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
@@ -1705,13 +1701,10 @@ public class SessionKeeper
                     });
 
                 builder.append("<html><b>Username:</b></html>", _directUsername);
-                builder.append("", new JLabel("<html><p>The username to autheticate with IceGrid server.</p></html>"));
-
                 _directPassword = new JPasswordField();
                 builder.append("<html><b>Password:</b></html>", _directPassword);
-                builder.append("", new JLabel("<html><p>The password to autheticate with IceGrid server. " +
-                                              "If you leave it empty,<br/>you will be prompted " + 
-                                              "for a password each time you connect.</p></html>"));
+                builder.append("", new JLabel("<html>Enter your password above to save it with this connection; otherwise you will<br>" +
+                                              "need to enter your password each time you connect.</p></html>"));
 
                 _cardPanel.add(builder.getPanel(), WizardStep.DirectUsernamePasswordCredentialsStep.toString());
             }
@@ -1746,13 +1739,10 @@ public class SessionKeeper
                     });
 
                 builder.append("<html><b>Username:</b></html>", _routedUsername);
-                builder.append("", new JLabel("<html><p>The username to autheticate with Glacier2 server.</p></html>"));
-
                 _routedPassword = new JPasswordField();
                 builder.append("<html><b>Password:</b></html>", _routedPassword);
-                builder.append("", new JLabel("<html><p>The password to autheticate with Glacier2 server. " +
-                                              "If you leave it empty,<br/>you will be prompted " + 
-                                              "for a password each time you connect.</p></html>"));
+                builder.append("", new JLabel("<html>Enter your Glacier2 password above to save it with this connection; otherwise<br>" +
+                                              "you will need to enter your password each time you connect.</p></html>"));
 
                 _cardPanel.add(builder.getPanel(), WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
             }
@@ -1764,13 +1754,13 @@ public class SessionKeeper
                 builder.border(Borders.DIALOG);
                 builder.rowGroupingEnabled(true);
 
-                _storeConfiguration = new JCheckBox("Save this configuration on the disk.");
-                _storeConfiguration.setSelected(true);
-                builder.append("<html><b>Save Configuration:</b></html>", _storeConfiguration);
+                _saveConnection = new JCheckBox("Save this connection.");
+                _saveConnection.setSelected(true);
+                builder.append("<html><b>Save Connection:</b></html>", _saveConnection);
 
-                _connectConfiguration = new JCheckBox("Connect now using this configuration.");
-                _connectConfiguration.setSelected(true);
-                builder.append("<html><b>Connect:</b></html>", _connectConfiguration);
+                _connectNow = new JCheckBox("Connect now to the IceGrid registry.");
+                _connectNow.setSelected(true);
+                builder.append("<html><b>Connect:</b></html>", _connectNow);
 
                 _cardPanel.add(builder.getPanel(), WizardStep.FinishStep.toString());
             }
@@ -2080,7 +2070,7 @@ public class SessionKeeper
                     {
                         boolean secureEndpoints = false;
                         ConnectionInfo inf = null;
-                        if(_storeConfiguration.isSelected())
+                        if(_saveConnection.isSelected())
                         {
                             inf = getConfiguration();
                         }
@@ -2284,7 +2274,7 @@ public class SessionKeeper
                             inf.setUseX509Certificate(false);
                         }
                         
-                        if(_storeConfiguration.isSelected())
+                        if(_saveConnection.isSelected())
                         {
                             try
                             {
@@ -2302,7 +2292,7 @@ public class SessionKeeper
                         }
 
                         ConnectionWizardDialog.this.dispose();
-                        if(_connectConfiguration.isSelected())
+                        if(_connectNow.isSelected())
                         {
                             login(parent, inf);
                         }
@@ -2449,7 +2439,7 @@ public class SessionKeeper
                 {
                     finalStep = true;
                     lastStep = true;
-                    _storeConfiguration.requestFocusInWindow();
+                    _saveConnection.requestFocusInWindow();
                     break;
                 }
                 default:
@@ -2910,8 +2900,8 @@ public class SessionKeeper
         private JPasswordField _routedPassword;
 
         // Finish configuration panel components
-        private JCheckBox _storeConfiguration;
-        private JCheckBox _connectConfiguration;
+        private JCheckBox _saveConnection;
+        private JCheckBox _connectNow;
 
         //
         // The wizard steps the user has walked throw.
