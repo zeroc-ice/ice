@@ -20,6 +20,7 @@
 #include <Ice/Identity.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/PropertiesF.h>
+#include <Ice/Version.h>
 
 #include <IceUtil/UniquePtr.h>
 
@@ -47,7 +48,7 @@ private:
     std::map<Ice::LocatorPrx, LocatorInfoPtr> _table;
     std::map<Ice::LocatorPrx, LocatorInfoPtr>::iterator _tableHint;
 
-    std::map<Ice::Identity, LocatorTablePtr> _locatorTables;
+    std::map<std::pair<Ice::Identity, Ice::EncodingVersion>, LocatorTablePtr> _locatorTables;
 };
 
 class LocatorTable : public IceUtil::Shared, public IceUtil::Mutex
@@ -143,7 +144,13 @@ public:
     bool operator!=(const LocatorInfo&) const;
     bool operator<(const LocatorInfo&) const;
 
-    Ice::LocatorPrx getLocator() const;
+    const Ice::LocatorPrx& getLocator() const
+    {
+        //
+        // No mutex lock necessary, _locator is immutable.
+        //
+        return _locator;
+    }
     Ice::LocatorRegistryPrx getLocatorRegistry();
 
     std::vector<EndpointIPtr> getEndpoints(const ReferencePtr& ref, int ttl, bool& cached)

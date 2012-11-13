@@ -36,6 +36,12 @@ public abstract class Reference implements Cloneable
         return _secure;
     }
 
+    public final Ice.ProtocolVersion
+    getProtocol() 
+    {
+        return _protocol;
+    }
+
     public final Ice.EncodingVersion
     getEncoding() 
     {
@@ -155,7 +161,7 @@ public abstract class Reference implements Cloneable
         return r;
     }
 
-    public final Reference
+    public Reference
     changeEncoding(Ice.EncodingVersion newEncoding)
     {
         if(newEncoding.equals(_encoding))
@@ -212,6 +218,7 @@ public abstract class Reference implements Cloneable
         {
             h = IceInternal.HashUtil.hashAdd(h, _compress);
         }
+        h = IceInternal.HashUtil.hashAdd(h, _protocol);
         h = IceInternal.HashUtil.hashAdd(h, _encoding);
 
         _hashValue = h;
@@ -253,6 +260,12 @@ public abstract class Reference implements Cloneable
         s.writeByte((byte)_mode);
 
         s.writeBool(_secure);
+
+        if(!s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            _protocol.__write(s);
+            _encoding.__write(s);
+        }
 
         // Derived class writes the remainder of the reference.
     }
@@ -348,6 +361,18 @@ public abstract class Reference implements Cloneable
             s.append(" -s");
         }
 
+        if(!_protocol.equals(Ice.Util.Protocol_1_0))
+        {
+            s.append(" -p ");
+            s.append(Ice.Util.protocolVersionToString(_protocol));
+        }
+
+        if(!_encoding.equals(Ice.Util.Encoding_1_0))
+        {
+            s.append(" -e ");
+            s.append(Ice.Util.encodingVersionToString(_encoding));
+        }
+
         return s.toString();
 
         // Derived class writes the remainder of the string.
@@ -404,6 +429,11 @@ public abstract class Reference implements Cloneable
             return false;
         }
 
+        if(!_protocol.equals(r._protocol))
+        {
+            return false;
+        }
+
         if(!_encoding.equals(r._encoding))
         {
             return false;
@@ -440,6 +470,7 @@ public abstract class Reference implements Cloneable
     private Ice.Identity _identity;
     private java.util.Map<String, String> _context;
     private String _facet;
+    private Ice.ProtocolVersion _protocol;
     private Ice.EncodingVersion _encoding;
     protected boolean _overrideCompress;
     protected boolean _compress; // Only used if _overrideCompress == true
@@ -451,6 +482,7 @@ public abstract class Reference implements Cloneable
               String facet,
               int mode,
               boolean secure,
+              Ice.ProtocolVersion protocol,
               Ice.EncodingVersion encoding)
     {
         //
@@ -467,6 +499,7 @@ public abstract class Reference implements Cloneable
         _identity = identity;
         _context = _emptyContext;
         _facet = facet;
+        _protocol = protocol;
         _encoding = encoding;
         _hashInitialized = false;
         _overrideCompress = false;

@@ -1882,7 +1882,6 @@ namespace Ice
             }
             else
             {
-                IceInternal.Protocol.checkSupportedEncoding(e);
                 return newInstance(_reference.changeEncoding(e));
             }
         }

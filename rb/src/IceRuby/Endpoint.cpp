@@ -169,8 +169,6 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     {
         info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
     }
-    rb_ivar_set(info, rb_intern("@protocol"), createProtocolVersion(p->protocol));
-    rb_ivar_set(info, rb_intern("@encoding"), createEncodingVersion(p->encoding));
     rb_ivar_set(info, rb_intern("@timeout"), INT2FIX(p->timeout));
     rb_ivar_set(info, rb_intern("@compress"), p->compress ? Qtrue : Qfalse);
     return info;

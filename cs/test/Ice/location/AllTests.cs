@@ -553,6 +553,18 @@ public class AllTests : TestCommon.TestApp
         hello.sayHello();
         WriteLine("ok");
 
+        Write("testing locator encoding resolution... ");
+        Flush();
+        hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        count = locator.getRequestCount();
+        communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
+        test(count == locator.getRequestCount());
+        communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        test(++count == locator.getRequestCount());
+        communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
+        test(++count == locator.getRequestCount());
+        WriteLine("ok");
+
         Write("shutdown server... ");
         Flush();
         obj.shutdown();

@@ -30,7 +30,7 @@ namespace IceInternal
         // Only for use by TcpEndpoint
         //
         internal UdpConnector(Instance instance, EndPoint addr, string mcastInterface, int mcastTtl,
-                              Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, string connectionId)
+                              string connectionId)
         {
             instance_ = instance;
 #if SILVERLIGHT
@@ -40,15 +40,11 @@ namespace IceInternal
 #endif
             _mcastInterface = mcastInterface;
             _mcastTtl = mcastTtl;
-            _protocol = protocol;
-            _encoding = encoding;
             _connectionId = connectionId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastInterface);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _protocol);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _encoding);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _mcastTtl);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
@@ -67,16 +63,6 @@ namespace IceInternal
 
             UdpConnector p = (UdpConnector)obj;
             if(!_connectionId.Equals(p._connectionId))
-            {
-                return false;
-            }
-
-            if(!_protocol.Equals(p._protocol))
-            {
-                return false;
-            }
-
-            if(!_encoding.Equals(p._encoding))
             {
                 return false;
             }
@@ -112,8 +98,6 @@ namespace IceInternal
 #endif
         private string _mcastInterface;
         private int _mcastTtl;
-        private Ice.ProtocolVersion _protocol;
-        private Ice.EncodingVersion _encoding;
         private string _connectionId;
         private int _hashCode;
     }

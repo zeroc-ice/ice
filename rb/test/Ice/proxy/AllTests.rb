@@ -161,6 +161,14 @@ def allTests(communicator)
     b1 = communicator.stringToProxy("test -s")
     test(b1.ice_isSecure())
 
+    test(b1.ice_getEncodingVersion() == Ice::currentEncoding());
+
+    b1 = communicator.stringToProxy("test -e 1.0");
+    test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0);
+
+    b1 = communicator.stringToProxy("test -e 6.5");
+    test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
+
     begin
         b1 = communicator.stringToProxy("test:tcp@adapterId")
         test(false)
@@ -270,26 +278,6 @@ def allTests(communicator)
     #test(!b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "")
 
-    property = propertyPrefix + ".EncodingVersion"
-    test(b1.ice_getEncodingVersion() == Ice::currentEncoding())
-    prop.setProperty(property, "1.0")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_getEncodingVersion().major == 1 && b1.ice_getEncodingVersion().minor == 0)
-    prop.setProperty(property, "6.5")
-    begin
-        communicator.propertyToProxy(propertyPrefix)
-        test(false)
-    rescue Ice::UnsupportedEncodingException
-    end
-
-    prop.setProperty(property, "1.2")
-    begin
-        communicator.propertyToProxy(propertyPrefix)
-        test(false)
-    rescue Ice::UnsupportedEncodingException
-    end
-    prop.setProperty(property, "")
-
     puts "ok"
 
     print "testing proxyToProperty... "
@@ -321,37 +309,28 @@ def allTests(communicator)
     b1 = b1.ice_locator(Ice::LocatorPrx::uncheckedCast(locator))
 
     proxyProps = communicator.proxyToProperty(b1, "Test")
-    test(proxyProps.length() == 21)
+    test(proxyProps.length() == 18)
 
     test(proxyProps["Test"] == "test -t")
     #test(proxyProps["Test.CollocationOptimized"] == "1")
-    test(proxyProps["Test.EncodingVersion"] == "1.0")
     test(proxyProps["Test.ConnectionCached"] == "1")
     test(proxyProps["Test.PreferSecure"] == "0")
     test(proxyProps["Test.EndpointSelection"] == "Ordered")
     test(proxyProps["Test.LocatorCacheTimeout"] == "100")
 
-    test(proxyProps["Test.Locator"] == "locator -t")
+    test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()))
     #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
-    test(proxyProps["Test.Locator.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding()))
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
 
-    test(proxyProps["Test.Locator.Router"] == "router -t")
+    test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()));
     #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
-    test(proxyProps["Test.Locator.Router.EncodingVersion"] == Ice::encodingVersionToString(Ice::currentEncoding()))
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
     test(proxyProps["Test.Locator.Router.EndpointSelection"] == "Random")
     test(proxyProps["Test.Locator.Router.LocatorCacheTimeout"] == "200")
-
-    begin
-        b1.ice_encodingVersion(Ice::EncodingVersion.new(3, 4))
-        test(false)
-    rescue Ice::UnsupportedEncodingException
-    end
 
     puts "ok"
 
@@ -562,6 +541,24 @@ def allTests(communicator)
     test(c == c2)
     puts "ok"
 
+    print "testing encoding versioning... "
+    STDOUT.flush
+    ref20 = "test -e 2.0:default -p 12010";
+    cl20 = Test::MyClassPrx::uncheckedCast(communicator.stringToProxy(ref20));
+    begin
+        cl20.ice_ping();
+        test(false);
+    rescue Ice::UnsupportedEncodingException
+        # Server 2.0 endpoint doesn't support 1.1 version.
+    end
+
+    ref10 = "test -e 1.0:default -p 12010";
+    cl10 = Test::MyClassPrx::uncheckedCast(communicator.stringToProxy(ref10));
+    cl10.ice_ping();
+    cl10.ice_encodingVersion(Ice::Encoding_1_0).ice_ping();
+    cl.ice_encodingVersion(Ice::Encoding_1_0).ice_ping();
+    puts "ok"
+
     print "testing opaque endpoints... "
     STDOUT.flush
 
@@ -643,17 +640,13 @@ def allTests(communicator)
     end
 
     # Legal TCP endpoint expressed as opaque endpoint.
-    p1 = communicator.stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
+    p1 = communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
     pstr = communicator.proxyToString(p1)
-    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
-    # 1.1 TCP endpoint encoded with 1.1 encoding.
-    p2 = communicator.stringToProxy("test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQE=")
-    test(communicator.proxyToString(p2) == "test -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 10000")
-
-    # 1.0 TCP endpoint encoded with 1.1 encoding.
-    p2 = communicator.stringToProxy("test: opaque -t 1 -e 1.1 -v CTEyNy4wLjAuMeouAAAQJwAAAAEAAQA=")
-    test(communicator.proxyToString(p2) == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    # Opaque endpoint encoded with 1.1 encoding.
+    p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
+    test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     # Working?
     if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
@@ -663,7 +656,7 @@ def allTests(communicator)
         end
 
         # Two legal TCP endpoints expressed as opaque endpoints
-        p1 = communicator.stringToProxy("test:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
+        p1 = communicator.stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
         pstr = communicator.proxyToString(p1)
         test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
@@ -671,7 +664,7 @@ def allTests(communicator)
         # Test that an SSL endpoint and a nonsense endpoint get written
         # back out as an opaque endpoint.
         #
-        p1 = communicator.stringToProxy("test:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
+        p1 = communicator.stringToProxy("test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         pstr = communicator.proxyToString(p1)
         if !ssl
             test(pstr == "test -t:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")

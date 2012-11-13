@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public class ServerLocator : Test.TestLocatorDisp_
 {
     public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
@@ -20,6 +22,13 @@ public class ServerLocator : Test.TestLocatorDisp_
                                                Ice.Current current)
     {
         ++_requestCount;
+        if(adapter.Equals("TestAdapter10") || adapter.Equals("TestAdapter10-2"))
+        {
+            Debug.Assert(current.encoding.Equals(Ice.Util.Encoding_1_0));
+            response.ice_response(_registry.getAdapter("TestAdapter"));
+            return;
+        }
+
         // We add a small delay to make sure locator request queuing gets tested when
         // running the test on a fast machine
         System.Threading.Thread.Sleep(1);

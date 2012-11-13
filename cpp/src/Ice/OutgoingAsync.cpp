@@ -438,6 +438,8 @@ IceInternal::OutgoingAsync::__prepare(const std::string& operation, OperationMod
     _mode = mode;
     _sentSynchronously = false;
 
+    checkSupportedProtocol(_proxy->__reference()->getProtocol());
+
     _observer.attach(_proxy.get(), operation, context);
 
     //
@@ -935,6 +937,8 @@ IceInternal::ProxyBatchOutgoingAsync::ProxyBatchOutgoingAsync(const Ice::ObjectP
 void
 IceInternal::ProxyBatchOutgoingAsync::__send()
 {
+    checkSupportedProtocol(_proxy->__reference()->getProtocol());
+
     //
     // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
     // requests were queued with the connection, they would be lost without being noticed.

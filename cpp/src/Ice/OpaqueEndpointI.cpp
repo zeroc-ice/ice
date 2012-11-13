@@ -25,7 +25,7 @@ const Ice::EncodingVersion Encoding_0_0 = { 0, 0 };
 }
 
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) : 
-    EndpointI(Protocol_0_0, Encoding_0_0, ""),
+    EndpointI(""),
     _rawEncoding(Ice::currentEncoding)
 {
     const string delim = " \t\n\r";
@@ -183,7 +183,7 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(const string& str) :
 }
 
 IceInternal::OpaqueEndpointI::OpaqueEndpointI(Short type, BasicStream* s) :
-    EndpointI(Protocol_0_0, Encoding_0_0, ""),
+    EndpointI(""),
     _type(type)
 {
     _rawEncoding = s->startReadEncaps();
@@ -247,7 +247,7 @@ private:
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
 InfoI::InfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes) : 
-    Ice::OpaqueEndpointInfo(Protocol_0_0, Encoding_0_0, -1, false, rawEncoding, rawBytes), 
+    Ice::OpaqueEndpointInfo(-1, false, rawEncoding, rawBytes), 
     _type(type)
 {
 }

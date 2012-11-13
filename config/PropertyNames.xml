@@ -249,7 +249,6 @@ generated from the section label.
         <suffix name="LocatorCacheTimeout" />
         <suffix name="Locator" />
         <suffix name="Router" />
-        <suffix name="EncodingVersion" />
         <suffix name="CollocationOptimized" />
     </class>
 

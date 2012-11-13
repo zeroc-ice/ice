@@ -488,7 +488,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
 
-    test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4); // 4 is for the seq variable size
+    // 4 is for the seq variable size
+    test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4);
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + static_cast<int>(bs.size()) + 4);
     if(sm2->sentBytes - sm1->sentBytes != replySz)
@@ -498,7 +499,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // to the operation is sent and getMetricsView can be dispatched before the metric is really
         // updated.
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(
+            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     }
     test(sm2->sentBytes - sm1->sentBytes == replySz);
 
@@ -511,7 +513,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cm2 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
 
-    test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4); // 4 is for the seq variable size
+    // 4 is for the seq variable size
+    test(cm2->sentBytes - cm1->sentBytes == requestSz + static_cast<int>(bs.size()) + 4);
     test(cm2->receivedBytes - cm1->receivedBytes == replySz);
     test(sm2->receivedBytes - sm1->receivedBytes == requestSz + static_cast<int>(bs.size()) + 4);
     if(sm2->sentBytes - sm1->sentBytes != replySz)
@@ -521,7 +524,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // to the operation is sent and getMetricsView can be dispatched before the metric is really
         // updated.
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
-        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        sm2 = IceMX::ConnectionMetricsPtr::dynamicCast(
+            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     }
     test(sm2->sentBytes - sm1->sentBytes == replySz);
     
@@ -574,7 +578,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cm1 = IceMX::ConnectionMetricsPtr::dynamicCast(clientMetrics->getMetricsView("View", timestamp)["Connection"][0]);
     while(true)
     {
-        sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
+        sm1 = IceMX::ConnectionMetricsPtr::dynamicCast(
+            serverMetrics->getMetricsView("View", timestamp)["Connection"][0]);
         if(sm1-> failures >= 2)
         {
             break;
@@ -593,14 +598,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator");
     //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-    testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                  "tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 500");
+    testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint", "tcp -h 127.0.0.1 -p 12010 -t 500");
 
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", "1");
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "false");
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", "false");
-    testAttribute(clientMetrics, clientProps, update, "Connection", "endpointProtocolVersion", "1.0");
-    testAttribute(clientMetrics, clientProps, update, "Connection", "endpointEncodingVersion", "1.1");
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500");
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "false");
     testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", "127.0.0.1");
@@ -660,13 +662,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",  
-                  "tcp -e 1.1 -h 127.0.0.1 -p 12010", c);
+                  "tcp -h 127.0.0.1 -p 12010", c);
 
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c);
-    testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointProtocolVersion", "1.0", c);
-    testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointEncodingVersion", "1.1", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c);
     testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", "127.0.0.1", c);
@@ -691,7 +691,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 1);
     m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][0];
 
-    test(m1->current <= 1 && m1->total == 1 && m1->id == "tcp -e 1.1 -h localhost -p 12010");
+    test(m1->current <= 1 && m1->total == 1 && m1->id == "tcp -h localhost -p 12010");
 
     prx->ice_getConnection()->close(false);
 
@@ -709,22 +709,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     test(clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"].size() == 2);
     m1 = clientMetrics->getMetricsView("View", timestamp)["EndpointLookup"][1];
-    test(m1->id == "tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010" && m1->total == 2 && m1->failures == 2);
+    test(m1->id == "tcp -h unknownfoo.zeroc.com -p 12010" && m1->total == 2 && m1->failures == 2);
     
     checkFailure(clientMetrics, "EndpointLookup", m1->id, "Ice::DNSException", 2);
 
     c = Connect(prx);
 
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c);
-    testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -e 1.1 -h localhost -p 12010", c);
+    testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
-                  "tcp -e 1.1 -h localhost -p 12010", c);
+                  "tcp -h localhost -p 12010", c);
 
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "false", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", "false", c);
-    testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointProtocolVersion", "1.0", c);
-    testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointEncodingVersion", "1.1", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "-1", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "false", c);
     testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c);
@@ -806,14 +804,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", "tcp -e 1.1 -h 127.0.0.1 -p 12010", op);
+    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", "tcp -h 127.0.0.1 -p 12010", op);
     //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "false", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "false", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointProtocolVersion", "1.0", op);
-    testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointEncodingVersion", "1.1", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "false", op);
     testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op);
@@ -997,7 +993,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                  "metrics -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 [op]", op);
+                  "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 [op]", op);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op);
@@ -1005,7 +1001,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                  "metrics -t:tcp -e 1.1 -h 127.0.0.1 -p 12010", op);
+                  "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010", op);
 
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op);

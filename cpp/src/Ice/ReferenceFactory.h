@@ -67,6 +67,7 @@ private:
 
     void checkForUnknownProperties(const std::string&);
     RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool, 
+                                const Ice::ProtocolVersion&, const Ice::EncodingVersion&,
                                 const std::vector<EndpointIPtr>&, const std::string&, const std::string&);
 
     const InstancePtr _instance;

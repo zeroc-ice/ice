@@ -48,16 +48,6 @@ IceInternal::UdpConnector::operator==(const Connector& r) const
         return false;
     }
 
-    if(_protocol != p->_protocol)
-    {
-        return false;
-    }
-
-    if(_encoding != p->_encoding)
-    {
-        return false;
-    }
-
     if(_connectionId != p->_connectionId)
     {
         return false;
@@ -91,24 +81,6 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
         return type() < r.type();
     }
 
-    if(_protocol < p->_protocol)
-    {
-        return true;
-    }
-    else if(p->_protocol < _protocol)
-    {
-        return false;
-    }
-
-    if(_encoding < p->_encoding)
-    {
-        return true;
-    }
-    else if(p->_encoding < _encoding)
-    {
-        return false;
-    }
-
     if(_connectionId < p->_connectionId)
     {
         return true;
@@ -139,15 +111,11 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
 }
 
 IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const Address& addr, 
-                                        const string& mcastInterface, int mcastTtl, 
-                                        const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding, 
-                                        const std::string& connectionId) :
+                                        const string& mcastInterface, int mcastTtl, const std::string& connectionId) :
     _instance(instance),
     _addr(addr),
     _mcastInterface(mcastInterface),
     _mcastTtl(mcastTtl),
-    _protocol(protocol),
-    _encoding(encoding),
     _connectionId(connectionId)
 {
 }

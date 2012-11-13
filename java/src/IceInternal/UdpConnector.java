@@ -46,22 +46,18 @@ final class UdpConnector implements Connector
     // Only for use by TcpEndpoint
     //
     UdpConnector(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl, 
-                 Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, String connectionId)
+                 String connectionId)
     {
         _instance = instance;
         _addr = addr;
         _mcastInterface = mcastInterface;
         _mcastTtl = mcastTtl;
-        _protocol = protocol;
-        _encoding = encoding;
         _connectionId = connectionId;
 
         _hashCode = 5381;
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastInterface);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _protocol);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _encoding);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _mcastTtl);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
@@ -85,16 +81,6 @@ final class UdpConnector implements Connector
             return false;
         }
 
-        if(!_protocol.equals(p._protocol))
-        {
-            return false;
-        }
-
-        if(!_encoding.equals(p._encoding))
-        {
-            return false;
-        }
-
         if(_mcastTtl != p._mcastTtl)
         {
             return false;
@@ -112,8 +98,6 @@ final class UdpConnector implements Connector
     private java.net.InetSocketAddress _addr;
     private String _mcastInterface;
     private int _mcastTtl;
-    private Ice.ProtocolVersion _protocol;
-    private Ice.EncodingVersion _encoding;
     private String _connectionId;
     private int _hashCode;
 }

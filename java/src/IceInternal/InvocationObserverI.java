@@ -90,18 +90,6 @@ public class InvocationObserverI extends IceMX.Observer<IceMX.InvocationMetrics>
             return _endpointInfo;
         }
 
-        public String
-        getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-    
-        public String
-        getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-
         final private Ice.ConnectionInfo _connectionInfo;
         final private Ice.Endpoint _endpoint;
         private String _id;

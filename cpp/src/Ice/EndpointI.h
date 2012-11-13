@@ -105,16 +105,6 @@ public:
     virtual bool secure() const = 0;
 
     //
-    // Returns the encoding version supported by this endpoint.
-    //
-    const ::Ice::EncodingVersion& encodingVersion() const;
-
-    //
-    // Returns the encoding version supported by this endpoint.
-    //
-    const ::Ice::ProtocolVersion& protocolVersion() const;
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new
@@ -165,15 +155,11 @@ protected:
     virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&) const;
     friend class EndpointHostResolver;
 
-    EndpointI(const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
+    EndpointI(const std::string&);
     EndpointI();
-
-    void parseOption(const std::string&, const std::string&, const std::string&, const std::string&);
 
     virtual ::Ice::Int hashInit() const = 0;
 
-    const Ice::ProtocolVersion _protocol;
-    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 
 private:

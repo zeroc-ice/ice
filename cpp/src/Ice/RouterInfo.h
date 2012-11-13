@@ -76,7 +76,13 @@ public:
     bool operator!=(const RouterInfo&) const;
     bool operator<(const RouterInfo&) const;
 
-    Ice::RouterPrx getRouter() const;
+    const Ice::RouterPrx& getRouter() const
+    {
+        //
+        // No mutex lock necessary, _router is immutable.
+        //
+        return _router;
+    }
     void getClientProxyResponse(const Ice::ObjectPrx&, const GetClientEndpointsCallbackPtr&);
     void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();

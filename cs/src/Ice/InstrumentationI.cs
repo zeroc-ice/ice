@@ -27,8 +27,6 @@ namespace IceInternal
             r.add("endpointType", cl.GetMethod("getEndpointInfo"), cli.GetMethod("type"));
             r.add("endpointIsDatagram", cl.GetMethod("getEndpointInfo"), cli.GetMethod("datagram"));
             r.add("endpointIsSecure", cl.GetMethod("getEndpointInfo"), cli.GetMethod("secure"));
-            r.add("endpointProtocolVersion", cl.GetMethod("getEndpointProtocolVersion"));
-            r.add("endpointEncodingVersion", cl.GetMethod("getEndpointEncodingVersion"));
             r.add("endpointTimeout", cl.GetMethod("getEndpointInfo"), cli.GetField("timeout"));
             r.add("endpointCompress", cl.GetMethod("getEndpointInfo"), cli.GetField("compress"));
             
@@ -165,16 +163,6 @@ namespace IceInternal
             return _endpointInfo;
         }
 
-        public string getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-
-        public string getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-    
         readonly private Ice.ConnectionInfo _connectionInfo;
         readonly private Ice.Endpoint _endpoint;
         readonly private Ice.Instrumentation.ConnectionState _state;
@@ -275,16 +263,6 @@ namespace IceInternal
                 _endpointInfo = _current.con.getEndpoint().getInfo();
             }
             return _endpointInfo;
-        }
-
-        public string getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-
-        public string getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
         }
 
         public Ice.Current getCurrent()
@@ -539,16 +517,6 @@ namespace IceInternal
             return _endpointInfo;
         }
 
-        public string getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-
-        public string getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-        
         public string getParent()
         {
             return "Communicator";
@@ -644,16 +612,6 @@ namespace IceInternal
             return _endpointInfo;
         }
 
-        public string getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-
-        public string getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-    
         readonly private Ice.ConnectionInfo _connectionInfo;
         readonly private Ice.Endpoint _endpoint;
         private string _id;

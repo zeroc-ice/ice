@@ -76,23 +76,18 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, EndPoint addr, int timeout, Ice.ProtocolVersion protocol, 
-                            Ice.EncodingVersion encoding, string connectionId)
+        internal ConnectorI(Instance instance, string host, EndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
             _host = host;
             _logger = instance.communicator().getLogger();
             _addr = (IPEndPoint)addr;
             _timeout = timeout;
-            _protocol = protocol;
-            _encoding = encoding;
             _connectionId = connectionId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _timeout);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _protocol);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _encoding);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
@@ -110,16 +105,6 @@ namespace IceSSL
 
             ConnectorI p = (ConnectorI)obj;
             if(_timeout != p._timeout)
-            {
-                return false;
-            }
-
-            if(!_protocol.Equals(p._protocol))
-            {
-                return false;
-            }
-
-            if(!_encoding.Equals(p._encoding))
             {
                 return false;
             }
@@ -147,8 +132,6 @@ namespace IceSSL
         private string _host;
         private IPEndPoint _addr;
         private int _timeout;
-        private Ice.ProtocolVersion _protocol;
-        private Ice.EncodingVersion _encoding;
         private string _connectionId;
         private int _hashCode;
     }

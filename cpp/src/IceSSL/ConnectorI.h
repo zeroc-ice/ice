@@ -42,8 +42,7 @@ public:
 
 private:
     
-    ConnectorI(const InstancePtr&, const std::string&, const struct sockaddr_storage&, Ice::Int, 
-               const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
+    ConnectorI(const InstancePtr&, const std::string&, const struct sockaddr_storage&, Ice::Int, const std::string&);
     virtual ~ConnectorI();
     friend class EndpointI;
 
@@ -52,8 +51,6 @@ private:
     const std::string _host;
     struct sockaddr_storage _addr;
     const Ice::Int _timeout;
-    const Ice::ProtocolVersion _protocol;
-    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 };
 

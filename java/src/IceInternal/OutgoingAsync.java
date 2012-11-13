@@ -26,6 +26,8 @@ public class OutgoingAsync extends Ice.AsyncResult implements OutgoingAsyncMessa
         _mode = mode;
         _sentSynchronously = false;
 
+        Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
+
         if(explicitCtx && ctx == null)
         {
             ctx = _emptyContext;

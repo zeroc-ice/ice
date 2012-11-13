@@ -63,8 +63,7 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, EndPoint addr, int timeout, Ice.ProtocolVersion protocol, 
-                              Ice.EncodingVersion encoding, string connectionId)
+        internal TcpConnector(Instance instance, EndPoint addr, int timeout, string connectionId)
         {
             _instance = instance;
             _traceLevels = instance.traceLevels();
@@ -75,15 +74,11 @@ namespace IceInternal
             _addr = (IPEndPoint)addr;
 #endif
             _timeout = timeout;
-            _protocol = protocol;
-            _encoding = encoding;
             _connectionId = connectionId;
 
             _hashCode = 5381;
             IceInternal.HashUtil.hashAdd(ref _hashCode, _addr);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _timeout);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _protocol);
-            IceInternal.HashUtil.hashAdd(ref _hashCode, _encoding);
             IceInternal.HashUtil.hashAdd(ref _hashCode, _connectionId);
         }
 
@@ -101,16 +96,6 @@ namespace IceInternal
 
             TcpConnector p = (TcpConnector)obj;
             if(_timeout != p._timeout)
-            {
-                return false;
-            }
-
-            if(!_protocol.Equals(p._protocol))
-            {
-                return false;
-            }
-
-            if(!_encoding.Equals(p._encoding))
             {
                 return false;
             }
@@ -142,8 +127,6 @@ namespace IceInternal
         private IPEndPoint _addr;
 #endif
         private int _timeout;
-        private Ice.ProtocolVersion _protocol;
-        private Ice.EncodingVersion _encoding;
         private string _connectionId;
         private int _hashCode;
     }

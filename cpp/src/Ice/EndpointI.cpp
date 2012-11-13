@@ -46,18 +46,6 @@ Init init;
 Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointHostResolver* p) { return p; }
 
-const Ice::EncodingVersion&
-IceInternal::EndpointI::encodingVersion() const
-{
-    return _encoding;
-}
-
-const Ice::ProtocolVersion&
-IceInternal::EndpointI::protocolVersion() const
-{
-    return _protocol;
-}
-
 const string&
 IceInternal::EndpointI::connectionId() const
 {
@@ -86,72 +74,15 @@ IceInternal::EndpointI::connectors(const vector<Address>& addrs) const
     return vector<ConnectorPtr>();
 }
 
-IceInternal::EndpointI::EndpointI(const Ice::ProtocolVersion& protocol, 
-                                  const Ice::EncodingVersion& encoding, 
-                                  const std::string& connectionId) : 
-    _protocol(protocol),
-    _encoding(encoding), 
+IceInternal::EndpointI::EndpointI(const std::string& connectionId) : 
     _connectionId(connectionId),
     _hashInitialized(false)
 {
 }
 
 IceInternal::EndpointI::EndpointI() : 
-    _protocol(Ice::currentProtocol),
-    _encoding(Ice::currentEncoding), 
     _hashInitialized(false) 
 {
-}
-
-void
-IceInternal::EndpointI::parseOption(const string& option, const string& arg, const string& desc, const string& str)
-{
-    if(option == "-v")
-    {
-        if(arg.empty())
-        {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -v option in endpoint `" + desc + " " + str + "'";
-            throw ex;
-        }
-
-        try 
-        {
-            const_cast<Ice::ProtocolVersion&>(_protocol) = Ice::stringToProtocolVersion(arg);
-        }
-        catch(const Ice::VersionParseException& e)
-        {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid protocol version `" + arg + "' in endpoint `" + desc + " " + str + "':\n" + e.str;
-            throw ex;
-        }
-    }
-    else if(option == "-e")
-    {
-        if(arg.empty())
-        {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -e option in endpoint `" + desc + " " + str + "'";
-            throw ex;
-        }
-
-        try 
-        {
-            const_cast<Ice::EncodingVersion&>(_encoding) = Ice::stringToEncodingVersion(arg);
-        }
-        catch(const Ice::VersionParseException& e)
-        {
-            Ice::EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "invalid encoding version `" + arg + "' in endpoint `" + desc + " " + str + "':\n" + e.str;
-            throw ex;
-        }
-    }
-    else 
-    {
-        Ice::EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "unknown option `" + option + "' in `" + desc + " " + str + "'";
-        throw ex;
-    }
 }
 
 #ifndef ICE_OS_WINRT

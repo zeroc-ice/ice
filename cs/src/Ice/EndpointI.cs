@@ -23,17 +23,13 @@ namespace IceInternal
 
     public abstract class EndpointI : Ice.Endpoint, System.IComparable<EndpointI>
     {    
-        public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, string connectionId)
+        public EndpointI(string connectionId)
         {
-            protocol_ = protocol;
-            encoding_ = encoding;
             connectionId_ = connectionId;
         }
 
         public EndpointI()
         {
-            protocol_ = Ice.Util.currentProtocol;
-            encoding_ = Ice.Util.currentEncoding;
         }
 
         public override string ToString()
@@ -56,50 +52,12 @@ namespace IceInternal
         public override int GetHashCode()
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, protocol_);
-            IceInternal.HashUtil.hashAdd(ref h, encoding_);
             IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             return h;
         }
 
         public virtual int CompareTo(EndpointI p)
         {
-            if(protocol_.major < p.protocol_.major)
-            {
-                return -1;
-            }
-            else if(p.protocol_.major < protocol_.major)
-            {
-                return 1;
-            }
-
-            if(protocol_.minor < p.protocol_.minor)
-            {
-                return -1;
-            }
-            else if(p.protocol_.minor < protocol_.minor)
-            {
-                return 1;
-            }
-
-            if(encoding_.major < p.encoding_.major)
-            {
-                return -1;
-            }
-            else if(p.encoding_.major < encoding_.major)
-            {
-                return 1;
-            }
-
-            if(encoding_.minor < p.encoding_.minor)
-            {
-                return -1;
-            }
-            else if(p.encoding_.minor < encoding_.minor)
-            {
-                return 1;
-            }
-
             if(!connectionId_.Equals(p.connectionId_))
             {
                 return string.Compare(connectionId_, p.connectionId_, StringComparison.Ordinal);
@@ -163,22 +121,6 @@ namespace IceInternal
         // Return true if the endpoint is secure.
         //
         public abstract bool secure();
-
-        //
-        // Return the protocol supported by the endpoint.
-        //
-        public Ice.ProtocolVersion protocolVersion()
-        {
-            return protocol_;
-        }
-        
-        //
-        // Return the encoding supported by the endpoint.
-        //
-        public Ice.EncodingVersion encodingVersion()
-        {
-            return encoding_;
-        }
 
         //
         // Return the connection ID.

@@ -24,8 +24,6 @@ void addEndpointAttributes(typename Helper::Attributes& attrs)
     attrs.add("endpointType", &Helper::getEndpointInfo, &Ice::EndpointInfo::type);
     attrs.add("endpointIsDatagram", &Helper::getEndpointInfo, &Ice::EndpointInfo::datagram);
     attrs.add("endpointIsSecure", &Helper::getEndpointInfo, &Ice::EndpointInfo::secure);
-    attrs.add("endpointProtocolVersion", &Helper::getEndpointInfo, &Ice::EndpointInfo::protocol);
-    attrs.add("endpointEncodingVersion", &Helper::getEndpointInfo, &Ice::EndpointInfo::encoding);
     attrs.add("endpointTimeout", &Helper::getEndpointInfo, &Ice::EndpointInfo::timeout);
     attrs.add("endpointCompress", &Helper::getEndpointInfo, &Ice::EndpointInfo::compress);
     

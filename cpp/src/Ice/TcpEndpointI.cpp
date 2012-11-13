@@ -23,9 +23,8 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti,
-                                        const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding,
                                         const string& conId, bool co) :
-    EndpointI(protocol, encoding, conId),
+    EndpointI(conId),
     _instance(instance),
     _host(ho),
     _port(po),
@@ -35,7 +34,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding, ""),
+    EndpointI(""),
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -155,7 +154,9 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
 
             default:
             {
-                parseOption(option, argument, "tcp", str);
+                Ice::EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "unknown option `" + option + "' in endpoint `tcp " + str + "'";
+                throw ex;
             }
         }
     }
@@ -190,16 +191,6 @@ IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
-    if(s->getReadEncoding() > Ice::Encoding_1_0)
-    {
-        s->read(const_cast<Ice::ProtocolVersion&>(_protocol));
-        s->read(const_cast<Ice::EncodingVersion&>(_encoding));
-    }
-    else
-    {
-        const_cast<ProtocolVersion&>(_protocol) = Ice::Protocol_1_0;
-        const_cast<EncodingVersion&>(_encoding) = Ice::Encoding_1_0;
-    }
     s->endReadEncaps();
 }
 
@@ -212,11 +203,6 @@ IceInternal::TcpEndpointI::streamWrite(BasicStream* s) const
     s->write(_port);
     s->write(_timeout);
     s->write(_compress);
-    if(s->getWriteEncoding() > Ice::Encoding_1_0)
-    {
-        s->write(_protocol);
-        s->write(_encoding);
-    }
     s->endWriteEncaps();
 }
 
@@ -232,16 +218,6 @@ IceInternal::TcpEndpointI::toString() const
     //
     ostringstream s;
     s << "tcp";
-
-    if(_protocol != Ice::Protocol_1_0)
-    {
-        s << " -v " << _protocol;
-    }
-
-    if(_encoding != Ice::Encoding_1_0)
-    {
-        s << " -e " << _encoding;
-    }
 
     if(!_host.empty())
     {
@@ -277,9 +253,8 @@ IceInternal::TcpEndpointI::getInfo() const
     {
     public:
 
-        InfoI(const ProtocolVersion& pv, const EncodingVersion& ev, Ice::Int to, bool comp, const string& host, 
-              Ice::Int port) :
-            TCPEndpointInfo(pv, ev, to, comp, host, port)
+        InfoI(Ice::Int to, bool comp, const string& host, Ice::Int port) :
+            TCPEndpointInfo(to, comp, host, port)
         {
         }
 
@@ -302,7 +277,7 @@ IceInternal::TcpEndpointI::getInfo() const
         }
     };
 
-    return new InfoI(_protocol, _encoding, _timeout, _compress, _host, _port);
+    return new InfoI(_timeout, _compress, _host, _port);
 }
 
 Short
@@ -332,7 +307,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, timeout, _protocol, _encoding, _connectionId, _compress);
+        return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
     }
 }
 
@@ -345,7 +320,7 @@ IceInternal::TcpEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, connectionId, _compress);
+        return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
     }
 }
 
@@ -364,7 +339,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, _connectionId, compress);
+        return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
     }
 }
 
@@ -403,8 +378,8 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port, _instance->protocolSupport());
-    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _protocol, _encoding, _connectionId, 
-                            _compress);
+
+    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }
 
@@ -422,8 +397,7 @@ IceInternal::TcpEndpointI::expand() const
     {
         for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
         {
-            endps.push_back(new TcpEndpointI(_instance, *p, _port, _timeout, _protocol, _encoding, _connectionId, 
-                                             _compress));
+            endps.push_back(new TcpEndpointI(_instance, *p, _port, _timeout, _connectionId, _compress));
         }
     }
     return endps;
@@ -452,16 +426,6 @@ IceInternal::TcpEndpointI::operator==(const LocalObject& r) const
     if(this == p)
     {
         return true;
-    }
-
-    if(_protocol != p->_protocol)
-    {
-        return false;
-    }
-
-    if(_encoding != p->_encoding) 
-    {
-        return false;
     }
 
     if(_host != p->_host)
@@ -507,24 +471,6 @@ IceInternal::TcpEndpointI::operator<(const LocalObject& r) const
     }
 
     if(this == p)
-    {
-        return false;
-    }
-
-    if(_protocol < p->_protocol)
-    {
-        return true;
-    }
-    else if(p->_protocol < _protocol) 
-    {
-        return false;
-    }
-
-    if(_encoding < p->_encoding) 
-    {
-        return true;
-    }
-    else if(p->_encoding < _encoding) 
     {
         return false;
     }
@@ -585,10 +531,6 @@ IceInternal::TcpEndpointI::hashInit() const
     hashAdd(h, _host);
     hashAdd(h, _port);
     hashAdd(h, _timeout);
-    hashAdd(h, _protocol.major);
-    hashAdd(h, _protocol.minor);
-    hashAdd(h, _encoding.major);
-    hashAdd(h, _encoding.minor);
     hashAdd(h, _connectionId);
     hashAdd(h, _compress);
     return h;
@@ -600,7 +542,7 @@ IceInternal::TcpEndpointI::connectors(const vector<Address>& addresses) const
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _protocol, _encoding, _connectionId));
+        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
     }
     return connectors;
 }

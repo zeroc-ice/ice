@@ -72,6 +72,22 @@ public class RoutableReference extends Reference
     }
 
     public Reference
+    changeEncoding(Ice.EncodingVersion newEncoding)
+    {
+        RoutableReference r = (RoutableReference)super.changeEncoding(newEncoding);
+        if(r != this)
+        {
+            LocatorInfo locInfo = r._locatorInfo;
+            if(locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding))
+            {
+                r._locatorInfo = getInstance().locatorManager().get(
+                    (Ice.LocatorPrx)locInfo.getLocator().ice_encodingVersion(newEncoding));
+            }
+        }
+        return r;
+    }
+
+    public Reference
     changeCompress(boolean newCompress)
     {
         RoutableReference r = (RoutableReference)super.changeCompress(newCompress);
@@ -334,7 +350,6 @@ public class RoutableReference extends Reference
         properties.put(prefix + ".PreferSecure", _preferSecure ? "1" : "0");
         properties.put(prefix + ".EndpointSelection", 
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered");
-        properties.put(prefix + ".EncodingVersion", Ice.Util.encodingVersionToString(getEncoding()));
 
         StringBuffer s = new StringBuffer();
         s.append(_locatorCacheTimeout);
@@ -630,6 +645,7 @@ public class RoutableReference extends Reference
                       String facet,
                       int mode,
                       boolean secure,
+                      Ice.ProtocolVersion protocol,
                       Ice.EncodingVersion encoding,
                       EndpointI[] endpoints,
                       String adapterId,
@@ -641,7 +657,7 @@ public class RoutableReference extends Reference
                       Ice.EndpointSelectionType endpointSelection,
                       int locatorCacheTimeout)
     {
-        super(instance, communicator, identity, facet, mode, secure, encoding);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding);
         _endpoints = endpoints;
         _adapterId = adapterId;
         _locatorInfo = locatorInfo;
@@ -691,16 +707,13 @@ public class RoutableReference extends Reference
         java.util.List<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
 
         //
-        // Filter out incompatible endpoints (whose encoding/protocol
-        // versions aren't supported by this runtime, or are opaque).
+        // Filter out opaque endpoints.
         //
-        final Ice.EncodingVersion encoding = getEncoding();
-        for(EndpointI p : allEndpoints)
+        for(EndpointI endpoint : allEndpoints)
         {
-            if(Protocol.isSupported(encoding, p.encodingVersion()) && 
-               Protocol.isSupported(Protocol.currentProtocol, p.protocolVersion()))
+            if(!(endpoint instanceof IceInternal.OpaqueEndpointI))
             {
-                endpoints.add(p);
+                endpoints.add(endpoint);
             }
         }
         

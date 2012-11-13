@@ -329,7 +329,7 @@ def run(tests, root = False):
         elif o == "--protocol":
             if a not in ( "ssl", "tcp"):
                 usage()
-            if getDefaultMapping() == "cs" and a == "ssl":
+            if not root and getDefaultMapping() == "cs" and a == "ssl":
                 if mono:
                     print("SSL is not supported with mono")
                     sys.exit(1)
@@ -1455,6 +1455,7 @@ def getTestEnv(lang, testdir):
         addClasspath(os.path.join(javaDir, "IceStorm.jar"), env)
         addClasspath(os.path.join(javaDir, "IceGrid.jar"), env)
         addClasspath(os.path.join(javaDir, "IcePatch2.jar"), env)
+        addClasspath(os.path.join(javaDir), env)
 
     #
     # On Windows, C# assemblies are found thanks to the .exe.config files.

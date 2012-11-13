@@ -36,8 +36,7 @@ public:
 
 private:
     
-    TcpConnector(const InstancePtr&, const Address&, Ice::Int, const Ice::ProtocolVersion&, 
-                 const Ice::EncodingVersion&, const std::string&);
+    TcpConnector(const InstancePtr&, const Address&, Ice::Int, const std::string&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
 
@@ -46,8 +45,6 @@ private:
     const ::Ice::LoggerPtr _logger;
     const Address _addr;
     const Ice::Int _timeout;
-    const Ice::ProtocolVersion _protocol;
-    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 };
 

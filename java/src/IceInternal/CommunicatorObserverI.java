@@ -23,8 +23,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
         r.add("endpointType", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("type"));
         r.add("endpointIsDatagram", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("datagram"));
         r.add("endpointIsSecure", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredMethod("secure"));
-        r.add("endpointProtocolVersion", cl.getDeclaredMethod("getEndpointProtocolVersion"));
-        r.add("endpointEncodingVersion", cl.getDeclaredMethod("getEndpointEncodingVersion"));
         r.add("endpointTimeout", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("timeout"));
         r.add("endpointCompress", cl.getDeclaredMethod("getEndpointInfo"), cli.getDeclaredField("compress"));
         
@@ -165,18 +163,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        public String
-        getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-    
-        public String
-        getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-    
         private final Ice.ConnectionInfo _connectionInfo;
         private final Ice.Endpoint _endpoint;
         private final Ice.Instrumentation.ConnectionState _state;
@@ -287,18 +273,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        public String
-        getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-
-        public String
-        getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-    
         public Ice.Current
         getCurrent()
         {
@@ -561,18 +535,6 @@ public class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorOb
             return _endpointInfo;
         }
 
-        public String
-        getEndpointEncodingVersion()
-        {
-            return Ice.Util.encodingVersionToString(getEndpointInfo().encoding);
-        }
-
-        public String
-        getEndpointProtocolVersion()
-        {
-            return Ice.Util.protocolVersionToString(getEndpointInfo().protocol);
-        }
-        
         public String
         getParent()
         {

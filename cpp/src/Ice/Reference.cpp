@@ -143,7 +143,7 @@ IceInternal::Reference::changeEncoding(const Ice::EncodingVersion& encoding) con
     r->_encoding = encoding;
     return r;
 }
-
+ 
 ReferencePtr
 IceInternal::Reference::changeCompress(bool newCompress) const
 {
@@ -192,6 +192,12 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     s->write(static_cast<Byte>(_mode));
 
     s->write(_secure);
+
+    if(s->getWriteEncoding() != Ice::Encoding_1_0)
+    {
+        s->write(_protocol);
+        s->write(_encoding);
+    }
 
     // Derived class writes the remainder of the reference.
 }
@@ -282,6 +288,16 @@ IceInternal::Reference::toString() const
         s << " -s";
     }
 
+    if(_protocol != Ice::Protocol_1_0)
+    {
+        s << " -p " << _protocol;
+    }
+
+    if(_encoding != Ice::Encoding_1_0)
+    {
+        s << " -e " << _encoding;
+    }
+
     return s.str();
 
     // Derived class writes the remainder of the string.
@@ -324,7 +340,12 @@ IceInternal::Reference::operator==(const Reference& r) const
         return false;
     }
 
-    if(_encoding != r._encoding)
+    if(_protocol != r._protocol)
+    {
+        return false;
+    }
+
+    if(_encoding != r._encoding) 
     {
         return false;
     }
@@ -410,11 +431,20 @@ IceInternal::Reference::operator<(const Reference& r) const
         return false;
     }
 
-    if(_encoding < r._encoding)
+    if(_protocol < r._protocol)
     {
         return true;
-    } 
-    else if(r._encoding > _encoding)
+    }
+    else if(r._protocol < _protocol) 
+    {
+        return false;
+    }
+
+    if(_encoding < r._encoding) 
+    {
+        return true;
+    }
+    else if(r._encoding < _encoding) 
     {
         return false;
     }
@@ -450,6 +480,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const string& facet, 
                                   Mode mode,
                                   bool secure,
+                                  const ProtocolVersion& protocol,
                                   const EncodingVersion& encoding) :
     _hashInitialized(false),
     _instance(instance),
@@ -459,6 +490,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
     _identity(id),
     _context(new SharedContext),
     _facet(facet),
+    _protocol(protocol),
     _encoding(encoding),
     _overrideCompress(false),
     _compress(false)
@@ -474,6 +506,7 @@ IceInternal::Reference::Reference(const Reference& r) :
     _identity(r._identity),
     _context(r._context),
     _facet(r._facet),
+    _protocol(r._protocol),
     _encoding(r._encoding),
     _overrideCompress(r._overrideCompress),
     _compress(r._compress)
@@ -495,6 +528,8 @@ IceInternal::Reference::hashInit() const
     {
         hashAdd(h, _compress);
     }
+    hashAdd(h, _protocol.major);
+    hashAdd(h, _protocol.minor);
     hashAdd(h, _encoding.major);
     hashAdd(h, _encoding.minor);
     return h;
@@ -510,7 +545,7 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             bool secure,
                                             const EncodingVersion& encoding,
                                             const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, encoding),
+    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding),
     _fixedConnection(fixedConnection)
 {
 }
@@ -820,7 +855,8 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   const string& facet,
                                                   Mode mode, 
                                                   bool secure, 
-                                                  const EncodingVersion& version,
+                                                  const ProtocolVersion& protocol,
+                                                  const EncodingVersion& encoding,
                                                   const vector<EndpointIPtr>& endpoints,
                                                   const string& adapterId,
                                                   const LocatorInfoPtr& locatorInfo,
@@ -830,7 +866,7 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& instance,
                                                   bool preferSecure, 
                                                   EndpointSelectionType endpointSelection,
                                                   int locatorCacheTimeout) :
-    Reference(instance, communicator, id, facet, mode, secure, version),
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding),
     _endpoints(endpoints),
     _adapterId(adapterId),
     _locatorInfo(locatorInfo),
@@ -904,6 +940,21 @@ string
 IceInternal::RoutableReference::getConnectionId() const
 {
     return _connectionId;
+}
+
+ReferencePtr
+IceInternal::RoutableReference::changeEncoding(const Ice::EncodingVersion& encoding) const
+{
+    ReferencePtr r = Reference::changeEncoding(encoding);
+    if(r.get() != const_cast<RoutableReference*>(this))
+    {
+        LocatorInfoPtr& locInfo = RoutableReferencePtr::dynamicCast(r)->_locatorInfo;
+        if(locInfo && locInfo->getLocator()->ice_getEncodingVersion() != encoding)
+        {
+            locInfo = getInstance()->locatorManager()->get(locInfo->getLocator()->ice_encodingVersion(encoding));
+        }
+    }
+    return r;
 }
 
 ReferencePtr
@@ -1175,7 +1226,6 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
     properties[prefix + ".EndpointSelection"] = _endpointSelection == Random ? "Random" : "Ordered";
-    properties[prefix + ".EncodingVersion"] = versionToString(getEncoding());
 
     ostringstream s;
     s << _locatorCacheTimeout;
@@ -1888,20 +1938,14 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 namespace
 {
 
-struct EndpointIsIncompatible : public unary_function<EndpointIPtr, bool>
+struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
 {
-    const Reference* _reference;
-
-    EndpointIsIncompatible(const Reference* reference) : _reference(reference)
-    {
-    }
+public:
 
     bool
-    operator()(const EndpointIPtr& p) const
+    operator()(EndpointIPtr p) const
     {
-        // If the enpoint doesn't support the proxy encoding or protocol, it's incompatible.
-        return !(isSupported(_reference->getEncoding(), p->encodingVersion()) && 
-                 isSupported(currentProtocol, p->protocolVersion()));
+        return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
     }
 };
 
@@ -1913,10 +1957,9 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     vector<EndpointIPtr> endpoints = allEndpoints;
 
     //
-    // Filter out incompatible endpoints (whose encoding/protocol
-    // versions aren't supported by this runtime, or are opaque).
+    // Filter out unknown endpoints.
     //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsIncompatible(this)), endpoints.end());
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
 
     //
     // Filter out endpoints according to the mode of the reference.

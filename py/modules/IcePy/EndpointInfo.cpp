@@ -123,24 +123,6 @@ endpointInfoSecure(EndpointInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-endpointInfoGetProtocol(EndpointInfoObject* self)
-{
-    return createProtocolVersion((*self->endpointInfo)->protocol);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-endpointInfoGetEncoding(EndpointInfoObject* self)
-{
-    return createEncodingVersion((*self->endpointInfo)->encoding);
-}
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
 endpointInfoGetTimeout(EndpointInfoObject* self)
 {
     return PyLong_FromLong((*self->endpointInfo)->timeout);
@@ -242,10 +224,6 @@ static PyMethodDef EndpointInfoMethods[] =
 
 static PyGetSetDef EndpointInfoGetters[] =
 {
-    { STRCAST("protocol"), reinterpret_cast<getter>(endpointInfoGetProtocol), 0,
-        PyDoc_STR(STRCAST("protocol version supported by the endpoint")), 0 },
-    { STRCAST("encoding"), reinterpret_cast<getter>(endpointInfoGetEncoding), 0,
-        PyDoc_STR(STRCAST("encoding version supported by the endpoint")), 0 },
     { STRCAST("timeout"), reinterpret_cast<getter>(endpointInfoGetTimeout), 0,
         PyDoc_STR(STRCAST("timeout in milliseconds")), 0 },
     { STRCAST("compress"), reinterpret_cast<getter>(endpointInfoGetCompress), 0,

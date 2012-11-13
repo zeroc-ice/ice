@@ -33,6 +33,8 @@ namespace IceInternal
             _encoding = handler.getReference().getEncoding();
             _os = new BasicStream(_handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
 
+            Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
+
             writeHeader(operation, mode, context);
         }
 
@@ -48,6 +50,8 @@ namespace IceInternal
             _handler = handler;
             _observer = observer;
             _encoding = handler.getReference().getEncoding();
+
+            Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
 
             writeHeader(operation, mode, context);
         }
@@ -657,6 +661,7 @@ namespace IceInternal
             _sent = false;
             _observer = observer;
             _os = new BasicStream(handler.getReference().getInstance(), Ice.Util.currentProtocolEncoding);
+            Protocol.checkSupportedProtocol(handler.getReference().getProtocol());
         }
 
         public void invoke()

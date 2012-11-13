@@ -26,7 +26,8 @@ namespace IceInternal
                 return null;
             }
 
-            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), endpoints, null, null);
+            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
+                          endpoints, null, null);
         }
 
         public Reference
@@ -40,7 +41,8 @@ namespace IceInternal
             //
             // Create new reference
             //
-            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), null, adapterId, null);
+            return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(),
+                          null, adapterId, null);
         }
 
         public Reference create(Ice.Identity ident, Ice.ConnectionI connection)
@@ -50,8 +52,6 @@ namespace IceInternal
                 return null;
             }
             
-            DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
-
             //
             // Create new reference
             //
@@ -62,7 +62,7 @@ namespace IceInternal
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
                 connection.endpoint().secure(),
-                defaultsAndOverrides.defaultEncoding,
+                instance_.defaultsAndOverrides().defaultEncoding,
                 connection);
             return updateCache(r);
         }
@@ -170,6 +170,7 @@ namespace IceInternal
             string facet = "";
             Reference.Mode mode = Reference.Mode.ModeTwoway;
             bool secure = false;
+            Ice.EncodingVersion encoding = instance_.defaultsAndOverrides().defaultEncoding;
             string adapter = "";
 
             while(true)
@@ -342,6 +343,25 @@ namespace IceInternal
                         break;
                     }
 
+                    case 'e':
+                    {
+                        if(argument == null)
+                        {
+                            throw new Ice.ProxyParseException("no argument provided for -e option `" + s + "'");
+                        }
+            
+                        try
+                        {
+                            encoding = Ice.Util.stringToEncodingVersion(argument);
+                        }
+                        catch(Ice.VersionParseException e)
+                        {
+                            throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s +
+                                                              "':\n" + e.str);
+                        }
+                        break;
+                    }
+
                     default:
                     {
                         Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -353,7 +373,7 @@ namespace IceInternal
 
             if(beg == -1)
             {
-                return create(ident, facet, mode, secure, null, null, propertyPrefix);
+                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, null, propertyPrefix);
             }
 
             List<EndpointI> endpoints = new List<EndpointI>();
@@ -444,7 +464,7 @@ namespace IceInternal
                 }
 
                 EndpointI[] ep = endpoints.ToArray();
-                return create(ident, facet, mode, secure, ep, null, propertyPrefix);
+                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, ep, null, propertyPrefix);
             }
             else if(s[beg] == '@')
             {
@@ -503,7 +523,8 @@ namespace IceInternal
                     e.str = "empty adapter id in `" + s + "'";
                     throw e;
                 }
-                return create(ident, facet, mode, secure, null, adapter, propertyPrefix);
+                return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, adapter,
+                              propertyPrefix);
             }
 
             Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -549,6 +570,21 @@ namespace IceInternal
 
             bool secure = s.readBool();
 
+            Ice.ProtocolVersion protocol;
+            Ice.EncodingVersion encoding;
+            if(!s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
+            {
+                protocol = new Ice.ProtocolVersion();
+                protocol.read__(s);
+                encoding = new Ice.EncodingVersion();
+                encoding.read__(s);
+            }
+            else
+            {
+                protocol = Ice.Util.Protocol_1_0;
+                encoding = Ice.Util.Encoding_1_0;
+            }
+
             EndpointI[] endpoints = null;
             string adapterId = "";
 
@@ -566,7 +602,7 @@ namespace IceInternal
                 adapterId = s.readString();
             }
             
-            return create(ident, facet, (Reference.Mode)mode, secure, endpoints, adapterId, null);
+            return create(ident, facet, (Reference.Mode)mode, secure, protocol, encoding, endpoints, adapterId, null);
         }
 
         public ReferenceFactory setDefaultRouter(Ice.RouterPrx defaultRouter)
@@ -715,6 +751,8 @@ namespace IceInternal
                                  string facet,
                                  Reference.Mode mode,
                                  bool secure,
+                                 Ice.ProtocolVersion protocol,
+                                 Ice.EncodingVersion encoding,
                                  EndpointI[] endpoints,
                                  string adapterId,
                                  string propertyPrefix)
@@ -724,12 +762,23 @@ namespace IceInternal
             //
             // Default local proxy options.
             //
-            LocatorInfo locatorInfo = instance_.locatorManager().get(_defaultLocator);
+            LocatorInfo locatorInfo = null;
+            if(_defaultLocator != null)
+            {
+                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).reference__().getEncoding().Equals(encoding))
+                {
+                    locatorInfo = instance_.locatorManager().get(
+                        (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
+                }
+                else
+                {
+                    locatorInfo = instance_.locatorManager().get(_defaultLocator);
+                }
+            }
             RouterInfo routerInfo = instance_.routerManager().get(_defaultRouter);
             bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
-            Ice.EncodingVersion encoding = defaultsAndOverrides.defaultEncoding;
             Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
             int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
@@ -782,14 +831,6 @@ namespace IceInternal
                 property = propertyPrefix + ".PreferSecure";
                 preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
 
-                property = propertyPrefix + ".EncodingVersion";
-                string encodingStr = properties.getProperty(property);
-                if(encodingStr.Length > 0)
-                {
-                    encoding = Ice.Util.stringToEncodingVersion(encodingStr);
-                    Protocol.checkSupportedEncoding(encoding);
-                }
-
                 property = propertyPrefix + ".EndpointSelection";
                 if(properties.getProperty(property).Length > 0)
                 {
@@ -822,6 +863,7 @@ namespace IceInternal
                                                      facet,
                                                      mode,
                                                      secure,
+                                                     protocol,
                                                      encoding,
                                                      endpoints,
                                                      adapterId,

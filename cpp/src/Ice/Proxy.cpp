@@ -870,7 +870,6 @@ IceProxy::Ice::Object::ice_encodingVersion(const ::Ice::EncodingVersion& encodin
     }
     else
     {
-        checkSupportedEncoding(encoding);
         ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeEncoding(encoding));
         return proxy;

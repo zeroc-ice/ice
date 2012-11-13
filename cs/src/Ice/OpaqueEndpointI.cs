@@ -16,7 +16,7 @@ namespace IceInternal
 
     sealed class OpaqueEndpointI : EndpointI
     {
-        public OpaqueEndpointI(string str) : base(new Ice.ProtocolVersion(0, 0), new Ice.EncodingVersion(0, 0), "")
+        public OpaqueEndpointI(string str) : base("")
         {
             int topt = 0;
             int vopt = 0;
@@ -182,7 +182,7 @@ namespace IceInternal
         private sealed class InfoI : Ice.OpaqueEndpointInfo
         {
             public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes) : 
-                base(Ice.Util.currentProtocol, Ice.Util.currentEncoding, -1, false, rawEncoding, rawBytes)
+                base(-1, false, rawEncoding, rawBytes)
             {                
                 _type = type;
             }

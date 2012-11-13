@@ -23,10 +23,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, 
-                             const Ice::ProtocolVersion& protocol, const Ice::EncodingVersion& encoding, 
-                             const string& conId, bool co) :
-    IceInternal::EndpointI(protocol, encoding, conId),
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, const string& conId, 
+                             bool co) :
+    IceInternal::EndpointI(conId),
     _instance(instance),
     _host(ho),
     _port(po),
@@ -36,7 +35,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int 
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    IceInternal::EndpointI(Ice::currentProtocol, instance->defaultEncoding(), ""),
+    IceInternal::EndpointI(""),
     _instance(instance),
     _port(0),
     _timeout(-1),
@@ -156,7 +155,9 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, boo
 
             default:
             {
-                parseOption(option, argument, "ssl", str);
+                Ice::EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "unknown option `" + option + "' in endpoint `ssl " + str + "'";
+                throw ex;
             }
         }
     }
@@ -191,16 +192,6 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
     s->read(const_cast<bool&>(_compress));
-    if(s->getReadEncoding() > Ice::Encoding_1_0)
-    {
-        s->read(const_cast<Ice::ProtocolVersion&>(_protocol));
-        s->read(const_cast<Ice::EncodingVersion&>(_encoding));
-    }
-    else
-    {
-        const_cast<ProtocolVersion&>(_protocol) = Ice::Protocol_1_0;
-        const_cast<EncodingVersion&>(_encoding) = Ice::Encoding_1_0;
-    }
     s->endReadEncaps();
 }
 
@@ -213,11 +204,6 @@ IceSSL::EndpointI::streamWrite(IceInternal::BasicStream* s) const
     s->write(_port);
     s->write(_timeout);
     s->write(_compress);
-    if(s->getWriteEncoding() > Ice::Encoding_1_0)
-    {
-        s->write(_protocol);
-        s->write(_encoding);
-    }
     s->endWriteEncaps();
 }
 
@@ -233,16 +219,6 @@ IceSSL::EndpointI::toString() const
     //
     ostringstream s;
     s << "ssl";
-
-    if(_protocol != Ice::Protocol_1_0)
-    {
-        s << " -v " << _protocol;
-    }
-
-    if(_encoding != Ice::Encoding_1_0)
-    {
-        s << " -e " << _encoding;
-    }
 
     if(!_host.empty())
     {
@@ -278,8 +254,7 @@ IceSSL::EndpointI::getInfo() const
     {
     public:
 
-        InfoI(const ProtocolVersion& pv, const EncodingVersion& ev, Int to, bool comp, const string& host, Int port) :
-            IceSSL::EndpointInfo(pv, ev, to, comp, host, port)
+        InfoI(Int to, bool comp, const string& host, Int port) : IceSSL::EndpointInfo(to, comp, host, port)
         {
         }
 
@@ -301,7 +276,7 @@ IceSSL::EndpointI::getInfo() const
             return true;
         }
     };
-    return new InfoI(_protocol, _encoding, _timeout, _compress, _host, _port);
+    return new InfoI(_timeout, _compress, _host, _port);
 }
 
 Short
@@ -331,7 +306,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, timeout, _protocol, _encoding, _connectionId, _compress);
+        return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
     }
 }
 
@@ -344,7 +319,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, connectionId, _compress);
+        return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
     }
 }
 
@@ -363,7 +338,7 @@ IceSSL::EndpointI::compress(bool compress) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, _connectionId, compress);
+        return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
     }
 }
 
@@ -402,8 +377,7 @@ IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
 {
     AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
-    endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _protocol, _encoding, _connectionId, 
-                         _compress);
+    endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress);
     return p;
 }
 
@@ -420,8 +394,7 @@ IceSSL::EndpointI::expand() const
     {
         for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
         {
-            endps.push_back(new EndpointI(_instance, *p, _port, _timeout, _protocol, _encoding, _connectionId, 
-                                          _compress));
+            endps.push_back(new EndpointI(_instance, *p, _port, _timeout, _connectionId, _compress));
         }
     }
     return endps;
@@ -450,16 +423,6 @@ IceSSL::EndpointI::operator==(const Ice::LocalObject& r) const
     if(this == p)
     {
         return true;
-    }
-
-    if(_protocol != p->_protocol)
-    {
-        return false;
-    }
-
-    if(_encoding != p->_encoding) 
-    {
-        return false;
     }
 
     if(_host != p->_host)
@@ -505,24 +468,6 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
     }
 
     if(this == p)
-    {
-        return false;
-    }
-
-    if(_protocol < p->_protocol)
-    {
-        return true;
-    }
-    else if(p->_protocol < _protocol) 
-    {
-        return false;
-    }
-
-    if(_encoding < p->_encoding) 
-    {
-        return true;
-    }
-    else if(p->_encoding < _encoding) 
     {
         return false;
     }
@@ -583,10 +528,6 @@ IceSSL::EndpointI::hashInit() const
     IceInternal::hashAdd(h, _host);
     IceInternal::hashAdd(h, _port);
     IceInternal::hashAdd(h, _timeout);
-    IceInternal::hashAdd(h, _protocol.major);
-    IceInternal::hashAdd(h, _protocol.minor);
-    IceInternal::hashAdd(h, _encoding.major);
-    IceInternal::hashAdd(h, _encoding.minor);
     IceInternal::hashAdd(h, _connectionId);
     IceInternal::hashAdd(h, _compress);
     return h;
@@ -598,8 +539,7 @@ IceSSL::EndpointI::connectors(const vector<struct sockaddr_storage>& addresses) 
     vector<IceInternal::ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _protocol, _encoding, 
-                                            _connectionId));
+        connectors.push_back(new ConnectorI(_instance, _host, addresses[i], _timeout, _connectionId));
     }
     return connectors;
 }

@@ -43,11 +43,15 @@ namespace IceInternal
             return secure_;
         }
 
+        public Ice.ProtocolVersion getProtocol() 
+        {
+            return protocol_;
+        }
+
         public Ice.EncodingVersion getEncoding() 
         {
             return encoding_;
         }
-
 
         public Ice.Identity getIdentity()
         {
@@ -152,7 +156,7 @@ namespace IceInternal
             return r;
         }
 
-        public Reference changeEncoding(Ice.EncodingVersion newEncoding)
+        public virtual Reference changeEncoding(Ice.EncodingVersion newEncoding)
         {
             if(newEncoding.Equals(encoding_))
             {
@@ -208,6 +212,7 @@ namespace IceInternal
                 {
                     IceInternal.HashUtil.hashAdd(ref h, compress_);
                 }
+                IceInternal.HashUtil.hashAdd(ref h, protocol_);
                 IceInternal.HashUtil.hashAdd(ref h, encoding_);
                 hashValue_ = h;
                 hashInitialized_ = true;
@@ -244,6 +249,12 @@ namespace IceInternal
             s.writeByte((byte)mode_);
 
             s.writeBool(secure_);
+
+            if(!s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            {
+                protocol_.write__(s);
+                encoding_.write__(s);
+            }
 
             // Derived class writes the remainder of the reference.
         }
@@ -338,6 +349,18 @@ namespace IceInternal
                 s.Append(" -s");
             }
 
+            if(!protocol_.Equals(Ice.Util.Protocol_1_0))
+            {
+                s.Append(" -p ");
+                s.Append(Ice.Util.protocolVersionToString(protocol_));
+            }
+
+            if(!encoding_.Equals(Ice.Util.Encoding_1_0))
+            {
+                s.Append(" -e ");
+                s.Append(Ice.Util.encodingVersionToString(encoding_));
+            }
+
             return s.ToString();
 
             // Derived class writes the remainder of the string.
@@ -390,6 +413,11 @@ namespace IceInternal
                 return false;
             }
 
+            if(!protocol_.Equals(r.protocol_))
+            {
+                return false;
+            }
+
             if(!encoding_.Equals(r.encoding_))
             {
                 return false;
@@ -418,6 +446,7 @@ namespace IceInternal
         private Dictionary<string, string> context_;
         private string facet_;
         protected bool secure_;
+        private Ice.ProtocolVersion protocol_;
         private Ice.EncodingVersion encoding_;
         protected bool overrideCompress_;
         protected bool compress_; // Only used if _overrideCompress == true
@@ -428,6 +457,7 @@ namespace IceInternal
                             string facet,
                             Mode mode,
                             bool secure,
+                            Ice.ProtocolVersion protocol,
                             Ice.EncodingVersion encoding)
         {
             //
@@ -443,6 +473,7 @@ namespace IceInternal
             identity_ = identity;
             context_ = _emptyContext;
             facet_ = facet;
+            protocol_ = protocol;
             encoding_ = encoding;
             secure_ = secure;
             hashInitialized_ = false;
@@ -463,7 +494,7 @@ namespace IceInternal
                               bool secure,
                               Ice.EncodingVersion encoding,
                               Ice.ConnectionI connection)
-            : base(instance, communicator, identity, facet, mode, secure, encoding)
+            : base(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding)
         {
             _fixedConnection = connection;
         }
@@ -756,6 +787,21 @@ namespace IceInternal
             return _connectionId;
         }
 
+        public override Reference changeEncoding(Ice.EncodingVersion newEncoding)
+        {
+            RoutableReference r = (RoutableReference)base.changeEncoding(newEncoding);
+            if(r != this)
+            {
+                LocatorInfo locInfo = r._locatorInfo;
+                if(locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().Equals(newEncoding))
+                {
+                    r._locatorInfo = getInstance().locatorManager().get(
+                        (Ice.LocatorPrx)locInfo.getLocator().ice_encodingVersion(newEncoding));
+                }
+            }
+            return r;
+        }
+
         public override Reference changeCompress(bool newCompress)
         {
             RoutableReference r = (RoutableReference)base.changeCompress(newCompress);
@@ -1004,7 +1050,6 @@ namespace IceInternal
             properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
             properties[prefix + ".EndpointSelection"] =
                        _endpointSelection == Ice.EndpointSelectionType.Random ? "Random" : "Ordered";
-            properties[prefix + ".EncodingVersion"] = Ice.Util.encodingVersionToString(getEncoding());
             properties[prefix + ".LocatorCacheTimeout"] = _locatorCacheTimeout.ToString(CultureInfo.InvariantCulture);
 
             if(_routerInfo != null)
@@ -1328,6 +1373,7 @@ namespace IceInternal
                                  string facet,
                                  Reference.Mode mode,
                                  bool secure,
+                                 Ice.ProtocolVersion protocol,
                                  Ice.EncodingVersion encoding,
                                  EndpointI[] endpoints,
                                  string adapterId,
@@ -1338,7 +1384,7 @@ namespace IceInternal
                                  bool preferSecure,
                                  Ice.EndpointSelectionType endpointSelection,
                                  int locatorCacheTimeout)
-            : base(instance, communicator, identity, facet, mode, secure, encoding)
+            : base(instance, communicator, identity, facet, mode, secure, protocol, encoding)
         {
             _endpoints = endpoints;
             _adapterId = adapterId;
@@ -1386,16 +1432,13 @@ namespace IceInternal
             List<EndpointI> endpoints = new List<EndpointI>();
 
             //
-            // Filter out incompatible endpoints (whose encoding/protocol
-            // versions aren't supported by this runtime, or are opaque).
+            // Filter out unknown endpoints.
             //
-            Ice.EncodingVersion encoding = getEncoding();
-            foreach(EndpointI p in allEndpoints)
+            for(int i = 0; i < allEndpoints.Length; i++)
             {
-                if(Protocol.isSupported(encoding, p.encodingVersion()) && 
-                   Protocol.isSupported(Ice.Util.currentProtocol, p.protocolVersion()))
+                if(!(allEndpoints[i] is IceInternal.OpaqueEndpointI))
                 {
-                    endpoints.Add(p);
+                    endpoints.Add(allEndpoints[i]);
                 }
             }
             

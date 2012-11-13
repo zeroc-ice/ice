@@ -618,6 +618,18 @@ public class AllTests
         hello.sayHello();
         out.println("ok");
 
+        out.print("testing locator encoding resolution... ");
+        out.flush();
+        hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+        count = locator.getRequestCount();
+        communicator.stringToProxy("test@TestAdapter").ice_encodingVersion(Ice.Util.Encoding_1_1).ice_ping();
+        test(count == locator.getRequestCount());
+        communicator.stringToProxy("test@TestAdapter10").ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+        test(++count == locator.getRequestCount());
+        communicator.stringToProxy("test -e 1.0@TestAdapter10-2").ice_ping();
+        test(++count == locator.getRequestCount());
+        out.println("ok");
+
         out.print("shutdown server... ");
         out.flush();
         obj.shutdown();

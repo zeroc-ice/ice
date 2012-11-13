@@ -577,6 +577,19 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     hello->sayHello();
     cout << "ok" << endl;
 
+    cout << "testing locator encoding resolution... " << flush;
+
+    hello = HelloPrx::checkedCast(communicator->stringToProxy("hello"));
+    count = locator->getRequestCount();
+    communicator->stringToProxy("test@TestAdapter")->ice_encodingVersion(Ice::Encoding_1_1)->ice_ping();
+    test(count == locator->getRequestCount());
+    communicator->stringToProxy("test@TestAdapter10")->ice_encodingVersion(Ice::Encoding_1_0)->ice_ping();
+    test(++count == locator->getRequestCount());
+    communicator->stringToProxy("test -e 1.0@TestAdapter10-2")->ice_ping();
+    test(++count == locator->getRequestCount());
+
+    cout << "ok" << endl;
+
     cout << "shutdown server... " << flush;
     obj->shutdown();
     cout << "ok" << endl;

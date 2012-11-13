@@ -12,10 +12,9 @@ package IceInternal;
 final class UdpEndpointI extends EndpointI
 {
     public
-    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, Ice.ProtocolVersion p, 
-                 Ice.EncodingVersion e, boolean conn, String conId, boolean co)
+    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, boolean conn, String conId, boolean co)
     {
-        super(p, e, conId);
+        super(conId);
         _instance = instance;
         _host = ho;
         _port = po;
@@ -29,7 +28,7 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
-        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "");
+        super("");
         _instance = instance;
         _host = null;
         _port = 0;
@@ -120,6 +119,14 @@ final class UdpEndpointI extends EndpointI
                 _compress = true;
                 break;
             }
+            else if(option == "-v")
+            {
+                _instance.initializationData().logger.warning("deprecated udp endpoint option: -v");
+            }
+            else if(option == "-e")
+            {
+                _instance.initializationData().logger.warning("deprecated udp endpoint option: -e");
+            }
             else if(option.equals("--interface"))
             {
                 if(argument == null)
@@ -156,7 +163,7 @@ final class UdpEndpointI extends EndpointI
             }
             else
             {
-                parseOption(option, argument, "udp", str);
+                throw new Ice.EndpointParseException("unknown option `" + option + "' in `udp " + str + "'");
             }
         }
 
@@ -187,13 +194,18 @@ final class UdpEndpointI extends EndpointI
     public
     UdpEndpointI(BasicStream s)
     {
-        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion(), "");
+        super("");
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
-        _protocol.__read(s);
-        _encoding.__read(s);
+        if(s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            s.readByte();
+            s.readByte();
+            s.readByte();
+            s.readByte();
+        }
         // Not transmitted.
         //_connect = s.readBool();
         _connect = false;
@@ -212,8 +224,11 @@ final class UdpEndpointI extends EndpointI
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
-        _protocol.__write(s);
-        _encoding.__write(s);
+        if(s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            Ice.Util.Protocol_1_0.__write(s);
+            Ice.Util.Encoding_1_0.__write(s);
+        }
         // Not transmitted.
         //s.writeBool(_connect);
         s.writeBool(_compress);
@@ -234,16 +249,6 @@ final class UdpEndpointI extends EndpointI
         // format of proxyToString() before changing this and related code.
         //
         String s = "udp";
-
-        if(!_protocol.equals(Ice.Util.Protocol_1_0))
-        {
-            s += " -v " + Ice.Util.protocolVersionToString(_protocol);
-        }
-        
-        if(!_encoding.equals(Ice.Util.Encoding_1_0))
-        {
-            s += " -e " + Ice.Util.encodingVersionToString(_encoding);
-        }
 
         if(_host != null && _host.length() > 0)
         {
@@ -291,7 +296,7 @@ final class UdpEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.UDPEndpointInfo(_protocol, _encoding, -1, _compress, _host, _port, _mcastInterface, _mcastTtl)
+        return new Ice.UDPEndpointInfo(-1, _compress, _host, _port, _mcastInterface, _mcastTtl)
             {
                 public short type()
                 {
@@ -362,8 +367,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocol, _encoding, 
-                                    _connect, _connectionId, compress);
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                                    compress);
         }
     }
 
@@ -379,8 +384,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocol, _encoding,
-                                    _connect, connectionId, _compress);
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, 
+                                    _compress);
         }
     }
 
@@ -425,7 +430,7 @@ final class UdpEndpointI extends EndpointI
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
         endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
-                                          _protocol, _encoding, _connect, _connectionId, _compress);
+                                          _connect, _connectionId, _compress);
         return p;
     }
 
@@ -477,8 +482,8 @@ final class UdpEndpointI extends EndpointI
         {
             for(String host : hosts)
             {
-                endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl,
-                                           _protocol, _encoding, _connect, _connectionId, _compress));
+                endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                                           _compress));
             }
         }
         return endps;
@@ -577,8 +582,7 @@ final class UdpEndpointI extends EndpointI
         java.util.ArrayList<Connector> connectors = new java.util.ArrayList<Connector>();
         for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new UdpConnector(_instance, p, _mcastInterface, _mcastTtl, _protocol, _encoding,
-                                            _connectionId));
+            connectors.add(new UdpConnector(_instance, p, _mcastInterface, _mcastTtl, _connectionId));
         }
         return connectors;
     }
@@ -593,8 +597,6 @@ final class UdpEndpointI extends EndpointI
         h = IceInternal.HashUtil.hashAdd(h, _mcastInterface);
         h = IceInternal.HashUtil.hashAdd(h, _mcastTtl);
         h = IceInternal.HashUtil.hashAdd(h, _connect);
-        h = IceInternal.HashUtil.hashAdd(h, _protocol);
-        h = IceInternal.HashUtil.hashAdd(h, _encoding);
         h = IceInternal.HashUtil.hashAdd(h, _connectionId);
         h = IceInternal.HashUtil.hashAdd(h, _compress);
         _hashCode = h;

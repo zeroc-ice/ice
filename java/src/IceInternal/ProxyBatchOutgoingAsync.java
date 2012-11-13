@@ -15,12 +15,14 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
     {
         super(prx.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)prx).__reference().getInstance(), operation,
               callback);
-        _proxy = prx;
+        _proxy = (Ice.ObjectPrxHelperBase)prx;
         _observer = ObserverHelper.get(prx, operation);
     }
 
     public void __send()
     {
+        Protocol.checkSupportedProtocol(_proxy.__reference().getProtocol());
+
         //
         // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
         // requests were queued with the connection, they would be lost without being noticed.
@@ -29,7 +31,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         int cnt = -1; // Don't retry.
         try
         {
-            delegate = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate(false);
+            delegate = _proxy.__getDelegate(false);
             int status = delegate.__getRequestHandler().flushAsyncBatchRequests(this);
             if((status & AsyncStatus.Sent) > 0)
             {
@@ -42,7 +44,7 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         }
         catch(Ice.LocalException __ex)
         {
-            cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(delegate, __ex, null, cnt, _observer);
+            cnt = _proxy.__handleException(delegate, __ex, null, cnt, _observer);
         }
     }
 
@@ -52,5 +54,5 @@ public class ProxyBatchOutgoingAsync extends BatchOutgoingAsync
         return _proxy;
     }
 
-    private Ice.ObjectPrx _proxy;
+    private Ice.ObjectPrxHelperBase _proxy;
 }

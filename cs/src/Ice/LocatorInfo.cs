@@ -781,10 +781,45 @@ namespace IceInternal
 
     public sealed class LocatorManager
     {
+        struct LocatorKey
+        {
+            public LocatorKey(Ice.LocatorPrx prx)
+            {
+                Reference r = ((Ice.ObjectPrxHelperBase)prx).reference__();
+                _id = r.getIdentity();
+                _encoding = r.getEncoding();
+            }
+
+            public override bool Equals(object o)
+            {
+                LocatorKey k = (LocatorKey)o;
+                if(!k._id.Equals(_id))
+                {
+                    return false;
+                }
+                if(!k._encoding.Equals(_encoding))
+                {
+                    return false;
+                }
+                return true;
+            }
+
+            public override int GetHashCode()
+            {
+                int h = 5381;
+                IceInternal.HashUtil.hashAdd(ref h, _id);
+                IceInternal.HashUtil.hashAdd(ref h, _encoding);
+                return h;
+            }
+
+            private Ice.Identity _id;
+            private Ice.EncodingVersion _encoding;
+        };
+
         internal LocatorManager(Ice.Properties properties)
         {
             _table = new Dictionary<Ice.LocatorPrx, LocatorInfo>();
-            _locatorTables = new Dictionary<Ice.Identity, LocatorTable>();
+            _locatorTables = new Dictionary<LocatorKey, LocatorTable>();
             _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
         }
         
@@ -832,10 +867,11 @@ namespace IceInternal
                     // proxy).
                     //
                     LocatorTable table = null;
-                    if(!_locatorTables.TryGetValue(locator.ice_getIdentity(), out table))
+                    LocatorKey key = new LocatorKey(locator);
+                    if(!_locatorTables.TryGetValue(key, out table))
                     {
                         table = new LocatorTable();
-                        _locatorTables[locator.ice_getIdentity()] = table;
+                        _locatorTables[key] = table;
                     }
                     
                     info = new LocatorInfo(locator, table, _background);
@@ -847,7 +883,7 @@ namespace IceInternal
         }
         
         private Dictionary<Ice.LocatorPrx, LocatorInfo> _table;
-        private Dictionary<Ice.Identity, LocatorTable> _locatorTables;
+        private Dictionary<LocatorKey, LocatorTable> _locatorTables;
         private readonly bool _background;
     }
 

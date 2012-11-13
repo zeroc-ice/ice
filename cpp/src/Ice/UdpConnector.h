@@ -34,8 +34,7 @@ public:
 
 private:
     
-    UdpConnector(const InstancePtr&, const Address&, const std::string&, int, 
-                 const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const std::string&);
+    UdpConnector(const InstancePtr&, const Address&, const std::string&, int, const std::string&);
 
     virtual ~UdpConnector();
     friend class UdpEndpointI;
@@ -44,8 +43,6 @@ private:
     const Address _addr;
     const std::string _mcastInterface;
     const int _mcastTtl;
-    const Ice::ProtocolVersion _protocol;
-    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 };
 

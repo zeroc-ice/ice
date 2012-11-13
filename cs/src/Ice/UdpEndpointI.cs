@@ -19,8 +19,8 @@ namespace IceInternal
 
     sealed class UdpEndpointI : EndpointI
     {
-        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, Ice.ProtocolVersion pv,
-                            Ice.EncodingVersion ev, bool conn, string conId, bool co) : base(pv, ev, conId)
+        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, bool conn, string conId, 
+                            bool co) : base(conId)
         {
             instance_ = instance;
             _host = ho;
@@ -33,8 +33,7 @@ namespace IceInternal
             calcHashValue();
         }
         
-        public UdpEndpointI(Instance instance, string str, bool oaEndpoint) :
-            base(Ice.Util.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "")
+        public UdpEndpointI(Instance instance, string str, bool oaEndpoint) : base("")
         {
             instance_ = instance;
             _host = null;
@@ -163,6 +162,14 @@ namespace IceInternal
                     
                     _compress = true;
                 }
+                else if(option == "-v")
+                {
+                    instance_.initializationData().logger.warning("deprecated udp endpoint option: -v");
+                }
+                else if(option == "-e")
+                {
+                    instance_.initializationData().logger.warning("deprecated udp endpoint option: -e");
+                }
                 else if(option.Equals("--interface"))
                 {
                     if(argument == null)
@@ -237,8 +244,13 @@ namespace IceInternal
             s.startReadEncaps();
             _host = s.readString();
             _port = s.readInt();
-            protocol_.read__(s);
-            encoding_.read__(s);
+            if(s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
+            {
+                s.readByte();
+                s.readByte();
+                s.readByte();
+                s.readByte();
+            }
             // Not transmitted.
             //_connect = s.readBool();
             _connect = false;
@@ -256,8 +268,11 @@ namespace IceInternal
             s.startWriteEncaps();
             s.writeString(_host);
             s.writeInt(_port);
-            protocol_.write__(s);
-            encoding_.write__(s);
+            if(s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
+            {
+                Ice.Util.Protocol_1_0.write__(s);
+                Ice.Util.Encoding_1_0.write__(s);
+            }
             // Not transmitted.
             //s.writeBool(_connect);
             s.writeBool(_compress);
@@ -277,16 +292,6 @@ namespace IceInternal
             // format of proxyToString() before changing this and related code.
             //
             string s = "udp";
-
-            if(!protocol_.Equals(Ice.Util.Protocol_1_0))
-            {
-                s += " -v " + Ice.Util.protocolVersionToString(protocol_);
-            }
-        
-            if(!encoding_.Equals(Ice.Util.Encoding_1_0))
-            {
-                s += " -e " + Ice.Util.encodingVersionToString(encoding_);
-            }
 
             if(_host != null && _host.Length != 0)
             {
@@ -330,9 +335,8 @@ namespace IceInternal
         
         private sealed class InfoI : Ice.UDPEndpointInfo
         {
-            public InfoI(bool comp, string host, int port, Ice.ProtocolVersion pv, Ice.EncodingVersion ev, 
-                         string mcastInterface, int mcastTtl) :
-                base(pv, ev, -1, comp, host, port, mcastInterface, mcastTtl)
+            public InfoI(bool comp, string host, int port, string mcastInterface, int mcastTtl) :
+                base(-1, comp, host, port, mcastInterface, mcastTtl)
             {
             }
 
@@ -357,7 +361,7 @@ namespace IceInternal
         //
         public override Ice.EndpointInfo getInfo()
         {
-            return new InfoI(_compress, _host, _port, protocol_, encoding_, _mcastInterface, _mcastTtl);
+            return new InfoI(_compress, _host, _port, _mcastInterface, _mcastTtl);
         }
 
         //
@@ -407,8 +411,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                        _connect, connectionId_, compress);
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId_, 
+                                        compress);
             }
         }
 
@@ -423,8 +427,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                        _connect, connectionId, _compress);
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, 
+                                        _compress);
             }
         }
         
@@ -465,7 +469,7 @@ namespace IceInternal
         {
             UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
             endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
-                                        protocol_, encoding_, _connect, connectionId_, _compress);
+                                        _connect, connectionId_, _compress);
             return p;
         }
 
@@ -518,8 +522,8 @@ namespace IceInternal
             {
                 foreach(string h in hosts)
                 {
-                    endps.Add(new UdpEndpointI(instance_, h, _port, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                               _connect, connectionId_, _compress));
+                    endps.Add(new UdpEndpointI(instance_, h, _port, _mcastInterface, _mcastTtl, _connect, 
+                                               connectionId_, _compress));
                 }
             }
             return endps;
@@ -544,8 +548,7 @@ namespace IceInternal
             List<Connector> connectors = new List<Connector>();
             foreach(EndPoint addr in addresses)
             {
-                connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, protocol_, encoding_,
-                                                connectionId_));
+                connectors.Add(new UdpConnector(instance_, addr, _mcastInterface, _mcastTtl, connectionId_));
             }
             return connectors;
         }
@@ -638,8 +641,6 @@ namespace IceInternal
             IceInternal.HashUtil.hashAdd(ref h, _mcastInterface);
             IceInternal.HashUtil.hashAdd(ref h, _mcastTtl);
             IceInternal.HashUtil.hashAdd(ref h, _connect);
-            IceInternal.HashUtil.hashAdd(ref h, protocol_);
-            IceInternal.HashUtil.hashAdd(ref h, encoding_);
             IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             IceInternal.HashUtil.hashAdd(ref h, _compress);
             _hashCode = h;

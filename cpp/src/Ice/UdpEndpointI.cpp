@@ -17,15 +17,15 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Protocol.h>
 #include <Ice/HashUtil.h>
+#include <Ice/Logger.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, const string& mif, 
-                                        Int mttl, const Ice::ProtocolVersion& protocol, 
-                                        const Ice::EncodingVersion& encoding, bool conn, const string& conId, bool co) :
-    EndpointI(protocol, encoding, conId),
+                                        Int mttl, bool conn, const string& conId, bool co) :
+    EndpointI(conId),
     _instance(instance),
     _host(ho),
     _port(po),
@@ -37,7 +37,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
-    EndpointI(Ice::currentProtocol, instance->defaultsAndOverrides()->defaultEncoding, ""),
+    EndpointI(""),
     _instance(instance),
     _port(0),
     _mcastTtl(-1),
@@ -157,6 +157,14 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             }
             const_cast<bool&>(_compress) = true;
         }
+        else if(option == "-v")
+        {
+            _instance->initializationData().logger->warning("deprecated udp endpoint option: -v");
+        }
+        else if(option == "-e")
+        {
+            _instance->initializationData().logger->warning("deprecated udp endpoint option: -e");
+        }
         else if(option == "--interface")
         {
             if(argument.empty())
@@ -185,7 +193,9 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         }
         else
         {
-            parseOption(option, argument, "udp", str);
+            Ice::EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "unknown option `" + option + "' in endpoint `udp " + str + "'";
+            throw ex;
         }
     }
 
@@ -218,8 +228,14 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     s->startReadEncaps();
     s->read(const_cast<string&>(_host), false);
     s->read(const_cast<Int&>(_port));
-    s->read(const_cast<Ice::ProtocolVersion&>(_protocol));
-    s->read(const_cast<Ice::EncodingVersion&>(_encoding));
+    if(s->getReadEncoding() == Ice::Encoding_1_0)
+    {
+        Ice::Byte b;
+        s->read(b);
+        s->read(b);
+        s->read(b);
+        s->read(b);
+    }
     // Not transmitted.
     //s->read(const_cast<bool&>(_connect));
     s->read(const_cast<bool&>(_compress));
@@ -233,8 +249,11 @@ IceInternal::UdpEndpointI::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host, false);
     s->write(_port);
-    s->write(_protocol);
-    s->write(_encoding);
+    if(s->getWriteEncoding() == Ice::Encoding_1_0)
+    {
+        s->write(Ice::Protocol_1_0);
+        s->write(Ice::Encoding_1_0);
+    }
     // Not transmitted.
     //s->write(_connect);
     s->write(_compress);
@@ -254,16 +273,6 @@ IceInternal::UdpEndpointI::toString() const
     ostringstream s;
 
     s << "udp";
-
-    if(_protocol != Ice::Protocol_1_0)
-    {
-        s << " -v " << _protocol;
-    }
-
-    if(_encoding != Ice::Encoding_1_0)
-    {
-        s << " -e " << _encoding;
-    }
 
     if(!_host.empty())
     {
@@ -312,9 +321,8 @@ IceInternal::UdpEndpointI::getInfo() const
     {
     public:
 
-        InfoI(const ProtocolVersion& pv, const EncodingVersion& ev, bool comp, const string& host, Ice::Int port, 
-              const std::string& mcastInterface, Ice::Int mcastTtl) :
-            UDPEndpointInfo(pv, ev, -1, comp, host, port, mcastInterface, mcastTtl)
+        InfoI(bool comp, const string& host, Ice::Int port, const std::string& mcastInterface, Ice::Int mcastTtl) :
+            UDPEndpointInfo(-1, comp, host, port, mcastInterface, mcastTtl)
         {
         }
 
@@ -337,7 +345,7 @@ IceInternal::UdpEndpointI::getInfo() const
         }
     };
 
-    return new InfoI(_protocol, _encoding, _compress, _host, _port, _mcastInterface, _mcastTtl);
+    return new InfoI(_compress, _host, _port, _mcastInterface, _mcastTtl);
 }
 
 Short
@@ -373,8 +381,7 @@ IceInternal::UdpEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocol, _encoding, _connect, 
-                                connectionId, _compress);
+        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, _compress);
     }
 }
 
@@ -393,8 +400,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocol, _encoding, _connect, 
-                                _connectionId, compress);
+        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId, compress);
     }
 }
 
@@ -414,8 +420,8 @@ TransceiverPtr
 IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
-    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _protocol, _encoding,
-                            _connect, _connectionId, _compress);
+    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _connect, _connectionId, 
+                            _compress);
     return p;
 }
 
@@ -451,8 +457,8 @@ IceInternal::UdpEndpointI::expand() const
     {
         for(vector<string>::const_iterator p = hosts.begin(); p != hosts.end(); ++p)
         {
-            endps.push_back(new UdpEndpointI(_instance, *p, _port, _mcastInterface, _mcastTtl, _protocol, _encoding,
-                                             _connect, _connectionId, _compress));
+            endps.push_back(new UdpEndpointI(_instance, *p, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                                             _compress));
         }
     }
     return endps;
@@ -481,16 +487,6 @@ IceInternal::UdpEndpointI::operator==(const LocalObject& r) const
     if(this == p)
     {
         return true;
-    }
-
-    if(_protocol != p->_protocol)
-    {
-        return false;
-    }
-
-    if(_encoding != p->_encoding) 
-    {
-        return false;
     }
 
     if(_host != p->_host)
@@ -546,24 +542,6 @@ IceInternal::UdpEndpointI::operator<(const LocalObject& r) const
     }
 
     if(this == p)
-    {
-        return false;
-    }
-
-    if(_protocol < p->_protocol)
-    {
-        return true;
-    }
-    else if(p->_protocol < _protocol) 
-    {
-        return false;
-    }
-
-    if(_encoding < p->_encoding) 
-    {
-        return true;
-    }
-    else if(p->_encoding < _encoding) 
     {
         return false;
     }
@@ -644,10 +622,6 @@ IceInternal::UdpEndpointI::hashInit() const
     hashAdd(h, _mcastInterface);
     hashAdd(h, _mcastTtl);
     hashAdd(h, _connect);
-    hashAdd(h, _protocol.major);
-    hashAdd(h, _protocol.minor);
-    hashAdd(h, _encoding.major);
-    hashAdd(h, _encoding.minor);
     hashAdd(h, _connectionId);
     hashAdd(h, _compress);
     return h;
@@ -659,8 +633,7 @@ IceInternal::UdpEndpointI::connectors(const vector<Address>& addresses) const
     vector<ConnectorPtr> connectors;
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _protocol, _encoding,
-                                              _connectionId));
+        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _connectionId));
     }
     return connectors;
 }

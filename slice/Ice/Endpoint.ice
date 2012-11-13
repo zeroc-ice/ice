@@ -39,20 +39,6 @@ const short UDPEndpointType = 3;
  **/
 local class EndpointInfo
 {
-     /**
-      *
-      * The protocol version supported by the endpoint.
-      *
-      **/
-    ProtocolVersion protocol;
-
-     /**
-      *
-      * The encoding version supported by the endpoint.
-      *
-      **/
-    EncodingVersion encoding;
-
     /**
      *
      * The timeout for the endpoint in milliseconds. 0 means

@@ -809,6 +809,8 @@ namespace IceInternal
             _mode = mode;
             sentSynchronously_ = false;
 
+            Protocol.checkSupportedProtocol(proxy_.reference__().getProtocol());
+
             if(explicitContext && context == null)
             {
                 context = emptyContext_;
@@ -1587,12 +1589,14 @@ namespace IceInternal
             base(proxy.ice_getCommunicator(), ((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance(), operation,
                  cookie)
         {
-            _proxy = proxy;
+            _proxy = (Ice.ObjectPrxHelperBase)proxy;
             observer_ = ObserverHelper.get(proxy, operation);
         }
 
         public void send__()
         {
+            Protocol.checkSupportedProtocol(_proxy.reference__().getProtocol());
+
             //
             // We don't automatically retry if ice_flushBatchRequests fails. Otherwise, if some batch
             // requests were queued with the connection, they would be lost without being noticed.
@@ -1601,7 +1605,7 @@ namespace IceInternal
             int cnt = -1; // Don't retry.
             try
             {
-                @delegate = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__(false);
+                @delegate = _proxy.getDelegate__(false);
                 Ice.AsyncCallback sentCallback;
                 if(@delegate.getRequestHandler__().flushAsyncBatchRequests(this, out sentCallback))
                 {
@@ -1614,7 +1618,7 @@ namespace IceInternal
             }
             catch(Ice.LocalException __ex)
             {
-                ((Ice.ObjectPrxHelperBase)_proxy).handleException__(@delegate, __ex, false, ref cnt, observer_);
+                _proxy.handleException__(@delegate, __ex, false, ref cnt, observer_);
             }
         }
 
@@ -1623,7 +1627,7 @@ namespace IceInternal
             return _proxy;
         }
 
-        private Ice.ObjectPrx _proxy;
+        private Ice.ObjectPrxHelperBase _proxy;
     }
 
     public class ConnectionBatchOutgoingAsync : BatchOutgoingAsync

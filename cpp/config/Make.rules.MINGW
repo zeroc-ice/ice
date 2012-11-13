@@ -29,7 +29,6 @@ ifeq ($(OPTIMIZE),yes)
     CXXFLAGS		+= -O2 -DNDEBUG
 else
     CXXFLAGS		+= -g -D_DEBUG
-    LIBSUFFIX		= d
 endif
 
 COMPSUFFIX	= mingw_

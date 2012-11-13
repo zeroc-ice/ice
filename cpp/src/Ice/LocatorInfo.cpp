@@ -156,16 +156,17 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
         // have only one table per locator (not one per locator
         // proxy).
         //
-        map<Identity, LocatorTablePtr>::iterator t = _locatorTables.find(locator->ice_getIdentity());
+        pair<Identity, EncodingVersion> locatorKey(locator->ice_getIdentity(), locator->ice_getEncodingVersion());
+        map<pair<Identity, EncodingVersion>, LocatorTablePtr>::iterator t = _locatorTables.find(locatorKey);
         if(t == _locatorTables.end())
         {
             t = _locatorTables.insert(_locatorTables.begin(),
-                                      pair<const Identity, LocatorTablePtr>(locator->ice_getIdentity(), 
-                                                                            new LocatorTable()));
+                                      pair<const pair<Identity, EncodingVersion>, LocatorTablePtr>(
+                                          locatorKey, new LocatorTable()));
         }
 
-        _tableHint = _table.insert(_tableHint, 
-                                   pair<const LocatorPrx, LocatorInfoPtr>(locator, 
+        _tableHint = _table.insert(_tableHint,
+                                   pair<const LocatorPrx, LocatorInfoPtr>(locator,
                                                                           new LocatorInfo(locator, t->second,
                                                                                           _background)));
     }
@@ -534,15 +535,6 @@ bool
 IceInternal::LocatorInfo::operator<(const LocatorInfo& rhs) const
 {
     return _locator < rhs._locator;
-}
-
-LocatorPrx
-IceInternal::LocatorInfo::getLocator() const
-{
-    //
-    // No mutex lock necessary, _locator is immutable.
-    //
-    return _locator;
 }
 
 LocatorRegistryPrx

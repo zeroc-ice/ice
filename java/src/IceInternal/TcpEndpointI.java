@@ -12,10 +12,9 @@ package IceInternal;
 final class TcpEndpointI extends EndpointI
 {
     public
-    TcpEndpointI(Instance instance, String ho, int po, int ti, Ice.ProtocolVersion pv, Ice.EncodingVersion ev,
-                 String conId, boolean co)
+    TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
     {
-        super(pv, ev, conId);
+        super(conId);
         _instance = instance;
         _host = ho;
         _port = po;
@@ -27,7 +26,7 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
-        super(Protocol.currentProtocol, instance.defaultsAndOverrides().defaultEncoding, "");
+        super("");
         _instance = instance;
         _host = null;
         _port = 0;
@@ -138,8 +137,7 @@ final class TcpEndpointI extends EndpointI
 
                 default:
                 {
-                    parseOption(option, argument, "tcp", str);
-                    break;
+                    throw new Ice.EndpointParseException("unknown option `" + option + "' in `tcp " + str + "'");
                 }
             }
         }
@@ -171,25 +169,13 @@ final class TcpEndpointI extends EndpointI
     public
     TcpEndpointI(BasicStream s)
     {
-        super(new Ice.ProtocolVersion(), new Ice.EncodingVersion(), "");
+        super("");
         _instance = s.instance();
         s.startReadEncaps();
         _host = s.readString();
         _port = s.readInt();
         _timeout = s.readInt();
         _compress = s.readBool();
-        if(!s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
-        {
-            _protocol = new Ice.ProtocolVersion();
-            _protocol.__read(s);
-            _encoding = new Ice.EncodingVersion();
-            _encoding.__read(s);
-        }
-        else
-        {
-            _protocol = Ice.Util.Protocol_1_0;
-            _encoding = Ice.Util.Encoding_1_0;
-        }
         s.endReadEncaps();
         calcHashValue();
     }
@@ -206,11 +192,6 @@ final class TcpEndpointI extends EndpointI
         s.writeInt(_port);
         s.writeInt(_timeout);
         s.writeBool(_compress);
-        if(!s.getWriteEncoding().equals(Ice.Util.Encoding_1_0))
-        {
-            _protocol.__write(s);
-            _encoding.__write(s);
-        }
         s.endWriteEncaps();
     }
 
@@ -228,16 +209,6 @@ final class TcpEndpointI extends EndpointI
         // format of proxyToString() before changing this and related code.
         //
         String s = "tcp";
-
-        if(!_protocol.equals(Ice.Util.Protocol_1_0))
-        {
-            s += " -v " + Ice.Util.protocolVersionToString(_protocol);
-        }
-        
-        if(!_encoding.equals(Ice.Util.Encoding_1_0))
-        {
-            s += " -e " + Ice.Util.encodingVersionToString(_encoding);
-        }
 
         if(_host != null && _host.length() > 0)
         {
@@ -273,7 +244,7 @@ final class TcpEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.TCPEndpointInfo(_protocol, _encoding, _timeout, _compress, _host, _port)
+        return new Ice.TCPEndpointInfo(_timeout, _compress, _host, _port)
             {
                 public short type()
                 {
@@ -334,7 +305,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, timeout, _protocol, _encoding, _connectionId, _compress);
+            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
         }
     }
 
@@ -350,7 +321,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, connectionId, _compress);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
         }
     }
 
@@ -378,7 +349,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, _protocol, _encoding, _connectionId, compress);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
         }
     }
 
@@ -441,8 +412,7 @@ final class TcpEndpointI extends EndpointI
     acceptor(EndpointIHolder endpoint, String adapterName)
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-        endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _protocol, _encoding, 
-                                          _connectionId, _compress);
+        endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
     }
 
@@ -463,8 +433,7 @@ final class TcpEndpointI extends EndpointI
         {
             for(String h : hosts)
             {
-                endps.add(new TcpEndpointI(_instance, h, _port, _timeout, _protocol, _encoding, _connectionId, 
-                                           _compress));
+                endps.add(new TcpEndpointI(_instance, h, _port, _timeout, _connectionId, _compress));
             }
         }
         return endps;
@@ -551,7 +520,7 @@ final class TcpEndpointI extends EndpointI
         java.util.List<Connector> connectors = new java.util.ArrayList<Connector>();
         for(java.net.InetSocketAddress p : addresses)
         {
-            connectors.add(new TcpConnector(_instance, p, _timeout, _protocol, _encoding, _connectionId));
+            connectors.add(new TcpConnector(_instance, p, _timeout, _connectionId));
         }
         return connectors;
     }
@@ -564,8 +533,6 @@ final class TcpEndpointI extends EndpointI
         h = IceInternal.HashUtil.hashAdd(h, _host);
         h = IceInternal.HashUtil.hashAdd(h, _port);
         h = IceInternal.HashUtil.hashAdd(h, _timeout);
-        h = IceInternal.HashUtil.hashAdd(h, _protocol);
-        h = IceInternal.HashUtil.hashAdd(h, _encoding);
         h = IceInternal.HashUtil.hashAdd(h, _connectionId);
         h = IceInternal.HashUtil.hashAdd(h, _compress);
         _hashCode = h;

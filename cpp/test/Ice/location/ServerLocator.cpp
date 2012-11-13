@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
+#include <TestCommon.h>
 #include <ServerLocator.h>
 
 using namespace std;
@@ -117,6 +118,13 @@ ServerLocator::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& 
                                      const Ice::Current& current) const
 {
     ++const_cast<int&>(_requestCount);
+    if(id == "TestAdapter10" || id == "TestAdapter10-2")
+    {
+        test(current.encoding == Ice::Encoding_1_0);
+        response->ice_response(_registry->getAdapter("TestAdapter"));
+        return;
+    }
+
     // We add a small delay to make sure locator request queuing gets tested when
     // running the test on a fast machine
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));

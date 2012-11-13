@@ -1451,7 +1451,6 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
         else
         {
-            IceInternal.Protocol.checkSupportedEncoding(e);
             return newInstance(_reference.changeEncoding(e));
         }
     }
@@ -1464,7 +1463,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final Ice.EncodingVersion 
     ice_getEncodingVersion()
     {
-        return _reference.getEncoding();
+        return (Ice.EncodingVersion)_reference.getEncoding().clone();
     }
 
     /**

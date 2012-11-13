@@ -17,8 +17,7 @@ namespace IceSSL
         
     sealed class EndpointI : IceInternal.EndpointI
     {
-        internal EndpointI(Instance instance, string ho, int po, int ti, Ice.ProtocolVersion pv, 
-                           Ice.EncodingVersion ev, string conId, bool co) : base(pv, ev, conId)
+        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co) : base(conId)
         {
             _instance = instance;
             _host = ho;
@@ -29,8 +28,7 @@ namespace IceSSL
             calcHashValue();
         }
 
-        internal EndpointI(Instance instance, string str, bool oaEndpoint) : 
-            base(Ice.Util.currentProtocol, instance.defaultEncoding(), "")
+        internal EndpointI(Instance instance, string str, bool oaEndpoint) : base("")
         {
             _instance = instance;
             _host = null;
@@ -190,16 +188,6 @@ namespace IceSSL
             _port = s.readInt();
             _timeout = s.readInt();
             _compress = s.readBool();
-            if(!s.getReadEncoding().Equals(Ice.Util.Encoding_1_0))
-            {
-                protocol_.read__(s);
-                encoding_.read__(s);
-            }
-            else
-            {
-                protocol_ = Ice.Util.Protocol_1_0;
-                encoding_ = Ice.Util.Encoding_1_0;
-            }
             s.endReadEncaps();
             calcHashValue();
         }
@@ -215,11 +203,6 @@ namespace IceSSL
             s.writeInt(_port);
             s.writeInt(_timeout);
             s.writeBool(_compress);
-            if(!s.getWriteEncoding().Equals(Ice.Util.Encoding_1_0))
-            {
-                protocol_.write__(s);
-                encoding_.write__(s);
-            }
             s.endWriteEncaps();
         }
 
@@ -236,16 +219,6 @@ namespace IceSSL
             // format of proxyToString() before changing this and related code.
             //
             string s = "ssl";
-
-            if(!protocol_.Equals(Ice.Util.Protocol_1_0))
-            {
-                s += " -v " + Ice.Util.protocolVersionToString(protocol_);
-            }
-        
-            if(!encoding_.Equals(Ice.Util.Encoding_1_0))
-            {
-                s += " -e " + Ice.Util.encodingVersionToString(encoding_);
-            }
 
             if(_host != null && _host.Length != 0)
             {
@@ -275,8 +248,7 @@ namespace IceSSL
         
         private sealed class InfoI : IceSSL.EndpointInfo
         {
-            public InfoI(Ice.ProtocolVersion pv, Ice.EncodingVersion ev, int to, bool comp, string h, int p) : 
-                base(pv, ev, to, comp, h, p)
+            public InfoI(int to, bool comp, string h, int p) : base(to, comp, h, p)
             {
             }
 
@@ -301,7 +273,7 @@ namespace IceSSL
         //
         public override Ice.EndpointInfo getInfo()
         {
-            return new InfoI(protocol_, encoding_, _timeout, _compress, _host, _port);
+            return new InfoI(_timeout, _compress, _host, _port);
         }
 
         //
@@ -342,7 +314,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(_instance, _host, _port, timeout, protocol_, encoding_, connectionId_, _compress);
+                return new EndpointI(_instance, _host, _port, timeout, connectionId_, _compress);
             }
         }
 
@@ -357,7 +329,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(_instance, _host, _port, _timeout, protocol_, encoding_, connectionId, _compress);
+                return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
             }
         }
 
@@ -383,7 +355,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(_instance, _host, _port, _timeout, protocol_, encoding_, connectionId_, compress);
+                return new EndpointI(_instance, _host, _port, _timeout, connectionId_, compress);
             }
         }
 
@@ -440,8 +412,7 @@ namespace IceSSL
         public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
         {
             AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
-            endpoint = new EndpointI(_instance, _host, p.effectivePort(), _timeout, protocol_, encoding_,
-                                     connectionId_, _compress);
+            endpoint = new EndpointI(_instance, _host, p.effectivePort(), _timeout, connectionId_, _compress);
             return p;
         }
 
@@ -462,8 +433,7 @@ namespace IceSSL
             {
                 foreach(string h in hosts)
                 {
-                    endps.Add(new EndpointI(_instance, h, _port, _timeout, protocol_, encoding_, connectionId_,
-                                            _compress));
+                    endps.Add(new EndpointI(_instance, h, _port, _timeout, connectionId_, _compress));
                 }
             }
             return endps;
@@ -488,7 +458,7 @@ namespace IceSSL
             List<IceInternal.Connector> connectors = new List<IceInternal.Connector>();
             foreach(EndPoint addr in addresses)
             {
-                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, protocol_, encoding_, connectionId_));
+                connectors.Add(new ConnectorI(_instance, _host, addr, _timeout, connectionId_));
             }
             return connectors;
         }
@@ -564,8 +534,6 @@ namespace IceSSL
             IceInternal.HashUtil.hashAdd(ref h, _host);
             IceInternal.HashUtil.hashAdd(ref h, _port);
             IceInternal.HashUtil.hashAdd(ref h, _timeout);
-            IceInternal.HashUtil.hashAdd(ref h, protocol_);
-            IceInternal.HashUtil.hashAdd(ref h, encoding_);
             IceInternal.HashUtil.hashAdd(ref h, connectionId_);
             IceInternal.HashUtil.hashAdd(ref h, _compress);
             _hashCode = h;

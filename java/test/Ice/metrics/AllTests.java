@@ -594,13 +594,11 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", out);
         //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpoint",
-                      "tcp -e 1.1 -h 127.0.0.1 -p 12010 -t 500", out);
+                      "tcp -h 127.0.0.1 -p 12010 -t 500", out);
 
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointType", "1", out);
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsDatagram", "false", out);
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointIsSecure", "false", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointProtocolVersion", "1.0", out);
-        testAttribute(clientMetrics, clientProps, update, "Connection", "endpointEncodingVersion", "1.1", out);
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointTimeout", "500", out);
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointCompress", "false", out);
         testAttribute(clientMetrics, clientProps, update, "Connection", "endpointHost", "127.0.0.1", out);
@@ -661,17 +659,13 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", "127.0.0.1:12010", c, out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                      "tcp -e 1.1 -h 127.0.0.1 -p 12010", c, out);
+                      "tcp -h 127.0.0.1 -p 12010", c, out);
 
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", "1", c, out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "false", c, 
                       out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", "false", c, 
                       out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointProtocolVersion", "1.0", 
-                      c, out);
-        testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointEncodingVersion", "1.1",
-                      c, out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "-1", c, out);
         testAttribute(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "false", c, 
                       out);
@@ -694,7 +688,7 @@ public class AllTests
     
         test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 1);
         m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-        test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -e 1.1 -h localhost -p 12010"));
+        test(m1.current <= 1 && m1.total == 1 && m1.id.equals("tcp -h localhost -p 12010"));
 
         prx.ice_getConnection().close(false);
 
@@ -712,27 +706,25 @@ public class AllTests
         }
         test(clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup").length == 2);
         m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[0];
-        if(!m1.id.equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010"))
+        if(!m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010"))
         {
             m1 = clientMetrics.getMetricsView("View", timestamp).get("EndpointLookup")[1];
         }
-        test(m1.id.equals("tcp -e 1.1 -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
+        test(m1.id.equals("tcp -h unknownfoo.zeroc.com -p 12010") && m1.total == 2 && m1.failures == 2);
     
         checkFailure(clientMetrics, "EndpointLookup", m1.id, "Ice::DNSException", 2, out);
 
         c = new Connect(prx);
 
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "parent", "Communicator", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -e 1.1 -h localhost -p 12010", c,
+        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "id", "tcp -h localhost -p 12010", c,
                       out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpoint", 
-                      "tcp -e 1.1 -h localhost -p 12010", c, out);
+                      "tcp -h localhost -p 12010", c, out);
 
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointType", "1", c, out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsDatagram", "false", c, out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointIsSecure", "false", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointProtocolVersion", "1.0", c, out);
-        testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointEncodingVersion", "1.1", c, out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointTimeout", "-1", c, out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointCompress", "false", c, out);
         testAttribute(clientMetrics, clientProps, update, "EndpointLookup", "endpointHost", "localhost", c, out);
@@ -815,14 +807,12 @@ public class AllTests
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "parent", "TestAdapter", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "id", "metrics [op]", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpoint", 
-                      "tcp -e 1.1 -h 127.0.0.1 -p 12010", op, out);
+                      "tcp -h 127.0.0.1 -p 12010", op, out);
         //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointType", "1", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "false", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointIsSecure", "false", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointProtocolVersion", "1.0", op, out);
-        testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointEncodingVersion", "1.1", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointTimeout", "-1", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointCompress", "false", op, out);
         testAttribute(serverMetrics, serverProps, update, "Dispatch", "endpointHost", "127.0.0.1", op, out);
@@ -999,7 +989,7 @@ public class AllTests
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "id",
-                      "metrics -t:tcp -e 1.1 -h 127.0.0.1 -p 12010 [op]", op, out);
+                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 [op]", op, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, out);
@@ -1007,7 +997,7 @@ public class AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t:tcp -e 1.1 -h 127.0.0.1 -p 12010", op, out);
+                      "metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010", op, out);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, out);
         testAttribute(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, out);

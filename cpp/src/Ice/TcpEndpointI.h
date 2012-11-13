@@ -22,8 +22,7 @@ class TcpEndpointI : public EndpointI
 {
 public:
 
-    TcpEndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const Ice::ProtocolVersion&, 
-                 const Ice::EncodingVersion&, const std::string&, bool);
+    TcpEndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
     TcpEndpointI(const InstancePtr&, const std::string&, bool);
     TcpEndpointI(BasicStream*);
 

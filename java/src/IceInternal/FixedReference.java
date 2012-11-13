@@ -21,7 +21,7 @@ public class FixedReference extends Reference
                    Ice.EncodingVersion encoding,
                    Ice.ConnectionI connection)
     {
-        super(instance, communicator, identity, facet, mode, secure, encoding);
+        super(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding);
         _fixedConnection = connection;
     }
 

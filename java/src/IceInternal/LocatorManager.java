@@ -11,6 +11,60 @@ package IceInternal;
 
 public final class LocatorManager
 {
+    static private class LocatorKey implements Cloneable
+    {
+        public boolean 
+        equals(Object o)
+        {
+            assert(o instanceof LocatorKey);
+            LocatorKey k = (LocatorKey)o;
+            if(!k._id.equals(_id))
+            {
+                return false;
+            }
+            if(!k._encoding.equals(_encoding))
+            {
+                return false;
+            }
+            return true;
+        }
+
+        public int
+        hashCode()
+        {
+            int h = 5381;
+            h = IceInternal.HashUtil.hashAdd(h, _id);
+            h = IceInternal.HashUtil.hashAdd(h, _encoding);
+            return h;
+        }
+
+        public java.lang.Object
+        clone()
+        {
+            java.lang.Object o = null;
+            try
+            {
+                o = super.clone();
+            }
+            catch(CloneNotSupportedException ex)
+            {
+                    assert false; // impossible
+            }
+            return o;
+        }
+        
+        LocatorKey set(Ice.LocatorPrx locator)
+        {
+            Reference r = ((Ice.ObjectPrxHelperBase)locator).__reference();
+            _id = r.getIdentity();
+            _encoding = r.getEncoding();
+            return this;
+        }
+
+        private Ice.Identity _id;
+        private Ice.EncodingVersion _encoding;
+    }
+
     LocatorManager(Ice.Properties properties)
     {
         _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
@@ -58,11 +112,11 @@ public final class LocatorManager
                 // have only one table per locator (not one per locator
                 // proxy).
                 //
-                LocatorTable table = _locatorTables.get(locator.ice_getIdentity());
+                LocatorTable table = _locatorTables.get(_lookupKey.set(locator));
                 if(table == null)
                 {
                     table = new LocatorTable();
-                    _locatorTables.put(locator.ice_getIdentity(), table);
+                    _locatorTables.put((LocatorKey)_lookupKey.clone(), table);
                 }
 
                 info = new LocatorInfo(locator, table, _background);
@@ -77,6 +131,7 @@ public final class LocatorManager
 
     private java.util.HashMap<Ice.LocatorPrx, LocatorInfo> _table =
         new java.util.HashMap<Ice.LocatorPrx, LocatorInfo>();
-    private java.util.HashMap<Ice.Identity, LocatorTable> _locatorTables =
-        new java.util.HashMap<Ice.Identity, LocatorTable>();
+    private java.util.HashMap<LocatorKey, LocatorTable> _locatorTables =
+        new java.util.HashMap<LocatorKey, LocatorTable>();
+    private LocatorKey _lookupKey = new LocatorKey(); // A key used for the lookup
 }

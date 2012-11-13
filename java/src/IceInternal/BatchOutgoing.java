@@ -30,6 +30,7 @@ public final class BatchOutgoing implements OutgoingMessageCallback
         _sent = false;
         _os = new BasicStream(handler.getReference().getInstance(), Protocol.currentProtocolEncoding);
         _observer = observer;
+        Protocol.checkSupportedProtocol(_handler.getReference().getProtocol());
     }
 
     public void

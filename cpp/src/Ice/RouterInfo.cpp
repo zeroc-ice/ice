@@ -142,15 +142,6 @@ IceInternal::RouterInfo::operator<(const RouterInfo& rhs) const
     return _router < rhs._router;
 }
 
-RouterPrx
-IceInternal::RouterInfo::getRouter() const
-{
-    //
-    // No mutex lock necessary, _router is immutable.
-    //
-    return _router;
-}
-
 vector<EndpointIPtr>
 IceInternal::RouterInfo::getClientEndpoints()
 {

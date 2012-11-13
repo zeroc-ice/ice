@@ -68,24 +68,19 @@ final class TcpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(Instance instance, java.net.InetSocketAddress addr, int timeout, Ice.ProtocolVersion protocol,
-                 Ice.EncodingVersion encoding, String connectionId)
+    TcpConnector(Instance instance, java.net.InetSocketAddress addr, int timeout, String connectionId)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _addr = addr;
         _timeout = timeout;
-        _protocol = protocol;
-        _encoding = encoding;
         _connectionId = connectionId;
 
         _hashCode = 5381;
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getAddress().getHostAddress());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr.getPort());
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _timeout);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _protocol);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _encoding);
         _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
     }
 
@@ -108,16 +103,6 @@ final class TcpConnector implements Connector
             return false;
         }
 
-        if(!_protocol.equals(p._protocol))
-        {
-            return false;
-        }
-
-        if(!_encoding.equals(p._encoding))
-        {
-            return false;
-        }
-
         if(!_connectionId.equals(p._connectionId))
         {
             return false;
@@ -131,8 +116,6 @@ final class TcpConnector implements Connector
     private Ice.Logger _logger;
     private java.net.InetSocketAddress _addr;
     private int _timeout;
-    private Ice.ProtocolVersion _protocol;
-    private Ice.EncodingVersion _encoding;
     private String _connectionId = "";
     private int _hashCode;
 }

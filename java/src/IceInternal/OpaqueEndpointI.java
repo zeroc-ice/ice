@@ -14,7 +14,7 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(String str)
     {
-        super(Protocol_0_0, Encoding_0_0, "");
+        super("");
 
         _rawEncoding = Protocol.currentEncoding;
 
@@ -148,7 +148,7 @@ final class OpaqueEndpointI extends EndpointI
     public
     OpaqueEndpointI(short type, BasicStream s)
     {
-        super(Protocol_0_0, Encoding_0_0, "");
+        super("");
         _type = type;
         _rawEncoding = s.startReadEncaps();
         int sz = s.getReadEncapsSize();
@@ -185,7 +185,7 @@ final class OpaqueEndpointI extends EndpointI
     public Ice.EndpointInfo
     getInfo()
     {
-        return new Ice.OpaqueEndpointInfo(_protocol, _encoding, -1, false, _rawEncoding, _rawBytes)
+        return new Ice.OpaqueEndpointInfo(-1, false, _rawEncoding, _rawBytes)
             {
                 public short type()
                 {
@@ -453,7 +453,4 @@ final class OpaqueEndpointI extends EndpointI
     private Ice.EncodingVersion _rawEncoding;
     private byte[] _rawBytes;
     private int _hashCode;
-
-    private final static Ice.ProtocolVersion Protocol_0_0 = new Ice.ProtocolVersion((byte)0, (byte)0);
-    private final static Ice.EncodingVersion Encoding_0_0 = new Ice.EncodingVersion((byte)0, (byte)0);
 }

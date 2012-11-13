@@ -92,6 +92,8 @@ IceInternal::Outgoing::Outgoing(RequestHandler* handler, const string& operation
     _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _sent(false)
 { 
+    checkSupportedProtocol(handler->getReference()->getProtocol());
+
     switch(_handler->getReference()->getMode())
     {
         case Reference::ModeTwoway:
@@ -561,6 +563,7 @@ IceInternal::BatchOutgoing::BatchOutgoing(RequestHandler* handler, InvocationObs
     _os(handler->getReference()->getInstance().get(), Ice::currentProtocolEncoding),
     _observer(observer)
 {
+    checkSupportedProtocol(handler->getReference()->getProtocol());
 }
 
 IceInternal::BatchOutgoing::BatchOutgoing(ConnectionI* connection, Instance* instance, InvocationObserver& observer) :

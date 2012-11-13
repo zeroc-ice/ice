@@ -11,17 +11,13 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<EndpointI>
 {
-    public EndpointI(Ice.ProtocolVersion protocol, Ice.EncodingVersion encoding, String connectionId)
+    public EndpointI(String connectionId)
     {
-        _protocol = protocol;
-        _encoding = encoding;
         _connectionId = connectionId;
     }
 
     public EndpointI()
     {
-        _protocol = (Ice.ProtocolVersion)Protocol.currentProtocol;
-        _encoding = (Ice.EncodingVersion)Protocol.currentEncoding;
     }
 
     public String
@@ -87,22 +83,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     public abstract boolean secure();
 
     //
-    // Return the protocol supported by the endpoint.
-    //
-    public Ice.ProtocolVersion protocolVersion()
-    {
-        return _protocol;
-    }
-
-    //
-    // Return the encoding supported by the endpoint.
-    //
-    public Ice.EncodingVersion encodingVersion()
-    {
-        return _encoding;
-    }
-
-    //
     // Return the connection ID 
     //
     public String connectionId()
@@ -160,42 +140,6 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
 
     public int compareTo(EndpointI p) // From java.lang.Comparable. 
     {
-        if(_protocol.major < p._protocol.major)
-        {
-            return -1;
-        }
-        else if(p._protocol.major < _protocol.major)
-        {
-            return 1;
-        }
-
-        if(_protocol.minor < p._protocol.minor)
-        {
-            return -1;
-        }
-        else if(p._protocol.minor < _protocol.minor)
-        {
-            return 1;
-        }
-
-        if(_encoding.major < p._encoding.major)
-        {
-            return -1;
-        }
-        else if(p._encoding.major < _encoding.major)
-        {
-            return 1;
-        }
-
-        if(_encoding.minor < p._encoding.minor)
-        {
-            return -1;
-        }
-        else if(p._encoding.minor < _encoding.minor)
-        {
-            return 1;
-        }
-
         if(!_connectionId.equals(p._connectionId))
         {
             return _connectionId.compareTo(p._connectionId);
@@ -215,52 +159,5 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
         return null;
     }
 
-    protected void
-    parseOption(String option, String arg, String desc, String str)
-    {
-        if(option.equals("-v"))
-        {
-            if(arg == null)
-            {
-                throw new Ice.EndpointParseException("no argument provided for -v option in endpoint `" +
-                                                     desc + " "+ str + "'");
-            }
-
-            try
-            {
-                _protocol = Ice.Util.stringToProtocolVersion(arg);
-            }
-            catch(Ice.VersionParseException e)
-            {
-                throw new Ice.EndpointParseException("invalid protocol version `" + arg + "' in endpoint `" +
-                                                     desc + " "+ str + "':\n" + e.str);
-            }
-        }            
-        else if(option.equals("-e"))
-        {
-            if(arg == null)
-            {
-                throw new Ice.EndpointParseException("no argument provided for -e option in endpoint `" +
-                                                     desc + " " + str + "'");
-            }
-            
-            try
-            {
-                _encoding = Ice.Util.stringToEncodingVersion(arg);
-            }
-            catch(Ice.VersionParseException e)
-            {
-                throw new Ice.EndpointParseException("invalid encoding version `" + arg + "' in endpoint `" +
-                                                     desc + " "+ str + "':\n" + e.str);
-            }
-        }
-        else
-        {
-            throw new Ice.EndpointParseException("unknown option `" + option + "' in `" + desc + " " + str + "'");
-        }
-    }
-
-    protected Ice.ProtocolVersion _protocol;
-    protected Ice.EncodingVersion _encoding;
     protected String _connectionId = "";
 }

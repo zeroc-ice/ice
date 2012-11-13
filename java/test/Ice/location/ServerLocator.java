@@ -26,6 +26,13 @@ public class ServerLocator extends _TestLocatorDisp
         throws Ice.AdapterNotFoundException
     {
         ++_requestCount;
+        if(adapter.equals("TestAdapter10") || adapter.equals("TestAdapter10-2"))
+        {
+            assert(current.encoding.equals(Ice.Util.Encoding_1_0));
+            response.ice_response(_registry.getAdapter("TestAdapter"));
+            return;
+        }
+
         // We add a small delay to make sure locator request queuing gets tested when
         // running the test on a fast machine
         try

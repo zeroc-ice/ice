@@ -19,7 +19,8 @@ public final class ReferenceFactory
             return null;
         }
 
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), endpoints, null, null);
+        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(), 
+                      endpoints, null, null);
     }
 
     public Reference
@@ -30,7 +31,8 @@ public final class ReferenceFactory
             return null;
         }
 
-        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), null, adapterId, null);
+        return create(ident, facet, tmpl.getMode(), tmpl.getSecure(), tmpl.getProtocol(), tmpl.getEncoding(), null, 
+                      adapterId, null);
     }
 
     public Reference
@@ -40,8 +42,6 @@ public final class ReferenceFactory
         {
             return null;
         }
-
-        DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
         //
         // Create new reference
@@ -53,7 +53,7 @@ public final class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
-            defaultsAndOverrides.defaultEncoding,
+            _instance.defaultsAndOverrides().defaultEncoding,
             fixedConnection);
         return updateCache(ref);
     }
@@ -163,6 +163,7 @@ public final class ReferenceFactory
         String facet = "";
         int mode = Reference.ModeTwoway;
         boolean secure = false;
+        Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
         String adapter = "";
 
         while(true)
@@ -336,6 +337,25 @@ public final class ReferenceFactory
                     break;
                 }
 
+                case 'e':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.ProxyParseException("no argument provided for -e option in `" + s + "'");
+                    }
+            
+                    try
+                    {
+                        encoding = Ice.Util.stringToEncodingVersion(argument);
+                    }
+                    catch(Ice.VersionParseException e)
+                    {
+                        throw new Ice.ProxyParseException("invalid encoding version `" + argument + "' in `" + s + 
+                                                          "':\n" + e.str);
+                    }
+                    break;
+                }
+
                 default:
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -347,7 +367,7 @@ public final class ReferenceFactory
 
         if(beg == -1)
         {
-            return create(ident, facet, mode, secure, null, null, propertyPrefix);
+            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, null, propertyPrefix);
         }
 
         java.util.ArrayList<EndpointI> endpoints = new java.util.ArrayList<EndpointI>();
@@ -437,7 +457,7 @@ public final class ReferenceFactory
 
             EndpointI[] endp = new EndpointI[endpoints.size()];
             endpoints.toArray(endp);
-            return create(ident, facet, mode, secure, endp, null, propertyPrefix);
+            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, endp, null, propertyPrefix);
         }
         else if(s.charAt(beg) == '@')
         {
@@ -496,7 +516,7 @@ public final class ReferenceFactory
                 e.str = "empty adapter id in `" + s + "'";
                 throw e;
             }
-            return create(ident, facet, mode, secure, null, adapter, propertyPrefix);
+            return create(ident, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, null, adapter, propertyPrefix);
         }
 
         Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -543,6 +563,21 @@ public final class ReferenceFactory
 
         boolean secure = s.readBool();
 
+        Ice.ProtocolVersion protocol;
+        Ice.EncodingVersion encoding;
+        if(!s.getReadEncoding().equals(Ice.Util.Encoding_1_0))
+        {
+            protocol = new Ice.ProtocolVersion();
+            protocol.__read(s);
+            encoding = new Ice.EncodingVersion();
+            encoding.__read(s);
+        }
+        else
+        {
+            protocol = Ice.Util.Protocol_1_0;
+            encoding = Ice.Util.Encoding_1_0;
+        }
+
         EndpointI[] endpoints = null;
         String adapterId = null;
 
@@ -560,7 +595,7 @@ public final class ReferenceFactory
             adapterId = s.readString();
         }
 
-        return create(ident, facet, mode, secure, endpoints, adapterId, null);
+        return create(ident, facet, mode, secure, protocol, encoding, endpoints, adapterId, null);
     }
 
     public ReferenceFactory
@@ -717,20 +752,31 @@ public final class ReferenceFactory
     }
 
     private Reference
-    create(Ice.Identity ident, String facet, int mode, boolean secure, EndpointI[] endpoints, String adapterId,
-           String propertyPrefix)
+    create(Ice.Identity ident, String facet, int mode, boolean secure, Ice.ProtocolVersion protocol, 
+           Ice.EncodingVersion encoding, EndpointI[] endpoints, String adapterId, String propertyPrefix)
     {
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
         //
         // Default local proxy options.
         //
-        LocatorInfo locatorInfo = _instance.locatorManager().get(_defaultLocator);
+        LocatorInfo locatorInfo = null;
+        if(_defaultLocator != null)
+        {
+            if(!((Ice.ObjectPrxHelperBase)_defaultLocator).__reference().getEncoding().equals(encoding))
+            {
+                locatorInfo = _instance.locatorManager().get(
+                    (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
+            }
+            else
+            {
+                locatorInfo = _instance.locatorManager().get(_defaultLocator);
+            }
+        }
         RouterInfo routerInfo = _instance.routerManager().get(_defaultRouter);
         boolean collocationOptimized = defaultsAndOverrides.defaultCollocationOptimization;
         boolean cacheConnection = true;
         boolean preferSecure = defaultsAndOverrides.defaultPreferSecure;
-        Ice.EncodingVersion encoding = defaultsAndOverrides.defaultEncoding;
         Ice.EndpointSelectionType endpointSelection = defaultsAndOverrides.defaultEndpointSelection;
         int locatorCacheTimeout = defaultsAndOverrides.defaultLocatorCacheTimeout;
         
@@ -783,14 +829,6 @@ public final class ReferenceFactory
             property = propertyPrefix + ".PreferSecure";
             preferSecure = properties.getPropertyAsIntWithDefault(property, preferSecure ? 1 : 0) > 0;
 
-            property = propertyPrefix + ".EncodingVersion";
-            String encodingStr = properties.getProperty(property);
-            if(!encodingStr.isEmpty())
-            {
-                encoding = Ice.Util.stringToEncodingVersion(encodingStr);
-                Protocol.checkSupportedEncoding(encoding);
-            }
-
             property = propertyPrefix + ".EndpointSelection";
             if(properties.getProperty(property).length() > 0)
             {
@@ -823,6 +861,7 @@ public final class ReferenceFactory
                                                  facet,
                                                  mode,
                                                  secure,
+                                                 protocol,
                                                  encoding,
                                                  endpoints,
                                                  adapterId,

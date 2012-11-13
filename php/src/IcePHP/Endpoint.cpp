@@ -286,10 +286,6 @@ IcePHP::endpointInit(TSRMLS_D)
     ce.create_object = handleEndpointInfoAlloc;
     endpointInfoClassEntry = zend_register_internal_class(&ce TSRMLS_CC);
     memcpy(&_endpointInfoHandlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    zend_declare_property_null(endpointInfoClassEntry, STRCAST("protocol"), sizeof("protocol") - 1,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
-    zend_declare_property_null(endpointInfoClassEntry, STRCAST("encoding"), sizeof("encoding") - 1,
-                               ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_long(endpointInfoClassEntry, STRCAST("timeout"), sizeof("timeout") - 1, 0,
                                ZEND_ACC_PUBLIC TSRMLS_CC);
     zend_declare_property_bool(endpointInfoClassEntry, STRCAST("compress"), sizeof("compress") - 1, 0,
@@ -455,18 +451,6 @@ IcePHP::createEndpointInfo(zval* zv, const Ice::EndpointInfoPtr& p TSRMLS_DC)
         add_property_string(zv, STRCAST("host"), const_cast<char*>(info->host.c_str()), 1);
         add_property_long(zv, STRCAST("port"), static_cast<long>(info->port));
     }
-
-    zval* protocol;
-    MAKE_STD_ZVAL(protocol);
-    createProtocolVersion(protocol, p->protocol TSRMLS_CC);
-    add_property_zval(zv, STRCAST("protocol"), protocol);
-    zval_ptr_dtor(&protocol); // add_property_zval increased the refcount of protocol
-
-    zval* encoding;
-    MAKE_STD_ZVAL(encoding);
-    createEncodingVersion(encoding, p->encoding TSRMLS_CC);
-    add_property_zval(zv, STRCAST("encoding"), encoding);
-    zval_ptr_dtor(&encoding); // add_property_zval increased the refcount of encoding
 
     add_property_long(zv, STRCAST("timeout"), static_cast<long>(p->timeout));
     add_property_bool(zv, STRCAST("compress"), static_cast<long>(p->compress));

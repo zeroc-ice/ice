@@ -22,8 +22,7 @@ class EndpointI : public IceInternal::EndpointI
 {
 public:
 
-    EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const Ice::ProtocolVersion&, 
-              const Ice::EncodingVersion&, const std::string&, bool);
+    EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
     EndpointI(const InstancePtr&, const std::string&, bool);
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
