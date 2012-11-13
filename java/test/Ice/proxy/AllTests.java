@@ -572,7 +572,8 @@ public class AllTests
 
             Ice.InputStream inS = Ice.Util.createInputStream(communicator, inBytes);
             MyClassPrx cl11 = MyClassPrxHelper.uncheckedCast(inS.readProxy().ice_collocationOptimized(false));
-            test(cl11.toString().equals("test -t -p 1.1 -e 1.1:tcp -h 127.0.0.1 -p 12010"));
+            String protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            test(cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010"));
             try
             {
                 cl11.ice_ping();

@@ -553,7 +553,8 @@ public class AllTests : TestCommon.TestApp
 
             Ice.InputStream inS = Ice.Util.createInputStream(communicator, inBytes);
             Test.MyClassPrx cl11 = Test.MyClassPrxHelper.uncheckedCast(inS.readProxy().ice_collocationOptimized(false));
-            test(cl11.ToString().Equals("test -t -p 1.1 -e 1.1:tcp -h 127.0.0.1 -p 12010"));
+            string protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            test(cl11.ToString().Equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010"));
             try
             {
                 cl11.ice_ping();
