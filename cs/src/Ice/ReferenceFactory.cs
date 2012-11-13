@@ -803,7 +803,15 @@ namespace IceInternal
                 Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(locator != null)
                 {
-                    locatorInfo = instance_.locatorManager().get(locator);
+                    if(!((Ice.ObjectPrxHelperBase)locator).reference__().getEncoding().Equals(encoding))
+                    {
+                        locatorInfo = instance_.locatorManager().get(
+                            (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
+                    }
+                    else
+                    {
+                        locatorInfo = instance_.locatorManager().get(locator);
+                    }
                 }
 
                 property = propertyPrefix + ".Router";

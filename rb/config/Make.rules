@@ -166,7 +166,7 @@ LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 ifdef ice_src_dist
     ifeq ($(ice_cpp_dir), $(ice_dir)/cpp)
 	ifeq ($(SLICEPARSERLIB),)
-	    #SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
+	    SLICEPARSERLIB	= $(ice_cpp_dir)/lib/$(call mklibfilename,Slice,$(VERSION))
 	endif
 	SLICE2RB	= $(ice_cpp_dir)/bin/$(slice_translator)
     else

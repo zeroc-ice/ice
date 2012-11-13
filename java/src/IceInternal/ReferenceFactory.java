@@ -801,7 +801,14 @@ public final class ReferenceFactory
             Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
             {
-                locatorInfo = _instance.locatorManager().get(locator);
+                if(!((Ice.ObjectPrxHelperBase)locator).__reference().getEncoding().equals(encoding))
+                {
+                    locatorInfo = _instance.locatorManager().get((Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
+                }
+                else
+                {
+                    locatorInfo = _instance.locatorManager().get(locator);
+                }
             }
 
             property = propertyPrefix + ".Router";
