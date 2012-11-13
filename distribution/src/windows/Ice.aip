@@ -5201,6 +5201,7 @@
     <ROW Dialog_="LicenseAgreementDlg" Control="AgreementText" Type="ScrollableText" X="20" Y="60" Width="330" Height="120" Attributes="7" Text="&lt;ICE_BUILD_HOME&gt;dist\distfiles-3.5b\src\windows\LICENSE.rtf" Order="400" TextLocId="Control.Text.LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="DeletedRows" value="LicenseAgreementDlg#AgreementText"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="2"/>
+    <ATTRIBUTE name="MultiBuildFixedSizeBitmaps" value="DefaultBuild:1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="LicenseAgreementDlg" Condition="AI_INSTALL" Ordering="1"/>
