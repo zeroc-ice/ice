@@ -88,7 +88,7 @@ After build has completed you must register Ice SDK in Windows registry
 
 > nmake /f Makefile.mak register-sdk
 
-* This command must be executed for a command promt that has administrative
+* This command must be executed for a command prompt that has administrative
   privileges; as it require write access to windows registry.
 
 
@@ -105,7 +105,7 @@ Change the working directory to Ice-@ver@. For example:
 
 > cd C:\Ice-@ver@\cpp\test
 
-Edit config\Make.rules.mak to stablish configuration.
+Edit config\Make.rules.mak to establish configuration.
 
 > nmake /f Makefile.mak
 
