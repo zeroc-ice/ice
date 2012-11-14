@@ -28,7 +28,7 @@ namespace Ice
 // assert(obj); // May be null if the facet is not enabled
 // NativePropertiesAdminPtr facet = NativePropertiesAdminPtr::dynamicCast(obj);
 // PropertiesAdminUpdateCallbackPtr myCallback = ...;
-// facet->setUpdateCallback(myCallback);
+// facet->addUpdateCallback(myCallback);
 //
 // Ice ignores any exceptions raised by the callback.
 //
