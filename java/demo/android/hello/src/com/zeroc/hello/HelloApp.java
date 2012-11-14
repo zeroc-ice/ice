@@ -105,6 +105,7 @@ public class HelloApp extends Application
                 initData.properties.setProperty("IceSSL.KeystoreType", "BKS");
                 initData.properties.setProperty("IceSSL.TruststoreType", "BKS");
                 initData.properties.setProperty("IceSSL.Password", "password");
+                //initData.properties.setProperty("IceSSL.VerifyPeer", "0");
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             }
