@@ -798,6 +798,12 @@ RegistryI::createSession(const string& user, const string& password, const Curre
             throw exc;
         }
     }
+    catch(const Glacier2::PermissionDeniedException& ex)
+    {
+        PermissionDeniedException exc;
+        exc.reason = ex.reason;
+        throw exc;
+    }
     catch(const LocalException& ex)
     {
         if(_traceLevels && _traceLevels->session > 0)
@@ -847,6 +853,12 @@ RegistryI::createAdminSession(const string& user, const string& password, const 
             exc.reason = reason;
             throw exc;
         }
+    }
+    catch(const Glacier2::PermissionDeniedException& ex)
+    {
+        PermissionDeniedException exc;
+        exc.reason = ex.reason;
+        throw exc;
     }
     catch(const LocalException& ex)
     {
@@ -907,6 +919,12 @@ RegistryI::createSessionFromSecureConnection(const Current& current)
             throw exc;
         }
     }
+    catch(const Glacier2::PermissionDeniedException& ex)
+    {
+        PermissionDeniedException exc;
+        exc.reason = ex.reason;
+        throw exc;
+    }
     catch(const LocalException& ex)
     {
         if(_traceLevels && _traceLevels->session > 0)
@@ -951,6 +969,12 @@ RegistryI::createAdminSessionFromSecureConnection(const Current& current)
             exc.reason = reason;
             throw exc;
         }
+    }
+    catch(const Glacier2::PermissionDeniedException& ex)
+    {
+        PermissionDeniedException exc;
+        exc.reason = ex.reason;
+        throw exc;
     }
     catch(const LocalException& ex)
     {

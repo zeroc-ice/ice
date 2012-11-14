@@ -16,11 +16,14 @@ VERIFIER	= verifier
 TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
 COBJS		= Client.o \
-		  AllTests.o
+		  AllTests.o \
+		  Test.o
 
-SOBJS		= Server.o
+SOBJS		= Server.o \
+		  Test.o
 
-VOBJS		= PermissionsVerifier.o
+VOBJS		= PermissionsVerifier.o \
+		  Test.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(VOBJS:.o=.cpp) \

@@ -27,6 +27,10 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- Improved Glacier2 permission verifiers to permit throwing
+  Glacier2::PermissionDeniedException exceptions. Glacier2 now
+  forwards permission denied exceptions to the client.
+
 - The Slice compilers now define the ICE_VERSION preprocessor macro
   so that you can use the Ice version to conditionally compile your
   Slice definitions.

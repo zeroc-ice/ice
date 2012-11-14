@@ -13,6 +13,7 @@
 
 #include <Ice/Router.ice>
 #include <Glacier2/Session.ice>
+#include <Glacier2/PermissionsVerifier.ice>
 
 /**
  *
@@ -24,25 +25,6 @@
  **/
 module Glacier2
 {
-
-/**
- *
- * This exception is raised if a client is denied the ability to create
- * a session with the router.
- *
- * @see Router#createSession
- * @see Router#createSessionFromSecureConnection
- *
- **/
-exception PermissionDeniedException
-{
-    /**
-     *
-     * The reason why permission was denied.
-     *
-     **/
-    string reason;
-};
 
 /**
  *
@@ -110,7 +92,7 @@ interface Router extends Ice::Router
      * cannot be created.
      *
      **/
-    ["amd"] Session* createSession(string userId, string password)
+    ["amd", "format:sliced"] Session* createSession(string userId, string password)
         throws PermissionDeniedException, CannotCreateSessionException;
 
     /**
@@ -142,7 +124,7 @@ interface Router extends Ice::Router
      * cannot be created.
      *
      **/
-    ["amd"] Session* createSessionFromSecureConnection()
+    ["amd", "format:sliced"] Session* createSessionFromSecureConnection()
         throws PermissionDeniedException, CannotCreateSessionException;
 
     /**

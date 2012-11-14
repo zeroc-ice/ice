@@ -18,6 +18,26 @@ module Glacier2
 
 /**
  *
+ * This exception is raised if a client is denied the ability to create
+ * a session with the router.
+ *
+ * @see Router#createSession
+ * @see Router#createSessionFromSecureConnection
+ *
+ **/
+["preserve-slice"]
+exception PermissionDeniedException
+{
+    /**
+     *
+     * The reason why permission was denied.
+     *
+     **/
+    string reason;
+};
+
+/**
+ *
  * The Glacier2 permissions verifier. This is called through the
  * process of establishing a session.
  *
@@ -39,7 +59,9 @@ interface PermissionsVerifier
      * @return True if access is granted, or false otherwise.
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent bool checkPermissions(string userId, string password, out string reason);
+    ["nonmutating", "cpp:const", "format:sliced"]
+    idempotent bool checkPermissions(string userId, string password, out string reason)
+        throws PermissionDeniedException;
 };
 
 /**
@@ -65,7 +87,9 @@ interface SSLPermissionsVerifier
      * @see SSLInfo
      *
      **/
-    ["nonmutating", "cpp:const"] idempotent bool authorize(SSLInfo info, out string reason);
+    ["nonmutating", "cpp:const", "format:sliced"] 
+    idempotent bool authorize(SSLInfo info, out string reason)
+        throws PermissionDeniedException;
 };
 
 };

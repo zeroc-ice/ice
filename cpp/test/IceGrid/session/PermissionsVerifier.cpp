@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
+#include <Test.h>
 
 using namespace std;
 
@@ -20,6 +21,10 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& c) const
     {
+        if(c.ctx.find("throw") != c.ctx.end())
+        {
+            throw Test::ExtendedPermissionDeniedException("reason");
+        }
         if(userId == "shutdown")
         {
             c.adapter->getCommunicator()->shutdown();

@@ -16,11 +16,14 @@ VERIFIER        = verifier.exe
 TARGETS		= $(CLIENT) $(SERVER) $(VERIFIER)
 
 COBJS		= Client.obj \
-		  AllTests.obj
+		  AllTests.obj \
+		  Test.obj
 
-SOBJS		= Server.obj
+SOBJS		= Server.obj \
+		  Test.obj
 
-VOBJS		= PermissionsVerifier.obj
+VOBJS		= PermissionsVerifier.obj \
+		  Test.obj
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \

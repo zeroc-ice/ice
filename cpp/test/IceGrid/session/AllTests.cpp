@@ -16,6 +16,7 @@
 #include <IceGrid/Observer.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
+#include <Test.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -593,8 +594,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IceGrid::RegistryPrx registry1 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg1"));
     IceGrid::RegistryPrx registry2 = IceGrid::RegistryPrx::uncheckedCast(registry->ice_connectionId("reg2"));
 
-    Ice::ObjectPrx router = communicator->stringToProxy("Glacier2/router:default -p 12347 -h 127.0.0.1");
-    Ice::ObjectPrx adminRouter = communicator->stringToProxy("Glacier2/router:default -p 12348 -h 127.0.0.1");
+    Glacier2::RouterPrx router = Glacier2::RouterPrx::uncheckedCast(
+        communicator->stringToProxy("Glacier2/router:default -p 12347 -h 127.0.0.1"));
+    Glacier2::RouterPrx adminRouter = Glacier2::RouterPrx::uncheckedCast(
+        communicator->stringToProxy("Glacier2/router:default -p 12348 -h 127.0.0.1"));
 
     Glacier2::RouterPrx router1 = Glacier2::RouterPrx::uncheckedCast(router->ice_connectionId("router1"));
     Glacier2::RouterPrx router2 = Glacier2::RouterPrx::uncheckedCast(router->ice_connectionId("router2"));
@@ -634,6 +637,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const IceGrid::PermissionDeniedException&)
         {
+        }
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            registry1->createSession("client3", "test1", ctx);
+            test(false);
+        }
+        catch(const IceGrid::PermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
         }
 
         session1->ice_ping();
@@ -690,6 +704,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         catch(const IceGrid::PermissionDeniedException&)
         {
+        }
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            registry1->createSession("admin3", "test1", ctx);
+            test(false);
+        }
+        catch(const IceGrid::PermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
         }
 
         adminSession1->ice_ping();
@@ -752,6 +777,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            registry1->createSessionFromSecureConnection(ctx);
+            test(false);
+        }
+        catch(const IceGrid::PermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
+        }
+
+        try
+        {
             session1->ice_connectionId("")->ice_ping();
             test(false);
         }
@@ -779,6 +816,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         adminSession1->ice_ping();
         adminSession2->ice_ping();
+
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            registry1->createAdminSessionFromSecureConnection(ctx);
+            test(false);
+        }
+        catch(const IceGrid::PermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
+        }
 
         try
         {
@@ -847,6 +896,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Glacier2::CannotCreateSessionException&)
         {
         }
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            router->ice_connectionId("routerex")->createSession("client3", "test1", ctx);
+            test(false);
+        }
+        catch(const Test::ExtendedPermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
+        }
 
         session1->ice_ping();
         session2->ice_ping();
@@ -903,11 +963,22 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
-            adminRouter1->createSession("client3", "test1");
+            adminRouter1->createSession("admin3", "test1");
             test(false);
         }
         catch(const Glacier2::CannotCreateSessionException&)
         {
+        }
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            adminRouter->ice_connectionId("routerex")->createSession("admin3", "test1", ctx);
+            test(false);
+        }
+        catch(const Test::ExtendedPermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
         }
 
         admSession1->ice_ping();
@@ -988,6 +1059,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         try
         {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            router->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
+            test(false);
+        }
+        catch(const Test::ExtendedPermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
+        }
+
+        try
+        {
             session1->ice_connectionId("router21")->ice_router(router2)->ice_ping();
             test(false);
         }
@@ -1044,6 +1127,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         admSession1->ice_ping();
         admSession2->ice_ping();
+
+        try
+        {
+            Ice::Context ctx;
+            ctx["throw"] = "1";
+            adminRouter->ice_connectionId("routerex")->createSessionFromSecureConnection(ctx);
+            test(false);
+        }
+        catch(const Test::ExtendedPermissionDeniedException& ex)
+        {
+            test(ex.reason == "reason");
+        }
 
         Ice::ObjectPrx admin1 = admSession1->getAdmin()->ice_router(adminRouter1)->ice_connectionId("admRouter11");
         Ice::ObjectPrx admin2 = admSession2->getAdmin()->ice_router(adminRouter2)->ice_connectionId("admRouter21");

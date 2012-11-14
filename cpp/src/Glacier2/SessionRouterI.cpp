@@ -165,7 +165,11 @@ public:
     void
     checkPermissionsException(const Ice::Exception& ex)
     {
-        if(dynamic_cast<const CollocationOptimizationException*>(&ex))
+        if(dynamic_cast<const PermissionDeniedException*>(&ex))
+        {
+            exception(ex);
+        }
+        else if(dynamic_cast<const CollocationOptimizationException*>(&ex))
         {
             authorizeCollocated();
         }
@@ -276,7 +280,11 @@ public:
     void
     authorizeException(const Ice::Exception& ex)
     {
-        if(dynamic_cast<const CollocationOptimizationException*>(&ex))
+        if(dynamic_cast<const PermissionDeniedException*>(&ex))
+        {
+            exception(ex);
+        }
+        else if(dynamic_cast<const CollocationOptimizationException*>(&ex))
         {
             authorizeCollocated();
         }

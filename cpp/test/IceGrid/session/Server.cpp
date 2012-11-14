@@ -11,6 +11,7 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
 #include <TestCommon.h>
+#include <Test.h>
 
 using namespace std;
 
@@ -19,8 +20,12 @@ class ClientPermissionsVerifierI : public Glacier2::PermissionsVerifier
 public:
 
     virtual bool
-    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
+    checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& current) const
     {
+        if(current.ctx.find("throw") != current.ctx.end())
+        {
+            throw Test::ExtendedPermissionDeniedException("reason");
+        }
         return (userId == "client1" && passwd == "test1") || (userId == "client2" && passwd == "test2");
     }
 };
@@ -32,6 +37,11 @@ public:
     virtual bool
     authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
     {
+        if(current.ctx.find("throw") != current.ctx.end())
+        {
+            throw Test::ExtendedPermissionDeniedException("reason");
+        }
+
         IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
         test(cert->getIssuerDN() == IceSSL::DistinguishedName(
             "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"

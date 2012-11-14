@@ -29,6 +29,7 @@ module Glacier2
  * @see SSLSessionManager#create
  *
  **/
+["preserve-slice"]
 exception CannotCreateSessionException
 {
     /**
@@ -229,6 +230,7 @@ interface SessionManager
      * cannot be created.
      *
      **/
+    ["format:sliced"]
     Session* create(string userId, SessionControl* control)
         throws CannotCreateSessionException;
 };
@@ -261,6 +263,7 @@ interface SSLSessionManager
      * cannot be created.
      *
      **/
+    ["format:sliced"] 
     Session* create(SSLInfo info, SessionControl* control)
         throws CannotCreateSessionException;
 };
