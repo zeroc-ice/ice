@@ -98,7 +98,7 @@ def isMINGW():
         return False
     # Ruby Installer DEVKIT sets the RI_DEVKIT environment variable,
     # we check for this variable to detect the Ruby MINGW environment.
-    return os.environ.has_key("RI_DEVKIT")
+    return "RI_DEVKIT" in os.environ
 
 def isVC90():
     if not isWin32():
@@ -896,8 +896,7 @@ def getCommandLine(exe, config, options = ""):
         output.write("ruby '" + exe + "' ")
     elif config.silverlight and config.lang == "cs" and config.type == "client":
         xap = "%s.xap" % os.path.basename(os.getcwd())
-        if (os.environ.has_key("PROCESSOR_ARCHITECTURE") and os.environ["PROCESSOR_ARCHITECTURE"] == "AMD64") or \
-           (os.environ.has_key("PROCESSOR_ARCHITEW6432") and os.environ["PROCESSOR_ARCHITEW6432"] == ""):	
+        if os.environ.get("PROCESSOR_ARCHITECTURE") == "AMD64" or os.environ.get("PROCESSOR_ARCHITEW6432") == "":	
             output.write("%s (x86)\Microsoft Silverlight\sllauncher.exe /emulate:%s" % ( os.environ["PROGRAMFILES"], xap))
         else:
             output.write("%s\Microsoft Silverlight\sllauncher.exe /emulate:%s" % ( os.environ["PROGRAMFILES"], xapPath))
