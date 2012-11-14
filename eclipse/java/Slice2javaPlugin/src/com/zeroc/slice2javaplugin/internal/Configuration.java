@@ -939,7 +939,10 @@ public class Configuration
         }
         else
         {
-            cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/Ice.jar"), null, null);
+            cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/Ice.jar"), 
+                                                new Path("ICE_HOME/lib/Ice.jar"), 
+                                                new Path("ICE_HOME/lib/"), 
+                                                true);
         }
         
         IClasspathEntry[] entries = project.getRawClasspath();
@@ -973,7 +976,10 @@ public class Configuration
     private void addLibrary(IJavaProject project, String jar)
         throws CoreException
     {
-        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + jar), null, null);
+        IClasspathEntry cpEntry = JavaCore.newVariableEntry(new Path("ICE_HOME/lib/" + jar), 
+                                                            new Path("ICE_HOME/lib/" + jar), 
+                                                            new Path("ICE_HOME/lib/"), 
+                                                            true);
         
         IClasspathEntry[] entries = project.getRawClasspath();
         boolean found = false;
