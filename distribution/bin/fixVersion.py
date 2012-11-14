@@ -41,8 +41,6 @@ ice_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 FixUtil.checkVersion(version)
 
-print FixUtil.vpatMatch
-
 #
 # Common build files
 #
@@ -277,3 +275,8 @@ for f in FixUtil.find("*.csproj"):
 # Release notes
 FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "RELEASE_NOTES"),
                             [("Ice\+" + FixUtil.vpatMatch, version)])
+
+# Eclipse plug-in
+FixUtil.fileMatchAndReplace(os.path.join(ice_dir, "eclipse", "java", "Slice2javaPlugin", "src",
+                                         "com", "zeroc", "slice2javaplugin", "preferences", "messages.properties"),
+                            [("IceStringVersion=" + FixUtil.vpatMatch, version)])
