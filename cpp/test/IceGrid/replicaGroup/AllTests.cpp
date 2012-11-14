@@ -851,6 +851,57 @@ allTests(const Ice::CommunicatorPtr& comm)
     };
     cout << "ok" << endl;
 
+    cout << "testing replica group with different server encoding support... " << flush;
+    {
+        vector<string> loadBalancings;
+        loadBalancings.push_back("Random");
+        loadBalancings.push_back("RoundRobin");
+        loadBalancings.push_back("RoundRobin-All");
+        for(vector<string>::const_iterator p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
+        {
+            map<string, string> params;
+            params["replicaGroup"] = *p;
+            params["id"] = "Server1";
+            params["encoding"] = "1.0";
+            instantiateServer(admin, "Server", "localnode", params);
+            params["id"] = "Server2";
+            params["encoding"] = "1.1";
+            instantiateServer(admin, "Server", "localnode", params);
+            params["id"] = "Server3";
+            params["encoding"] = "1.0";
+            instantiateServer(admin, "Server", "localnode", params);
+            
+            TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy(*p));
+            obj = obj->ice_locatorCacheTimeout(0);
+            obj = obj->ice_connectionCached(false);
+            
+            for(int i = 0; i < 30; ++i)
+            {
+                test(obj->getReplicaId() == "Server2.ReplicatedAdapter");
+            }
+            
+            obj = obj->ice_encodingVersion(Ice::Encoding_1_0);
+            set<string> replicaIds = serverReplicaIds;
+            while(!replicaIds.empty())
+            {
+                try
+                {
+                    replicaIds.erase(obj->getReplicaId());
+                }
+                catch(const Ice::LocalException& ex)
+                {
+                    cerr << ex << endl;
+                    test(false);
+                }
+            }
+            
+            removeServer(admin, "Server1");
+            removeServer(admin, "Server2");
+            removeServer(admin, "Server3");
+        }
+    };
+    cout << "ok" << endl;
+
     keepAlive->destroy();
     keepAlive->getThreadControl().join();
     keepAlive = 0;

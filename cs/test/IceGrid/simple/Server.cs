@@ -25,7 +25,8 @@ public class Server
         {
             args = communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), communicator().stringToIdentity("test"));
+            string id = communicator().getProperties().getPropertyWithDefault("Identity", "test");
+            adapter.add(new TestI(), communicator().stringToIdentity(id));
             shutdownOnInterrupt();
             try
             {

@@ -156,9 +156,11 @@ public:
 
     AdapterRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
                    const LocatorIPtr& locator, 
+                   const Ice::EncodingVersion& encoding,
                    const LocatorAdapterInfo& adapter) : 
         _amdCB(amdCB),
         _locator(locator),
+        _encoding(encoding),
         _adapter(adapter),
         _traceLevels(locator->getTraceLevels())
     {
@@ -178,9 +180,23 @@ public:
     }
 
     virtual void 
-    response(const std::string&, const Ice::ObjectPrx& proxy)
+    response(const std::string& id, const Ice::ObjectPrx& proxy)
     {
         assert(proxy);
+
+        //
+        // Ensure the server supports the request encoding.
+        //
+        if(proxy->ice_getEncodingVersion() < _encoding)
+        {
+            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
+                                                            __LINE__, 
+                                                            "server doesn't support requested encoding",
+                                                            _encoding, 
+                                                            proxy->ice_getEncodingVersion()));
+            return;
+        }
+
         _amdCB->ice_response(proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy")));
     }
 
@@ -199,6 +215,7 @@ private:
 
     const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
     const LocatorIPtr _locator;
+    const Ice::EncodingVersion _encoding;
     const LocatorAdapterInfo _adapter;
     const TraceLevelsPtr _traceLevels;
 };
@@ -210,12 +227,14 @@ public:
     ReplicaGroupRequest(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB, 
                         const LocatorIPtr& locator,
                         const string& id,
+                        const Ice::EncodingVersion& encoding,
                         const LocatorAdapterInfoSeq& adapters,
                         int count,
                         Ice::ObjectPrx firstProxy) : 
         _amdCB(amdCB),
         _locator(locator),
         _id(id),
+        _encoding(encoding),
         _adapters(adapters),
         _traceLevels(locator->getTraceLevels()),
         _count(count),
@@ -350,13 +369,26 @@ public:
     virtual void
     response(const string& id, const Ice::ObjectPrx& proxy)
     {
+        //
+        // Ensure the server supports the request encoding.
+        //
+        if(proxy->ice_getEncodingVersion() < _encoding)
+        {
+            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
+                                                            __LINE__, 
+                                                            "server doesn't support requested encoding",
+                                                            _encoding, 
+                                                            proxy->ice_getEncodingVersion()));
+            return;
+        }
+        
         Lock sync(*this);
         assert(proxy);
         if(_proxies.size() == _count) // Nothing to do if we already sent the response.
         {
             return;
         }
-        
+
         _proxies[id] = proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy"));
         
         //
@@ -415,6 +447,7 @@ private:
     const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
     const LocatorIPtr _locator;
     const std::string _id;
+    const Ice::EncodingVersion _encoding;
     LocatorAdapterInfoSeq _adapters;
     const TraceLevelsPtr _traceLevels;
     unsigned int _count;
@@ -431,12 +464,14 @@ public:
                       const LocatorIPtr& locator,
                       const DatabasePtr database,
                       const string& id,
+                      const Ice::EncodingVersion& encoding,
                       const LocatorAdapterInfoSeq& adapters,
                       int count) :
         _amdCB(amdCB),
         _locator(locator),
         _database(database),
         _id(id),
+        _encoding(encoding),
         _adapters(adapters),
         _traceLevels(locator->getTraceLevels()),
         _count(count),
@@ -488,6 +523,19 @@ public:
     virtual void 
     response(const std::string& id, const Ice::ObjectPrx& proxy)
     {
+        //
+        // Ensure the server supports the request encoding.
+        //
+        if(proxy->ice_getEncodingVersion() < _encoding)
+        {
+            exception(id, Ice::UnsupportedEncodingException(__FILE__, 
+                                                            __LINE__, 
+                                                            "server doesn't support requested encoding",
+                                                            _encoding, 
+                                                            proxy->ice_getEncodingVersion()));
+            return;
+        }
+
         Lock sync(*this);
         assert(proxy);
         if(_adapters.empty() || id != _adapters[0].id)
@@ -498,7 +546,8 @@ public:
         if(_count > 1)
         {
             Ice::ObjectPrx p = proxy->ice_identity(_locator->getCommunicator()->stringToIdentity("dummy"));
-            LocatorI::RequestPtr request = new ReplicaGroupRequest(_amdCB, _locator, _id, _adapters, _count, p);
+            LocatorI::RequestPtr request = 
+                new ReplicaGroupRequest(_amdCB, _locator, _id, _encoding, _adapters, _count, p);
             request->execute();
         }
         else
@@ -688,6 +737,7 @@ private:
     const LocatorIPtr _locator;
     const DatabasePtr _database;
     const std::string _id;
+    const Ice::EncodingVersion _encoding;
     LocatorAdapterInfoSeq _adapters;
     const TraceLevelsPtr _traceLevels;
     int _count;
@@ -811,7 +861,7 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
 void
 LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb, 
                                 const string& id, 
-                                const Ice::Current&) const
+                                const Ice::Current& current) const
 {
     LocatorIPtr self = const_cast<LocatorI*>(this);
     bool replicaGroup = false;
@@ -844,16 +894,16 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
         RequestPtr request;
         if(roundRobin)
         {
-            request = new RoundRobinRequest(cb, self, _database, id, adapters, count);
+            request = new RoundRobinRequest(cb, self, _database, id, current.encoding, adapters, count);
         }
         else if(replicaGroup)
         {
-            request = new ReplicaGroupRequest(cb, self, id, adapters, count, 0);
+            request = new ReplicaGroupRequest(cb, self, id, current.encoding, adapters, count, 0);
         }
         else
         {
             assert(adapters.size() == 1);
-            request = new AdapterRequest(cb, self, adapters[0]);
+            request = new AdapterRequest(cb, self, current.encoding, adapters[0]);
         }
         request->execute();
         return;

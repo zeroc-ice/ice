@@ -104,5 +104,5 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
     catch(const AdapterNotExistException&)
     {
         return Ice::ObjectProxySeq();
-    }    
+    }
 }

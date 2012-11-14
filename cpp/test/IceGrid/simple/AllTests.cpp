@@ -119,6 +119,33 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     obj2->ice_ping();
     cout << "ok" << endl;
 
+    cout << "testing encoding versioning... " << flush;
+    Ice::ObjectPrx base10 = communicator->stringToProxy("test10 @ TestAdapter10");
+    test(base10);
+    Ice::ObjectPrx base102 = communicator->stringToProxy("test10");
+    test(base102);
+    try
+    {
+        base10->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+    }
+    try
+    {
+        base102->ice_ping();
+        test(false);
+    }
+    catch(const Ice::NoEndpointException&)
+    {
+    }
+    base10 = base10->ice_encodingVersion(Ice::Encoding_1_0);
+    base102 = base102->ice_encodingVersion(Ice::Encoding_1_0);
+    base10->ice_ping();
+    base102->ice_ping();
+    cout << "ok" << endl;
+
     cout << "testing reference with unknown identity... " << flush;
     try
     {

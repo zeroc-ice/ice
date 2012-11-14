@@ -667,6 +667,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
             Lock sync(*this);
             assert(_requestInProgress);
             _requestInProgress = false;
+            notify();
         }
         throw;
     }
@@ -676,6 +677,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         Lock sync(*this);
         assert(_requestInProgress);
         _requestInProgress = false;
+        notify();
         if(unreachable > 0)
         {
             _lastReplica = (_lastReplica + unreachable) % static_cast<int>(_replicas.size());

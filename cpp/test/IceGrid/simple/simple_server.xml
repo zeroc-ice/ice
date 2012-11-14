@@ -4,7 +4,7 @@
       <server id="server" exe="${test.dir}/server" activation="on-demand">
 
         <adapter name="TestAdapter" endpoints="default" id="TestAdapter">
-	  <object identity="test" type="Test"/>
+	  <object identity="test" type="Test" property="Identity"/>
 	</adapter>
 
 	<target name="debug">
@@ -15,6 +15,14 @@
 	</target>
 
       </server>
+
+      <server id="server10" exe="${test.dir}/server" activation="on-demand">
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter10">
+	  <object identity="test10" type="Test" property="Identity"/>
+	</adapter>
+        <property name="Ice.Default.EncodingVersion" value="1.0"/>
+      </server>
+
     </node>
   </application>
 </icegrid>

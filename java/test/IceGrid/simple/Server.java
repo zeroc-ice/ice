@@ -19,7 +19,8 @@ public class Server extends test.Util.Application
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI();
-        adapter.add(object, communicator().stringToIdentity("test"));
+        String id = communicator().getProperties().getPropertyWithDefault("Identity", "test");
+        adapter.add(object, communicator().stringToIdentity(id));
         //shutdownOnInterrupt();
         try
         {

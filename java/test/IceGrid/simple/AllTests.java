@@ -132,6 +132,34 @@ public class AllTests
         obj2.ice_ping();
         out.println("ok");
 
+        out.print("testing encoding versioning... ");
+        out.flush();
+        Ice.ObjectPrx base10 = communicator.stringToProxy("test10 @ TestAdapter10");
+        test(base10 != null);
+        Ice.ObjectPrx base102 = communicator.stringToProxy("test10");
+        test(base102 != null);
+        try
+        {
+            base10.ice_ping();
+            test(false);
+        }
+        catch(Ice.NoEndpointException ex)
+        {
+        }
+        try
+        {
+            base102.ice_ping();
+            test(false);
+        }
+        catch(Ice.NoEndpointException ex)
+        {
+        }
+        base10 = base10.ice_encodingVersion(Ice.Util.Encoding_1_0);
+        base102 = base102.ice_encodingVersion(Ice.Util.Encoding_1_0);
+        base10.ice_ping();
+        base102.ice_ping();
+        out.println("ok");
+
         out.print("testing reference with unknown identity... ");
         out.flush();
         try
