@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil
+import os, sys, shutil, subprocess
 
 #
 # Show usage information.
@@ -94,6 +94,12 @@ if not os.path.exists(caKey) or force:
     os.system(cmd)
     shutil.copyfile(os.path.join(caHome, "cakey.pem"), caKey)
     shutil.copyfile(os.path.join(caHome, "cacert.pem"), caCert)
+
+    cmd = "openssl x509 -in " + caCert + " -outform DER -out " + os.path.join(certs, "cacert.der")
+    if debug:
+        print "[debug]", cmd
+    os.system(cmd)
+
 else:
     print "Skipping CA certificate and key."
 
@@ -305,7 +311,7 @@ if (lang == ".net" or lang == None) and (force or not os.path.exists(csServer) o
         os.remove(csServer)
 
     cmd = "openssl pkcs12 -in " + cppServerCert + " -inkey " + cppServerKey + " -export -out " + csServer + \
-          " -passout pass:password"
+          " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
     if debug:
         print "[debug]", cmd
     os.system(cmd)
@@ -325,7 +331,7 @@ if (lang == ".net" or lang == None) and (force or not os.path.exists(csClient) o
         os.remove(csClient)
 
     cmd = "openssl pkcs12 -in " + cppClientCert + " -inkey " + cppClientKey + " -export -out " + csClient + \
-          " -passout pass:password"
+          " -certpbe PBE-SHA1-RC4-40 -keypbe PBE-SHA1-RC4-40 -passout pass:password"
     if debug:
         print "[debug]", cmd
     os.system(cmd)
@@ -355,6 +361,36 @@ if (lang == "java" or lang == None) and (force or not os.path.exists(truststore)
         print "[debug]", cmd
     os.system(cmd)
     os.remove(tmpFile)
+
+    if os.path.exists("certs.bks"):
+        os.remove("certs.bks")
+
+    print "Converting Java truststore to BKS..."
+    cmd = "keytool -importkeystore -srckeystore certs.jks -destkeystore certs.bks -srcstoretype JKS -deststoretype BKS " + \
+          "-srcstorepass password -deststorepass password -provider org.bouncycastle.jce.provider.BouncyCastleProvider -noprompt"
+    if debug:
+        print "[debug]", cmd
+
+    try:
+        subprocess.check_output(cmd, shell=True)
+
+        #
+        # Replace certs.bks files in android demo dir
+        #
+        for root, dirnames, filenames in os.walk('../java/demo/android'):
+            for f in filenames:
+                if f == "certs.bks":
+                    shutil.copyfile("certs.bks", os.path.join(root, f))
+    except subprocess.CalledProcessError as e:
+        if e.output.find("java.lang.ClassNotFoundException: org.bouncycastle.jce.provider.BouncyCastleProvider") != -1:
+            print ""
+            print "WARNING: BouncyCastleProvider not found cannot export certificates for android demos in BKS format."
+            print "         You can download BKS provider from http://www.bouncycastle.org/latest_releases.html."
+            print "         After download copy the JAR to $JAVA_HOME/lib/ext where JAVA_HOME points to your JRE"
+            print "         and run this script again."
+            print ""
+        else:
+            raise
 else:
     print "Skipping Java truststore."
 

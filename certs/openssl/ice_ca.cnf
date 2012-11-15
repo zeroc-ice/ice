@@ -21,14 +21,14 @@ default_ca = ice
 
 [ ice ]
 default_days     = 1825    # How long certs are valid.
-default_md       = md5     # The Message Digest type.
+default_md       = sha256  # The Message Digest type.
 preserve         = no      # Keep passed DN ordering?
 
 
 [ req ]
 default_bits        = 2048
 default_keyfile     = openssl/ca/cakey.pem
-default_md          = md5
+default_md          = sha256
 prompt              = no
 distinguished_name  = root_ca_distinguished_name
 x509_extensions     = root_ca_extensions
