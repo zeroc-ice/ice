@@ -577,6 +577,7 @@
         <depend srcdir=".:${generated.test.dir}" destdir="${lib.dir}" cache="${cache.dir}">
             <exclude name="${generated.test.dir}/**"/>
             <include name="test/**"/>
+            <exclude name="test/android/"/>
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
         </depend>
@@ -594,6 +595,7 @@
             <include name="test/**"/>
             <exclude name="test/Ice/translator/"/>
             <exclude name="test/Slice/generation/"/>
+            <exclude name="test/android/"/>
             <compilerarg value="${javac.lint}"/>
         </javac>
     </target>
@@ -612,6 +614,7 @@
         <jar jarfile="${lib.dir}/IceTest.jar" basedir="${lib.dir}">
             <include name="test/**"/>
             <exclude name="test/Ice/plugin/plugins/**"/>
+            <exclude name="test/android/**"/>
             <manifest>
                 <attribute name="Built-By" value="ZeroC, Inc."/>
                 <attribute name="Class-Path" value="Ice.jar"/>

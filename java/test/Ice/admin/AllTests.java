@@ -9,6 +9,7 @@
 
 package test.Ice.admin;
 
+import java.io.PrintWriter;
 import test.Ice.admin.Test.*;
 
 public class AllTests
@@ -77,10 +78,10 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator)
+    allTests(test.Util.Application app, PrintWriter out)
     {
-        System.out.print("testing communicator operations... ");
-        System.out.flush();
+        out.print("testing communicator operations... ");
+        out.flush();
         {
             //
             // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
@@ -129,14 +130,14 @@ public class AllTests
             testFacets(com);
             com.destroy();
         }
-        System.out.println("ok");
+        out.println("ok");
 
         String ref = "factory:default -p 12010 -t 10000";
         RemoteCommunicatorFactoryPrx factory =
-            RemoteCommunicatorFactoryPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
+            RemoteCommunicatorFactoryPrxHelper.uncheckedCast(app.communicator().stringToProxy(ref));
 
-        System.out.print("testing process facet... ");
-        System.out.flush();
+        out.print("testing process facet... ");
+        out.flush();
         {
             //
             // Test: Verify that Process::shutdown() operation shuts down the communicator.
@@ -151,10 +152,10 @@ public class AllTests
             com.waitForShutdown();
             com.destroy();
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing properties facet... ");
-        System.out.flush();
+        out.print("testing properties facet... ");
+        out.flush();
         {
             java.util.Map<String, String> props = new java.util.HashMap<String, String>();
             props.put("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
@@ -213,10 +214,10 @@ public class AllTests
 
             com.destroy();
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing custom facet... ");
-        System.out.flush();
+        out.print("testing custom facet... ");
+        out.flush();
         {
             //
             // Test: Verify that the custom facet is present.
@@ -230,10 +231,10 @@ public class AllTests
             tf.op();
             com.destroy();
         }
-        System.out.println("ok");
+        out.println("ok");
 
-        System.out.print("testing facet filtering... ");
-        System.out.flush();
+        out.print("testing facet filtering... ");
+        out.flush();
         {
             //
             // Test: Set Ice.Admin.Facets to expose only the Properties facet,
@@ -324,7 +325,7 @@ public class AllTests
             com.waitForShutdown();
             com.destroy();
         }
-        System.out.println("ok");
+        out.println("ok");
 
         factory.shutdown();
     }

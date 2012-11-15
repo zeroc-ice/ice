@@ -9,9 +9,11 @@
 
 package test.Ice.hash;
 
+import java.io.PrintWriter;
+
 import test.Ice.hash.Test.*;
 
-public class Client
+public class Client extends test.Util.Application
 {
     private static void
     test(boolean b)
@@ -24,6 +26,16 @@ public class Client
 
     public static void main(String[] args)
     {
+        Client c = new Client();
+        int status = c.main("Client", args);
+
+        System.gc();
+        System.exit(status);
+    }
+
+    public int run(String[] args)
+    {
+        PrintWriter out = getWriter();
         int status = 0;
         try
         {
@@ -40,7 +52,8 @@ public class Client
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             Ice.Communicator  communicator = Ice.Util.initialize(args, initData);
 
-            System.out.print("testing proxy & endpoint hash algorithm collisions... ");
+            out.print("testing proxy & endpoint hash algorithm collisions... ");
+            out.flush();
             {
                 java.util.Random rand = new java.util.Random();
                 for(i = 0; proxyCollisions < maxCollisions && 
@@ -233,9 +246,10 @@ public class Client
                 test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx10).hashCode());
             }
 
-            System.out.println("ok");
+            out.println("ok");
 
-            System.out.print("testing struct hash algorithm collisions... ");
+            out.print("testing struct hash algorithm collisions... ");
+            out.flush();
             {
                 java.util.Map<Integer, PointF> seenPointF = new java.util.HashMap<Integer, PointF>();
                 java.util.Random rand = new java.util.Random();
@@ -404,7 +418,7 @@ public class Client
                 }
                 test(structCollisions < maxCollisions);
             }
-            System.out.println("ok");
+            out.println("ok");
             
             if(communicator != null)
             {
@@ -424,8 +438,7 @@ public class Client
             System.out.println(ex.toString());
             status = 1;
         }
-        System.gc();
-        System.exit(status);
+        return status;
     }
 }
 
