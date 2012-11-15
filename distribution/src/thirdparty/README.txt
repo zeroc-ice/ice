@@ -43,6 +43,7 @@ Table of Contents
   1. Patches
      - bzip2
      - mcpp
+     - OpenSSL
   2. Packages
      - Berkeley DB
      - expat
@@ -100,6 +101,16 @@ directory and apply the patch as shown below:
   > patch --binary -p0 < ..\mcpp\patch.mcpp.2.7.2
 
 
+OpenSSL
+-------
+
+The file openssl/patch.mingw in this archive contains a fix for openssl
+mingw build system that allow to build openssl DLLs with _mingw prefix.
+
+  > cd openssl-1.0.1c
+  > patch -p1 < ..\openssl\patch.mingw
+
+
 ======================================================================
 2. Packages
 ======================================================================
@@ -126,9 +137,34 @@ source code.
 OpenSSL
 -------
 
+- Microsoft Visual Studio
+
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
 
+
+- MinGW
+
+If you have not applied the patch for openssl, refer to the "Patches" 
+section above before continuing.
+
+1) Open a Windows command prompt
+
+2) Add MinGW from the Ruby Development Kit to your PATH:
+
+  > C:\RubyDevKit-4.5.2\devkitvars.bat
+
+3) Run openssl configure script
+
+  > cd openssl-1.0.1c
+  > perl Configure mingw shared
+
+4) Run make
+
+  > make
+
+This will create library libeay32_mingw.dll and libssl32_mingw.dll in 
+the root source directory.
 
 bzip2
 -----
@@ -145,15 +181,18 @@ If you have not already applied the patch for bzip2, please read the
 
 - MinGW
 
-  Open a Cygwin command window and set your PATH environment variable
-  to use the MinGW compiler from the Ruby Development Kit:
+  1) Open a Windows command prompt
 
-  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+  2) Add MinGW from the Ruby Development Kit to your PATH:
+
+  > C:\RubyDevKit-4.5.2\devkitvars.bat
 
   Change to the bzip2 source directory and use the replacement
   makefile included in this archive:
 
-  $ make -f ../bzip2/Makefile
+  > cd bzip2-1.0.6
+  > bash
+  > make -f ../bzip2/Makefile
 
 
 mcpp
@@ -161,20 +200,16 @@ mcpp
 
 Follow these instructions for building mcpp:
 
-- Change to the mcpp src directory:
+- Microsoft Visual Studio:
+
+  - Change to the mcpp src directory:
 
   > cd mcpp-2.7.2\src
 
-- Apply the patch for noconfig.H appropriate for your compiler from
+  - Apply the patch for noconfig.H appropriate for your compiler from
   the noconfig directory. For example, for VS2010 or VS2012 you would run:
 
   > patch --binary -p0 < ..\noconfig\vc2010.dif
-
-  and for MinGW:
-
-  > patch --binary -p0 < ..\noconfig\mingw345.dif
-
-- Microsoft Visual Studio:
  
   Build the mcpp release library:
 
@@ -186,11 +221,18 @@ Follow these instructions for building mcpp:
 
 - MinGW
 
-  Open a Cygwin command window and set your PATH environment variable
-  to use the MinGW compiler from the Ruby Development Kit:
+  1) Open a Windows command prompt and change to the mcpp src directory
 
-  $ export PATH=/cygdrive/c/RubyDevKit-4.5.2/mingw/bin:$PATH
+  > cd mcpp-2.7.2\src
 
-  Build the mcpp library:
+  2) Apply the build patch
 
-  $ MCPP_LIB=1 make -f ../noconfig/Makefile.mingw mcpplib
+  > patch --binary -p0 < ..\noconfig\mingw345.dif
+
+  3) Add MinGW from the Ruby Development Kit to your PATH:
+
+  > C:\RubyDevKit-4.5.2\devkitvars.bat
+
+  3) Build the mcpp library:
+
+  > MCPP_LIB=1 make -f ../noconfig/mingw.mak mcpplib
