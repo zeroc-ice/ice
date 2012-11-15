@@ -74,6 +74,7 @@ these recommendations:
   2. Update the manifest in patch.exe as described at:
      http://math.nist.gov/oommf/software-patchsets/patch_on_Windows7.html
 
+
 bzip2
 -----
 
@@ -104,8 +105,12 @@ directory and apply the patch as shown below:
 OpenSSL
 -------
 
-The file openssl/patch.mingw in this archive contains a fix for openssl
-mingw build system that allow to build openssl DLLs with _mingw prefix.
+The file openssl/patch.mingw in this archive contains a fix for the
+OpenSSL build system with MinGW that adds a "_mingw" prefix to the
+DLLs.
+
+After extracting the OpenSSL source distribution, change to the
+top-level directory and apply the patch as shown below:
 
   > cd openssl-1.0.1c
   > patch -p1 < ..\openssl\patch.mingw
@@ -142,29 +147,29 @@ OpenSSL
 After extracting the OpenSSL source archive, refer to the file
 INSTALL.W32 or INSTALL.W64 for build instructions.
 
-
 - MinGW
 
-If you have not applied the patch for openssl, refer to the "Patches" 
+If you have not applied the patch for OpenSSL, refer to the "Patches"
 section above before continuing.
 
 1) Open a Windows command prompt
 
 2) Add MinGW from the Ruby Development Kit to your PATH:
 
-  > C:\RubyDevKit-4.5.2\devkitvars.bat
+   > C:\RubyDevKit-4.5.2\devkitvars.bat
 
-3) Run openssl configure script
+3) Run the OpenSSL configure script:
 
-  > cd openssl-1.0.1c
-  > perl Configure mingw shared
+   > cd openssl-1.0.1c
+   > perl Configure mingw shared
 
 4) Run make
 
-  > make
+   > make
 
-This will create library libeay32_mingw.dll and libssl32_mingw.dll in 
-the root source directory.
+This will create libeay32_mingw.dll and libssl32_mingw.dll in the root
+source directory.
+
 
 bzip2
 -----
@@ -185,14 +190,14 @@ If you have not already applied the patch for bzip2, please read the
 
   2) Add MinGW from the Ruby Development Kit to your PATH:
 
-  > C:\RubyDevKit-4.5.2\devkitvars.bat
+     > C:\RubyDevKit-4.5.2\devkitvars.bat
 
-  Change to the bzip2 source directory and use the replacement
-  makefile included in this archive:
+  3) Change to the bzip2 source directory and use the replacement
+     makefile included in this archive:
 
-  > cd bzip2-1.0.6
-  > bash
-  > make -f ../bzip2/Makefile
+     > cd bzip2-1.0.6
+     > bash
+     > make -f ../bzip2/Makefile
 
 
 mcpp
@@ -202,37 +207,39 @@ Follow these instructions for building mcpp:
 
 - Microsoft Visual Studio:
 
-  - Change to the mcpp src directory:
+  1) Change to the mcpp src directory:
 
-  > cd mcpp-2.7.2\src
+     > cd mcpp-2.7.2\src
 
-  - Apply the patch for noconfig.H appropriate for your compiler from
-  the noconfig directory. For example, for VS2010 or VS2012 you would run:
+  2) Apply the patch for noconfig.H appropriate for your compiler from
+     the noconfig directory. For example, for VS2010 or VS2012 you
+     would run:
 
-  > patch --binary -p0 < ..\noconfig\vc2010.dif
+     > patch --binary -p0 < ..\noconfig\vc2010.dif
  
-  Build the mcpp release library:
+  3) Build the mcpp release library:
 
-  > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
+     > nmake MCPP_LIB=1 /f ..\noconfig\visualc.mak mcpplib
 
-  To build the debug version of the library:
+  4) To build the debug version of the library:
 
-  > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib
+     > nmake MCPP_LIB=1 DEBUG=1 /f ..\noconfig\visualc.mak mcpplib
 
 - MinGW
 
-  1) Open a Windows command prompt and change to the mcpp src directory
+  1) Open a Windows command prompt and change to the mcpp src
+     directory:
 
-  > cd mcpp-2.7.2\src
+     > cd mcpp-2.7.2\src
 
-  2) Apply the build patch
+  2) Apply the build patch:
 
-  > patch --binary -p0 < ..\noconfig\mingw345.dif
+     > patch --binary -p0 < ..\noconfig\mingw345.dif
 
   3) Add MinGW from the Ruby Development Kit to your PATH:
 
-  > C:\RubyDevKit-4.5.2\devkitvars.bat
+     > C:\RubyDevKit-4.5.2\devkitvars.bat
 
-  3) Build the mcpp library:
+  4) Build the mcpp library:
 
-  > MCPP_LIB=1 make -f ../noconfig/mingw.mak mcpplib
+     > MCPP_LIB=1 make -f ../noconfig/mingw.mak mcpplib

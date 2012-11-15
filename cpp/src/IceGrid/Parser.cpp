@@ -61,7 +61,7 @@ const char* _commandsHelp[][3] = {
 "application update [-n | --no-restart] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
 "                          Update the application described in DESC. If -n or\n"
 "                          --no-restart is specified, the update will fail if\n"
-"                          it requires to stop some servers.\n"
+"                          it is necessary to stop some servers.\n"
 },
 { "application", "patch",
 "application patch [-f | --force] NAME\n"
