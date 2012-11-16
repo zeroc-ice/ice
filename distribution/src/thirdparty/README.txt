@@ -85,7 +85,7 @@ allows bzip2 to be compiled into a DLL.
 After extracting the bzip2 source distribution, change to the
 top-level directory and apply the patch as shown below:
 
-  > patch --binary -p0 bzlib.h < ..\bzip2\bzlib.patch
+  > patch -p0 bzlib.h < ..\bzip2\bzlib.patch
 
 
 mcpp
@@ -99,7 +99,7 @@ After extracting the mcpp source distribution, change to the top-level
 directory and apply the patch as shown below:
 
   > cd mcpp-2.7.2
-  > patch --binary -p0 < ..\mcpp\patch.mcpp.2.7.2
+  > patch -p0 < ..\mcpp\patch.mcpp.2.7.2
 
 
 OpenSSL
