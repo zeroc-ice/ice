@@ -190,7 +190,7 @@ IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDesc
     {
         info.proxy = communicator->stringToProxy(proxyStr.str());
     }
-    catch(const Ice::ProxyParseException& ex)
+    catch(const Ice::ProxyParseException&)
     {
         ostringstream fallbackProxyStr;
         fallbackProxyStr << "\"" << communicator->identityToString(object.id) << "\"" << " @ " << adapterId;
