@@ -292,7 +292,6 @@ fixGitAttributes(True, True, """
 /distribution export-ignore
 /demoscript export-ignore
 allDemos.py export-ignore
-expect.py export-ignore
 """)
 
 # Don't remove Makefile from the Windows distribution since the
@@ -324,13 +323,16 @@ for root, dirnames, filenames in os.walk('.'):
 
     for f in filenames:
         filepath = os.path.join(root, f) 
-	# Fix version of README/INSTALL files and keep track of bison/flex files for later processing
-	if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
-	    fixVersion(filepath, *versions)
-	elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
-	    makefileFixList.append(filepath)
+	if f == "expect.py":
+	    remove(filepath)
+	else:
+	    # Fix version of README/INSTALL files and keep track of bison/flex files for later processing
+	    if fnmatch.fnmatch(f, "README*") or fnmatch.fnmatch(f, "INSTALL*"):
+		fixVersion(filepath, *versions)
+	    elif fnmatch.fnmatch(f, "*.y") or fnmatch.fnmatch(f, "*.l"):
+		makefileFixList.append(filepath)
 
-	fixFilePermission(filepath, verbose)
+	    fixFilePermission(filepath, verbose)
     
     for d in dirnames:
         os.chmod(os.path.join(root, d), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) # rwxr-xr-x
