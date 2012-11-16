@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re, getopt
+import os, sys, fnmatch, re, getopt, atexit
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "lib"))
 from DistUtils import *
@@ -74,7 +74,17 @@ for (o, a) in opts:
         compareToDir = a
 
 cwd = os.getcwd()
-os.chdir(os.path.join(os.path.dirname(__file__), ".."))
+gitRepoDir = os.path.join(os.getcwd(), os.path.dirname(__file__), "..")
+
+# Restore git attributes and core.autocrlf on exit.
+def restore():
+    os.chdir(gitRepoDir)
+    os.system("git config --unset core.autocrlf")
+    os.system("git checkout .gitattributes")
+
+atexit.register(restore)
+
+os.chdir(gitRepoDir)
 
 #
 # Get Ice versions.
@@ -141,15 +151,50 @@ def createDistfiles(platform, whichDestDir):
 
     print "ok"
 
-###### UNIX distfiles 
-#
-# Extract the distribution directory using the given tag.
-#
-os.system("git checkout .gitattributes")
-open(".gitattributes", "a+").write("""
+def fixGitAttributes(checkout, autocrlf, addText):
+    os.chdir(gitRepoDir)
+    if checkout:
+	os.system("git checkout .gitattributes")
+    if autocrlf:
+	os.system("git config core.autocrlf true")
+    else:
+	os.system("git config --unset core.autocrlf")
+
+    file = ".gitattributes"
+
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    doComment = 0
+    doCheck = 0
+    newLines = []
+    for x in origLines:
+        #
+        # If the rule contains the target string, then
+        # comment out this rule.
+        #
+        if autocrlf and x.find("text=auto") != -1:
+            x = "#" + x
+        newLines.append(x)
+
+    if addText:
+	newLines.append("""
 # THE FOLLOWING LINES WERE ADDED BY makedist.py
 # DO NOT COMMIT
+""")
+	newLines.append(addText)
 
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
+    os.remove(origfile)
+
+###### UNIX distfiles 
+fixGitAttributes(True, False, """
 /certs export-ignore
 /config export-ignore
 /cpp export-ignore
@@ -170,24 +215,12 @@ createDistfiles("UNIX", distFilesDir)
 
 ###### Windows distfiles 
 
-os.chdir(cwd)
-os.chdir(os.path.join(os.path.dirname(__file__), ".."))
 # No copy this time. Use the same .gitattributes file as the UNIX distfiles dist
-# plus the CRLF EOL terminators.
-open(".gitattributes", "a+").write("""
-* text eol=crlf
-""")
+fixGitAttributes(False, True, "")
 createDistfiles("Windows", winDistFilesDir)
 
 ###### UNIX source code distribution
-os.chdir(cwd)
-os.chdir(os.path.join(os.path.dirname(__file__), ".."))
-
-os.system("git checkout .gitattributes")
-open(".gitattributes", "a+").write("""
-# THE FOLLOWING LINES WERE ADDED BY makedist.py
-# DO NOT COMMIT
-
+fixGitAttributes(True, False, """
 /distribution export-ignore
 /vsaddin export-ignore
 /vb export-ignore
@@ -200,6 +233,7 @@ Make*mak* export-ignore
 Make.rules.msvc export-ignore
 .depend.mak export-ignore
 *.exe.config export-ignore
+/cpp/demo/Ice/MFC export-ignore
 """)
 
 #
@@ -210,7 +244,7 @@ sys.stdout.flush()
 os.system("git archive --worktree-attributes --prefix=Ice-" + version + "/ " + tag + " | ( cd " + distDir + " && tar xfm - )")
 print "ok"
 
-os.chdir(os.path.join(srcDir))
+os.chdir(srcDir)
 
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
@@ -254,20 +288,11 @@ fixMakeRules(os.path.join("cpp", "config", "Make.rules"))
 print "ok"
 
 ###### Windows source code distribution
-
-os.chdir(cwd)
-os.chdir(os.path.join(os.path.dirname(__file__), ".."))
-
-os.system("git checkout .gitattributes")
-open(".gitattributes", "a+").write("""
-# THE FOLLOWING LINES WERE ADDED BY makedist.py
-# DO NOT COMMIT
+fixGitAttributes(True, True, """
 /distribution export-ignore
 /demoscript export-ignore
 allDemos.py export-ignore
 expect.py export-ignore
-
-* text eol=crlf
 """)
 
 # Don't remove Makefile from the Windows distribution since the
@@ -281,7 +306,7 @@ sys.stdout.flush()
 os.system("git archive --worktree-attributes --prefix=Ice/ " + tag + " | ( cd " + distDir + " && tar xfm - )")
 print "ok"
 
-os.chdir(os.path.join(winSrcDir))
+os.chdir(winSrcDir)
 
 print "Walking through distribution to fix permissions, versions, etc...",
 sys.stdout.flush()
@@ -333,15 +358,7 @@ for root, dirnames, filesnames in os.walk("."):
                 newname = oldname + ".txt"
                 os.rename(oldname, newname)
 
-# Restore the .gitattributes file.
-os.chdir(cwd)
-os.chdir(os.path.join(os.path.dirname(__file__), ".."))
-
-os.system("git checkout .gitattributes")
-
-# Continue on.
-os.chdir(cwd)
-os.chdir(os.path.join(srcDir))
+os.chdir(srcDir)
 
 #
 # Consolidate demo, demo scripts distributions.
@@ -510,5 +527,3 @@ remove(rpmBuildDir)
 remove(distFilesDir)
 remove(winDistFilesDir)
 print "ok"
-
-os.chdir(cwd)
