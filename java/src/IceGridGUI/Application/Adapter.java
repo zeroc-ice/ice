@@ -115,6 +115,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     {
         removeProperty(_descriptor.name + ".Endpoints");
         removeProperty(_descriptor.name + ".PublishedEndpoints");
+        removeProperty(_descriptor.name + ".ProxyOptions");
 
         ((Communicator)_parent).getAdapters().destroyChild(this);
     }
@@ -167,6 +168,7 @@ class Adapter extends TreeNode implements DescriptorHolder
             String oaPrefix = _descriptor.name + ".";
 
             attributes.add(createAttribute("endpoints", getProperty(oaPrefix + "Endpoints")));
+            attributes.add(createAttribute("proxy-options", getProperty(oaPrefix + "ProxyOptions")));
             attributes.add(createAttribute("id", _descriptor.id));
             if(_descriptor.registerProcess)
             {

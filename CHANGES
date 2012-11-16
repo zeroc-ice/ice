@@ -27,6 +27,14 @@ Changes since version 3.4.2
 General Changes
 ===============
 
+- IceGrid now supports a new proxy-options attribute on the <adapter>
+  <replica-group>, <object> and <allocatable> XML descriptor
+  elements. This attribute allows to specify the proxy options to use
+  for well-known objects or allocatable objects. For adapters, it also
+  generates the object adapter ProxyOptions property in the server or
+  service configuration file. This change requires a IceGrid database
+  upgrade.
+
 - Improved Glacier2 permission verifiers to permit throwing
   Glacier2::PermissionDeniedException exceptions. Glacier2 now
   forwards permission denied exceptions to the client.

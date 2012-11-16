@@ -90,6 +90,10 @@ struct ReplicaGroupEq : std::binary_function<ReplicaGroupDescriptor&, ReplicaGro
         {
             return false;
         }
+        if(lhs.proxyOptions != rhs.proxyOptions)
+        {
+            return false;
+        }
         if(set<ObjectDescriptor>(lhs.objects.begin(), lhs.objects.end()) != 
            set<ObjectDescriptor>(rhs.objects.begin(), rhs.objects.end()))
         {
@@ -245,6 +249,28 @@ updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remov
         result[q->first] = q->second;
     }
     return result;
+}
+
+void
+validateProxyOptions(const Resolver& resolver, const string& proxyOptions)
+{
+    if(!proxyOptions.empty())
+    {
+        try
+        {
+            resolver.getCommunicator()->stringToProxy("dummy " + proxyOptions);
+        }
+        catch(const Ice::ProxyParseException& ex)
+        {
+            string reason = ex.str;
+            size_t pos = ex.str.find("dummy ");
+            if(pos != string::npos)
+            {
+                reason = reason.replace(pos, 6, "");
+            }
+            resolver.exception("invalid proxy options: " + reason);
+        }
+    }
 }
 
 }
@@ -477,7 +503,7 @@ Resolver::operator()(const PropertySetDescriptorDict& propertySets) const
 }
 
 ObjectDescriptorSeq
-Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) const
+Resolver::operator()(const ObjectDescriptorSeq& objects, const string& proxyOptions, const string& type) const
 {
     ObjectDescriptorSeq result;
     for(ObjectDescriptorSeq::const_iterator q = objects.begin(); q != objects.end(); ++q)
@@ -485,6 +511,15 @@ Resolver::operator()(const ObjectDescriptorSeq& objects, const string& type) con
         ObjectDescriptor obj;
         obj.type = operator()(q->type, type + " object type");
         obj.id = operator()(q->id, type + " object identity");
+        if(!q->proxyOptions.empty())
+        {
+            obj.proxyOptions = IceUtilInternal::trim(operator()(q->proxyOptions, type + " object proxy options"));
+        }
+        else if(!proxyOptions.empty())
+        {
+            obj.proxyOptions = IceUtilInternal::trim(operator()(proxyOptions, type + " object proxy options"));
+        }
+        validateProxyOptions(*this, obj.proxyOptions);
         result.push_back(obj);
     }
     return result;
@@ -731,7 +766,7 @@ Resolver::hasReplicaGroup(const string& id) const
     if(!_application)
     {
         //
-        // If we don't know the application descrpitor we assume that
+        // If we don't know the application descriptor we assume that
         // the replica group exists (this is possible if the resolver
         // wasn't built from an application helper, that's the case if
         // it's built from NodeCache just to resolve ${node.*} and
@@ -1043,9 +1078,26 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
         //resolve.exception("unknown replica group `" + adapter.replicaGroupId + "'");
         //}
 
+        // Default proxy options to set on object descriptors if none is set.
+        string proxyOptions = IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".ProxyOptions");
+        if(proxyOptions.empty())
+        {
+            string encoding;
+            if(resolve.getVersion() > 0 && resolve.getVersion() < 30500)
+            {
+                encoding = "1.0";
+            }
+            else
+            {
+                encoding = "1.1";
+            }
+            encoding = IceGrid::getProperty(instance->propertySet.properties, "Ice.Default.EncodingVersion", encoding);
+            proxyOptions = "-e " + encoding;
+        }
+
         adapter.priority = resolve.asInt(p->priority, "object adapter priority");
-        adapter.objects = resolve(p->objects, "well-known");
-        adapter.allocatables = resolve(p->allocatables, "allocatable");
+        adapter.objects = resolve(p->objects, proxyOptions, "well-known");
+        adapter.allocatables = resolve(p->allocatables, proxyOptions, "allocatable");
         instance->adapters.push_back(adapter);
 
         //
@@ -1094,6 +1146,7 @@ CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out)
         for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
         {
             hiddenProperties.insert(p->name + ".Endpoints");
+            hiddenProperties.insert(p->name + ".ProxyOptions");
             printObjectAdapter(communicator, out, *p);
         }
     }
@@ -1178,6 +1231,11 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
     {
         out << nl << "endpoints = `" << endpoints << "'";
     }
+    string proxyOptions = getProperty(adapter.name + ".ProxyOptions");
+    if(!proxyOptions.empty())
+    {
+        out << nl << "proxy options = `" << proxyOptions << "'";
+    }
     out << nl << "register process = `" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "server lifetime = `" << (adapter.serverLifetime ? "true" : "false") << "'";
     for(ObjectDescriptorSeq::const_iterator p = adapter.objects.begin(); p != adapter.objects.end(); ++p)
@@ -1189,6 +1247,10 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
         {
             out << nl << "type = `" << p->type << "'";
         }
+        if(!p->proxyOptions.empty())
+        {
+            out << nl << "proxy options = `" << p->proxyOptions << "'";
+        }
         out << eb;
     }
     for(ObjectDescriptorSeq::const_iterator p = adapter.allocatables.begin(); p != adapter.allocatables.end(); ++p)
@@ -1199,6 +1261,10 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
         if(!p->type.empty())
         {
             out << nl << "type = `" << p->type << "'";
+        }
+        if(!p->proxyOptions.empty())
+        {
+            out << nl << "proxy options = `" << p->proxyOptions << "'";
         }
         out << eb;
     }
@@ -2512,7 +2578,9 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
             ReplicaGroupDescriptor desc;
             desc.id = resolve.asId(r->id, "replica group id", false);
             desc.description = resolve(r->description, "replica group description");
-            desc.objects = resolve(r->objects, "replica group well-known");
+            desc.proxyOptions = resolve(r->proxyOptions, "replica group proxy options");
+            validateProxyOptions(resolve, desc.proxyOptions);
+            desc.objects = resolve(r->objects, r->proxyOptions, "replica group well-known");
             if(!r->loadBalancing)
             {
                 resolve.exception("replica group load balancing is not set");
@@ -2946,6 +3014,10 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             else
             {
                 out << "<unknown load balancing policy>";
+            }
+            if(!p->proxyOptions.empty())
+            {
+                out << nl << "proxy options = `" << p->proxyOptions << "'";
             }
             out << "'";
         }

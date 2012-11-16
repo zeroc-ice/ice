@@ -13,6 +13,7 @@
 #include <IceGrid/Descriptor.h>
 #include <IceUtil/StringUtil.h>
 #include <IceGrid/Exception.h>
+#include <IceGrid/Admin.h>
 #include <IceUtil/Random.h>
 #include <functional>
 #include <iterator>
@@ -42,6 +43,8 @@ std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const 
 bool hasProperty(const PropertyDescriptorSeq&, const std::string&);
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
 std::string escapeProperty(const std::string&, bool = false);
+
+ObjectInfo toObjectInfo(const Ice::CommunicatorPtr&, const ObjectDescriptor&, const std::string&);
 
 void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0, bool = false);
 

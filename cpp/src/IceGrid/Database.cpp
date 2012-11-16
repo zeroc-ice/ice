@@ -1810,10 +1810,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
         _adapterCache.addReplicaGroup(*r, application);
         for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
-            ObjectInfo info;
-            info.type = o->type;
-            info.proxy = _communicator->stringToProxy("\"" + _communicator->identityToString(o->id) + "\" @ " + r->id);
-            _objectCache.add(info, application);
+            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application);
         }
     }
 
@@ -1957,10 +1954,7 @@ Database::reload(const ApplicationHelper& oldApp,
 
         for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
-            ObjectInfo info;
-            info.type = o->type;
-            info.proxy = _communicator->stringToProxy(_communicator->identityToString(o->id) + "@" + r->id);
-            _objectCache.add(info, application);
+            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application);
         }
     }
 

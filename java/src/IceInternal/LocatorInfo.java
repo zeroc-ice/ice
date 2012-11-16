@@ -26,7 +26,15 @@ public final class LocatorInfo
             if(proxy != null)
             {
                 Reference r = ((Ice.ObjectPrxHelperBase)proxy).__reference();
-                if(!r.isIndirect())
+                if(_ref.isWellKnown() && !Protocol.isSupported(_ref.getEncoding(), r.getEncoding()))
+                {
+                    //
+                    // If a well-known proxy and the returned proxy encoding isn't 
+                    // supported, we're done: there are no compatible endpoints
+                    // we can use.
+                    //
+                }
+                else if(!r.isIndirect())
                 {
                     endpoints = r.getEndpoints();
                 }

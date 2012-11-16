@@ -209,18 +209,11 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& comm,
 
         for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
-            ObjectInfo info;
-            info.type = r->type;
-            info.proxy = _communicator->stringToProxy("\"" + _communicator->identityToString(r->id) + "\" @ " + q->id);
-            _objectCache.add(info, application);
+            _objectCache.add(toObjectInfo(_communicator, *r, q->id), application);
         }
-
         for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
-            ObjectInfo info;
-            info.type = r->type;
-            info.proxy = _communicator->stringToProxy("\"" + _communicator->identityToString(r->id) + "\" @ " + q->id);
-            _allocatableObjectCache.add(info, server);
+            _allocatableObjectCache.add(toObjectInfo(_communicator, *r, q->id), server);
         }
     }
 }

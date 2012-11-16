@@ -140,6 +140,7 @@ public abstract class TreeNode extends TreeNodeBase
             for(AdapterDescriptor p : adapters)
             {
                 hiddenPropertyNames.add(p.name + ".Endpoints");
+                hiddenPropertyNames.add(p.name + ".ProxyOptions");
 
                 for(ObjectDescriptor q : p.objects)
                 {
@@ -278,7 +279,10 @@ public abstract class TreeNode extends TreeNodeBase
                     attributes.add(createAttribute("property", prop));
                 }
             }
-
+            if(p.proxyOptions != null && !p.proxyOptions.equals(""))
+            {
+                attributes.add(createAttribute("proxy-options", p.proxyOptions));
+            }
             writer.writeElement(elt, attributes);
         }
     }

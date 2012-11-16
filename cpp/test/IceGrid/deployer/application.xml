@@ -23,6 +23,12 @@
       <object identity="ReplicatedObject" type="::Test"/>
     </replica-group>
 
+    <replica-group id="ReplicatedAdapter2" proxy-options="-e 1.4">
+      <description>REPLICA GROUP ${AppVar}</description>
+      <object identity="ReplicatedObject15" type="::Test" proxy-options="-e 1.5"/>
+      <object identity="ReplicatedObject14" type="::Test"/>
+    </replica-group>
+
     <!-- Variables for variable test -->
     <variable name="AppVar" value="AppVar"/>
     <variable name="RecursiveAppVar" value="${var1}"/>
@@ -33,6 +39,10 @@
     <variable name="RecursiveEscapedAppVar" value="${EscapedAppVar}"/>
     <variable name="Recursive2EscapedAppVar" value="${RecursiveEscapedAppVar}"/>
     <variable name="test.dir" value="NotThisValue"/> 
+
+    <variable name="encoding10" value="1.0"/>
+    <variable name="encoding12" value="1.2"/>
+    <variable name="encoding13" value="1.3"/>
 
     <!-- Variables for parameter test -->
     <variable name="AppVarOverridedByParam" value="Test"/>
@@ -107,6 +117,7 @@
           <object identity="${ObjectCategory2}/${ObjectName2}" type="::TestId4"/>
           <object identity="${ObjectIdSlash}${ObjectName2}" type="::TestId5"/>
         </adapter>
+
         <dbenv name="DbEnv">
           <description>DBENV ${NodeVar}</description>
         </dbenv>
@@ -122,6 +133,23 @@
           <properties refid="NodeProperties"/>
           <include file="varproperties.xml"/>
         </properties>
+      </server>
+
+      <server id="server-proxyoptions" exe="dummy">
+        <adapter name="ProxyOptionsOA" endpoints="default" proxy-options="-e ${encoding12}">
+          <object identity="oaoptions"/>
+          <object identity="encoding10-oneway" proxy-options="-e ${encoding10} -o"/>
+          <object identity="encoding10-secure" proxy-options="-e ${encoding10} -s"/>
+        </adapter>
+        <adapter name="CommunicatorOptionsOA" endpoints="default">
+          <object identity="communicatoroptions"/>
+        </adapter>
+        <property name="Ice.Default.EncodingVersion" value="${encoding13}"/>
+      </server>
+      <server id="server34" exe="dummy" ice-version="3.4">
+        <adapter name="ProxyOptionsOA" endpoints="default">
+          <object identity="34options"/>
+        </adapter>
       </server>
 
       <icebox id="SimpleIceBox" exe="${icebox.exe}" activation="on-demand" pwd=".">

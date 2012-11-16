@@ -824,36 +824,16 @@ LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& cb,
                                const Ice::Identity& id, 
                                const Ice::Current& current) const
 {
-    Ice::ObjectPrx proxy;
     try
     {
-        proxy = _database->getObjectProxy(id);
+        cb->ice_response(_database->getObjectProxy(id));
     }
     catch(const ObjectNotRegisteredException&)
     {
         throw Ice::ObjectNotFoundException();
     }
-
-    assert(proxy);
-
-    //
-    // OPTIMIZATION: If the object is registered with an adapter id,
-    // try to get the adapter direct proxy (which might caused the
-    // server activation). This will avoid the client to lookup for
-    // the adapter id endpoints.
-    //
-    const string adapterId = proxy->ice_getAdapterId();
-    if(!adapterId.empty())
-    {
-        Ice::AMD_Locator_findAdapterByIdPtr amiCB = new AMD_Locator_findAdapterByIdI(cb, proxy);
-        findAdapterById_async(amiCB, adapterId, current);
-    }
-    else
-    {
-        cb->ice_response(proxy);
-    }
 }
-    
+
 //
 // Find an adapter by identity. The object is searched in the adapter
 // registry. If found, we try to get its direct proxy.

@@ -102,6 +102,15 @@ struct ObjectDescriptor
      *
      **/
     string type;
+
+    /**
+     *
+     * Proxy options to use with the proxy created for this Ice object. If empty,
+     * the proxy will be created with the proxy options specified on the object
+     * adapter or replica group.
+     *
+     **/
+    string proxyOptions;
 };
 
 /**
@@ -720,6 +729,13 @@ struct ReplicaGroupDescriptor
      *
      **/
     LoadBalancingPolicy loadBalancing;
+
+    /**
+     *
+     * Default options for proxies created for the replica group.
+     *
+     **/
+    string proxyOptions;
 
     /**
      *

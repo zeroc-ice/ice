@@ -108,6 +108,7 @@ public class PropertiesField extends JTable
             {
                 hiddenPropertyNames.add(p.name + ".Endpoints");
                 hiddenPropertyNames.add(p.name + ".PublishedEndpoints");
+                hiddenPropertyNames.add(p.name + ".ProxyOptions");
 
                 for(ObjectDescriptor q : p.objects)
                 {

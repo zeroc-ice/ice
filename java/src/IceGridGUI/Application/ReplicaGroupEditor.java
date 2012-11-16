@@ -173,7 +173,7 @@ class ReplicaGroupEditor extends Editor
 
     ReplicaGroupEditor()
     {
-        _objects = new SimpleMapField(this, true, "Identity", "Type");
+        _objects = new ArrayMapField(this, true, "Identity", "Type", "Proxy Options");
 
         //
         // load balancing
@@ -215,6 +215,9 @@ class ReplicaGroupEditor extends Editor
         JTextField loadSampleTextField = (JTextField)_loadSample.getEditor().getEditorComponent();
         loadSampleTextField.getDocument().addDocumentListener(_updateListener);
         _loadSample.setToolTipText("Use the load average or CPU usage over the last 1, 5 or 15 minutes?");
+
+        _proxyOptions.getDocument().addDocumentListener(_updateListener);
+        _proxyOptions.setToolTipText("The proxy options used for proxies created by IceGrid for the replica group");
     }
 
     void writeDescriptor()
@@ -224,7 +227,7 @@ class ReplicaGroupEditor extends Editor
         descriptor.id = _id.getText().trim();
         descriptor.description = _description.getText();
         descriptor.objects = _objectList;
-
+        descriptor.proxyOptions = _proxyOptions.getText().trim();
         Object loadBalancing = _loadBalancing.getSelectedItem();
         if(loadBalancing == ORDERED)
         {
@@ -269,6 +272,10 @@ class ReplicaGroupEditor extends Editor
         JScrollPane scrollPane = new JScrollPane(_description);
         builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
         builder.nextRow(2);
+        builder.nextLine();
+
+        builder.append("Proxy Options");
+        builder.append(_proxyOptions, 3);
         builder.nextLine();
 
         builder.append("Well-known Objects");
@@ -338,6 +345,9 @@ class ReplicaGroupEditor extends Editor
         _description.setEditable(isEditable);
         _description.setOpaque(isEditable);
 
+        _proxyOptions.setText(descriptor.proxyOptions);
+        _proxyOptions.setEditable(isEditable);
+
         _objects.set(objectDescriptorSeqToMap(descriptor.objects), resolver, isEditable);
 
         _loadBalancing.setEnabled(true);
@@ -396,28 +406,28 @@ class ReplicaGroupEditor extends Editor
         return (ReplicaGroup)_target;
     }
 
-    private java.util.Map<String, String> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
+    private java.util.Map<String, String[]> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
     {
-        java.util.Map<String, String> result = new java.util.TreeMap<String, String>();
+        java.util.Map<String, String[]> result = new java.util.TreeMap<String, String[]>();
         for(ObjectDescriptor p : objects)
         {
-            result.put(Ice.Util.identityToString(p.id), p.type);
+            result.put(Ice.Util.identityToString(p.id), new String[]{p.type, p.proxyOptions});
         }
         return result;
     }
 
-    private java.util.LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(java.util.Map<String, String> map)
+    private java.util.LinkedList<ObjectDescriptor> mapToObjectDescriptorSeq(java.util.Map<String, String[]> map)
     {
         String badIdentities = "";
         java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<ObjectDescriptor>();
 
-        for(java.util.Map.Entry<String, String> p : map.entrySet())
+        for(java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             try
             {
                 Ice.Identity id = Ice.Util.stringToIdentity(p.getKey());
-                String type = p.getValue();
-                result.add(new ObjectDescriptor(id, type));
+                String[] val = p.getValue();
+                result.add(new ObjectDescriptor(id, val[0], val[1]));
             }
             catch(Ice.IdentityParseException ex)
             {
@@ -447,14 +457,18 @@ class ReplicaGroupEditor extends Editor
 
     private JTextField _id = new JTextField(20);
     private JTextArea _description = new JTextArea(3, 20);
+    private JTextField _proxyOptions = new JTextField(20);
 
-    private JComboBox<String> _loadBalancing = new JComboBox<String>(new String[] {ADAPTIVE, ORDERED, RANDOM, ROUND_ROBIN});
+    private JComboBox<String> _loadBalancing = new JComboBox<String>(new String[] {ADAPTIVE, 
+                                                                                   ORDERED, 
+                                                                                   RANDOM, 
+                                                                                   ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);
 
     private JLabel _loadSampleLabel;
     private JComboBox<String> _loadSample = new JComboBox<String>(new String[] {"1", "5", "15"});
 
-    private SimpleMapField _objects;
+    private ArrayMapField _objects;
     private java.util.LinkedList<ObjectDescriptor> _objectList;
 }

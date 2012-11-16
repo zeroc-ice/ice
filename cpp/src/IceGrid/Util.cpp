@@ -174,6 +174,31 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
     return result;
 }
 
+ObjectInfo
+IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDescriptor& object, const string& adapterId)
+{
+    ObjectInfo info;
+    info.type = object.type;
+    ostringstream proxyStr;
+    proxyStr << "\"" << communicator->identityToString(object.id) << "\"";
+    if(!object.proxyOptions.empty())
+    {
+        proxyStr << ' ' << object.proxyOptions;
+    }
+    proxyStr << " @ " << adapterId;
+    try
+    {
+        info.proxy = communicator->stringToProxy(proxyStr.str());
+    }
+    catch(const Ice::ProxyParseException& ex)
+    {
+        ostringstream fallbackProxyStr;
+        fallbackProxyStr << "\"" << communicator->identityToString(object.id) << "\"" << " @ " << adapterId;
+        info.proxy = communicator->stringToProxy(fallbackProxyStr.str());
+    }
+    return info;
+}
+
 void
 IceGrid::setupThreadPool(const PropertiesPtr& properties, const string& name, int size, int sizeMax, bool serialize)
 {

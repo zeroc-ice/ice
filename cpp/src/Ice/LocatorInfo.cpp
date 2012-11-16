@@ -321,7 +321,15 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
     if(proxy)
     {
         ReferencePtr r = proxy->__reference();
-        if(!r->isIndirect())
+        if(_ref->isWellKnown() && !isSupported(_ref->getEncoding(), r->getEncoding()))
+        {
+            //
+            // If a well-known proxy and the returned proxy encoding isn't 
+            // supported, we're done: there are no compatible endpoints
+            // we can use.
+            //
+        }
+        else if(!r->isIndirect())
         {
             endpoints = r->getEndpoints();
         }
@@ -759,8 +767,7 @@ IceInternal::LocatorInfo::getEndpointsException(const ReferencePtr& ref, const I
     {
         if(ref->getInstance()->traceLevels()->location >= 1)
         {
-            Trace out(ref->getInstance()->initializationData().logger,
-                      ref->getInstance()->traceLevels()->locationCat);
+            Trace out(ref->getInstance()->initializationData().logger, ref->getInstance()->traceLevels()->locationCat);
             out << "couldn't contact the locator to retrieve adapter endpoints\n";
             if(ref->getAdapterId().empty())
             {

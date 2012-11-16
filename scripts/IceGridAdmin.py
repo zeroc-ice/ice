@@ -256,7 +256,6 @@ def iceGridTest(application, additionalOptions = "", applicationOptions = ""):
     clientProc = TestUtil.startClient(client, clientOptions, TestUtil.DriverConfig("client"), startReader = False)
     print("ok")
     clientProc.startReader()
-
     clientProc.waitTestSuccess()
 
     if application != "":

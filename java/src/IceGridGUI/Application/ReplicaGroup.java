@@ -125,6 +125,7 @@ class ReplicaGroup extends TreeNode
         _descriptor.description = clone.description;
         _descriptor.objects = clone.objects;
         _descriptor.loadBalancing = clone.loadBalancing;
+        _descriptor.proxyOptions = clone.proxyOptions;
     }
 
     void commit()
@@ -160,9 +161,14 @@ class ReplicaGroup extends TreeNode
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<String[]>();
             attributes.add(createAttribute("id", _descriptor.id));
-
+            if(_descriptor.proxyOptions.length() > 0)
+            {
+                attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
+            }
+            
             if(_descriptor.loadBalancing == null &&
-               _descriptor.description.length() == 0 && _descriptor.objects.isEmpty())
+               _descriptor.description.length() == 0 && 
+               _descriptor.objects.isEmpty())
             {
                 writer.writeElement("replica-group", attributes);
             }

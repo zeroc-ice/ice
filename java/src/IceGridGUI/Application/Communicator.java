@@ -543,6 +543,13 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 {
                     parentProperties.put(newName + ".PublishedEndpoints", val);
                 }
+
+                key = descriptor.name + ".ProxyOptions";
+                val = parentProperties.remove(key);
+                if(val != null)
+                {
+                    parentProperties.put(newName + ".ProxyOptions", val);
+                }
             }
 
             descriptor.name = newName;

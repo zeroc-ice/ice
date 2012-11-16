@@ -510,6 +510,45 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(!obj);
     }
 
+    Ice::Identity encoding10_oneway;
+    encoding10_oneway.name = "encoding10-oneway";
+    test(query->findObjectById(encoding10_oneway)->ice_getEncodingVersion() == Ice::Encoding_1_0);
+    test(query->findObjectById(encoding10_oneway)->ice_isOneway());
+    Ice::Identity encoding10_secure;
+    encoding10_secure.name = "encoding10-secure";
+    test(query->findObjectById(encoding10_secure)->ice_getEncodingVersion() == Ice::Encoding_1_0);
+    test(query->findObjectById(encoding10_secure)->ice_isSecure());
+    Ice::Identity oaoptions;
+    oaoptions.name = "oaoptions";
+    test(query->findObjectById(oaoptions)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.2"));
+    test(query->findObjectById(oaoptions)->ice_isTwoway());
+    Ice::Identity comoptions;
+    comoptions.name = "communicatoroptions";
+    test(query->findObjectById(comoptions)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.3"));
+    test(query->findObjectById(comoptions)->ice_isTwoway());
+    Ice::Identity options34;
+    options34.name = "34options";
+    test(query->findObjectById(options34)->ice_getEncodingVersion() == Ice::Encoding_1_0);
+    Ice::Identity simpleServer;
+    simpleServer.name = "SimpleServer";
+    test(query->findObjectById(simpleServer)->ice_getEncodingVersion() == Ice::Encoding_1_1);
+    Ice::Identity replicated15;
+    replicated15.name = "ReplicatedObject15";
+    test(query->findObjectById(replicated15)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.5"));
+    Ice::Identity replicated14;
+    replicated14.name = "ReplicatedObject14";
+    test(query->findObjectById(replicated14)->ice_getEncodingVersion() == Ice::stringToEncodingVersion("1.4"));
+
+    Ice::LocatorPrx locator = comm->getDefaultLocator();
+    test(query->findObjectById(encoding10_oneway) == locator->findObjectById(encoding10_oneway));
+    test(query->findObjectById(encoding10_secure) == locator->findObjectById(encoding10_secure));
+    test(query->findObjectById(oaoptions) == locator->findObjectById(oaoptions));
+    test(query->findObjectById(comoptions) == locator->findObjectById(comoptions));
+    test(query->findObjectById(options34) == locator->findObjectById(options34));
+    test(query->findObjectById(simpleServer) == locator->findObjectById(simpleServer));
+    test(query->findObjectById(replicated15) == locator->findObjectById(replicated15));
+    test(query->findObjectById(replicated14) == locator->findObjectById(replicated14));
+
     cout << "ok" << endl;
 
     //

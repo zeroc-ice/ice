@@ -14,7 +14,7 @@
 #
 # Usage:
 #
-# python upgradeicegrid.py olddbenv newdbenv
+# python upgradeicegrid33.py olddbenv newdbenv
 #
 # Where for example:
 #

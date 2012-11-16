@@ -9,6 +9,7 @@
 
 #include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/LocalException.h>
 #include <IceGrid/DescriptorBuilder.h>
 #include <IceGrid/Util.h>
 
@@ -260,6 +261,7 @@ ApplicationDescriptorBuilder::addReplicaGroup(const XmlAttributesHelper& attrs)
 {
     ReplicaGroupDescriptor adapter;
     adapter.id = attrs("id");
+    adapter.proxyOptions = attrs("proxy-options", "");
     _descriptor.replicaGroups.push_back(adapter);
 }
 
@@ -316,6 +318,7 @@ ApplicationDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    object.proxyOptions = attrs("proxy-options", "");
     if(attrs.contains("property"))
     {
         throw "property attribute is not allowed in object descriptors from a replica group";   
@@ -676,6 +679,10 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     _descriptor->adapters.push_back(desc);
 
     addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
+    if(attrs.contains("proxy-options"))
+    {
+        addProperty(_hiddenProperties, desc.name + ".ProxyOptions", attrs("proxy-options", ""));
+    }
 }
 
 void
@@ -690,6 +697,7 @@ CommunicatorDescriptorBuilder::addObject(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    object.proxyOptions = attrs("proxy-options", "");
     if(attrs.contains("property"))
     {
         addProperty(_hiddenProperties, attrs("property"), attrs("identity"));
@@ -703,6 +711,7 @@ CommunicatorDescriptorBuilder::addAllocatable(const XmlAttributesHelper& attrs)
     ObjectDescriptor object;
     object.type = attrs("type", "");
     object.id = _communicator->stringToIdentity(attrs("identity"));
+    object.proxyOptions = attrs("proxy-options", "");
     if(attrs.contains("property"))
     {
         addProperty(_hiddenProperties, attrs("property"), attrs("identity"));
