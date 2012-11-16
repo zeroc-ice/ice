@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, TestSuite</string>
     <string name="app_name">Test Suite</string>
+    <string name="next">Next</string>
+    <string name="ssl">SSL</string>
 </resources>

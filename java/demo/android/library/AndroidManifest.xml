@@ -3,7 +3,14 @@
       package="com.zeroc.library"
       android:versionCode="1"
       android:versionName="1.0.0">
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="LibraryApp">
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <!--
+    http://developer.android.com/guide/topics/manifest/uses-sdk-element.html
+    -->
+	<uses-sdk android:minSdkVersion="8" 
+              android:targetSdkVersion="17"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name="LibraryApp"
+                 android:allowBackup="false">
         <activity android:name=".LoginActivity"
                   android:label="@string/app_name">
             <intent-filter>
@@ -15,5 +22,4 @@
 <activity android:name="EditActivity"></activity>
 <activity android:name="ViewActivity"></activity>
 </application>
-<uses-permission android:name="android.permission.INTERNET"></uses-permission>
 </manifest>
