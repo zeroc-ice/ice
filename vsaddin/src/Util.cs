@@ -840,14 +840,13 @@ namespace Ice.VisualStudio
         //
         // Note: Only the last setting in the environment has effect.
         //
-        public static void addIceCppEnvironment(VCDebugSettings debugSettings, Project project,
-                                                CPUType arch)
+        public static void addIceCppEnvironment(VCDebugSettings debugSettings, Project project)
         {
             if(debugSettings == null || project == null)
             {
                 return;
             }
-            String value = "PATH=" + cppBinDir(project, arch);
+            String value = "PATH=$(IceBin)";
             if(String.IsNullOrEmpty(debugSettings.Environment))
             {
                 debugSettings.Environment = value;
@@ -887,11 +886,11 @@ namespace Ice.VisualStudio
 
             if(index == -1)
             {
-                envs.Add("PATH=" + cppBinDir(project, arch));
+                envs.Add("PATH=$(IceBin)");
             }
             else
             {
-                string binDir = cppBinDir(project, arch);
+                string binDir = "$(IceBin)";
                 ComponentList paths = new ComponentList(assignmentValue(path), ';');
                 while(paths.Contains(binDir))
                 {
@@ -2284,7 +2283,6 @@ namespace Ice.VisualStudio
             }
 
             VCProject vcProject = (VCProject)project.Object;
-            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
             Util.addCppIncludes(project);
             bool winrt = isWinRTProject(project);
             if(!winrt)
@@ -2297,6 +2295,11 @@ namespace Ice.VisualStudio
                 addSdkReference(vcProject, "Ice");
             }
 #endif
+            IVCCollection configurations = (IVCCollection)vcProject.Configurations;
+            foreach(VCConfiguration conf in configurations)
+            {
+                Util.addIceCppEnvironment((VCDebugSettings)conf.DebugSettings, project);
+            }
         }
 
         public static void removeIceCppConfigurations(Project project)
