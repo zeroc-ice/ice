@@ -399,7 +399,7 @@
                  classpath="${ant-javafx.jar}"/>
     </target>
 
-    <target name="config-init" depends="config-init-warn, config-init-javafx">
+    <target name="config-init" depends="config-init-warn">
       
         <!-- Set slice.dir to the directory containing the Slice files. -->
         <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">

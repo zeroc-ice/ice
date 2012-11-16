@@ -622,7 +622,7 @@
         </jar>
     </target>
 
-    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile"
+    <target name="icegridadmin-compile" depends="icestorm-compile, icegrid-compile, icebox-compile, config-init-javafx"
             if="build-icegridadmin" unless="ice.bin.dist">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
             source="1.7" target="1.7" debug="${debug}"
