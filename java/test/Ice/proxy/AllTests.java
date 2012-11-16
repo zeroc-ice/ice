@@ -572,10 +572,13 @@ public class AllTests
 
             Ice.InputStream inS = Ice.Util.createInputStream(communicator, inBytes);
             MyClassPrx cl11 = MyClassPrxHelper.uncheckedCast(inS.readProxy().ice_collocationOptimized(false));
-            String protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-            test(cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010") ||
-                 // Android doesn't set Ice.DefaultHost to 127.0.0.1
-                 cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -p 12010"));
+            if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0)
+            {
+                String protocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+                test(cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010") ||
+                     // Android doesn't set Ice.DefaultHost to 127.0.0.1
+                     cl11.toString().equals("test -t -p 1.1 -e 1.1:" + protocol + " -p 12010"));
+            }
             try
             {
                 cl11.ice_ping();

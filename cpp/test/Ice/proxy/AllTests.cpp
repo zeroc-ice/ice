@@ -638,8 +638,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::MyClassPrx cl11;
         in->read(cl11);
         cl11 = cl11->ice_collocationOptimized(false);
-        string protocol = communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        test(cl11->ice_toString() == "test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010");
+        if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
+        {
+            string protocol = communicator->getProperties()->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            test(cl11->ice_toString() == "test -t -p 1.1 -e 1.1:" + protocol + " -h 127.0.0.1 -p 12010");
+        }
         try
         {
             cl11->ice_ping();
