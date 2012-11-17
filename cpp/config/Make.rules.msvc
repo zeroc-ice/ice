@@ -49,7 +49,7 @@ CPPFLAGS        = $(CPPFLAGS) -MP
 CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -MD
 
 !if "$(RELEASEPDBS)" == "yes"
-CPPFLAGS        = $(CPPFLAGS) -Zi
+CPPFLAGS        = $(CPPFLAGS) -Zi -Oy-
 !endif
 
 ARFLAGS	        = $(ARFLAGS) /LTCG
@@ -69,35 +69,20 @@ LDFLAGS		= $(LDFLAGS) /nologo
 
 !if "$(WINRT)" == "yes"
 LDFLAGS		= $(LDFLAGS) /NXCOMPAT /MANIFEST:NO /APPCONTAINER /NOLOGO 
-
-!if "$(OPTIMIZE)" != "yes"
-LDFLAGS		= $(LDFLAGS) /debug
-!else
-LDFLAGS         = $(LDFLAGS) /OPT:REF
-!if "$(GENERATE_PDB)" != "yes"
-LDFLAGS         = $(LDFLAGS) /pdb:none
-!else
-LDFLAGS         = $(LDFLAGS) /debug
-!endif
-!endif
-
 !else
 LDFLAGS		= $(LDFLAGS) /FIXED:no
-!if "$(OPTIMIZE)" != "yes"
+!endif
 
-LDFLAGS		= $(LDFLAGS) /debug
-
-!else
-
+!if "$(OPTIMIZE)" == "yes"
 LDFLAGS         = $(LDFLAGS) /OPT:REF
+!endif
+
 !if "$(GENERATE_PDB)" != "yes"
 LDFLAGS         = $(LDFLAGS) /pdb:none
 !else
-LDFLAGS         = $(LDFLAGS) /debug
+LDFLAGS         = $(LDFLAGS) /debug /incremental:no
 !endif
 
-!endif
-!endif
 
 LD_DLLFLAGS	= $(LDFLAGS) /dll
 LD_EXEFLAGS	= $(LDFLAGS)

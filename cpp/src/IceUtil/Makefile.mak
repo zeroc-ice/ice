@@ -44,6 +44,10 @@ CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 
 !if "$(GENERATE_PDB)" == "yes"
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
+
+!if "$(WINRT)" != "yes"
+CPPFLAGS        = $(CPPFLAGS) -DICE_WIN32_STACK_TRACES
+!endif
 !endif
 
 RES_FILE	= IceUtil.res
