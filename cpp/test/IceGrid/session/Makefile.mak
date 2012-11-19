@@ -56,6 +56,7 @@ $(SERVER): $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
+	del /q Test.cpp Test.h
 	if exist db\node rmdir /s /q db\node 
 	if exist db\registry rmdir /s /q db\registry 
 	if exist db\node-1 rmdir /s /q db\node-1 

@@ -12,10 +12,10 @@ top_srcdir	= ..\..\..
 CLIENT		= client.exe
 SERVER		= server.exe
 
-LOGGERLIBNAME   = loggerplugin$(LIBSUFFIX).lib
+LOGGERLIBNAME   = loggerplugin$(SOVERSION)$(LIBSUFFIX).lib
 LOGGERDLLNAME   = loggerplugin$(SOVERSION)$(LIBSUFFIX).dll
 
-HELLOLIBNAME   	= helloplugin$(LIBSUFFIX).lib
+HELLOLIBNAME   	= helloplugin$(SOVERSION)$(LIBSUFFIX).lib
 HELLODLLNAME   	= helloplugin$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(CLIENT) $(SERVER) $(LOGGERDLLNAME) $(HELLODLLNAME)
@@ -75,5 +75,6 @@ $(HELLODLLNAME): $(OBJS) $(HOBJS)
 
 clean::
 	del /q Hello.cpp Hello.h
+	del /q $(LOGGERLIBNAME) $(HELLOLIBNAME)
 
 !include .depend.mak

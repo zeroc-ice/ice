@@ -19,7 +19,7 @@ OBJS		= PermissionsVerifier.obj \
 		  SSLInfo.obj \
 		  Session.obj \
 		  Application.obj \
-                  Metrics.obj \
+		  Metrics.obj \
 		  SessionHelper.obj
 
 SRCS		= $(OBJS:.obj=.cpp)
@@ -45,7 +45,7 @@ $(DLLNAME): $(OBJS) Glacier2.res $(HDIR)\PermissionsVerifierF.h $(HDIR)\RouterF.
 	$(LINK) $(BASE):0x27000000 $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
+		$(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
@@ -55,7 +55,7 @@ clean::
 	-del /q Router.cpp $(HDIR)\Router.h
 	-del /q Session.cpp $(HDIR)\Session.h
 	-del /q SSLInfo.cpp $(HDIR)\SSLInfo.h
-        -del /q Metrics.obj $(HDIR)\Metrics.h
+	-del /q Metrics.cpp $(HDIR)\Metrics.h
 	-del /q Glacier2.res
 
 install:: all

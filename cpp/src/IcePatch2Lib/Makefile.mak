@@ -49,7 +49,7 @@ $(DLLNAME): $(OBJS) IcePatch2.res
 clean::
 	-del /q FileInfo.cpp $(HDIR)\FileInfo.h
 	-del /q FileServer.cpp $(HDIR)\FileServer.h
-	-del /q IcePatch.res
+	-del /q IcePatch2.res
 
 install:: all
 	copy $(LIBNAME) "$(install_libdir)"

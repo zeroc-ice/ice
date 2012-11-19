@@ -88,5 +88,6 @@ $(COLLOCATED)$(EXT): $(COLOBJS)
 
 clean::
 	del /q Test.cpp Test.h
+	del /q TestAMD.cpp TestAMD.h
 
 !include .depend.mak

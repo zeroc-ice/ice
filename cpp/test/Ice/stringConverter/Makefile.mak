@@ -11,6 +11,7 @@ top_srcdir	= ..\..\..
 
 CLIENT		= client.exe
 
+TARGETS		= $(CLIENT)
 
 OBJS		= Client.obj \
 		  Test.obj

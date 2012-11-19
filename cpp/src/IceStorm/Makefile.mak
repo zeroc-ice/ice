@@ -103,6 +103,7 @@ clean::
 	-del /q LLURecord.cpp LLURecord.h
 	-del /q Election.cpp Election.h
 	-del /q SubscriberRecord.cpp SubscriberRecord.h
+	-del /q Instrumentation.cpp Instrumentation.h
 	-del /q $(ADMIN:.exe=.*)
 	-del /q IceStormAdmin.res IceStormDB.res IceStormService.res
 
