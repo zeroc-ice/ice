@@ -35,8 +35,7 @@ public:
 
 private:
 
-    StreamConnector(const InstancePtr&, Ice::Short, const Address&, Ice::Int, const Ice::ProtocolVersion&,
-                    const Ice::EncodingVersion&, const std::string&); 
+    StreamConnector(const InstancePtr&, Ice::Short, const Address&, Ice::Int, const std::string&); 
     virtual ~StreamConnector();
     friend class StreamEndpointI;
 
@@ -46,8 +45,6 @@ private:
     const ::Ice::LoggerPtr _logger;
     const Address _addr;
     const Ice::Int _timeout;
-    const Ice::ProtocolVersion _protocol;
-    const Ice::EncodingVersion _encoding;
     const std::string _connectionId;
 };
 

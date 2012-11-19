@@ -766,7 +766,8 @@ IceInternal::getProtocolSupport(const Address& addr)
 #ifndef ICE_OS_WINRT
     return addr.ss_family == AF_INET ? EnableIPv4 : EnableIPv6;
 #else
-    return EnableIPv4;
+    // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
+    return EnableBoth;
 #endif
 }
 
