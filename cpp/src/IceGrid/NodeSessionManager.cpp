@@ -154,14 +154,23 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, IceUtil
 NodeSessionPrx
 NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {
-    NodeSessionPrx session = _node->registerWithRegistry(registry);
-    int t = session->getTimeout();
-    if(t > 0)
+    NodeSessionPrx session;
+    try
     {
-        timeout = IceUtil::Time::seconds(t / 2);
+        session = _node->registerWithRegistry(registry);
+        int t = session->getTimeout();
+        if(t > 0)
+        {
+            timeout = IceUtil::Time::seconds(t / 2);
+        }
+        _node->addObserver(session, session->getObserver());
+        return session;
     }
-    _node->addObserver(session, session->getObserver());
-    return session;
+    catch(const Ice::LocalException&)
+    {
+        destroySession(session);
+        throw;
+    }
 }
 
 void 
@@ -169,22 +178,25 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
 {
     _node->removeObserver(session);
 
-    try
+    if(session)
     {
-        session->destroy();
-
-        if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+        try
         {
-            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "destroyed replica `" << _name << "' session";
+            session->destroy();
+            
+            if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
+            {
+                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+                out << "destroyed replica `" << _name << "' session";
+            }
         }
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+        catch(const Ice::LocalException& ex)
         {
-            Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "couldn't destroy replica `" << _name << "' session:\n" << ex;
+            if(_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
+            {
+                Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
+                out << "couldn't destroy replica `" << _name << "' session:\n" << ex;
+            }
         }
     }
 }
@@ -233,7 +245,7 @@ NodeSessionManager::create(const NodeIPtr& node)
 
         Ice::CommunicatorPtr communicator = _node->getCommunicator();
         assert(communicator->getDefaultLocator());
-        Ice::Identity id = communicator->getDefaultLocator()->ice_getIdentity();
+        Ice::ObjectPrx prx = communicator->getDefaultLocator();
 
         //
         // Initialize the IceGrid::Query objects. The IceGrid::Query
@@ -242,9 +254,10 @@ NodeSessionManager::create(const NodeIPtr& node)
         // an up to date registry proxy, we need to query all the
         // replicas.
         //
-        Ice::EndpointSeq endpoints = communicator->getDefaultLocator()->ice_getEndpoints();
+        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
+        Ice::Identity id = prx->ice_getIdentity();
         id.name = "Query";
-        QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
+        QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             Ice::EndpointSeq singleEndpoint;
@@ -253,7 +266,7 @@ NodeSessionManager::create(const NodeIPtr& node)
         }
 
         id.name = "InternalRegistry-Master";
-        _master = InternalRegistryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
+        _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
 
         _thread = new Thread(*this);
         _thread->start();
@@ -311,8 +324,10 @@ NodeSessionManager::activate()
             session->setReplicaObserver(_node->getProxy());
             syncServers(session);
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            Ice::Warning out(_node->getTraceLevels()->logger);
+            out << "failed to set replica observer:\n" << ex;
         }
     }
 }
@@ -513,8 +528,10 @@ NodeSessionManager::createdSession(const NodeSessionPrx& session)
             session->setReplicaObserver(_node->getProxy());
             syncServers(session);
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            Ice::Warning out(_node->getTraceLevels()->logger);
+            out << "failed to set replica observer:\n" << ex;
         }
         return;
     }

@@ -271,11 +271,13 @@ ReplicaSessionManager::create(const string& name,
     {
         Lock sync(*this);
 
+        Ice::ObjectPrx prx = comm->getDefaultLocator();
+
         Ice::Identity id;
-        id.category = comm->getDefaultLocator()->ice_getIdentity().category;
+        id.category = prx->ice_getIdentity().category;
         id.name = "InternalRegistry-Master";
         
-        _master = InternalRegistryPrx::uncheckedCast(comm->stringToProxy(comm->identityToString(id)));
+        _master = InternalRegistryPrx::uncheckedCast(prx->ice_identity(id)->ice_endpoints(Ice::EndpointSeq()));
         _name = name;
         _info = info;
         _internalRegistry = internalRegistry;
@@ -290,9 +292,9 @@ ReplicaSessionManager::create(const string& name,
         // an up to date registry proxy, we need to query all the
         // replicas.
         //
-        Ice::EndpointSeq endpoints = comm->getDefaultLocator()->ice_getEndpoints();
+        Ice::EndpointSeq endpoints = prx->ice_getEndpoints();
         id.name = "Query";
-        QueryPrx query = QueryPrx::uncheckedCast(comm->stringToProxy(comm->identityToString(id)));
+        QueryPrx query = QueryPrx::uncheckedCast(prx->ice_identity(id));
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             Ice::EndpointSeq singleEndpoint;
@@ -445,7 +447,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
             {
                 session = createSessionImpl(registry, timeout);
             }
-            catch(const Ice::LocalException& ex)
+            catch(const Ice::Exception& ex)
             {
                 exception.reset(ex.ice_clone());
                 used.insert(registry);
@@ -481,7 +483,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
                         break;
                     }
                 }
-                catch(const Ice::LocalException& ex)
+                catch(const Ice::Exception& ex)
                 {
                     exception.reset(ex.ice_clone());
                     if(newRegistry)
@@ -554,9 +556,10 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, IceUtil::Tim
 ReplicaSessionPrx
 ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, IceUtil::Time& timeout)
 {           
+    ReplicaSessionPrx session;
     try
     {
-        ReplicaSessionPrx session = registry->registerReplica(_info, _internalRegistry);
+        session = registry->registerReplica(_info, _internalRegistry);
         int t = session->getTimeout();
         if(t > 0)
         {
@@ -573,19 +576,9 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
         session->setDatabaseObserver(_observer);
         return session;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::Exception&)
     {
-        if(_observer)
-        {
-            try
-            {
-                _database->getInternalAdapter()->remove(_observer->ice_getIdentity());
-            }
-            catch(const Ice::LocalException&)
-            {
-            }
-            _observer = 0;
-        }
+        destroySession(session);
         throw;
     }
 }
@@ -593,22 +586,25 @@ ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, Ic
 void
 ReplicaSessionManager::destroySession(const ReplicaSessionPrx& session)
 {
-    try
+    if(session)
     {
-        session->destroy();
-
-        if(_traceLevels && _traceLevels->replica > 0)
+        try
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-            out << "destroyed master replica session";
+            session->destroy();
+            
+            if(_traceLevels && _traceLevels->replica > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+                out << "destroyed master replica session";
+            }
         }
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(_traceLevels && _traceLevels->replica > 1)
+        catch(const Ice::LocalException& ex)
         {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-            out << "couldn't destroy master replica session:\n" << ex;
+            if(_traceLevels && _traceLevels->replica > 1)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
+                out << "couldn't destroy master replica session:\n" << ex;
+            }
         }
     }
 

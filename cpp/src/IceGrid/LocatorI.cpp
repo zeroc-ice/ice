@@ -912,7 +912,7 @@ LocatorI::findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr& cb,
 
     try
     {
-        cb->ice_response(_database->getAdapterDirectProxy(id));
+        cb->ice_response(_database->getAdapterDirectProxy(id, current.encoding));
     }
     catch(const AdapterNotExistException&)
     {

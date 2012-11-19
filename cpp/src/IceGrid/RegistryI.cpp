@@ -328,7 +328,7 @@ RegistryI::startImpl()
     catch(const Ice::LocalException&)
     {
     }
-    
+
     //
     // Create the reaper thread.
     //

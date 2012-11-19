@@ -575,7 +575,8 @@ interface ReplicaSession
      * will receive the database and database updates.
      *
      **/
-    idempotent void setDatabaseObserver(DatabaseObserver* dbObs);
+    idempotent void setDatabaseObserver(DatabaseObserver* dbObs)
+        throws ObserverAlreadyRegisteredException;
 
     /**
      *

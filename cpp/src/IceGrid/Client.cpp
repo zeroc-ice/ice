@@ -545,14 +545,13 @@ Client::run(StringSeq& originalArgs)
 
                 try
                 {
-                    const string strId = "\"" + communicator()->identityToString(registryId) + "\"";
-                    registry = RegistryPrx::checkedCast(communicator()->stringToProxy(strId));
+                    registry = RegistryPrx::checkedCast(locator->findObjectById(registryId));
                     if(!registry)
                     {
                         cerr << _appName << ": could not contact an IceGrid registry" << endl;
                     }
                 }
-                catch(const NotRegisteredException&)
+                catch(const ObjectNotFoundException&)
                 {
                     cerr << _appName << ": no active registry replica named `" << replica << "'" << endl;
                     return EXIT_FAILURE;            

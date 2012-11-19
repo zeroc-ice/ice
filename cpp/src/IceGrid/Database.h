@@ -95,7 +95,7 @@ public:
     AllocatableObjectEntryPtr getAllocatableObject(const Ice::Identity&) const;
 
     void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&);
-    Ice::ObjectPrx getAdapterDirectProxy(const std::string&);
+    Ice::ObjectPrx getAdapterDirectProxy(const std::string&, const Ice::EncodingVersion&);
 
     void removeAdapter(const std::string&);
     AdapterPrx getAdapterProxy(const std::string&, const std::string&, bool);

@@ -325,9 +325,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             locatorId.category = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
             locatorId.name = "Locator";
             string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
-            string locatorPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" + endpoints;
-            communicator()->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
-            properties->setProperty("Ice.Default.Locator", locatorPrx);
+            string locPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" + endpoints;
+            communicator()->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(communicator()->stringToProxy(locPrx)));
+            properties->setProperty("Ice.Default.Locator", locPrx);
         }
     }
     else if(properties->getProperty("Ice.Default.Locator").empty())
@@ -571,12 +571,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         try
         {
-            Ice::Identity registryId;
-            registryId.category = instanceName;
-            registryId.name = "Registry";
+            Ice::Identity regId;
+            regId.category = instanceName;
+            regId.name = "Registry";
             
-            RegistryPrx registry = RegistryPrx::checkedCast(
-                communicator()->stringToProxy("\"" + communicator()->identityToString(registryId) + "\""));
+            RegistryPrx registry = RegistryPrx::checkedCast(communicator()->getDefaultLocator()->findObjectById(regId));
             if(!registry)
             {
                 throw "invalid registry";

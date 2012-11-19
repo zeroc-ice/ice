@@ -826,7 +826,7 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
 }
 
 Ice::ObjectPrx
-Database::getAdapterDirectProxy(const string& id)
+Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& encoding)
 {
     DatabaseConnectionPtr connection = _connectionPool->newConnection();
     AdaptersWrapperPtr adaptersWrapper = _connectionPool->getAdapters(connection);
@@ -842,8 +842,11 @@ Database::getAdapterDirectProxy(const string& id)
     vector<AdapterInfo> infos = adaptersWrapper->findByReplicaGroupId(id);
     for(unsigned int i = 0; i < infos.size(); ++i)
     {
-        Ice::EndpointSeq edpts = infos[i].proxy->ice_getEndpoints();
-        endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
+        if(infos[i].proxy->ice_getEncodingVersion() < encoding)
+        {
+            Ice::EndpointSeq edpts = infos[i].proxy->ice_getEndpoints();
+            endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
+        }
     }
     if(!endpoints.empty())
     {

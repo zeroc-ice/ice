@@ -601,21 +601,26 @@ ApplicationObserverTopic::applicationUpdated(int serial, const ApplicationUpdate
     }
     catch(const DeploymentException& ex)
     {
-        cerr << ex.reason << endl;
+        Ice::Error out(_logger);
+        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.reason;
         assert(false);
     }
     catch(const std::string& msg)
     {
-        cerr << msg << endl;
+        Ice::Error out(_logger);
+        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << msg;
         assert(false);
     }
     catch(const char* msg)
     {
-        cerr << msg << endl;
+        Ice::Error out(_logger);
+        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << msg;
         assert(false);
     }
     catch(...)
     {
+        Ice::Error out(_logger);
+        out << "unexpected exception while instantiating application `" << info.descriptor.name << "'";
         assert(false);
     }
     try
