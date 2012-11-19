@@ -8,6 +8,7 @@ Router.cpp
 RouterF.cpp
 Session.cpp
 SSLInfo.cpp
+Metrics.h
 PermissionsVerifierF.h
 PermissionsVerifier.h
 Router.h

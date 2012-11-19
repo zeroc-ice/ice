@@ -5,6 +5,6 @@ client
 server
 serveramd
 Test.cpp
-Test.h
 TestAMD.cpp
+Test.h
 TestAMD.h

@@ -4,6 +4,8 @@
 client
 server
 verifier
+Test.cpp
+Test.h
 db/node
 db/registry
 db/node-1
