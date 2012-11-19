@@ -9,8 +9,6 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/../cpp/config/Make.rules.common
-
 LIBFILENAME     = $(call mkrblibfilename,IceRuby,$(VERSION))
 SONAME          = $(call mkrbsoname,IceRuby,$(SOVERSION))  
 LIBNAME		= $(call mkrblibname,IceRuby)

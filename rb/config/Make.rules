@@ -114,9 +114,6 @@ RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 #
 ice_language     = rb
 ice_require_cpp  = yes
-
-include $(top_srcdir)/../cpp/config/Make.rules.common
-
 slice_translator = slice2rb
 
 ifeq ($(shell test -f $(top_srcdir)/config/Make.common.rules && echo 0),0)
