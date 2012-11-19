@@ -14,7 +14,7 @@ top_srcdir	= ..
 PRODUCT    	= IceVisualStudioAddin
 PKG		= $(PRODUCT)-$(PKG_PREFIX)
 
-INSTALL_SUBDIRS	= $(install_bindir) $(install_configdir)
+INSTALL_SUBDIRS	= $(install_bindir)
 
 TARGETS		= $(top_srcdir)\bin\$(PKG).dll
 PDBS		= $(top_srcdir)\bin\$(PKG).pdb
@@ -60,13 +60,85 @@ install::$(TARGETS)
 		@echo "Creating %i ..." && \
 		mkdir %i
 
+	@if not exist $(ADDIN_PREFIX) \
+	    @echo "Creating $(ADDIN_PREFIX) ..." && \
+	    mkdir $(ADDIN_PREFIX)
+  	copy ..\config\Ice-$(VS).AddIn $(ADDIN_PREFIX)
+  	cscript ..\config\fixinstalldir.vbs "$(prefix)\" "$(ADDIN_PREFIX)\Ice-$(VS).AddIn"
+
 	copy $(TARGETS) $(install_bindir)\$(PKG).dll
-	copy ..\config\Ice-$(PKG_PREFIX).AddIn $(install_configdir)\Ice-$(PKG_PREFIX).AddIn
+
+	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033" \
+		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\1033\"
+
+	@echo Adding key "$(DOTNET_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(DOTNET_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies" /f || \
+	echo "Could not add registry keyword $(DOTNET_ASSEMBLEIS_KEY)" && exit 1
 
 !if "$(VS)" == "VS2010" || "$(VS)" == "VS2012"
 install::
-	copy ..\config\$(PROPERTY_SHEET) $(install_configdir)\$(PROPERTY_SHEET)
+	@if not exist $(ALLUSERSPROFILE)\ZeroC \
+	    @echo "Creating $(ALLUSERSPROFILE)\ZeroC ..." && \
+	    mkdir $(ALLUSERSPROFILE)\ZeroC
+	copy ..\config\Ice.props $(ALLUSERSPROFILE)\ZeroC\Ice.props
+
+	@if exist "$(VSINSTALLDIR)\VC\vcprojectitems\" \
+		@if not exist "$(VSINSTALLDIR)\VC\vcprojectitems\Slice" \
+			@echo "Creating $(VSINSTALLDIR)\VC\vcprojectitems\Slice ..." && \
+			mkdir "$(VSINSTALLDIR)\VC\vcprojectitems\Slice"
+		copy ..\templates\vs\Slice\slice.vsdir "$(VSINSTALLDIR)\VC\vcprojectitems\Slice\" 
+		copy ..\templates\vs\newslice.ice "$(VSINSTALLDIR)\VC\vcprojectitems\"
+		copy ..\templates\vs\newslice.ico "$(VSINSTALLDIR)\VC\vcprojectitems\"
+		copy ..\templates\vs\slice.vsdir "$(VSINSTALLDIR)\VC\vcprojectitems\"
+
+	@if exist "$(VSINSTALLDIR)\VC#\CSharpProjectItems\" \
+		@if not exist "$(VSINSTALLDIR)\VC#\CSharpProjectItems\Slice" \
+			@echo "Creating $(VSINSTALLDIR)\VC#\CSharpProjectItems\Slice ..." && \
+			mkdir "$(VSINSTALLDIR)\VC#\CSharpProjectItems\Slice"
+		copy ..\templates\vs\Slice\slice.vsdir "$(VSINSTALLDIR)\VC#\CSharpProjectItems\Slice\" 
+		copy ..\templates\vs\newslice.ice "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
+		copy ..\templates\vs\newslice.ico "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
+		copy ..\templates\vs\slice.vsdir "$(VSINSTALLDIR)\VC#\CSharpProjectItems\"
 !endif
+
+!if "$(VS)" == "VS2010"
+	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033" \
+		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Code\1033\"
+	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033" \
+		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Silverlight\1033\"
+		@echo Adding key "$(SILVERLIGH_ASSEMBLEIS_KEY)" in Windows registry
+		@reg ADD "$(SILVERLIGH_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\Silverlight" /f || \
+		echo "Could not add registry keyword $(SILVERLIGH_ASSEMBLEIS_KEY)" && exit 1
+	@if exist "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033" \
+		copy ..\templates\Slice.zip "$(VSINSTALLDIR)\ItemTemplates\CSharp\Web\1033\"
+	devenv.exe /installvstemplates
+!endif
+
+#
+# Registry keywords to locate .NET CF assemblies
+#
+!if "$(VS)" == "VS2008"
+	@echo Adding key "$(POCKETPC_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(POCKETPC_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(POCKETPC_ASSEMBLEIS_KEY)" && exit 1
+
+	@echo Adding key "$(SMARTPHONE_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(SMARTPHONE_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(SMARTPHONE_ASSEMBLEIS_KEY)" && exit 1
+
+	@echo Adding key "$(WINDOWSCE_ASSEMBLEIS_KEY)" in Windows registry
+	@reg ADD "$(WINDOWSCE_ASSEMBLEIS_KEY)" /ve /d "$(prefix)\Assemblies\cf" /f || \
+	echo "Could not add registry keyword $(WINDOWSCE_ASSEMBLEIS_KEY)" && exit 1
+	devenv.exe /installvstemplates
+!endif
+
+#
+# Ice.props use this registry keyword to define IceHome macro.
+#
+install::
+	@echo Adding key "$(INSTALL_KEY)" in Windows registry
+	@reg ADD "$(INSTALL_KEY)" /v InstallDir /d "$(prefix)" /f || \
+	echo "Could not add registry keyword $(SDK_KEY)" && exit 1
 
 clean::
 	-del /q $(TARGETS) $(PDBS)
