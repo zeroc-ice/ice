@@ -9,8 +9,6 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/config/Make.rules.common
-
 LIBFILENAME	= $(call mklibfilename,Slice,$(VERSION))
 SONAME		= $(call mksoname,Slice,$(SOVERSION))  
 LIBNAME		= $(call mklibname,Slice)

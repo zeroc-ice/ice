@@ -10,8 +10,6 @@
 
 top_srcdir	= ../..
 
-include $(top_srcdir)/config/Make.rules.common
-
 LIBFILENAME     = $(call mklibfilename,IceSSL,$(VERSION))
 SONAME          = $(call mksoname,IceSSL,$(SOVERSION))  
 LIBNAME		= $(call mklibname,IceSSL)
