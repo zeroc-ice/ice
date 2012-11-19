@@ -409,6 +409,7 @@ generated from the section label.
     </section>
 
     <section name="IceGrid">
+        <property name="AdminRouter" class="objectadapter" />
         <property name="InstanceName" />
         <property name="Node" class="objectadapter" />
         <property name="Node.AllowRunningServersAsRoot" />
