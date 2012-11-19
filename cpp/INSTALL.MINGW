@@ -35,15 +35,6 @@ You must download the file DevKit-tdm-32-4.5.2-20111229-1559-sfx.exe,
 which is a self-extracting archive.
 
 
-Ruby version
-------------
-
-You must install Ruby 1.9.3 using the Windows installer available
-at http://rubyinstaller.org/downloads
-
-The default installation directory is C:\Ruby193
-
-
 Third-party libraries
 ---------------------
 
@@ -108,12 +99,6 @@ Python is required to run the test suite:
   http://www.python.org/download
 
 After a successful build, you can run the test suite.
-
-First, add Ruby to your environment:
-
-> C:\Ruby193\bin\setrbvars.bat
-
-Next, run the test suite:
 
 > python allTests.py
 
