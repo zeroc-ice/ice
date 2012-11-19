@@ -36,7 +36,7 @@ $(TARGETS):: $(SRCS) $(GEN_SRCS)
 install:: all
 	(cd $(assembliesdir); $(call installassembly,$(LIBNAME),$(PKG)); $(call installpolicy,$(POLICY)); \
 	 $(call installmdb,$(LIBNAME).mdb); \
-	 $(call installdata,$(PKG).xml,$(install_bindir)))
+	 $(call installdata,$(PKG).xml,$(install_assembliesdir)))
 
 ifeq ($(GACINSTALL),yes)
 install:: all

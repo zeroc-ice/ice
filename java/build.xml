@@ -799,6 +799,7 @@
         <copy file="${lib.dir}/Glacier2.jar" todir="${prefix}/lib"/>
         <copy file="${lib.dir}/Freeze.jar" todir="${prefix}/lib"/>
         <copy file="${lib.dir}/IceBox.jar" todir="${prefix}/lib"/>
+        <copy file="${lib.dir}/IcePatch2.jar" todir="${prefix}/lib"/>
         <copy file="${lib.dir}/IceStorm.jar" todir="${prefix}/lib"/>
         <copy file="${lib.dir}/IceGrid.jar" todir="${prefix}/lib"/>
     </target>

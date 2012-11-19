@@ -18,18 +18,18 @@
       <!-- Create the time stamp -->
       <tstamp/>
     </target>
-    
+
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
-    
+
     <condition property="thirdparty.home" value="${env.THIRDPARTY_HOME}">
        <and>
           <os family="Windows"/>
           <isset property="env.THIRDPARTY_HOME"/>
           <not><isset property="thirdparty.home"/></not>
-       </and>   
+       </and>
     </condition>
- 
+
     <condition property="thirdparty.home" value="${env.ProgramFiles(x86)}\ZeroC\Ice-${ice.version}-ThirdParty">
         <and>
             <os family="Windows"/>
@@ -47,8 +47,8 @@
             <not><isset property="thirdparty.home"/></not>
         </and>
     </condition>
-    
-    
+
+
     <!-- Set default prefix directory, just if prefix is not set -->
     <condition property="prefix" value="${env.SystemDrive}\Ice-${ice.version}">
         <and>
@@ -82,6 +82,7 @@
 
     <!-- Do we build the IceGridAdmin GUI? -->
     <condition property="build-icegridadmin">
+
       <equals arg1="${java.specification.version}" arg2="1.7"/>
     </condition>
 
@@ -99,7 +100,7 @@
           <not><isset property="text.extension"/></not>
        </and>
     </condition>
-    
+
     <condition property="slice.translator" value="slice2java.exe" else="slice2java">
       <os family="windows"/>
     </condition>
@@ -203,7 +204,7 @@
           <available file="/usr/bin/${slice.translator}"/>
         </and>
     </condition>
-    
+
     <condition property="ice.dir" value="${env.ProgramFiles(x86)}\ZeroC\Ice-${ice.version}">
         <and>
             <os family="Windows"/>
@@ -224,7 +225,7 @@
             </or>
         </and>
     </condition>
-    
+
     <condition property="ice.dir" value="${env.ProgramFiles}\ZeroC\Ice-${ice.version}">
         <and>
             <os family="windows"/>
@@ -301,8 +302,8 @@
             <available file="/usr/lib/db.jar"/>
         </and>
     </condition>
- 
-      
+
+
     <condition property="db.jar.file" value="${thirdparty.home}/lib/db.jar">
         <and>
             <os family="windows"/>
@@ -311,12 +312,12 @@
             <available file="${thirdparty.home}/lib/db.jar"/>
         </and>
     </condition>
-    
-    
+
+
     <path id="db.classpath">
         <pathelement location="${db.jar.file}"/>
     </path>
-    
+
     <!-- Set jgoodies.common to the path name of the Jgoodies Common JAR file -->
     <condition property="jgoodies.common" value="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar">
         <and>
@@ -326,7 +327,7 @@
             <available file="/usr/share/java/jgoodies-common-${jgoodies-common.version}.jar"/>
         </and>
     </condition>
-    <condition property="jgoodies.common" 
+    <condition property="jgoodies.common"
                value="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar">
         <and>
             <os family="windows"/>
@@ -335,7 +336,7 @@
             <available file="${thirdparty.home}/lib/jgoodies-common-${jgoodies-common.version}.jar"/>
         </and>
     </condition>
-    
+
     <!-- Set jgoodies.forms to the path name of the Jgoodies Forms JAR file -->
     <condition property="jgoodies.forms" value="/usr/share/java/jgoodies-forms-${jgoodies-forms.version}.jar">
         <and>
@@ -345,7 +346,7 @@
             <available file="/usr/share/java/jgoodies-forms-${jgoodies-forms.version}.jar"/>
         </and>
     </condition>
-    <condition property="jgoodies.forms" 
+    <condition property="jgoodies.forms"
                value="${thirdparty.home}/lib/jgoodies-forms-${jgoodies-forms.version}.jar">
         <and>
             <os family="windows"/>
@@ -354,7 +355,7 @@
             <available file="${thirdparty.home}/lib/jgoodies-forms-${jgoodies-forms.version}.jar"/>
         </and>
     </condition>
-    
+
     <!-- Set jgoodies.looks to the path name of the Jgoodies Looks JAR file -->
     <condition property="jgoodies.looks" value="/usr/share/java/jgoodies-looks-${jgoodies-looks.version}.jar">
         <and>
@@ -364,7 +365,7 @@
             <available file="/usr/share/java/jgoodies-looks-${jgoodies-looks.version}.jar"/>
         </and>
     </condition>
-    <condition property="jgoodies.looks" 
+    <condition property="jgoodies.looks"
                value="${thirdparty.home}/lib/jgoodies-looks-${jgoodies-looks.version}.jar">
         <and>
             <os family="windows"/>
@@ -379,7 +380,7 @@
     </target>
 
     <target name="config-init-javafx" if="build-icegridadmin">
-       
+
         <!-- JavaFX jar file -->
         <condition property="javafx.jar" value="${java.home}/lib/jfxrt.jar">
             <and>
@@ -395,12 +396,12 @@
             </and>
         </condition>
 
-        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" 
+        <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant"
                  classpath="${ant-javafx.jar}"/>
     </target>
 
     <target name="config-init" depends="config-init-warn">
-      
+
         <!-- Set slice.dir to the directory containing the Slice files. -->
         <condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
             <equals arg1="${ice.dir}" arg2="/usr"/>
@@ -441,7 +442,7 @@
         <path id="ice.classpath">
             <pathelement location="${ice.jar.file}"/>
         </path>
-        
+
         <!-- Glacier2 jar file -->
         <condition property="glacier2.jar.file" value="${dist.lib.dir}/Glacier2-${ice.version}.jar">
             <and>
@@ -459,7 +460,7 @@
 
         <path id="glacier2.classpath">
             <pathelement location="${glacier2.jar.file}"/>
-        </path>        
+        </path>
 
         <!-- Set freeze.classpath with the distribution Freeze.jar file -->
         <condition property="freeze.jar.file" value="${dist.lib.dir}/Freeze-${ice.version}.jar">
@@ -480,8 +481,8 @@
             <pathelement location="${freeze.jar.file}"/>
             <path refid="db.classpath"/>
         </path>
-        
-        
+
+
         <!-- IceBox jar file -->
         <condition property="icebox.jar.file" value="${dist.lib.dir}/IceBox-${ice.version}.jar">
             <and>
@@ -500,7 +501,7 @@
         <path id="icebox.classpath">
             <pathelement location="${icebox.jar.file}"/>
         </path>
-        
+
         <!-- IceStorm jar file -->
         <condition property="icestorm.jar.file" value="${dist.lib.dir}/IceStorm-${ice.version}.jar">
             <and>
@@ -515,11 +516,11 @@
                 <available file="${dist.lib.dir}/IceStorm.jar"/>
             </and>
         </condition>
-        
+
         <path id="icestorm.classpath">
             <pathelement location="${icestorm.jar.file}"/>
         </path>
-        
+
         <!-- IceGrid jar file -->
         <condition property="icegrid.jar.file" value="${dist.lib.dir}/IceGrid-${ice.version}.jar">
             <and>
